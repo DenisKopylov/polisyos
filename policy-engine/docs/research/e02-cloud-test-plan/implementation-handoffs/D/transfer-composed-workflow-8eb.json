@@ -1,0 +1,196 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "transfer-composed-actual-consumer-8eb",
+  "recorded_at": "2026-10-06T10:52:45.531126+00:00",
+  "closure_ids": [],
+  "finding_ids": [
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133"
+  ],
+  "bundle_ids": [
+    "TRN-01",
+    "TRN-02"
+  ],
+  "source_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "frozen_combined_sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+  "frozen_combined_tree_sha": "dccf1ce0f5c3c6107b78b60bc2a73bba30327e64",
+  "owned_implementation_commits": [
+    "ab660ec3bd39875beef395b9d4ec06b7d8152874",
+    "a650be9a35f5c06bfa70a4086b578099a9b6356e",
+    "5465dce82bc0d3daf1b4774edec2967af31719b4"
+  ],
+  "owned_workflow_test_commits": [
+    "de53bd4978b7ad35ae6c5a99d131fe5c0e5509ae",
+    "ea6296e4492caaa79ecbf7eb6cb26995056d6fe3",
+    "61b772806f57cd8bd49b6062d864c3d9eca2963f",
+    "f202bc90e07650f9b13ddcba62ca84ffd80d1550"
+  ],
+  "receiving_source_owner": "search_owner; only root composed receiving source into frozen candidate; no receiving source edits in this publisher.",
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python /dev/shm/e02-D2-transfer-composed-8eb/run_native_workflow.py",
+      "working_directory": "/dev/shm/e02-D2-transfer-composed-8eb/policy-engine",
+      "pytest_arguments": [
+        "-c",
+        "/dev/null",
+        "-p",
+        "no:cacheprovider",
+        "--confcutdir=tests/unit",
+        "-q",
+        "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+        "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "tests/unit/scientist/methods/autotune/test_warm_start.py",
+        "-ra"
+      ],
+      "outcome": "PASS",
+      "result": "48 passed, 3 warnings in 11.44s",
+      "exit_code": 0,
+      "measured_wall_seconds": 13.44476281099196,
+      "skips": 0,
+      "deselections": 0,
+      "denominator": "Three workflow cases plus complete current transfer and warm_start test files (45 additional cases).",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-complete.txt",
+        "sha256": "77648009ab87712e06901cca079907e16896652f5bffa4afd658b4f9c3a77dcc",
+        "byte_size": 5251
+      }
+    }
+  ],
+  "tracked_execution_inputs": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-tracked-inputs.json",
+    "sha256": "be2e02d471340c62861eec22fc166a679ae9edddc46c87a3178519fed0e7832c",
+    "byte_size": 716
+  },
+  "actual_module_origins_and_versions": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-origins.json",
+    "sha256": "c960cfd643c7f6ecb4103cbb2fb35461a44e8b8f04f8b108868d410590d7468b",
+    "byte_size": 2223
+  },
+  "observation_method": {
+    "description": "sys.setprofile records actual Python call events only; no mocks, substituted models/MLLs, replaced fit/acquisition/checkpoint calls or altered source. Complete observer script is retained.",
+    "executed_script": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-observer.txt",
+      "sha256": "eb2127ec42090e038a3f499e0818c6b02cb94dbe97cf954fc1159a887028253e",
+      "byte_size": 4345
+    },
+    "complete_observation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-native-calls.json",
+      "sha256": "12e50b139df661a3913d9ea311c63aa889bc41bf5be0af2b98c4a6c8669cac02",
+      "byte_size": 1456
+    },
+    "counts": [
+      {
+        "nodeid": "shm/e02-D2-transfer-composed-8eb/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_actual_public_workflow_fits_only_admitted_original_cas_observations[False]",
+        "ordinary_native_fit_gpytorch_mll": 1,
+        "ordinary_native_ExactMarginalLogLikelihood_constructor": 1,
+        "ordinary_native_SingleTaskGP_constructor": 1,
+        "restore_native_fit_gpytorch_mll": 0,
+        "restore_native_ExactMarginalLogLikelihood_constructor": 0,
+        "restore_native_SingleTaskGP_constructor": 1
+      },
+      {
+        "nodeid": "shm/e02-D2-transfer-composed-8eb/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_actual_public_workflow_fits_only_admitted_original_cas_observations[True]",
+        "ordinary_native_fit_gpytorch_mll": 1,
+        "ordinary_native_ExactMarginalLogLikelihood_constructor": 1,
+        "ordinary_native_SingleTaskGP_constructor": 1,
+        "restore_native_fit_gpytorch_mll": 0,
+        "restore_native_ExactMarginalLogLikelihood_constructor": 0,
+        "restore_native_SingleTaskGP_constructor": 1
+      },
+      {
+        "nodeid": "shm/e02-D2-transfer-composed-8eb/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_configured_origin_mismatch_remains_discovery_only_and_cannot_fit_gp",
+        "ordinary_native_fit_gpytorch_mll": 0,
+        "ordinary_native_ExactMarginalLogLikelihood_constructor": 0,
+        "ordinary_native_SingleTaskGP_constructor": 0,
+        "restore_native_fit_gpytorch_mll": 0,
+        "restore_native_ExactMarginalLogLikelihood_constructor": 0,
+        "restore_native_SingleTaskGP_constructor": 0
+      }
+    ]
+  },
+  "actual_persisted_input_capture": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-actual-inputs.json",
+    "sha256": "fc13fc3c9bfcdff025ddb8303b6fb0e9c0434fafcdd7ed1274072b88a2d198d2",
+    "byte_size": 41702
+  },
+  "source_history_bytes": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-history-healthy.txt",
+      "sha256": "5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b",
+      "byte_size": 24733
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-8eb-history-malformed.txt",
+      "sha256": "61a391e2fefe2a272d56522904ed99e6bbdef00bd9fc05a1fbb97f2ecb3db9f9",
+      "byte_size": 24736
+    }
+  ],
+  "producer_to_consumer": [
+    "Explicit analytic fixture creates candidate bytes and actual BenchmarkEvaluation with complete data/model/evaluator/split/scalarizer/owner ArtifactRefs and numeric_transfer_basis.v1; original measurement uses existing persisted producer.",
+    "Real HNSW ANN supplies discovery only. Manager resolves exact selected history, candidate, original evaluation and all role refs; content hash/type/physical-coordinate/basis reconciliation admits numeric rows.",
+    "Explicit target fingerprint configures public BayesianCandidateGenerator through WarmStartBridge.target_basis and shared admission callable. SearchLoopRunner consumes the configured generator and evaluates its persisted receiving candidate.",
+    "Healthy8 and malformed7 admitted original rows equal actual native model fitted train_X and train_y_bo. Source provenance identity is preserved; rank selects direction-normalized minima.",
+    "CAS-persisted StrategyState restores the same fitted model/corpus/posterior without native fit or new MLL. Original measurement bytes changed under the same full ref cause set_state and subsequent suggest to refuse.",
+    "Changed declared origin remains ANN discovery but admits zero numeric rows; actual next proposal is sobol_init with no native model or fit."
+  ],
+  "per_id_classification": [
+    {
+      "id": "B128",
+      "mechanism": "Canonical float history plus strict faithful DTO restore; malformed boolean refuses visibly.",
+      "oracle": "Whole transfer/warm_start files and actual malformed workflow: original8 yields7 native rows.",
+      "input": "Real conditional CAS histories and original benchmarks.",
+      "owner": "Transfer runtime; G independent acceptance."
+    },
+    {
+      "id": "B129",
+      "mechanism": "ANN discovery retains exact full selected history ref; canonical reader and same-ref hashing are shared initial/restore/fit.",
+      "oracle": "Exact-ref alias controls, checkpoint replay and same-ref mutation workflow.",
+      "input": "Pinned full original history/evaluation refs.",
+      "owner": "Transfer runtime; G independent acceptance."
+    },
+    {
+      "id": "B130",
+      "mechanism": "Ascending direction-normalized ranking and valid-source fair quota; refusals consume no numeric capacity.",
+      "oracle": "Actual native fitted order/values plus both-direction and rejected-row tests.",
+      "input": "Conditional analytic measurements; bounded discovery window.",
+      "owner": "Transfer runtime; statistical/performance claims require separate production benchmark."
+    },
+    {
+      "id": "B131",
+      "mechanism": "Explicit complete configured target basis; every full role ref and original physical input resolves and content-binds before numerical use.",
+      "oracle": "Complete basis mismatch/type/domain controls; actual origin mismatch noGP; initial/restore/effective-fit mutation refusal.",
+      "input": "Caller-declared technical profile and fixture owner/origin descriptors.",
+      "owner": "Transfer compatibility runtime plus real institutional data/execution owners; authority not established here."
+    },
+    {
+      "id": "B132",
+      "mechanism": "Reverse bridge resolves original benchmark/candidate and retains lineage/raw values as a nonpromotable historical view.",
+      "oracle": "Complete real-CAS warm_start test file; no minted scientific benchmark.",
+      "input": "Original persisted conditional BenchmarkEvaluation.",
+      "owner": "Transfer lineage runtime; actual source/evaluator validation remains separate."
+    },
+    {
+      "id": "B133",
+      "mechanism": "Full-ref+codec keyed local immutable-copy bounded LRU128entries/32MiB; cachehits still verify original CAS bytes.",
+      "oracle": "Complete cache eviction/copy/oversize/exact-alias controls and same-ref replay refusal.",
+      "input": "Real local CAS, no latest/distributed pointer.",
+      "owner": "Transfer runtime/cache; selected local profile needs no principal hold."
+    }
+  ],
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Supported conditional technical profile reaches actual native consumer and checkpoint replay. No finding closure or source authority adjudication.",
+  "proxy_divergence": "Previous marker/ref-existence-only or synthetic GP argument claims are replaced by actual persisted producer inputs, exact CAS admission and fitted model corpus/checkpoint observations.",
+  "limitations_and_next_owner": [
+    "Analytic fixture measurements and fixture.numeric.owner descriptors are controlled test inputs, not real production-history provenance, independent ownership approval or scientific source truth.",
+    "Production acceleration/solution-quality benefit is absent and unclaimed; ANN bounded overfetch is not a global optimal retrieval guarantee.",
+    "No default production composition supplying complete numerical basis was established by this conditional configured consumer proof. Real deployment owner must configure and verify its own source inputs.",
+    "B134 immutable native generation/full envelope evidence remains in separate vector receipts5253; lessons evidence/retention remains separate5e/5239 receipts. This48-test command does not relabel those suites.",
+    "No source/test changes accompany this receipt. G independent immutable review and closure decision remain pending.",
+    "Permanent scratch deletion/native Trash deviation remains separately preserved in transfer-scratch-trash-deviation.json; no subsequent deletion or cleanup occurred."
+  ]
+}

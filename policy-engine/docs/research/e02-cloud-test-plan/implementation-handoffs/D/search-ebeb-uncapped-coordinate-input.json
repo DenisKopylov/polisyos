@@ -1,0 +1,27 @@
+{
+  "source_commit": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+  "source_tree": "b0631ecb8840fc2d9482ddeb283e9c8a823ac5fc",
+  "test_commit": "83889657e13d37fe11e048c5298b2f8c64044c08",
+  "test_sha256": "0e898bae6c41af2c79af671f35dea23df1db5048b0d32995189a81991897b4c8",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py",
+    "--basetemp=/dev/shm/e02-oracle-ebeb-uncapped7-b3637b7e35f344ac8b5a6e8ca7dc0206",
+    "-o",
+    "addopts=",
+    "-q",
+    "-s",
+    "-rA"
+  ],
+  "cwd": "/dev/shm/e02-oracle-search-ebeb/archive/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "basetemp": "/dev/shm/e02-oracle-ebeb-uncapped7-b3637b7e35f344ac8b5a6e8ca7dc0206",
+  "nonexisting_before_pytest": true,
+  "no_test_thread_process_worker_cap": true,
+  "production_runtime_settings": "Existing native implementation applies its own unchanged runtime settings; no global unlimited-thread claim"
+}

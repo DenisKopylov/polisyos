@@ -1,0 +1,275 @@
+SOURCE198076863e143dea9f89f02734b13d50dae3eed5; finite synthetic±1e308; declared fixture policy_value/employment basis; real filesystem registry/catalog/VOI consumers; no institutional/source authority
+ACTUAL_SOURCE /tmp/e02-D2-pareto-base-198-g6jcko11/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py
+FF.FF.....                                                               [100%]
+=================================== FAILURES ===================================
+_ test_extreme_finite_front_roundtrip_retains_membership_without_fake_indicator _
+
+    def test_extreme_finite_front_roundtrip_retains_membership_without_fake_indicator():
+        promoter = ParetoPromoter(
+            [
+                PromotionPolicy(
+                    loop_id="fixture", primary_metric=key, direction=MetricDirection.MAXIMIZE
+                )
+                for key in ("policy_value", "employment")
+            ]
+        )
+        evaluations = [
+            BenchmarkEvaluation(
+                loop_id="fixture",
+                suite_id="fixture",
+                candidate_ref=ArtifactRef(
+                    artifact_id=f"sha256:{i:064x}", kind="fixture", media_type="application/json"
+                ),
+                holdout_metrics={"policy_value": v, "employment": v},
+            )
+            for i, v in enumerate((-1e308, 1e308), start=1)
+        ]
+>       front = promoter.compute_front(evaluations)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_opt_01_hypervolume_consumers.py:61: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.methods.autotune.pareto.ParetoPromoter object at 0x7f821ec36510>
+evaluations = [BenchmarkEvaluation(loop_id='fixture', suite_id='fixture', suite_version='1.0', candidate_ref=ArtifactRef(artifact_id...+308}, sample_counts={}, guardrails={}, promotable=False, status='ok', notes=[], runtime_split_type=None, metadata={})]
+
+    def compute_front(self, evaluations: list[BenchmarkEvaluation]) -> ParetoFront:
+        """Compute the Pareto front from a set of evaluations."""
+        if not evaluations:
+            return self._incomplete_front(
+                ParetoInputAssessment(
+                    status="no_usable_inputs",
+                    input_count=0,
+                    assessed_count=0,
+                )
+            )
+    
+        valid_evaluations: list[BenchmarkEvaluation] = []
+        objective_vectors: list[tuple[float, ...]] = []
+        unassessed: list[ParetoUnassessedEvaluation] = []
+        for input_index, evaluation in enumerate(evaluations):
+            vector, missing, non_finite = self._assess_objective_vector(evaluation)
+            if vector is None:
+                unassessed.append(
+                    ParetoUnassessedEvaluation(
+                        input_index=input_index,
+                        candidate_ref_id=str(evaluation.candidate_ref.artifact_id),
+                        missing_coordinate_ids=missing,
+                        non_finite_coordinate_ids=non_finite,
+                    )
+                )
+                continue
+            valid_evaluations.append(evaluation)
+            objective_vectors.append(vector)
+        assessment = ParetoInputAssessment(
+            status=(
+                "no_usable_inputs"
+                if not objective_vectors
+                else "partial"
+                if unassessed
+                else "complete"
+            ),
+            input_count=len(evaluations),
+            assessed_count=len(objective_vectors),
+            unassessed_evaluations=unassessed,
+        )
+        if not objective_vectors:
+            return self._incomplete_front(assessment)
+        non_dominated_indices = self._find_non_dominated(objective_vectors)
+    
+        members = [
+            ParetoMember(
+                candidate_ref_id=str(valid_evaluations[i].candidate_ref.artifact_id),
+                objectives=self._vector_to_display_objectives(objective_vectors[i]),
+                coordinate_values=self._vector_to_objectives(objective_vectors[i]),
+                evaluation=valid_evaluations[i],
+            )
+            for i in non_dominated_indices
+        ]
+    
+        coordinate_ref_point = self._reference_point(objective_vectors)
+        ref_point = self._display_reference_point(objective_vectors)
+        hv = self._compute_hypervolume(
+            [objective_vectors[i] for i in non_dominated_indices],
+            coordinate_ref_point,
+        )
+    
+>       return ParetoFront(
+            members=members,
+            hypervolume=hv,
+            reference_point=ref_point,
+            coordinate_schema=self._coordinate_schema,
+            coordinate_reference_point=coordinate_ref_point,
+            schema_version="2.0",
+            input_assessment=assessment,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for ParetoFront
+E         Value error, complete coordinate artifact has a non-finite hypervolume [type=value_error, input_value={'members': [ParetoMember...ssessed_evaluations=())}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+src/polisyos/scientist/methods/autotune/pareto.py:377: ValidationError
+___ test_registry_actual_disk_catalog_and_voi_consumers_preserve_limitation ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-188/test_registry_actual_disk_cata0')
+
+    def test_registry_actual_disk_catalog_and_voi_consumers_preserve_limitation(tmp_path):
+        registry = ParetoRegistry(tmp_path / "registry")
+        basis = ParetoBasisScope(
+            scope="declared", coordinate_ids=["policy_value", "employment"], basis_ref="fixture:axes.v1"
+        )
+        for i, value in enumerate((-1e308, 1e308), start=1):
+>           registry.update(
+                "fixture",
+                candidate_hash=f"sha256:{i:064x}",
+                evaluation=vector(str(i), value),
+                objective_basis_by_view={"global_feasible": basis},
+            )
+
+tests/unit/remediation/test_opt_01_hypervolume_consumers.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/pareto_registry.py:304: in update
+    updated = self._recompute(snapshot)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/pareto_registry.py:567: in _recompute
+    ) = self._frontier_hashes(
+src/polisyos/scientist/methods/search/pareto_registry.py:732: in _frontier_hashes
+    front = promoter.compute_front(evaluations)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.methods.autotune.pareto.ParetoPromoter object at 0x7f80a7d06e70>
+evaluations = [BenchmarkEvaluation(loop_id='policy_pareto', suite_id='policy_pareto', suite_version='1.0', candidate_ref=ArtifactRef...e+308}, sample_counts={}, guardrails={}, promotable=True, status='ok', notes=[], runtime_split_type=None, metadata={})]
+
+    def compute_front(self, evaluations: list[BenchmarkEvaluation]) -> ParetoFront:
+        """Compute the Pareto front from a set of evaluations."""
+        if not evaluations:
+            return self._incomplete_front(
+                ParetoInputAssessment(
+                    status="no_usable_inputs",
+                    input_count=0,
+                    assessed_count=0,
+                )
+            )
+    
+        valid_evaluations: list[BenchmarkEvaluation] = []
+        objective_vectors: list[tuple[float, ...]] = []
+        unassessed: list[ParetoUnassessedEvaluation] = []
+        for input_index, evaluation in enumerate(evaluations):
+            vector, missing, non_finite = self._assess_objective_vector(evaluation)
+            if vector is None:
+                unassessed.append(
+                    ParetoUnassessedEvaluation(
+                        input_index=input_index,
+                        candidate_ref_id=str(evaluation.candidate_ref.artifact_id),
+                        missing_coordinate_ids=missing,
+                        non_finite_coordinate_ids=non_finite,
+                    )
+                )
+                continue
+            valid_evaluations.append(evaluation)
+            objective_vectors.append(vector)
+        assessment = ParetoInputAssessment(
+            status=(
+                "no_usable_inputs"
+                if not objective_vectors
+                else "partial"
+                if unassessed
+                else "complete"
+            ),
+            input_count=len(evaluations),
+            assessed_count=len(objective_vectors),
+            unassessed_evaluations=unassessed,
+        )
+        if not objective_vectors:
+            return self._incomplete_front(assessment)
+        non_dominated_indices = self._find_non_dominated(objective_vectors)
+    
+        members = [
+            ParetoMember(
+                candidate_ref_id=str(valid_evaluations[i].candidate_ref.artifact_id),
+                objectives=self._vector_to_display_objectives(objective_vectors[i]),
+                coordinate_values=self._vector_to_objectives(objective_vectors[i]),
+                evaluation=valid_evaluations[i],
+            )
+            for i in non_dominated_indices
+        ]
+    
+        coordinate_ref_point = self._reference_point(objective_vectors)
+        ref_point = self._display_reference_point(objective_vectors)
+        hv = self._compute_hypervolume(
+            [objective_vectors[i] for i in non_dominated_indices],
+            coordinate_ref_point,
+        )
+    
+>       return ParetoFront(
+            members=members,
+            hypervolume=hv,
+            reference_point=ref_point,
+            coordinate_schema=self._coordinate_schema,
+            coordinate_reference_point=coordinate_ref_point,
+            schema_version="2.0",
+            input_assessment=assessment,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for ParetoFront
+E         Value error, complete coordinate artifact has a non-finite hypervolume [type=value_error, input_value={'members': [ParetoMember...ssessed_evaluations=())}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+src/polisyos/scientist/methods/autotune/pareto.py:377: ValidationError
+_______ test_actual_disk_reader_refuses_unsupported_schema_profile[3.0] ________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-188/test_actual_disk_reader_refuse0')
+version = '3.0'
+
+    @pytest.mark.parametrize("version", ["3.0", "0.0", None, True, 1.0])
+    def test_actual_disk_reader_refuses_unsupported_schema_profile(tmp_path, version):
+        path = tmp_path / "loops" / "fixture" / "pareto_registry.json"
+        path.parent.mkdir(parents=True)
+        path.write_text(
+            json.dumps(
+                {
+                    "schema_version": version,
+                    "loop_id": "fixture",
+                    "hypervolume_by_view": {"global_feasible": 0.0},
+                }
+            )
+        )
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_opt_01_hypervolume_consumers.py:139: Failed
+_______ test_actual_disk_reader_refuses_unsupported_schema_profile[0.0] ________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-188/test_actual_disk_reader_refuse1')
+version = '0.0'
+
+    @pytest.mark.parametrize("version", ["3.0", "0.0", None, True, 1.0])
+    def test_actual_disk_reader_refuses_unsupported_schema_profile(tmp_path, version):
+        path = tmp_path / "loops" / "fixture" / "pareto_registry.json"
+        path.parent.mkdir(parents=True)
+        path.write_text(
+            json.dumps(
+                {
+                    "schema_version": version,
+                    "loop_id": "fixture",
+                    "hypervolume_by_view": {"global_feasible": 0.0},
+                }
+            )
+        )
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_opt_01_hypervolume_consumers.py:139: Failed
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_opt_01_hypervolume_consumers.py::test_extreme_finite_front_roundtrip_retains_membership_without_fake_indicator
+FAILED tests/unit/remediation/test_opt_01_hypervolume_consumers.py::test_registry_actual_disk_catalog_and_voi_consumers_preserve_limitation
+FAILED tests/unit/remediation/test_opt_01_hypervolume_consumers.py::test_actual_disk_reader_refuses_unsupported_schema_profile[3.0]
+FAILED tests/unit/remediation/test_opt_01_hypervolume_consumers.py::test_actual_disk_reader_refuses_unsupported_schema_profile[0.0]
+4 failed, 6 passed, 1 warning in 0.56s

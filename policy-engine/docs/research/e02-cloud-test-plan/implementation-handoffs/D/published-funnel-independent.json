@@ -1,0 +1,1165 @@
+{
+  "schema_version": "e02.D.independent-review.v1",
+  "unit": "D",
+  "queue": 4,
+  "finding_ids": [
+    "B106",
+    "B157",
+    "B158",
+    "B159",
+    "B164",
+    "B165"
+  ],
+  "covered_finding_ids": [
+    "B106",
+    "B157",
+    "B158",
+    "B159",
+    "B164",
+    "B165"
+  ],
+  "closure_ids": [],
+  "review_result": "accepted_with_scoped_limits",
+  "specification_verdict": "bounded_executed_consumers_pass; typed_permit_positive_and_production_backend_integration_partial",
+  "engineering_quality_verdict": "no_material_blocker_in_reviewed_FUN_delta_and_two_corrective_projection_copies",
+  "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+  "tree": "04566efb021c2beeee1e160fee40ab9216a037e5",
+  "published_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "pre_fix_source_sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+  "pre_fix_tree": "dccf1ce0f5c3c6107b78b60bc2a73bba30327e64",
+  "corrective_source_sha": "a23da7a9d17a13738804b535491798e63af43e3c",
+  "corrective_tree": "caf2d7a0a6317e54faa140be3cf54c5be3fc310c",
+  "funnel_initial_production_source_sha": "9e1897e864d12bf9808aaadc754c773a794bd32b",
+  "funnel_initial_test_source_sha": "653ba2ac07b9bb67310175f428c9433c22d427ae",
+  "independent_proof_source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+  "independent_proof_tree": "bc19773640b112573e07d5def7521419d2242b6d",
+  "deciding_payload_source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+  "branch": "codex/e02-D-published-stress",
+  "pull_request": null,
+  "created_utc": "2026-10-06T11:09:47.195267+00:00",
+  "independence": {
+    "FUN_production_author": "funnel_owner; review proofs and executed replays by baseline_census",
+    "Q5_producer": "authored by this reviewer in prior queue5 slice; used as actual defining producer dependency, not a second independent approval of Q5 source",
+    "fixtures": "owner actual native configured integration fixture reused; independent paid projection oracles compare actual public outputs with newly reopened persisted ledger; transport supplies provider reports",
+    "author_checks": "owner reported603/37/9 and paid-sentinel outcomes are navigation, not counted as independent runs"
+  },
+  "criterion": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "source_role": "tracked_canonical_owner_decision",
+    "sha256": "622284b984ec12fcba96084cfad13e346112a0539ae081da683e1b663c5b4b6d",
+    "bytes": 110393,
+    "git_blob": "7bfd391e1cccc2632428b26a3b299731e6434624"
+  },
+  "task_anchors": [
+    {
+      "task_anchor": "FUN-01",
+      "lines": [
+        153,
+        175
+      ],
+      "byte_range": [
+        34687,
+        37943
+      ]
+    },
+    {
+      "task_anchor": "FUN-02",
+      "lines": [
+        177,
+        199
+      ],
+      "byte_range": [
+        37944,
+        39816
+      ]
+    },
+    {
+      "task_anchor": "FUN-03",
+      "lines": [
+        201,
+        223
+      ],
+      "byte_range": [
+        39817,
+        43307
+      ]
+    },
+    {
+      "task_anchor": "STR-01",
+      "lines": [
+        394,
+        416
+      ],
+      "byte_range": [
+        61945,
+        64622
+      ]
+    }
+  ],
+  "baseline_cells": [],
+  "baseline_scope": "historical source-reported cells are navigation only and not inputs to this runtime verdict; original raw archive/backend not re-established by these configured fixture controls; no inherited-red waiver",
+  "reviewed_production_refs": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "source_role": "actual_reviewed_FUN_mechanism_or_native_dependency",
+      "sha256": "f2e4ae18185eda455a714719f6596419143cc70587af7dee3ba4ca9f728550b4",
+      "bytes": 26569,
+      "git_blob": "5528ee828e8ca19ac5ba5a63e3183454a8020341"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "source_role": "actual_reviewed_FUN_mechanism_or_native_dependency",
+      "sha256": "31d00ab5bd721d4f3d63e7581df74a49bc87e91f548ed7bb61d4c9770d730c19",
+      "bytes": 13409,
+      "git_blob": "5154ebfe71891ca5a3046a05e0b03cb79a755a4a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "source_role": "actual_reviewed_FUN_mechanism_or_native_dependency",
+      "sha256": "693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff",
+      "bytes": 53528,
+      "git_blob": "05fee06efff94d756bea1c163d698d38e24fb03d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+      "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "source_role": "actual_reviewed_FUN_mechanism_or_native_dependency",
+      "sha256": "dff3e6495ede466707321110a1bfa42c8c757a2ff517513e670d64fbce599d0a",
+      "bytes": 7975,
+      "git_blob": "fc6e2f41b0640f7cc2ffb7045149dfb2d42f81f2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "source_role": "actual_reviewed_FUN_mechanism_or_native_dependency",
+      "sha256": "9f3507ce7a8c0bd75379d57814b1b17396cc160969ab699e0417db60512f36e2",
+      "bytes": 16187,
+      "git_blob": "705613d4d58e92137086b5907fab7b2b75310e8f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+      "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "source_role": "actual_reviewed_FUN_mechanism_or_native_dependency",
+      "sha256": "23e45a47a1e01fa19bd89a528388d76706b6ec59624d58cdb9900b6083f9365c",
+      "bytes": 16493,
+      "git_blob": "8f0af9ccc19345f726ef8f39025c4ad44bd0fedb"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "source_role": "actual_reviewed_FUN_mechanism_or_native_dependency",
+      "sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b",
+      "bytes": 21033,
+      "git_blob": "918e2a7a8f4fa6f833f34836e81ab894ea259c07"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "source_role": "actual_reviewed_FUN_mechanism_or_native_dependency",
+      "sha256": "2249df49d8fe86c96a9d1bcec8336c7f62294573a70160ff4513ea9360ff3773",
+      "bytes": 27862,
+      "git_blob": "14235963d9cf58232d762b8cf6d4317a14a26ee7"
+    }
+  ],
+  "defining_producer_dependency": {
+    "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+    "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+    "source_role": "actual_Q5_producer_dependency_not_independent_source_approval",
+    "sha256": "6766a3bdf3575885e7d304d3b0064a56bc37de2268af747b743f9cfbbdc98b4b",
+    "bytes": 37080,
+    "git_blob": "3dfd20ca0124186989b843afad9fc518b9c81af0"
+  },
+  "producer_byte_equality": {
+    "source_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+    "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+    "same_as_reviewed_source": true,
+    "basis": "direct equality of complete Git blob bytes"
+  },
+  "corrective_orchestrator_byte_equality": {
+    "source_sha": "a23da7a9d17a13738804b535491798e63af43e3c",
+    "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+    "same_as_reviewed_source": true,
+    "basis": "direct equality of complete Git blob bytes"
+  },
+  "independent_proof_refs": [
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py",
+      "source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+      "source_role": "independent_executed_proof",
+      "sha256": "e51b9918ca85495d99e1a0a705267cdeafcb73ac265f24268556ceeaf2fdcf60",
+      "bytes": 2913,
+      "git_blob": "a1d5ff3323da5ae49108d3eef9b7247c70ba3f4f"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py",
+      "source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+      "source_role": "independent_executed_proof",
+      "sha256": "c56913e241cdff4023774aad03039d33f69e5c35604342b4781dd172020f2fc2",
+      "bytes": 1736,
+      "git_blob": "3408fdeaa91d02421f7671c295a7747e41b4497a"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/fun_independent_removal_controls.py",
+      "source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+      "source_role": "independent_executed_proof",
+      "sha256": "6c86e687dde61facb6cfd6a57146fa9d8352cb5d1ca5a5f80f652839d899fe89",
+      "bytes": 1826,
+      "git_blob": "e382a5c961f0937284532181daba88af64f8a698"
+    }
+  ],
+  "consumer_input_refs": [
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "source_role": "actual_configured_fixture_or_consumer_test",
+      "sha256": "6c1dd5799fc792851ca614d5f49a821dc291f2ab52b9e185329109639a2b29f2",
+      "bytes": 26876,
+      "git_blob": "faf42563f125eb535716e3c09317794df60ab118"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+      "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "source_role": "actual_configured_fixture_or_consumer_test",
+      "sha256": "a3c75cc27764e1502d98c9f90fbc626649971d088884f49111f52d4691c50a06",
+      "bytes": 4430,
+      "git_blob": "296415d0978a60cd11c1f43a294f7af71687f1be"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_level6_promotion.py",
+      "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "source_role": "actual_configured_fixture_or_consumer_test",
+      "sha256": "3c8eae482bae140471b79f6c021601f379718e904c00f1feb47bb125e0fc773f",
+      "bytes": 2541,
+      "git_blob": "a5d97c881ffb1f56d770f0d77b0f39729f1c089e"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+      "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "source_role": "actual_configured_fixture_or_consumer_test",
+      "sha256": "cf78bd437629e1df2b1baa868fb415b686d33fbb1e0201630ff7027f5772ff70",
+      "bytes": 18518,
+      "git_blob": "6de473a2400c159eb056c35b4119cf102b68708c"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/producer_bridge_probe.py",
+      "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "source_role": "actual_configured_fixture_or_consumer_test",
+      "sha256": "49d49c6fce0443a4c8ff84b90406cde16d329b36d21ebc8dd7ee92f260f143f0",
+      "bytes": 4809,
+      "git_blob": "09018cabdcbe05c3d61e96c30a71efe88e1794c1"
+    }
+  ],
+  "proof_execution_role": "same exact proof bytes copied as additional uncommitted inputs to immutable production exports during execution; unchanged bytes subsequently committed at independent_proof_source_sha; no assertion of membership in producer source trees",
+  "backend": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "dependency_environment": "existing locked environment used read-only",
+    "packages": {
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "scipy": "1.16.3",
+      "tiktoken": "0.12.0",
+      "torch": "2.10.0"
+    },
+    "env": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "src:.",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+    },
+    "actual_origins_and_source_hashes": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/environment-fac5.txt",
+      "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+      "source_role": "complete_actual_environment_and_import_origins",
+      "sha256": "29b17477683fedb72f2eaaa2e0795dc5ebd2a1be3d94683a6d95f40cef525a41",
+      "bytes": 1836,
+      "git_blob": "158a35de91aef5f1ff9803897859113fbd692958"
+    },
+    "tokenizer": {
+      "role": "external native runtime dependency; official mirror input, not tokenizer replacement",
+      "path": "/workspace/e02-D2-receipts/tokenizer/9b5ad71b2ce5302211f9c61530b329a4922fc6a4",
+      "sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+      "bytes": 1681126,
+      "cache_receipt_path": "/workspace/e02-D2-receipts/tokenizer/verified-cache-receipt.json",
+      "cache_receipt_sha256": "6cf326dd3de6d9f6173158019f0e088ad6cb42dfd2e5d41fffd68e27c172f51e",
+      "receipt_availability": "external current scratch; raw asset not duplicated in Git",
+      "installed_expected_hash": "independently checked by root cache receipt and actual successful native tiktoken use; not a billing authority claim"
+    },
+    "complete_environment_build_provenance": "not_established"
+  },
+  "checks": [
+    {
+      "name": "cost-projection-8eb-uncached-tokenizer",
+      "target_sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+      "command": null,
+      "argv_identity": "not_established: initial direct pytest invocation did not capture an argv receipt",
+      "outcome": "ERROR",
+      "process_outcome": "pytest reported one failure",
+      "wall_seconds": null,
+      "max_rss_kib": null,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/cost-projection-8eb-red.txt",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "complete_backend_preparation_error",
+        "sha256": "fffb1a212003d696861cdc13116c7e7a44d687fbe7c1337924de5d5922028c41",
+        "bytes": 3789,
+        "git_blob": "9bce3ed5f4192c83c93b19d30b14364e86f7e580"
+      },
+      "result_scope": "native tiktoken asset download received HTTP403 before paid worker transport; subsequent run KeyError has no charge observation; does not decide the cost projection property",
+      "input_closure": "exact initial source-8eb manifest and cost proof bytes; explicit TIKTOKEN_CACHE_DIR had not yet been supplied"
+    },
+    {
+      "name": "cost-projection-8eb-cached-red",
+      "target_sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+        "-q",
+        "-s",
+        "tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "result_scope": "actual paid reject projection loses provider fields before correction",
+      "wall_seconds": 17.259379044000525,
+      "max_rss_kib": 1273272,
+      "rss_scope": "cumulative high-water of completed children in this capture process",
+      "basetemp": null,
+      "basetemp_scope": "default pytest framework retention for pytest; standalone probe for other invocations",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/cost-projection-8eb-cached-red.txt",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "complete_deciding_output",
+        "sha256": "6637bff7a9108c5e5da62d40ff4176fe1ec8ae9e92c17fba3b7590d5b4be8812",
+        "bytes": 4214,
+        "git_blob": "f91ba25130dbb6ef9055bdef8847182859a64f20"
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/cost-projection-8eb-cached-red.json",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "actual_command_measurement",
+        "sha256": "22a03186e1b4d82dddabb43227dc8d14b1d5fdfa55ad2b46351a1875e9b22e8c",
+        "bytes": 851,
+        "git_blob": "b8b9d16dc1ad0f5e66e23e90d3c7ba6fe059ea03"
+      },
+      "input_closure": {
+        "immutable_export": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-8eb.json",
+          "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+          "source_role": "selected_git_input_manifest",
+          "sha256": "fa41f059800b684e54622ad96c10650d169283bc0908b031a186ad27eaf5ef3f",
+          "bytes": 1500,
+          "git_blob": "f61d87ca6d7096ae885e8e53ad9a5fc17541d10c"
+        },
+        "proof_source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+        "source_selection": "complete src and architecture trees plus exact fixture/config pathspecs in manifest; no production overlay; three proof inputs separately declared",
+        "installed_dependency_boundary": "actual selected versions/module origins captured on final backend; complete environment build provenance not_established"
+      }
+    },
+    {
+      "name": "compatibility-projection-8eb-red",
+      "target_sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+        "-q",
+        "-s",
+        "tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "result_scope": "actual public evaluate projection loses provider fields before correction",
+      "wall_seconds": 17.40549509000266,
+      "max_rss_kib": 1272396,
+      "rss_scope": "cumulative high-water of completed children in this capture process",
+      "basetemp": null,
+      "basetemp_scope": "default pytest framework retention for pytest; standalone probe for other invocations",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/compatibility-projection-8eb-red.txt",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "complete_deciding_output",
+        "sha256": "c09948e7d07f5e886eca7302724692eb478fb6bbcbd4c18b818abf5c3b50e6cd",
+        "bytes": 3214,
+        "git_blob": "fcc7b7abc531ad8e33a2ed6bd01d247f44cc4290"
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/compatibility-projection-8eb-red.json",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "actual_command_measurement",
+        "sha256": "9f32962ad7f6f4b3211893fa9994f33e4248a9439df61d895d2852d0c49e566e",
+        "bytes": 853,
+        "git_blob": "fe7a155cb9fc26ef4b91ff947a367e37dc42eb5e"
+      },
+      "input_closure": {
+        "immutable_export": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-8eb.json",
+          "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+          "source_role": "selected_git_input_manifest",
+          "sha256": "fa41f059800b684e54622ad96c10650d169283bc0908b031a186ad27eaf5ef3f",
+          "bytes": 1500,
+          "git_blob": "f61d87ca6d7096ae885e8e53ad9a5fc17541d10c"
+        },
+        "proof_source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+        "source_selection": "complete src and architecture trees plus exact fixture/config pathspecs in manifest; no production overlay; three proof inputs separately declared",
+        "installed_dependency_boundary": "actual selected versions/module origins captured on final backend; complete environment build provenance not_established"
+      }
+    },
+    {
+      "name": "producer-four-8eb",
+      "target_sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "tests/unit/scientist/methods/search/funnel/fun_independent_removal_controls.py",
+        "positive"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "result_scope": "four actual defining producer/CAS/L5/Funnel cases",
+      "wall_seconds": 10.91223152501334,
+      "max_rss_kib": 1150428,
+      "rss_scope": "cumulative high-water of completed children in this capture process",
+      "basetemp": null,
+      "basetemp_scope": "default pytest framework retention for pytest; standalone probe for other invocations",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/producer-four-8eb.txt",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "complete_deciding_output",
+        "sha256": "bf60fafaada1f8627c5ebba26d95c40c8e8b11d8352d29b03abf3e5cf5286051",
+        "bytes": 1971,
+        "git_blob": "1f3d8b4fc7455be944a6edb2f5da8dcbf196ad14"
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/producer-four-8eb.json",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "actual_command_measurement",
+        "sha256": "0def3144e22881c9ef2c20761cc3bee259ae0dda3a37cba96a552c9135a0cb1b",
+        "bytes": 701,
+        "git_blob": "8f98a2a3ec5f59e9aa50fa5c1cff9b70bfe870ed"
+      },
+      "input_closure": {
+        "immutable_export": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-8eb.json",
+          "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+          "source_role": "selected_git_input_manifest",
+          "sha256": "fa41f059800b684e54622ad96c10650d169283bc0908b031a186ad27eaf5ef3f",
+          "bytes": 1500,
+          "git_blob": "f61d87ca6d7096ae885e8e53ad9a5fc17541d10c"
+        },
+        "proof_source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+        "source_selection": "complete src and architecture trees plus exact fixture/config pathspecs in manifest; no production overlay; three proof inputs separately declared",
+        "installed_dependency_boundary": "actual selected versions/module origins captured on final backend; complete environment build provenance not_established"
+      }
+    },
+    {
+      "name": "population-boundary-removal-8eb",
+      "target_sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "tests/unit/scientist/methods/search/funnel/fun_independent_removal_controls.py",
+        "remove_population_boundary"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "result_scope": "expected real consumer AssertionError after effective model-uncertainty boundary removal",
+      "wall_seconds": 10.942686166992644,
+      "max_rss_kib": 1149608,
+      "rss_scope": "cumulative high-water of completed children in this capture process",
+      "basetemp": null,
+      "basetemp_scope": "default pytest framework retention for pytest; standalone probe for other invocations",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/population-boundary-removal-8eb.txt",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "complete_deciding_output",
+        "sha256": "174317df2169b8a9bff6ab38f6224f5df25c191d5dff40aaa1a30a6ccfc88b47",
+        "bytes": 1166,
+        "git_blob": "1faf067dc7ba4bfc8b50a6bef4ae8994a04cff33"
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/population-boundary-removal-8eb.json",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "actual_command_measurement",
+        "sha256": "8f65b86f298336814aa4aaaa66db9d7c8cfb2d84794f4b77fe12771ec6479802",
+        "bytes": 720,
+        "git_blob": "b8fc0832952a17f9041947cd6e46ba478467f2f2"
+      },
+      "input_closure": {
+        "immutable_export": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-8eb.json",
+          "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+          "source_role": "selected_git_input_manifest",
+          "sha256": "fa41f059800b684e54622ad96c10650d169283bc0908b031a186ad27eaf5ef3f",
+          "bytes": 1500,
+          "git_blob": "f61d87ca6d7096ae885e8e53ad9a5fc17541d10c"
+        },
+        "proof_source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+        "source_selection": "complete src and architecture trees plus exact fixture/config pathspecs in manifest; no production overlay; three proof inputs separately declared",
+        "installed_dependency_boundary": "actual selected versions/module origins captured on final backend; complete environment build provenance not_established"
+      }
+    },
+    {
+      "name": "funnel-consumer-wave-8eb",
+      "target_sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+        "-q",
+        "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+        "tests/unit/scientist/methods/search/funnel/test_level6_promotion.py",
+        "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "result_scope": "53 tests in all four selected consumer files; two PyTorch Python3.14 warnings",
+      "wall_seconds": 17.53812359100266,
+      "max_rss_kib": 1308820,
+      "rss_scope": "cumulative high-water of completed children in this capture process",
+      "basetemp": null,
+      "basetemp_scope": "default pytest framework retention for pytest; standalone probe for other invocations",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/funnel-consumer-wave-8eb.txt",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "complete_deciding_output",
+        "sha256": "89b3a323ec32a82d6b857783a946b6890cb289409ea54966274439fcf88b68f2",
+        "bytes": 698,
+        "git_blob": "04a8067d3f05b3c81f79719b0e2be146da3d7e2b"
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/funnel-consumer-wave-8eb.json",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "actual_command_measurement",
+        "sha256": "c2eb646184578b47cb820b27dcbbc0d03644f0b6d1d3382607fb61db4763762c",
+        "bytes": 1053,
+        "git_blob": "57d59530ee74dd1132a2247a676dd493220a604d"
+      },
+      "input_closure": {
+        "immutable_export": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-8eb.json",
+          "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+          "source_role": "selected_git_input_manifest",
+          "sha256": "fa41f059800b684e54622ad96c10650d169283bc0908b031a186ad27eaf5ef3f",
+          "bytes": 1500,
+          "git_blob": "f61d87ca6d7096ae885e8e53ad9a5fc17541d10c"
+        },
+        "proof_source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+        "source_selection": "complete src and architecture trees plus exact fixture/config pathspecs in manifest; no production overlay; three proof inputs separately declared",
+        "installed_dependency_boundary": "actual selected versions/module origins captured on final backend; complete environment build provenance not_established"
+      }
+    },
+    {
+      "name": "paid-projection-pair-a23-green",
+      "target_sha": "a23da7a9d17a13738804b535491798e63af43e3c",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "--basetemp=/dev/shm/e02-D-fun-paid-a23-temp-20261006-1059",
+        "-o",
+        "addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+        "-q",
+        "-s",
+        "tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py",
+        "tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "result_scope": "two unchanged paid native probes; correction owner source without Q5 producer overlay",
+      "wall_seconds": 17.364614400008577,
+      "max_rss_kib": 1274284,
+      "rss_scope": "cumulative high-water of completed children in this capture process",
+      "basetemp": null,
+      "basetemp_scope": "default pytest framework retention for pytest; standalone probe for other invocations",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/paid-projection-pair-a23-green.txt",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "complete_deciding_output",
+        "sha256": "e4702176a5c5e3d041f5f59daf9b641731fe274f546b1b5b7a66073cb0358b85",
+        "bytes": 1516,
+        "git_blob": "203d6f6442404cd84504b1a5fc6a348952476349"
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/paid-projection-pair-a23-green.json",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "actual_command_measurement",
+        "sha256": "c598e4b413df5f9f99594e9f6bfbc74fed629da0c47a49738b21c46685b58f06",
+        "bytes": 1009,
+        "git_blob": "4ddfc8dbcf9572663fdb6097c42767d4523e568c"
+      },
+      "input_closure": {
+        "immutable_export": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-a23.json",
+          "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+          "source_role": "selected_git_input_manifest",
+          "sha256": "42f95bcb90739ef8833f1ae25fe3b2a18b45c4bb4892f4f1b0bf9291d13725c2",
+          "bytes": 2055,
+          "git_blob": "c7bd6725c05a625c8673fd92abf403de7c843352"
+        },
+        "proof_source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+        "source_selection": "complete src and architecture trees plus exact fixture/config pathspecs in manifest; no production overlay; three proof inputs separately declared",
+        "installed_dependency_boundary": "actual selected versions/module origins captured on final backend; complete environment build provenance not_established"
+      }
+    },
+    {
+      "name": "paid-projection-pair-fac5-green",
+      "target_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "--basetemp=/dev/shm/e02-D-fun-paid-fac5-temp-20261006-1103",
+        "-o",
+        "addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+        "-q",
+        "-s",
+        "tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py",
+        "tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "result_scope": "two unchanged paid native probes on actual combined root source",
+      "wall_seconds": 17.284549011004856,
+      "max_rss_kib": 1274764,
+      "rss_scope": "cumulative high-water of completed children in this capture process",
+      "basetemp": "/dev/shm/e02-D-fun-paid-fac5-temp-20261006-1103",
+      "basetemp_scope": "fresh nonexistent verified before execution",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/paid-projection-pair-fac5-green.txt",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "complete_deciding_output",
+        "sha256": "189e7e962164dd63f4f562b220e3ccbe7258e73a65c4575abe20f0ce50e93ee1",
+        "bytes": 1516,
+        "git_blob": "d24c201c45f2cbce0ef929346dd123fb443835fc"
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/paid-projection-pair-fac5-green.json",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "actual_command_measurement",
+        "sha256": "dc997c4c70922e9d2a2d6867f8212b733d45c38e893d240d25c9435a7b0e79a1",
+        "bytes": 1142,
+        "git_blob": "82b929fa1017506cd3ed202e9700ca266ab99d05"
+      },
+      "input_closure": {
+        "immutable_export": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-fac5.json",
+          "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+          "source_role": "selected_git_input_manifest",
+          "sha256": "f2f92cfdfa6e5125a49545e6860b6cda29975a43456e2472a647eaa769e4a464",
+          "bytes": 2104,
+          "git_blob": "fbda41ebe82e69409ede7242ef841f8dd99617c8"
+        },
+        "proof_source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+        "source_selection": "complete src and architecture trees plus exact fixture/config pathspecs in manifest; no production overlay; three proof inputs separately declared",
+        "installed_dependency_boundary": "actual selected versions/module origins captured on final backend; complete environment build provenance not_established"
+      }
+    },
+    {
+      "name": "producer-four-fac5",
+      "target_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "tests/unit/scientist/methods/search/funnel/fun_independent_removal_controls.py",
+        "positive"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "result_scope": "four actual Q5 defining producer/CAS-reopen/L5/Funnel cases on combined root",
+      "wall_seconds": 11.366296483000042,
+      "max_rss_kib": 1151452,
+      "rss_scope": "cumulative high-water of completed children in this capture process",
+      "basetemp": null,
+      "basetemp_scope": "not a pytest invocation",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/producer-four-fac5.txt",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "complete_deciding_output",
+        "sha256": "a4df70b071f5b06baef2401baa96bde2029842bbf75ade29725b940725bcaec0",
+        "bytes": 1971,
+        "git_blob": "c6d0bc0fbc2055d680996422e4d9d91a51b713f8"
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/producer-four-fac5.json",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "actual_command_measurement",
+        "sha256": "03f97e8102bd87900db466e46c7ea078f1b8842718ce94431bf5eb99d81a4ffe",
+        "bytes": 769,
+        "git_blob": "5c6307f96311ef02a5d0b9e06354b8f2471a0ab6"
+      },
+      "input_closure": {
+        "immutable_export": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-fac5.json",
+          "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+          "source_role": "selected_git_input_manifest",
+          "sha256": "f2f92cfdfa6e5125a49545e6860b6cda29975a43456e2472a647eaa769e4a464",
+          "bytes": 2104,
+          "git_blob": "fbda41ebe82e69409ede7242ef841f8dd99617c8"
+        },
+        "proof_source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+        "source_selection": "complete src and architecture trees plus exact fixture/config pathspecs in manifest; no production overlay; three proof inputs separately declared",
+        "installed_dependency_boundary": "actual selected versions/module origins captured on final backend; complete environment build provenance not_established"
+      }
+    },
+    {
+      "name": "population-boundary-removal-fac5",
+      "target_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "tests/unit/scientist/methods/search/funnel/fun_independent_removal_controls.py",
+        "remove_population_boundary"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "result_scope": "expected real consumer AssertionError after effective model-uncertainty boundary removal on same source",
+      "wall_seconds": 11.124642708993633,
+      "max_rss_kib": 1151296,
+      "rss_scope": "cumulative high-water of completed children in this capture process",
+      "basetemp": null,
+      "basetemp_scope": "not a pytest invocation",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/population-boundary-removal-fac5.txt",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "complete_deciding_output",
+        "sha256": "3507101aa6557f03a3cb8a82b75fafca33f065b1ee5efbc0543f2571ce25b5c9",
+        "bytes": 1166,
+        "git_blob": "bafc4b16daa985b65c209ccf150156320212d40a"
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/population-boundary-removal-fac5.json",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "actual_command_measurement",
+        "sha256": "4f8c4147b52b141cc1a7391cc7d7442a30dfc66ac127dce58a6d3f0f250870c4",
+        "bytes": 787,
+        "git_blob": "3f1f99e710a073609282b17b8634c0058bc29e40"
+      },
+      "input_closure": {
+        "immutable_export": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-fac5.json",
+          "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+          "source_role": "selected_git_input_manifest",
+          "sha256": "f2f92cfdfa6e5125a49545e6860b6cda29975a43456e2472a647eaa769e4a464",
+          "bytes": 2104,
+          "git_blob": "fbda41ebe82e69409ede7242ef841f8dd99617c8"
+        },
+        "proof_source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+        "source_selection": "complete src and architecture trees plus exact fixture/config pathspecs in manifest; no production overlay; three proof inputs separately declared",
+        "installed_dependency_boundary": "actual selected versions/module origins captured on final backend; complete environment build provenance not_established"
+      }
+    },
+    {
+      "name": "funnel-consumer-wave-fac5",
+      "target_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "--basetemp=/dev/shm/e02-D-fun-consumer-fac5-temp-20261006-1106",
+        "-o",
+        "addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+        "-q",
+        "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+        "tests/unit/scientist/methods/search/funnel/test_level6_promotion.py",
+        "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "result_scope": "57 tests in all four selected consumer files; two PyTorch Python3.14 warnings",
+      "wall_seconds": 17.955428542001755,
+      "max_rss_kib": 1308356,
+      "rss_scope": "cumulative high-water of completed children in this capture process",
+      "basetemp": "/dev/shm/e02-D-fun-consumer-fac5-temp-20261006-1106",
+      "basetemp_scope": "fresh nonexistent verified before execution",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/funnel-consumer-wave-fac5.txt",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "complete_deciding_output",
+        "sha256": "0ff1c20c246b774d88d999c78518e5e1a1fd5813c261f8a300d9d3ebe975d2f5",
+        "bytes": 698,
+        "git_blob": "3fda0b81939eca33b6fbbaff22812e8d6af7d325"
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/funnel-consumer-wave-fac5.json",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "actual_command_measurement",
+        "sha256": "6a02e6efb6e9d9c8c081643bfa897bfe3c7ba7ab96c8402ab8dd3eaf4bd30c9b",
+        "bytes": 1260,
+        "git_blob": "12b07cca4c736cf74ee6e416183895d6dce2716d"
+      },
+      "input_closure": {
+        "immutable_export": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-fac5.json",
+          "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+          "source_role": "selected_git_input_manifest",
+          "sha256": "f2f92cfdfa6e5125a49545e6860b6cda29975a43456e2472a647eaa769e4a464",
+          "bytes": 2104,
+          "git_blob": "fbda41ebe82e69409ede7242ef841f8dd99617c8"
+        },
+        "proof_source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+        "source_selection": "complete src and architecture trees plus exact fixture/config pathspecs in manifest; no production overlay; three proof inputs separately declared",
+        "installed_dependency_boundary": "actual selected versions/module origins captured on final backend; complete environment build provenance not_established"
+      }
+    },
+    {
+      "name": "environment-fac5",
+      "target_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-c",
+        "import json,sys,importlib.metadata,hashlib; from pathlib import Path; from polisyos.scientist.methods.search import adversarial; from polisyos.scientist.methods.search.funnel import orchestrator,level5_refutation_governance,level6_promotion; from polisyos.scientist.orchestration.llm import budget_enforcer; modules=[adversarial,orchestrator,level5_refutation_governance,level6_promotion,budget_enforcer]; print(json.dumps({\"python\":sys.version,\"executable\":sys.executable,\"origins\":{m.__name__:m.__file__ for m in modules},\"source_hashes\":{m.__name__:hashlib.sha256(Path(m.__file__).read_bytes()).hexdigest() for m in modules},\"packages\":{name:importlib.metadata.version(name) for name in [\"numpy\",\"scipy\",\"pydantic\",\"tiktoken\",\"pytest\",\"torch\"]}},sort_keys=True))"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "PASS",
+      "exit_code": 0,
+      "result_scope": "actual interpreter/packages/module origins and source byte hashes",
+      "wall_seconds": 11.310724904004019,
+      "max_rss_kib": 1150976,
+      "rss_scope": "cumulative high-water of completed children in this capture process",
+      "basetemp": null,
+      "basetemp_scope": "not a pytest invocation",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/environment-fac5.txt",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "complete_deciding_output",
+        "sha256": "29b17477683fedb72f2eaaa2e0795dc5ebd2a1be3d94683a6d95f40cef525a41",
+        "bytes": 1836,
+        "git_blob": "158a35de91aef5f1ff9803897859113fbd692958"
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/environment-fac5.json",
+        "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+        "source_role": "actual_command_measurement",
+        "sha256": "1032cb63156a657e67bc98f02fec9fc48d6888063ede1cd9b26d45b67eb658e7",
+        "bytes": 1472,
+        "git_blob": "d4f757c4b324a7a093196bd79bc75bf122d14802"
+      },
+      "input_closure": {
+        "immutable_export": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-fac5.json",
+          "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+          "source_role": "selected_git_input_manifest",
+          "sha256": "f2f92cfdfa6e5125a49545e6860b6cda29975a43456e2472a647eaa769e4a464",
+          "bytes": 2104,
+          "git_blob": "fbda41ebe82e69409ede7242ef841f8dd99617c8"
+        },
+        "proof_source_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+        "source_selection": "complete src and architecture trees plus exact fixture/config pathspecs in manifest; no production overlay; three proof inputs separately declared",
+        "installed_dependency_boundary": "actual selected versions/module origins captured on final backend; complete environment build provenance not_established"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Real configured FUN consumers preserve settled provider cost provenance through routing and compatibility projections, never infer model confidence from conditional observed stress fractions, and fail closed for generic effectful promotion callbacks while no typed writer admission port exists.",
+    "runtime_path": [
+      "Q5 ScenarioStressTester -> persisted StressTestReport -> fresh FileSystemCAS read -> Level5RefutationGovernanceStage -> FunnelOrchestrator stage and aggregate envelope",
+      "ScenarioAdversaryWorker/PolicyTranslatorWorker -> LLMBudgetEnforcer -> FileBudgetLedger -> native L3/L4 -> trace/stage/outcome/public evaluate projection",
+      "Level6PromotionStage generic retained bool or callback input -> bridge_missing/defer_human -> zero callback side effects"
+    ],
+    "proxy_divergence": [
+      "8eb existing53 consumer tests were green while a real paid routing reject and actual public evaluate reset provider fields; unchanged independent native paid probes fail both copies.",
+      "A partial sample with one finite successful outcome and one unknown has observed fraction1 but establishes no model confidence; changing only effective model level to its complement leaves markers intact and the real consumer assertion fails.",
+      "A retained generic bool True does not establish a typed promotion-purpose permit or serialized revocation contract; callback is never invoked."
+    ],
+    "negative_controls": [
+      "Retain complete8eb native paid reject and public evaluate failures; replay identical proof bytes on correctivea23 and combinedfac5 for two PASS.",
+      "On both8eb andfac5 remove only the effective L5 population/model boundary in memory, keep actual producer/CAS/counters/assessment/scope/method markers, execute real partial consumer; required AssertionError.",
+      "Existing actual native integration consumer controls remove provider settlement, reduced bootstrap configuration and no-cheap-signal capacity guard; resulting assertion failures are expected and caught by the tests.",
+      "Existing generic bool/preflight marker and legacy marker revocation controls assert zero effects; these are not typed issuer/revoke-serialized writer admission tests."
+    ]
+  },
+  "observed_stress_cases": [
+    {
+      "case": "complete",
+      "attempted": 2,
+      "finite_evaluated": 2,
+      "violated": 0,
+      "unknown": 0,
+      "planned": 2,
+      "observed_fraction": 1.0,
+      "completeness_status": "complete",
+      "model_uncertainty": 1,
+      "population_probability": "not_established"
+    },
+    {
+      "case": "partial",
+      "attempted": 2,
+      "finite_evaluated": 1,
+      "violated": 0,
+      "unknown": 1,
+      "planned": 2,
+      "observed_fraction": 1.0,
+      "completeness_status": "partial",
+      "model_uncertainty": 1,
+      "population_probability": "not_established"
+    },
+    {
+      "case": "no_finite",
+      "attempted": 2,
+      "finite_evaluated": 0,
+      "violated": 0,
+      "unknown": 2,
+      "planned": 2,
+      "observed_fraction": null,
+      "completeness_status": "partial",
+      "model_uncertainty": 1,
+      "population_probability": "not_established"
+    },
+    {
+      "case": "early_stop",
+      "attempted": 1,
+      "finite_evaluated": 1,
+      "violated": 1,
+      "unknown": 0,
+      "planned": 2,
+      "observed_fraction": 0.0,
+      "completeness_status": "partial",
+      "model_uncertainty": 1,
+      "population_probability": "not_established"
+    }
+  ],
+  "resolved_findings": [
+    {
+      "class": "lossy copies of actual FunnelStageResult provider fields",
+      "severity": "medium",
+      "confidence": "high; two independent actual native replays red8eb and unchanged greena23/fac5",
+      "locations": [
+        "FunnelOrchestrator.advance routing rejected_result copy",
+        "FunnelOrchestrator._compatibility_result public evaluate copy"
+      ],
+      "prior_effect": "ledger and trace retain provider-reported1 while downstream copied outputs reset to estimated/None/empty events",
+      "remediation": "both existing copies use dataclasses.replace; full result field set retained by construction with original explicit verdict/list overrides",
+      "source_sha": "a23da7a9d17a13738804b535491798e63af43e3c",
+      "disposition": "resolved_in_reviewed_current_source; no repository-wide closure"
+    }
+  ],
+  "predicate_basis": "recomputed",
+  "predicate_classification": {
+    "selected_source_and_proof_identity": "independently_reconciled",
+    "persisted_fixture_ledger_to_actual_public_cost_outputs": "recomputed",
+    "actual_per_case_attempts_and_finite_fraction": "recomputed",
+    "sample_to_population_probability_or_calibrated_model_uncertainty": "not_established",
+    "external_provider_spend_report": "consumer_asserted",
+    "institutional_billing_attestation": "not_established",
+    "generic_bool_permission": "consumer_asserted",
+    "valid_owner_issued_permit_and_revoke_serialized_writer_admission": "not_established"
+  },
+  "capability_state_or_finding_state": "bounded_FUN_consumer_verified; typed_promotion_writer_bridge_missing; production_native_policy_backend_and_billing_authority_not_established",
+  "release_review": {
+    "refs": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-funnel-boundaries.toml",
+        "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+        "source_role": "scoped_release_companion",
+        "sha256": "74712b2463dfba8eced819e813a23de1ec6a0f39399926960c72bfca055e479b",
+        "bytes": 1705,
+        "git_blob": "58b9fc6e2ed3af0576e29837a461a9facdf170fb"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-provider-cost-intake.toml",
+        "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+        "source_role": "scoped_release_companion",
+        "sha256": "58cd1ebdafbf7b676691933ee71d3a46084a0e7ade86e9c68e2be7610281cc2c",
+        "bytes": 1017,
+        "git_blob": "5cd9c67f6537e01ee302788d481e74cbf8671859"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-funnel-cost-projection.toml",
+        "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+        "source_role": "scoped_release_companion",
+        "sha256": "742fc09beda2c168119272ff87d3488ff60aa028cdf001621fad5c61ac1d38ed",
+        "bytes": 871,
+        "git_blob": "5dbaca343e077ca827504afcad704581d91296e7"
+      }
+    ],
+    "classification": "internal; existing configured worker ports are optional and absent-owner behavior remains legacy; generic bool no longer admits effects; reported cost remains distinct from total numerical/billing cost; current copies preserve prior verdict semantics",
+    "scope": "reviewed changed FUN release companions only; not global release or architecture approval"
+  },
+  "pattern_pass": {
+    "P14": "owner run reports not counted as independent; defining Q5 source authored by reviewer stated explicitly",
+    "P29/P37/P38": "actual native/producer/consumer outputs and effective removal controls; reported amount and permission authority limitations retained",
+    "P31/P40": "second same-class lossy copy confirmed before correction; both existing projections use generic dataclasses.replace rather than hand-enumerating fields; authority missing-port class remains declared bridge_missing, no new issuer invented",
+    "P35": "all four named consumer files executed in full, exact selected Git input paths and complete measured payload files retained; no repository-wide absence or full runtime callgraph claim",
+    "P41": "no inherited-red designation, no unproved exclusion; first tokenizer preparation failure remains ERROR"
+  },
+  "framework_retention_scope": {
+    "earlier_runs": "Q3 and initial FUN pytest invocations used default /tmp/pytest-of-agent retention; do not assert global fixture preservation",
+    "corrected_runs": "a23 unique explicit basetemp; finalfac5 capture verifies every explicit unique basetemp nonexistent before execution",
+    "standalone_probes": "existing helper creates fresh /tmp CAS directories, actual paths in complete outputs",
+    "explicit_FUN_cleanup": "none; selected archives/tars and basetemp paths retained, no permanent cleanup performed in this review",
+    "deciding_evidence": "Git-bound full output, source/proof identities and measurements; source-manifest cleanup fields mean explicit archive cleanup only",
+    "append_note": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/README.md",
+      "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+      "source_role": "accurate_append_only_framework_scope_note",
+      "sha256": "c833ece005f49200a0cb259182c3bec3e2eab24ca9aa9be47804473df6049585",
+      "bytes": 2832,
+      "git_blob": "641d9f2c52860bc2ec0a267a82dcee4d1644c72a"
+    },
+    "prior_Q3_cleanup_deviation": "separate published-champion-independent receipt remains unchanged; does not become a global preservation statement"
+  },
+  "limitations_and_next_owner": [
+    {
+      "finding_id": "B164",
+      "state": "bridge_missing",
+      "owner": "existing A/B permission/write owner",
+      "detail": "No appointed typed permit issuer/current verifier/revoke-serialized writer API. Valid typed-permit positive remains UNRUN; existing retained bool revocation control is zero-effect legacy-marker control only, not serialized authority proof."
+    },
+    {
+      "finding_id": "B106",
+      "state": "bounded_observed_sample_only",
+      "owner": "scientific inference/calibration and G acceptance",
+      "detail": "Actual finite/unknown/partial counts and CAS/consumer fraction semantics verified. Even complete planned sample is not population probability or model uncertainty; natural production source law/distribution completeness not supplied."
+    },
+    {
+      "finding_id": "B157",
+      "state": "native_fixture_verified_production_bridge_missing",
+      "owner": "native policy backend/evaluator caller",
+      "detail": "Actual configured Foundry bootstrap draws exercised with20/80 fixture settings; full production policy engine raw-sample/config consumption and native factory deployment not established."
+    },
+    {
+      "finding_ids": [
+        "B158",
+        "B159"
+      ],
+      "state": "configured_persisted_owner_verified",
+      "owner": "A/runtime resource and native deployment owner",
+      "detail": "Actual optional persisted ledger caller, paid transport, reservation/split/resume/settlement controls pass in configured fixture. Provider reports establish reported spend, not independent billing or total numerical resource cost; deployed native owner wiring not established."
+    },
+    {
+      "finding_id": "B165",
+      "state": "bounded_internal_projection",
+      "owner": "A/operator/publication consumer and G",
+      "detail": "Actual routing and public evaluate copies preserve current verdict semantics and provider fields. No institutional promotion/publication authority or all dashboard/registry consumer acceptance."
+    },
+    {
+      "state": "verification_scope",
+      "owner": "G integration",
+      "detail": "Selected immutable configured inputs, focused consumers and removals only; no fullwide regression/production data/crash/distributed/architecture gate verdict. Subsequent test-only relocation not part offac5 executed source and requires exact byte/scope reconciliation."
+    }
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/capture-runner.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/compatibility-projection-8eb-red.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/compatibility-projection-8eb-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/cost-projection-8eb-cached-red.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/cost-projection-8eb-cached-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/cost-projection-8eb-red.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/environment-fac5.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/environment-fac5.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/funnel-consumer-wave-8eb.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/funnel-consumer-wave-8eb.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/funnel-consumer-wave-fac5.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/funnel-consumer-wave-fac5.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/paid-projection-pair-a23-green.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/paid-projection-pair-a23-green.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/paid-projection-pair-fac5-green.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/paid-projection-pair-fac5-green.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/population-boundary-removal-8eb.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/population-boundary-removal-8eb.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/population-boundary-removal-fac5.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/population-boundary-removal-fac5.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/producer-four-8eb.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/producer-four-8eb.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/producer-four-fac5.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/producer-four-fac5.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-8eb.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-a23.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/source-fac5.json",
+    "policy-engine/tests/unit/scientist/methods/search/funnel/fun_independent_removal_controls.py",
+    "policy-engine/tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py",
+    "policy-engine/tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py"
+  ],
+  "own_write_scope": "three independent proof files and moderate docs/evidence only; no production changes, no children, no root checkout writes",
+  "delivery_readback": "ordinary topic push and exact remote-head readback follow the separate receipt commit; publication SHA supplied separately to avoid a self-reference",
+  "deciding_payload_denominator": {
+    "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent",
+    "selection": "all tracked files under this exact directory at payload commit; named check outputs/measurements and source manifests bound above; README and exact final runner documentation included",
+    "file_type_denominator": "all tracked file blobs, .json/.txt/.md",
+    "file_count": 28,
+    "bytes": 44569
+  },
+  "capture_runner_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent/capture-runner.txt",
+    "source_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+    "sha256": "51ac657a60883eb30060f34e05ca11a658f24587ac9901de4f2369e652da8395",
+    "source_role": "exact_final_capture_script_documentation; earlier_version_provenance_not_established"
+  }
+}

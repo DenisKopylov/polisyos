@@ -1,0 +1,7 @@
+{
+  "production_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+  "test_commit": "fbc0e910f76604cbf64feaa96c53c043cf44fe59",
+  "test_path": "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+  "test_raw_sha256": "59706f52162bb18df7f062da2e5fc5c7c7fc8e20ffc435551f1876c87ee2da10",
+  "production_changes": []
+}

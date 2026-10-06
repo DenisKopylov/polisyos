@@ -1,0 +1,25 @@
+context=canonical defining test-path checkpoint; production frozen 893e649bc477e8fceac5038d4cbc3b4337f6d76e; test-only edits not yet committed
+argv=['/workspace/e02-D-locked-env/bin/python', '-m', 'pytest', '-o', 'addopts=', '-q', '--basetemp=/dev/shm/search-canonical-paths-558ba78d8e8a401381bd0d873f91bfdb', 'tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py', 'tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py', 'tests/unit/scientist/methods/search/strategies/test_strategy_state.py', 'tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py', 'tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py', 'tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py', 'tests/unit/scientist/methods/search/strategies/test_effective_actions.py', 'tests/unit/scientist/methods/search/test_hypervolume_limitations.py', 'tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py', 'tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py']
+basetemp_asserted_nonexistent=true
+........................................................................ [ 58%]
+...................................................                      [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py: 9 warnings
+tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py: 3 warnings
+tests/unit/scientist/methods/search/strategies/test_effective_actions.py: 1 warning
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+123 passed, 15 warnings in 16.42s
+
+EXIT_CODE=0

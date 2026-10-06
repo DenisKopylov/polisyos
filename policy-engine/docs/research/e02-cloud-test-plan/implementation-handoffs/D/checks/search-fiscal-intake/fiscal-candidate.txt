@@ -1,0 +1,32 @@
+context=uncommitted fiscal source delta afterebeb; canonicaltest edits notyetcommitted
+argv=['/workspace/e02-D-locked-env/bin/python', '-m', 'pytest', '-o', 'addopts=', '-q', '--basetemp=/dev/shm/search-fiscal-positive-2efe0bc3fe4a430f9a9dfccbc95835d4', 'tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py', 'tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py', 'tests/unit/scientist/methods/search/test_objective.py', 'tests/unit/scientist/methods/autotune/test_bayesian_generator.py']
+basetemp_asserted_nonexistent=true
+..................F.................................                     [100%]
+=================================== FAILURES ===================================
+_______ test_default_public_suggestion_consumes_real_seeded_scipy_design _______
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    def test_default_public_suggestion_consumes_real_seeded_scipy_design():
+        generator = BayesianCandidateGenerator(SearchSpace([{"name": "x", "lower": 0, "upper": 10}]))
+        assert generator.botorch_available
+        independent = float(qmc.Sobol(d=1, scramble=True, seed=42).random(1)[0, 0])
+        candidate = generator.generate([], {"x": 7}, {"sentinel": 1})
+>       assert candidate["x"] == pytest.approx(10 * independent)
+E       assert 9.975133538246155 == 4.31029474362731 ± 4.3e-06
+E         
+E         comparison failed
+E         Obtained: 9.975133538246155
+E         Expected: 4.31029474362731 ± 4.3e-06
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:41: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_default_public_suggestion_consumes_real_seeded_scipy_design
+1 failed, 51 passed, 2 warnings in 7.64s
+EXIT_CODE=1

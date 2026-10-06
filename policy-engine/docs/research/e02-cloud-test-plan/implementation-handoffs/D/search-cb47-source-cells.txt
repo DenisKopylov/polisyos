@@ -1,0 +1,41 @@
+{
+  "source_commit": "cb47af447e3d9dd73bdf95bb7a211f2110995248",
+  "source_tree": "1597ea3091679bdc57fc997861e51252103064e8",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "torch": "2.10.0+cu128",
+  "botorch": "0.16.1",
+  "gpytorch": "1.15.1",
+  "numpy": "2.3.5",
+  "modules": [
+    {
+      "name": "polisyos.scientist.methods.search.strategies.bayesian",
+      "origin": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6"
+    },
+    {
+      "name": "polisyos.scientist.methods.search.strategies.types",
+      "origin": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "sha256": "a639dffa9612eea5f26aee6a4f17434e2d319c5a51672bf7a4704998da367d26"
+    },
+    {
+      "name": "polisyos.scientist.methods.search.strategies.space",
+      "origin": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "sha256": "9dbafe98111b04b926b4473beb76eda8b6241f8ce84f5beee09a814ad96e0a0e"
+    },
+    {
+      "name": "polisyos.scientist.methods.search.strategies.multi_objective",
+      "origin": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "sha256": "62dede2310a8f1e27fe33a11604312080d1aeab1073821eb1d98a8f33ab80382"
+    },
+    {
+      "name": "polisyos.scientist.methods.search.strategies.neural",
+      "origin": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+      "sha256": "967537bae0621de234920c9eee941fb7bf1364cf6272443337f55290f374bec6"
+    },
+    {
+      "name": "polisyos.scientist.methods.autotune.bayesian_generator",
+      "origin": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "sha256": "a2a8df9800a7bd173c5930deeaa22fc0b5a453bf2d842fef162d36886218f48f"
+    }
+  ]
+}

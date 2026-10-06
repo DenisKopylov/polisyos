@@ -1,0 +1,2519 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "champion-published",
+  "queue": 3,
+  "closure_ids": [],
+  "covered_finding_ids": [
+    "B116",
+    "B117",
+    "LA-014",
+    "LA-015"
+  ],
+  "bundle_ids": [
+    "OPT-04",
+    "SRV-01",
+    "SRV-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "63b22c4d4ee3b1856325f62984cceb354b41afe2",
+    "905e1d76f6753e9252acb9a91702f784d3e9a7d2",
+    "af3f4f9234bb2f6188fe4524aac0d4fcca04619e",
+    "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+    "6598979d50b2501d91d5e2281b9f92d4513df9f7"
+  ],
+  "candidate_source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+  "production_source_freeze_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+  "candidate_tree_sha": "ecc9631463819d1d71c4eb1f87bdead50fdfe31f",
+  "branch": "codex/e02-D-published-champion",
+  "pull_request": null,
+  "remote_readback": {
+    "branch": "refs/heads/codex/e02-D-published-champion",
+    "sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+    "transport": "normal push then git ls-remote observed exact equality"
+  },
+  "changed_paths": [
+    "policy-engine/README.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-champion.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/calibration.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/cheap_stage.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/claim_adjudication.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/reflexion.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+    "policy-engine/src/polisyos/scientist/methods/search/registry_contracts.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/tests/unit/remediation/test_srv_03.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_calibration_autotune.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_reflexion_autotune.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_native_ask_tell_witness.py",
+    "policy-engine/tests/unit/scientist/search/test_cheap_stage_autotune.py"
+  ],
+  "candidate_all_changed_paths_including_supplier": [
+    "policy-engine/README.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-champion.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-resource-settlement.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-search-owner.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/calibration.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/cheap_stage.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/claim_adjudication.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/reflexion.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+    "policy-engine/src/polisyos/scientist/methods/search/registry_contracts.py",
+    "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+    "policy-engine/tests/integration/scientist/orchestration/llm/test_budget_enforcer.py",
+    "policy-engine/tests/unit/remediation/test_srv_03.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_calibration_autotune.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_reflexion_autotune.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_controller.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_native_ask_tell_witness.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+    "policy-engine/tests/unit/scientist/search/test_cheap_stage_autotune.py"
+  ],
+  "source_identities": [
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/README.md",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "2ea864d810bd7a896c105e93a5889f207718e6c6",
+      "sha256": "44132744e7f8ae0f837bf164e7eafc1b9dfe438e2a2465ef490e7bbdaf41dbea",
+      "bytes": 13703
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-champion.toml",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "db1b30728239fb994da1144b6b3147eb3160ba4f",
+      "sha256": "8437c01cd7fa22e66b8b412801e7f7d7fd54ef12659a6d34d2b02a707eec920e",
+      "bytes": 3062
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/calibration.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "50053fb6fe203c7154646dfe975d444bbce46e68",
+      "sha256": "ea8b5f83db75356a07550b63c833a3b45f5396dbcff8a84be3a230a88a48f865",
+      "bytes": 16576
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/cheap_stage.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "fd0d62103a219853e894642def427d3e2d08cdc5",
+      "sha256": "be9351dca7ed5717f39186e825fb5e13064850767b763715d84ad79d2974ae32",
+      "bytes": 13630
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/claim_adjudication.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "abdd93fd46339f4fe938d08196cf3df0132d7d59",
+      "sha256": "f6c2a4256352f7669bbc059613141d2d2edf7d119aa99830ccf7c62368bad971",
+      "bytes": 17038
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "bd881021e09237a2c3af2c5d29fe17b0dc66534b",
+      "sha256": "247dee0f668a2f201e4219e184f3aad3a31491d3ab7a4908042b93f83ab5936e",
+      "bytes": 35650
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "e8d3d4674b9c0db0aa8c8679ca8125701aa9c26c",
+      "sha256": "0a5549546086b12eaf4219e9b472413c6e59d3738b9719a86d6b2d823f7cdeed",
+      "bytes": 26850
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/reflexion.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "d61588ab8c923f88adfc10c86eda07d8cf1e7d56",
+      "sha256": "94309e34ac29a5b2c9608c0a7d161b61051fc4a129ba1a85f50d1f405947fbbf",
+      "bytes": 12646
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "ecafcd9fc1ddc7be0b9a62b1321c95781c60c36d",
+      "sha256": "826f26622532517d13b9742b65cfb8e7f8cac6a6531843cfd4e67893e461b655",
+      "bytes": 26818
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "d36f811b37644cda85e14ea3090f0990df461b18",
+      "sha256": "067fa62f1c86b99e0e3e83080543904ae076585488de69fe1ecc8caa303087f1",
+      "bytes": 12107
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/registry_contracts.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "ed75eeae84a5426b077993813a9f1d7fde29a253",
+      "sha256": "0c99491737cb176e15b062a0661b45c680b464c719dac25e7591a2e857ae655d",
+      "bytes": 3460
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "ec450e056308d7bc351fb652ff7f705463bdf404",
+      "sha256": "1c822301ed87e8008661c0d0ff558dfc15dab2d437de069636b313da987e9428",
+      "bytes": 11808
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/tests/unit/remediation/test_srv_03.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "5649225a6fa1624a7ac359d790106bf77e8d3a0e",
+      "sha256": "2aa32ae0d81633141b1b20c87e8b58df544636f95ba135a00607261988e4f07a",
+      "bytes": 11181
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_calibration_autotune.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "93ba7fd5792178884c70b0270f283a80ac66bec2",
+      "sha256": "21f9ba538f809847dbb384c88d3bdafa3c02986ee71e4af1a3e58b6ffcfc8aeb",
+      "bytes": 10162
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "ae2466b342640fb56dc500e3db8914fbbc0bbd57",
+      "sha256": "9909128c504e60df46dde11fbdd1f4fdf16b6f9bddc38b5972f806fc8d200c49",
+      "bytes": 22434
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_reflexion_autotune.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "e81f4faf2538370dbb3e50c961cf08ab3c1bc58d",
+      "sha256": "5b04ed0ff4264c14d019977cd909fbfe8f3016560b55cacbc9cf81a334b3cd7b",
+      "bytes": 6605
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "8d57a0561d03204b9c9d67bf9473c2e75fa01634",
+      "sha256": "d2b7e85f839c1a57694e41cbd8c7a5fd6729808a51187667137481838167a390",
+      "bytes": 28236
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_native_ask_tell_witness.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "778ab63717e86d5dce4f69c2de3924f3979e84af",
+      "sha256": "2165e66a5f5e0262128ba74d575b5888f5e143005626ae5b6ba55a55a9430969",
+      "bytes": 6142
+    },
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/tests/unit/scientist/search/test_cheap_stage_autotune.py",
+      "source_role": "owned_implementation_or_required_companion",
+      "git_blob": "91fc3dc0d79cedece195a8583b0430b1547fb923",
+      "sha256": "7d9856b3324b62f9fc0edbf9cabc67c5823508cafe06b1dfb0733d884fef183d",
+      "bytes": 4808
+    }
+  ],
+  "upstream_supplier": {
+    "source_sha": "d42a25e4e00a8015599c63b96224a7565be97df2",
+    "integration": "ordinary fast-forward merge of full supplier history before own implementation",
+    "changed_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-resource-settlement.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-search-owner.toml",
+      "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "policy-engine/tests/integration/scientist/orchestration/llm/test_budget_enforcer.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_controller.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py"
+    ],
+    "consumed_contract": "SearchController._evaluate_for_tell detached evaluation and sole _accept_tell transition owner; configured BudgetMiddleware resource owner retained",
+    "resource_acceptance": "not_established; source ancestry is not resource-accounting receipt. Root must join corrected supplier and rerun combined affected consumers"
+  },
+  "baseline_cells": [
+    {
+      "finding": "B116",
+      "grade": "source_reported_compact_text_only; candidate_routes",
+      "raw_archives_received": 0,
+      "cells": [
+        {
+          "id": "F01-P052",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "17",
+          "calls": "17",
+          "call_pass": "17",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "22.64",
+          "rss_kib": "1194876",
+          "receipt_status": "valid_bound",
+          "source_file": "received/F01.txt",
+          "source_line": "169",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F06-P074",
+          "job": "F06",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "4",
+          "calls": "4",
+          "call_pass": "4",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "34.15982961654663",
+          "rss_kib": "1345028",
+          "receipt_status": "valid",
+          "source_file": "received/F06.txt",
+          "source_line": "258",
+          "extra_json": "{\"reason\":\"null\"}"
+        },
+        {
+          "id": "F08-P056",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "17",
+          "calls": "17",
+          "call_pass": "17",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "42.10528612136841",
+          "rss_kib": "1321756",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F08.txt",
+          "source_line": "179",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F12-P058",
+          "job": "F12",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "4",
+          "calls": "4",
+          "call_pass": "4",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "52.01147879100063",
+          "rss_kib": "1226892.0",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F12.txt",
+          "source_line": "643",
+          "extra_json": "{\"reason\":\"native\"}"
+        },
+        {
+          "id": "F13-P061",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "17",
+          "calls": "17",
+          "call_pass": "17",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "12.04",
+          "rss_kib": "1358944",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F13.txt",
+          "source_line": "188",
+          "extra_json": "{}"
+        }
+      ],
+      "routes": [
+        {
+          "finding_id": "B116",
+          "unit": "D",
+          "cell_id": "F01-P052",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B116"
+        },
+        {
+          "finding_id": "B116",
+          "unit": "D",
+          "cell_id": "F06-P074",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B116"
+        },
+        {
+          "finding_id": "B116",
+          "unit": "D",
+          "cell_id": "F08-P056",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B116"
+        },
+        {
+          "finding_id": "B116",
+          "unit": "D",
+          "cell_id": "F12-P058",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B116"
+        },
+        {
+          "finding_id": "B116",
+          "unit": "D",
+          "cell_id": "F13-P061",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B116"
+        }
+      ],
+      "basis": [
+        {
+          "finding_id": "B116",
+          "bundle_ids": [
+            "OPT-04"
+          ],
+          "recorded_ledger_status": "partial",
+          "route_grade": "candidate_unverified",
+          "semantic_adequacy": "not_established",
+          "discriminator_ref": "bundle-catalog.md#opt-04; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B116",
+          "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B116",
+          "assigned_routes": [
+            {
+              "job": "F01",
+              "ref": "research_main",
+              "cell_ids": [
+                "F01-P052"
+              ]
+            },
+            {
+              "job": "F06",
+              "ref": "e02_execution_base",
+              "cell_ids": [
+                "F06-P074"
+              ]
+            },
+            {
+              "job": "F08",
+              "ref": "e02_head",
+              "cell_ids": [
+                "F08-P056"
+              ]
+            },
+            {
+              "job": "F12",
+              "ref": "main",
+              "cell_ids": [
+                "F12-P058"
+              ]
+            },
+            {
+              "job": "F13",
+              "ref": "integration_head",
+              "cell_ids": [
+                "F13-P061"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "finding": "B117",
+      "grade": "source_reported_compact_text_only; candidate_routes",
+      "raw_archives_received": 0,
+      "cells": [
+        {
+          "id": "F01-P052",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "17",
+          "calls": "17",
+          "call_pass": "17",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "22.64",
+          "rss_kib": "1194876",
+          "receipt_status": "valid_bound",
+          "source_file": "received/F01.txt",
+          "source_line": "169",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F06-P074",
+          "job": "F06",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "4",
+          "calls": "4",
+          "call_pass": "4",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "34.15982961654663",
+          "rss_kib": "1345028",
+          "receipt_status": "valid",
+          "source_file": "received/F06.txt",
+          "source_line": "258",
+          "extra_json": "{\"reason\":\"null\"}"
+        },
+        {
+          "id": "F08-P056",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "17",
+          "calls": "17",
+          "call_pass": "17",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "42.10528612136841",
+          "rss_kib": "1321756",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F08.txt",
+          "source_line": "179",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F12-P058",
+          "job": "F12",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "4",
+          "calls": "4",
+          "call_pass": "4",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "52.01147879100063",
+          "rss_kib": "1226892.0",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F12.txt",
+          "source_line": "643",
+          "extra_json": "{\"reason\":\"native\"}"
+        },
+        {
+          "id": "F13-P061",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "17",
+          "calls": "17",
+          "call_pass": "17",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "12.04",
+          "rss_kib": "1358944",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F13.txt",
+          "source_line": "188",
+          "extra_json": "{}"
+        }
+      ],
+      "routes": [
+        {
+          "finding_id": "B117",
+          "unit": "D",
+          "cell_id": "F01-P052",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B117"
+        },
+        {
+          "finding_id": "B117",
+          "unit": "D",
+          "cell_id": "F06-P074",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B117"
+        },
+        {
+          "finding_id": "B117",
+          "unit": "D",
+          "cell_id": "F08-P056",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B117"
+        },
+        {
+          "finding_id": "B117",
+          "unit": "D",
+          "cell_id": "F12-P058",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B117"
+        },
+        {
+          "finding_id": "B117",
+          "unit": "D",
+          "cell_id": "F13-P061",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#B117"
+        }
+      ],
+      "basis": [
+        {
+          "finding_id": "B117",
+          "bundle_ids": [
+            "OPT-04"
+          ],
+          "recorded_ledger_status": "partial",
+          "route_grade": "candidate_unverified",
+          "semantic_adequacy": "not_established",
+          "discriminator_ref": "bundle-catalog.md#opt-04; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B117",
+          "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B117",
+          "assigned_routes": [
+            {
+              "job": "F01",
+              "ref": "research_main",
+              "cell_ids": [
+                "F01-P052"
+              ]
+            },
+            {
+              "job": "F06",
+              "ref": "e02_execution_base",
+              "cell_ids": [
+                "F06-P074"
+              ]
+            },
+            {
+              "job": "F08",
+              "ref": "e02_head",
+              "cell_ids": [
+                "F08-P056"
+              ]
+            },
+            {
+              "job": "F12",
+              "ref": "main",
+              "cell_ids": [
+                "F12-P058"
+              ]
+            },
+            {
+              "job": "F13",
+              "ref": "integration_head",
+              "cell_ids": [
+                "F13-P061"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "finding": "LA-014",
+      "grade": "source_reported_compact_text_only; candidate_routes",
+      "raw_archives_received": 0,
+      "cells": [
+        {
+          "id": "F02-P093",
+          "job": "F02",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_srv_01.py",
+          "state": "PASS",
+          "collected": "8",
+          "calls": "8",
+          "call_pass": "8",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "20.4",
+          "rss_kib": "1205832",
+          "receipt_status": "reconciled",
+          "source_file": "received/F02.txt",
+          "source_line": "221",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F07-P086",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_srv_01.py",
+          "state": "PASS",
+          "collected": "8",
+          "calls": "8",
+          "call_pass": "8",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "31.671063661575317",
+          "rss_kib": "1323116.0",
+          "receipt_status": "valid",
+          "source_file": "received/F07.txt",
+          "source_line": "92",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F13-P106",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_srv_01.py",
+          "state": "PASS",
+          "collected": "8",
+          "calls": "8",
+          "call_pass": "8",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "12.13",
+          "rss_kib": "1364664",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F13.txt",
+          "source_line": "233",
+          "extra_json": "{}"
+        }
+      ],
+      "routes": [
+        {
+          "finding_id": "LA-014",
+          "unit": "D",
+          "cell_id": "F02-P093",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-014"
+        },
+        {
+          "finding_id": "LA-014",
+          "unit": "D",
+          "cell_id": "F07-P086",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-014"
+        },
+        {
+          "finding_id": "LA-014",
+          "unit": "D",
+          "cell_id": "F13-P106",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-014"
+        }
+      ],
+      "basis": [
+        {
+          "finding_id": "LA-014",
+          "bundle_ids": [
+            "SRV-01"
+          ],
+          "recorded_ledger_status": "partial",
+          "route_grade": "candidate_unverified",
+          "semantic_adequacy": "not_established",
+          "discriminator_ref": "bundle-catalog.md#srv-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:LA-014",
+          "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#LA-014",
+          "assigned_routes": [
+            {
+              "job": "F02",
+              "ref": "research_main",
+              "cell_ids": [
+                "F02-P093"
+              ]
+            },
+            {
+              "job": "F07",
+              "ref": "e02_head",
+              "cell_ids": [
+                "F07-P086"
+              ]
+            },
+            {
+              "job": "F13",
+              "ref": "integration_head",
+              "cell_ids": [
+                "F13-P106"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "finding": "LA-015",
+      "grade": "source_reported_compact_text_only; candidate_routes",
+      "raw_archives_received": 0,
+      "cells": [
+        {
+          "id": "F01-P022",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+          "state": "PASS",
+          "collected": "26",
+          "calls": "26",
+          "call_pass": "26",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "44.77",
+          "rss_kib": "1258588",
+          "receipt_status": "valid_bound",
+          "source_file": "received/F01.txt",
+          "source_line": "139",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F01-P052",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "17",
+          "calls": "17",
+          "call_pass": "17",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "22.64",
+          "rss_kib": "1194876",
+          "receipt_status": "valid_bound",
+          "source_file": "received/F01.txt",
+          "source_line": "169",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F01-P110",
+          "job": "F01",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_srv_03.py",
+          "state": "PASS",
+          "collected": "6",
+          "calls": "6",
+          "call_pass": "6",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "21.09",
+          "rss_kib": "1193600",
+          "receipt_status": "valid_bound",
+          "source_file": "received/F01.txt",
+          "source_line": "227",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F02-P093",
+          "job": "F02",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/remediation/test_srv_01.py",
+          "state": "PASS",
+          "collected": "8",
+          "calls": "8",
+          "call_pass": "8",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "20.4",
+          "rss_kib": "1205832",
+          "receipt_status": "reconciled",
+          "source_file": "received/F02.txt",
+          "source_line": "221",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F04-P114",
+          "job": "F04",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "path": "policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py",
+          "state": "PASS",
+          "collected": "5",
+          "calls": "5",
+          "call_pass": "5",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "7.316",
+          "rss_kib": "504248",
+          "receipt_status": "valid_reconciled_parent",
+          "source_file": "received/F04.txt",
+          "source_line": "324",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F05-P042",
+          "job": "F05",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+          "state": "PASS",
+          "collected": "17",
+          "calls": "17",
+          "call_pass": "17",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "45.71",
+          "rss_kib": "1355152",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F05.txt",
+          "source_line": "452",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F06-P074",
+          "job": "F06",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "4",
+          "calls": "4",
+          "call_pass": "4",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "34.15982961654663",
+          "rss_kib": "1345028",
+          "receipt_status": "valid",
+          "source_file": "received/F06.txt",
+          "source_line": "258",
+          "extra_json": "{\"reason\":\"null\"}"
+        },
+        {
+          "id": "F06-P128",
+          "job": "F06",
+          "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "path": "policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py",
+          "state": "PASS",
+          "collected": "3",
+          "calls": "3",
+          "call_pass": "3",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "36.01247000694275",
+          "rss_kib": "1336072",
+          "receipt_status": "valid",
+          "source_file": "received/F06.txt",
+          "source_line": "312",
+          "extra_json": "{\"reason\":\"null\"}"
+        },
+        {
+          "id": "F07-P086",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_srv_01.py",
+          "state": "PASS",
+          "collected": "8",
+          "calls": "8",
+          "call_pass": "8",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "31.671063661575317",
+          "rss_kib": "1323116.0",
+          "receipt_status": "valid",
+          "source_file": "received/F07.txt",
+          "source_line": "92",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F07-P104",
+          "job": "F07",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/remediation/test_srv_03.py",
+          "state": "PASS",
+          "collected": "6",
+          "calls": "6",
+          "call_pass": "6",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "39.5999653339386",
+          "rss_kib": "1319436.0",
+          "receipt_status": "valid",
+          "source_file": "received/F07.txt",
+          "source_line": "110",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F08-P056",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "17",
+          "calls": "17",
+          "call_pass": "17",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "42.10528612136841",
+          "rss_kib": "1321756",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F08.txt",
+          "source_line": "179",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F08-P115",
+          "job": "F08",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py",
+          "state": "PASS",
+          "collected": "5",
+          "calls": "5",
+          "call_pass": "5",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "39.089630365371704",
+          "rss_kib": "1319336",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F08.txt",
+          "source_line": "238",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F09-P032",
+          "job": "F09",
+          "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+          "state": "PASS",
+          "collected": "26",
+          "calls": "26",
+          "call_pass": "26",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "45.8",
+          "rss_kib": "1398540",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F09.txt",
+          "source_line": "148",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F10-P100",
+          "job": "F10",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py",
+          "state": "PASS",
+          "collected": "3",
+          "calls": "3",
+          "call_pass": "3",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "39.97",
+          "rss_kib": "1393320",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F10.txt",
+          "source_line": "220",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F11-P031",
+          "job": "F11",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+          "state": "PASS",
+          "collected": "17",
+          "calls": "17",
+          "call_pass": "17",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "46.008",
+          "rss_kib": "1382372",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F11.txt",
+          "source_line": "160",
+          "extra_json": "{\"receipt_quality\":\"reconciled\",\"input_custody_blockers\":\"0\"}"
+        },
+        {
+          "id": "F12-P058",
+          "job": "F12",
+          "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "4",
+          "calls": "4",
+          "call_pass": "4",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "52.01147879100063",
+          "rss_kib": "1226892.0",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F12.txt",
+          "source_line": "643",
+          "extra_json": "{\"reason\":\"native\"}"
+        },
+        {
+          "id": "F13-P061",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "state": "PASS",
+          "collected": "17",
+          "calls": "17",
+          "call_pass": "17",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "12.04",
+          "rss_kib": "1358944",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F13.txt",
+          "source_line": "188",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F13-P106",
+          "job": "F13",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_srv_01.py",
+          "state": "PASS",
+          "collected": "8",
+          "calls": "8",
+          "call_pass": "8",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "12.13",
+          "rss_kib": "1364664",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F13.txt",
+          "source_line": "233",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F14-P134",
+          "job": "F14",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py",
+          "state": "PASS",
+          "collected": "5",
+          "calls": "5",
+          "call_pass": "5",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "27.148860493998654",
+          "rss_kib": "1359280",
+          "receipt_status": "valid_reconciled",
+          "source_file": "received/F14.txt",
+          "source_line": "484",
+          "extra_json": "{}"
+        },
+        {
+          "id": "F15-P028",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+          "state": "PASS",
+          "collected": "26",
+          "calls": "26",
+          "call_pass": "26",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "32.11",
+          "rss_kib": "1389452",
+          "receipt_status": "valid",
+          "source_file": "received/F15.txt",
+          "source_line": "183",
+          "extra_json": "{\"reason\":\"null\"}"
+        },
+        {
+          "id": "F15-P130",
+          "job": "F15",
+          "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "path": "policy-engine/tests/unit/remediation/test_srv_03.py",
+          "state": "PASS",
+          "collected": "6",
+          "calls": "6",
+          "call_pass": "6",
+          "call_failed": "0",
+          "setup_error": "0",
+          "teardown_error": "0",
+          "skip": "0",
+          "xfail": "0",
+          "xpass": "0",
+          "collection_skip": "0",
+          "collection_error": "0",
+          "wall_s": "10.89",
+          "rss_kib": "1331844",
+          "receipt_status": "valid",
+          "source_file": "received/F15.txt",
+          "source_line": "285",
+          "extra_json": "{\"reason\":\"null\"}"
+        }
+      ],
+      "routes": [
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F01-P022",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F01-P052",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F01-P110",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F02-P093",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F04-P114",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "research_main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F05-P042",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F06-P074",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F06-P128",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_execution_base",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F07-P086",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F07-P104",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F08-P056",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F08-P115",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F09-P032",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "e02_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F10-P100",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F11-P031",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F12-P058",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "main",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F13-P061",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F13-P106",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F14-P134",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F15-P028",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        },
+        {
+          "finding_id": "LA-015",
+          "unit": "D",
+          "cell_id": "F15-P130",
+          "source_status": "partial",
+          "route_grade": "candidate_unverified",
+          "source_ref": "integration_head",
+          "semantic_adequacy": "not_established",
+          "canonical_route": "../full-run/finding-routes.json#LA-015"
+        }
+      ],
+      "basis": [
+        {
+          "finding_id": "LA-015",
+          "bundle_ids": [
+            "CTL-01",
+            "SRV-03"
+          ],
+          "recorded_ledger_status": "partial",
+          "route_grade": "candidate_unverified",
+          "semantic_adequacy": "not_established",
+          "discriminator_ref": "bundle-catalog.md#ctl-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:LA-015;bundle-catalog.md#srv-03; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:LA-015",
+          "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#LA-015",
+          "assigned_routes": [
+            {
+              "job": "F01",
+              "ref": "research_main",
+              "cell_ids": [
+                "F01-P022",
+                "F01-P052",
+                "F01-P110"
+              ]
+            },
+            {
+              "job": "F02",
+              "ref": "research_main",
+              "cell_ids": [
+                "F02-P093"
+              ]
+            },
+            {
+              "job": "F04",
+              "ref": "research_main",
+              "cell_ids": [
+                "F04-P114"
+              ]
+            },
+            {
+              "job": "F05",
+              "ref": "e02_execution_base",
+              "cell_ids": [
+                "F05-P042"
+              ]
+            },
+            {
+              "job": "F06",
+              "ref": "e02_execution_base",
+              "cell_ids": [
+                "F06-P074",
+                "F06-P128"
+              ]
+            },
+            {
+              "job": "F07",
+              "ref": "e02_head",
+              "cell_ids": [
+                "F07-P086",
+                "F07-P104"
+              ]
+            },
+            {
+              "job": "F08",
+              "ref": "e02_head",
+              "cell_ids": [
+                "F08-P056",
+                "F08-P115"
+              ]
+            },
+            {
+              "job": "F09",
+              "ref": "e02_head",
+              "cell_ids": [
+                "F09-P032"
+              ]
+            },
+            {
+              "job": "F10",
+              "ref": "main",
+              "cell_ids": [
+                "F10-P100"
+              ]
+            },
+            {
+              "job": "F11",
+              "ref": "main",
+              "cell_ids": [
+                "F11-P031"
+              ]
+            },
+            {
+              "job": "F12",
+              "ref": "main",
+              "cell_ids": [
+                "F12-P058"
+              ]
+            },
+            {
+              "job": "F13",
+              "ref": "integration_head",
+              "cell_ids": [
+                "F13-P061",
+                "F13-P106"
+              ]
+            },
+            {
+              "job": "F14",
+              "ref": "integration_head",
+              "cell_ids": [
+                "F14-P134"
+              ]
+            },
+            {
+              "job": "F15",
+              "ref": "integration_head",
+              "cell_ids": [
+                "F15-P028",
+                "F15-P130"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "baseline_cell_grade": "source-reported navigation only; zero raw archives; no new closure or candidate acceptance inferred",
+  "checks": [
+    {
+      "name": "final_owned_and_required_consumers",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py",
+        "tests/unit/scientist/methods/search/test_native_ask_tell_witness.py",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+        "tests/unit/remediation/test_srv_01.py",
+        "tests/unit/remediation/test_srv_03.py",
+        "tests/unit/scientist/search/test_contracts.py",
+        "tests/unit/scientist/methods/autotune/test_calibration_autotune.py",
+        "tests/unit/scientist/search/test_cheap_stage_autotune.py",
+        "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py",
+        "tests/unit/scientist/methods/autotune/test_execution_plan_autotune.py",
+        "tests/unit/scientist/methods/autotune/test_reflexion_autotune.py"
+      ],
+      "target_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "environment": {
+        "python_executable": "/workspace/e02-D-locked-env/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "jax": "0.8.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "module_origins": {
+          "polisyos.scientist.methods.autotune.models": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "polisyos.scientist.methods.autotune.registry": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+          "polisyos.scientist.methods.autotune.runtime": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "polisyos.scientist.methods.search.service": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/service.py"
+        },
+        "cwd": "/workspace/e02-D-published-champion/policy-engine",
+        "PYTHONPATH": "src:.",
+        "added_worker_or_thread_caps": false,
+        "other_inherited_environment_values": "not_captured"
+      },
+      "input_closure": {
+        "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+        "source_tree": "ecc9631463819d1d71c4eb1f87bdead50fdfe31f",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py",
+          "tests/unit/scientist/methods/search/test_native_ask_tell_witness.py",
+          "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "tests/unit/remediation/test_srv_01.py",
+          "tests/unit/remediation/test_srv_03.py",
+          "tests/unit/scientist/search/test_contracts.py",
+          "tests/unit/scientist/methods/autotune/test_calibration_autotune.py",
+          "tests/unit/scientist/search/test_cheap_stage_autotune.py",
+          "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py",
+          "tests/unit/scientist/methods/autotune/test_execution_plan_autotune.py",
+          "tests/unit/scientist/methods/autotune/test_reflexion_autotune.py"
+        ],
+        "configured_pytest_addopts": "explicitly empty; no selection/worker cap",
+        "fixture_and_configuration_basis": "tracked final tree including pytest.ini, fixture plugins, conftest and architecture declarations; synthetic bounded inputs created by exact tests",
+        "production_corpus": "not_used; generic comparison and state invariants measured on declared fixtures, not a production scientific-validation claim"
+      },
+      "outcome": "PASS",
+      "deciding_output": "78 passed, 2 warnings in 77.79s (0:01:17)",
+      "measurement": {
+        "exit_code": 0,
+        "wall_seconds": 82.74714402398968,
+        "max_rss_kib": 1090868
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/final-consumers-659.txt.gz",
+        "sha256": "a8cfbb81553911a32a4629ac50d2b997a2088db20d7bdc9b4a543c9017ceb738",
+        "bytes": 14471,
+        "encoding": "gzip",
+        "decoded_sha256": "ecd142271c07d41a712eec43506cae20ecc9a4292217cbdc2d8a2228e9d61b47",
+        "decoded_bytes": 142561,
+        "binding": "payload committed with this receipt; lossless gzip preserves all original stdout/stderr bytes. Target source is stated in its check, not membership in an earlier tree."
+      }
+    },
+    {
+      "name": "baseline-five-rebound",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-champion/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--confcutdir=/dev/shm/e02-D2-champion-base-export",
+        "-q",
+        "-rA",
+        "/dev/shm/e02-D2-champion-base-export/test_five_baseline.py"
+      ],
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "environment": {
+        "python_executable": "/workspace/e02-D-locked-env/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "jax": "0.8.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "module_origins": "not printed; exact exported source file hashes and PYTHONPATH in run metadata",
+        "cwd": "/workspace/e02-D-published-champion/policy-engine",
+        "PYTHONPATH": "/dev/shm/e02-D2-champion-base-export/policy-engine/src:/workspace/e02-D-published-champion/policy-engine",
+        "added_worker_or_thread_caps": false,
+        "other_inherited_environment_values": "not_captured"
+      },
+      "input_closure": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "source_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-c",
+          "/workspace/e02-D-published-champion/policy-engine/pytest.ini",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--confcutdir=/dev/shm/e02-D2-champion-base-export",
+          "-q",
+          "-rA",
+          "/dev/shm/e02-D2-champion-base-export/test_five_baseline.py"
+        ],
+        "cwd": "/workspace/e02-D-published-champion/policy-engine",
+        "export": "/dev/shm/e02-D2-champion-base-export",
+        "mode": "baseline",
+        "mutation": "AST adapter of tracked63 witness removes comparison builder import, BenchmarkSuite.data_basis and BenchmarkEvaluation.comparison_basis only",
+        "source_file_sha256": {
+          "models": "2d18efbc9d5ba0ed309515b56617ae45d5be6269ce333c57ed3f8ce159033596",
+          "registry": "639d708f0a09e323df0ac1773caecd9e286c30d5ce42f795277c131e22cc4d8d",
+          "runtime": "cfe284284adae4b6345ba01d42d2aaf2893d3a62c3ac69ab9abbebbf914acd12",
+          "calibration": "7d1a20aa4cf8fe32421b52756740a19175976b58bacd81b402386fad6beff14b"
+        },
+        "test_path": "/dev/shm/e02-D2-champion-base-export/test_five_baseline.py",
+        "test_sha256": "f67936d38f61181a458f92ece905335b20c5dddf9e4df57306a6b5ab76b15a01",
+        "exit_code": 1,
+        "wall_seconds": 13.600336818999494,
+        "log": "/workspace/e02-D2-receipts/champion/baseline-five-rebound.txt",
+        "log_sha256": "76f9b923b54c52b903e2423d103e82bb68833a29b879f3a2f0275b8f27791b93"
+      },
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "negative_decision": "5 actual baseline failures",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/baseline-five-rebound.txt.gz",
+        "sha256": "4a5b2e52e1066739d6b81b86890e9e533637f3a08ba5c622d71f847d0ffa8bb4",
+        "bytes": 3032,
+        "encoding": "gzip",
+        "decoded_sha256": "76f9b923b54c52b903e2423d103e82bb68833a29b879f3a2f0275b8f27791b93",
+        "decoded_bytes": 10652,
+        "binding": "payload committed with this receipt; lossless gzip preserves all original stdout/stderr bytes. Target source is stated in its check, not membership in an earlier tree."
+      },
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/baseline-five-rebound.json",
+        "sha256": "7b74bd3e2c3e680915b3c37905ffa92bbe79126e8044baf845e3d5d4c69039b4",
+        "bytes": 1527,
+        "binding": "payload committed with this receipt; target source is stated in its check, not membership in the earlier implementation tree"
+      }
+    },
+    {
+      "name": "remove-canonical-incumbent",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-champion/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--confcutdir=/workspace/e02-D-published-champion/policy-engine/tests/unit/scientist/methods/autotune",
+        "-q",
+        "-rA",
+        "/workspace/e02-D-published-champion/policy-engine/tests/unit/scientist/methods/autotune/test_calibration_autotune.py::test_native_challenger_guard_and_primary_pair_share_captured_predecessor"
+      ],
+      "target_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "environment": {
+        "python_executable": "/workspace/e02-D-locked-env/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "jax": "0.8.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "module_origins": "not printed; exact exported source file hashes and PYTHONPATH in run metadata",
+        "cwd": "/workspace/e02-D-published-champion/policy-engine",
+        "PYTHONPATH": "/dev/shm/e02-D2-champion-base-export/policy-engine/src:/workspace/e02-D-published-champion/policy-engine",
+        "added_worker_or_thread_caps": false,
+        "other_inherited_environment_values": "not_captured"
+      },
+      "input_closure": {
+        "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+        "source_tree": "a15e4fa7c4f060cbf95116129e032b5209012188",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-c",
+          "/workspace/e02-D-published-champion/policy-engine/pytest.ini",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--confcutdir=/workspace/e02-D-published-champion/policy-engine/tests/unit/scientist/methods/autotune",
+          "-q",
+          "-rA",
+          "/workspace/e02-D-published-champion/policy-engine/tests/unit/scientist/methods/autotune/test_calibration_autotune.py::test_native_challenger_guard_and_primary_pair_share_captured_predecessor"
+        ],
+        "cwd": "/workspace/e02-D-published-champion/policy-engine",
+        "export": "/dev/shm/e02-D2-champion-base-export",
+        "mode": "property_removal",
+        "mutation": "Delete fresh candidate identity comparison, both records predecessor-ref+lineage reconciliation loop, and fresh candidate lineage guard from _incumbent_comparison; retain all remaining comparison validations and real evaluators",
+        "source_file_sha256": {
+          "models": "0a5549546086b12eaf4219e9b472413c6e59d3738b9719a86d6b2d823f7cdeed",
+          "registry": "ccfb45820bd02a43e2eec94f70bd908c4401b92a70632eeaf689440d3d836a8f",
+          "runtime": "067fa62f1c86b99e0e3e83080543904ae076585488de69fe1ecc8caa303087f1",
+          "calibration": "ea8b5f83db75356a07550b63c833a3b45f5396dbcff8a84be3a230a88a48f865"
+        },
+        "test_path": "/workspace/e02-D-published-champion/policy-engine/tests/unit/scientist/methods/autotune/test_calibration_autotune.py",
+        "test_sha256": "21f9ba538f809847dbb384c88d3bdafa3c02986ee71e4af1a3e58b6ffcfc8aeb",
+        "exit_code": 1,
+        "wall_seconds": 13.729340991994832,
+        "log": "/workspace/e02-D2-receipts/champion/remove-canonical-incumbent.txt",
+        "log_sha256": "75a2b39348dd1672ff57c25703e2dbb7a30ff1f44be52178fa5bd287fab8d004"
+      },
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "negative_decision": "actual invariant assertion failed when runtime property removed",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/remove-canonical-incumbent.txt.gz",
+        "sha256": "882194a049137bcab67e52578e806e424c6e94d7ded89ebf051f95b3e9bcd62a",
+        "bytes": 2234,
+        "encoding": "gzip",
+        "decoded_sha256": "75a2b39348dd1672ff57c25703e2dbb7a30ff1f44be52178fa5bd287fab8d004",
+        "decoded_bytes": 6751,
+        "binding": "payload committed with this receipt; lossless gzip preserves all original stdout/stderr bytes. Target source is stated in its check, not membership in an earlier tree."
+      },
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/remove-canonical-incumbent.json",
+        "sha256": "e26355389677a13c9dbfe7cf4cf8bdfe0380d9b05901ed4f066f183eb266c4e8",
+        "bytes": 1869,
+        "binding": "payload committed with this receipt; target source is stated in its check, not membership in the earlier implementation tree"
+      }
+    },
+    {
+      "name": "remove-public-tell",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-champion/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--confcutdir=/workspace/e02-D-published-champion/policy-engine/tests/unit/scientist/methods/search",
+        "-q",
+        "-rA",
+        "/workspace/e02-D-published-champion/policy-engine/tests/unit/scientist/methods/search/test_native_ask_tell_witness.py::test_public_call_removal_trap_is_reached_before_history_acceptance[tell]"
+      ],
+      "target_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "environment": {
+        "python_executable": "/workspace/e02-D-locked-env/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "jax": "0.8.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "module_origins": "not printed; exact exported source file hashes and PYTHONPATH in run metadata",
+        "cwd": "/workspace/e02-D-published-champion/policy-engine",
+        "PYTHONPATH": "/dev/shm/e02-D2-champion-base-export/policy-engine/src:/workspace/e02-D-published-champion/policy-engine",
+        "added_worker_or_thread_caps": false,
+        "other_inherited_environment_values": "not_captured"
+      },
+      "input_closure": {
+        "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+        "source_tree": "a15e4fa7c4f060cbf95116129e032b5209012188",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-c",
+          "/workspace/e02-D-published-champion/policy-engine/pytest.ini",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "--confcutdir=/workspace/e02-D-published-champion/policy-engine/tests/unit/scientist/methods/search",
+          "-q",
+          "-rA",
+          "/workspace/e02-D-published-champion/policy-engine/tests/unit/scientist/methods/search/test_native_ask_tell_witness.py::test_public_call_removal_trap_is_reached_before_history_acceptance[tell]"
+        ],
+        "cwd": "/workspace/e02-D-published-champion/policy-engine",
+        "export": "/dev/shm/e02-D2-champion-base-export",
+        "mode": "property_removal",
+        "mutation": "Replace public driver.tell call with direct existing controller._accept_tell using same real detached evaluation and same state acceptance owner",
+        "source_file_sha256": {
+          "models": "0a5549546086b12eaf4219e9b472413c6e59d3738b9719a86d6b2d823f7cdeed",
+          "registry": "826f26622532517d13b9742b65cfb8e7f8cac6a6531843cfd4e67893e461b655",
+          "runtime": "067fa62f1c86b99e0e3e83080543904ae076585488de69fe1ecc8caa303087f1",
+          "calibration": "ea8b5f83db75356a07550b63c833a3b45f5396dbcff8a84be3a230a88a48f865"
+        },
+        "test_path": "/workspace/e02-D-published-champion/policy-engine/tests/unit/scientist/methods/search/test_native_ask_tell_witness.py",
+        "test_sha256": "2165e66a5f5e0262128ba74d575b5888f5e143005626ae5b6ba55a55a9430969",
+        "exit_code": 1,
+        "wall_seconds": 14.136194574006367,
+        "log": "/workspace/e02-D2-receipts/champion/remove-public-tell.txt",
+        "log_sha256": "9099983a8c971671a62015c3926ba067ec97ca325dc6663e5c9b88cc45c6ed3c"
+      },
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "negative_decision": "actual invariant assertion failed when runtime property removed",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/remove-public-tell.txt.gz",
+        "sha256": "6c295253093dbb660ef3abe774616a45b3471ef9efb7e992cb571daf7d17d61a",
+        "bytes": 1527,
+        "encoding": "gzip",
+        "decoded_sha256": "9099983a8c971671a62015c3926ba067ec97ca325dc6663e5c9b88cc45c6ed3c",
+        "decoded_bytes": 3727,
+        "binding": "payload committed with this receipt; lossless gzip preserves all original stdout/stderr bytes. Target source is stated in its check, not membership in an earlier tree."
+      },
+      "metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/remove-public-tell.json",
+        "sha256": "1a7ecf7fdb0e568e250696e42474931e2339a5a0f749c089cd7311a51d024640",
+        "bytes": 1778,
+        "binding": "payload committed with this receipt; target source is stated in its check, not membership in the earlier implementation tree"
+      }
+    },
+    {
+      "name": "novel_actual_callback_pre_fix",
+      "command": "Owner argv not printed in this historical log; exact independent af3 replay argv and inputs are committed at f7a9ec032d869ada35e7fdb2b468a6341a924db7 in published-champion-independent/callback-af3-red-capture.json.",
+      "target_sha": "af3f4f9234bb2f6188fe4524aac0d4fcca04619e",
+      "environment": {
+        "python_executable": "/workspace/e02-D-locked-env/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "jax": "0.8.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "module_origins": {
+          "polisyos.scientist.methods.autotune.calibration": "/workspace/e02-D2-receipts/champion/base-export/policy-engine/src/polisyos/scientist/methods/autotune/calibration.py",
+          "polisyos.scientist.methods.autotune.registry": "/workspace/e02-D2-receipts/champion/base-export/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+          "polisyos.scientist.methods.autotune.runtime": "/workspace/e02-D2-receipts/champion/base-export/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+        },
+        "cwd": "/workspace/e02-D-published-champion/policy-engine",
+        "PYTHONPATH": "/workspace/e02-D2-receipts/champion/base-export/policy-engine/src:/workspace/e02-D-published-champion/policy-engine",
+        "added_worker_or_thread_caps": false,
+        "other_inherited_environment_values": "not_captured"
+      },
+      "input_closure": {
+        "production_source": "af3f4f9234bb2f6188fe4524aac0d4fcca04619e",
+        "test_source_sha": "17ccf62f9cda2f3a468e851ffb61fd5d8e32486f",
+        "test_sha256": "f6fde19db2eced1f67fe7d0724ddc2b643d5442c11db6ba9a9401f33d644f786",
+        "description": "actual CalibrationMetaEvaluator, CalibrationReport, FileSystemCAS, native SearchLoopRunner and registry; same suite/module/policy, switched callback"
+      },
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "deciding_output": "old incumbent score0.30348085529587265; active incumbent0.8384615384615384; wrong promoted challenger0.6333333333333333",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/callback-af3-red.txt.gz",
+        "sha256": "61f6024e72fc06dc7a495f5ae34f0313d9999c393023a94c6b1d5dd0ba4f9285",
+        "bytes": 2459,
+        "encoding": "gzip",
+        "decoded_sha256": "eb37b94e6b9cc7ac78e3e18124e883392959f7b259c22b2fd02883353b576eb4",
+        "decoded_bytes": 7569,
+        "binding": "payload committed with this receipt; lossless gzip preserves all original stdout/stderr bytes. Target source is stated in its check, not membership in an earlier tree."
+      }
+    },
+    {
+      "name": "schema_data_reader_compatibility_only",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "/dev/shm/e02-D2-champion-schema-probe.py"
+      ],
+      "target_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "environment": {
+        "python_executable": "/workspace/e02-D-locked-env/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "jax": "0.8.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "module_origins": {
+          "polisyos.scientist.methods.autotune.models": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "polisyos.scientist.methods.autotune.registry": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+          "polisyos.scientist.methods.autotune.runtime": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "polisyos.scientist.methods.search.service": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/service.py"
+        },
+        "cwd": "/workspace/e02-D-published-champion/policy-engine",
+        "PYTHONPATH": "src:.",
+        "added_worker_or_thread_caps": false,
+        "other_inherited_environment_values": "not_captured"
+      },
+      "input_closure": {
+        "legacy_reader": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "source_role": "actual_loaded_older_reader",
+          "git_blob": "07b724b714aa4e36ca2db852b4035203773df819",
+          "sha256": "2d18efbc9d5ba0ed309515b56617ae45d5be6269ce333c57ed3f8ce159033596",
+          "bytes": 15958
+        },
+        "new_fixture_source": {
+          "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py",
+          "source_role": "schema_probe_fixture_helpers",
+          "git_blob": "ae2466b342640fb56dc500e3db8914fbbc0bbd57",
+          "sha256": "9909128c504e60df46dde11fbdd1f4fdf16b6f9bddc38b5972f806fc8d200c49",
+          "bytes": 22434
+        },
+        "recipe": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/schema-data-recipe.txt",
+          "sha256": "618e8c37bcc087698377db022a2474d251494af9ad59baeaf1a76c4a16171847",
+          "bytes": 4256,
+          "binding": "payload committed with this receipt; target source is stated in its check, not membership in the earlier implementation tree"
+        },
+        "artifact_refs": {
+          "evaluation": {
+            "artifact_id": "sha256:eea0fc89fee9904ba3ebbac6c4ab3047b9e6afa9cc07c74a9049e27a700e82b6",
+            "kind": "scientist.autotune.comparison-witness.evaluation",
+            "media_type": "application/json"
+          },
+          "legacy_reader_path": "/dev/shm/e02-D2-champion-old-models.py",
+          "legacy_reader_sha256": "2d18efbc9d5ba0ed309515b56617ae45d5be6269ce333c57ed3f8ce159033596",
+          "legacy_reader_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "new_module_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "persisted_search_service_restore": "unsupported_missing_API",
+          "schema_or_data_rollback_only": true,
+          "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+          "source_tree": "ecc9631463819d1d71c4eb1f87bdead50fdfe31f",
+          "suite": {
+            "artifact_id": "sha256:835660ceb556d4c2ac3ed83afc5c94a303f30eba2ee6c5f8a2fcb43ce62a7b12",
+            "kind": "scientist.autotune.generic.suite",
+            "media_type": "application/json"
+          }
+        },
+        "decoding": "actual old load_model_artifact uses Core canonical-float decoder; full typed refs and benchmark-suite manifest lineage supplied"
+      },
+      "outcome": "PASS",
+      "deciding_output": "old reader extra-field refuses data_basis and comparison_basis only; current reader refuses unknown comparison version; generic legacy unbound comparison refuses evaluation_comparison_basis_required with no pointer",
+      "measurement": {
+        "exit_code": 0,
+        "wall_seconds": 8.966665158994147
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/schema-data-compatibility-final.txt.gz",
+        "sha256": "75b9c9a12680b92430500de51a6e63820a22461fe0f3c5edbb7465fa38e6e1b8",
+        "bytes": 886,
+        "encoding": "gzip",
+        "decoded_sha256": "ef149b085959092298f5dc0d440a822d73570a8e637d52267a975a382fc343d0",
+        "decoded_bytes": 1719,
+        "binding": "payload committed with this receipt; lossless gzip preserves all original stdout/stderr bytes. Target source is stated in its check, not membership in an earlier tree."
+      }
+    },
+    {
+      "name": "owned_python_style_and_typed_comparison",
+      "command": "three exact argv arrays in committed final-static-checks.txt.gz (read with gzip -cd)",
+      "target_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "environment": {
+        "python_executable": "/workspace/e02-D-locked-env/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "jax": "0.8.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "module_origins": {
+          "polisyos.scientist.methods.autotune.models": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "polisyos.scientist.methods.autotune.registry": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+          "polisyos.scientist.methods.autotune.runtime": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "polisyos.scientist.methods.search.service": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/service.py"
+        },
+        "cwd": "/workspace/e02-D-published-champion/policy-engine",
+        "PYTHONPATH": "src:.",
+        "added_worker_or_thread_caps": false,
+        "other_inherited_environment_values": "not_captured"
+      },
+      "input_closure": {
+        "python_path_denominator": 17,
+        "typed_path_denominator": 4,
+        "paths": "complete explicit lists in log; supplier paths are not silently included as accepted"
+      },
+      "outcome": "PASS",
+      "deciding_output": "Ruff check PASS17; format PASS17; mypy Success: no issues found in 4 source files",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/final-static-checks.txt.gz",
+        "sha256": "a2d3d6443b9c350c5c9bb4b3f9cb7fd9362ebbcf1127455639996abe51b4d5ad",
+        "bytes": 614,
+        "encoding": "gzip",
+        "decoded_sha256": "fbd9a6b91b267d19bec9029d7cecc30fecd877c3b429cc085562c9b8b3c0552a",
+        "decoded_bytes": 3968,
+        "binding": "payload committed with this receipt; lossless gzip preserves all original stdout/stderr bytes. Target source is stated in its check, not membership in an earlier tree."
+      }
+    },
+    {
+      "name": "mandatory_static_production_invocation_attempt",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/workspace/e02-D2-receipts/champion/production-invocation.json"
+      ],
+      "target_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "environment": {
+        "python_executable": "/workspace/e02-D-locked-env/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "jax": "0.8.2",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "module_origins": {
+          "polisyos.scientist.methods.autotune.models": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "polisyos.scientist.methods.autotune.registry": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+          "polisyos.scientist.methods.autotune.runtime": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "polisyos.scientist.methods.search.service": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/service.py"
+        },
+        "cwd": "/workspace/e02-D-published-champion/policy-engine",
+        "PYTHONPATH": "src:.",
+        "added_worker_or_thread_caps": false,
+        "other_inherited_environment_values": "not_captured"
+      },
+      "input_closure": "full tracked production invocation analyzer selector against literal slice base; analyzer did not complete",
+      "outcome": "ERROR",
+      "deciding_output": "process killed exit137 before verdict/receipt; no static graph PASS or repository absence claim",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/production-invocation-attempt.json",
+        "sha256": "fda9bbeec5ad4fba968f01de4dd0cf571c1be9d847a7f7f3d2c79bbb48e40f51",
+        "bytes": 1124,
+        "binding": "payload committed with this receipt; target source is stated in its check, not membership in the earlier implementation tree"
+      }
+    }
+  ],
+  "property": {
+    "statement": "A bounded generic champion comparison resolves exact CAS candidate/evaluation/suite/data/split identities, executes both candidate and actual captured incumbent in the same active evaluator context, then reconciles the exact predecessor used by guardrails under the existing POSIX registry lock before a complete pointer effect. The existing native driver performs public ask/evaluate/tell with one acceptance owner.",
+    "runtime_path": [
+      "existing SearchLoopRunner.run -> _NativeSearchServiceDriver.run_search -> public ask",
+      "controller supplier _evaluate_for_tell -> existing builtin BenchmarkEvaluation producer",
+      "existing Core FileSystemCAS suite/data/split/candidate/paired evaluation manifests",
+      "ChampionRegistry.consider_promotion -> POSIX flock -> canonical reread -> bound comparison -> fsync/temp/replace -> fresh reader",
+      "public tell -> controller._accept_tell -> actual history/best/counters"
+    ],
+    "proxy_divergence": "An unchanged class-module hash and suite concealed a changed callback: cached incumbent score0.30348 allowed challenger0.63333 although active incumbent0.83846. A second race kept the challenger guard true against old incumbent while a competing canonical incumbent replaced it; fresh primary scores alone still admitted the stale guard. Both exact af3 failures are independently replayed; b328 executes paired context and reconciles captured refs.",
+    "negative_controls": [
+      "exact source198 five semantic baseline failures, precise AST fixture adapter recorded",
+      "remove canonical incumbent identity/predecessor reconciliation while preserving actual callbacks, typed comparison markers and remaining metric checks -> actual calibration race FAIL",
+      "remove public tell mediation while retaining same detached evaluation and acceptance owner -> unchanged public-call trap FAIL",
+      "pointer score tampering, wrong selected manifest profile, changed units/direction, changed immutable path bytes, duplicate split IDs, stale metadata replacement, and two real POSIX writer processes in final78"
+    ],
+    "replay_recipe": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/property-removal-recipe.txt",
+      "sha256": "0420936ac75fd9449b761862aa5a385a1c03c8b30aa4727c1185ff1a9ffa85d1",
+      "bytes": 6155,
+      "binding": "payload committed with this receipt; target source is stated in its check, not membership in the earlier implementation tree"
+    },
+    "public_tell_variant_binding": {
+      "template_source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "recipe_derived_variant_sha256": "51fbd5f198c3354c309f9f11de9b134b907d138ad8df6b45bdaaab7a18edac9a",
+      "binding": "derived from immutable template and exact captured mutation recipe; service hash was omitted from pre-run metadata. This is not a separately runtime-measured source hash."
+    }
+  },
+  "predicate_basis": "recomputed",
+  "predicate_classification": {
+    "recomputed": [
+      "full typed ref-selected CAS content and manifest lineage",
+      "suite/data/split exact identity and full partition coverage",
+      "full configured metric policy digest including unit/direction/split/guards",
+      "actual current-context paired incumbent metric records on declared fixtures",
+      "canonical predecessor candidate/evaluation identity under existing local lock",
+      "actual public ask/tell call and controller state counters/history"
+    ],
+    "consumer_asserted": [
+      "meaning and calibration adequacy of arbitrary externally configured evaluator callbacks",
+      "evaluator appointment or institutional promotion authority",
+      "external claimed dataset custody/scientific validity"
+    ],
+    "not_established": [
+      "closure/authority provenance of callback source or closures beyond bounded module build digest",
+      "production deployed/served hierarchical invocation",
+      "persisted SearchService resume/checkpoint history compatibility"
+    ],
+    "claim_degradation": "CAS/input/build identities authorize only the bounded computational comparison of configured evaluation records; no policy publication, appointed evaluator or scientific validation authority is inferred"
+  },
+  "capability_state_or_finding_state": "bounded_runtime_path_verified; all four findings remain partial pending canonical owner acceptance and missing served/persisted-history criteria",
+  "capability_chain": {
+    "typed_contract": "strict BenchmarkSuite/BenchmarkComparisonBasis/BenchmarkEvaluation full refs; version benchmark-comparison.v1",
+    "producer": "five existing evaluator writers consume immutable dataset/split and capture actual incumbent guard input",
+    "persisted_artifact": "existing Core CAS paired evaluations and selected manifest inputs, plus complete champion pointer",
+    "bridge": "existing native SearchLoopRunner, no new workflow or second registry",
+    "consumer": "existing ChampionRegistry resolves actual evaluations and canonical predecessor; public ask/tell updates one owner state",
+    "surface": "existing Python API/registry files plus affected README/release fragment; served hierarchical cutover remains consumer_missing",
+    "verification": "owner78 actual consumers plus independent two novel producer/consumer probes and property-removal failures",
+    "production_invocation": "existing public native runner route exercised by real production classes under tests; six literal hits contain definition/exports/logging only; dynamic or deployed caller not established"
+  },
+  "compatibility_and_failure": {
+    "new_schema": "strict comparison schema v1; current unknown-version refuses before model construction",
+    "older_reader": "actual source198 Core loader refuses new suite/evaluation extra fields. This proves incompatibility/refusal only, not successful policy or service rollback",
+    "in_memory_failure": "actual StageB RuntimeError retains accepted first history/counters and only second pending; same instance real detached evaluation followed by tell accepts exactly once; duplicate tell refuses",
+    "partial_stop": "one accepted row and next pending remain; no double counter/history acceptance",
+    "pointer_replace_fault": "actual injected exceptions before/after os.replace preserve complete old/new pointer read through a newly opened registry/CAS; no real process termination or power-loss guarantee",
+    "concurrency": "real two POSIX child writers canonical reread; actual native evaluator concurrent promotion yields stale-pair refusal; fresh reader retains winner",
+    "persisted_SearchService_resume": "unsupported_missing_API; no fabricated restore or successful persistent rollback"
+  },
+  "source_freeze_reconciliation": {
+    "prod_vs_final_changed_source_paths": [],
+    "659_delta": "test-only supported SRV03 evaluator fixture now records full captured predecessor refs; original best/history/counter assertions retained"
+  },
+  "independent_review": {
+    "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+    "proof_source_sha": "17ccf62f9cda2f3a468e851ffb61fd5d8e32486f",
+    "deciding_payload_source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+    "review_result": "accepted_with_scoped_limits",
+    "review_json_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent.json",
+    "review_json_sha256": "0b651038f6822fd168c350139661fbac1a424727f3f2c5c58e2a936dcf212c63",
+    "receipt_commit": "5290d418de47ab9061a63e1cdf376e186948aa9e",
+    "bounded_result": "callback switch and separate real Calibration/native runner competing-writer barrier each pass on b328, each fails at actual effect on af3; no full closure/authority/distributed verdict",
+    "review_json_git_blob": "ba034be91dee5fe6f5d855774f96d5056b6a13e7",
+    "review_json_bytes": 21570,
+    "remote_readback": "reviewer reported normal push/readback; root independently fetches for acceptance"
+  },
+  "consumer_denominator": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/consumer-denominator.json",
+    "sha256": "e9938f583859215a72a2b198d5ba0821c074e1f70b7516c767d3279f442a1926",
+    "bytes": 3684,
+    "binding": "payload committed with this receipt; target source is stated in its check, not membership in the earlier implementation tree"
+  },
+  "preserved_reds_and_preparation": {
+    "original_initial_five": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "source_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/base-witness.txt.gz",
+        "sha256": "f18dd2a17865239fbfb27defcc49ee1e5e7510175bf3a555108f094bfebf39d0",
+        "bytes": 2298,
+        "encoding": "gzip",
+        "decoded_sha256": "b56322d79cf996878feb19c1f814c9d650dea6cbe6764f8a2415f07b44359cae",
+        "decoded_bytes": 9545,
+        "binding": "payload committed with this receipt; lossless gzip preserves all original stdout/stderr bytes. Target source is stated in its check, not membership in an earlier tree."
+      },
+      "input_test_source_binding": "initial test was uncommitted and subsequently edited; original exact test source fingerprint not established. Do not assign current test hash to historical output. Precise new baseline replay below replaces it for decision."
+    },
+    "rebound_baseline": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "template_source_sha": "63b22c4d4ee3b1856325f62984cceb354b41afe2",
+      "template_test": {
+        "source_sha": "63b22c4d4ee3b1856325f62984cceb354b41afe2",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py",
+        "source_role": "source",
+        "git_blob": "81ab781e936f55eb37a4f0d2a7037976eb8b5937",
+        "sha256": "62c1bb2a8ce57d8aa778c7c420e07491dc6f44a28f0778e53e19f96ce75503a8",
+        "bytes": 8396
+      },
+      "generated_test_sha256": "f67936d38f61181a458f92ece905335b20c5dddf9e4df57306a6b5ab76b15a01",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/baseline-five-rebound.txt.gz",
+        "sha256": "4a5b2e52e1066739d6b81b86890e9e533637f3a08ba5c622d71f847d0ffa8bb4",
+        "bytes": 3032,
+        "encoding": "gzip",
+        "decoded_sha256": "76f9b923b54c52b903e2423d103e82bb68833a29b879f3a2f0275b8f27791b93",
+        "decoded_bytes": 10652,
+        "binding": "payload committed with this receipt; lossless gzip preserves all original stdout/stderr bytes. Target source is stated in its check, not membership in an earlier tree."
+      },
+      "scope": "all original five property purposes; exact AST removals only bridge schema differences, not weakened assertions"
+    },
+    "first_candidate_builtin_failures": {
+      "target_sha": "63b22c4d4ee3b1856325f62984cceb354b41afe2",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/builtins-consumers-63b.txt.gz",
+        "sha256": "aca825e29a80c96e1f0b56cb1da9d034366d06e2a26c0670e832f36e87dc18de",
+        "bytes": 16501,
+        "encoding": "gzip",
+        "decoded_sha256": "ca3b5349aa4f961e69b69671f154ef4e6b2da3b6ab070c2c6ace3d4c28575446",
+        "decoded_bytes": 156313,
+        "binding": "payload committed with this receipt; lossless gzip preserves all original stdout/stderr bytes. Target source is stated in its check, not membership in an earlier tree."
+      },
+      "deciding_output": "6 failed,23 passed,2warnings. Owned constructor helper TypeErrors fixed at af3; supported generic fixture migration completed in b328/659. No inherited waiver.",
+      "runtime_module_origin": "not printed by original consumer command; exact candidate context and failure code retained, never substituted for final bound78"
+    },
+    "literal_base_existing_builtin_replay": {
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/builtins-consumers-base198-complete.txt.gz",
+        "sha256": "38f70461592830824be7ee95b234a50eed5b7d469e734c6dfa004ba51d13801b",
+        "bytes": 14205,
+        "encoding": "gzip",
+        "decoded_sha256": "d5ed932c05102b2461948fed84ed806d92f37bfa4ad3bf3810d52d195fa74f35",
+        "decoded_bytes": 141342,
+        "binding": "payload committed with this receipt; lossless gzip preserves all original stdout/stderr bytes. Target source is stated in its check, not membership in an earlier tree."
+      },
+      "deciding_output": "3 failed,26 passed,2warnings; full fixture/architecture export after two harness omissions",
+      "P41": "changed evaluator/test inputs overlap this gate, so no zero-intersection inherited-red exemption claimed; final consumer wave completes all78"
+    },
+    "b328_missing_fixture_predecessor_red": {
+      "target_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/final-consumers.txt.gz",
+        "sha256": "7b51619f4de16aba000c3f9329b28cb306c00b1790abe30d8c8040737293f5f8",
+        "bytes": 15397,
+        "encoding": "gzip",
+        "decoded_sha256": "54dcd7be1b044d4e5f77b68aa9a6dca0c6c107a339808fe88d06d9f368c067af",
+        "decoded_bytes": 145242,
+        "binding": "payload committed with this receipt; lossless gzip preserves all original stdout/stderr bytes. Target source is stated in its check, not membership in an earlier tree."
+      },
+      "deciding_output": "1 failed,77passed; supported SRV03 fixture omitted producer predecessor. Fixed test-only659, all78 pass"
+    },
+    "initial_schema_harness": {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published/schema-data-compatibility.txt.gz",
+        "sha256": "7669e57ce4556670ee9a11aa6075f8d59de985474bd3ef6e951184f6494dbe66",
+        "bytes": 750,
+        "encoding": "gzip",
+        "decoded_sha256": "6f176418dfb1be4e206c2663779251fe43367d863ab6753a1f13283e330bc8c2",
+        "decoded_bytes": 1473,
+        "binding": "payload committed with this receipt; lossless gzip preserves all original stdout/stderr bytes. Target source is stated in its check, not membership in an earlier tree."
+      },
+      "limitation": "JSON-loaded Core encoded metric caused incidental float_type along with real extra-field refusal; superseded by actual old Core model loader in final probe. Two intermediate harness attempts also lacked explicit runtime split then suite input lineage and refused earlier; no product verdict from them."
+    }
+  },
+  "authority_boundary": {
+    "authoritative_for": [
+      "bounded local computational comparison identity and native state-transition behavior measured by exact tests"
+    ],
+    "may_not_use_for": [
+      "appointment or authorization of promotion evaluator",
+      "policy publication authority",
+      "scientific/calibration validity of production metric",
+      "distributed registry guarantees",
+      "complete served cutover or persisted SearchService history replay",
+      "resource-accounting closure by imported ancestry"
+    ]
+  },
+  "limitations_and_next_owner": [
+    "Root/G must independently integrate exact source/companions and replay affected consumers after corrected FUN/GP/transfer supplier joins; this source receipt is not full finding closure.",
+    "External callback/closure origin authenticity and scientific meaning remain not_established by class module digest; actual incumbent re-evaluation covers configured current context, not arbitrary self-authored evaluation authority. Semantic/evaluator owner must appoint and custody authority before using these records for policy publication.",
+    "Local POSIX flock/reread/atomic pointer profile only. Fault injection at replace and fresh reader is not real kill/power-failure/storage-corruption or cross-filesystem/distributed coordination proof.",
+    "Actual old-reader schema/data refusal is bounded rollback-compatibility evidence. No successful historical policy rollback, persisted SearchService restore, crash/restart frontier/history/evaluation-count replay API or retention window has been established. Root/G/native migration owner must supply that public contract and inputs; no fake restore introduced.",
+    "Served hierarchical caller remains separately consumer_missing. Literal selected-file census cannot establish dynamic repository absence; existing HierarchicalPolicySearchAdapter owner must wire a served request through a Git contract and characterization trace before cutover claims.",
+    "Mandatory static invocation analyzer attempt killed exit137 before verdict, ERROR/UNRUN. Root/G must rerun exact diagnostic on an executable profile; completed text census is bounded separate evidence, not a waiver.",
+    "Configured BudgetMiddleware resource owner retained. Imported d42/d80 history has no inherited resource acceptance; Root must join final corrected FUN supplier and rerun actual combined consumers.",
+    "Fixtures and actual built-in callbacks establish generic computation/state properties; production corpus, provenance, appointed evaluator, public publication authority, and full broad/architecture gates are outside this receipt."
+  ],
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P05",
+    "P07",
+    "P10",
+    "P25",
+    "P27",
+    "P28",
+    "P29",
+    "P31",
+    "P32",
+    "P33",
+    "P35",
+    "P37",
+    "P38",
+    "P40",
+    "P41"
+  ],
+  "receipt_scope": "implementation committed first; this docs-only receipt does not reference its own future commit. Covered finding IDs are task scope, closure_ids is empty.",
+  "input_recording_limits": [
+    "Per-variant env metadata names exported source and exact pre-run hashes; runtime import origins were not printed in those three negatives. Final78 actual imports are printed. Shared immutable backend versions measured at final659 are the same configured read-only environment, not independent version probes for every historical log.",
+    "Owner historical callback argv was not printed; independent source-bound replay capture supplies its exact command. Initial original five test source bytes were uncommitted and not retained; fresh rebound baseline fixes this historical binding limitation."
+  ],
+  "log_transport": {
+    "encoding": "individual deterministic gzip files",
+    "reason": "preserve exact pytest trailing-whitespace bytes and complete deciding output while keeping text-source whitespace checks meaningful",
+    "decoder": "gzip -cd <committed .txt.gz path>",
+    "identity": "sha256/bytes bind compressed Git artifact; decoded_sha256/decoded_bytes bind original complete captured log",
+    "deletion": "none; original scratch logs and moved uncompressed doc copies retained"
+  }
+}

@@ -1,0 +1,62 @@
+2026-10-06 10:49:26.332 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: HTTPSConnectionPool(host='openaipublic.blob.core.windows.net', port=443): Max retries exceeded with url: /encodings/cl100k_base.tiktoken (Caused by ProxyError('Unable to connect to proxy', OSError('Tunnel connection failed: 403 Forbidden')))
+
+F
+=================================== FAILURES ===================================
+________ test_native_paid_reject_routing_preserves_measured_accounting _________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-240/test_native_paid_reject_routin0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f79fd6e48a0>
+
+    def test_native_paid_reject_routing_preserves_measured_accounting(tmp_path, monkeypatch):
+        fixture = runpy.run_path(
+            str(Path("tests/integration/scientist/methods/search/funnel/test_orchestrator.py"))
+        )
+        path, _, funnel, calls, _, context = fixture["configured_workflow"](
+            tmp_path, monkeypatch, levels=(3,)
+        )
+        native = funnel.stages[0]
+        actual_evaluate = native.evaluate
+    
+        def actual_stage_with_explicit_reject_signal(candidate, stage_context):
+            # Preserve the actual worker, provider response, estimate and measured
+            # charge. Supply only the public typed routing vector as the test input.
+            actual = actual_evaluate(candidate, stage_context)
+            return replace(actual, cheap_signal=CheapSignalVector(structural_validity=0.0))
+    
+        monkeypatch.setattr(native, "evaluate", actual_stage_with_explicit_reject_signal)
+        outcome = funnel.advance(funnel.submit({"candidate_id": "candidate-1"}, context), policy="full")
+        ledger = FileBudgetLedger(path).snapshot()
+        stage = outcome.stage_results[3]
+        print(
+            json.dumps(
+                {
+                    "calls": calls,
+                    "final_action": outcome.final_action,
+>                   "spent": str(ledger.state.spent["run"]),
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "ledger_event_ids": sorted(ledger.resource_events),
+                    "trace_cost_source": outcome.trace[0].compute_cost_source,
+                    "trace_provider_spend": str(outcome.trace[0].provider_spend_usd),
+                    "stage_cost_source": stage.compute_cost_source,
+                    "stage_provider_spend": str(stage.provider_spend_usd),
+                    "stage_event_ids": stage.resource_event_ids,
+                    "outcome_cost_source": outcome.compute_cost_source,
+                    "outcome_provider_spend": str(outcome.provider_spend_usd),
+                    "outcome_event_ids": outcome.resource_event_ids,
+                },
+                sort_keys=True,
+            )
+        )
+E       KeyError: 'run'
+
+tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py:40: KeyError
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py::test_native_paid_reject_routing_preserves_measured_accounting
+1 failed, 2 warnings in 11.98s

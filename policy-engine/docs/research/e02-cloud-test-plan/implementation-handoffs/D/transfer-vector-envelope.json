@@ -1,0 +1,59 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "transfer-vector-envelope",
+  "closure_ids": [],
+  "finding_ids": [
+    "B134"
+  ],
+  "bundle_ids": [
+    "TRN-02"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "d20ccd002cb480bb75b388bd6151942e438ca13c"
+  ],
+  "candidate_tree_sha": "2fc7624888eb3f88017e00469e22b58f7aa32a1b",
+  "branch": "codex/e02-D-published-transfer",
+  "review_response": "Same complete-generation intake class: prior shape-valid foreign bundle and unknown schema escape widened one load envelope before pointer publication.",
+  "environment": {
+    "python": "/workspace/e02-D-locked-env/bin/python",
+    "origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-envelope-origins.txt",
+      "sha256": "1dfcbca86792b2d056c3d3b6cf9d1d295a971ebf820da38dde2236a045cc78c1"
+    }
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -c /dev/null -p no:cacheprovider --confcutdir=tests/unit -q tests/unit/scientist/agent/test_vector_memory.py tests/unit/remediation/test_trn_02.py -k 'not discovery and not history_cache' -ra",
+      "source": "immutable git archive",
+      "target_sha": "d20ccd002cb480bb75b388bd6151942e438ca13c",
+      "outcome": "PASS",
+      "result": "18 passed, 2 deselected, 2 warnings in 10.14s",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-envelope-immutable.txt",
+        "sha256": "ad7b7e86778354c2c2f81d36d3b95ee87b5a8b10536717a09444a585c84a7b8b"
+      }
+    },
+    {
+      "command": "new unchanged test file over immutable de7 archive; pytest -k envelope",
+      "target_sha": "de7fce6cf5f91a63b1b573f1de72d17c792b5c34",
+      "outcome": "EXPECTED_FAIL",
+      "result": "7 failed, 2 passed, 6 deselected in 0.58s; envelope controls retain all reference and generation markers",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-envelope-base.txt",
+        "sha256": "ebde8d3424bd0e928603d1a1d474afc07f290155b0d783f1f262cc4c00f5eb40"
+      }
+    }
+  ],
+  "input_identity": "Real FileSystemCAS full bundle/index ArtifactRef including manifest view; altered bytes, foreign kind/media and native physical header disagreement.",
+  "property": "Only explicit schema-absent legacy or v2 known envelope can publish, after native dimension/count/capacity and labels agree with admitted generation metadata. Every refusal preserves old real HNSW query.",
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded technical generation intake; no finding closure adjudication",
+  "limitations_and_next_owner": [
+    "Native file admission is pinned hnswlib0.8.0/native size_t/float/endian ABI, not portable cross-version interchange.",
+    "Schema-absent legacy index_artifact_id selects the existing default manifest view; it does not recover missing historical manifest identity.",
+    "No distributed pointer or institutional source authority is introduced.",
+    "G independent acceptance and combined-tree checks remain pending."
+  ]
+}

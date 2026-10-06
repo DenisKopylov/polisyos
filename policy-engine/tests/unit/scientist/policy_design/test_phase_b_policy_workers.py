@@ -6,7 +6,10 @@ from types import SimpleNamespace
 
 import pytest
 
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.scientist.methods.autotune.models import BenchmarkSplitManifest
+from polisyos.scientist.methods.doe.designs import AdversarialStrategy
 from polisyos.scientist.methods.doe.designs import ParameterSpec as DOEParameterSpec
 from polisyos.scientist.methods.search.objective import CompositeObjective, GDPGrowthObjective
 from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
@@ -230,7 +233,12 @@ def test_constraint_critic_surfaces_budget_and_not_assessed_findings() -> None:
 
 
 def test_scenario_adversary_fallback_and_execution(tmp_path) -> None:
-    worker = ScenarioAdversaryWorker(ScenarioAdversaryConfig(max_scenarios=3, collect_top_k=2))
+    store = FileSystemCAS(tmp_path / "cas")
+    worker = ScenarioAdversaryWorker(
+        ScenarioAdversaryConfig(
+            max_scenarios=3, collect_top_k=2, strategy=AdversarialStrategy.GRID_EXTREME
+        )
+    )
     surface = ScenarioAttackSurface(
         candidate_id="candidate_policy",
         parameter_specs=[
@@ -243,7 +251,7 @@ def test_scenario_adversary_fallback_and_execution(tmp_path) -> None:
             selection_ids=["a"],
             holdout_ids=["b"],
         ),
-        vulnerability_threshold=0.5,
+        vulnerability_threshold=-0.5,
     )
     bundle = worker.propose(surface, run_id="adv_test", budget_state=BudgetState())
 
@@ -260,13 +268,22 @@ def test_scenario_adversary_fallback_and_execution(tmp_path) -> None:
                 + float(candidate.get("noise", 0.0))
             }
         },
-        cas=None,
+        cas=store,
         run_id="adv_test",
     )
 
     assert result.compiled_plan.parameter_specs
     assert result.stress_test_report.total_scenarios_evaluated >= 1
     assert result.stress_test_report.vulnerabilities
+    # CompositeObjective normalizes GDP as -GDP; low GDP is the bad corner.
+    assert result.stress_test_report.worst_case_objective == 0.0
+    assert result.stress_test_report.metadata["score_scope"] == "observed_finite_scenarios"
+    assert result.stress_test_report_ref is not None
+    payload = from_canonical_bytes(
+        FileSystemCAS(tmp_path / "cas").get_bytes(result.stress_test_report_ref.artifact_id)
+    )
+    assert payload["metadata"] == result.stress_test_report.metadata
+    assert payload["worst_case_objective"] == 0.0
 
 
 @pytest.mark.asyncio
@@ -275,9 +292,7 @@ async def test_scenario_adversary_gateway_parses_think_prefixed_json(
 ) -> None:
     surface = ScenarioAttackSurface(
         candidate_id="candidate_think_prefixed",
-        parameter_specs=[
-            DOEParameterSpec(name="shock", lower_bound=0.0, upper_bound=1.0)
-        ],
+        parameter_specs=[DOEParameterSpec(name="shock", lower_bound=0.0, upper_bound=1.0)],
     )
     payload = {
         "scenarios": [
@@ -306,6 +321,4 @@ async def test_scenario_adversary_gateway_parses_think_prefixed_json(
     bundle = await ScenarioAdversaryWorker().propose_async(surface)
 
     assert bundle.fallback_used is False
-    assert [scenario.scenario_id for scenario in bundle.scenarios] == [
-        "adv_think_prefixed"
-    ]
+    assert [scenario.scenario_id for scenario in bundle.scenarios] == ["adv_think_prefixed"]

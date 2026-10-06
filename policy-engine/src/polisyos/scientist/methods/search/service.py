@@ -23,10 +23,8 @@ from polisyos.scientist.methods.search.controller import (
     SearchResult,
     SearchStatus,
 )
-from polisyos.scientist.methods.search.run_state import (
-    GenerationTransition,
-    _EvaluationDisposition,
-)
+from polisyos.scientist.methods.search.run_state import GenerationTransition
+from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
 
 logger = get_logger(__name__)
 
@@ -35,8 +33,8 @@ class _NativeSearchServiceDriver:
     """Drive one controller lifecycle through the native service boundary.
 
     The ask/tell methods are the concrete implementation of the existing
-    ``SearchService`` protocol.  ``run_search`` uses the same methods' owner
-    seams and the controller's established evaluator path, so the autotune
+    ``SearchService`` protocol.  ``run_search`` calls public ``ask`` and
+    ``tell`` around the controller's detached evaluator, so the autotune
     consumer no longer calls the legacy full-loop implementation directly.
     """
 
@@ -45,6 +43,7 @@ class _NativeSearchServiceDriver:
         self._pending_candidates: dict[str, dict[str, Any]] = {}
         self._completed_candidate_ids: set[str] = set()
         self._ask_iteration = 0
+        self._initial_candidate: dict[str, Any] | None = None
 
     def ask(
         self,
@@ -57,7 +56,7 @@ class _NativeSearchServiceDriver:
         self.controller._prepare_service_run()
         payloads = self.controller._generate_candidates(
             iteration=self._ask_iteration,
-            initial_candidate=None,
+            initial_candidate=self._initial_candidate,
             context=context,
         )
 
@@ -71,9 +70,7 @@ class _NativeSearchServiceDriver:
             else:
                 raw_candidate_id = payload["candidate_id"]
                 if not isinstance(raw_candidate_id, str) or not raw_candidate_id:
-                    raise ValueError(
-                        "search candidate_id must be an explicit non-empty string"
-                    )
+                    raise ValueError("search candidate_id must be an explicit non-empty string")
                 candidate_id = raw_candidate_id
             if (
                 candidate_id in pending
@@ -92,6 +89,7 @@ class _NativeSearchServiceDriver:
             )
 
         self._pending_candidates.update(pending)
+        self._initial_candidate = None
         self._ask_iteration += 1
         return proposals
 
@@ -134,9 +132,7 @@ class _NativeSearchServiceDriver:
                 "objective_value": float(evaluation.objective_value),
             }
         elif not isinstance(simulation_results, dict):
-            raise TypeError(
-                "EvaluationBundle.stage_b_result.simulation_results must be a mapping"
-            )
+            raise TypeError("EvaluationBundle.stage_b_result.simulation_results must be a mapping")
 
         feedback = stage_b_result.get("feedback")
         if feedback is None:
@@ -162,14 +158,14 @@ class _NativeSearchServiceDriver:
         initial_candidate: dict[str, Any] | None = None,
     ) -> SearchResult:
         """Run the existing generation/evaluation lifecycle through this driver."""
-        self._pending_candidates.clear()
-        self._completed_candidate_ids.clear()
-        self._ask_iteration = 0
-
         run_lock = self.controller._run_lock
         if not run_lock.acquire(blocking=False):
             raise RuntimeError("SearchController.run is not reentrant")
         try:
+            self._pending_candidates.clear()
+            self._completed_candidate_ids.clear()
+            self._ask_iteration = 0
+            self._initial_candidate = deepcopy(initial_candidate)
             return self._run_locked(
                 initial_context=initial_context,
                 initial_candidate=initial_candidate,
@@ -238,13 +234,9 @@ class _NativeSearchServiceDriver:
         *,
         initial_context: dict[str, Any],
         initial_candidate: dict[str, Any] | None,
-    ) -> tuple[list[dict[str, Any]], bool, str | None]:
+    ) -> tuple[list[CandidateProposal], bool, str | None]:
         generated = initial_candidate is None
-        batch = self.controller._generate_candidates(
-            iteration=self.controller._run_state.evaluation_iterations,
-            initial_candidate=initial_candidate,
-            context=initial_context,
-        )
+        batch = self.ask(None, None, initial_context)
         if not generated:
             return batch, False, None
 
@@ -265,36 +257,31 @@ class _NativeSearchServiceDriver:
 
     def _mark_nonempty_generation(self) -> None:
         if self.controller._run_state.empty_generation_attempts:
-            self.controller._run_state.generation_transition = (
-                GenerationTransition.TRANSIENT_EMPTY
-            )
+            self.controller._run_state.generation_transition = GenerationTransition.TRANSIENT_EMPTY
             self.controller._run_state.empty_generation_attempts = 0
 
     def _evaluate_batch(
         self,
         *,
-        batch: list[dict[str, Any]],
+        batch: list[CandidateProposal],
         generated: bool,
         initial_context: dict[str, Any],
     ) -> str | None:
-        for candidate in batch:
+        for proposal in batch:
             if (
                 self.controller._run_state.evaluation_iterations
                 >= self.controller._config.max_iterations_hard_limit
             ):
                 break
-            transition = self.controller._evaluate_candidate(
-                candidate,
+            evaluation = self.controller._evaluate_for_tell(
+                proposal.payload,
                 iteration=self.controller._run_state.evaluation_iterations,
                 context=initial_context,
             )
-            self.controller._run_state.apply_evaluation_transition(transition)
+            self.tell(proposal.candidate_id, evaluation)
             self.controller._refresh_budget_snapshot(initial_context)
 
-            if (
-                transition.disposition is _EvaluationDisposition.SENTINEL
-                and not generated
-            ):
+            if extract_sentinel_metadata(proposal.payload) is not None and not generated:
                 self._stop("Initial sentinel evaluated")
                 return "Initial sentinel evaluated"
 

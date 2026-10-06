@@ -1,0 +1,72 @@
+{
+  "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+  "source_tree": "87804edd3be6bcefb0de06e509e7c73e88934aaa",
+  "production_tests_release_match_committed_HEAD": true,
+  "environment": {
+    "python": "3.14.7",
+    "torch": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "PYTHONPATH": "src:.",
+    "torch_device": "cpu",
+    "torch_num_threads_observed": 5,
+    "thread_env_observed": {
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null
+    }
+  },
+  "origins": {
+    "polisyos.scientist.methods.search.objective": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "polisyos.scientist.methods.autotune.bayesian_generator": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "polisyos.scientist.methods.search.strategies.bayesian": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "polisyos.scientist.methods.search.strategies.multi_objective": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+    "polisyos.scientist.methods.search.strategies.neural": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+    "polisyos.scientist.methods.autotune.pareto": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py"
+  },
+  "seeds_inputs": "fixtures declare Sobol42/GP31/37/ordered finite lattice with Random53; no ambient seed or thread cap added by runner",
+  "basetemp_asserted_nonexistent": true,
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "--basetemp=/dev/shm/search-canonical-frozen-659714afd0744956b0a9aab814656b74",
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+    "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+    "tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+    "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+    "tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py",
+    "tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py"
+  ]
+}
+........................................................................ [ 58%]
+...................................................                      [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py: 9 warnings
+tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py: 3 warnings
+tests/unit/scientist/methods/search/strategies/test_effective_actions.py: 1 warning
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+123 passed, 15 warnings in 16.33s
+
+EXIT_CODE=0

@@ -1,0 +1,57 @@
+.............FF.
+=================================== FAILURES ===================================
+__________ test_paid_response_remains_charged_if_latency_metrics_fail __________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-158/test_paid_response_remains_cha0')
+
+    def test_paid_response_remains_charged_if_latency_metrics_fail(tmp_path):
+        class FailedLatencyMetric:
+            def record(self, *args, **kwargs):
+                raise RuntimeError("latency metrics unavailable")
+    
+        path = tmp_path / "paid-metric-failure.json"
+        caller, transport = _caller(
+            path, [("physical-1", 1)], metrics=SimpleNamespace(llm_latency_ms=FailedLatencyMetric())
+        )
+        with pytest.raises(RuntimeError, match="latency metrics unavailable"):
+            _invoke(caller)
+        snapshot = FileBudgetLedger(path).snapshot()
+        assert transport.calls == 1
+>       assert snapshot.state.spent["run"] == Decimal("1"), (
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            "A known paid provider receipt must settle before observability can fail"
+        )
+E       KeyError: 'run'
+
+tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py:107: KeyError
+____ test_negative_reported_measurement_is_refused_without_false_zero_event ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-158/test_negative_reported_measure0')
+
+    def test_negative_reported_measurement_is_refused_without_false_zero_event(tmp_path):
+        path = tmp_path / "malformed-cost.json"
+        caller, transport = _caller(path, [("physical-1", -1)])
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py:116: Failed
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_measured_charge_reopens_and_duplicate_survives_journal_eviction
+PASSED tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_actual_above_estimate_and_unlimited_key_are_fully_charged
+PASSED tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_reservations_are_owned_and_replay_does_not_release_another_attempt
+PASSED tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_same_provider_receipt_delivery_with_new_reservation_does_not_double_charge
+PASSED tests/unit/scientist/orchestration/engine/test_budget_ledger.py::test_unknown_billing_retains_reservation_for_reconciliation
+PASSED tests/integration/scientist/orchestration/llm/test_budget_enforcer.py::test_sync_real_caller_settles_full_receipt_and_fresh_reopen
+PASSED tests/integration/scientist/orchestration/llm/test_budget_enforcer.py::test_actual_cache_reuse_is_zero_new_charge_and_retry_is_new_charge
+PASSED tests/integration/scientist/orchestration/llm/test_budget_enforcer.py::test_missing_provider_measurement_is_pending_not_estimated_spend[cost]
+PASSED tests/integration/scientist/orchestration/llm/test_budget_enforcer.py::test_missing_provider_measurement_is_pending_not_estimated_spend[request]
+PASSED tests/integration/scientist/orchestration/llm/test_budget_enforcer.py::test_missing_provider_measurement_is_pending_not_estimated_spend[provider]
+PASSED tests/integration/scientist/orchestration/llm/test_budget_enforcer.py::test_paid_call_remains_settled_when_later_consumer_fails
+PASSED tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py::test_actual_full_and_reopened_split_events_match
+PASSED tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py::test_real_duplicate_delivery_with_different_content_is_refused
+PASSED tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py::test_removed_settlement_cannot_be_hidden_by_trace_cost_one
+FAILED tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py::test_paid_response_remains_charged_if_latency_metrics_fail
+FAILED tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py::test_negative_reported_measurement_is_refused_without_false_zero_event
+2 failed, 14 passed in 0.29s

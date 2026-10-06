@@ -1,0 +1,415 @@
+{
+  "schema_version": "e02.D.independent-review.v1",
+  "unit": "D",
+  "queue": 3,
+  "finding_ids": [
+    "B116",
+    "B117"
+  ],
+  "covered_finding_ids": [
+    "B116",
+    "B117"
+  ],
+  "closure_ids": [],
+  "review_result": "accepted_with_scoped_limits",
+  "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+  "tree": "a15e4fa7c4f060cbf95116129e032b5209012188",
+  "published_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "own_delta_parent_sha": "d42a25e4e00a8015599c63b96224a7565be97df2",
+  "pre_fix_source_sha": "af3f4f9234bb2f6188fe4524aac0d4fcca04619e",
+  "independent_proof_source_sha": "17ccf62f9cda2f3a468e851ffb61fd5d8e32486f",
+  "deciding_payload_source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+  "criterion": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "source_role": "tracked_canonical_owner_decision",
+    "sha256": "622284b984ec12fcba96084cfad13e346112a0539ae081da683e1b663c5b4b6d",
+    "bytes": 110393,
+    "task_anchor": "OPT-04",
+    "lines": [
+      298,
+      320
+    ],
+    "byte_range": [
+      52023,
+      55291
+    ]
+  },
+  "reviewed_production_refs": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "source_role": "reviewed_production_source",
+      "sha256": "0a5549546086b12eaf4219e9b472413c6e59d3738b9719a86d6b2d823f7cdeed",
+      "bytes": 26850
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "source_role": "reviewed_production_source",
+      "sha256": "826f26622532517d13b9742b65cfb8e7f8cac6a6531843cfd4e67893e461b655",
+      "bytes": 26818
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "source_role": "reviewed_production_source",
+      "sha256": "067fa62f1c86b99e0e3e83080543904ae076585488de69fe1ecc8caa303087f1",
+      "bytes": 12107
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/calibration.py",
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "source_role": "reviewed_production_source",
+      "sha256": "ea8b5f83db75356a07550b63c833a3b45f5396dbcff8a84be3a230a88a48f865",
+      "bytes": 16576
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/cheap_stage.py",
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "source_role": "reviewed_production_source",
+      "sha256": "be9351dca7ed5717f39186e825fb5e13064850767b763715d84ad79d2974ae32",
+      "bytes": 13630
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/claim_adjudication.py",
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "source_role": "reviewed_production_source",
+      "sha256": "f6c2a4256352f7669bbc059613141d2d2edf7d119aa99830ccf7c62368bad971",
+      "bytes": 17038
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py",
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "source_role": "reviewed_production_source",
+      "sha256": "247dee0f668a2f201e4219e184f3aad3a31491d3ab7a4908042b93f83ab5936e",
+      "bytes": 35650
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/reflexion.py",
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "source_role": "reviewed_production_source",
+      "sha256": "94309e34ac29a5b2c9608c0a7d161b61051fc4a129ba1a85f50d1f405947fbbf",
+      "bytes": 12646
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "source_role": "reviewed_actual_native_caller",
+      "sha256": "1c822301ed87e8008661c0d0ff558dfc15dab2d437de069636b313da987e9428",
+      "bytes": 11808
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/registry_contracts.py",
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "source_role": "reviewed_registry_contract",
+      "sha256": "0c99491737cb176e15b062a0661b45c680b464c719dac25e7591a2e857ae655d",
+      "bytes": 3460
+    }
+  ],
+  "own_delta_denominator": {
+    "git_command": [
+      "git",
+      "diff",
+      "--name-only",
+      "d42a25e4e00a8015599c63b96224a7565be97df2",
+      "b328bb9abee30cb556ba7af4cf15dd5388386f12"
+    ],
+    "count": 19,
+    "paths": [
+      "policy-engine/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-champion.toml",
+      "policy-engine/src/polisyos/scientist/methods/autotune/calibration.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/cheap_stage.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/claim_adjudication.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/reflexion.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "policy-engine/src/polisyos/scientist/methods/search/registry_contracts.py",
+      "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "policy-engine/tests/unit/remediation/test_srv_03.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_calibration_autotune.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_reflexion_autotune.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_native_ask_tell_witness.py",
+      "policy-engine/tests/unit/scientist/search/test_cheap_stage_autotune.py"
+    ],
+    "imported_resource_supplier_history": "separate_owner_not_independently_approved_by_this_review"
+  },
+  "backend": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "dependency_environment": "existing_locked_env_read_only",
+    "env": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "src:."
+    },
+    "module_origins": "native exact immutable source, complete origins retained in each capture"
+  },
+  "cases": [
+    {
+      "case": "callback-af3-red",
+      "property": "active_callback_primary_comparison",
+      "source_sha": "af3f4f9234bb2f6188fe4524aac0d4fcca04619e",
+      "tree": "df294d30be92c5e448dbde6905d7100ea33122f9",
+      "result": "actual_assertion_FAIL",
+      "exit_code": 1,
+      "wall_seconds": 13.57124589200248,
+      "max_rss_kib": 1177488,
+      "rss_scope": "cumulative_high_water_of_completed_children_in_this_capture_process",
+      "test": {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_q3_independent_callback.py",
+        "source_sha": "17ccf62f9cda2f3a468e851ffb61fd5d8e32486f",
+        "source_role": "independent_proof_bytes",
+        "sha256": "f6fde19db2eced1f67fe7d0724ddc2b643d5442c11db6ba9a9401f33d644f786",
+        "bytes": 4997
+      },
+      "payloads": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/callback-af3-red-capture.json",
+          "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+          "source_role": "captured_deciding_output",
+          "sha256": "0c95e493b6469047ac90ee9221a5b12c17f5f90a47c8c38a36998393becab730",
+          "bytes": 2720
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/callback-af3-red-environment.txt",
+          "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+          "source_role": "captured_deciding_output",
+          "sha256": "e601b7da2205b9318ed87933ddf9edb8a9a988792426595848adde5879277cfb",
+          "bytes": 788
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/callback-af3-red-pytest.txt",
+          "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+          "source_role": "captured_deciding_output",
+          "sha256": "dbee9e274871a15b6e8b46dc95abcb07643112a44b6b6d4e6e06797a531cc331",
+          "bytes": 6035
+        }
+      ]
+    },
+    {
+      "case": "callback-b328-green",
+      "property": "active_callback_primary_comparison",
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "tree": "a15e4fa7c4f060cbf95116129e032b5209012188",
+      "result": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 14.202865511993878,
+      "max_rss_kib": 1178468,
+      "rss_scope": "cumulative_high_water_of_completed_children_in_this_capture_process",
+      "test": {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_q3_independent_callback.py",
+        "source_sha": "17ccf62f9cda2f3a468e851ffb61fd5d8e32486f",
+        "source_role": "independent_proof_bytes",
+        "sha256": "f6fde19db2eced1f67fe7d0724ddc2b643d5442c11db6ba9a9401f33d644f786",
+        "bytes": 4997
+      },
+      "payloads": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/callback-b328-green-capture.json",
+          "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+          "source_role": "captured_deciding_output",
+          "sha256": "e491d3aaf447969999a227b951682c9787a4c47284d990a288232004118cad66",
+          "bytes": 2736
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/callback-b328-green-environment.txt",
+          "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+          "source_role": "captured_deciding_output",
+          "sha256": "5859f204126a9bdfb9154cd0b975e1df2989f8d1e64a97365249b59ec3e23e73",
+          "bytes": 800
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/callback-b328-green-pytest.txt",
+          "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+          "source_role": "captured_deciding_output",
+          "sha256": "3ca7128d10da6d3fbd844fc7e378fb9f21125e1ef72f73512899fa99ff569649",
+          "bytes": 1252
+        }
+      ]
+    },
+    {
+      "case": "predecessor-af3-red-v2",
+      "property": "guardrail_predecessor_competing_writer",
+      "source_sha": "af3f4f9234bb2f6188fe4524aac0d4fcca04619e",
+      "tree": "df294d30be92c5e448dbde6905d7100ea33122f9",
+      "result": "actual_assertion_FAIL",
+      "exit_code": 1,
+      "wall_seconds": 18.043530181996175,
+      "max_rss_kib": 1124172,
+      "rss_scope": "cumulative_high_water_of_completed_children_in_this_capture_process",
+      "test": {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_q3_independent_predecessor.py",
+        "source_sha": "17ccf62f9cda2f3a468e851ffb61fd5d8e32486f",
+        "source_role": "independent_proof_bytes",
+        "sha256": "6198fa3cd865c1d212e0c0875b443e06566691409dc88501478108477c660bc8",
+        "bytes": 6008
+      },
+      "payloads": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-af3-red-v2-capture.json",
+          "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+          "source_role": "captured_deciding_output",
+          "sha256": "c8c4aac7f3e0967c80a7bced7d2d918d00043a5072dc2bd56d4e0ea367593cbe",
+          "bytes": 3012
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-af3-red-v2-environment.txt",
+          "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+          "source_role": "captured_deciding_output",
+          "sha256": "1f020a39a4de0deca8672b15ba71dbad4143c5eecd9b6230cd82de373141e086",
+          "bytes": 680
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-af3-red-v2-pytest.txt",
+          "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+          "source_role": "captured_deciding_output",
+          "sha256": "91169b63b0de2d31f39f78d71c810fab045fb45ea06d646565651e9ab7d0867e",
+          "bytes": 10331
+        }
+      ]
+    },
+    {
+      "case": "predecessor-b328-green-v2",
+      "property": "guardrail_predecessor_competing_writer",
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "tree": "a15e4fa7c4f060cbf95116129e032b5209012188",
+      "result": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 14.355090961005772,
+      "max_rss_kib": 1130104,
+      "rss_scope": "cumulative_high_water_of_completed_children_in_this_capture_process",
+      "test": {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_q3_independent_predecessor.py",
+        "source_sha": "17ccf62f9cda2f3a468e851ffb61fd5d8e32486f",
+        "source_role": "independent_proof_bytes",
+        "sha256": "6198fa3cd865c1d212e0c0875b443e06566691409dc88501478108477c660bc8",
+        "bytes": 6008
+      },
+      "payloads": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-b328-green-v2-capture.json",
+          "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+          "source_role": "captured_deciding_output",
+          "sha256": "182689ad364d52ffc654aed310f744c4b509625a8d76e4c1225866e0a40029e7",
+          "bytes": 3027
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-b328-green-v2-environment.txt",
+          "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+          "source_role": "captured_deciding_output",
+          "sha256": "980780af0bbf8c53b0e0595701c21ab81d2611ee055899251b4570a55bec29e8",
+          "bytes": 692
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-b328-green-v2-pytest.txt",
+          "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+          "source_role": "captured_deciding_output",
+          "sha256": "a13d8fa98d72997ddb1a984b6ca7514e6a446563f22618e7a99228dc3f89a435",
+          "bytes": 4099
+        }
+      ]
+    }
+  ],
+  "observed_results": {
+    "callback": {
+      "pre_fix_old_incumbent": 0.30348085529587265,
+      "active_incumbent": 0.8384615384615384,
+      "wrong_promoted_challenger": 0.6333333333333333,
+      "corrected_effect": "retain_original_incumbent_after_same_active_context_pair"
+    },
+    "competing_writer": {
+      "challenger_primary": 0.8763636363636363,
+      "competing_primary": 0.5258064516129032,
+      "challenger_uncertainty": 0.6000000000000001,
+      "competing_uncertainty": 1.0,
+      "allowance": 0.05,
+      "retained_guardrail": true,
+      "pre_fix_effect": "wrong_challenger_commit",
+      "corrected_reason": "incumbent_changed_during_evaluation",
+      "fresh_reader": "new ChampionRegistry with separately reopened FileSystemCAS retains competing incumbent"
+    }
+  },
+  "mechanism_review": "Capture detached canonical predecessor before challenger evaluation. All five existing evaluator writers consume CAS dataset/split and use that captured predecessor for incumbent-relative guardrails. Native runner always executes incumbent under the same active callback context, persists exact predecessor candidate/evaluation refs on both records and CAS lineage. Registry validates both against its canonical reread under the existing POSIX flock before compare-and-publish. No second registry/lock owner introduced.",
+  "release_review": {
+    "fragment": {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-champion.toml",
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "source_role": "reviewed_release_companion",
+      "sha256": "8437c01cd7fa22e66b8b412801e7f7d7fd54ef12659a6d34d2b02a707eec920e",
+      "bytes": 3062
+    },
+    "readme": {
+      "path": "policy-engine/README.md",
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "source_role": "reviewed_migration_and_route_docs",
+      "sha256": "44132744e7f8ae0f837bf164e7eafc1b9dfe438e2a2465ef490e7bbdaf41dbea",
+      "bytes": 13703
+    },
+    "result": "public_stable classification, breaking persisted-artifact format/API/migration and explicit unsupported persisted-restore/served-cutover/distributed scope declared"
+  },
+  "lint": {
+    "argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-B",
+      "-m",
+      "ruff",
+      "check",
+      "tests/unit/scientist/methods/autotune/test_q3_independent_callback.py",
+      "tests/unit/scientist/methods/autotune/test_q3_independent_predecessor.py"
+    ],
+    "result": "PASS; format --check both files PASS"
+  },
+  "preparation_errors_and_deviation": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/preparation-errors.json",
+      "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+      "source_role": "retained_non_deciding_preparation_or_process_record",
+      "sha256": "0f8d339cae62161869a901297f63735c3e1f3280e3078b47dc5c1623aaae9e49",
+      "bytes": 1161
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-af3-red-environment.txt",
+      "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+      "source_role": "retained_non_deciding_preparation_or_process_record",
+      "sha256": "fb25d8a0197166ec0d65dd181092b87f279fed79b78b9bf1eb1aaa671dc21c57",
+      "bytes": 3260
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/predecessor-b328-green-environment.txt",
+      "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+      "source_role": "retained_non_deciding_preparation_or_process_record",
+      "sha256": "8cb7b3c37c5ab1a8e09346f655c6ac628af6e6ac2e58e99ccb5bd33867f47c35",
+      "bytes": 3284
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/cleanup-deviation.json",
+      "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+      "source_role": "retained_non_deciding_preparation_or_process_record",
+      "sha256": "e87071b6135f1fdea68c6d9e985b3929d78c0bf1355b799ab1de11ce297607ed",
+      "bytes": 1371
+    }
+  ],
+  "capture_driver": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-champion-independent/capture-driver-v2.txt",
+    "source_sha": "f7a9ec032d869ada35e7fdb2b468a6341a924db7",
+    "source_role": "exact_capture_driver_for_v2_barrier_pair",
+    "sha256": "c6ed219038884f34226b4e54da79d3182a0b1b1e6d19879181b3d576ba66237a",
+    "bytes": 4641
+  },
+  "capture_metadata_scope": "Captured test_source_sha names the author-lane HEAD at execution; tests were explicitly uncommitted review inputs then. It does not establish test membership in that old Git tree. Their exact immutable Git byte binding is the separate proof commit above; all four captured test hashes equal it. Initial callback archives used entire tracked trees; barrier v2 used all src plus architecture, pytest configuration, quarantine and real fixture plugins. First minimal barrier attempts omitted a tracked architecture digest registry and failed module import before pytest; complete errors retained and no source verdict inferred.",
+  "limitations": [
+    "Two actual novel native calibration producer/consumer proofs only; owner final78 run is not counted as independent evidence.",
+    "The af3 controls are exact pre-fix counterexamples, not isolated single-line removal controls or a claim all source changes were necessary.",
+    "Cross-process/crash-boundary owner tests were inspected as implementation inputs only, not independently rerun here; distributed or cross-filesystem guarantees unestablished.",
+    "Persisted SearchService restore, served hierarchical cutover, imported resource-accounting completeness, evaluator appointment and promotion authority remain unestablished.",
+    "No findings closed or inherited-red waiver. Baseline criterion is a tracked owner decision; historical result-package PASS navigation is not closure.",
+    "Each pytest capture emits two existing PyTorch Python3.14 deprecation warnings. RSS is cumulative child high-water, not isolated instantaneous process memory.",
+    "Permanent scratch cleanup deviation is explicitly recorded; original completed red archive in-place inspection unavailable, immutable Git source/proof and complete deciding output retained. No cleanup after Trash-only stop."
+  ],
+  "next_owner": "Root/G integration acceptance must compose actual consumers and source-bound owner race/crash/removal gates; this review gives no signature or publication authority."
+}

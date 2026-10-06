@@ -1,0 +1,23 @@
+{
+  "sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+  "tree": "04566efb021c2beeee1e160fee40ab9216a037e5",
+  "input_pathspecs": [
+    "policy-engine/src",
+    "policy-engine/tests",
+    "policy-engine/tools",
+    "policy-engine/architecture",
+    "policy-engine/schemas",
+    "policy-engine/data",
+    "policy-engine/pyproject.toml",
+    "policy-engine/pytest.ini",
+    "policy-engine/ruff.toml",
+    "policy-engine/mypy.ini",
+    "policy-engine/hatch.toml",
+    "policy-engine/uv.toml",
+    "policy-engine/uv.lock"
+  ],
+  "archive_bytes": 171089920,
+  "archive_sha256": "50630a05fd32577c198b5b9dabff6f90497f5c1f49a7f1e929dc8f900e02a47e",
+  "extraction": "/dev/shm/e02-D2-receiver-review-fac5",
+  "files": 7664
+}

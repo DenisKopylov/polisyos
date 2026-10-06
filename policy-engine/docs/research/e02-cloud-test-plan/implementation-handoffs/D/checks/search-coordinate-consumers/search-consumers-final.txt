@@ -1,0 +1,76 @@
+................F...................................                     [100%]
+=================================== FAILURES ===================================
+___________________ test_mo_batch_shape_when_deps_available ____________________
+
+simple_space = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])
+
+    @pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+    def test_mo_batch_shape_when_deps_available(simple_space: SearchSpace) -> None:
+        strategy = MOBayesianOptimizer(
+            simple_space,
+            objective_names=["f1", "f2"],
+            directions=[OptimizationDirection.MINIMIZE, OptimizationDirection.MINIMIZE],
+            config=MOConfig(n_initial=1, seed=4),
+        )
+>       evals = [_make_eval(i, float(i), float(5 - i), simple_space) for i in range(8)]
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/search/strategies/test_multi_objective.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/search/strategies/test_multi_objective.py:16: in _make_eval
+    params_normalized=space.normalize(params),
+                      ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = SearchSpace(bounds=[ParameterBounds(name='x', lower=-5.0, upper=5.0, dtype=<ParameterType.CONTINUOUS: 'continuous'>, log_scale=False, categories=None)])
+params = {'x': 6.0}
+
+    def normalize(self, params: dict[str, Any]) -> NormalizedVector:
+        values: list[float] = []
+        for bound in self.bounds:
+            if bound.dtype == ParameterType.CATEGORICAL:
+                assert bound.categories is not None
+                raw = params.get(bound.name)
+                matches = [
+                    type(raw) is type(candidate) and raw == candidate
+                    for candidate in bound.categories
+                ]
+                if sum(matches) != 1:
+                    raise ValueError(
+                        f"Unknown category '{raw}' for parameter '{bound.name}'. "
+                        f"Allowed: {bound.categories}"
+                    )
+                values.extend(1.0 if match else 0.0 for match in matches)
+                continue
+            value = params.get(bound.name)
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not math.isfinite(value)
+            ):
+                raise ValueError(f"Finite physical parameter required for '{bound.name}'")
+            raw = float(value)
+            if not bound.lower <= raw <= bound.upper:
+>               raise ValueError(f"Physical parameter '{bound.name}' is outside bounds")
+E               ValueError: Physical parameter 'x' is outside bounds
+
+src/polisyos/scientist/methods/search/strategies/space.py:100: ValueError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/remediation/test_opt_02_strategy_consumers.py::test_neural_actual_fit_and_acquisition_emits_attainable_action
+tests/unit/scientist/search/strategies/test_neural.py::TestGPBasedSuggest::test_suggest_after_initial_phase
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/strategies/test_multi_objective.py::test_mo_batch_shape_when_deps_available
+1 failed, 51 passed, 4 warnings in 1.58s

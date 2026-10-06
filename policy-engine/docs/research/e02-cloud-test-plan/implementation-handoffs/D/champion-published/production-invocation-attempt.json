@@ -1,0 +1,27 @@
+{
+  "target_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--base",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "--receipt",
+    "/workspace/e02-D2-receipts/champion/production-invocation.json"
+  ],
+  "cwd": "/workspace/e02-D-published-champion/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "added_caps": false
+  },
+  "process_exit_code": 137,
+  "outcome": "ERROR",
+  "capability_verdict": "UNRUN; no completed graph or admitted receipt",
+  "stdout_stderr_bytes": 0,
+  "shell_completion": "/bin/bash: line 1: 159891 Killed ...",
+  "cause": "not_established; no resource diagnosis inferred from signal termination",
+  "wall_time": "not_captured",
+  "consumer_denominator_fallback": "separate complete literal Git-tree census; not a substitute for invocation diagnostic",
+  "next_owner": "Root/G can rerun the exact mandatory diagnostic on a supported execution host; no waiver or static absence verdict"
+}

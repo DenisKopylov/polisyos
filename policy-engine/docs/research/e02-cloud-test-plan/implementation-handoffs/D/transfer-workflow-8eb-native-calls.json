@@ -1,0 +1,30 @@
+{
+  "method": "sys.setprofile call observation only; no replaced native model, MLL, fitting, acquisition or checkpoint function",
+  "exitstatus": 0,
+  "tests": [
+    {
+      "nodeid": "shm/e02-D2-transfer-composed-8eb/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_actual_public_workflow_fits_only_admitted_original_cas_observations[False]",
+      "observed_calls": {
+        "ordinary.receiver_full_fit": 1,
+        "ordinary.native_SingleTaskGP_constructor": 1,
+        "ordinary.native_ExactMarginalLogLikelihood_constructor": 1,
+        "ordinary.native_fit_gpytorch_mll": 1,
+        "restore.native_SingleTaskGP_constructor": 1
+      }
+    },
+    {
+      "nodeid": "shm/e02-D2-transfer-composed-8eb/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_actual_public_workflow_fits_only_admitted_original_cas_observations[True]",
+      "observed_calls": {
+        "ordinary.receiver_full_fit": 1,
+        "ordinary.native_SingleTaskGP_constructor": 1,
+        "ordinary.native_ExactMarginalLogLikelihood_constructor": 1,
+        "ordinary.native_fit_gpytorch_mll": 1,
+        "restore.native_SingleTaskGP_constructor": 1
+      }
+    },
+    {
+      "nodeid": "shm/e02-D2-transfer-composed-8eb/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_configured_origin_mismatch_remains_discovery_only_and_cannot_fit_gp",
+      "observed_calls": {}
+    }
+  ]
+}

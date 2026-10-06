@@ -1,0 +1,8 @@
+type = "fixed"
+summary = "Reject malformed present history stage flags before scalar fallback, and export only complete finite objective vectors from the legacy search frontier."
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "execution-contract"
+compatibility = "An absent stage flag keeps the existing default; explicitly supplied flags must be Boolean. Legacy frontier rows must retain one ordered objective-name and direction basis with finite real coordinates. Unavailable objective details remain in search history and cannot displace complete frontier rows."
+migration = "Supply native Boolean stage flags and finite declared objective vectors. A changed legacy frontier basis is refused rather than compared as a partial vector."
+limitations = "This validates conditional numerical intake and export. It does not establish economic units, source authority, an independent global candidate denominator, or deployment acceptance. The A hypervolume reason-export and independent supplier dependencies remain open."

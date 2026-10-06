@@ -1,0 +1,1567 @@
+{
+  "schema": "policyos.e02.finding_coverage.v1",
+  "unit": "D",
+  "queue": "Q1 canonical search",
+  "finding_count": 12,
+  "bundle_count": 4,
+  "closure_ids": [],
+  "published_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "published_base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "source_freeze_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+  "source_freeze_tree": "49916b434ecc8a2d30b14d9626d3617e5c95a05d",
+  "scope": "Only admitted12 Q1 findings; not all45 D findings/17bundles and no inherited historical acceptance",
+  "predicate_basis": "not_established",
+  "environment": {
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "ruff": "0.14.10",
+    "PYTHONPATH": "src:.",
+    "platform": "LinuxCPU; torchCUDAwheel installed but GPU profile not exercised"
+  },
+  "changed_paths_from_published_base": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-87-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-cb47.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-final-2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-fiscal-intake/fiscal-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-fiscal-intake/fiscal-corrected.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-fiscal-intake/fiscal-ebeb-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-fiscal-intake/history-ebeb-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-baseline-198.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-candidate-2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-gp-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-gp-v3-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-native-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-reader-before-fit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-warm-binding-4c-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-warm-binding-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-mo-12ee-exact-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-mo-12ee-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-mo-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-mo-ebeb.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-ruff-ebeb.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-frontier-dependency.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-patch-apply-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-unapplied-hypervolume-export.patch",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-A-dependency-12ee.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-A-dependency.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-12ee.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-baseline-198.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-candidate-2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-pareto-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/test_a_frontier_dependency.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/canonical-path-mapping.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/canonical-paths-ab7577.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/canonical-paths-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/canonical-ruff-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-rendered-metadata.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-rendered.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-renderer.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/retired-source/test_opt_02_strategy_consumers.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-A-dependency-ab7577.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-core-12ee.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-ruff-12ee.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-contract-baseline.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-published-baseline.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-state-35d2654.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-state-schema-null.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cleanup-deviation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-defining-paths.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-executed-consumers.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-fiscal-intake.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-gp-continuation-v2.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-gp-warm-content-v3.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-mo-complete-vectors.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-pareto-indicators.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-state-v2.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-transfer-use-reader.json",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-executed-coordinates.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-fiscal-scalar-intake.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-gp-continuation.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-mo-vector-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-pareto-indicators.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-search-state.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-stage-frontier-admission.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/_continuation_fixture.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_admission.py",
+    "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+    "policy-engine/tests/unit/scientist/search/strategies/test_multi_objective.py"
+  ],
+  "product_source_paths": [
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py"
+  ],
+  "evidence_catalog": {
+    "state": {
+      "git_sha": "a9a73c77fd07bf61691807b75948b2f563ff70ce",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-state-v2.json",
+      "git_blob": "067ccfd9ecbcc72b431924bcaf8916eee2f03208",
+      "sha256": "17d677b0c21a7bf9db2a719d1339531899786c5f1f83a3699f33a3daffb2dd56",
+      "scope": "common strict codec/space/Sobol/semantic date, sourcea1ad; bounded55PASS"
+    },
+    "coordinate": {
+      "git_sha": "2c2bf1f0f0ef1a0c699764b59138f6696f353a38",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-executed-consumers.json",
+      "git_blob": "1b8675c0b4b08d0e36981577413db16ef2c0ccfb",
+      "sha256": "4ec009717775bbb4392f3b1b1231121ab7269eb086f5c3751c67d958f6b0d67d",
+      "scope": "immutablecb47 real native MO/neural execution34PASS"
+    },
+    "pareto": {
+      "git_sha": "987eab5dc6ad5e175efeb9875043b57916d0481c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-pareto-indicators.json",
+      "git_blob": "dd8fc16d878bdde3548106142b1b5e5630d75e26",
+      "sha256": "724af27475654ed1155d96d6e0d21d11b54576c6dd4ac6d43d20b73a5246de55",
+      "scope": "immutable12ee67PASS and actualA2FAIL; full criteria residuals remain"
+    },
+    "GPwarm": {
+      "git_sha": "0e14ae7dfdd9eab9bd68146054e58065e53f6cf7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-gp-warm-content-v3.json",
+      "git_blob": "aa17bbc54f39c388cf74df7df4fabbfbe59330a5",
+      "sha256": "606ea57854698be835a32b5536f71a8c38a4bdc5927317214521fa640ad27aec",
+      "scope": "corrected87 source warm digest/profile3, own59PASS; predecessor4c2FAIL retained"
+    },
+    "GPreader": {
+      "git_sha": "77e3cb7f16613593e87ef3ab80bf346bf38c0717",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-transfer-use-reader.json",
+      "git_blob": "25e65c4957d0c446a3f67ccfea1fa99c3ba33aba",
+      "sha256": "750179f4816220b206acee0a9fd3f1178d7937c43c633eae82853e9994719071",
+      "scope": "Exact2cd use-time canonicalreader; missingreader1PASS. Root8eb actualCAS workflow andc812 negative intake review are separateexactcatalogentries."
+    },
+    "GPanalytic": {
+      "git_sha": "f50f25fc3e4f6c1334661b06f55f74c3c4c425c1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-immutable-review.json",
+      "git_blob": "d3437d99fe068039500033e74e150d98626f8d83",
+      "sha256": "1197c9004e5571190fc3db660304642e698d57f0bb01b83a9400094d8718fe0c",
+      "json_pointer": "/corrective_cell",
+      "scope": "independent87 NumPy Cholesky full original-unit mean/cov10+11, actualMLL1/noopappend0/due>0, actual consumed local RNG23PASS; no production-history claim"
+    },
+    "final_core": {
+      "target_sha": "12ee3c730f6ac9b6cff292e70eef4437f8c37b22",
+      "tree": "2229e35bd74f80baffee0a63da4d38a76f062dff",
+      "outcome": "PASS",
+      "deciding_output": "100 passed, 26 warnings in 17.23s",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-core-12ee.txt",
+      "sha256": "a8b124e9e63ce4006aa6c403ccfa5fdd451b87677f9689f75d9992c233401811",
+      "bytes": 5243
+    },
+    "final_ruff": {
+      "target_sha": "12ee3c730f6ac9b6cff292e70eef4437f8c37b22",
+      "outcome": "PASS",
+      "deciding_output": "Ruff0.14.10 checkPASS;21 files formatPASS",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-ruff-12ee.txt",
+      "sha256": "8d6d920fbbdb34e2a9a3e004585cda677a05e184c7dd6f71c85600001e4e7036",
+      "bytes": 4311
+    },
+    "A_supplier": {
+      "target_sha": "12ee3c730f6ac9b6cff292e70eef4437f8c37b22",
+      "outcome": "FAIL_DECLARED_DEPENDENCY",
+      "deciding_output": "2 failed, 2 warnings in 9.65s",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/search-A-dependency-12ee.txt",
+      "sha256": "9b07286b3bee5d65cfe0911e7f8d6ab2691cd10588d9758d4fa98428191ac977",
+      "bytes": 4231,
+      "contract": {
+        "git_sha": "987eab5dc6ad5e175efeb9875043b57916d0481c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-frontier-dependency.json",
+        "git_blob": "7c17dfc7651e399842885fb6483fee982fb1a9ed",
+        "sha256": "86ee5d150a3cfe9ce7938b4b16029bd6dc6f8327111f4c7c42c9af17896dbaa5"
+      }
+    },
+    "composed_transfer": {
+      "git_sha": "54f07eb41939c743b50325bd1f39126396f5ff01",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-composed-workflow-8eb.json",
+      "git_blob": "7a729ce7d0a91a7c54422b5b959cedd532658de3",
+      "sha256": "c6be6e2303eb57063d24fa4daeb81382db5e179e5e4aabfe212db5f7d0126cb9",
+      "scope": "Exactcombined8ebCAS→HNSW→bridge→publicgenerator→SearchLoopRunner→realGP48PASS11.44s,0skip. Fixturetechnicalcustody only; BGC intake subsequently changed893/425, so not a complete newer-source verdict."
+    },
+    "optional_backend_absence": {
+      "outcome": "UNRUN",
+      "scope": "A genuine absent-backend environment was not exercised; mock/import availability is not numerical runtime proof."
+    },
+    "canonical_defining": {
+      "git_sha": "9f9612fa73580692894a3b55f6172bd1820dcfec",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-defining-paths.json",
+      "git_blob": "b65bf262f5f40a7b4abc5cbcd15c1c073f91e310",
+      "sha256": "0568e011a63080c5835088c3f01a422b5dec2d0f1fd0eed9287da118398a1240",
+      "scope": "Exactab planned8+fiscal/MO files123PASS,28 prior move/test function ASTs preserved; test-only companion, production893. Frozen425 broader union is separateERROR."
+    },
+    "fiscal": {
+      "git_sha": "9f9612fa73580692894a3b55f6172bd1820dcfec",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-fiscal-intake.json",
+      "git_blob": "accaa6d6e17f7ddc1ff4959f91ea7c01e9d71f8c",
+      "sha256": "5e7d797852e286d3132c2d7e046153d6f158e4bef02896ff690681655ed0765e",
+      "scope": "Scalar bool/overflow source893; exact unchanged independent native30/CLI27 pass, not legacy-front acceptance."
+    },
+    "MOcomplete": {
+      "git_sha": "e2fcad46fadfa17cb0901c3234f448062306570a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-mo-complete-vectors.json",
+      "git_blob": "bed11f7a63c28062722f15670770cd956b19aa40",
+      "sha256": "10ae0cf60fdda0fa658b9a3d7d2cba81ab2cc5a7d108858e4275233f0c7b8218",
+      "scope": "Ordered complete finite MO vectors and training coordinates sourceebeb;14defining +native/coordinate23PASS; original12ee14FAIL retained."
+    },
+    "independent_ebeb": {
+      "git_sha": "31527a86e4618f9e7164ff41b4ed146749b7017f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-independent-review.json",
+      "git_blob": "49a486dae68f94ee655e2300bb11b035b5d209de",
+      "sha256": "2de03a0dacd605418e8898832bcf17f6e4e85e4d4dc854edc4e7507654d919ce",
+      "scope": "Exactebeb independentGP23+coordinate7+writerMO14+native22=66PASS; not a blanket later-source verdict."
+    },
+    "fiscal_independent": {
+      "git_sha": "38bf35c1a0e954a25cabcccafd99ad4c056e590e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-independent-review.json",
+      "git_blob": "fa2e689a6b37e1aef85cb5dee814181aed2d0bd7",
+      "sha256": "61806ba1463d836915616bfb30721dc362f22b5bfe2edde5d07e2a85ffa50f56",
+      "scope": "Unchanged30 actual public controller/BGC +CLI27source893PASS, units/served origin remain unresolved."
+    },
+    "history_frontier": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-history-frontier-admission.json",
+      "sha256": "9205b57f1ebc2a9a612724cd360a5c223ea3df0b652c5c8667584433d37c585c",
+      "bytes": 8276,
+      "target_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+      "scope": "425typed-stage and completefinite legacy vector; independent40+CLI27/singlefrontPASS pinned. Own65precommitpositive and frozen14fileSIGKILL ERROR retained.",
+      "git_sha": "7cbb82da995d0ab3009a02ae21f487ce93a84f2a",
+      "git_blob": "acc870cccf15b586941754187d9138fa56ac6c75"
+    },
+    "latest_runtime_attempt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-q1-425-runtime.txt",
+      "sha256": "7f5dcd205962f379cb0ce0ff5ebc34e1fb9c885fb2780dbf0181a85ff97787bd",
+      "bytes": 3319,
+      "target_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+      "outcome": "ERROR_SIGKILL",
+      "deciding_output": "childEXIT_CODE=-9;wrapper247;76progress dots,no completedpytest verdict",
+      "scope": "No assertion traceback or established cause; neverPASS and not an inherited waiver.",
+      "git_sha": "7cbb82da995d0ab3009a02ae21f487ce93a84f2a",
+      "git_blob": "46e6875163ba3a8db8001553fb75c57bfe34be56"
+    },
+    "latest_ruff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-q1-425-ruff.txt",
+      "sha256": "55667ed769fbd244faab085b82c58b8e2c52d51e8c71a68911c684d957fd0be6",
+      "bytes": 6129,
+      "target_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+      "outcome": "PASS",
+      "deciding_output": "All checks passed;28filesalreadyformatted",
+      "version": "ruff0.14.10",
+      "git_sha": "7cbb82da995d0ab3009a02ae21f487ce93a84f2a",
+      "git_blob": "5a7ed7bd3ce8377aef9dc789a70dda97f65704a7"
+    },
+    "latest_release": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-425-renderer.txt",
+      "sha256": "412a23643dfb409aa8428599d6eccef5a1c8d6e862e91923ac49df3f6b816db8",
+      "bytes": 1844,
+      "target_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+      "outcome": "PASS",
+      "deciding_output": "ActualcanonicalCLI exit0;sevenownedfragments; reviewartifactonly",
+      "git_sha": "7cbb82da995d0ab3009a02ae21f487ce93a84f2a",
+      "git_blob": "3eebe1e09b23b73ec0dc8c470ac674314acdd0bc"
+    },
+    "A_current_dependency": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-A-dependency-ab7577.txt",
+      "sha256": "8fbcc6c59204e20f90ed88fb441d166b0da256142c58f44903cd892ab15f8dc7",
+      "bytes": 4199,
+      "target_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+      "outcome": "FAIL_DECLARED_DEPENDENCY",
+      "deciding_output": "2failed,2warnings in10.18s",
+      "scope": "Actualbuilder→FileSystemCAS→reader losesreason and publishes without independently supplied source denominator."
+    },
+    "composed_stage_corrective": {
+      "git_sha": "9b48e6878d7384b6144c7d1430f52e6cffcf4800",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-successor-c812.json",
+      "git_blob": "570ff75bc2ac674d507fca63627a518b2f7cbaa4",
+      "sha256": "33cfeab4bf1610b827c9b43a7bcd833d7f35661f1aa9800805430a66d7adaabb",
+      "scope": "Exactcombinedc812 with425: unchangedfour-case oraclePASS. Malformed stage corpus refuses;actualfit/MLL/model0, not seven-row fit. Valid8direct admission positive. Broader corrected-source healthyGPworkflow remainsroot-owned."
+    },
+    "native_425_independent": {
+      "git_sha": "e2a884e5321799728739c6c9677c85cbd9451251",
+      "proof_sha": "f12d4e2027b7613f664e3759e10d926c2519a102",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-review.json",
+      "git_blob": "53329e53c285983c8896b0de3c6555a25522da58",
+      "sha256": "39a4256226c52bc41422e431587f031393d8aac1c8bb03de4741df6ceb3f4639",
+      "target_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+      "target_tree": "49916b434ecc8a2d30b14d9626d3617e5c95a05d",
+      "predicate_basis": "independently_reconciled",
+      "outcome": "PASS",
+      "deciding_output": "40passed,2warnings in10.71s; originalCLI27PASS/singlefrontPASS",
+      "scope": "Unchanged native10legacyfront+30fiscal; full origins and original frozen test/CLI overlays. No units/sourceauthority closure."
+    }
+  },
+  "findings": [
+    {
+      "finding_id": "B108",
+      "canonical_criteria": {
+        "bundle": "OPT-01",
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "37f4bbbced6935c4e051c4bb1b1a9e76eb505301",
+        "source_marker": "B:B108",
+        "section_sha256": "27ce2933f0d6d9e9575060337e2ac754a30e76f9b4816c10a06984e1c989a4a3",
+        "start_line": 50,
+        "end_line": 64,
+        "acceptance_or_recommended_boundary_verbatim": "Эквивалентные кодировки balance/deficit дают одинаковый score; ноль не считается отсутствием; полностью отсутствующее, конфликтующее, non-finite и несовместимые единицы различены. Настоящие симуляционные producer и пользовательский search здесь не запускались.",
+        "previous_section_sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55",
+        "section_digest_encoding": "UTF-8 exact source lines including stored newlines"
+      },
+      "finding_state": "partial; no closure adjudication",
+      "candidate_mechanism_state": "finite_scalar_and_native_legacy_guard_repaired_conditional",
+      "predicate_basis": "recomputed",
+      "mechanism": "Existing fiscal alias/scalar readers preserve measured zero/null/primary/conflict/sign and legacy numeric text; Boolean and unrepresentable conversion are invalid. Actual public controller refuses unavailable fiscal scalar as challenger. Completefinite legacy export guards the same unavailable row separately.",
+      "source_cells": [
+        {
+          "path": "src/polisyos/scientist/methods/search/objective.py",
+          "git_blob": "8926e63c6d587778d0ba6628bd59865314292fe7",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        }
+      ],
+      "runtime_consumer_path": [
+        "results→BudgetDeficitObjective→CompositeObjective→publicSearchController.run→_NativeSearchServiceDriver",
+        "legacyhelper compares/exports only completefinite declared coordinates; originalunavailable objectivehistory preserved"
+      ],
+      "evidence_roles": {
+        "defining_and_consumer_receipts": [
+          "pareto",
+          "canonical_defining",
+          "fiscal",
+          "history_frontier"
+        ],
+        "independent_oracle": [
+          "fiscal_independent",
+          "history_frontier",
+          "native_425_independent"
+        ],
+        "negative_discriminators": [
+          "native objective alias, actual0,missing/conflict/NaN/Inf tests",
+          "Originalebebnativefalse/true/overflow escapes;source893unchanged30PASS",
+          "Original893actualNaNlegacyfrontier10FAIL;425unchangednative40PASS pinned"
+        ]
+      },
+      "retained_original_D_gap": "consumer_missing",
+      "missing_input_or_engineering": [
+        "Typed documented economic unit law and authentic served simulation producer inputs/ownership remain absent. Nativefixturecaller correctness does not establish those units or source truth."
+      ],
+      "next_owner": "objective/economicproducer owner for units/source truth; G criterion/caller acceptance",
+      "requirement_bucket_preserved": true,
+      "criterion_status": "limited; original source/authority or owner dependency remains open",
+      "scope_annotation": "Bounded local technical/runtime predicates only; original source law, owner/tenant truth and overallclosure not_established.",
+      "exact_defining_paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "0830b941160c1486e862055dc2f5ad11c77a92ba",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py"
+          ]
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_admission.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "31c0008534590983f2219e34bd23b97a93dd6ed5",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/test_legacy_frontier_admission.py"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B109",
+      "canonical_criteria": {
+        "bundle": "OPT-01",
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "37f4bbbced6935c4e051c4bb1b1a9e76eb505301",
+        "source_marker": "B:B109",
+        "section_sha256": "e658098bc2f79717e9b48d9f615687ec4d8a6a9d7d6e2571ee4c98a514a3dafc",
+        "start_line": 71,
+        "end_line": 85,
+        "acceptance_or_recommended_boundary_verbatim": "Согласовать быстрый и прямой фронт для 1–4 измерений, перестановок входа, равенств одной/всех координат и обоих направлений после нормализации. Приведённый тестовый patch использует простой конечный контроль, не предлагается как production-оптимизация. Неправильный конечный выбор пользователя не измерялся; доказано расхождение данного математического helper.",
+        "previous_section_sha256": "817c0ddda8c8883a0b7cccb111a97d8c230dd67e9859a3fb1fba47553c1b402d",
+        "section_digest_encoding": "UTF-8 exact source lines including stored newlines"
+      },
+      "finding_state": "partial; no closure adjudication",
+      "candidate_mechanism_state": "comparator_retained_supplier_missing",
+      "predicate_basis": "recomputed",
+      "mechanism": "Fast strict2D/3D comparator agrees with a separate direct quadratic native oracle on small declared inputs; tied distinct IDs are retained. This is not a complete global source frontier.",
+      "source_cells": [
+        {
+          "path": "src/polisyos/scientist/methods/autotune/pareto.py",
+          "git_blob": "7179bac7fb0726b1eacdb55edf0327ccd7b6add0",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/pareto_registry.py",
+          "git_blob": "b760feb93951838120db3439ac4de3164c1e85ed",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        }
+      ],
+      "runtime_consumer_path": [
+        "ParetoPromoter.compute_front ->typed artifact/is_dominated",
+        "ParetoRegistry.update ->disk snapshot ->project_view/VOI",
+        "actualA PolicyArtifactBuilder ->CAS reader"
+      ],
+      "evidence_roles": {
+        "defining_and_consumer_receipts": [
+          "pareto",
+          "A_supplier",
+          "canonical_defining",
+          "A_current_dependency"
+        ],
+        "independent_oracle": [
+          "native separate quadratic mathematical oracle in pareto receipt",
+          "Direct1–4D ordered-coordinate lattice30directionprofiles in canonicaldefining file; no productiondominancehelper for expectedmembership"
+        ],
+        "negative_discriminators": [
+          "earlier-group strict dominance;3D local tie;1–4D native slow comparator",
+          "missing independent source universe actualA rank stillpublished ->FAIL"
+        ]
+      },
+      "retained_original_D_gap": "implemented_but_not_orchestrated",
+      "missing_input_or_engineering": [
+        "source/run/tenant/cell-bound independent candidate/eligible/unknown supplier is not configured from runtime context to A served publisher; mathematical subset correctness is insufficient"
+      ],
+      "next_owner": "A canonical runtime/provider/builder appointment; D supplies comparator/snapshot contract; G integration",
+      "requirement_bucket_preserved": true,
+      "criterion_status": "limited; original source/authority or owner dependency remains open",
+      "scope_annotation": "Bounded local technical/runtime predicates only; original source law, owner/tenant truth and overallclosure not_established.",
+      "exact_defining_paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "c0ec395deab6507d7ef1809d1b2e64963ad47969",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py"
+          ]
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "1f937b3a42ff5fe7185b710da603a3a44faa07a6",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/test_hypervolume_limitations.py"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B110",
+      "canonical_criteria": {
+        "bundle": "OPT-01",
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "37f4bbbced6935c4e051c4bb1b1a9e76eb505301",
+        "source_marker": "B:B110",
+        "section_sha256": "7498df4ffe001d950fd03e1b88cf9f28aff59394a008da17844c196d63f5d461",
+        "start_line": 92,
+        "end_line": 106,
+        "acceptance_or_recommended_boundary_verbatim": "Фронт, его сериализация/round-trip и `is_dominated` дают одно отношение. Смена display-label не меняет решение; смена split не исчезает. Это локальная потеря семантики, а не доказательство, что все производственные policies сейчас имеют такие повторения.",
+        "previous_section_sha256": "a6be752b83d6e94ed4d0bcccef41670106a65bac64827f8cf4645a0401239d6d",
+        "section_digest_encoding": "UTF-8 exact source lines including stored newlines"
+      },
+      "finding_state": "partial; no closure adjudication",
+      "candidate_mechanism_state": "typed_coordinate_identity_retained",
+      "predicate_basis": "recomputed",
+      "mechanism": "Coordinate identity binds metric,split,unit-state/unit,direction through front values/reference/JSON/is_dominated; display metric keys do not replace canonical axes.",
+      "source_cells": [
+        {
+          "path": "src/polisyos/scientist/methods/autotune/pareto.py",
+          "git_blob": "7179bac7fb0726b1eacdb55edf0327ccd7b6add0",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        }
+      ],
+      "runtime_consumer_path": [
+        "PromotionPolicy ->ParetoPromoter coordinate schema ->ParetoFront JSON ->is_dominated"
+      ],
+      "evidence_roles": {
+        "defining_and_consumer_receipts": [
+          "pareto",
+          "canonical_defining"
+        ],
+        "independent_oracle": [
+          "canonicaldefining full directionlattice/JSON/memberrelation on declaredunits; originalhistoricalselector replay not performed"
+        ],
+        "negative_discriminators": [
+          "duplicate full axis/tampered coordinate ID refusal",
+          "same metric changed split/unit/direction, roundtriprelation preserved"
+        ]
+      },
+      "retained_original_D_gap": "verification_missing",
+      "missing_input_or_engineering": [
+        "accepted historical selector reconciliation/four-base replay is not performed by this publisher; real producer semantic definitions remain supplied inputs"
+      ],
+      "next_owner": "G finding-level criteria/evidence acceptance; objective producer for real metric definitions",
+      "requirement_bucket_preserved": true,
+      "criterion_status": "limited; original source/authority or owner dependency remains open",
+      "scope_annotation": "Bounded local technical/runtime predicates only; original source law, owner/tenant truth and overallclosure not_established.",
+      "exact_defining_paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "c0ec395deab6507d7ef1809d1b2e64963ad47969",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py"
+          ]
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "1f937b3a42ff5fe7185b710da603a3a44faa07a6",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/test_hypervolume_limitations.py"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B111",
+      "canonical_criteria": {
+        "bundle": "OPT-01",
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "37f4bbbced6935c4e051c4bb1b1a9e76eb505301",
+        "source_marker": "B:B111",
+        "section_sha256": "9d54d0f478e973cc89ed50adb4a03fc18fc1db35d1befcc3aed09128fc4bf41c",
+        "start_line": 113,
+        "end_line": 129,
+        "acceptance_or_recommended_boundary_verbatim": "Перестановки не меняют конечный фронт; invalid сохраняет причину; reference point и hypervolume конечны или явно недоступны; генезис и смена чемпиона не публикуют неопределённое число. Проверить реальный CAS и существующие upstream guards, не дублируя их несовместимыми кодами.",
+        "previous_section_sha256": "534be6222dccd944bb884e893436c32d82eef90be857ad763412d9df270c6245",
+        "section_digest_encoding": "UTF-8 exact source lines including stored newlines"
+      },
+      "finding_state": "partial; no closure adjudication",
+      "candidate_mechanism_state": "representability_and_schema_repaired_dependency_open",
+      "predicate_basis": "recomputed",
+      "mechanism": "Finite original coordinates retain front membership when derived indicator overflows: schema2 uses null+hypervolume-assessment.v1 unavailable/not_established reason. Supported registry1/2 reads refuse unknown profiles; catalog union does not copy loop HV. SharedMO completefinite orderedvector admission precedes front and realModelListGPtraining with explicitoriginal/admitted/rejected counts. Legacyfrontier now blocks unknown/nonfinite coordinates before comparison/export.",
+      "source_cells": [
+        {
+          "path": "src/polisyos/scientist/methods/autotune/pareto.py",
+          "git_blob": "7179bac7fb0726b1eacdb55edf0327ccd7b6add0",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/pareto_registry.py",
+          "git_blob": "b760feb93951838120db3439ac4de3164c1e85ed",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "b38ab66cf2ae555826c64010e8f2ac916dd5edaa"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/frontier.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "c03304f18d0557d8e321fa188e9b02f7db6b9307"
+        }
+      ],
+      "runtime_consumer_path": [
+        "actualfront JSONroundtrip",
+        "actualregistry.update ->disk get_snapshot/reopen ->VOI/catalog",
+        "unchangedA builder ->FileSystemCAS ->load_policy_frontier_report",
+        "declaredMO names/directions→sharedadmission→front/HV/actualModelListGP/EHVI",
+        "publiccontroller→legacyfiniteorderedvector→frontierexport, unavailablehistoryretained"
+      ],
+      "evidence_roles": {
+        "defining_and_consumer_receipts": [
+          "pareto",
+          "A_supplier",
+          "canonical_defining",
+          "MOcomplete",
+          "history_frontier",
+          "A_current_dependency"
+        ],
+        "independent_oracle": [
+          "independent_ebeb",
+          "history_frontier",
+          "native_425_independent"
+        ],
+        "negative_discriminators": [
+          "finite±1e308 complete coordinates/dominance preserved",
+          "null unavailable markers withfake0/Inf refused",
+          "unknown3.0/0.0/null/bool/number snapshot refused;historical1/2 positive",
+          "A CAS read loses typedreason; independent denominator absent ->2FAIL",
+          "Originalcb47missingMOaxis imputed0 wins;ebebunchangedindependent7PASS",
+          "Original893actuallegacyNaNchallenger displacesseed10FAIL;425unchangednative40PASS pinned"
+        ]
+      },
+      "retained_original_D_gap": "bridge_missing",
+      "missing_input_or_engineering": [
+        "A actualproducer must preserve unavailableindicator assessment and consume independently complete source/run/tenant/cell eligible/unknown supplier. Metadataexportpatch UNAPPLIED; provider ABSENT; actualA2FAIL remains.",
+        "Legacyhelper verifies caller-declared vector and continuity, not independent universe or institutional semantic unit authority.",
+        "Higherdimensional indicator approximation unchanged; no newexactvolume convention."
+      ],
+      "next_owner": "A actual producer/export plus G supportedprofile acceptance; D registry mechanism",
+      "requirement_bucket_preserved": true,
+      "criterion_status": "limited; original source/authority or owner dependency remains open",
+      "scope_annotation": "Bounded local technical/runtime predicates only; original source law, owner/tenant truth and overallclosure not_established.",
+      "exact_defining_paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "1f937b3a42ff5fe7185b710da603a3a44faa07a6",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/test_hypervolume_limitations.py"
+          ]
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "c3836884473984eb2514d20dc339926d7427deda",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py"
+          ]
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/test_legacy_frontier_admission.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "31c0008534590983f2219e34bd23b97a93dd6ed5",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/test_legacy_frontier_admission.py"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B112",
+      "canonical_criteria": {
+        "bundle": "OPT-02",
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "9ffd2f22532b56ae73469396e8c56557aec56e77",
+        "source_marker": "B:B112",
+        "section_sha256": "dab328e91cf2ca0a3e7d8c72a711dc5d722d5c71970b7efb12935910b28b2e57",
+        "start_line": 57,
+        "end_line": 71,
+        "acceptance_or_recommended_boundary_verbatim": "Первый suggest при выбранном штатном SearchSpace проходит без ручного monkeypatch; категории/лог-шкалы round-trip; отсутствие optional stack честно различено. Не следует принимать fixture-контроль за доказательство работы реального Bayesian backend. Эта карточка о стыке, не об отсутствии оптимизатора в проекте.",
+        "previous_section_sha256": "ebcbfcc121108068640bc1d871fd4f596f6fdd3c0e6c54203025810562dea15f",
+        "section_digest_encoding": "UTF-8 exact source lines including stored newlines"
+      },
+      "finding_state": "partial; no closure adjudication",
+      "candidate_mechanism_state": "canonical_adapter_repaired",
+      "predicate_basis": "recomputed",
+      "mechanism": "Public autotune SearchSpace inherits complete native sampling/normalization/checkpoint/provenance protocol; actualdefaultgenerator can produce Sobol candidate with real optional backend ready. Explicit bridge target is paired with configured fingerprint.",
+      "source_cells": [
+        {
+          "path": "src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "git_blob": "8beaf54d546dc2fcb3b9a61d6075f7a0b26e32a6",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/space.py",
+          "git_blob": "ad4eccc6aac8da1c3371de973d48e8a7257691a2",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/base.py",
+          "git_blob": "5b82deef7ecfa4f6b9f08dda77df767b9c8896f1",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        }
+      ],
+      "runtime_consumer_path": [
+        "BayesianCandidateGenerator ->nativeSpace ->BayesianOptimizer.suggest ->Sobol/acquisition ->strategy metadata"
+      ],
+      "evidence_roles": {
+        "defining_and_consumer_receipts": [
+          "state",
+          "final_core",
+          "GPreader",
+          "composed_transfer",
+          "optional_backend_absence",
+          "canonical_defining",
+          "composed_stage_corrective",
+          "history_frontier"
+        ],
+        "independent_oracle": [
+          "fiscal_independent",
+          "composed_stage_corrective"
+        ],
+        "negative_discriminators": [
+          "native firstSobol source/provenance and existing adapterhistory controls",
+          "missing reader refuses before realMLL",
+          "spanunsupported publicconstructor refusal"
+        ]
+      },
+      "retained_original_D_gap": "verification_missing",
+      "missing_input_or_engineering": [
+        "Exactroot8ebconditionalCASworkflow48PASS andc812malformed-stage four-casePASS are separatelypinned; later fullpositive corrected-source workflow/broad gate remains root-owned, never inherited from8eb.",
+        "Genuine optionalbackendabsence profile UNRUN."
+      ],
+      "next_owner": "canonical optimizer owner/root composition and G actual caller admission",
+      "requirement_bucket_preserved": true,
+      "criterion_status": "limited; original source/authority or owner dependency remains open",
+      "scope_annotation": "Bounded local technical/runtime predicates only; original source law, owner/tenant truth and overallclosure not_established.",
+      "exact_defining_paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "f38cafb75959d414854bc0ed4f2f1837697ae6e5",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B113",
+      "canonical_criteria": {
+        "bundle": "OPT-02",
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "9ffd2f22532b56ae73469396e8c56557aec56e77",
+        "source_marker": "B:B113",
+        "section_sha256": "908b6a6c82d3b6a103607146a9eea5e7cd7776df0190d31b80bd22ff96c2070e",
+        "start_line": 78,
+        "end_line": 92,
+        "acceptance_or_recommended_boundary_verbatim": "Разные физические параметры дают разные ожидаемые координаты; категориальные размеры корректны; полные IDs переживают сериализацию; отсутствие результата не становится нулём. Проверить оба формата истории и фактический caller. Измерение реального качества GP и конкретное downstream-стирание записи по короткому ID не выполнялись; показана потеря информации на самом adapter.",
+        "previous_section_sha256": "1bd3fb58eb1fd1fbdc00d8a88c085a3c60b33ee11fab6f5e8c8c80c1c5d17115",
+        "section_digest_encoding": "UTF-8 exact source lines including stored newlines"
+      },
+      "finding_state": "partial; no closure adjudication",
+      "candidate_mechanism_state": "physical_history_identity_retained_target_bound",
+      "predicate_basis": "recomputed",
+      "mechanism": "SearchIteration and BenchmarkEvaluation history preserve physical params,executed normalized coordinates, full candidate/evaluation IDs,origin,split and direction-adjusted scalar; absent results are excluded. Generator configured metric/direction/split must equal numerical target. Supplied malformed-present stage flags are rejected before scalarfallback; absent/default and realBoolean behavior retained.",
+      "source_cells": [
+        {
+          "path": "src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "git_blob": "8beaf54d546dc2fcb3b9a61d6075f7a0b26e32a6",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "git_blob": "8491843135fa4d9f54d5176464a812f2285a8b3c",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        }
+      ],
+      "runtime_consumer_path": [
+        "nativehistory adapters ->Evaluation ->effectivecorpus ->actualGPfit",
+        "configuredgenerator ->targetbasis check"
+      ],
+      "evidence_roles": {
+        "defining_and_consumer_receipts": [
+          "final_core",
+          "GPreader",
+          "composed_transfer",
+          "canonical_defining",
+          "fiscal",
+          "history_frontier",
+          "composed_stage_corrective"
+        ],
+        "independent_oracle": [
+          "fiscal_independent",
+          "composed_stage_corrective",
+          "native_425_independent"
+        ],
+        "negative_discriminators": [
+          "fullID/origin/split conflicts refuse",
+          "selection/holdout and minimize sign preserved; absentresult not0",
+          "configuredtarget equality real8ebconsumer; latestc812invalidstage zero-modelrefusal"
+        ]
+      },
+      "retained_original_D_gap": "verification_missing",
+      "missing_input_or_engineering": [
+        "Exactdataset/model/evaluator/originalcandidate/evaluation source truth remains producer-owned. Root8ebfixture proves technical fullref CAS custody/actualGPconsumer, not institutional authorization or authentic productionhistory.",
+        "Latestc812negative proves no repair: malformedtaggedstage refused beforemodel0fit0MLL. Fullhealthy corrected-source workflow/broadacceptance belongsroot."
+      ],
+      "next_owner": "benchmark/evaluator producer and canonical transfer content owner; root/G acceptance",
+      "requirement_bucket_preserved": true,
+      "criterion_status": "limited; original source/authority or owner dependency remains open",
+      "scope_annotation": "Bounded local technical/runtime predicates only; original source law, owner/tenant truth and overallclosure not_established.",
+      "exact_defining_paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "f38cafb75959d414854bc0ed4f2f1837697ae6e5",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B114",
+      "canonical_criteria": {
+        "bundle": "OPT-03",
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "ca113cf95e55e57b19605c63df36a209770157bb",
+        "source_marker": "B:B114",
+        "section_sha256": "eb469b9d46d5b69922ef906a0e0f0784a36c5bf89b00e7187bcf3932dc653e3b",
+        "start_line": 54,
+        "end_line": 68,
+        "acceptance_or_recommended_boundary_verbatim": "Один и тот же пригодный корпус, переданный целиком или через warm-start + новую часть, даёт согласованную обучающую выборку и план; отклонённые записи не исчезают без причины; идентичные артефакты не удваивают sample-count; намеренные независимые повторы остаются отдельными.",
+        "previous_section_sha256": "751ea1f4c2439927f429abb7d2be1bd0c15d45fd802529085431f219337fd766",
+        "section_digest_encoding": "UTF-8 exact source lines including stored newlines"
+      },
+      "finding_state": "partial; no closure adjudication",
+      "candidate_mechanism_state": "real_warm_consumer_repaired_conditional",
+      "predicate_basis": "recomputed",
+      "mechanism": "Configured target governs compatible warm/current corpus before cold-start/subset/fit. Valid history reaches actual trainX/Y; invalid outcomes excluded, duplicate original observations deduped while explicit independent replicas remain. Restore and every tagged numericaluse invoke same configuredCAS reader.",
+      "source_cells": [
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "git_blob": "8491843135fa4d9f54d5176464a812f2285a8b3c",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "git_blob": "8beaf54d546dc2fcb3b9a61d6075f7a0b26e32a6",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        }
+      ],
+      "runtime_consumer_path": [
+        "explicit syntheticbasis or bridge.target_basis/admit ->warm_start",
+        "effectivecorpus ->SingleTaskGP MLLfit/conditioning",
+        "artifactdecode ->sameadmission ->resume",
+        "taggedwarm/current beforefit ->sameadmission"
+      ],
+      "evidence_roles": {
+        "defining_and_consumer_receipts": [
+          "GPwarm",
+          "GPanalytic",
+          "final_core",
+          "GPreader",
+          "composed_transfer",
+          "canonical_defining",
+          "composed_stage_corrective",
+          "independent_ebeb"
+        ],
+        "independent_oracle": [
+          "GPanalytic",
+          "independent_ebeb",
+          "composed_stage_corrective"
+        ],
+        "negative_discriminators": [
+          "nativewarm/current realcorpus8,duplicateoriginal notdoublecounted,explicitreplica retained,rejection reasons",
+          "independentwarm8/current2 analytic10rows",
+          "savedwarm scalar/physicalcoordinate changed withmarkers retained ->immediateatomicrefusal",
+          "taggedrow without configuredreader ->nofit ValueError"
+        ]
+      },
+      "retained_original_D_gap": "verification_missing",
+      "missing_input_or_engineering": [
+        "Syntheticanalytic and configuredCAS fixtures establish conditional numericalmechanism/contentcustody. Authenticproductionhistory/source/data/evaluator/owner authority, deployment and advantage remain unestablished.",
+        "Exact8ebactualinitial/restore/use-timeGPworkflow48PASS is pinned separately; currentc812malformedstageguard4PASS0fit doesnot prove a newhealthyfit. Root owns finalcorrected-source positiveworkflow and broadgate."
+      ],
+      "next_owner": "canonical GP owner + transfer admission owner; G actual caller acceptance",
+      "requirement_bucket_preserved": true,
+      "criterion_status": "limited; original source/authority or owner dependency remains open",
+      "scope_annotation": "Bounded local technical/runtime predicates only; original source law, owner/tenant truth and overallclosure not_established.",
+      "exact_defining_paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "c6125f3229a01c403bd0f485b21352274325020e",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B115",
+      "canonical_criteria": {
+        "bundle": "OPT-03",
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "ca113cf95e55e57b19605c63df36a209770157bb",
+        "source_marker": "B:B115",
+        "section_sha256": "c1f8051273de474f3ea0c3daf71eb5653586950289c47d6d00a205890f5cc123",
+        "start_line": 75,
+        "end_line": 89,
+        "acceptance_or_recommended_boundary_verbatim": "Проверить на настоящем SingleTaskGP сохранение learned parameters между разрешёнными refit, использование новых наблюдений, правильные transforms и version/shape; смена basis не маскируется повторным использованием. Замерить затраты отдельно от качества. Fixture theta не является найденным конкретным параметром настоящей модели.",
+        "previous_section_sha256": "4d5afea998b22ec18956bf039ae38fd1751fe457a8994ce87161fa2fdac20872",
+        "section_digest_encoding": "UTF-8 exact source lines including stored newlines"
+      },
+      "finding_state": "partial; no closure adjudication",
+      "candidate_mechanism_state": "real_fitted_continuation_repaired_conditional",
+      "predicate_basis": "recomputed",
+      "mechanism": "Persist actual model/likelihood/transforms,rawfitted/fullrefitcorpora,orderedidentities,completewarmcontent,basis,backend/version,counters andlocalRNG. Samebasis samecorpus/append uses existingfit and actualcondition_on_observations; due schedule or basischange refits.",
+      "source_cells": [
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "git_blob": "8491843135fa4d9f54d5176464a812f2285a8b3c",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/_deps.py",
+          "git_blob": "b9c703fcbf237fb50399f0d64d2930fa2c599a04",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        }
+      ],
+      "runtime_consumer_path": [
+        "realMLLinitialfit ->get_state JSON ->set_state actualfittedmodel",
+        "samecorpus/append ->condition_on_observations",
+        "ResourceArbiter hardlimit fallback ->checkpoint ->restore ->liftlimit ->dueallowedfit"
+      ],
+      "evidence_roles": {
+        "defining_and_consumer_receipts": [
+          "GPwarm",
+          "GPanalytic",
+          "final_core",
+          "canonical_defining"
+        ],
+        "independent_oracle": [
+          "GPanalytic",
+          "independent_ebeb"
+        ],
+        "negative_discriminators": [
+          "independentoriginal-unit fullmean/cov10+11,observednoise diagonal",
+          "actualMLLinitial1/resume+append0/due+basis>0",
+          "model/transform/corpus/warm/RNG/type mutation orpropertyremoval changes numericalprediction orrefuses",
+          "actualhard-resource pastdue producer restored; futureclock refused"
+        ]
+      },
+      "retained_original_D_gap": "verification_missing",
+      "missing_input_or_engineering": [
+        "Locked supported predecessor transformrestore already passed analyticexpectations; no nonexistentbaseline transformbug claimed.",
+        "SupportedCPUfloat64 SingleTaskGP ConstantMean/unitRBF/homoskedasticNormalizeStandardize profile only, not arbitrarymodel/device/platformbitidentity.",
+        "No quality/speedadvantage or actualproductionhistory. Exact8ebconditionalCASrestore0MLLposterior/corpusPASS is separatelypinned; root currentbroadergate remainspending."
+      ],
+      "next_owner": "canonical GP owner; G supportedbackend/caller acceptance",
+      "requirement_bucket_preserved": true,
+      "criterion_status": "limited; original source/authority or owner dependency remains open",
+      "scope_annotation": "Bounded local technical/runtime predicates only; original source law, owner/tenant truth and overallclosure not_established.",
+      "exact_defining_paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "c6125f3229a01c403bd0f485b21352274325020e",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py"
+          ]
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "35e103527a4345eb11fc0585f0e86f5fda9ac6c2",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B124",
+      "canonical_criteria": {
+        "bundle": "CTL-02",
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "575d80aa75101b555b3118748e4dee968a81bd0a",
+        "source_marker": "B:B124",
+        "section_sha256": "6d949a0ae0f28d013e78395833abb7bb327ed11d40eb2061c4bc77633474b2cb",
+        "start_line": 54,
+        "end_line": 68,
+        "acceptance_or_recommended_boundary_verbatim": "Разные даты реального действия дают разные предметные ключи; только дата загрузки/trace не вызывает лишнее вычисление. Тестируется нормальная дедупликация одного и того же канонического входа и сохранение нескольких оценок/реплик. Перестановка полей JSON не меняет смысл, а временные данные не удаляются только по суффиксу имени.",
+        "previous_section_sha256": "77a12566a323c32df2df5d2440997a01226630d79ef6fd1d1f5b939a3b1fa3c5",
+        "section_digest_encoding": "UTF-8 exact source lines including stored newlines"
+      },
+      "finding_state": "partial; no closure adjudication",
+      "candidate_mechanism_state": "semantic_date_identity_repaired",
+      "predicate_basis": "recomputed",
+      "mechanism": "Known root transport fields are excluded while nested semantic metadata/action dates remain part of canonical identity; genericdatetime-like suffix stripping is removed for semantic structure.",
+      "source_cells": [
+        {
+          "path": "src/polisyos/scientist/methods/search/frontier.py",
+          "git_blob": "c03304f18d0557d8e321fa188e9b02f7db6b9307",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        }
+      ],
+      "runtime_consumer_path": [
+        "policy_candidate_hash semanticpayload→canonicalidentity/dedup"
+      ],
+      "evidence_roles": {
+        "defining_and_consumer_receipts": [
+          "state",
+          "final_core",
+          "canonical_defining"
+        ],
+        "independent_oracle": [],
+        "negative_discriminators": [
+          "semantic.metadata.starts_at changesidentity; knownroottechnicaltransport dates omitted",
+          "Same canonicalsemanticinput stable; thisdoesnotpromote arbitraryrootmetadata dates to semantic law"
+        ]
+      },
+      "retained_original_D_gap": "verification_missing",
+      "missing_input_or_engineering": [
+        "Dynamic foreign datetime serialization/cache identities outside canonical action path belong FUN; no general calendar/time law claim."
+      ],
+      "next_owner": "canonical actionidentity owner; FUN for foreigncache semantics; G acceptance",
+      "requirement_bucket_preserved": true,
+      "criterion_status": "limited; original source/authority or owner dependency remains open",
+      "scope_annotation": "Bounded local technical/runtime predicates only; original source law, owner/tenant truth and overallclosure not_established.",
+      "exact_defining_paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "5a7445390c1d404835d656ebbead554cab03de78",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/strategies/test_strategy_state.py"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B125",
+      "canonical_criteria": {
+        "bundle": "CTL-02",
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "575d80aa75101b555b3118748e4dee968a81bd0a",
+        "source_marker": "B:B125",
+        "section_sha256": "21499f83d06e9efe27407795b059ff270590a99f01a7ec86a13c193142103ff9",
+        "start_line": 75,
+        "end_line": 89,
+        "acceptance_or_recommended_boundary_verbatim": "Полный persisted round-trip каждого поддерживаемого strategy-state, а не только `get_state/set_state` в одной памяти. Восстановленная следующая последовательность совпадает; повреждённое/чужое состояние не принимается; случайный поток независимой реплики остаётся независимым.",
+        "previous_section_sha256": "da6f01affaab6b25e26af7613845243eeafc15f0041b3374d39ce18adbe7721b",
+        "section_digest_encoding": "UTF-8 exact source lines including stored newlines"
+      },
+      "finding_state": "partial; no closure adjudication",
+      "candidate_mechanism_state": "strict_codecs_and_native_stream_repaired",
+      "predicate_basis": "recomputed",
+      "mechanism": "Versioned strictRandom JSONcodec and strategy_state.v2 decoder restore actualPythonstream; RL linear_decay.v1 checkpoint restores wrapper+nestedstate. GP checkpoint localTorchstream reaches explicit actualrestartpool/sampler consumers independentofambientglobalRNG.",
+      "source_cells": [
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/base.py",
+          "git_blob": "5b82deef7ecfa4f6b9f08dda77df767b9c8896f1",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/types.py",
+          "git_blob": "fe0e7c8fc30d22e25b9ac56ea3ce45750d6fcbb1",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+          "git_blob": "0b1363c7401c9daf40bcbcb84fff61af446d585f",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "git_blob": "8491843135fa4d9f54d5176464a812f2285a8b3c",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        }
+      ],
+      "runtime_consumer_path": [
+        "StrategyStateJSON ->base/RL/GPset_state ->nextactualnativeproposals",
+        "GPownseed ->nativeSobolrestart tensors/qEI sampler ->optimize_acqf"
+      ],
+      "evidence_roles": {
+        "defining_and_consumer_receipts": [
+          "state",
+          "GPwarm",
+          "GPanalytic",
+          "final_core",
+          "canonical_defining"
+        ],
+        "independent_oracle": [
+          "GPanalytic",
+          "independent_ebeb"
+        ],
+        "negative_discriminators": [
+          "null/array/missing/malformednestedJSON controlledatomicValueError",
+          "bool/floatcodec/version/RNGinteger mutations refused",
+          "actualuninterrupted/restored Random+SobolRL sequence",
+          "savedlocalRNG mutation affectsnativeconsumer orrefuses;ambientTorchpreserved"
+        ]
+      },
+      "retained_original_D_gap": "verification_missing",
+      "missing_input_or_engineering": [
+        "Production RL wrapper construction/lifecycle is not established by these fixture consumers.",
+        "Supported numericalcontinuation is specifictoSingleTaskGP; completeMO/neural/advanced model-specific checkpoints are not proven.",
+        "Old incomplete GP/RL artifacts refuse; no inferred legacy-equivalence or crossbackend-bitidentity."
+      ],
+      "next_owner": "canonical control/RL productionroute owner; G profile/caller acceptance",
+      "requirement_bucket_preserved": true,
+      "criterion_status": "limited; original source/authority or owner dependency remains open",
+      "scope_annotation": "Bounded local technical/runtime predicates only; original source law, owner/tenant truth and overallclosure not_established.",
+      "exact_defining_paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "5a7445390c1d404835d656ebbead554cab03de78",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/strategies/test_strategy_state.py"
+          ]
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "ca6ed8b63d195dbb76b4d084fc628fe3f7e68436",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py"
+          ]
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "c6125f3229a01c403bd0f485b21352274325020e",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B126",
+      "canonical_criteria": {
+        "bundle": "CTL-02",
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "575d80aa75101b555b3118748e4dee968a81bd0a",
+        "source_marker": "B:B126",
+        "section_sha256": "a5d7832423cbe9287fd9558d614760065c63a57bcf1e8484cccc0e562b491b8d",
+        "start_line": 96,
+        "end_line": 110,
+        "acceptance_or_recommended_boundary_verbatim": "Одинаковый логический индекс после 1+1+… и пакетной подготовки, до/после checkpoint и при чтении уже известной точки. Без смены объявленного algorithm-version исходное исследование не меняется из-за способа заполнения кэша.",
+        "previous_section_sha256": "f05138039bb68e205dc185417722e7c5113d18276733c1e4f91577e83476e16d",
+        "section_digest_encoding": "UTF-8 exact source lines including stored newlines"
+      },
+      "finding_state": "partial; no closure adjudication",
+      "candidate_mechanism_state": "logical_sampler_protocol_repaired",
+      "predicate_basis": "recomputed",
+      "mechanism": "CanonicalSobol profile persists logicalprefix,cursor,seed,scramble/backend/space+attainable_projection.v1 fingerprint; native/publicadapter and nestedRL use samefullprotocol, stricttypedcounter/refusal.",
+      "source_cells": [
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/space.py",
+          "git_blob": "ad4eccc6aac8da1c3371de973d48e8a7257691a2",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/base.py",
+          "git_blob": "5b82deef7ecfa4f6b9f08dda77df767b9c8896f1",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/types.py",
+          "git_blob": "fe0e7c8fc30d22e25b9ac56ea3ce45750d6fcbb1",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+          "git_blob": "0b1363c7401c9daf40bcbcb84fff61af446d585f",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "git_blob": "8beaf54d546dc2fcb3b9a61d6075f7a0b26e32a6",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        }
+      ],
+      "runtime_consumer_path": [
+        "sampleSobol incremental/batch ->checkpoint ->restore ->nextpoint",
+        "RLnestedSobolresume ->native consumer"
+      ],
+      "evidence_roles": {
+        "defining_and_consumer_receipts": [
+          "state",
+          "final_core",
+          "canonical_defining"
+        ],
+        "independent_oracle": [
+          "DirectTorchseededSobol draw consumption in canonicaladapter definingfile; backendprofilebound"
+        ],
+        "negative_discriminators": [
+          "nativeknownprefix/batch/cache/replay fixtures",
+          "boolean/floatdimension/codec/iteration refusal and incompatiblespace/profile refusal",
+          "nestedRL actualSobolcontinuedsequence"
+        ]
+      },
+      "retained_original_D_gap": "verification_missing",
+      "missing_input_or_engineering": [
+        "Accepted production wrapper lifecycle and legacyreplay boundary remain separate G tasks.",
+        "Arbitrarylogicalprefix does not imply balanced power-of-twoQMC design or scientific samplingquality."
+      ],
+      "next_owner": "canonical checkpoint/Sobol caller owner; G acceptance",
+      "requirement_bucket_preserved": true,
+      "criterion_status": "limited; original source/authority or owner dependency remains open",
+      "scope_annotation": "Bounded local technical/runtime predicates only; original source law, owner/tenant truth and overallclosure not_established.",
+      "exact_defining_paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "5a7445390c1d404835d656ebbead554cab03de78",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/strategies/test_strategy_state.py"
+          ]
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "ca6ed8b63d195dbb76b4d084fc628fe3f7e68436",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B127",
+      "canonical_criteria": {
+        "bundle": "OPT-02",
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "9ffd2f22532b56ae73469396e8c56557aec56e77",
+        "source_marker": "B:B127",
+        "section_sha256": "4d0aaaf2ac4c0de1820d286421f70475f441ccd5322ee1f4436b8626d529437f",
+        "start_line": 99,
+        "end_line": 113,
+        "acceptance_or_recommended_boundary_verbatim": "Бинарные, integer, categorical и continuous параметры; две разные relaxed-точки с одним эффективным действием; разрешённые независимые реплики; исчерпанное конечное пространство. Проверить фактический адаптер Evaluation и pending/completed-учёт: upstream-канонизация может уже защищать отдельный путь, чего этот локальный опыт не устанавливает.",
+        "previous_section_sha256": "ae9f5e873bb33019cfd9524bd407a26c8aa7a5ec84cd2af79a6f2e497427cc70",
+        "section_digest_encoding": "UTF-8 exact source lines including stored newlines"
+      },
+      "finding_state": "partial; no closure adjudication",
+      "candidate_mechanism_state": "canonical_execution_repaired_bounded_exhaustion_residual",
+      "predicate_basis": "recomputed",
+      "mechanism": "One canonicaldecode/factory emits attainabletypedphysicalactions and normalize(executedparams), retainingrelaxedproposal. Fractionalintegerceil/floordomain,emptydomainrefusal,bool/intcategorytype,finitevector/admissiblespan andlogendpointvalidation shared. GP/Base/RL/MO/neural consumers use executioncoordinates; neuralpredictsatexecutedpoint.",
+      "source_cells": [
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/types.py",
+          "git_blob": "fe0e7c8fc30d22e25b9ac56ea3ce45750d6fcbb1",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/space.py",
+          "git_blob": "ad4eccc6aac8da1c3371de973d48e8a7257691a2",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/base.py",
+          "git_blob": "5b82deef7ecfa4f6b9f08dda77df767b9c8896f1",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "git_blob": "8491843135fa4d9f54d5176464a812f2285a8b3c",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+          "git_blob": "0b1363c7401c9daf40bcbcb84fff61af446d585f",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+          "git_blob": "b38ab66cf2ae555826c64010e8f2ac916dd5edaa",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        },
+        {
+          "path": "src/polisyos/scientist/methods/search/strategies/neural.py",
+          "git_blob": "899d6d17aa9cacde5c79d3af6cbf0dc2b31338be",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1"
+        }
+      ],
+      "runtime_consumer_path": [
+        "nativeRandom/Sobol ->canonicalfactory ->candidate",
+        "actualGP/RL pending/completed/batchtypeaware comparison",
+        "realMO finaltensorconversion",
+        "realneuralfit/acquisition ->executedpointposterior"
+      ],
+      "evidence_roles": {
+        "defining_and_consumer_receipts": [
+          "state",
+          "coordinate",
+          "final_core",
+          "composed_transfer",
+          "canonical_defining",
+          "MOcomplete",
+          "independent_ebeb",
+          "composed_stage_corrective"
+        ],
+        "independent_oracle": [
+          "independent_ebeb"
+        ],
+        "negative_discriminators": [
+          "fractionalpositive/negativeintegerbounds andemptyattainabledomain",
+          "categoryTrue/int1 distinctactualduplicateconsumer",
+          "two relaxedproposals oneexecutedaction duplicate;independentreplicaseeds retained",
+          "actualRandom/publicadapter unrepresentablespan refusesatadmission;widepositiveLogactualendpoints",
+          "actualneuralMLL/predictionatexecutedpoint;MOscalarpredictor explicitlynotestablished"
+        ]
+      },
+      "retained_original_D_gap": "verification_missing",
+      "missing_input_or_engineering": [
+        "Finiteexhausted/discrete spaces retainbounded20randomfallback; typedexhaustion/globalneverduplicate guarantee not implemented orclaimed.",
+        "Nonrepresentableaffinewidth explicitlyunsupported; no arbitraryfinite-range promise.",
+        "MOscalarpredictor notestablished; predictedmeanabsent, existingacquisitionlabelledrelaxedbasis.",
+        "Fullproductionhistory/authority remainsconditional. SharedMO completevector class is corrected/tested, not pending; broader finalrootgate remainspending."
+      ],
+      "next_owner": "canonical effective-action owner and G exhaustion/profile acceptance; transfer owner for content",
+      "requirement_bucket_preserved": true,
+      "criterion_status": "limited; original source/authority or owner dependency remains open",
+      "scope_annotation": "Bounded local technical/runtime predicates only; original source law, owner/tenant truth and overallclosure not_established.",
+      "exact_defining_paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "e3f9ab3b2a45b9f714f94ecc99eaa68e7f66f6fc",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/search/strategies/test_effective_actions.py"
+          ]
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+          "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+          "git_blob": "f38cafb75959d414854bc0ed4f2f1837697ae6e5",
+          "owner": "search_owner soleauthor",
+          "command": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "--basetemp=/dev/shm/FRESH_NONEXISTING_NONCE",
+            "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py"
+          ]
+        }
+      ]
+    }
+  ],
+  "source_and_authority_limits": [
+    "Only published198 source/currentadmitted lineage and newlytracked source-bound evidence are inputs; old6ac/e789 are historicalassertion comparisons, neveracceptedbaseline.",
+    "Bounded localruntime predicates are recomputed or independentlyreconciled; originalunit/source/tenant/origin/permission/institutionalauthority and overallclosure remain not_established.",
+    "Root8ebtechnicalCAS48PASS andc812negative4PASS are exactseparate sourceproofs, not inherited acceptance of allfuture source.",
+    "A independentdenominator/provider ABSENT and proposedmetadataexportpatch UNAPPLIED; actualA2FAIL remainsFAIL.",
+    "Latestown425fourteen-file attemptSIGKILL remainsERROR; no totalpassedcount or waivedbroadergate invented. Root finalwave is decidingcombinedacceptance.",
+    "No closure signature, deploymentclaim, optimizationquality/speed law or completehistoricalreplay was invented."
+  ],
+  "cleanup_deviation": {
+    "receipt_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cleanup-deviation.json",
+    "policy": "No further permanent deletion; nativeTrash unavailable, cleanup candidates preserved"
+  },
+  "cleanup_candidates": [
+    "/dev/shm/search-A-apply-base-198-tunumfzo",
+    "/dev/shm/search-pareto-12ee-ddxucvpe",
+    "/dev/shm/search-mo-ebeb-f6ls6is6",
+    "/dev/shm/search-canonical-paths-558ba78d8e8a401381bd0d873f91bfdb",
+    "/dev/shm/search-canonical-frozen-659714afd0744956b0a9aab814656b74",
+    "/dev/shm/search-release-q1-_m63z3ja",
+    "/dev/shm/search-release-425-mq1zsxkx"
+  ],
+  "pending_independent_review": "Native42540+originalCLI27/singlefront PASS pinned; c812unchangedCAS4PASS pinned. Root finalhealthycorrected-source workflow/17commandunion broadergate pending. No sourcechanges planned absent concretefailure.",
+  "canonical_test_checkpoint_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+  "latest_defining_test_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+  "scope_annotation": "Overall finding closure/source and institutional authority remain not_established. Individual bounded runtime predicates below are recomputed or independently_reconciled; none is a complete finding closure.",
+  "handoff_receipt_sha": "7cbb82da995d0ab3009a02ae21f487ce93a84f2a",
+  "handoff_receipt_tree": "71500d095b4c303ab4a4e7944e4347b1dcc33134",
+  "artifact_paths_after_source_freeze": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-history-frontier/history-frontier-ab-before.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-history-frontier/history-frontier-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-425-metadata.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-425-rendered.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-425-renderer.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-q1-425-ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-q1-425-runtime.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-history-frontier-admission.json"
+  ],
+  "criteria_binding_validation": {
+    "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+    "records": 12,
+    "bundle_count": 4,
+    "source_cells_and_exact_defining_paths": "all Git blobs resolve",
+    "pinned_evidence_catalog": "all Git blobs and SHA256 bytes resolve",
+    "closure_ids": [],
+    "scope": "Metadata reconciliation, not an execution verdict or an institutional closure"
+  }
+}

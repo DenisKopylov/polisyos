@@ -1,0 +1,34 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_access_writes_no_cas_snapshot_and_repeated_reads_cannot_refresh_evidence _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-185/test_access_writes_no_cas_snap0')
+
+    def test_access_writes_no_cas_snapshot_and_repeated_reads_cannot_refresh_evidence(tmp_path):
+        store, registry, source, card = registry_card(tmp_path, days=100)
+        ref = registry.record_local(card, context=source)
+        snapshot_ref = registry.snapshot_ref()
+        index_path = registry._index_path_for_context(source)
+        before = index_path.read_bytes()
+        query = LessonQuery(
+            task_family="discovery", domain="source", tenant_hash="tenant-a", tags=["measured"]
+        )
+        assert registry.query(query)[0].confidence == 0.5
+        access_files = list(index_path.parent.glob("access/*.txt"))
+        assert len(access_files) == 1
+        stamp = access_files[0].stat().st_mtime_ns
+>       assert registry.query(query)[0].confidence == 0.5
+E       AssertionError: assert 0.9 == 0.5
+E        +  where 0.9 = LessonCard(lesson_id='03551347e09642e9bb1bebee3901e9f3', schema_version='1.0', kind=<LessonKind.FAILURE: 'failure'>, s...asured'], remediation_hint=None, mutation_hints=[], anti_patterns=[], failure_card_refs=[], trace_refs=[], metadata={}).confidence
+
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py:122: AssertionError
+=============================== warnings summary ===============================
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED ../../../../../dev::test_access_writes_no_cas_snapshot_and_repeated_reads_cannot_refresh_evidence
+1 failed, 5 deselected, 2 warnings in 10.34s

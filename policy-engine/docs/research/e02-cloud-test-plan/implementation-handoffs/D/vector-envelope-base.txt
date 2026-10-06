@@ -1,0 +1,476 @@
+FFFFF.F.F                                                                [100%]
+=================================== FAILURES ===================================
+_ test_real_bundle_envelope_refuses_disagreement_before_publication[outer-kind] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-154/test_real_bundle_envelope_refu0')
+change = 'outer-kind'
+
+    @pytest.mark.parametrize(
+        "change",
+        [
+            "outer-kind",
+            "outer-media",
+            "schema",
+            "missing-schema",
+            "dimension",
+            "count",
+            "capacity",
+            "index-kind",
+            "truncated-index",
+        ],
+    )
+    def test_real_bundle_envelope_refuses_disagreement_before_publication(tmp_path, change):
+        """Shape-valid CAS inputs cannot misdescribe the physical native generation."""
+        store = FileSystemCAS(tmp_path / "cas")
+        old = VectorMemoryStore(dim=2, max_elements=3)
+        old.add("old", [1.0, 0.0], {"generation": "old"})
+        new = VectorMemoryStore(dim=2, max_elements=3)
+        new.add("new", [0.0, 1.0], {"generation": "new"})
+        original = new.save_to_artifact(store)
+        payload = canon.from_canonical_bytes(store.get_bytes(original))
+        kind, media = original.kind, original.media_type
+        if change == "outer-kind":
+            kind = "foreign.vector.bundle"
+        elif change == "outer-media":
+            media = "text/plain"
+        elif change == "schema":
+            payload["schema_version"] = "3.0"
+        elif change == "missing-schema":
+            del payload["schema_version"]
+        elif change == "dimension":
+            payload["dim"] = 3
+        elif change == "count":
+            payload["keys"].append("false-key")
+            payload["metadata"].append({})
+        elif change == "capacity":
+            payload["max_elements"] = 4
+        else:
+            index_ref = artifacts.ArtifactRef.model_validate(payload["index_ref"])
+            data = store.get_bytes(index_ref)
+            changed = store.put_bytes(
+                data[:5] if change == "truncated-index" else data,
+                artifacts.PutOptions(
+                    kind="foreign.vector.index" if change == "index-kind" else index_ref.kind,
+                    media_type=index_ref.media_type,
+                ),
+            )
+            payload["index_ref"] = changed.model_dump(mode="json")
+        ref = store.put_bytes(
+            canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False)),
+            artifacts.PutOptions(kind=kind, media_type=media),
+        )
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/agent/test_vector_memory.py:144: Failed
+_ test_real_bundle_envelope_refuses_disagreement_before_publication[outer-media] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-154/test_real_bundle_envelope_refu1')
+change = 'outer-media'
+
+    @pytest.mark.parametrize(
+        "change",
+        [
+            "outer-kind",
+            "outer-media",
+            "schema",
+            "missing-schema",
+            "dimension",
+            "count",
+            "capacity",
+            "index-kind",
+            "truncated-index",
+        ],
+    )
+    def test_real_bundle_envelope_refuses_disagreement_before_publication(tmp_path, change):
+        """Shape-valid CAS inputs cannot misdescribe the physical native generation."""
+        store = FileSystemCAS(tmp_path / "cas")
+        old = VectorMemoryStore(dim=2, max_elements=3)
+        old.add("old", [1.0, 0.0], {"generation": "old"})
+        new = VectorMemoryStore(dim=2, max_elements=3)
+        new.add("new", [0.0, 1.0], {"generation": "new"})
+        original = new.save_to_artifact(store)
+        payload = canon.from_canonical_bytes(store.get_bytes(original))
+        kind, media = original.kind, original.media_type
+        if change == "outer-kind":
+            kind = "foreign.vector.bundle"
+        elif change == "outer-media":
+            media = "text/plain"
+        elif change == "schema":
+            payload["schema_version"] = "3.0"
+        elif change == "missing-schema":
+            del payload["schema_version"]
+        elif change == "dimension":
+            payload["dim"] = 3
+        elif change == "count":
+            payload["keys"].append("false-key")
+            payload["metadata"].append({})
+        elif change == "capacity":
+            payload["max_elements"] = 4
+        else:
+            index_ref = artifacts.ArtifactRef.model_validate(payload["index_ref"])
+            data = store.get_bytes(index_ref)
+            changed = store.put_bytes(
+                data[:5] if change == "truncated-index" else data,
+                artifacts.PutOptions(
+                    kind="foreign.vector.index" if change == "index-kind" else index_ref.kind,
+                    media_type=index_ref.media_type,
+                ),
+            )
+            payload["index_ref"] = changed.model_dump(mode="json")
+        ref = store.put_bytes(
+            canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False)),
+            artifacts.PutOptions(kind=kind, media_type=media),
+        )
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/agent/test_vector_memory.py:144: Failed
+__ test_real_bundle_envelope_refuses_disagreement_before_publication[schema] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-154/test_real_bundle_envelope_refu2')
+change = 'schema'
+
+    @pytest.mark.parametrize(
+        "change",
+        [
+            "outer-kind",
+            "outer-media",
+            "schema",
+            "missing-schema",
+            "dimension",
+            "count",
+            "capacity",
+            "index-kind",
+            "truncated-index",
+        ],
+    )
+    def test_real_bundle_envelope_refuses_disagreement_before_publication(tmp_path, change):
+        """Shape-valid CAS inputs cannot misdescribe the physical native generation."""
+        store = FileSystemCAS(tmp_path / "cas")
+        old = VectorMemoryStore(dim=2, max_elements=3)
+        old.add("old", [1.0, 0.0], {"generation": "old"})
+        new = VectorMemoryStore(dim=2, max_elements=3)
+        new.add("new", [0.0, 1.0], {"generation": "new"})
+        original = new.save_to_artifact(store)
+        payload = canon.from_canonical_bytes(store.get_bytes(original))
+        kind, media = original.kind, original.media_type
+        if change == "outer-kind":
+            kind = "foreign.vector.bundle"
+        elif change == "outer-media":
+            media = "text/plain"
+        elif change == "schema":
+            payload["schema_version"] = "3.0"
+        elif change == "missing-schema":
+            del payload["schema_version"]
+        elif change == "dimension":
+            payload["dim"] = 3
+        elif change == "count":
+            payload["keys"].append("false-key")
+            payload["metadata"].append({})
+        elif change == "capacity":
+            payload["max_elements"] = 4
+        else:
+            index_ref = artifacts.ArtifactRef.model_validate(payload["index_ref"])
+            data = store.get_bytes(index_ref)
+            changed = store.put_bytes(
+                data[:5] if change == "truncated-index" else data,
+                artifacts.PutOptions(
+                    kind="foreign.vector.index" if change == "index-kind" else index_ref.kind,
+                    media_type=index_ref.media_type,
+                ),
+            )
+            payload["index_ref"] = changed.model_dump(mode="json")
+        ref = store.put_bytes(
+            canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False)),
+            artifacts.PutOptions(kind=kind, media_type=media),
+        )
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/agent/test_vector_memory.py:144: Failed
+_ test_real_bundle_envelope_refuses_disagreement_before_publication[missing-schema] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-154/test_real_bundle_envelope_refu3')
+change = 'missing-schema'
+
+    @pytest.mark.parametrize(
+        "change",
+        [
+            "outer-kind",
+            "outer-media",
+            "schema",
+            "missing-schema",
+            "dimension",
+            "count",
+            "capacity",
+            "index-kind",
+            "truncated-index",
+        ],
+    )
+    def test_real_bundle_envelope_refuses_disagreement_before_publication(tmp_path, change):
+        """Shape-valid CAS inputs cannot misdescribe the physical native generation."""
+        store = FileSystemCAS(tmp_path / "cas")
+        old = VectorMemoryStore(dim=2, max_elements=3)
+        old.add("old", [1.0, 0.0], {"generation": "old"})
+        new = VectorMemoryStore(dim=2, max_elements=3)
+        new.add("new", [0.0, 1.0], {"generation": "new"})
+        original = new.save_to_artifact(store)
+        payload = canon.from_canonical_bytes(store.get_bytes(original))
+        kind, media = original.kind, original.media_type
+        if change == "outer-kind":
+            kind = "foreign.vector.bundle"
+        elif change == "outer-media":
+            media = "text/plain"
+        elif change == "schema":
+            payload["schema_version"] = "3.0"
+        elif change == "missing-schema":
+            del payload["schema_version"]
+        elif change == "dimension":
+            payload["dim"] = 3
+        elif change == "count":
+            payload["keys"].append("false-key")
+            payload["metadata"].append({})
+        elif change == "capacity":
+            payload["max_elements"] = 4
+        else:
+            index_ref = artifacts.ArtifactRef.model_validate(payload["index_ref"])
+            data = store.get_bytes(index_ref)
+            changed = store.put_bytes(
+                data[:5] if change == "truncated-index" else data,
+                artifacts.PutOptions(
+                    kind="foreign.vector.index" if change == "index-kind" else index_ref.kind,
+                    media_type=index_ref.media_type,
+                ),
+            )
+            payload["index_ref"] = changed.model_dump(mode="json")
+        ref = store.put_bytes(
+            canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False)),
+            artifacts.PutOptions(kind=kind, media_type=media),
+        )
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/agent/test_vector_memory.py:144: Failed
+_ test_real_bundle_envelope_refuses_disagreement_before_publication[dimension] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-154/test_real_bundle_envelope_refu4')
+change = 'dimension'
+
+    @pytest.mark.parametrize(
+        "change",
+        [
+            "outer-kind",
+            "outer-media",
+            "schema",
+            "missing-schema",
+            "dimension",
+            "count",
+            "capacity",
+            "index-kind",
+            "truncated-index",
+        ],
+    )
+    def test_real_bundle_envelope_refuses_disagreement_before_publication(tmp_path, change):
+        """Shape-valid CAS inputs cannot misdescribe the physical native generation."""
+        store = FileSystemCAS(tmp_path / "cas")
+        old = VectorMemoryStore(dim=2, max_elements=3)
+        old.add("old", [1.0, 0.0], {"generation": "old"})
+        new = VectorMemoryStore(dim=2, max_elements=3)
+        new.add("new", [0.0, 1.0], {"generation": "new"})
+        original = new.save_to_artifact(store)
+        payload = canon.from_canonical_bytes(store.get_bytes(original))
+        kind, media = original.kind, original.media_type
+        if change == "outer-kind":
+            kind = "foreign.vector.bundle"
+        elif change == "outer-media":
+            media = "text/plain"
+        elif change == "schema":
+            payload["schema_version"] = "3.0"
+        elif change == "missing-schema":
+            del payload["schema_version"]
+        elif change == "dimension":
+            payload["dim"] = 3
+        elif change == "count":
+            payload["keys"].append("false-key")
+            payload["metadata"].append({})
+        elif change == "capacity":
+            payload["max_elements"] = 4
+        else:
+            index_ref = artifacts.ArtifactRef.model_validate(payload["index_ref"])
+            data = store.get_bytes(index_ref)
+            changed = store.put_bytes(
+                data[:5] if change == "truncated-index" else data,
+                artifacts.PutOptions(
+                    kind="foreign.vector.index" if change == "index-kind" else index_ref.kind,
+                    media_type=index_ref.media_type,
+                ),
+            )
+            payload["index_ref"] = changed.model_dump(mode="json")
+        ref = store.put_bytes(
+            canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False)),
+            artifacts.PutOptions(kind=kind, media_type=media),
+        )
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/agent/test_vector_memory.py:144: Failed
+_ test_real_bundle_envelope_refuses_disagreement_before_publication[capacity] __
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-154/test_real_bundle_envelope_refu6')
+change = 'capacity'
+
+    @pytest.mark.parametrize(
+        "change",
+        [
+            "outer-kind",
+            "outer-media",
+            "schema",
+            "missing-schema",
+            "dimension",
+            "count",
+            "capacity",
+            "index-kind",
+            "truncated-index",
+        ],
+    )
+    def test_real_bundle_envelope_refuses_disagreement_before_publication(tmp_path, change):
+        """Shape-valid CAS inputs cannot misdescribe the physical native generation."""
+        store = FileSystemCAS(tmp_path / "cas")
+        old = VectorMemoryStore(dim=2, max_elements=3)
+        old.add("old", [1.0, 0.0], {"generation": "old"})
+        new = VectorMemoryStore(dim=2, max_elements=3)
+        new.add("new", [0.0, 1.0], {"generation": "new"})
+        original = new.save_to_artifact(store)
+        payload = canon.from_canonical_bytes(store.get_bytes(original))
+        kind, media = original.kind, original.media_type
+        if change == "outer-kind":
+            kind = "foreign.vector.bundle"
+        elif change == "outer-media":
+            media = "text/plain"
+        elif change == "schema":
+            payload["schema_version"] = "3.0"
+        elif change == "missing-schema":
+            del payload["schema_version"]
+        elif change == "dimension":
+            payload["dim"] = 3
+        elif change == "count":
+            payload["keys"].append("false-key")
+            payload["metadata"].append({})
+        elif change == "capacity":
+            payload["max_elements"] = 4
+        else:
+            index_ref = artifacts.ArtifactRef.model_validate(payload["index_ref"])
+            data = store.get_bytes(index_ref)
+            changed = store.put_bytes(
+                data[:5] if change == "truncated-index" else data,
+                artifacts.PutOptions(
+                    kind="foreign.vector.index" if change == "index-kind" else index_ref.kind,
+                    media_type=index_ref.media_type,
+                ),
+            )
+            payload["index_ref"] = changed.model_dump(mode="json")
+        ref = store.put_bytes(
+            canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False)),
+            artifacts.PutOptions(kind=kind, media_type=media),
+        )
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/agent/test_vector_memory.py:144: Failed
+_ test_real_bundle_envelope_refuses_disagreement_before_publication[truncated-index] _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-154/test_real_bundle_envelope_refu8')
+change = 'truncated-index'
+
+    @pytest.mark.parametrize(
+        "change",
+        [
+            "outer-kind",
+            "outer-media",
+            "schema",
+            "missing-schema",
+            "dimension",
+            "count",
+            "capacity",
+            "index-kind",
+            "truncated-index",
+        ],
+    )
+    def test_real_bundle_envelope_refuses_disagreement_before_publication(tmp_path, change):
+        """Shape-valid CAS inputs cannot misdescribe the physical native generation."""
+        store = FileSystemCAS(tmp_path / "cas")
+        old = VectorMemoryStore(dim=2, max_elements=3)
+        old.add("old", [1.0, 0.0], {"generation": "old"})
+        new = VectorMemoryStore(dim=2, max_elements=3)
+        new.add("new", [0.0, 1.0], {"generation": "new"})
+        original = new.save_to_artifact(store)
+        payload = canon.from_canonical_bytes(store.get_bytes(original))
+        kind, media = original.kind, original.media_type
+        if change == "outer-kind":
+            kind = "foreign.vector.bundle"
+        elif change == "outer-media":
+            media = "text/plain"
+        elif change == "schema":
+            payload["schema_version"] = "3.0"
+        elif change == "missing-schema":
+            del payload["schema_version"]
+        elif change == "dimension":
+            payload["dim"] = 3
+        elif change == "count":
+            payload["keys"].append("false-key")
+            payload["metadata"].append({})
+        elif change == "capacity":
+            payload["max_elements"] = 4
+        else:
+            index_ref = artifacts.ArtifactRef.model_validate(payload["index_ref"])
+            data = store.get_bytes(index_ref)
+            changed = store.put_bytes(
+                data[:5] if change == "truncated-index" else data,
+                artifacts.PutOptions(
+                    kind="foreign.vector.index" if change == "index-kind" else index_ref.kind,
+                    media_type=index_ref.media_type,
+                ),
+            )
+            payload["index_ref"] = changed.model_dump(mode="json")
+        ref = store.put_bytes(
+            canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False)),
+            artifacts.PutOptions(kind=kind, media_type=media),
+        )
+        with pytest.raises(ValueError):
+>           old.load_from_artifact(store, ref)
+
+tests/unit/scientist/agent/test_vector_memory.py:145: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/agent/vector_memory.py:256: in load_from_artifact
+    candidate = self._load_index(store.get_bytes(index_ref), dim, capacity)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = b'\x00\x00\x00\x00\x00', dim = 2, capacity = 3
+
+    @staticmethod
+    def _load_index(data: bytes, dim: int, capacity: int) -> Any:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "hnsw.index"
+            path.write_bytes(data)
+            index = hnswlib.Index(space="cosine", dim=dim)
+>           index.load_index(str(path), max_elements=capacity)
+E           RuntimeError: Index seems to be corrupted or unsupported
+
+src/polisyos/scientist/agent/vector_memory.py:115: RuntimeError
+=========================== short test summary info ============================
+FAILED ../../../../../dev::test_real_bundle_envelope_refuses_disagreement_before_publication[outer-kind]
+FAILED ../../../../../dev::test_real_bundle_envelope_refuses_disagreement_before_publication[outer-media]
+FAILED ../../../../../dev::test_real_bundle_envelope_refuses_disagreement_before_publication[schema]
+FAILED ../../../../../dev::test_real_bundle_envelope_refuses_disagreement_before_publication[missing-schema]
+FAILED ../../../../../dev::test_real_bundle_envelope_refuses_disagreement_before_publication[dimension]
+FAILED ../../../../../dev::test_real_bundle_envelope_refuses_disagreement_before_publication[capacity]
+FAILED ../../../../../dev::test_real_bundle_envelope_refuses_disagreement_before_publication[truncated-index]
+7 failed, 2 passed, 6 deselected in 0.58s

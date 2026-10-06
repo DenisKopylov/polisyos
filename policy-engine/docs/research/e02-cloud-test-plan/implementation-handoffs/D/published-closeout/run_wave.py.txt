@@ -1,0 +1,133 @@
+"""Capture the immutable root candidate's complete D acceptance wave."""
+
+from __future__ import annotations
+
+import hashlib
+import importlib
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import shlex
+import subprocess
+import sys
+import time
+import uuid
+
+ROOT = Path('/workspace/e02-D-published-root')
+PRODUCT = ROOT / 'policy-engine'
+OUT = Path('/dev/shm/e02-D-root-closeout')
+BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+PYTHON = '/workspace/e02-D-locked-env/bin/python'
+
+
+def git(*args: str) -> str:
+    return subprocess.check_output(['git', *args], cwd=ROOT, text=True).strip()
+
+
+def fingerprint(path: Path) -> dict:
+    data = path.read_bytes()
+    return {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+
+def main() -> None:
+    source = git('rev-parse', 'HEAD')
+    tree = git('rev-parse', 'HEAD^{tree}')
+    assert not git('status', '--porcelain'), 'Candidate must be clean before execution'
+    definitions = []
+    defining_files = set()
+    plan = PRODUCT / 'docs/research/e02-cloud-test-plan/closure-decisions/D.md'
+    current_bundle = None
+    for line in plan.read_text().splitlines():
+        if line.startswith('### ') and ' — ' in line:
+            current_bundle = line.split()[1]
+        if line.startswith('cd policy-engine && python -m pytest '):
+            arguments = shlex.split(line.split(' && ', 1)[1])
+            selectors = [arg for arg in arguments if arg.startswith('tests/')]
+            definitions.append({'bundle': current_bundle, 'canonical_command': line, 'selectors': selectors})
+            defining_files.update(selector.split('::', 1)[0] for selector in selectors)
+    assert len(definitions) == 17
+    delta = git('diff', '--name-only', BASE, source).splitlines()
+    changed_tests = {
+        p.removeprefix('policy-engine/') for p in delta
+        if p.startswith('policy-engine/tests/') and p.endswith('.py')
+        and (ROOT / p).is_file() and Path(p).name.startswith('test_')
+    }
+    affected = {
+        'tests/unit/scientist/search/strategies/test_neural.py',
+        'tests/unit/scientist/orchestration/llm/test_budget_enforcer.py',
+        'tests/unit/scientist/orchestration/llm/test_cost_metrics.py',
+        'tests/integration/scientist/orchestration/llm/test_budget_enforcer.py',
+        'tests/unit/scientist/search/funnel/test_level3_medium.py',
+        'tests/unit/scientist/search/funnel/test_level4_full.py',
+        'tests/unit/scientist/search/funnel/test_types.py',
+        'tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py',
+        'tests/unit/scientist/methods/autotune/test_execution_plan_autotune.py',
+        'tests/unit/scientist/mirror_contracts/test_reflexion.py',
+        'tests/unit/scientist/mirror_contracts/test_calibration.py',
+        'tests/unit/scientist/mirror_contracts/test_cheap_stage.py',
+        'tests/unit/scientist/mirror_contracts/test_claim_adjudication.py',
+        'tests/unit/scientist/mirror_contracts/test_execution_plan.py',
+    }
+    affected = {p for p in affected if (PRODUCT / p).is_file()}
+    paths = sorted(defining_files | changed_tests | affected)
+    missing = [p for p in paths if not (PRODUCT / p).is_file()]
+    assert not missing, f'Missing defining/affected inputs: {missing}'
+    metadata = {
+        'source_sha': source, 'source_tree': tree, 'slice_base': BASE,
+        'changed_paths_complete': delta,
+        'defining_commands': definitions,
+        'execution_scope': 'Coalesced union executes each defining file in full, including every specified selector, plus changed and affected consumer files once on this exact candidate.',
+        'test_paths': paths,
+        'inputs': {p: fingerprint(PRODUCT / p) for p in paths},
+        'defining_plan': fingerprint(plan),
+        'python': sys.version, 'executable': sys.executable,
+        'native_modules': {}, 'packages': {},
+        'runtime_environment': {
+            key: os.environ.get(key) for key in (
+                'PYTHONPATH', 'PYTHONDONTWRITEBYTECODE', 'TIKTOKEN_CACHE_DIR',
+                'OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS',
+                'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'BLIS_NUM_THREADS',
+                'POLISYOS_PYTEST_WORKERS', 'PYTEST_ADDOPTS', 'CUDA_VISIBLE_DEVICES',
+            )
+        },
+        'added_cpu_process_worker_limits': False,
+    }
+    for name in ('torch', 'botorch', 'gpytorch', 'numpy', 'scipy', 'hnswlib', 'pytest', 'hypothesis'):
+        module = importlib.import_module(name)
+        metadata['native_modules'][name] = getattr(module, '__file__', None)
+        metadata['packages'][name] = importlib.metadata.version(name)
+    import torch
+    metadata['torch_initial_threads'] = torch.get_num_threads()
+    metadata['torch_initial_interop_threads'] = torch.get_num_interop_threads()
+    for name in (
+        'polisyos.scientist.methods.search.strategies.bayesian',
+        'polisyos.scientist.methods.search.strategies.transfer',
+        'polisyos.scientist.methods.search.funnel.orchestrator',
+        'polisyos.scientist.methods.search.adversarial',
+        'polisyos.scientist.orchestration.engine.budget_ledger',
+        'polisyos.scientist.methods.autotune.registry',
+    ):
+        module = importlib.import_module(name)
+        metadata['native_modules'][name] = {'path': module.__file__, **fingerprint(Path(module.__file__))}
+    baseline_tmp = '/dev/shm/e02-D-root-wide-fixtures-' + uuid.uuid4().hex
+    assert not Path(baseline_tmp).exists()
+    command = [PYTHON, '-B', '-m', 'pytest', '-o', 'addopts=', '--import-mode=importlib', '--strict-markers', '--basetemp', baseline_tmp, '--junitxml', str(OUT / 'wide.xml'), '-q', '-rA', *paths]
+    metadata['command'] = command
+    metadata['working_directory'] = str(PRODUCT)
+    metadata['preserved_fixture_root'] = baseline_tmp
+    (OUT / 'wide-inputs.json').write_text(json.dumps(metadata, indent=2) + '\n')
+    start = time.monotonic()
+    with (OUT / 'wide.txt').open('wb') as output:
+        result = subprocess.run(command, cwd=PRODUCT, stdout=output, stderr=subprocess.STDOUT)
+    metadata['exit_code'] = result.returncode
+    metadata['wall_seconds'] = time.monotonic() - start
+    metadata['complete_output'] = fingerprint(OUT / 'wide.txt')
+    metadata['post_run_head'] = git('rev-parse', 'HEAD')
+    metadata['post_run_status'] = git('status', '--porcelain')
+    (OUT / 'wide-receipt.json').write_text(json.dumps(metadata, indent=2) + '\n')
+    print(json.dumps({'source': source, 'files': len(paths), 'exit_code': result.returncode, 'wall_seconds': metadata['wall_seconds'], 'output': str(OUT / 'wide.txt')}), flush=True)
+
+
+if __name__ == '__main__':
+    main()

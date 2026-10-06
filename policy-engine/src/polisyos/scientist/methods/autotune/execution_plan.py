@@ -35,8 +35,11 @@ from .models import (
     MutationArtifact,
     PromotionPolicy,
     SearchLoopSpec,
+    benchmark_comparison_basis,
+    benchmark_evaluator_profile,
+    load_benchmark_inputs,
     load_model_artifact,
-    read_split_manifest,
+    resolve_comparison_incumbent,
 )
 from .registry import ChampionRegistry
 from .runtime import PydanticMutationCodec
@@ -674,17 +677,15 @@ class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
         store = context.get("store") or self._store
         if store is None:
             raise ValueError("ExecutionPlanBenchmarkEvaluator requires a CAS store")
+        incumbent = resolve_comparison_incumbent(
+            context.get("registry") or self._registry, context, EXECUTION_PLAN_LOOP_ID
+        )
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
         config = load_model_artifact(store, candidate_ref, ExecutionPlanSearchConfig)
-        if suite.dataset_path is None or suite.split_manifest_path is None:
-            raise ValueError(
-                "Execution plan benchmark suite requires dataset_path and split_manifest_path"
-            )
         runner = context.get("execution_plan_runner")
         if not callable(runner):
             raise ValueError("context['execution_plan_runner'] must be callable")
-        rows = _read_jsonl(Path(suite.dataset_path))
-        split_manifest = read_split_manifest(Path(suite.split_manifest_path))
+        rows, split_manifest = load_benchmark_inputs(store, suite)
         champion_governance = self._champion_governance_score(
             candidate_ref=candidate_ref,
             suite=suite,
@@ -692,6 +693,7 @@ class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
             runner=runner,
             split_manifest=split_manifest,
             context=context,
+            incumbent=incumbent,
         )
         selection_cases = _run_execution_plan_cases(
             config=config,
@@ -726,6 +728,13 @@ class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
             suite_id=suite.suite_id,
             suite_version=suite.suite_version,
             candidate_ref=candidate_ref,
+            comparison_basis=benchmark_comparison_basis(
+                store,
+                suite_ref,
+                context.get("policy") or default_execution_plan_policy(),
+                benchmark_evaluator_profile(self),
+            ),
+            runtime_split_type=BenchmarkSplit.HOLDOUT,
             selection_metrics=selection_metrics,
             holdout_metrics=holdout_metrics,
             sample_counts={
@@ -734,6 +743,12 @@ class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
             },
             guardrails=guardrails,
             promotable=all(guardrails.values()),
+            comparison_predecessor_candidate_ref=(
+                incumbent.candidate_ref if incumbent is not None else None
+            ),
+            comparison_predecessor_evaluation_ref=(
+                incumbent.evaluation_ref if incumbent is not None else None
+            ),
         )
 
     def _champion_governance_score(
@@ -745,12 +760,13 @@ class ExecutionPlanBenchmarkEvaluator(BenchmarkedEvaluator):
         runner: Any,
         split_manifest,
         context: dict[str, Any],
+        incumbent,
     ) -> float:
         registry = context.get("registry") or self._registry
         store = context.get("store") or self._store
         if registry is None or store is None:
             return 0.0
-        champion = registry.get(EXECUTION_PLAN_LOOP_ID)
+        champion = incumbent
         if champion is None or champion.candidate_ref.artifact_id == candidate_ref.artifact_id:
             return 0.0
         cfg = load_model_artifact(store, champion.candidate_ref, ExecutionPlanSearchConfig)

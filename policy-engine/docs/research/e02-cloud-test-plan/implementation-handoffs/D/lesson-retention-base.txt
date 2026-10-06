@@ -1,0 +1,34 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_fresh_producer_observation_survives_older_access_retention_hint _____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-217/test_fresh_producer_observatio0')
+
+    def test_fresh_producer_observation_survives_older_access_retention_hint(tmp_path):
+        _, registry, source, old = registry_card(tmp_path, days=100)
+        old = old.model_copy(update={"last_accessed_at": old.created_at})
+        registry.record_local(old, context=source)
+        fresh = old.model_copy(
+            update={
+                "lesson_id": "fresh-observation",
+                "created_at": datetime.now(UTC),
+                "candidate_hash": "fresh-candidate",
+            }
+        )
+        fresh_ref = registry.record_local(fresh, context=source)
+>       assert registry.garbage_collect(ttl_days=30) == 0
+E       assert 1 == 0
+E        +  where 1 = garbage_collect(ttl_days=30)
+E        +    where garbage_collect = <polisyos.scientist.methods.search.lessons.LessonRegistry object at 0x7ff6174d17f0>.garbage_collect
+
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py:170: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED ../../../dev::test_fresh_producer_observation_survives_older_access_retention_hint
+1 failed, 6 deselected, 2 warnings in 7.22s

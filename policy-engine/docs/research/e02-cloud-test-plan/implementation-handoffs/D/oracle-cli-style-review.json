@@ -1,0 +1,60 @@
+{
+  "schema_version": "e02.D.independent-oracle-cli-style.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "proof_commit": "9fb6f3729d12e82ba6960f3b51cf6065573c9675",
+  "proof_tree": "cff6ae7464eab4f2d5539f3063a3433763a634e0",
+  "production_writes": false,
+  "changed_sources": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_presence_independent_probe.py",
+      "historical_commit": "9221a2591a44a978ba105da1fc85379690f24be8",
+      "historical_sha256": "ed422145e1ae049004652a188e1da0b192375d17376b83af0469c77c52c987f5",
+      "current": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_presence_independent_probe.py",
+        "sha256": "f3093fff526e8f0bf3f7c62b2de612daf3dff2cf80dcac49bbd2cab3e2329d80",
+        "bytes": 9195
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp_4c337_finite_domain_probe.py",
+      "historical_commit": "1dc3c7436da326de4a8b247b206013b093effa07",
+      "historical_sha256": "dd2f9d60cdfbd55829571d2791c67730212b891628f720c539d62716d9da64da",
+      "current": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp_4c337_finite_domain_probe.py",
+        "sha256": "aaaddf33d89b977f606ceb72bc61735fc29fedcd1397bb697fa3a0382f8464f9",
+        "bytes": 1739
+      }
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_legacy_front_native_probe.py",
+      "historical_commit": "258200631ba7831321437955cb357515eecac5bd",
+      "historical_sha256": "b8dc514a33b73c5c08a1740db9babaca5df7676d773a9a1c93ddea6601e6e1ce",
+      "current": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget_deficit_legacy_front_native_probe.py",
+        "sha256": "1c19edad334352eefb7520f74b3276050976c4a2c7cbf2ba0f73c9d58cecd886",
+        "bytes": 3622
+      }
+    }
+  ],
+  "validation": {
+    "complete_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oracle-cli-style-check.txt",
+      "sha256": "f0f411386917c874664cfbb1cffde6e029c347de97b9ff519106bad427f3081a",
+      "bytes": 969
+    },
+    "ruff_check": "PASS,all3owned CLI sources",
+    "ruff_format_check": "PASS,all3already formatted",
+    "broad_backend_rerun": "Not performed for style polish; unchanged historical probes separately replayed in exact425 proof."
+  },
+  "changes": [
+    "Sort imports and apply formatter; annotate helpers and native fixture callbacks.",
+    "Use sys.stdout.write(value+newline) in place of print(value) for JSON lines.",
+    "Replace compound source SHA/origin asserts with explicit input guards; preserve actual source-origin enforcement.",
+    "Replace compound mathematical assertion with two explicit AssertionError checks preserving both expected endpoint/midpoint and normalized-zero predicates.",
+    "Bind each synchronous loop callback to its own already-current calls and challenger fixture to avoid late-binding lint."
+  ],
+  "expectations": "No expected value, case input, predicate, tolerance, actual native consumer or backend changed. Original affine-midpoint red remains the original law; no revised successful midpoint or supported-domain claim is introduced.",
+  "provenance": "Historical originals and deciding red/green output remain at pinned commits and unchanged receipts. Current live style bytes do not retroactively replace historical source bytes.",
+  "closure_ids": [],
+  "verdict": "PASS for local Ruff check and format on3owned CLI sources; no scientific finding closure."
+}

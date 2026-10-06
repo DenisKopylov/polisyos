@@ -1,0 +1,9 @@
+base_sha=198076863e143dea9f89f02734b13d50dae3eed5
+base_tree=2b754a92c27959e2e747738d47ed0b419f3b6dd8
+complete_archive=/dev/shm/search-A-apply-base-198-tunumfzo
+patch_sha256=5cdf3b7cdbb2f1cebe365eda4e4a56e5f6af0090d7c3cd6606828fed2d51918a
+command=git apply --check <absolute artifact>
+stdout=
+stderr=
+EXIT_CODE=0
+PATCH_NOT_APPLIED=true

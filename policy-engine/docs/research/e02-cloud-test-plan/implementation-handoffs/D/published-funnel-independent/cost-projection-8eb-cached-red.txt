@@ -1,0 +1,68 @@
+{"calls": ["adversary"], "final_action": "reject", "ledger_event_ids": ["f5e6fd258674501c77c9e4564e8156270bbaa59e7c804b500975ff814a876c3d"], "outcome_cost_source": "estimated", "outcome_event_ids": [], "outcome_provider_spend": "None", "spent": "1.0", "stage_cost_source": "estimated", "stage_event_ids": [], "stage_provider_spend": "None", "trace_cost_source": "provider_reported_only", "trace_provider_spend": "1.0"}
+F
+=================================== FAILURES ===================================
+________ test_native_paid_reject_routing_preserves_measured_accounting _________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-241/test_native_paid_reject_routin0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f207fcd48a0>
+
+    def test_native_paid_reject_routing_preserves_measured_accounting(tmp_path, monkeypatch):
+        fixture = runpy.run_path(
+            str(Path("tests/integration/scientist/methods/search/funnel/test_orchestrator.py"))
+        )
+        path, _, funnel, calls, _, context = fixture["configured_workflow"](
+            tmp_path, monkeypatch, levels=(3,)
+        )
+        native = funnel.stages[0]
+        actual_evaluate = native.evaluate
+    
+        def actual_stage_with_explicit_reject_signal(candidate, stage_context):
+            # Preserve the actual worker, provider response, estimate and measured
+            # charge. Supply only the public typed routing vector as the test input.
+            actual = actual_evaluate(candidate, stage_context)
+            return replace(actual, cheap_signal=CheapSignalVector(structural_validity=0.0))
+    
+        monkeypatch.setattr(native, "evaluate", actual_stage_with_explicit_reject_signal)
+        outcome = funnel.advance(funnel.submit({"candidate_id": "candidate-1"}, context), policy="full")
+        ledger = FileBudgetLedger(path).snapshot()
+        stage = outcome.stage_results[3]
+        print(
+            json.dumps(
+                {
+                    "calls": calls,
+                    "final_action": outcome.final_action,
+                    "spent": str(ledger.state.spent["run"]),
+                    "ledger_event_ids": sorted(ledger.resource_events),
+                    "trace_cost_source": outcome.trace[0].compute_cost_source,
+                    "trace_provider_spend": str(outcome.trace[0].provider_spend_usd),
+                    "stage_cost_source": stage.compute_cost_source,
+                    "stage_provider_spend": str(stage.provider_spend_usd),
+                    "stage_event_ids": stage.resource_event_ids,
+                    "outcome_cost_source": outcome.compute_cost_source,
+                    "outcome_provider_spend": str(outcome.provider_spend_usd),
+                    "outcome_event_ids": outcome.resource_event_ids,
+                },
+                sort_keys=True,
+            )
+        )
+        assert calls == ["adversary"]
+        assert outcome.final_action == "reject"
+        assert ledger.state.spent["run"] == Decimal("1")
+        assert outcome.trace[0].provider_spend_usd == Decimal("1")
+>       assert stage.compute_cost_source == "provider_reported_only"
+E       AssertionError: assert 'estimated' == 'provider_reported_only'
+E         
+E         - provider_reported_only
+E         + estimated
+
+tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py:58: AssertionError
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py::test_native_paid_reject_routing_preserves_measured_accounting
+1 failed, 2 warnings in 12.35s

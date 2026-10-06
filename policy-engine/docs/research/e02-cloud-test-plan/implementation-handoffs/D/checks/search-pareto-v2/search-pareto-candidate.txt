@@ -1,0 +1,63 @@
+.F.....................F.............................                    [100%]
+=================================== FAILURES ===================================
+___ test_registry_actual_disk_catalog_and_voi_consumers_preserve_limitation ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-161/test_registry_actual_disk_cata0')
+
+    def test_registry_actual_disk_catalog_and_voi_consumers_preserve_limitation(tmp_path):
+        registry = ParetoRegistry(tmp_path / "registry")
+        basis = ParetoBasisScope(
+            scope="declared", coordinate_ids=["a", "b"], basis_ref="fixture:axes.v1"
+        )
+        for i, value in enumerate((-1e308, 1e308), start=1):
+            registry.update(
+                "fixture",
+                candidate_hash=f"sha256:{i:064x}",
+                evaluation=vector(str(i), value),
+                objective_basis_by_view={"global_feasible": basis},
+            )
+        reopened = ParetoRegistry(tmp_path / "registry")
+        snapshot = reopened.get_snapshot("fixture")
+        view = "global_feasible"
+>       assert snapshot.hypervolume_by_view[view] is None
+E       assert 0.0 is None
+
+tests/unit/remediation/test_opt_01_hypervolume_consumers.py:95: AssertionError
+_ TestParetoFront.test_complete_v1_payload_has_exact_coordinate_and_reference_keys _
+
+self = <test_pareto.TestParetoFront object at 0x7f5606318830>
+
+    def test_complete_v1_payload_has_exact_coordinate_and_reference_keys(self):
+        """Complete v1 payloads expose one exact, mutually bound key set."""
+        # Catches the production mutation that adds a schema marker but leaves
+        # member/reference dictionaries on an untyped or divergent key set.
+        promoter = ParetoPromoter(_policies("score"))
+        payload = promoter.compute_front([_eval(score=1.0)]).model_dump(mode="json")
+    
+>       assert set(payload) == {
+            "schema_version",
+            "members",
+            "hypervolume",
+            "reference_point",
+            "coordinate_schema",
+            "coordinate_reference_point",
+            "input_assessment",
+        }
+E       AssertionError: assert {'coordinate_...members', ...} == {'coordinate_...e_point', ...}
+E         
+E         Extra items in the left set:
+E         'hypervolume_assessment'
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/autotune/test_pareto.py:442: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_opt_01_hypervolume_consumers.py::test_registry_actual_disk_catalog_and_voi_consumers_preserve_limitation
+FAILED tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_complete_v1_payload_has_exact_coordinate_and_reference_keys
+2 failed, 51 passed, 2 warnings in 7.96s

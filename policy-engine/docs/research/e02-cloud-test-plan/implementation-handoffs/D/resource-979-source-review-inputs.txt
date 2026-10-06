@@ -1,0 +1,754 @@
+FULL PRODUCTION DELTA 678a8bdb06103009d0547e55e00022061dfca4c3 -> 9798170a329fd31441ec3e6afdba7a409a1bdfc4
+diff --git a/policy-engine/src/polisyos/core/llm/response.py b/policy-engine/src/polisyos/core/llm/response.py
+index 945eb3ecb..e6a71a76a 100644
+--- a/policy-engine/src/polisyos/core/llm/response.py
++++ b/policy-engine/src/polisyos/core/llm/response.py
+@@ -3,7 +3,7 @@
+ from __future__ import annotations
+ 
+ from dataclasses import dataclass
+-from decimal import Decimal
++from decimal import Decimal, InvalidOperation
+ from math import isfinite
+ from typing import Any
+ 
+@@ -148,6 +148,13 @@ def _as_float(value: Any) -> float | None:
+         raise _InvalidLLMCostError("provider cost must be finite and nonnegative") from exc
+     if not isfinite(parsed) or parsed < 0:
+         raise _InvalidLLMCostError("provider cost must be finite and nonnegative")
++    if parsed == 0:
++        try:
++            original_is_zero = Decimal(str(value)) == 0
++        except InvalidOperation as exc:
++            raise _InvalidLLMCostError("provider cost must be numeric") from exc
++        if not original_is_zero:
++            raise _InvalidLLMCostError("nonzero provider cost cannot normalize to zero")
+     return parsed
+ 
+ 
+@@ -155,8 +162,16 @@ def _extract_cost_usd(*, usage: Any, payload: Any) -> float | None:
+     def field(source: Any, name: str) -> Any:
+         return source.get(name) if isinstance(source, dict) else getattr(source, name, None)
+ 
++    sources: tuple[Any, ...] = (usage, payload)
++    raw = field(payload, "raw")
++    if isinstance(raw, dict):
++        # The native Gateway retains its original report here. Its normalized
++        # envelope can erase a negative amount or a finite, falsy zero. Preserve
++        # the original fields' first-present order, while validating both forms.
++        sources = (field(raw, "usage"), raw, *sources)
++
+     candidates: list[float | None] = []
+-    for source in (usage, payload):
++    for source in sources:
+         # Validate every declared cost before choosing one, for mapping and
+         # SDK-object responses alike. Bad alternate fields cannot become absent.
+         candidates.extend(
+
+
+COMPLETE INPUT policy-engine/src/polisyos/core/llm/response.py
+"""Normalizes provider-specific LLM responses into one PolicyOS telemetry shape."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
+from math import isfinite
+from typing import Any
+
+
+class _InvalidLLMCostError(ValueError):
+    """A present provider cost is invalid; it cannot become absent or zero."""
+
+
+@dataclass(frozen=True)
+class LLMResponseData:
+    """LLM response data public type."""
+
+    content: str
+    prompt_tokens: int
+    completion_tokens: int
+    provider: str | None = None
+    model: str | None = None
+    cost_usd: float | None = None
+    cache_hit: bool = False
+    usage_origin: str = "provider"
+    request_id: str | None = None
+    origin_prompt_tokens: int | None = None
+    origin_completion_tokens: int | None = None
+    origin_cost_usd: float | None = None
+    reuse_event_id: str | None = None
+    cache_key: str | None = None
+
+    @property
+    def total_tokens(self) -> int:
+        return self.prompt_tokens + self.completion_tokens
+
+    @property
+    def origin_total_tokens(self) -> int:
+        """Return provider usage retained as provenance for cache reuse."""
+
+        prompt_tokens = self.origin_prompt_tokens
+        completion_tokens = self.origin_completion_tokens
+        if prompt_tokens is None:
+            prompt_tokens = self.prompt_tokens
+        if completion_tokens is None:
+            completion_tokens = self.completion_tokens
+        return prompt_tokens + completion_tokens
+
+
+def extract_llm_response_data(response: Any) -> LLMResponseData:
+    """Extract content, usage, model, and cost fields from heterogeneous LLM SDK responses."""
+    content = response.content if hasattr(response, "content") else str(response)
+    cache_hit, usage_origin, reuse_event_id, cache_key = _extract_cache_provenance(response)
+    origin_prompt_tokens = 0
+    origin_completion_tokens = 0
+    provider: str | None = None
+    model: str | None = None
+    cost_usd: float | None = None
+    request_id: str | None = None
+
+    try:
+        usage = getattr(response, "usage", None)
+        if isinstance(response, dict):
+            usage = response.get("usage")
+        cost_usd = _extract_cost_usd(usage=usage, payload=response)
+        provider = _as_str(getattr(response, "provider", None))
+        model = _as_str(getattr(response, "model", None))
+        request_id = _as_str(getattr(response, "request_id", None))
+        if isinstance(response, dict):
+            provider = provider or _as_str(response.get("provider"))
+            model = model or _as_str(response.get("model"))
+            request_id = request_id or _as_str(response.get("request_id"))
+        if usage is not None and not isinstance(response, dict):
+            origin_prompt_tokens = int(getattr(usage, "prompt_tokens", 0) or 0)
+            origin_completion_tokens = int(getattr(usage, "completion_tokens", 0) or 0)
+        elif isinstance(response, dict):
+            usage = response.get("usage") or {}
+            origin_prompt_tokens = int(usage.get("prompt_tokens", 0) or 0)
+            origin_completion_tokens = int(usage.get("completion_tokens", 0) or 0)
+        elif hasattr(response, "input_tokens"):
+            origin_prompt_tokens = int(getattr(response, "input_tokens", 0) or 0)
+            origin_completion_tokens = int(getattr(response, "output_tokens", 0) or 0)
+    except _InvalidLLMCostError:
+        raise
+    except Exception:
+        origin_prompt_tokens = 0
+        origin_completion_tokens = 0
+        # Usage counts are ancillary to an independently admitted paid receipt.
+        # Invalid token metadata must not turn known provider spend into absence.
+
+    reported_cost_usd = cost_usd
+    billable_prompt_tokens = 0 if cache_hit else origin_prompt_tokens
+    billable_completion_tokens = 0 if cache_hit else origin_completion_tokens
+    billable_cost_usd = 0.0 if cache_hit else reported_cost_usd
+
+    return LLMResponseData(
+        content=content,
+        prompt_tokens=max(0, billable_prompt_tokens),
+        completion_tokens=max(0, billable_completion_tokens),
+        provider=provider,
+        model=model,
+        cost_usd=billable_cost_usd,
+        cache_hit=cache_hit,
+        usage_origin=usage_origin,
+        request_id=request_id,
+        origin_prompt_tokens=max(0, origin_prompt_tokens),
+        origin_completion_tokens=max(0, origin_completion_tokens),
+        origin_cost_usd=reported_cost_usd,
+        reuse_event_id=reuse_event_id,
+        cache_key=cache_key,
+    )
+
+
+def _extract_cache_provenance(
+    response: Any,
+) -> tuple[bool, str, str | None, str | None]:
+    """Read cache provenance only from the internal cache-owned envelope.
+
+    Provider ``raw`` payloads are data, not authority over billing.  The
+    cache wrapper attaches these private fields to the response it returns;
+    a provider-supplied ``_polisyos_cache`` mapping is intentionally ignored.
+    """
+
+    response_type = type(response)
+    cache_hit = (
+        response_type.__name__ == "_CacheReuseGatewayResponse"
+        and response_type.__module__.endswith(".prompt_cache")
+        and getattr(response, "_polisyos_cache_hit", False) is True
+    )
+    if not cache_hit:
+        return False, "provider", None, None
+    reuse_event_id = _as_str(getattr(response, "_polisyos_reuse_event_id", None))
+    cache_key = _as_str(getattr(response, "_polisyos_cache_key", None))
+    return True, "provider", reuse_event_id, cache_key
+
+
+def _as_float(value: Any) -> float | None:
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        raise _InvalidLLMCostError("provider cost cannot be boolean")
+    if not isinstance(value, (int, float, Decimal, str)):
+        raise _InvalidLLMCostError("provider cost must be numeric")
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise _InvalidLLMCostError("provider cost must be finite and nonnegative") from exc
+    if not isfinite(parsed) or parsed < 0:
+        raise _InvalidLLMCostError("provider cost must be finite and nonnegative")
+    if parsed == 0:
+        try:
+            original_is_zero = Decimal(str(value)) == 0
+        except InvalidOperation as exc:
+            raise _InvalidLLMCostError("provider cost must be numeric") from exc
+        if not original_is_zero:
+            raise _InvalidLLMCostError("nonzero provider cost cannot normalize to zero")
+    return parsed
+
+
+def _extract_cost_usd(*, usage: Any, payload: Any) -> float | None:
+    def field(source: Any, name: str) -> Any:
+        return source.get(name) if isinstance(source, dict) else getattr(source, name, None)
+
+    sources: tuple[Any, ...] = (usage, payload)
+    raw = field(payload, "raw")
+    if isinstance(raw, dict):
+        # The native Gateway retains its original report here. Its normalized
+        # envelope can erase a negative amount or a finite, falsy zero. Preserve
+        # the original fields' first-present order, while validating both forms.
+        sources = (field(raw, "usage"), raw, *sources)
+
+    candidates: list[float | None] = []
+    for source in sources:
+        # Validate every declared cost before choosing one, for mapping and
+        # SDK-object responses alike. Bad alternate fields cannot become absent.
+        candidates.extend(
+            _as_float(field(source, name)) for name in ("total_cost_usd", "cost_usd", "cost")
+        )
+        base_cost = _as_float(field(source, "base_cost_usd"))
+        platform_fee = _as_float(field(source, "platform_fee_usd"))
+        if base_cost is not None or platform_fee is not None:
+            candidates.append(_as_float((base_cost or 0.0) + (platform_fee or 0.0)))
+    return next((value for value in candidates if value is not None), None)
+
+
+def _as_str(value: Any) -> str | None:
+    if isinstance(value, str):
+        stripped = value.strip()
+        return stripped or None
+    return None
+
+
+CALLER INPUT policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py lines 230..274
+230:         plugins: list[dict[str, Any]] | None = None,
+231:         timeout: float | None = None,
+232:         **kwargs: Any,
+233:     ) -> GatewayLLMResponse:
+234:         payload: dict[str, Any] = {
+235:             "model": self.model,
+236:             "messages": self._build_messages(
+237:                 system=system,
+238:                 user=user,
+239:                 messages=messages,
+240:             ),
+241:         }
+242:         if response_format is not None and not self._response_format_unsupported:
+243:             payload["response_format"] = response_format
+244:         if tools is not None:
+245:             payload["tools"] = tools
+246:         if tool_choice is not None:
+247:             payload["tool_choice"] = tool_choice
+248:         if stream is not None:
+249:             payload["stream"] = bool(stream)
+250:         if temperature is not None:
+251:             payload["temperature"] = float(temperature)
+252:         if max_tokens is not None:
+253:             payload["max_tokens"] = int(max_tokens)
+254:         if seed is not None:
+255:             payload["seed"] = int(seed)
+256:         if metadata is not None:
+257:             payload["metadata"] = metadata
+258:         effective_preset = _resolve_preset(preset, self.preset)
+259:         if effective_preset is not None:
+260:             payload["preset"] = effective_preset
+261:         merged_plugins = _merge_plugins(self.default_plugins, plugins)
+262:         if merged_plugins:
+263:             payload["plugins"] = merged_plugins
+264:         # Preserve forward-compatibility with additional OpenAI-compatible fields.
+265:         for key, value in kwargs.items():
+266:             if value is not None:
+267:                 payload[key] = value
+268: 
+269:         raw = await self._post_json(
+270:             endpoint="/chat/completions",
+271:             payload=payload,
+272:             timeout_s=float(timeout) if timeout is not None else self.timeout_s,
+273:         )
+274:         return self._parse_completion_payload(raw)
+
+CALLER INPUT policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py lines 561..644
+561:     def _parse_completion_payload(self, payload: dict[str, Any]) -> GatewayLLMResponse:
+562:         choices = payload.get("choices")
+563:         first_choice = choices[0] if isinstance(choices, list) and choices else {}
+564:         message = first_choice.get("message") if isinstance(first_choice, dict) else {}
+565:         raw_content = message.get("content") if isinstance(message, dict) else None
+566:         content = self._normalize_content(raw_content)
+567: 
+568:         usage_payload = payload.get("usage")
+569:         cost_usd = _as_float(
+570:             _extract_usage_value(usage_payload, "total_cost_usd")
+571:             or _extract_usage_value(usage_payload, "cost_usd")
+572:             or payload.get("cost_usd")
+573:             or payload.get("total_cost_usd")
+574:             or payload.get("cost")
+575:         )
+576:         if cost_usd is None:
+577:             base_cost = _as_float(_extract_usage_value(usage_payload, "base_cost_usd"))
+578:             platform_fee = _as_float(_extract_usage_value(usage_payload, "platform_fee_usd"))
+579:             if base_cost is not None or platform_fee is not None:
+580:                 cost_usd = (base_cost or 0.0) + (platform_fee or 0.0)
+581:         usage = GatewayUsage(
+582:             prompt_tokens=_as_int(_extract_usage_value(usage_payload, "prompt_tokens")),
+583:             completion_tokens=_as_int(_extract_usage_value(usage_payload, "completion_tokens")),
+584:             total_tokens=_as_int(_extract_usage_value(usage_payload, "total_tokens")),
+585:             cost_usd=cost_usd,
+586:         )
+587:         if usage.total_tokens <= 0:
+588:             usage.total_tokens = usage.prompt_tokens + usage.completion_tokens
+589: 
+590:         # Parse tool calls if present
+591:         tool_calls: list[GatewayToolCall] | None = None
+592:         raw_tool_calls = message.get("tool_calls") if isinstance(message, dict) else None
+593:         if isinstance(raw_tool_calls, list) and raw_tool_calls:
+594:             tool_calls = []
+595:             for tc in raw_tool_calls:
+596:                 fn = tc.get("function", {}) if isinstance(tc, dict) else {}
+597:                 args_str = fn.get("arguments", "{}")
+598:                 error_envelope = None
+599:                 try:
+600:                     if isinstance(args_str, str):
+601:                         args = json.loads(args_str)
+602:                     elif isinstance(args_str, dict):
+603:                         args = args_str
+604:                     else:
+605:                         args = {}
+606:                 except (json.JSONDecodeError, TypeError) as exc:
+607:                     args = {}
+608:                     error_envelope = _gateway_degraded(
+609:                         operation="parse_tool_call_arguments",
+610:                         reason="tool_call_arguments_parse_error",
+611:                         exc=exc,
+612:                         details={
+613:                             "tool_call_id": str(tc.get("id", "")),
+614:                             "tool_name": str(fn.get("name", "")),
+615:                             "arguments_preview": (
+616:                                 args_str[:200]
+617:                                 if isinstance(args_str, str)
+618:                                 else str(type(args_str).__name__)
+619:                             ),
+620:                         },
+621:                     )
+622:                 tool_calls.append(
+623:                     GatewayToolCall(
+624:                         id=str(tc.get("id", "")),
+625:                         name=str(fn.get("name", "")),
+626:                         arguments=args,
+627:                         error_envelope=error_envelope,
+628:                     )
+629:                 )
+630: 
+631:         return GatewayLLMResponse(
+632:             content=content,
+633:             usage=usage,
+634:             model=str(payload.get("model") or self.model),
+635:             provider=_as_str(payload.get("provider")) or self.provider_hint,
+636:             request_id=_as_str(payload.get("_gateway_request_id")),
+637:             response_headers=(
+638:                 dict(payload.get("_gateway_response_headers"))
+639:                 if isinstance(payload.get("_gateway_response_headers"), dict)
+640:                 else None
+641:             ),
+642:             raw=payload,
+643:             tool_calls=tool_calls,
+644:         )
+
+CALLER INPUT policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py lines 190..245
+190:                         self._audit_log.append(
+191:                             run_id=run_id,
+192:                             actor="budget_enforcer",
+193:                             action="BUDGET_EXCEEDED",
+194:                             metadata={
+195:                                 "budget_key": key,
+196:                                 "estimated_cost_usd": str(estimated),
+197:                                 "remaining_usd": str(remaining),
+198:                                 "model": self._model_name,
+199:                             },
+200:                         )
+201:                     raise BudgetExhaustedError(
+202:                         f"LLM call would exceed budget '{key}': "
+203:                         f"estimated=${estimated}, remaining=${remaining}"
+204:                     )
+205:                 reservation.reserved_amounts[key] = estimated if has_limit else Decimal(0)
+206:                 reserved_keys.append(key)
+207: 
+208:         if self._audit_log:
+209:             self._audit_log.append(
+210:                 run_id=run_id,
+211:                 actor="budget_enforcer",
+212:                 action="BUDGET_RESERVED",
+213:                 metadata={
+214:                     "budget_keys": self._budget_keys,
+215:                     "estimated_cost_usd": str(estimated),
+216:                     "model": self._model_name,
+217:                 },
+218:             )
+219:             self._audit_log.append(
+220:                 run_id=run_id,
+221:                 actor="budget_enforcer",
+222:                 action="BUDGET_CHECK",
+223:                 metadata={
+224:                     "budget_keys": self._budget_keys,
+225:                     "estimated_cost_usd": str(estimated),
+226:                     "model": self._model_name,
+227:                 },
+228:             )
+229:         return reservation
+230: 
+231:     def _release_reservation(
+232:         self,
+233:         reservation: _BudgetReservation,
+234:         *,
+235:         run_id: str,
+236:         reason: str,
+237:     ) -> None:
+238:         """Release any outstanding reservation for the current call."""
+239:         if reservation.resource_reservation_id is not None:
+240:             if reservation.resource_pending:
+241:                 assert self._budget_middleware is not None
+242:                 self._budget_middleware.require_reconciliation(reservation.resource_reservation_id)
+243:                 reservation.resource_pending = False
+244:                 if self._audit_log:
+245:                     self._audit_log.append(
+
+CALLER INPUT policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py lines 274..324
+274: 
+275:     def _post_record(
+276:         self,
+277:         response: Any,
+278:         *,
+279:         reservation: _BudgetReservation | None = None,
+280:         run_id: str | None = None,
+281:     ) -> Decimal:
+282:         """Extract actual cost from response and commit the reservation."""
+283:         reservation = reservation or _BudgetReservation(estimated_cost=Decimal(0))
+284:         resolved_run_id = self._run_id if run_id is None else run_id
+285:         data = extract_llm_response_data(response)
+286:         if self._budget_middleware is not None:
+287:             if reservation.resource_reservation_id is None:
+288:                 raise ValueError("measured provider settlement requires its owned reservation")
+289:             if data.cost_usd is None or not data.provider or not data.request_id:
+290:                 raise ValueError(
+291:                     "measured provider cost, provider identity and request ID are required"
+292:                 )
+293:             event = BudgetResourceEvent(
+294:                 provider=data.provider,
+295:                 request_id=data.request_id,
+296:                 run_id=resolved_run_id,
+297:                 budget_keys=tuple(self._budget_keys),
+298:                 amount_usd=self._coerce_cost_decimal(data.cost_usd),
+299:                 evaluation_id=reservation.evaluation_id,
+300:                 source="cache_reuse" if data.cache_hit else "provider_reported",
+301:                 reuse_event_id=data.reuse_event_id,
+302:             )
+303:             result = self._budget_middleware.settle_resource(
+304:                 reservation.resource_reservation_id, event
+305:             )
+306:             reservation.resource_pending = False
+307:             self._budget_state = result.state
+308:             if self._audit_log:
+309:                 self._audit_log.append(
+310:                     run_id=resolved_run_id,
+311:                     actor="budget_enforcer",
+312:                     action="BUDGET_COMMITTED",
+313:                     metadata={
+314:                         "reservation_id": reservation.resource_reservation_id,
+315:                         "resource_event_id": event.event_id,
+316:                         "reported_cost_usd": str(event.amount_usd),
+317:                         "new_charge_usd": str(result.applied_amount),
+318:                         "source": event.source,
+319:                         "request_id": event.request_id,
+320:                         "ledger_revision": result.revision,
+321:                     },
+322:                 )
+323:             self._emit_cost_metrics(result.applied_amount, data)
+324:             return result.applied_amount
+
+COMPLETE INPUT policy-engine/tests/integration/core/llm/test_native_gateway_cost_intake.py
+"""Native raw decoder -> cost intake -> measured ledger, without billing authority."""
+
+from copy import deepcopy
+from decimal import Decimal
+
+import pytest
+
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
+from polisyos.scientist.orchestration.llm.gateway_client import (
+    GatewayLLMClient,
+    GatewayLLMResponse,
+    GatewayUsage,
+)
+
+
+class RawGateway(GatewayLLMClient):
+    """Only HTTP bytes are fixture inputs; actual generate/parser remain in use."""
+
+    def __init__(self, payload):
+        super().__init__(
+            base_url="https://fixture.invalid",
+            api_key="",
+            model="test-model",
+            provider_hint="provider-a",
+        )
+        self.payload = payload
+        self.calls = 0
+        self.normalized_response = None
+
+    async def _post_json(self, **kwargs):
+        self.calls += 1
+        return deepcopy(self.payload)
+
+    async def generate(self, **kwargs):
+        self.normalized_response = await super().generate(**kwargs)
+        return self.normalized_response
+
+
+def raw_payload(usage):
+    return {
+        "choices": [{"message": {"content": "observed response"}}],
+        "provider": "provider-a",
+        "_gateway_request_id": "request-1",
+        "usage": {"prompt_tokens": 1, "completion_tokens": 1, **usage},
+    }
+
+
+def build(tmp_path, client):
+    path = tmp_path / "ledger.json"
+    state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5"))})
+    owner = BudgetMiddleware(state, ledger=FileBudgetLedger(path))
+    enforcer = LLMBudgetEnforcer(
+        client=client,
+        budget_state=state,
+        budget_keys=["run"],
+        run_id="run-1",
+        model_name="test-model",
+        budget_middleware=owner,
+    )
+    return path, enforcer
+
+
+async def invoke(enforcer):
+    return await enforcer.generate(
+        user="hello",
+        max_tokens=1,
+        _prompt_tokens_estimate=1,
+        _evaluation_id="native-raw-cost",
+    )
+
+
+def assert_pending_without_event(path):
+    snapshot = FileBudgetLedger(path).snapshot()
+    assert snapshot.resource_events == {}
+    assert snapshot.state.spent == {}
+    assert len(snapshot.resource_reservations) == 1
+    assert next(iter(snapshot.resource_reservations.values())).status == "reconciliation_required"
+
+
+@pytest.mark.asyncio
+async def test_native_raw_negative_cannot_settle_a_normalized_zero(tmp_path):
+    gateway = RawGateway(raw_payload({"cost_usd": -1}))
+    path, enforcer = build(tmp_path, gateway)
+    with pytest.raises(ValueError, match="provider cost"):
+        await invoke(enforcer)
+    assert gateway.calls == 1
+    assert gateway.normalized_response.usage.cost_usd == 0.0
+    assert gateway.normalized_response.raw["usage"]["cost_usd"] == -1
+    assert_pending_without_event(path)
+
+
+@pytest.mark.parametrize("source", ["usage", "payload"])
+@pytest.mark.parametrize(
+    "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+)
+@pytest.mark.parametrize(
+    "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+)
+@pytest.mark.asyncio
+async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+    tmp_path, source, field, invalid
+):
+    payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+    target = payload["usage"] if source == "usage" else payload
+    target[field] = invalid
+    gateway = RawGateway(payload)
+    path, enforcer = build(tmp_path, gateway)
+    with pytest.raises(ValueError, match="provider cost"):
+        await invoke(enforcer)
+    assert gateway.calls == 1
+    if source == "payload" or field != "total_cost_usd":
+        assert gateway.normalized_response.usage.cost_usd == 1
+    assert_pending_without_event(path)
+
+
+@pytest.mark.parametrize("source", ["usage", "payload"])
+@pytest.mark.asyncio
+async def test_native_raw_component_overflow_refused_with_normalized_marker_retained(
+    tmp_path, source
+):
+    payload = raw_payload({"total_cost_usd": 1})
+    target = payload["usage"] if source == "usage" else payload
+    target.update(base_cost_usd="1e308", platform_fee_usd="1e308")
+    gateway = RawGateway(payload)
+    path, enforcer = build(tmp_path, gateway)
+    with pytest.raises(ValueError, match="provider cost"):
+        await invoke(enforcer)
+    assert gateway.calls == 1 and gateway.normalized_response.usage.cost_usd == 1
+    assert_pending_without_event(path)
+
+
+@pytest.mark.parametrize("amount", [0, 1])
+@pytest.mark.asyncio
+async def test_native_raw_finite_zero_and_paid_receipt_settle_exact_amount(tmp_path, amount):
+    gateway = RawGateway(raw_payload({"cost_usd": amount}))
+    path, enforcer = build(tmp_path, gateway)
+    response = await invoke(enforcer)
+    assert response.raw["usage"]["cost_usd"] == amount and gateway.calls == 1
+    snapshot = FileBudgetLedger(path).snapshot()
+    assert snapshot.state.spent["run"] == Decimal(amount)
+    assert snapshot.state.remaining("run") == Decimal(5 - amount)
+    assert snapshot.state.reserved["run"] == 0
+    event = next(iter(snapshot.resource_events.values()))
+    assert event.amount_usd == Decimal(amount)
+    assert event.evaluation_id == "native-raw-cost" and event.request_id == "request-1"
+
+
+@pytest.mark.asyncio
+async def test_native_raw_zero_priority_survives_falsy_normalization(tmp_path):
+    gateway = RawGateway(raw_payload({"total_cost_usd": 0, "cost_usd": 4}))
+    path, enforcer = build(tmp_path, gateway)
+    await invoke(enforcer)
+    assert gateway.normalized_response.usage.cost_usd == 4
+    snapshot = FileBudgetLedger(path).snapshot()
+    assert snapshot.state.spent["run"] == 0
+    assert next(iter(snapshot.resource_events.values())).amount_usd == 0
+
+
+@pytest.mark.parametrize("normalized_amount", [None, 1])
+@pytest.mark.asyncio
+async def test_raw_unavailable_is_distinct_from_invalid_raw_receipt(tmp_path, normalized_amount):
+    class SDKWithoutRaw:
+        async def generate(self, **kwargs):
+            return GatewayLLMResponse(
+                content="observed SDK response",
+                usage=GatewayUsage(cost_usd=normalized_amount),
+                provider="provider-a",
+                request_id="request-1",
+                raw=None,
+            )
+
+    path, enforcer = build(tmp_path, SDKWithoutRaw())
+    if normalized_amount is None:
+        with pytest.raises(ValueError, match="measured provider cost"):
+            await invoke(enforcer)
+        assert_pending_without_event(path)
+    else:
+        await invoke(enforcer)
+        snapshot = FileBudgetLedger(path).snapshot()
+        assert snapshot.state.spent["run"] == Decimal(1)
+        assert next(iter(snapshot.resource_events.values())).amount_usd == Decimal(1)
+
+
+COMPLETE INPUT policy-engine/tests/integration/core/llm/test_native_gateway_cost_range.py
+"""Original numeric amounts cannot become a false zero through float underflow."""
+
+from decimal import Decimal
+from pathlib import Path
+from runpy import run_path
+
+import pytest
+
+_native_intake = run_path(str(Path(__file__).with_name("test_native_gateway_cost_intake.py")))
+RawGateway = _native_intake["RawGateway"]
+assert_pending_without_event = _native_intake["assert_pending_without_event"]
+build = _native_intake["build"]
+invoke = _native_intake["invoke"]
+raw_payload = _native_intake["raw_payload"]
+
+
+@pytest.mark.parametrize("amount", ["-1e-1000", "1e-1000", Decimal("-1e-1000"), Decimal("1e-1000")])
+@pytest.mark.asyncio
+async def test_native_raw_nonzero_amount_cannot_settle_underflowed_zero(tmp_path, amount):
+    gateway = RawGateway(raw_payload({"cost_usd": amount}))
+    path, enforcer = build(tmp_path, gateway)
+    with pytest.raises(ValueError, match="provider cost"):
+        await invoke(enforcer)
+    assert gateway.calls == 1
+    assert gateway.normalized_response.usage.cost_usd == 0
+    assert gateway.normalized_response.raw["usage"]["cost_usd"] == amount
+    assert_pending_without_event(path)
+
+
+ACTUAL GENERATE/INVOKE CALLER policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py lines480..529
+480:     async def generate(self, **kwargs: Any) -> Any:
+481:         """Budget-aware async generate wrapper."""
+482:         _stripped = {k: v for k, v in kwargs.items() if not k.startswith("_")}
+483:         reservation = self._pre_check(kwargs)
+484:         run_id = kwargs.get("_run_id", self._run_id)
+485:         t0 = time.perf_counter()
+486:         committed = False
+487:         try:
+488:             response = await self._client.generate(**_stripped)
+489:             self._post_record(
+490:                 response,
+491:                 reservation=reservation,
+492:                 run_id=run_id,
+493:             )
+494:             committed = True
+495:             self._record_latency(time.perf_counter() - t0)
+496:             return response
+497:         finally:
+498:             if not committed and reservation.has_outstanding():
+499:                 self._release_reservation(
+500:                     reservation,
+501:                     run_id=run_id,
+502:                     reason="generate_error",
+503:                 )
+504: 
+505:     def invoke(self, prompt: str, **kwargs: Any) -> Any:
+506:         """Budget-aware sync invoke wrapper."""
+507:         reservation = self._pre_check(kwargs)
+508:         run_id = kwargs.get("_run_id", self._run_id)
+509:         t0 = time.perf_counter()
+510:         committed = False
+511:         try:
+512:             response = self._client.invoke(
+513:                 prompt, **{key: value for key, value in kwargs.items() if not key.startswith("_")}
+514:             )
+515:             self._post_record(
+516:                 response,
+517:                 reservation=reservation,
+518:                 run_id=run_id,
+519:             )
+520:             committed = True
+521:             self._record_latency(time.perf_counter() - t0)
+522:             return response
+523:         finally:
+524:             if not committed and reservation.has_outstanding():
+525:                 self._release_reservation(
+526:                     reservation,
+527:                     run_id=run_id,
+528:                     reason="invoke_error",
+529:                 )

@@ -1,0 +1,28 @@
+"""Capture native commands against one declared immutable FUN composition."""
+from pathlib import Path
+import hashlib
+import json
+import os
+import resource
+import subprocess
+import sys
+import time
+
+scratch = Path('/workspace/e02-D2-receipts/funnel-independent')
+label = sys.argv[1]
+working = Path(sys.argv[2])
+source_sha = sys.argv[3]
+argv = sys.argv[4:]
+env = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1', 'PYTHONPATH': 'src:.', 'TIKTOKEN_CACHE_DIR': '/workspace/e02-D2-receipts/tokenizer'}
+basetemp = next((item.split('=', 1)[1] for item in argv if item.startswith('--basetemp=')), None)
+if '-m' in argv and 'pytest' in argv:
+    if basetemp is None or Path(basetemp).exists():
+        raise RuntimeError('pytest requires a fresh nonexistent explicit basetemp')
+start = time.monotonic()
+with (scratch / (label + '.txt')).open('wb') as output:
+    result = subprocess.run(argv, cwd=working, env=env, stdout=output, stderr=subprocess.STDOUT)
+elapsed = time.monotonic() - start
+receipt = {'source_sha': source_sha, 'cwd': str(working), 'argv': argv, 'env': {name:env[name] for name in ['PYTHONDONTWRITEBYTECODE', 'PYTHONPATH', 'TIKTOKEN_CACHE_DIR']}, 'basetemp':basetemp, 'basetemp_scope':'fresh nonexistent verified before execution' if basetemp else 'not a pytest invocation', 'exit_code':result.returncode, 'wall_seconds':elapsed, 'max_rss_kib':resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss, 'rss_scope':'cumulative high-water of completed children in this capture process', 'log_sha256':hashlib.sha256((scratch / (label+'.txt')).read_bytes()).hexdigest()}
+(scratch / (label+'.json')).write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps(receipt))
+raise SystemExit(result.returncode)

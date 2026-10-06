@@ -1,0 +1,117 @@
+{
+  "receipt_commit": "290def7c3800aa818a07299a4402ec6dd072d2ef",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle.json",
+  "receipt_sha256": "2ffca61a82c9204abda117c9d7259de47ef0c2d3225d786290c81898a664be38",
+  "checked_git_bindings": [
+    {
+      "pointer": "/source_identities/0",
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_native_ask_tell_witness.py",
+      "sha256": "2165e66a5f5e0262128ba74d575b5888f5e143005626ae5b6ba55a55a9430969",
+      "matching_git_sources": [
+        "6598979d50b2501d91d5e2281b9f92d4513df9f7"
+      ]
+    },
+    {
+      "pointer": "/source_identities/1",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+      "sha256": "f9d51f6132961fa3580ce86b64b058f7a068f94d616766721ba793c60a716e3f",
+      "matching_git_sources": [
+        "185a3492900044046ec2996c42875314979d8b4b",
+        "290def7c3800aa818a07299a4402ec6dd072d2ef"
+      ]
+    },
+    {
+      "pointer": "/source_identities/2",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "sha256": "067fa62f1c86b99e0e3e83080543904ae076585488de69fe1ecc8caa303087f1",
+      "matching_git_sources": [
+        "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+        "290def7c3800aa818a07299a4402ec6dd072d2ef"
+      ]
+    },
+    {
+      "pointer": "/source_identities/3",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "sha256": "1c822301ed87e8008661c0d0ff558dfc15dab2d437de069636b313da987e9428",
+      "matching_git_sources": [
+        "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+        "290def7c3800aa818a07299a4402ec6dd072d2ef"
+      ]
+    },
+    {
+      "pointer": "/prior_receipt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published.json",
+      "sha256": "9f3c85f5ae931cf40b332c0be00a56a38f6a5c475efc6fd8500d24fcd798e2c0",
+      "matching_git_sources": [
+        "3252461c2a19df163151a514f7102e0147177412",
+        "290def7c3800aa818a07299a4402ec6dd072d2ef"
+      ]
+    },
+    {
+      "pointer": "/checks/0/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/canonical-lifecycle-final.txt.gz",
+      "sha256": "1bcc88e94bb66d70374df3d7c487f473e3c8a1639f8842d89543a3a8d61744ca",
+      "matching_git_sources": [
+        "290def7c3800aa818a07299a4402ec6dd072d2ef"
+      ]
+    },
+    {
+      "pointer": "/checks/1/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/architecture-185.txt.gz",
+      "sha256": "3f710f136c2be642aa888a08f3a2cfd3d6ff3c7949a654304912c5220717f8d8",
+      "matching_git_sources": [
+        "290def7c3800aa818a07299a4402ec6dd072d2ef"
+      ]
+    },
+    {
+      "pointer": "/checks/2/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/imports-185.txt.gz",
+      "sha256": "150be5e635645948d60765a2cb6b65e592b291483179f0cdc512fbe71312d17a",
+      "matching_git_sources": [
+        "290def7c3800aa818a07299a4402ec6dd072d2ef"
+      ]
+    },
+    {
+      "pointer": "/checks/3/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/release-185.txt.gz",
+      "sha256": "11605ccee083ef4dccaee3d073d0a0867112b50e24ce7c9cf36be8e766bb4855",
+      "matching_git_sources": [
+        "290def7c3800aa818a07299a4402ec6dd072d2ef"
+      ]
+    },
+    {
+      "pointer": "/uncapped_verification_plan",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/uncapped-verification-plan.json",
+      "sha256": "83b5a832a6baf2f68dfc3914e60337b305faea014b7ec47ffbb965714bd27af4",
+      "matching_git_sources": [
+        "290def7c3800aa818a07299a4402ec6dd072d2ef"
+      ]
+    },
+    {
+      "pointer": "/import_21_observation",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/imports-185-derived.json",
+      "sha256": "771763388ab0ca034a25c5f574db075c648e6d4d197ab7886cfbab45a46b5c5c",
+      "matching_git_sources": [
+        "290def7c3800aa818a07299a4402ec6dd072d2ef"
+      ]
+    },
+    {
+      "pointer": "/nondeciding_preparation/output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/canonical-lifecycle-iteration.txt.gz",
+      "sha256": "0739b9e54c5cffa18336306901289a330cc9de6384a60201d788c8227bb11851",
+      "matching_git_sources": [
+        "290def7c3800aa818a07299a4402ec6dd072d2ef"
+      ]
+    },
+    {
+      "pointer": "/nondeciding_preparation/source_snapshot",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/canonical-lifecycle-preparation-source.txt.gz",
+      "sha256": "f31f1be55869592a7022aaaad868a489d04e3760445a6dd3da53fef2b5dadf58",
+      "matching_git_sources": [
+        "290def7c3800aa818a07299a4402ec6dd072d2ef"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

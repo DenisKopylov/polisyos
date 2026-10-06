@@ -1,0 +1,761 @@
+source_sha=ab7577cc807050735d1cd57c751299095ee899aa
+context=new source-bound defining controls before intake/frontier correction; original fiscal893 source identical to ab
+argv=['/workspace/e02-D-locked-env/bin/python', '-m', 'pytest', '-o', 'addopts=', '-q', '--basetemp=/dev/shm/search-history-frontier-before-c5f51341cf7b42d696a60af4fccdf349', 'tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py', 'tests/unit/scientist/methods/search/test_legacy_frontier_admission.py', '-k', 'stage or unavailable or declared or nonfinite_existing or finite_directions']
+basetemp_asserted_nonexistent=true
+FFFFFFF...FFFFFFFFF.FFFFF.FFF.                                           [100%]
+=================================== FAILURES ===================================
+_ test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[false] _
+
+malformed = 'false'
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    @pytest.mark.parametrize("malformed", ["false", "true", 0, 1, None, [], {}])
+    def test_present_untyped_stage_admission_is_rejected_without_scalar_fallback(malformed):
+        generator = BayesianCandidateGenerator(
+            SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+            primary_metric="cost",
+            direction=MetricDirection.MINIMIZE,
+        )
+        with patch.object(generator, "_history_score", side_effect=AssertionError("scalar fallback")):
+>           evaluations = generator._history_to_evaluations(
+                [
+                    {
+                        "candidate": {"x": 4},
+                        "stage_a_passed": malformed,
+                        "stage_b_result": {"cost": 0.0},
+                        "objective_value": 0.0,
+                    }
+                ]
+            )
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/autotune/bayesian_generator.py:413: in _history_to_evaluations
+    score, score_is_scalar = self._history_score(
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1176: in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1180: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <MagicMock name='_history_score' id='140707986871968'>, args = ()
+kwargs = {'candidate': {'x': 4}, 'entry': {'candidate': {'x': 4}, 'objective_value': 0.0, 'stage_a_passed': 'false', 'stage_b_r..., 'objective_value': 0.0, 'stage_a_passed': 'false', 'stage_b_result': {'cost': 0.0}}, 'stage_b_result': {'cost': 0.0}}
+effect = AssertionError('scalar fallback')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               AssertionError: scalar fallback
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1241: AssertionError
+_ test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[true] _
+
+malformed = 'true'
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    @pytest.mark.parametrize("malformed", ["false", "true", 0, 1, None, [], {}])
+    def test_present_untyped_stage_admission_is_rejected_without_scalar_fallback(malformed):
+        generator = BayesianCandidateGenerator(
+            SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+            primary_metric="cost",
+            direction=MetricDirection.MINIMIZE,
+        )
+        with patch.object(generator, "_history_score", side_effect=AssertionError("scalar fallback")):
+>           evaluations = generator._history_to_evaluations(
+                [
+                    {
+                        "candidate": {"x": 4},
+                        "stage_a_passed": malformed,
+                        "stage_b_result": {"cost": 0.0},
+                        "objective_value": 0.0,
+                    }
+                ]
+            )
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/autotune/bayesian_generator.py:413: in _history_to_evaluations
+    score, score_is_scalar = self._history_score(
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1176: in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1180: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <MagicMock name='_history_score' id='140707986872976'>, args = ()
+kwargs = {'candidate': {'x': 4}, 'entry': {'candidate': {'x': 4}, 'objective_value': 0.0, 'stage_a_passed': 'true', 'stage_b_re...}, 'objective_value': 0.0, 'stage_a_passed': 'true', 'stage_b_result': {'cost': 0.0}}, 'stage_b_result': {'cost': 0.0}}
+effect = AssertionError('scalar fallback')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               AssertionError: scalar fallback
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1241: AssertionError
+_ test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[0] __
+
+malformed = 0
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    @pytest.mark.parametrize("malformed", ["false", "true", 0, 1, None, [], {}])
+    def test_present_untyped_stage_admission_is_rejected_without_scalar_fallback(malformed):
+        generator = BayesianCandidateGenerator(
+            SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+            primary_metric="cost",
+            direction=MetricDirection.MINIMIZE,
+        )
+        with patch.object(generator, "_history_score", side_effect=AssertionError("scalar fallback")):
+>           evaluations = generator._history_to_evaluations(
+                [
+                    {
+                        "candidate": {"x": 4},
+                        "stage_a_passed": malformed,
+                        "stage_b_result": {"cost": 0.0},
+                        "objective_value": 0.0,
+                    }
+                ]
+            )
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/autotune/bayesian_generator.py:413: in _history_to_evaluations
+    score, score_is_scalar = self._history_score(
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1176: in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1180: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <MagicMock name='_history_score' id='140713963977568'>, args = ()
+kwargs = {'candidate': {'x': 4}, 'entry': {'candidate': {'x': 4}, 'objective_value': 0.0, 'stage_a_passed': 0, 'stage_b_result'...x': 4}, 'objective_value': 0.0, 'stage_a_passed': 0, 'stage_b_result': {'cost': 0.0}}, 'stage_b_result': {'cost': 0.0}}
+effect = AssertionError('scalar fallback')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               AssertionError: scalar fallback
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1241: AssertionError
+_ test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[1] __
+
+malformed = 1
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    @pytest.mark.parametrize("malformed", ["false", "true", 0, 1, None, [], {}])
+    def test_present_untyped_stage_admission_is_rejected_without_scalar_fallback(malformed):
+        generator = BayesianCandidateGenerator(
+            SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+            primary_metric="cost",
+            direction=MetricDirection.MINIMIZE,
+        )
+        with patch.object(generator, "_history_score", side_effect=AssertionError("scalar fallback")):
+>           evaluations = generator._history_to_evaluations(
+                [
+                    {
+                        "candidate": {"x": 4},
+                        "stage_a_passed": malformed,
+                        "stage_b_result": {"cost": 0.0},
+                        "objective_value": 0.0,
+                    }
+                ]
+            )
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/autotune/bayesian_generator.py:413: in _history_to_evaluations
+    score, score_is_scalar = self._history_score(
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1176: in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1180: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <MagicMock name='_history_score' id='140713963976896'>, args = ()
+kwargs = {'candidate': {'x': 4}, 'entry': {'candidate': {'x': 4}, 'objective_value': 0.0, 'stage_a_passed': 1, 'stage_b_result'...x': 4}, 'objective_value': 0.0, 'stage_a_passed': 1, 'stage_b_result': {'cost': 0.0}}, 'stage_b_result': {'cost': 0.0}}
+effect = AssertionError('scalar fallback')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               AssertionError: scalar fallback
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1241: AssertionError
+_ test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[None] _
+
+malformed = None
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    @pytest.mark.parametrize("malformed", ["false", "true", 0, 1, None, [], {}])
+    def test_present_untyped_stage_admission_is_rejected_without_scalar_fallback(malformed):
+        generator = BayesianCandidateGenerator(
+            SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+            primary_metric="cost",
+            direction=MetricDirection.MINIMIZE,
+        )
+        with patch.object(generator, "_history_score", side_effect=AssertionError("scalar fallback")):
+>           evaluations = generator._history_to_evaluations(
+                [
+                    {
+                        "candidate": {"x": 4},
+                        "stage_a_passed": malformed,
+                        "stage_b_result": {"cost": 0.0},
+                        "objective_value": 0.0,
+                    }
+                ]
+            )
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/autotune/bayesian_generator.py:413: in _history_to_evaluations
+    score, score_is_scalar = self._history_score(
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1176: in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1180: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <MagicMock name='_history_score' id='140707986871968'>, args = ()
+kwargs = {'candidate': {'x': 4}, 'entry': {'candidate': {'x': 4}, 'objective_value': 0.0, 'stage_a_passed': None, 'stage_b_resu... 4}, 'objective_value': 0.0, 'stage_a_passed': None, 'stage_b_result': {'cost': 0.0}}, 'stage_b_result': {'cost': 0.0}}
+effect = AssertionError('scalar fallback')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               AssertionError: scalar fallback
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1241: AssertionError
+_ test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[malformed5] _
+
+malformed = []
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    @pytest.mark.parametrize("malformed", ["false", "true", 0, 1, None, [], {}])
+    def test_present_untyped_stage_admission_is_rejected_without_scalar_fallback(malformed):
+        generator = BayesianCandidateGenerator(
+            SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+            primary_metric="cost",
+            direction=MetricDirection.MINIMIZE,
+        )
+        with patch.object(generator, "_history_score", side_effect=AssertionError("scalar fallback")):
+>           evaluations = generator._history_to_evaluations(
+                [
+                    {
+                        "candidate": {"x": 4},
+                        "stage_a_passed": malformed,
+                        "stage_b_result": {"cost": 0.0},
+                        "objective_value": 0.0,
+                    }
+                ]
+            )
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/autotune/bayesian_generator.py:413: in _history_to_evaluations
+    score, score_is_scalar = self._history_score(
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1176: in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1180: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <MagicMock name='_history_score' id='140707986874992'>, args = ()
+kwargs = {'candidate': {'x': 4}, 'entry': {'candidate': {'x': 4}, 'objective_value': 0.0, 'stage_a_passed': [], 'stage_b_result...': 4}, 'objective_value': 0.0, 'stage_a_passed': [], 'stage_b_result': {'cost': 0.0}}, 'stage_b_result': {'cost': 0.0}}
+effect = AssertionError('scalar fallback')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               AssertionError: scalar fallback
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1241: AssertionError
+_ test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[malformed6] _
+
+malformed = {}
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    @pytest.mark.parametrize("malformed", ["false", "true", 0, 1, None, [], {}])
+    def test_present_untyped_stage_admission_is_rejected_without_scalar_fallback(malformed):
+        generator = BayesianCandidateGenerator(
+            SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+            primary_metric="cost",
+            direction=MetricDirection.MINIMIZE,
+        )
+        with patch.object(generator, "_history_score", side_effect=AssertionError("scalar fallback")):
+>           evaluations = generator._history_to_evaluations(
+                [
+                    {
+                        "candidate": {"x": 4},
+                        "stage_a_passed": malformed,
+                        "stage_b_result": {"cost": 0.0},
+                        "objective_value": 0.0,
+                    }
+                ]
+            )
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/autotune/bayesian_generator.py:413: in _history_to_evaluations
+    score, score_is_scalar = self._history_score(
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1176: in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1180: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <MagicMock name='_history_score' id='140713963976896'>, args = ()
+kwargs = {'candidate': {'x': 4}, 'entry': {'candidate': {'x': 4}, 'objective_value': 0.0, 'stage_a_passed': {}, 'stage_b_result...': 4}, 'objective_value': 0.0, 'stage_a_passed': {}, 'stage_b_result': {'cost': 0.0}}, 'stage_b_result': {'cost': 0.0}}
+effect = AssertionError('scalar fallback')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               AssertionError: scalar fallback
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py:1241: AssertionError
+_ test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[nan] _
+
+invalid = nan
+
+    @pytest.mark.parametrize(
+        "invalid", [math.nan, math.inf, -math.inf, False, True, None, "0", 10**400]
+    )
+    def test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row(invalid):
+        complete = update_legacy_pareto_front(
+            [], candidate={"source": "measured"}, objectives=objectives()
+        )
+        result = update_legacy_pareto_front(
+            complete, candidate={"source": "unavailable"}, objectives=objectives(2.0, invalid)
+        )
+>       assert result == complete
+E       AssertionError: assert [FrontierPoin...aa041a85810')] == [FrontierPoin...af87c75325e')]
+E         
+E         At index 0 diff: FrontierPoint(candidate={'source': 'unavailable'}, objectives=[{'name': 'gdp_growth', 'raw_value': 2.0, 'direction': 'maximize'}, {'name': 'budget_deficit', 'raw_value': nan, 'direction': 'minimize'}], normalized_values=(-2.0, nan), candidate_hash='sha256:fb0514f5f14b0f66d25b3a8fd766779e64a3bba3ef9518f302c2faa041a85810') != FrontierPoint(candidate={'source': 'measured'}, objectives=[{'name': 'gdp_growth', 'raw_value': 1.0, 'direction': 'maximize'}, {'name': 'budget_deficit', 'raw_value': 10.0, 'direction': 'minimize'}], normalized_values=(-1.0, 10.0), c...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:29: AssertionError
+_ test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[inf] _
+
+invalid = inf
+
+    @pytest.mark.parametrize(
+        "invalid", [math.nan, math.inf, -math.inf, False, True, None, "0", 10**400]
+    )
+    def test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row(invalid):
+        complete = update_legacy_pareto_front(
+            [], candidate={"source": "measured"}, objectives=objectives()
+        )
+        result = update_legacy_pareto_front(
+            complete, candidate={"source": "unavailable"}, objectives=objectives(2.0, invalid)
+        )
+>       assert result == complete
+E       AssertionError: assert [FrontierPoin...aa041a85810')] == [FrontierPoin...af87c75325e')]
+E         
+E         Left contains one more item: FrontierPoint(candidate={'source': 'unavailable'}, objectives=[{'name': 'gdp_growth', 'raw_value': 2.0, 'direction': '...ormalized_values=(-2.0, inf), candidate_hash='sha256:fb0514f5f14b0f66d25b3a8fd766779e64a3bba3ef9518f302c2faa041a85810')
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:29: AssertionError
+_ test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[-inf] _
+
+invalid = -inf
+
+    @pytest.mark.parametrize(
+        "invalid", [math.nan, math.inf, -math.inf, False, True, None, "0", 10**400]
+    )
+    def test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row(invalid):
+        complete = update_legacy_pareto_front(
+            [], candidate={"source": "measured"}, objectives=objectives()
+        )
+        result = update_legacy_pareto_front(
+            complete, candidate={"source": "unavailable"}, objectives=objectives(2.0, invalid)
+        )
+>       assert result == complete
+E       AssertionError: assert [FrontierPoin...aa041a85810')] == [FrontierPoin...af87c75325e')]
+E         
+E         At index 0 diff: FrontierPoint(candidate={'source': 'unavailable'}, objectives=[{'name': 'gdp_growth', 'raw_value': 2.0, 'direction': 'maximize'}, {'name': 'budget_deficit', 'raw_value': -inf, 'direction': 'minimize'}], normalized_values=(-2.0, -inf), candidate_hash='sha256:fb0514f5f14b0f66d25b3a8fd766779e64a3bba3ef9518f302c2faa041a85810') != FrontierPoint(candidate={'source': 'measured'}, objectives=[{'name': 'gdp_growth', 'raw_value': 1.0, 'direction': 'maximize'}, {'name': 'budget_deficit', 'raw_value': 10.0, 'direction': 'minimize'}], normalized_values=(-1.0, 10.0),...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:29: AssertionError
+_ test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[False] _
+
+invalid = False
+
+    @pytest.mark.parametrize(
+        "invalid", [math.nan, math.inf, -math.inf, False, True, None, "0", 10**400]
+    )
+    def test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row(invalid):
+        complete = update_legacy_pareto_front(
+            [], candidate={"source": "measured"}, objectives=objectives()
+        )
+        result = update_legacy_pareto_front(
+            complete, candidate={"source": "unavailable"}, objectives=objectives(2.0, invalid)
+        )
+>       assert result == complete
+E       AssertionError: assert [FrontierPoin...aa041a85810')] == [FrontierPoin...af87c75325e')]
+E         
+E         At index 0 diff: FrontierPoint(candidate={'source': 'unavailable'}, objectives=[{'name': 'gdp_growth', 'raw_value': 2.0, 'direction': 'maximize'}, {'name': 'budget_deficit', 'raw_value': False, 'direction': 'minimize'}], normalized_values=(-2.0, False), candidate_hash='sha256:fb0514f5f14b0f66d25b3a8fd766779e64a3bba3ef9518f302c2faa041a85810') != FrontierPoint(candidate={'source': 'measured'}, objectives=[{'name': 'gdp_growth', 'raw_value': 1.0, 'direction': 'maximize'}, {'name': 'budget_deficit', 'raw_value': 10.0, 'direction': 'minimize'}], normalized_values=(-1.0, 10.0...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:29: AssertionError
+_ test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[True] _
+
+invalid = True
+
+    @pytest.mark.parametrize(
+        "invalid", [math.nan, math.inf, -math.inf, False, True, None, "0", 10**400]
+    )
+    def test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row(invalid):
+        complete = update_legacy_pareto_front(
+            [], candidate={"source": "measured"}, objectives=objectives()
+        )
+        result = update_legacy_pareto_front(
+            complete, candidate={"source": "unavailable"}, objectives=objectives(2.0, invalid)
+        )
+>       assert result == complete
+E       AssertionError: assert [FrontierPoin...aa041a85810')] == [FrontierPoin...af87c75325e')]
+E         
+E         At index 0 diff: FrontierPoint(candidate={'source': 'unavailable'}, objectives=[{'name': 'gdp_growth', 'raw_value': 2.0, 'direction': 'maximize'}, {'name': 'budget_deficit', 'raw_value': True, 'direction': 'minimize'}], normalized_values=(-2.0, True), candidate_hash='sha256:fb0514f5f14b0f66d25b3a8fd766779e64a3bba3ef9518f302c2faa041a85810') != FrontierPoint(candidate={'source': 'measured'}, objectives=[{'name': 'gdp_growth', 'raw_value': 1.0, 'direction': 'maximize'}, {'name': 'budget_deficit', 'raw_value': 10.0, 'direction': 'minimize'}], normalized_values=(-1.0, 10.0),...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:29: AssertionError
+_ test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[None] _
+
+invalid = None
+
+    @pytest.mark.parametrize(
+        "invalid", [math.nan, math.inf, -math.inf, False, True, None, "0", 10**400]
+    )
+    def test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row(invalid):
+        complete = update_legacy_pareto_front(
+            [], candidate={"source": "measured"}, objectives=objectives()
+        )
+>       result = update_legacy_pareto_front(
+            complete, candidate={"source": "unavailable"}, objectives=objectives(2.0, invalid)
+        )
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/frontier.py:115: in update_legacy_pareto_front
+    if not dominates(new_point.normalized_values, existing.normalized_values):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+a = (-2.0, None), b = (-1.0, 10.0)
+
+    def dominates(a: Iterable[float], b: Iterable[float]) -> bool:
+        """Return True if *a* dominates *b* (all <= and at least one <)."""
+    
+        left = tuple(a)
+        right = tuple(b)
+        if len(left) != len(right):
+            return False
+        at_least_one_better = False
+        for left_value, right_value in zip(left, right, strict=False):
+>           if left_value > right_value:
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: '>' not supported between instances of 'NoneType' and 'float'
+
+src/polisyos/scientist/methods/search/frontier.py:143: TypeError
+_ test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[0] _
+
+invalid = '0'
+
+    @pytest.mark.parametrize(
+        "invalid", [math.nan, math.inf, -math.inf, False, True, None, "0", 10**400]
+    )
+    def test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row(invalid):
+        complete = update_legacy_pareto_front(
+            [], candidate={"source": "measured"}, objectives=objectives()
+        )
+>       result = update_legacy_pareto_front(
+            complete, candidate={"source": "unavailable"}, objectives=objectives(2.0, invalid)
+        )
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/frontier.py:115: in update_legacy_pareto_front
+    if not dominates(new_point.normalized_values, existing.normalized_values):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+a = (-2.0, '0'), b = (-1.0, 10.0)
+
+    def dominates(a: Iterable[float], b: Iterable[float]) -> bool:
+        """Return True if *a* dominates *b* (all <= and at least one <)."""
+    
+        left = tuple(a)
+        right = tuple(b)
+        if len(left) != len(right):
+            return False
+        at_least_one_better = False
+        for left_value, right_value in zip(left, right, strict=False):
+>           if left_value > right_value:
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: '>' not supported between instances of 'str' and 'float'
+
+src/polisyos/scientist/methods/search/frontier.py:143: TypeError
+_ test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+invalid = 100000000000000000...0000000000000000000
+
+    @pytest.mark.parametrize(
+        "invalid", [math.nan, math.inf, -math.inf, False, True, None, "0", 10**400]
+    )
+    def test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row(invalid):
+        complete = update_legacy_pareto_front(
+            [], candidate={"source": "measured"}, objectives=objectives()
+        )
+        result = update_legacy_pareto_front(
+            complete, candidate={"source": "unavailable"}, objectives=objectives(2.0, invalid)
+        )
+>       assert result == complete
+E       AssertionError: assert [FrontierPoin...aa041a85810')] == [FrontierPoin...af87c75325e')]
+E         
+E         Left contains one more item: FrontierPoint(candidate={'source': 'unavailable'}, objectives=[{'name': 'gdp_growth', 'raw_value': 2.0, 'direction': '...000000000000000000000000000), candidate_hash='sha256:fb0514f5f14b0f66d25b3a8fd766779e64a3bba3ef9518f302c2faa041a85810')
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:29: AssertionError
+_ test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating[nan] _
+
+invalid = nan
+
+    @pytest.mark.parametrize(
+        "invalid", [math.nan, math.inf, -math.inf, False, True, None, "0", 10**400]
+    )
+    def test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating(invalid):
+>       assert dominates((-2.0, invalid), (-1.0, 10.0)) is False
+E       assert True is False
+E        +  where True = dominates((-2.0, nan), (-1.0, 10.0))
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:37: AssertionError
+_ test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating[-inf] _
+
+invalid = -inf
+
+    @pytest.mark.parametrize(
+        "invalid", [math.nan, math.inf, -math.inf, False, True, None, "0", 10**400]
+    )
+    def test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating(invalid):
+>       assert dominates((-2.0, invalid), (-1.0, 10.0)) is False
+E       assert True is False
+E        +  where True = dominates((-2.0, -inf), (-1.0, 10.0))
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:37: AssertionError
+_ test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating[False] _
+
+invalid = False
+
+    @pytest.mark.parametrize(
+        "invalid", [math.nan, math.inf, -math.inf, False, True, None, "0", 10**400]
+    )
+    def test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating(invalid):
+>       assert dominates((-2.0, invalid), (-1.0, 10.0)) is False
+E       assert True is False
+E        +  where True = dominates((-2.0, False), (-1.0, 10.0))
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:37: AssertionError
+_ test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating[True] _
+
+invalid = True
+
+    @pytest.mark.parametrize(
+        "invalid", [math.nan, math.inf, -math.inf, False, True, None, "0", 10**400]
+    )
+    def test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating(invalid):
+>       assert dominates((-2.0, invalid), (-1.0, 10.0)) is False
+E       assert True is False
+E        +  where True = dominates((-2.0, True), (-1.0, 10.0))
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:37: AssertionError
+_ test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating[None] _
+
+invalid = None
+
+    @pytest.mark.parametrize(
+        "invalid", [math.nan, math.inf, -math.inf, False, True, None, "0", 10**400]
+    )
+    def test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating(invalid):
+>       assert dominates((-2.0, invalid), (-1.0, 10.0)) is False
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+a = (-2.0, None), b = (-1.0, 10.0)
+
+    def dominates(a: Iterable[float], b: Iterable[float]) -> bool:
+        """Return True if *a* dominates *b* (all <= and at least one <)."""
+    
+        left = tuple(a)
+        right = tuple(b)
+        if len(left) != len(right):
+            return False
+        at_least_one_better = False
+        for left_value, right_value in zip(left, right, strict=False):
+>           if left_value > right_value:
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: '>' not supported between instances of 'NoneType' and 'float'
+
+src/polisyos/scientist/methods/search/frontier.py:143: TypeError
+_ test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating[0] __
+
+invalid = '0'
+
+    @pytest.mark.parametrize(
+        "invalid", [math.nan, math.inf, -math.inf, False, True, None, "0", 10**400]
+    )
+    def test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating(invalid):
+>       assert dominates((-2.0, invalid), (-1.0, 10.0)) is False
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+a = (-2.0, '0'), b = (-1.0, 10.0)
+
+    def dominates(a: Iterable[float], b: Iterable[float]) -> bool:
+        """Return True if *a* dominates *b* (all <= and at least one <)."""
+    
+        left = tuple(a)
+        right = tuple(b)
+        if len(left) != len(right):
+            return False
+        at_least_one_better = False
+        for left_value, right_value in zip(left, right, strict=False):
+>           if left_value > right_value:
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: '>' not supported between instances of 'str' and 'float'
+
+src/polisyos/scientist/methods/search/frontier.py:143: TypeError
+___________ test_changed_declared_axis_set_is_refused_before_export ____________
+
+    def test_changed_declared_axis_set_is_refused_before_export():
+        complete = update_legacy_pareto_front(
+            [], candidate={"source": "measured"}, objectives=objectives()
+        )
+>       with pytest.raises(ValueError, match="objective basis"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:45: Failed
+___________ test_duplicate_declared_names_are_not_a_complete_vector ____________
+
+    def test_duplicate_declared_names_are_not_a_complete_vector():
+>       assert (
+            update_legacy_pareto_front(
+                [], candidate={"source": "duplicate"}, objectives=[objectives()[0], objectives(2.0)[0]]
+            )
+            == []
+        )
+E       AssertionError: assert [FrontierPoin...b1cf6def0e6')] == []
+E         
+E         Left contains one more item: FrontierPoint(candidate={'source': 'duplicate'}, objectives=[{'name': 'gdp_growth', 'raw_value': 1.0, 'direction': 'ma...rmalized_values=(-1.0, -2.0), candidate_hash='sha256:d06a8995fe6159d7de80872cd0dc1e56c3eea2a2d8a1d00257478b1cf6def0e6')
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:52: AssertionError
+______________ test_nonfinite_existing_payload_is_not_reexported _______________
+
+    def test_nonfinite_existing_payload_is_not_reexported():
+        complete = update_legacy_pareto_front(
+            [], candidate={"source": "measured"}, objectives=objectives()
+        )
+        bad = replace(complete[0], normalized_values=(-2.0, math.nan))
+>       assert (
+            update_legacy_pareto_front(
+                [bad], candidate={"source": "unavailable"}, objectives=objectives(2.0, math.nan)
+            )
+            == []
+        )
+E       AssertionError: assert [FrontierPoin...aa041a85810')] == []
+E         
+E         Left contains 2 more items, first extra item: FrontierPoint(candidate={'source': 'measured'}, objectives=[{'name': 'gdp_growth', 'raw_value': 1.0, 'direction': 'max...ormalized_values=(-2.0, nan), candidate_hash='sha256:632358fb3041cbd2664d720820dc88d803c1764ad31d9d53ca181af87c75325e')
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_legacy_frontier_admission.py:65: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[false]
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[true]
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[0]
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[1]
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[None]
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[malformed5]
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[malformed6]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[nan]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[inf]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[-inf]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[False]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[True]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[None]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[0]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_unavailable_declared_coordinate_cannot_displace_or_export_a_complete_row[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating[nan]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating[-inf]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating[False]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating[True]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating[None]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_raw_comparator_never_treats_an_unavailable_coordinate_as_dominating[0]
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_changed_declared_axis_set_is_refused_before_export
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_duplicate_declared_names_are_not_a_complete_vector
+FAILED tests/unit/scientist/methods/search/test_legacy_frontier_admission.py::test_nonfinite_existing_payload_is_not_reexported
+24 failed, 6 passed, 7 deselected, 2 warnings in 7.58s
+
+EXIT_CODE=1

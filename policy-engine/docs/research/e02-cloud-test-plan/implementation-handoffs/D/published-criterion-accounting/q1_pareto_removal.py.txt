@@ -1,0 +1,15 @@
+from pathlib import Path
+import inspect,json,textwrap,sys
+import pytest
+from polisyos.scientist.methods.autotune import pareto as module
+basetemp=Path(sys.argv[1])
+if basetemp.exists():raise RuntimeError('basetemp must be fresh nonexistent')
+method=module.ParetoPromoter._find_non_dominated_2d
+source=textwrap.dedent(inspect.getsource(method))
+old='second_value <= max_second_from_previous_groups'
+if source.count(old)!=1:raise RuntimeError('exact defining previous-group comparison not found')
+namespace=dict(vars(module))
+exec(compile(source.replace(old,'second_value < max_second_from_previous_groups'),'independent-in-memory-pareto-removal','exec'),namespace)
+module.ParetoPromoter._find_non_dominated_2d=namespace['_find_non_dominated_2d']
+print(json.dumps({'source_sha':'ab7577cc807050735d1cd57c751299095ee899aa','mutation':'remove equality rejection against strictly better previous first-coordinate group','retained':'same real promoter/schema/coordinate/unit/direction/assessment/output markers and full actual oracle test','source_files_changed':False,'expected':'actual independently computed dominance assertions fail','basetemp':str(basetemp),'basetemp_precondition':'fresh nonexistent verified before pytest'}))
+raise SystemExit(pytest.main(['--basetemp='+str(basetemp),'-o','addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks','-q','tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py']))

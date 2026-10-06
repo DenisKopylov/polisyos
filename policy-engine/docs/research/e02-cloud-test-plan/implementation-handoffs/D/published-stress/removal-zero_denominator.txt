@@ -1,0 +1,32 @@
+.F                                                                       [100%]
+=================================== FAILURES ===================================
+__________ test_unknown_outcomes_are_separate_from_finite_fraction[2] __________
+
+invalid_count = 2
+
+    @pytest.mark.parametrize("invalid_count", [1, 2])
+    def test_unknown_outcomes_are_separate_from_finite_fraction(invalid_count: int) -> None:
+        outcomes = iter([None] * invalid_count + [1.0] * (2 - invalid_count))
+    
+        def evaluator(candidate: dict, context: dict) -> object:
+            value = next(outcomes)
+            return None if value is None else {"simulation_results": {"budget_deficit": value}}
+    
+        report = run_stress_test(
+            adversarial_plan=_plan(vulnerability_threshold=2.0),
+            base_objective=CompositeObjective([BudgetDeficitObjective()]),
+            stage_b_evaluator=evaluator,
+        )
+        assert report.metadata["attempted"] == 2
+        assert report.metadata["finite_evaluated"] == 2 - invalid_count
+        assert report.metadata["unknown_or_nonfinite"] == invalid_count
+        assert report.metadata["violated_scenarios"] == 0
+        assert report.total_scenarios_evaluated == 2 - invalid_count
+>       assert report.robustness_score == (1.0 if invalid_count == 1 else None)
+E       AssertionError: assert 0.0 == None
+E        +  where 0.0 = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_9832b6aab623f5d317e22dd12c23126e9b90fb803171fe9...'unavailable', 'observed_vulnerability_count': 2, 'unique_vulnerability_count': 2, 'presented_vulnerability_count': 2}).robustness_score
+
+tests/unit/scientist/search/test_adversarial_streaming.py:102: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/test_adversarial_streaming.py::test_unknown_outcomes_are_separate_from_finite_fraction[2]
+1 failed, 1 passed in 0.08s

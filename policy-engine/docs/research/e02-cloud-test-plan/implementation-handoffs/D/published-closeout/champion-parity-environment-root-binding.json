@@ -1,0 +1,108 @@
+{
+  "receipt_commit": "ecd091eb41c834e3873445884ea8dd6d807fbf64",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment.json",
+  "receipt_sha256": "aa2160a0d32ae5e6d637813561f8a6a70a88ae0683c0149af8105007edfb2847",
+  "checked_git_bindings": [
+    {
+      "pointer": "/source_inputs/0",
+      "path": "policy-engine/uv.lock",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "matching_git_sources": [
+        "185a3492900044046ec2996c42875314979d8b4b",
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/source_inputs/1",
+      "path": "policy-engine/tools/devx/workspace/_common.py",
+      "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a",
+      "matching_git_sources": [
+        "185a3492900044046ec2996c42875314979d8b4b",
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/source_inputs/2",
+      "path": "policy-engine/tools/quality/validation/check_extension_examples.py",
+      "sha256": "ff61698d5cd82893d79d1199fb60e4bc7ccdcaa0d0cdb10c52d7965b6cef3c58",
+      "matching_git_sources": [
+        "185a3492900044046ec2996c42875314979d8b4b",
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-locked-metadata-before.json.gz",
+      "sha256": "19bf8d0dc7334dccd36ab5a006f8e39524791126e947053eac9c0e589183851a",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-profile-plan.json.gz",
+      "sha256": "8f97ac78620b61c82cfd2e6b0c7e4952190cae333ecfa39182258e27a437b68e",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-profile-requirements-hashed.txt.gz",
+      "sha256": "fddbb9ca6299a4e8d36704c3fb411c90aa3a1892320816bf96b8a25b917ebb24",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-profile-install.txt.gz",
+      "sha256": "843ae344ff0a733c3c0783eed171cc260dbefe81a866acc01c96c5df366b021b",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-uv-baseline-install.txt.gz",
+      "sha256": "1853f01b98d4e9610d6e62b22af020aa790a40aadc2e7c4836b5fe5f9dda1deb",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-overlay-create.txt.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-overlay-after.json.gz",
+      "sha256": "713c89b0e9069b955303e09593937bd7aa2cb7dfe4cb3b6e5cf76e2d091a33b2",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-preparation-errors.json.gz",
+      "sha256": "76e2832cdbf1f9b1ee822fe344ac395a4951a143509112cebcb93af230f72180",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-parity-environment/parity-locked-recent-bytecode.json.gz",
+      "sha256": "75f8006d83726cbc58ad5bc7d47cc10e152633da483a3e97b719df63383469fc",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

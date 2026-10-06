@@ -72,9 +72,11 @@ def _merge_identity_sources(
 
 
 def _finite_float(value: Any) -> float | object:
+    if isinstance(value, bool):
+        return _INVALID
     try:
         result = float(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         return _INVALID
     return result if math.isfinite(result) else _INVALID
 
@@ -109,13 +111,11 @@ def _try_import_bayesian():
         return None
 
 
-class SearchSpace:
+class SearchSpace(NativeSearchSpace):
     """Autotune adapter backed by the canonical strategy ``SearchSpace``."""
 
     def __init__(self, bounds: list[dict[str, Any] | ParameterBounds]) -> None:
-        self._native = NativeSearchSpace(
-            bounds=[self._to_parameter_bound(bound) for bound in bounds]
-        )
+        super().__init__(bounds=[self._to_parameter_bound(bound) for bound in bounds])
 
     @staticmethod
     def _to_parameter_bound(bound: dict[str, Any] | ParameterBounds) -> ParameterBounds:
@@ -143,39 +143,8 @@ class SearchSpace:
         )
 
     @property
-    def bounds(self) -> list[ParameterBounds]:
-        """Return the canonical parameter bounds used by the strategy."""
-        return self._native.bounds
-
-    @property
-    def dim(self) -> int:
-        return self._native.dim
-
-    @property
-    def param_bounds(self) -> list[Any]:
-        """Compatibility alias for consumers that inspect parameter bounds."""
-        return self._native.bounds
-
-    @property
-    def names(self) -> list[str]:
-        """Return canonical expanded parameter names."""
-        return self._native.names
-
-    def normalize(self, params: dict[str, Any]) -> tuple[float, ...]:
-        """Normalize parameters through the canonical strategy implementation."""
-        return self._native.normalize(params)
-
-    def denormalize(self, vector: tuple[float, ...]) -> dict[str, Any]:
-        """Resolve a relaxed vector to the effective typed execution."""
-        return self._native.denormalize(vector)
-
-    def sample_sobol(self, n_samples: int, seed: int = 42) -> list[tuple[float, ...]]:
-        """Sample relaxed vectors through the canonical strategy implementation."""
-        return self._native.sample_sobol(n_samples=n_samples, seed=seed)
-
-    def to_botorch_bounds(self) -> Any:
-        """Delegate optional BoTorch bounds construction to the native space."""
-        return self._native.to_botorch_bounds()
+    def param_bounds(self) -> list[ParameterBounds]:
+        return self.bounds
 
 
 class BayesianCandidateGenerator:
@@ -193,6 +162,8 @@ class BayesianCandidateGenerator:
         compare_split: BenchmarkSplit = BenchmarkSplit.HOLDOUT,
         n_initial: int = 6,
         seed: int = 42,
+        warm_start_bridge: Any = None,
+        warm_start_fingerprint: Any = None,
     ) -> None:
         self._primary_metric = primary_metric
         self._direction = direction
@@ -203,18 +174,44 @@ class BayesianCandidateGenerator:
         self._optimizer: Any = None
         self._botorch_available = False
         self._warm_evals: list[Any] = []
+        if (warm_start_bridge is None) != (warm_start_fingerprint is None):
+            raise ValueError("Warm-start bridge and configured target fingerprint must be paired")
+        numerical_basis = None
+        admission = None
+        if warm_start_bridge is not None:
+            numerical_basis = warm_start_bridge.target_basis(warm_start_fingerprint)
+            admission = warm_start_bridge.admit_warm_start
+            if (
+                numerical_basis.metric != primary_metric
+                or numerical_basis.direction.value != direction.value
+                or numerical_basis.split != compare_split.value
+            ):
+                raise ValueError(
+                    "Configured generator metric/direction/split differs from numerical target"
+                )
 
         deps = _try_import_bayesian()
         if deps is not None and search_space is not None:
             BayesianConfig, BayesianOptimizer, _, _, _, _, _ = deps
             try:
                 cfg = BayesianConfig(n_initial=n_initial, seed=seed)
-                self._optimizer = BayesianOptimizer(search_space, config=cfg)
-                self._botorch_available = True
-                if self._warm_evals:
-                    self._optimizer.warm_start(self._warm_evals)
+                self._optimizer = BayesianOptimizer(
+                    search_space,
+                    config=cfg,
+                    numerical_basis=numerical_basis,
+                    warm_start_admission=admission,
+                )
+                self._botorch_available = self._optimizer.backend_available
             except Exception as exc:
+                if numerical_basis is not None:
+                    raise ValueError(
+                        "Configured numerical warm-start receiver refused its basis"
+                    ) from exc
                 logger.warning("BayesianCandidateGenerator: optimizer init failed: %s", exc)
+        if warm_start_bridge is not None:
+            if self._optimizer is None:
+                raise ValueError("Configured warm-start requires a native optimizer receiver")
+            self.warm_start(warm_start_bridge.load_warm_start(warm_start_fingerprint))
 
     @property
     def botorch_available(self) -> bool:
@@ -258,7 +255,9 @@ class BayesianCandidateGenerator:
         return dict(context) if context else {}
 
     @staticmethod
-    def _history_parts(entry: Any) -> tuple[
+    def _history_parts(
+        entry: Any,
+    ) -> tuple[
         dict[str, Any],
         dict[str, Any],
         dict[str, Any],
@@ -396,7 +395,9 @@ class BayesianCandidateGenerator:
             try:
                 normalized = tuple(self._search_space.normalize(params))
             except (TypeError, ValueError):
-                logger.warning("Skipping history entry %s: candidate params cannot be normalized", idx)
+                logger.warning(
+                    "Skipping history entry %s: candidate params cannot be normalized", idx
+                )
                 continue
 
             identity = self._history_identity(
@@ -409,12 +410,20 @@ class BayesianCandidateGenerator:
                 logger.warning("Skipping history entry %s: conflicting identity fields", idx)
                 continue
             candidate_id = str(identity.get("candidate_id") or f"hist_{idx}")
-            score, score_is_scalar = self._history_score(
-                entry=entry,
-                candidate=candidate,
-                stage_b_result=stage_b_result,
-                entry_mapping=entry_mapping,
+            raw_stage_a = getattr(
+                entry, "stage_a_passed", entry_mapping.get("stage_a_passed", _MISSING)
             )
+            valid_stage_type = raw_stage_a is _MISSING or type(raw_stage_a) is bool
+            stage_a_passed = raw_stage_a is _MISSING or raw_stage_a is True
+            if valid_stage_type:
+                score, score_is_scalar = self._history_score(
+                    entry=entry,
+                    candidate=candidate,
+                    stage_b_result=stage_b_result,
+                    entry_mapping=entry_mapping,
+                )
+            else:
+                score, score_is_scalar = _INVALID, True
             has_score = score not in {_MISSING, _INVALID}
             if has_score:
                 score_value = float(score)
@@ -426,9 +435,6 @@ class BayesianCandidateGenerator:
             else:
                 scalar = math.inf
 
-            stage_a_passed = bool(
-                getattr(entry, "stage_a_passed", entry_mapping.get("stage_a_passed", True))
-            )
             feedback = _as_mapping(stage_b_result.get("feedback"))
             reported_status = str(
                 feedback.get("status") or stage_b_result.get("status") or ""
@@ -457,13 +463,17 @@ class BayesianCandidateGenerator:
             )
             for key, value in identity.items():
                 metadata[key] = value
-            if not has_score:
+            if not valid_stage_type:
+                metadata["invalid_reason"] = "malformed_stage_a_passed"
+            elif not has_score:
                 metadata["invalid_reason"] = "missing_or_invalid_score"
 
             timestamp = getattr(entry, "timestamp", None)
             if not isinstance(timestamp, datetime):
                 timestamp = datetime.now(UTC)
-            duration = getattr(entry, "duration_seconds", entry_mapping.get("duration_seconds", 0.0))
+            duration = getattr(
+                entry, "duration_seconds", entry_mapping.get("duration_seconds", 0.0)
+            )
             try:
                 duration_seconds = float(duration)
             except (TypeError, ValueError):
@@ -552,11 +562,7 @@ def benchmark_to_evaluation(
     if dim and len(params_normalized) != dim:
         return None
 
-    scalar = (
-        -float(finite_value)
-        if direction == MetricDirection.MAXIMIZE
-        else float(finite_value)
-    )
+    scalar = -float(finite_value) if direction == MetricDirection.MAXIMIZE else float(finite_value)
     split_value = split.value
     metadata = {
         **benchmark_metadata,

@@ -1,0 +1,27 @@
+{
+  "source_sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+  "tree": "dccf1ce0f5c3c6107b78b60bc2a73bba30327e64",
+  "archive_git_pathspecs": [
+    "policy-engine/src",
+    "policy-engine/architecture",
+    "policy-engine/pyproject.toml",
+    "policy-engine/pytest.ini",
+    "policy-engine/tests/_helpers",
+    "policy-engine/tests/conftest.py",
+    "policy-engine/tests/quarantine.toml",
+    "policy-engine/tests/unit/scientist/conftest.py",
+    "policy-engine/tests/unit/scientist/search/conftest.py",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "policy-engine/tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+    "policy-engine/tests/unit/scientist/methods/search/funnel/test_level6_promotion.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/producer_bridge_probe.py"
+  ],
+  "archive_sha256": "8665e69ee316d51ea7d124c2aa9922958c68d62087ed011efab5b05914a8e72b",
+  "archive_path": "/dev/shm/e02-D-funnel-independent-8eb99fc1.tar",
+  "export_path": "/dev/shm/e02-D-funnel-independent-8eb99fc1",
+  "proof_input_role": "uncommitted_independent_proof_exact_bytes",
+  "proof_path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_fun_independent_cost_projection.py",
+  "proof_sha256": "e51b9918ca85495d99e1a0a705267cdeafcb73ac265f24268556ceeaf2fdcf60",
+  "cleanup": "none; archive and tar retained"
+}

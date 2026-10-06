@@ -97,6 +97,9 @@ provider aggregates remain `recorded_by_provider`, with provider-reported origin
 receipt identity and ledger revision explicitly unavailable through this port.
 Missing or invalid observations stop with unavailable evidence. Recorded zero is
 distinct from a claim of measured zero.
+`ImprovementPlateau` rejects unrepresentable coefficients and treats invalid or
+nonzero-underflow observations as unavailable. Its declared-unit, direction and
+0.01 absolute/relative default formula remain the same.
 
 ## Architecture Diagram
 

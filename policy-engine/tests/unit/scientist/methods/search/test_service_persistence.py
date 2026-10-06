@@ -40,6 +40,7 @@ from polisyos.scientist.methods.search.objective import (
 from polisyos.scientist.methods.search.service import NativeSearchService
 from polisyos.scientist.methods.search.stopping import (
     CostBudgetStopping,
+    ImprovementPlateau,
     MaxIterations,
     MaxWallTime,
 )
@@ -645,6 +646,30 @@ def test_actual_checkpoint_consumer_uses_one_public_verified_snapshot_without_sp
 def test_cost_budget_constructor_refuses_invalid_present_scalar(maximum):
     with pytest.raises(ValueError, match="finite positive"):
         CostBudgetStopping(maximum)
+
+
+@pytest.mark.parametrize("coefficient", ["min_improvement", "absolute_tolerance"])
+@pytest.mark.parametrize(
+    "invalid", [True, 10**400, float("nan"), float("inf"), -1, Decimal("1e-1000")]
+)
+def test_plateau_coefficients_refuse_invalid_present_scale_without_overflow(coefficient, invalid):
+    with pytest.raises(ValueError, match="finite nonnegative"):
+        ImprovementPlateau(objective_unit="points", **{coefficient: invalid})
+
+
+@pytest.mark.parametrize("invalid", [10**400, Decimal("1e-1000"), True])
+def test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero(invalid):
+    criterion = ImprovementPlateau(patience=2, objective_unit="points")
+    unavailable = criterion.check(
+        [{"objective_value": 0}, {"objective_value": 0}, {"objective_value": invalid}], {}
+    )
+    assert unavailable.should_stop is False
+    assert unavailable.details["adequacy_status"] == "not_established"
+    zero = criterion.check([{"objective_value": Decimal(0)}] * 3, {})
+    assert zero.should_stop is True
+    assert zero.details["tolerance"] == 0.01
+    assert zero.details["relative_tolerance"] == 0.01
+    assert zero.details["objective_unit"] == "points"
 
 
 @pytest.mark.parametrize(

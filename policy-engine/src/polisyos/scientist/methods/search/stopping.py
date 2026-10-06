@@ -9,6 +9,7 @@ from decimal import Decimal
 from math import isfinite
 from typing import Any
 
+from polisyos.common.serialization import finite_real_scalar
 from polisyos.scientist.methods.search.objective import OptimizationDirection
 
 
@@ -192,14 +193,15 @@ class ImprovementPlateau(StoppingCriterion):
     ):
         if isinstance(patience, bool) or not isinstance(patience, int) or patience < 1:
             raise ValueError("patience must be an integer >= 1")
+        coefficients = {}
         for name, value in (
             ("min_improvement", min_improvement),
             ("absolute_tolerance", absolute_tolerance),
         ):
-            if isinstance(value, bool) or not isinstance(value, (int, float)):
+            coefficient = _finite_stopping_scalar(value)
+            if coefficient is None or coefficient < 0:
                 raise ValueError(f"{name} must be a finite nonnegative number")
-            if not isfinite(value) or value < 0:
-                raise ValueError(f"{name} must be a finite nonnegative number")
+            coefficients[name] = coefficient
         if objective_unit is not None and (
             not isinstance(objective_unit, str) or not objective_unit.strip()
         ):
@@ -207,11 +209,11 @@ class ImprovementPlateau(StoppingCriterion):
         if profile_version not in (None, "1.0"):
             raise ValueError("Unknown plateau profile version")
         self._patience = patience
-        self._min_improvement = min_improvement
+        self._min_improvement = coefficients["min_improvement"]
         self._objective_key = objective_key
         self._objective_unit = objective_unit
         self._direction = OptimizationDirection(direction)
-        self._absolute_tolerance = absolute_tolerance
+        self._absolute_tolerance = coefficients["absolute_tolerance"]
         self._profile_version = profile_version
 
     @property
@@ -227,14 +229,9 @@ class ImprovementPlateau(StoppingCriterion):
         values: list[float] = []
         for row in history:
             raw = row.get(self._objective_key)
-            if isinstance(raw, bool) or not isinstance(raw, (int, float, Decimal)):
+            value = _finite_stopping_scalar(raw)
+            if value is None:
                 return self._unavailable("objective_observation_missing_or_invalid")
-            try:
-                value = float(raw)
-            except (OverflowError, ValueError):
-                return self._unavailable("objective_observation_nonfinite")
-            if not isfinite(value):
-                return self._unavailable("objective_observation_nonfinite")
             values.append(value)
 
         recent_values = values[-self._patience :]
@@ -393,13 +390,21 @@ class CostBudgetStopping(StoppingCriterion):
 
 def _nonnegative_cost(value: Any) -> float | None:
     """Admit strict numeric cost only after conversion to the consumer scale."""
-    if isinstance(value, bool) or not isinstance(value, (int, float, Decimal)):
-        return None
-    try:
-        numeric = float(value)
-    except (OverflowError, ValueError, TypeError):
-        return None
-    if not isfinite(numeric) or numeric < 0:
+    numeric = _finite_stopping_scalar(value)
+    return numeric if numeric is not None and numeric >= 0 else None
+
+
+def _finite_stopping_scalar(value: Any) -> float | None:
+    """Keep nonzero accounting/objective values from becoming a false zero."""
+    if isinstance(value, Decimal):
+        try:
+            converted = float(value)
+        except (OverflowError, ValueError):
+            return None
+        numeric = finite_real_scalar(converted)
+    else:
+        numeric = finite_real_scalar(value)
+    if numeric is None:
         return None
     if numeric == 0 and value != 0:
         return None

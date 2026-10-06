@@ -40,3 +40,16 @@ release_note = "CostBudgetStopping refuses boolean, huge, nonfinite and nonposit
 generated_client_compatibility = "not_applicable"
 migration_docs = ["README.md"]
 runbook_docs = []
+
+[[compatibility_change]]
+id = "native-plateau-scalar-admission"
+change_class = "python-public-api"
+impact = "migration_required"
+surface = "public_stable: polisyos.scientist"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "immediate_validation_refusal"
+release_note = "ImprovementPlateau refuses invalid or unrepresentable nonnegative coefficients without an uncaught overflow. Invalid or nonzero-underflow observations cannot establish convergence. The existing 0.01 absolute objective-unit and 0.01 relative defaults, direction and declared-unit formula are retained. Literal zero remains a usable observation."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["README.md"]
+runbook_docs = []

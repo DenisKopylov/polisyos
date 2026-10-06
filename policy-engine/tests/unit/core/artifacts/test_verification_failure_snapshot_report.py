@@ -7,13 +7,13 @@ import hashlib
 import pytest
 
 from polisyos.core.artifacts import (
-    ArtifactTenantContextInfo,
     FileSystemCAS,
     PutOptions,
     artifact_manifest_profile_sha256,
     build_cas_integrity_report,
 )
 from polisyos.core.artifacts import store as store_module
+from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
 from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier, KeyPair
 from polisyos.core.contracts import chronology as contract
 from polisyos.runtime.quality.chronology_proof import ChronologyProofArtifactReader

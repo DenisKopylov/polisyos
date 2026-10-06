@@ -958,7 +958,8 @@
           "declared_nodes_found": true,
           "outcome": "No execution here; existing receipt outcomes remain source-qualified separately"
         }
-      ]
+      ],
+      "supplier_seam": "Existing Python Gateway response-text intake is available; its finite lossless-numeric mechanism needs canonical B engineering correction. This is current productFAIL, not total capability absence."
     },
     {
       "key": "owned_multikey_durability",
@@ -1254,7 +1255,7 @@
         "B109"
       ],
       "relation_to_original_criterion": "separate_G_ordinary_workflow_task",
-      "state": "OPEN",
+      "state": "OPEN_D_CONFIGURED_BRIDGE_IN_PROGRESS_A_OWNER_CONTRACT_REQUESTED",
       "minimum_input_ref": null,
       "producer": "Actual current admitted frontier assessments originate from the appointed evaluator/source owner.",
       "artifact_or_output": "Existing typed assessments/export and complete eligible/feasible/unknown denominator plus actual caller/input refs.",
@@ -1323,7 +1324,18 @@
         "json_pointer": "/final_wave"
       },
       "current_B_supplier_packet_refs": [],
-      "actual_existing_selector_references_prior5050": []
+      "actual_existing_selector_references_prior5050": [],
+      "next_candidate_source_ref": null,
+      "next_candidate_runtime_ref": null,
+      "current_root_reported_work": {
+        "state": "D_ENGINEERING_WORK_IN_PROGRESS",
+        "actual_next_candidate_source_sha": null,
+        "actual_next_candidate_tree": null,
+        "current_root_report": "Existing configured ParetoRegistry wiring at3 constructor ports, existing tenant/cell scope/hash-conflict admission, parameterless physical-row projection; actual A initial_context minimal1947B review patch prepared but A owner API contract pending.",
+        "predicate_basis": "consumer_asserted",
+        "new_source_or_test_PASS_claim": false,
+        "formal_final_accounting": "WAIT_FOR_NEW_IMMUTABLE_CANDIDATE"
+      }
     },
     {
       "key": "served_hierarchical_context",
@@ -5454,6 +5466,13 @@
       "git_blob": "cf17b25de9290188729d8cc974445647813ac82d",
       "bytes": 3124,
       "sha256": "7a97fd02bc64f58c47737108926aa9f6e93f72b1fbd4f18c9842da9c4755ac53"
+    },
+    "configured_transfer_actual8c": {
+      "source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+      "git_blob": "69e8c91f4a25ac68a38e546abceecfef85da39a8",
+      "bytes": 52230,
+      "sha256": "73e37f1527877e0e4da0baa8534b96fa871980a84d0b50c5b2a78b6039e6d3af"
     }
   },
   "current_contract_references_original_5050": {
@@ -5613,7 +5632,21 @@
       "json_pointer": "/final_wave/required_configured_transfer"
     },
     "state": "OPEN_VERIFICATION_PENDING",
-    "scope": "Missing completed final execution output, not missing scientific law, authority or installed backend. No quota/slot/cap or product cause asserted."
+    "scope": "Missing completed final execution output, not missing scientific law, authority or installed backend. No quota/slot/cap or product cause asserted.",
+    "configured_GP_received": {
+      "receipt_ref": {
+        "source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+        "git_blob": "69e8c91f4a25ac68a38e546abceecfef85da39a8",
+        "bytes": 52230,
+        "sha256": "73e37f1527877e0e4da0baa8534b96fa871980a84d0b50c5b2a78b6039e6d3af"
+      },
+      "positive_state": "ERROR_PARTIAL_UNRUN",
+      "negative_four_state": "PASS",
+      "negative_fit_calls": 0,
+      "full_positive_verdict_ref": null,
+      "independent_numerical_review_ref": null
+    }
   },
   "publication": {
     "state": "PRELIMINARY_METADATA_CHECKPOINT",
@@ -5621,5 +5654,12 @@
     "local_checkout_created": false,
     "local_commit_hooks_executed": false,
     "source_test_mutations": 0
+  },
+  "received_configured_GP_ref": {
+    "source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+    "git_blob": "69e8c91f4a25ac68a38e546abceecfef85da39a8",
+    "bytes": 52230,
+    "sha256": "73e37f1527877e0e4da0baa8534b96fa871980a84d0b50c5b2a78b6039e6d3af"
   }
 }

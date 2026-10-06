@@ -1,0 +1,608 @@
+{
+  "schema": "policyos.e02.D.G_final_runtime_verification_input.v1",
+  "unit": "D",
+  "role": "ROOT_G_VERIFICATION_OPERATION_REQUEST; not scientific-law or authority input",
+  "closure_ids": [],
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "predicate_basis": "not_established",
+  "predicate_scope": "Complete final composed acceptance remains absent; actual existing-source byte/outcome subsets remain in their pinned Git receipts.",
+  "requested_canonical_owner": "Root/G final verification operator and actual execution environment owner",
+  "appointment_not_established": true,
+  "owner_decision_ref": null,
+  "current_source": {
+    "sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459"
+  },
+  "final_freeze_source_sha": null,
+  "final_freeze_tree": null,
+  "state": "WAIT_FOR_NEXT_IMMUTABLE_SEARCH_CANDIDATE_AND_COMPLETE_NATIVE_OUTPUT",
+  "existing_producer": "Existing real DOE/native scientific profile with actual pytest consumers and passive origin/event observer",
+  "artifact": "Complete final source/config/lock/selector manifest + native deciding stdout/stderr/JUnit/result and source-before/after/origins; retain actual ERROR if interrupted.",
+  "bridge": "Frozen ordinary admitted Git source -> actual existing native caller/tests -> complete source-bound receipt",
+  "consumer": "Root/G original45 findings/46 criterion occurrences adjudication, with held law/permit positives and B120 raw-cost productFAIL remaining separate.",
+  "current_received_subset_refs": {
+    "broad_interruption": {
+      "source_sha": "83fffc0f74fe3ef88857f57e5132187c8fb7101a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption.json",
+      "git_blob": "678496b12e96df131fac306de40b77fe221e3086",
+      "bytes": 7753,
+      "sha256": "1267222ccb79b5e14e4d027f5a76203d3eeeb73dacf0762e2f41a220fe2e652e"
+    },
+    "configured_GP": {
+      "source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+      "git_blob": "69e8c91f4a25ac68a38e546abceecfef85da39a8",
+      "bytes": 52230,
+      "sha256": "73e37f1527877e0e4da0baa8534b96fa871980a84d0b50c5b2a78b6039e6d3af"
+    },
+    "preliminary_ledger": {
+      "source_sha": "ed991c1f523c45dba9d1cc71c0ad3767f09457ac",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/ledger.json"
+    }
+  },
+  "original_wave_prepared_commands": {
+    "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "source_tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+    "cwd": "/workspace/e02-D-published-root/policy-engine",
+    "canonical_commands": [
+      {
+        "bundle": "CTL-01",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_search_loop.py tests/unit/scientist/search/test_controller_api.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+          "tests/unit/scientist/search/test_search_loop.py",
+          "tests/unit/scientist/search/test_controller_api.py"
+        ]
+      },
+      {
+        "bundle": "CTL-02",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_strategy_state.py tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+          "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+          "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py"
+        ]
+      },
+      {
+        "bundle": "CTL-03",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective tests/unit/scientist/search/test_cost_stopping.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+        "selectors": [
+          "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective",
+          "tests/unit/scientist/search/test_cost_stopping.py",
+          "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+          "tests/unit/scientist/orchestration/engine/test_budget.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_ledger.py"
+        ]
+      },
+      {
+        "bundle": "FUN-01",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+        "selectors": [
+          "tests/unit/scientist/search/funnel/test_orchestrator.py",
+          "tests/unit/scientist/orchestration/engine/test_budget.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_ledger.py"
+        ]
+      },
+      {
+        "bundle": "FUN-02",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/remediation/test_fun_02.py -ra",
+        "selectors": [
+          "tests/unit/scientist/search/funnel/test_orchestrator.py",
+          "tests/unit/remediation/test_fun_02.py"
+        ]
+      },
+      {
+        "bundle": "FUN-03",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/search/funnel/test_level6_promotion.py tests/unit/remediation/test_fun_03.py -ra",
+        "selectors": [
+          "tests/unit/scientist/search/funnel/test_orchestrator.py",
+          "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+          "tests/unit/remediation/test_fun_03.py"
+        ]
+      },
+      {
+        "bundle": "OPT-01",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_pareto.py",
+          "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+          "tests/unit/scientist/methods/search/test_hypervolume_limitations.py"
+        ]
+      },
+      {
+        "bundle": "OPT-02",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_bayesian_generator.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_effective_actions.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+          "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+          "tests/unit/scientist/methods/search/strategies/test_effective_actions.py"
+        ]
+      },
+      {
+        "bundle": "OPT-03",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+          "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+          "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+        ]
+      },
+      {
+        "bundle": "OPT-04",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_frontier.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+          "tests/unit/scientist/search/test_frontier.py",
+          "tests/unit/scientist/methods/autotune/test_registry_and_runner.py"
+        ]
+      },
+      {
+        "bundle": "SRV-01",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_contracts.py tests/unit/scientist/search/test_search_loop.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+          "tests/unit/scientist/search/test_contracts.py",
+          "tests/unit/scientist/search/test_search_loop.py"
+        ]
+      },
+      {
+        "bundle": "SRV-03",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+          "tests/unit/scientist/methods/autotune/test_registry_and_runner.py"
+        ]
+      },
+      {
+        "bundle": "STP-01",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py tests/unit/scientist/methods/search/test_stopping_limitations.py tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py -ra",
+        "selectors": [
+          "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+          "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+          "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py"
+        ]
+      },
+      {
+        "bundle": "STR-01",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_adversarial_streaming.py tests/unit/scientist/search/test_adversarial.py tests/unit/scientist/policy_design/test_phase_b_policy_workers.py -ra",
+        "selectors": [
+          "tests/unit/scientist/search/test_adversarial_streaming.py",
+          "tests/unit/scientist/search/test_adversarial.py",
+          "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+        ]
+      },
+      {
+        "bundle": "TRN-01",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/scientist/methods/autotune/test_warm_start.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+          "tests/unit/scientist/methods/autotune/test_warm_start.py",
+          "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+        ]
+      },
+      {
+        "bundle": "TRN-02",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/agent/test_vector_memory.py tests/unit/remediation/test_trn_02.py tests/unit/scientist/methods/search/strategies/test_transfer.py -ra",
+        "selectors": [
+          "tests/unit/scientist/agent/test_vector_memory.py",
+          "tests/unit/remediation/test_trn_02.py",
+          "tests/unit/scientist/methods/search/strategies/test_transfer.py"
+        ]
+      },
+      {
+        "bundle": "TRN-03",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/test_lesson_query_persistence.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+          "tests/unit/scientist/search/test_lessons.py",
+          "tests/unit/scientist/search/test_lesson_transfer.py"
+        ]
+      }
+    ],
+    "canonical_command_count": 17,
+    "union_selectors": [
+      "tests/integration/core/llm/test_cache_response_binding.py",
+      "tests/integration/core/llm/test_gateway_response_text_cost.py",
+      "tests/integration/core/llm/test_native_gateway_cost_intake.py",
+      "tests/integration/core/llm/test_native_gateway_cost_range.py",
+      "tests/integration/core/llm/test_provider_cost_consistency.py",
+      "tests/integration/scientist/methods/search/funnel/test_default_worker_resource_scopes.py",
+      "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+      "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+      "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py",
+      "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+      "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay.py",
+      "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+      "tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+      "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+      "tests/unit/remediation/test_fun_02.py",
+      "tests/unit/remediation/test_fun_03.py",
+      "tests/unit/remediation/test_llm_01.py",
+      "tests/unit/remediation/test_trn_02.py",
+      "tests/unit/scientist/agent/test_vector_memory.py",
+      "tests/unit/scientist/agent/test_vector_transfer_process.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+      "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+      "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+      "tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+      "tests/unit/scientist/methods/autotune/test_hypervolume_representability.py",
+      "tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+      "tests/unit/scientist/methods/autotune/test_pareto.py",
+      "tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+      "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+      "tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py",
+      "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+      "tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+      "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "tests/unit/scientist/methods/search/funnel/test_level5_component_assessment.py",
+      "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+      "tests/unit/scientist/methods/search/funnel/test_resource_factory_contract.py",
+      "tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+      "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+      "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+      "tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+      "tests/unit/scientist/methods/search/test_controller.py",
+      "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+      "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+      "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+      "tests/unit/scientist/methods/search/test_service_ask_publication_review.py",
+      "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+      "tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+      "tests/unit/scientist/methods/search/test_service_persistence.py",
+      "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+      "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+      "tests/unit/scientist/orchestration/engine/test_budget.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+      "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "tests/unit/scientist/policy_design/test_phase_b_output.py",
+      "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+      "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "tests/unit/scientist/search/test_adversarial.py",
+      "tests/unit/scientist/search/test_adversarial_streaming.py",
+      "tests/unit/scientist/search/test_blueprint_resource_projection.py",
+      "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+      "tests/unit/scientist/search/test_contracts.py",
+      "tests/unit/scientist/search/test_controller_api.py",
+      "tests/unit/scientist/search/test_cost_stopping.py",
+      "tests/unit/scientist/search/test_frontier.py",
+      "tests/unit/scientist/search/test_lesson_as_of.py",
+      "tests/unit/scientist/search/test_lesson_partial_consumer.py",
+      "tests/unit/scientist/search/test_lesson_transfer.py",
+      "tests/unit/scientist/search/test_lessons.py",
+      "tests/unit/scientist/search/test_search_loop.py",
+      "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+      "tests/unit/scientist/search/test_transfer_context_criteria.py"
+    ],
+    "union_selector_count": 99,
+    "complete_argv": [
+      "/workspace/e02-D-doe-env/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "e02_broad_observer",
+      "-q",
+      "tests/integration/core/llm/test_cache_response_binding.py",
+      "tests/integration/core/llm/test_gateway_response_text_cost.py",
+      "tests/integration/core/llm/test_native_gateway_cost_intake.py",
+      "tests/integration/core/llm/test_native_gateway_cost_range.py",
+      "tests/integration/core/llm/test_provider_cost_consistency.py",
+      "tests/integration/scientist/methods/search/funnel/test_default_worker_resource_scopes.py",
+      "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+      "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+      "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py",
+      "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+      "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay.py",
+      "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+      "tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+      "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+      "tests/unit/remediation/test_fun_02.py",
+      "tests/unit/remediation/test_fun_03.py",
+      "tests/unit/remediation/test_llm_01.py",
+      "tests/unit/remediation/test_trn_02.py",
+      "tests/unit/scientist/agent/test_vector_memory.py",
+      "tests/unit/scientist/agent/test_vector_transfer_process.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+      "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+      "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+      "tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+      "tests/unit/scientist/methods/autotune/test_hypervolume_representability.py",
+      "tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+      "tests/unit/scientist/methods/autotune/test_pareto.py",
+      "tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+      "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+      "tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py",
+      "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+      "tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+      "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "tests/unit/scientist/methods/search/funnel/test_level5_component_assessment.py",
+      "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+      "tests/unit/scientist/methods/search/funnel/test_resource_factory_contract.py",
+      "tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+      "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+      "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+      "tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+      "tests/unit/scientist/methods/search/test_controller.py",
+      "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+      "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+      "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+      "tests/unit/scientist/methods/search/test_service_ask_publication_review.py",
+      "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+      "tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+      "tests/unit/scientist/methods/search/test_service_persistence.py",
+      "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+      "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+      "tests/unit/scientist/orchestration/engine/test_budget.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+      "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "tests/unit/scientist/policy_design/test_phase_b_output.py",
+      "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+      "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "tests/unit/scientist/search/test_adversarial.py",
+      "tests/unit/scientist/search/test_adversarial_streaming.py",
+      "tests/unit/scientist/search/test_blueprint_resource_projection.py",
+      "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+      "tests/unit/scientist/search/test_contracts.py",
+      "tests/unit/scientist/search/test_controller_api.py",
+      "tests/unit/scientist/search/test_cost_stopping.py",
+      "tests/unit/scientist/search/test_frontier.py",
+      "tests/unit/scientist/search/test_lesson_as_of.py",
+      "tests/unit/scientist/search/test_lesson_partial_consumer.py",
+      "tests/unit/scientist/search/test_lesson_transfer.py",
+      "tests/unit/scientist/search/test_lessons.py",
+      "tests/unit/scientist/search/test_search_loop.py",
+      "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+      "tests/unit/scientist/search/test_transfer_context_criteria.py",
+      "-ra",
+      "--run-quarantine",
+      "--basetemp=/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/pytest-basetemp-f519b790cc324bfebafcac23c7e07224",
+      "--junitxml=/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/junit.xml"
+    ],
+    "argv_sha256": "8311e62cf690acdcdc0c6163311d999e4498f6b7694eb9da2114c6bad074d16c",
+    "environment_assignments": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONUNBUFFERED": "1",
+      "PYTHONPATH": "/workspace/e02-D-published-root/policy-engine/src:/workspace/e02-D-published-root/policy-engine:/tmp",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+    },
+    "inherited_numeric_caps_and_addopts": {},
+    "standalone_probes": [
+      {
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+        "commands": [
+          {
+            "role": "positive",
+            "argv": [
+              "/workspace/e02-D-doe-env/bin/python",
+              "tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+              "positive",
+              "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47"
+            ]
+          },
+          {
+            "role": "property_removal",
+            "argv": [
+              "/workspace/e02-D-doe-env/bin/python",
+              "tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+              "invent_attempt",
+              "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47"
+            ],
+            "expected_exit": 1
+          }
+        ],
+        "status": "UNRUN_SEPARATE_COMMISSION",
+        "cwd": "/workspace/e02-D-published-root/policy-engine",
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "src:.",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_default_temp_warning": "absent-report and DOE probes explicitly mkdtemp under /dev/shm; no replacement/cleanup or source execution by this harness"
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_case_intake_probe.py",
+        "commands": [
+          {
+            "role": "positive",
+            "argv": [
+              "/workspace/e02-D-doe-env/bin/python",
+              "tests/integration/scientist/methods/search/stress_case_intake_probe.py",
+              "positive",
+              "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47"
+            ]
+          },
+          {
+            "role": "property_removal",
+            "argv": [
+              "/workspace/e02-D-doe-env/bin/python",
+              "tests/integration/scientist/methods/search/stress_case_intake_probe.py",
+              "remove_strict_bool",
+              "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47"
+            ],
+            "expected_exit": 1
+          }
+        ],
+        "status": "UNRUN_SEPARATE_COMMISSION",
+        "cwd": "/workspace/e02-D-published-root/policy-engine",
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "src:.",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_default_temp_warning": "absent-report and DOE probes explicitly mkdtemp under /dev/shm; no replacement/cleanup or source execution by this harness"
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_doe_bridge_probe.py",
+        "commands": [
+          {
+            "role": "positive_actual_SALib",
+            "argv": [
+              "/workspace/e02-D-doe-env/bin/python",
+              "tests/integration/scientist/methods/search/stress_doe_bridge_probe.py"
+            ]
+          }
+        ],
+        "status": "UNRUN_SEPARATE_COMMISSION",
+        "cwd": "/workspace/e02-D-published-root/policy-engine",
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "src:.",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_default_temp_warning": "absent-report and DOE probes explicitly mkdtemp under /dev/shm; no replacement/cleanup or source execution by this harness"
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+        "commands": [
+          {
+            "role": "property_removal:example_fraction",
+            "argv": [
+              "/workspace/e02-D-doe-env/bin/python",
+              "tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+              "example_fraction",
+              "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+              "-q",
+              "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+              "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+              "-ra",
+              "--run-quarantine",
+              "--basetemp=/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/UNCREATED-probe-example_fraction-c81b3089c0894ffb877baebd989381be",
+              "--junitxml=/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/probe-example_fraction.xml"
+            ],
+            "expected_exit": 1
+          },
+          {
+            "role": "property_removal:raw_bool",
+            "argv": [
+              "/workspace/e02-D-doe-env/bin/python",
+              "tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+              "raw_bool",
+              "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+              "-q",
+              "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+              "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+              "-ra",
+              "--run-quarantine",
+              "--basetemp=/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/UNCREATED-probe-raw_bool-0125a3b1645e41e1904747f2634d2bf1",
+              "--junitxml=/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/probe-raw_bool.xml"
+            ],
+            "expected_exit": 1
+          }
+        ],
+        "status": "UNRUN_SEPARATE_COMMISSION",
+        "cwd": "/workspace/e02-D-published-root/policy-engine",
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "src:.",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_default_temp_warning": "absent-report and DOE probes explicitly mkdtemp under /dev/shm; no replacement/cleanup or source execution by this harness"
+      }
+    ],
+    "actual_manifest_ref": {
+      "source_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption-proof/output.json.gz",
+      "member": "original-wave/execution-manifest.json"
+    },
+    "execution_outcome": "ERROR_UNRUN; child SIGKILL/harness SIGTERM, zero received completed collection/test/fit reports.",
+    "unchanged_future_denominator_not_asserted": "Next Search delta requires root to regenerate full canonical+changed+affected selectors against final freeze. Original99 is the exact interrupted denominator, not a cap or claimed final future denominator."
+  },
+  "existing_backend": {
+    "python": "/workspace/e02-D-doe-env/bin/python",
+    "python_version": "3.14.7",
+    "configured_GP_constructor_and_fit_actual_observed": true,
+    "four_prefit_guards_actual_PASS": 4,
+    "complete_positive_state": "ERROR_PARTIAL_UNRUN",
+    "receipt_ref": {
+      "source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+      "git_blob": "69e8c91f4a25ac68a38e546abceecfef85da39a8",
+      "bytes": 52230,
+      "sha256": "73e37f1527877e0e4da0baa8534b96fa871980a84d0b50c5b2a78b6039e6d3af"
+    },
+    "scientific_population_source_not_required_for_finite_control": true,
+    "installed_native_backend_and_actual_fit_substeps_observed": true
+  },
+  "minimum_verification_input": {
+    "exact_final_candidate_and_tree_ref": null,
+    "complete_next_wave_selector_manifest_ref": null,
+    "actual_environment_readiness_observation_ref": null,
+    "actual_operation": "Root receives a materially available native execution window/profile and exact final-source native positive/full acceptance output; no proxy evaluator/history, mock fit, artificial compute cap/slot/quota or forced skip.",
+    "source_ownership": "Use ordinary existing admitted checkout, canonical B/E dependencies and real fixtures; no tracked source mirrors or source-body packing.",
+    "deciding_outputs": "Record exact actual terminal result; completed test cases remain their own PASS/FAIL/ERROR/SKIP subsets. Import, installed backend, constructor, fit, learned-state and negative-only guards never replace full positive completion."
+  },
+  "falsifier": "With final candidate/observed-substep markers retained, remove real native positive controller/acquisition/evaluation completion: no full acceptance must be asserted. A negative-only guard suite or fitted-state recording cannot satisfy that missing consumer verdict.",
+  "environment_capacity_scope": "Known terminal signals and actual observed environment state are evidence. PID-specific cause, next-window feasibility and execution time remain not_established until observed; no deletion/resource mutation or quota is requested.",
+  "separate_owner_inputs": {
+    "original_held": [
+      "B131",
+      "B137",
+      "B157",
+      "B161",
+      "B164"
+    ],
+    "current_B120": "Current canonical B response-text24=21FAIL3PASS; existing intake seam needs owner engineering fix",
+    "D_quantity_corrective": "Provided bounded own13/independent13/ordinary2 evidence, not a missing owner input",
+    "A_default_workflow": "Existing D bridge actively being completed; actual A minimal context contract/producer export remains requested, no predeclared completion"
+  },
+  "no_new_runtime_here": true,
+  "no_source_test_or_root_writes": true
+}

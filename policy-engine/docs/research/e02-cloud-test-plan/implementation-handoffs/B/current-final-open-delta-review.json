@@ -12,7 +12,7 @@
   "canonical_source_basis": {
     "git_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
     "card_path_template": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/{bundle_id}.md",
-    "criterion_locator": "Per finding SOURCE_BEGIN/SOURCE_END block, lines and hash."
+    "criterion_locator": "Marker line range locates the full SOURCE block; source_block_sha256 hashes raw UTF-8 regex capture between markers, preserving all whitespace. See current-canonical-criterion-digest-qualification.json."
   },
   "receipt_index": {
     "exe": {

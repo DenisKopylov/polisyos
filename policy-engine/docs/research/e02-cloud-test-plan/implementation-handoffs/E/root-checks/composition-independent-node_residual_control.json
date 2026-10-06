@@ -1,0 +1,16 @@
+{
+  "target_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+  "control": "shared_node_precomputed_core_ref_omission",
+  "bucket": "same existing core-to-strict-IR readback class outside leased bridge",
+  "verdict": "bounded_residual_confirmed",
+  "bridge_result": "deferred",
+  "report_ref_type": "ArtifactRef",
+  "mapping_ref_type": "ArtifactRef",
+  "report_id": "sha256:f7989308b39ca99692a9a1f7ee574e790aeb788f44a692e3dd3054f4de0e3195",
+  "mapping_id": "sha256:646a0d1fae9be227d0baddbb09117c8559b7518e91ed11acd021231d28a46e0e",
+  "private_node_loaded_report": false,
+  "private_node_loaded_mapping": false,
+  "canonical_normalized_report_status": "partially_aligned",
+  "canonical_normalized_mapping_entries": 1,
+  "next_owner": "G coordinates canonical Scientist node owner; no core/IR writer change needed"
+}

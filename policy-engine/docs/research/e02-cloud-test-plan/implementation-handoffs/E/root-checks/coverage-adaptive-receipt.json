@@ -1,0 +1,48 @@
+{
+  "verdict": "pass_for_local_defined_properties",
+  "source_freeze_commit": "c73ce2bd287990769c90fad7013c1dadb703aa73",
+  "observed_run_head": "98e332b8e71b00bd7417c85bd75520d82ac04d44",
+  "head_at_review": "98e332b8e71b00bd7417c85bd75520d82ac04d44",
+  "source_blobs_identical_before_after_and_c73_freeze": true,
+  "witness_exit_status": 0,
+  "native_exit_status": 0,
+  "native_displayed_pass_outcomes": 78,
+  "ruff_exit_status": 0,
+  "environment": {
+    "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "jax": "0.8.2",
+    "jax_backend": "cpu",
+    "jax_devices": [
+      "TFRT_CPU_0"
+    ],
+    "jax_x64_at_entry": false,
+    "pythonpath": "/workspace/e02-E-assessment/policy-engine/src",
+    "head_before": "98e332b8e71b00bd7417c85bd75520d82ac04d44",
+    "branch": "refs/heads/codex/e02-E-assessment"
+  },
+  "commands": [
+    "PYTHONPATH=/workspace/e02-E-assessment/policy-engine/src JAX_PLATFORMS=cpu /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-runtime/coverage-adaptive-independent/witness.py > /workspace/e02-runtime/coverage-adaptive-independent/stdout.txt 2>&1",
+    "cd /workspace/e02-E-assessment/policy-engine && PYTHONPATH=/workspace/e02-E-assessment/policy-engine/src JAX_PLATFORMS=cpu /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/calibration/test_curve.py tests/unit/calibration/test_continuous.py tests/unit/scientist/methods/backtesting/test_bootstrap.py tests/unit/scientist/methods/backtesting/test_calibration_curve.py tests/unit/remediation/test_uqp_03.py -q > /workspace/e02-runtime/coverage-adaptive-independent/native-stdout.txt 2>&1",
+    "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check --config /workspace/e02-E-assessment/policy-engine/pyproject.toml /workspace/e02-runtime/coverage-adaptive-independent/witness.py > /workspace/e02-runtime/coverage-adaptive-independent/ruff-before.txt 2>&1"
+  ],
+  "artifact_sha256": {
+    "witness.py": "19ba22a1d3e5a24fcb91f3d34bbbc7a0c9655772d27cf62c4b74a8d1a30965a7",
+    "stdout.txt": "554821341bd4a8cc56f82e8467d97d10bded797147a6a78f21fb677bb4e0f56e",
+    "measurements.json": "5dd84103a28f7eea6ce817e041555081d2d7a5ca6753f405c8d1c94bee1d68d2",
+    "native-stdout.txt": "ac495f87c93297f7a6b6576302f0c026457a444008c68b065caf82d3eed780d0",
+    "ruff-before.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "imported-polisyos-origins.json": "3ed76cad2443ee38bab6628300f65645057974823a07017829951fd431f727cb"
+  },
+  "held": [
+    "B194",
+    "B197",
+    "B201",
+    "B202"
+  ],
+  "production_source_or_history": "not_established",
+  "scope": "Local numerical backend and imported source, not deployment, public mathematical law, general CI calibration, or served evaluator/intake.",
+  "no_product_edits": true
+}

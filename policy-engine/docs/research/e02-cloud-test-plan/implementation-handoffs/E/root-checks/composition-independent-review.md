@@ -1,0 +1,22 @@
+# Composition readback independent bounded review
+
+Implementation `6a7c96535fea02b3108728cf5e27d1955f65f6ea`, tree `7600249e28d6eb3bd5dbba2afa7677097c914d9d`, slice base `c40d4acae1ce58b597267255026d9356565828fd`.
+
+**Bounded bridge verdict: PASS. No defect was found in the leased reader conversion.** All six typed-reference readback calls in `replay_fragment_composition_case` use the existing public `polisyos.ir.artifacts.normalize_artifact_ref`. The complete function AST supplies the six-call denominator; the independent live fixture also executes six loader calls covering five distinct output ports. No core STA-01 writer, strict IR schema, or shared Scientist node was modified.
+
+The previous four native failures were the same boundary incompatibility: a genuine core `ArtifactRef` cannot be passed directly to strict `CompositionCertificateRef.model_validate`; it raises `model_type` after the producer has persisted artifacts. The base transcript is `/workspace/e02-runtime/composition-base-c40.log` with SHA-256 `ece92e97dbc67574427418be385eeb1a1967af5149bde68544ef876d52645913` (root/author execution, independently read back). The independent removal control reproduces that error after deleting only the runtime conversion, with the real producer, CAS, strict contract, and marker fields retained.
+
+| Property | Fresh direct evidence | Result |
+| --- | --- | --- |
+| Native bridge scenarios | All 15 native/new tests: original four + reopened CAS readback + 10 kind/media mutations | PASS, exit 0, wall 19.756 s, children max RSS 584480 KiB |
+| Kind/media remain binding | Actual producer output mutations at all five unique ports | Wrong kind and wrong media each raise strict `literal_error`; normalization preserves the supplied discriminator |
+| Missing identity fails closed | Independent actual producer persisted refs mutated at five ports, omitted and explicit `None` identity | All ten raise the canonical missing-fields ValueError; no replay result escapes |
+| Producer → factory → CAS → strict loaders → readback | Independent native graph fixture, injected filesystem factory, all five core refs, reopened CAS manifests/payloads | Six actual typed loader calls; SHA-256 payload bytes equal producer artifact IDs; reopened certificate signature equals bridge result |
+| Semantic status retained | Real proxy-alignment case | `deferred`, `pending_review`, expert review required; native failure card survives readback |
+| Behavioral oracle | Runtime normalizer replaced with identity in process only | Native `CompositionCertificateRef` model-type failure reappears despite marker/ref presence |
+
+`native.json` gives exact argv, cwd, environment, before/after source and test blob hashes, timing/RSS, output hash, and frozen target. `native.log` retains complete deciding pytest output. `producer_controls.py` is the independent recipe; its complete raw output is `producer_controls.stdout.log`/`.stderr.log` and parsed results are `producer_controls.json`. `review.json` records exact commands and artifact hashes. Python 3.14.2, Pydantic 2.12.5, pytest 9.0.2, NumPy 2.3.5, Linux 6.18.44/glibc 2.41; only `PYTHONPATH` was overridden. Backend: native `ReconcileCausalGraphNode`, filesystem core CAS, strict IR loaders. No numerical thread or CPU cap was introduced.
+
+**Confirmed bounded residual for G/canonical Scientist owner:** the existing `_load_precomputed_alignment` still directly validates core refs as strict IR DTOs, catches the resulting errors, and returns `(None, None)` even when both CAS payloads resolve. Independent `node_residual_control.py` demonstrates this with real producer output; applying the existing normalizer at the same seam reads a `partially_aligned` report and one-entry interface mapping. This is the same readback class outside the leased bridge. It is not repaired here and the bounded PASS must not be promoted to repository-wide closure. The source conversion in the leased bridge does not change this node behavior.
+
+All review edits were limited to `/workspace/e02-runtime/composition-independent`. Initial independent attempts had harness setup/fixture errors and one result-rendering field mistake; `harness_errors.json` and the complete original error logs preserve the causes and classification. Corrected runs passed without product edits. No global architecture scan was run. These bounded graph fixtures establish the reader conversion and semantic readback; they are not production history, source-law, authority, or served orchestration evidence.

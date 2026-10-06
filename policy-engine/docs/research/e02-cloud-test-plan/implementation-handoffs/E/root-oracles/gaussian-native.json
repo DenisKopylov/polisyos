@@ -1,0 +1,21 @@
+{
+  "source_sha": "f07058a3eb782463eedce65a6d0d54c332a46efe",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "tests/unit/foundry/calibration/test_hessian.py",
+    "tests/unit/foundry/uncertainty/test_monte_carlo.py",
+    "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+    "-o",
+    "addopts=",
+    "-q"
+  ],
+  "cwd": "/workspace/e02-E-cal-uq/policy-engine",
+  "PYTHONPATH": "/workspace/e02-E-cal-uq/policy-engine/src",
+  "exit_code": 0,
+  "wall_seconds": 32.06879138500017,
+  "peak_child_rss_kib": 1131000
+}

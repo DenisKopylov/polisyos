@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
+import jax
 import pytest
 
 from polisyos.core.artifacts.manifest import SchemaInfo
@@ -25,10 +27,22 @@ from polisyos.ir.analytics.uncertainty import (
     persist_uncertainty_envelope,
 )
 from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node_module
-from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import PropagateUncertaintyNode
-from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_SIMULATION_RESULT_REF, INPUT_DATA_SNAPSHOT_REF
+from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
+    PropagateUncertaintyNode,
+)
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_SIMULATION_RESULT_REF,
+    INPUT_DATA_SNAPSHOT_REF,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+
+@pytest.fixture(autouse=True)
+def _float32_draw_witness() -> Iterator[None]:
+    """Keep the exact 515/485 witness local to its original sampling precision."""
+    with jax.experimental.enable_x64(False):
+        yield
 
 
 def _normal_env(point: float, std: float) -> UncertaintyEnvelope:
@@ -207,14 +221,87 @@ def test_mixed_output_failures_are_one_record_with_each_typed_outcome() -> None:
     )
 
 
+@pytest.mark.parametrize("enable_x64", [False, True], ids=["float32", "float64"])
+def test_mixed_draw_outcomes_match_independent_evaluator_observation(enable_x64: bool) -> None:
+    observations: list[tuple[float, str]] = []
+
+    def observed_outputs(x: float) -> dict[str, float | None]:
+        if x < -0.5:
+            observations.append((float(x), "exception"))
+            raise RuntimeError("observed solver refusal")
+        if x < 0:
+            observations.append((float(x), "mixed"))
+            return {"y": None, "z": float("nan")}
+        observations.append((float(x), "success"))
+        return {"y": float(x), "z": float(x)}
+
+    previous_precision = jax.config.x64_enabled
+    with jax.experimental.enable_x64(enable_x64):
+        results = MonteCarloPropagator(_config()).propagate(
+            observed_outputs,
+            {"x": 0.0},
+            {"x": _normal_env(0.0, 1.0)},
+            ["y", "z"],
+        )
+    assert jax.config.x64_enabled is previous_precision
+
+    # The public call performs one nominal evaluation before the fixed draws.
+    assert observations[0] == (0.0, "success")
+    draws = observations[1:]
+    assert len(draws) == 1000
+    assert {outcome for _, outcome in draws} == {"exception", "mixed", "success"}
+    expected_failures = []
+    for draw_index, (_, outcome) in enumerate(draws):
+        if outcome == "exception":
+            output_outcomes = [
+                {
+                    "output_metric_id": metric,
+                    "outcome_code": "simulation_exception",
+                    "error_type": "RuntimeError",
+                }
+                for metric in ("y", "z")
+            ]
+        elif outcome == "mixed":
+            output_outcomes = [
+                {"output_metric_id": "y", "outcome_code": "missing_output", "error_type": None},
+                {"output_metric_id": "z", "outcome_code": "non_finite_output", "error_type": None},
+            ]
+        else:
+            continue
+        expected_failures.append({"draw_index": draw_index, "output_outcomes": output_outcomes})
+
+    failed_count = len(expected_failures)
+    successful_count = sum(outcome == "success" for _, outcome in draws)
+    missing_count = sum(outcome == "mixed" for _, outcome in draws)
+    assert 0 < failed_count < len(draws)
+    assert failed_count + successful_count == len(draws)
+    provenance = results[0].diagnostics["draw_outcome_provenance"]
+    assert provenance is results[1].diagnostics["draw_outcome_provenance"]
+    assert provenance["requested_draw_count"] == len(draws)
+    assert provenance["attempted_draw_count"] == len(draws)
+    assert provenance["successful_draw_count"] == successful_count
+    assert provenance["unattempted_draw_count"] == 0
+    assert provenance["outcome_denominator_complete"] is True
+    assert [
+        {"draw_index": row["draw_index"], "output_outcomes": row["output_outcomes"]}
+        for row in provenance["failure_records"]
+    ] == expected_failures
+    for result in results:
+        _require_candidate_only(result)
+        assert result.diagnostics["n_failed"] == failed_count
+        assert result.diagnostics["n_valid"] == successful_count
+        assert result.envelope.sample_size == successful_count
+        assert len(result.envelope.distribution_payload.samples) == successful_count
+    assert results[0].diagnostics["missing_output_count"] == missing_count
+    assert results[1].diagnostics["missing_output_count"] == 0
+
+
 def test_all_failed_multi_output_draws_remain_candidate_without_crashing() -> None:
     def failing_outputs(x: float) -> dict[str, float]:
         del x
         raise RuntimeError("solver refused every draw")
 
-    results = MonteCarloPropagator(
-        _config(mc_n_samples=100, mc_min_valid_samples=50)
-    ).propagate(
+    results = MonteCarloPropagator(_config(mc_n_samples=100, mc_min_valid_samples=50)).propagate(
         failing_outputs,
         {"x": 0.0},
         {"x": _normal_env(0.0, 1.0)},
@@ -333,14 +420,18 @@ def _build_node_context(
     )
     state = ExperimentState(
         run_id=run_id,
-        inputs={INPUT_DATA_SNAPSHOT_REF: DataSnapshotRef(artifact_id=data_snapshot_ref.artifact_id)},
+        inputs={
+            INPUT_DATA_SNAPSHOT_REF: DataSnapshotRef(artifact_id=data_snapshot_ref.artifact_id)
+        },
         artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: simulation_result_ref},
         params={"propagation_config": propagation_config},
     )
     return store, ctx, state
 
 
-def test_real_node_persists_aggregate_draw_report_and_exact_missing_set(tmp_path, monkeypatch) -> None:
+def test_real_node_persists_aggregate_draw_report_and_exact_missing_set(
+    tmp_path, monkeypatch
+) -> None:
     store, ctx, state = _build_node_context(
         tmp_path,
         run_id="R_b194_mc",
@@ -370,6 +461,7 @@ def test_real_node_persists_aggregate_draw_report_and_exact_missing_set(tmp_path
             schema=SchemaInfo(name="polisyos.foundry.PropagationReport", version="1.0"),
         ),
     )
+
     def build_failing_fn(params, *, base_metric_values, nominal_params):
         del params, base_metric_values, nominal_params
 

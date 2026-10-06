@@ -1,0 +1,12 @@
+.....................................                                    [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_partial_failures_are_per_draw_provenanced_candidate_only
+  /workspace/e02-E-cal-uq/policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py:44: DeprecationWarning: jax.experimental.enable_x64 is deprecated in JAX v0.8.0 and will be removed in JAX v0.9.0; use jax.enable_x64(True) instead.
+    with jax.experimental.enable_x64(False):
+
+tests/unit/foundry/uncertainty/test_monte_carlo_b194.py::test_valid_delta_output_is_not_marked_missing_or_incomplete
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+37 passed, 2 warnings in 26.05s

@@ -1,0 +1,184 @@
+from __future__ import annotations
+
+import ast
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import tempfile
+
+from pydantic import ValidationError
+
+from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
+from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, EdgeSource, GraphType
+from polisyos.ir.analytics.cross_graph import SCMFragment
+from polisyos.ir.artifacts import normalize_artifact_ref
+import polisyos.scientist.methods.backtesting.composition_bridge as bridge
+
+root = Path('/workspace/e02-E-composition-readback')
+out = Path('/workspace/e02-runtime/composition-independent')
+target = '6a7c96535fea02b3108728cf5e27d1955f65f6ea'
+source_path = 'policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py'
+source_blob = subprocess.check_output(['git', 'hash-object', source_path], cwd=root, text=True).strip()
+assert source_blob == subprocess.check_output(['git','rev-parse',target+':'+source_path],cwd=root,text=True).strip()
+
+# Complete readback denominator for the replay function, obtained from its AST.
+tree = ast.parse((root / source_path).read_text())
+function = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == 'replay_fragment_composition_case')
+readback_calls = []
+for node in ast.walk(function):
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) and node.func.attr == 'model_validate':
+        call = node.args[0]
+        assert isinstance(call, ast.Call) and isinstance(call.func, ast.Name) and call.func.id == 'normalize_artifact_ref'
+        readback_calls.append({'typed_ref': ast.unparse(node.func.value), 'input': ast.unparse(call.args[0]), 'line': node.lineno})
+assert len(readback_calls) == 6
+
+def edge(src, dst):
+    return CausalEdge(src=src, dst=dst, mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW,
+                     sources=[EdgeSource.DATA], combined_confidence=.8)
+
+def inputs():
+    fragments = []
+    for label, var, supplied in [('left', 'RL.EST', True), ('right', 'GE.EST', False)]:
+        fragments.append(SCMFragment(fragment_id=label, graph_ref='artifact:graph:'+label,
+            semantic_namespace='policy.'+label, interface_variables=[var],
+            exposed_outputs=[var] if supplied else [], exposed_inputs=[] if supplied else [var],
+            variable_definitions={var: var}, variable_units={var:'unitless'}))
+    return {'fragments':fragments, 'fragment_graphs':{
+        'left':CausalGraphModel(graph_type=GraphType.DAG, nodes=['tax','RL.EST'], edges=[edge('tax','RL.EST')], discovery_method='independent_fixture'),
+        'right':CausalGraphModel(graph_type=GraphType.DAG, nodes=['GE.EST','wages'], edges=[edge('GE.EST','wages')], discovery_method='independent_fixture')}}
+
+original_execute = bridge.ReconcileCausalGraphNode.execute
+original_default = bridge._default_composition_store_factory
+original_normalizer = bridge.normalize_artifact_ref
+ports = [
+    'composition_certificate_ref', 'alignment_report_ref', 'interface_mapping_ref',
+    'reconciled_causal_graph_ref', 'composition_failure_card_bundle_ref',
+]
+loader_types = {
+    'load_composition_certificate':'CompositionCertificateRef',
+    'load_alignment_report':'AlignmentReportRef',
+    'load_interface_mapping':'InterfaceMappingRef',
+    'load_causal_graph_model':'CausalGraphModelRef',
+    'load_composition_failure_card_bundle':'CompositionFailureCardBundleRef',
+}
+original_loaders = {name:getattr(bridge,name) for name in loader_types}
+results = []
+
+def fail_default(_):
+    raise AssertionError('injected factory did not own the store path')
+
+with tempfile.TemporaryDirectory(prefix='composition-independent-', dir=out) as scratch:
+    scratch = Path(scratch)
+    # Instrument actual loaders, without replacing their read or validation.
+    loaded = []
+    for name, expected_type in loader_types.items():
+        original_loader = original_loaders[name]
+        def recording_loader(store, ref, _original=original_loader, _name=name, _expected=expected_type):
+            assert type(ref).__name__ == _expected
+            loaded.append({'loader':_name,'type':type(ref).__name__,'artifact_id':str(ref.artifact_id)})
+            return _original(store, ref)
+        setattr(bridge, name, recording_loader)
+    captured = []
+    factory_roots = []
+    def factory(path):
+        factory_roots.append(str(path))
+        return build_artifact_store(ArtifactStoreConfig(root=str(path)))
+    def capture(self, ctx, state):
+        outcome = original_execute(self, ctx, state)
+        assert outcome.status == 'ok'
+        captured.append(outcome)
+        return outcome
+    bridge.ReconcileCausalGraphNode.execute = capture
+    bridge._default_composition_store_factory = fail_default
+    try:
+        cas_root = scratch / 'positive'
+        result = bridge.replay_fragment_composition_case(**inputs(), cas_root=str(cas_root), store_factory=factory)
+        assert factory_roots == [str(cas_root)]
+        assert result.node_status == 'ok'
+        assert result.composition_status == 'deferred'
+        assert result.composition_review_status == 'pending_review'
+        assert result.needs_expert_review
+        assert all(result.persisted_artifacts.values())
+        assert any(card['failure_type']=='proxy_alignment_pending_review' for card in result.failure_cards)
+        native = captured[0].state.artifacts_index
+        assert all(isinstance(native[port], ArtifactRef) for port in ports)
+        reopened = build_artifact_store(ArtifactStoreConfig(root=str(cas_root)))
+        ir_reopened = ensure_ir_artifact_store(reopened)
+        artifacts = []
+        for port in ports:
+            ref = native[port]
+            payload = reopened.get_bytes(ref.artifact_id)
+            manifest = reopened.get_manifest(ref.artifact_id)
+            assert manifest.kind == ref.kind and manifest.media_type == ref.media_type
+            assert str(ref.artifact_id) == 'sha256:'+hashlib.sha256(payload).hexdigest()
+            artifacts.append({'port':port,'artifact_id':str(ref.artifact_id),'kind':manifest.kind,
+                              'media_type':manifest.media_type,'bytes':len(payload),'sha256':hashlib.sha256(payload).hexdigest()})
+        from polisyos.ir.registry.refs import CompositionCertificateRef
+        readback = original_loaders['load_composition_certificate'](ir_reopened,
+            CompositionCertificateRef.model_validate(normalize_artifact_ref(native['composition_certificate_ref'])))
+        assert bridge.normalize_composition_certificate(readback) == result.composition_certificate_signature
+        results.append({'control':'native_producer_factory_cas_reopen', 'verdict':'pass',
+                        'status':result.composition_status, 'review':result.composition_review_status,
+                        'factory_roots':factory_roots, 'actual_readback_calls':loaded, 'artifacts':artifacts})
+    finally:
+        for name, loader in original_loaders.items():
+            setattr(bridge, name, loader)
+        bridge.ReconcileCausalGraphNode.execute = original_execute
+        bridge._default_composition_store_factory = original_default
+
+    # Corrupt each actual producer output after it has persisted into a real CAS.
+    # These cases close the untested identity boundary independently of field shape.
+    for port in ports:
+        for mutation in ['missing_identity', 'null_identity']:
+            observed_ids = []
+            def corrupt(self, ctx, state, _port=port, _mutation=mutation):
+                outcome = original_execute(self, ctx, state)
+                assert outcome.status == 'ok'
+                ref = outcome.state.artifacts_index[_port]
+                assert isinstance(ref, ArtifactRef)
+                assert ctx.store.get_bytes(ref.artifact_id)
+                observed_ids.append(str(ref.artifact_id))
+                payload = normalize_artifact_ref(ref)
+                if _mutation == 'missing_identity':
+                    payload.pop('artifact_id')
+                else:
+                    payload['artifact_id'] = None
+                outcome.state.artifacts_index[_port] = payload
+                return outcome
+            bridge.ReconcileCausalGraphNode.execute = corrupt
+            try:
+                bridge.replay_fragment_composition_case(**inputs(), cas_root=str(scratch/(port+'-'+mutation)))
+                raise AssertionError('missing identity escaped: '+port)
+            except ValueError as error:
+                assert not isinstance(error, ValidationError)
+                assert str(error) == 'artifact ref payload must include artifact_id, kind, media_type'
+                assert len(observed_ids)==1
+                results.append({'control':mutation,'port':port,'verdict':'rejected',
+                                'producer_persisted_id':observed_ids[0],'error':str(error)})
+            finally:
+                bridge.ReconcileCausalGraphNode.execute = original_execute
+
+    # Remove conversion only; retain real producer, CAS, strict contracts and markers.
+    bridge.normalize_artifact_ref = lambda ref: ref
+    try:
+        bridge.replay_fragment_composition_case(**inputs(), cas_root=str(scratch/'removed-normalization'))
+        raise AssertionError('conversion removal was not detected')
+    except ValidationError as error:
+        assert type(error).__name__ == 'ValidationError'
+        assert {item['type'] for item in error.errors()} == {'model_type'}
+        assert error.title == 'CompositionCertificateRef'
+        results.append({'control':'normalization_removed','verdict':'oracle_detects_native_core_ref_incompatibility',
+                        'error_title':error.title,'error_types':[item['type'] for item in error.errors()]})
+    finally:
+        bridge.normalize_artifact_ref = original_normalizer
+
+assert source_blob == subprocess.check_output(['git','hash-object',source_path],cwd=root,text=True).strip()
+print(json.dumps({'target_sha':target,'source_blob':source_blob,'source_module':bridge.__file__,
+    'data_identity':{'kind':'synthetic_bounded_graph_fixture','fragments':['left','right'],
+                     'variables':['tax','RL.EST','GE.EST','wages'],
+                     'meaning':'known proxy alignment remains pending_review'},
+    'backend':'native ReconcileCausalGraphNode + filesystem core CAS + strict IR loaders',
+    'readback_call_denominator':readback_calls,'controls':results},indent=2))

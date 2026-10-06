@@ -1,0 +1,215 @@
+{
+  "target_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+  "source_blob": "abe86a360396d323b5ecef601a2def2d76cc2e7c",
+  "source_module": "/workspace/e02-E-composition-readback/policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py",
+  "data_identity": {
+    "kind": "synthetic_bounded_graph_fixture",
+    "fragments": [
+      "left",
+      "right"
+    ],
+    "variables": [
+      "tax",
+      "RL.EST",
+      "GE.EST",
+      "wages"
+    ],
+    "meaning": "known proxy alignment remains pending_review"
+  },
+  "backend": "native ReconcileCausalGraphNode + filesystem core CAS + strict IR loaders",
+  "readback_call_denominator": [
+    {
+      "typed_ref": "CompositionCertificateRef",
+      "input": "outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF]",
+      "line": 199
+    },
+    {
+      "typed_ref": "AlignmentReportRef",
+      "input": "outcome.state.artifacts_index[ARTIFACT_ALIGNMENT_REPORT_REF]",
+      "line": 207
+    },
+    {
+      "typed_ref": "InterfaceMappingRef",
+      "input": "outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF]",
+      "line": 213
+    },
+    {
+      "typed_ref": "CausalGraphModelRef",
+      "input": "outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]",
+      "line": 230
+    },
+    {
+      "typed_ref": "InterfaceMappingRef",
+      "input": "outcome.state.artifacts_index[ARTIFACT_INTERFACE_MAPPING_REF]",
+      "line": 240
+    },
+    {
+      "typed_ref": "CompositionFailureCardBundleRef",
+      "input": "outcome.state.artifacts_index[ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF]",
+      "line": 250
+    }
+  ],
+  "controls": [
+    {
+      "control": "native_producer_factory_cas_reopen",
+      "verdict": "pass",
+      "status": "deferred",
+      "review": "pending_review",
+      "factory_roots": [
+        "/workspace/e02-runtime/composition-independent/composition-independent-afrciatv/positive"
+      ],
+      "actual_readback_calls": [
+        {
+          "loader": "load_composition_certificate",
+          "type": "CompositionCertificateRef",
+          "artifact_id": "sha256:ba8929fdb4ce71364fc35a72a2698ebb8e0e9cbbf8da036bf357fde8449629f5"
+        },
+        {
+          "loader": "load_alignment_report",
+          "type": "AlignmentReportRef",
+          "artifact_id": "sha256:042aafcc2ef9c588c80a61e96fd5d697f259cfba6599fae73df6057033c41f87"
+        },
+        {
+          "loader": "load_interface_mapping",
+          "type": "InterfaceMappingRef",
+          "artifact_id": "sha256:2d665e9e2cab4c2b1f961f8b68167864c07848da24ec29e201cf0e46ab1126b7"
+        },
+        {
+          "loader": "load_causal_graph_model",
+          "type": "CausalGraphModelRef",
+          "artifact_id": "sha256:5594aa3c4cfece904e2ded5267cde263078e3e7653788758ea22dfe885713a06"
+        },
+        {
+          "loader": "load_interface_mapping",
+          "type": "InterfaceMappingRef",
+          "artifact_id": "sha256:2d665e9e2cab4c2b1f961f8b68167864c07848da24ec29e201cf0e46ab1126b7"
+        },
+        {
+          "loader": "load_composition_failure_card_bundle",
+          "type": "CompositionFailureCardBundleRef",
+          "artifact_id": "sha256:861cea920c52c8ddae6b148f5d4cc153d92b7640fa4b741c1b924e397cf1e3b6"
+        }
+      ],
+      "artifacts": [
+        {
+          "port": "composition_certificate_ref",
+          "artifact_id": "sha256:ba8929fdb4ce71364fc35a72a2698ebb8e0e9cbbf8da036bf357fde8449629f5",
+          "kind": "ir.composition_certificate",
+          "media_type": "application/json",
+          "bytes": 2355,
+          "sha256": "ba8929fdb4ce71364fc35a72a2698ebb8e0e9cbbf8da036bf357fde8449629f5"
+        },
+        {
+          "port": "alignment_report_ref",
+          "artifact_id": "sha256:042aafcc2ef9c588c80a61e96fd5d697f259cfba6599fae73df6057033c41f87",
+          "kind": "ir.alignment_report",
+          "media_type": "application/json",
+          "bytes": 2443,
+          "sha256": "042aafcc2ef9c588c80a61e96fd5d697f259cfba6599fae73df6057033c41f87"
+        },
+        {
+          "port": "interface_mapping_ref",
+          "artifact_id": "sha256:2d665e9e2cab4c2b1f961f8b68167864c07848da24ec29e201cf0e46ab1126b7",
+          "kind": "ir.interface_mapping",
+          "media_type": "application/json",
+          "bytes": 669,
+          "sha256": "2d665e9e2cab4c2b1f961f8b68167864c07848da24ec29e201cf0e46ab1126b7"
+        },
+        {
+          "port": "reconciled_causal_graph_ref",
+          "artifact_id": "sha256:5594aa3c4cfece904e2ded5267cde263078e3e7653788758ea22dfe885713a06",
+          "kind": "ir.causal_graph_model",
+          "media_type": "application/json",
+          "bytes": 1838,
+          "sha256": "5594aa3c4cfece904e2ded5267cde263078e3e7653788758ea22dfe885713a06"
+        },
+        {
+          "port": "composition_failure_card_bundle_ref",
+          "artifact_id": "sha256:861cea920c52c8ddae6b148f5d4cc153d92b7640fa4b741c1b924e397cf1e3b6",
+          "kind": "ir.composition_failure_card_bundle",
+          "media_type": "application/json",
+          "bytes": 1178,
+          "sha256": "861cea920c52c8ddae6b148f5d4cc153d92b7640fa4b741c1b924e397cf1e3b6"
+        }
+      ]
+    },
+    {
+      "control": "missing_identity",
+      "port": "composition_certificate_ref",
+      "verdict": "rejected",
+      "producer_persisted_id": "sha256:ba8929fdb4ce71364fc35a72a2698ebb8e0e9cbbf8da036bf357fde8449629f5",
+      "error": "artifact ref payload must include artifact_id, kind, media_type"
+    },
+    {
+      "control": "null_identity",
+      "port": "composition_certificate_ref",
+      "verdict": "rejected",
+      "producer_persisted_id": "sha256:ba8929fdb4ce71364fc35a72a2698ebb8e0e9cbbf8da036bf357fde8449629f5",
+      "error": "artifact ref payload must include artifact_id, kind, media_type"
+    },
+    {
+      "control": "missing_identity",
+      "port": "alignment_report_ref",
+      "verdict": "rejected",
+      "producer_persisted_id": "sha256:042aafcc2ef9c588c80a61e96fd5d697f259cfba6599fae73df6057033c41f87",
+      "error": "artifact ref payload must include artifact_id, kind, media_type"
+    },
+    {
+      "control": "null_identity",
+      "port": "alignment_report_ref",
+      "verdict": "rejected",
+      "producer_persisted_id": "sha256:042aafcc2ef9c588c80a61e96fd5d697f259cfba6599fae73df6057033c41f87",
+      "error": "artifact ref payload must include artifact_id, kind, media_type"
+    },
+    {
+      "control": "missing_identity",
+      "port": "interface_mapping_ref",
+      "verdict": "rejected",
+      "producer_persisted_id": "sha256:2d665e9e2cab4c2b1f961f8b68167864c07848da24ec29e201cf0e46ab1126b7",
+      "error": "artifact ref payload must include artifact_id, kind, media_type"
+    },
+    {
+      "control": "null_identity",
+      "port": "interface_mapping_ref",
+      "verdict": "rejected",
+      "producer_persisted_id": "sha256:2d665e9e2cab4c2b1f961f8b68167864c07848da24ec29e201cf0e46ab1126b7",
+      "error": "artifact ref payload must include artifact_id, kind, media_type"
+    },
+    {
+      "control": "missing_identity",
+      "port": "reconciled_causal_graph_ref",
+      "verdict": "rejected",
+      "producer_persisted_id": "sha256:5594aa3c4cfece904e2ded5267cde263078e3e7653788758ea22dfe885713a06",
+      "error": "artifact ref payload must include artifact_id, kind, media_type"
+    },
+    {
+      "control": "null_identity",
+      "port": "reconciled_causal_graph_ref",
+      "verdict": "rejected",
+      "producer_persisted_id": "sha256:5594aa3c4cfece904e2ded5267cde263078e3e7653788758ea22dfe885713a06",
+      "error": "artifact ref payload must include artifact_id, kind, media_type"
+    },
+    {
+      "control": "missing_identity",
+      "port": "composition_failure_card_bundle_ref",
+      "verdict": "rejected",
+      "producer_persisted_id": "sha256:861cea920c52c8ddae6b148f5d4cc153d92b7640fa4b741c1b924e397cf1e3b6",
+      "error": "artifact ref payload must include artifact_id, kind, media_type"
+    },
+    {
+      "control": "null_identity",
+      "port": "composition_failure_card_bundle_ref",
+      "verdict": "rejected",
+      "producer_persisted_id": "sha256:861cea920c52c8ddae6b148f5d4cc153d92b7640fa4b741c1b924e397cf1e3b6",
+      "error": "artifact ref payload must include artifact_id, kind, media_type"
+    },
+    {
+      "control": "normalization_removed",
+      "verdict": "oracle_detects_native_core_ref_incompatibility",
+      "error_title": "CompositionCertificateRef",
+      "error_types": [
+        "model_type"
+      ]
+    }
+  ]
+}

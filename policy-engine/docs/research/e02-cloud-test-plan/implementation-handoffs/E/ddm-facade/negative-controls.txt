@@ -1,0 +1,64 @@
+{
+  "label": "normal_control",
+  "argv": [
+    "/workspace/e02-E-ddm/policy-engine/.venv/bin/python",
+    "-c",
+    "<probe from tracked test_facade.py>",
+    "polisyos.ddm.integration.events",
+    "/workspace/e02-E-ddm/policy-engine/src"
+  ],
+  "PYTHONPATH": "/workspace/e02-E-ddm/policy-engine/src",
+  "expected": 0,
+  "exit": 0,
+  "wall_s": 0.1511980959999164,
+  "stdout": "contract-only\n",
+  "stderr": ""
+}
+{
+  "label": "foreign_source_origin_rejected",
+  "argv": [
+    "/workspace/e02-E-ddm/policy-engine/.venv/bin/python",
+    "-c",
+    "<probe from tracked test_facade.py>",
+    "polisyos.ddm.integration.events",
+    "/workspace/e02-E-ddm/policy-engine/src"
+  ],
+  "PYTHONPATH": "/workspace/e02-E-ddm/policy-engine/_build/e02-E-ddm-controls/source",
+  "expected": 1,
+  "exit": 1,
+  "wall_s": 0.2198408169999766,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 21, in <module>\n    assert Path(imported.__file__).resolve().is_relative_to(expected_source)\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\nAssertionError\n"
+}
+{
+  "label": "eager_orchestration_property_removal_rejected",
+  "argv": [
+    "/workspace/e02-E-ddm/policy-engine/.venv/bin/python",
+    "-c",
+    "<probe from tracked test_facade.py>",
+    "polisyos.ddm.integration.events",
+    "/workspace/e02-E-ddm/policy-engine/_build/e02-E-ddm-controls/source"
+  ],
+  "PYTHONPATH": "/workspace/e02-E-ddm/policy-engine/_build/e02-E-ddm-controls/source",
+  "expected": 1,
+  "exit": 1,
+  "wall_s": 0.1731432850000374,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 18, in <module>\n    imported = importlib.import_module(sys.argv[1])\n  File \"/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/importlib/__init__.py\", line 88, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1398, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1371, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1314, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 491, in _call_with_frames_removed\n  File \"<frozen importlib._bootstrap>\", line 1398, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1371, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1314, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 491, in _call_with_frames_removed\n  File \"<frozen importlib._bootstrap>\", line 1398, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1371, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1342, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 938, in _load_unlocked\n  File \"<frozen importlib._bootstrap_external>\", line 759, in exec_module\n  File \"<frozen importlib._bootstrap>\", line 491, in _call_with_frames_removed\n  File \"/workspace/e02-E-ddm/policy-engine/_build/e02-E-ddm-controls/source/polisyos/ddm/__init__.py\", line 87, in <module>\n    import_module(\"polisyos.ddm.integration.monitor\")\n    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/importlib/__init__.py\", line 88, in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen importlib._bootstrap>\", line 1398, in _gcd_import\n  File \"<frozen importlib._bootstrap>\", line 1371, in _find_and_load\n  File \"<frozen importlib._bootstrap>\", line 1333, in _find_and_load_unlocked\n  File \"<frozen importlib._bootstrap>\", line 1267, in _find_spec\n  File \"<string>\", line 15, in find_spec\n    raise AssertionError(f\"contract import entered orchestration: {fullname}\")\nAssertionError: contract import entered orchestration: polisyos.ddm.integration.monitor\n"
+}
+{
+  "label": "restored_control",
+  "argv": [
+    "/workspace/e02-E-ddm/policy-engine/.venv/bin/python",
+    "-c",
+    "<probe from tracked test_facade.py>",
+    "polisyos.ddm.integration.events",
+    "/workspace/e02-E-ddm/policy-engine/_build/e02-E-ddm-controls/source"
+  ],
+  "PYTHONPATH": "/workspace/e02-E-ddm/policy-engine/_build/e02-E-ddm-controls/source",
+  "expected": 0,
+  "exit": 0,
+  "wall_s": 0.219549604000008,
+  "stdout": "contract-only\n",
+  "stderr": ""
+}

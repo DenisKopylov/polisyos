@@ -1,0 +1,44 @@
+{
+  "target_sha": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+  "target_tree": "7600249e28d6eb3bd5dbba2afa7677097c914d9d",
+  "slice_base": "c40d4acae1ce58b597267255026d9356565828fd",
+  "before_head": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+  "after_head": "6a7c96535fea02b3108728cf5e27d1955f65f6ea",
+  "source_before_blobs": {
+    "policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py": "abe86a360396d323b5ecef601a2def2d76cc2e7c",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py": "031d157f8cadbf4e39ed7b469b47bba3b875f346"
+  },
+  "source_after_blobs": {
+    "policy-engine/src/polisyos/scientist/methods/backtesting/composition_bridge.py": "abe86a360396d323b5ecef601a2def2d76cc2e7c",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_composition_bridge.py": "031d157f8cadbf4e39ed7b469b47bba3b875f346"
+  },
+  "source_matches_target": true,
+  "command_argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/methods/backtesting/test_composition_bridge.py",
+    "-q",
+    "--basetemp=/workspace/e02-runtime/composition-independent/native-scratch/tmp",
+    "-o",
+    "cache_dir=/workspace/e02-runtime/composition-independent/native-scratch/cache"
+  ],
+  "cwd": "/workspace/e02-E-composition-readback/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-E-composition-readback/policy-engine/src"
+  },
+  "effective_numerical_environment": {},
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+  "versions": {
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "numpy": "2.3.5"
+  },
+  "backend": "native ReconcileCausalGraphNode + filesystem core CAS + strict IR loaders",
+  "exit_code": 0,
+  "wall_seconds": 19.755695343999832,
+  "children_max_rss_kib": 584480,
+  "output_path": "/workspace/e02-runtime/composition-independent/native.log",
+  "output_sha256": "511fb971caf59261241ec2a3919d9d10c7dcb9ec044ee07d50b2db465184f057"
+}

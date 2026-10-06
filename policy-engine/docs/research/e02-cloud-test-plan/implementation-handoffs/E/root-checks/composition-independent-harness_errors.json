@@ -1,0 +1,26 @@
+{
+  "native": {
+    "classification": "review_harness_setup_error",
+    "product_exercised": false,
+    "exit_code": 1,
+    "cause": "native-scratch parent absent; pytest tmp_path setup failed on15nodes"
+  },
+  "producer_controls": {
+    "classification": "review_fixture_contract_error",
+    "product_exercised": false,
+    "exit_code": 1,
+    "cause": "independent CausalGraphModel fixture omitted required graph_type"
+  },
+  "pre_fix_script_sha256": {
+    "run_native.py": "71dcadc5f31e905c1112d8cf7f7f520a6ddc191a150672cf3bef14a21f11d10e",
+    "producer_controls.py": "ac2d11b3ad7d5221f8339086ce45a5573b55a6af5529073fc4e985db12642394"
+  },
+  "corrective_action": "create own scratchparent; declare graph_type=DAG on own fixture; no product edits",
+  "node_residual_control": {
+    "classification": "review_result_rendering_error",
+    "exit_code": 1,
+    "cause": "reported InterfaceMapping.pairs instead of actual entries field",
+    "property_assertions_executed": true,
+    "corrective_action": "own output field only; rerun private-node residual with entries"
+  }
+}

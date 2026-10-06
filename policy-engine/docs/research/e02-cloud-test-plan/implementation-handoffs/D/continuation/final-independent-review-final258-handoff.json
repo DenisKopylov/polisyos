@@ -1,0 +1,890 @@
+{
+  "schema": "policyos.e02.D.independent_final_original_criterion_review_handoff.v1",
+  "reviewer": "/root/criterion_closeout_review",
+  "unit": "D",
+  "implementation_sha": "aa1cf435b0f9aa1ea0faa227ddde0635fbd7e959",
+  "implementation_tree": "dd7963b703463a458b6fc7cf12e4534b82f1931f",
+  "implementation_parent": "6b787d90a45eb8fdec9364f29cfdd8c781d42d30",
+  "branch": "codex/e02-D-final-independent-review",
+  "runtime_source": {
+    "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+  },
+  "slice_base": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "original_criterion_source": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "changed_path_set": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/final258-original-criterion-and-pattern-review.json"
+  ],
+  "complete_deciding_output_ref": {
+    "source_sha": "aa1cf435b0f9aa1ea0faa227ddde0635fbd7e959",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/final258-original-criterion-and-pattern-review.json",
+    "bytes": 169069,
+    "sha256": "ed6980b518f758213c593c180f9be4fb243cff18a84fccbee241cddd7bf267bb",
+    "git_blob": "37b455b09ba34c040b2f9f5a1a0b631a5ddbec69",
+    "full_remote_body_readback": "MATCH"
+  },
+  "predicate_basis": "independently_reconciled for complete original binding/hash/owner/role/card/source/output metadata and bounded static review; not_established for full combined runtime acceptance",
+  "disposition": "ACCEPTED_BOUNDED_STATIC_REVIEW_AND_COMPLETE_ACCOUNTING_WITH_APPEND_ONLY_STALE_METADATA_CORRECTIONS",
+  "denominator": {
+    "finding_ids": 45,
+    "criterion_occurrences": 46,
+    "bundles": 17,
+    "queues": 5,
+    "owner_packets": 16,
+    "LA015_CTL01": "supplier_companion_only; closure owner SRV-03"
+  },
+  "all_original46_matches": true,
+  "original_criterion_occurrences": [
+    {
+      "id": "B106@STR-01",
+      "owner": "STR-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43",
+      "original_fragment_sha256": "250b3bd2f5bc433b540605f3c9e37eddab7a5c693326c6193bb94cc9d4c67e33",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B107@STR-01",
+      "owner": "STR-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3",
+      "original_fragment_sha256": "35367e5237da490c93fb99395113d7251a972437ec52e1a54a8003e74d63eb7e",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B108@OPT-01",
+      "owner": "OPT-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "8d4cbd469a454de4a7f4a26aa91c3fdf8aabf3b2b59bb77651b99146bcaa888c",
+      "original_fragment_sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B109@OPT-01",
+      "owner": "OPT-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "784670e535c99a1baee35da6689f515779b3b616a5829ab125c608fcc4f712b3",
+      "original_fragment_sha256": "817c0ddda8c8883a0b7cccb111a97d8c230dd67e9859a3fb1fba47553c1b402d",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B110@OPT-01",
+      "owner": "OPT-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "199ef2ac1ae718655b08fbb78829e6ed0768b46df5d1b99fad56aa69181c1184",
+      "original_fragment_sha256": "a6be752b83d6e94ed4d0bcccef41670106a65bac64827f8cf4645a0401239d6d",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B111@OPT-01",
+      "owner": "OPT-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65",
+      "original_fragment_sha256": "534be6222dccd944bb884e893436c32d82eef90be857ad763412d9df270c6245",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B112@OPT-02",
+      "owner": "OPT-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "346a175ccdf5884dc409464a2363ff08bee370b2e406d2aa45a103abcedf7234",
+      "original_fragment_sha256": "ebcbfcc121108068640bc1d871fd4f596f6fdd3c0e6c54203025810562dea15f",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B113@OPT-02",
+      "owner": "OPT-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "a58659486c95650eb9a6228a8df62809daede33c44d147794b7f4e78d7ed7624",
+      "original_fragment_sha256": "1bd3fb58eb1fd1fbdc00d8a88c085a3c60b33ee11fab6f5e8c8c80c1c5d17115",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B114@OPT-03",
+      "owner": "OPT-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "b2eab2dd0f76dd6fe89611272edc500c3b3d5e0ef5fa5857251aa73944c096b3",
+      "original_fragment_sha256": "751ea1f4c2439927f429abb7d2be1bd0c15d45fd802529085431f219337fd766",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B115@OPT-03",
+      "owner": "OPT-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "60c5a8366edbd7193eafd15fb6c048061373a4dac4502e54b328c78b75225156",
+      "original_fragment_sha256": "4d5afea998b22ec18956bf039ae38fd1751fe457a8994ce87161fa2fdac20872",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B116@OPT-04",
+      "owner": "OPT-04",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "838816f2bb639f8c98b0972d2433933f1d8c3f39d8d14f6ee03d52f59c4004ab",
+      "original_fragment_sha256": "3f04f3ddd1d21f7ffbea51147028ae51287460255c7b5dc52ad9a1b487e49f98",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B117@OPT-04",
+      "owner": "OPT-04",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "9bc6c9b17b4234d10455cb41f4a8e6380c31163687291bb38242529bb954d319",
+      "original_fragment_sha256": "716aa89ce5b68d85b0487a8509806214c17d261958740f7363c2228a033f924d",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B118@CTL-01",
+      "owner": "CTL-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "0b2c57a0df378303470a151c0d9ffa22e3e8eaa952e3f607113478a80e9581f0",
+      "original_fragment_sha256": "c92cdd35554b9006c3632ceb0314c7378ad6ab123b9abf3ce040c25f5ba12b90",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B119@CTL-01",
+      "owner": "CTL-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "2df8d82c78083a0795327b04b6d0175330efa9f45f87e41b60ae40f89c635f97",
+      "original_fragment_sha256": "c10292d6ac97feeb9e4cdb704950050d5f363157c2c7deb125810a2141891ac0",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B120@CTL-03",
+      "owner": "CTL-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "fc2bdc0f5a2f9ab501ed9195ce1b0116184989c4a1c66c6fd3ab34716b4fb8d6",
+      "original_fragment_sha256": "5217798c76f0d4b4fdb0bcac33fb4b6eaf726f690f2c8babfbac7a37744c3b29",
+      "status": "OPEN_CURRENT_UPSTREAM_FAIL",
+      "MATCH": true
+    },
+    {
+      "id": "B121@CTL-03",
+      "owner": "CTL-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "926f2f672300e9dd03830f1677ba7354bf461218ef9c41841e1f9f6a72f30548",
+      "original_fragment_sha256": "b47c247722c53867b98ba5f11bf37fa25f5a904284cf2cabf99661c5347c5203",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B122@STP-01",
+      "owner": "STP-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "9fb880ce2c75c7770deca54b1861fb86071f57aa1e4db5e51793fcfac56b115e",
+      "original_fragment_sha256": "d9413dc95965e6f0b64b056c37dd5a1452b59dd7605a5b9f033db4776ac50f9c",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B123@CTL-03",
+      "owner": "CTL-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "e38f999cb45a59fb619e7f89e35f20f752b4f0be6d279b6136de1f674b45befd",
+      "original_fragment_sha256": "a36f027f31c7f0f4b9ff333811b9ecc4bb6a480853a13d7d026d2543593d9a95",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B124@CTL-02",
+      "owner": "CTL-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "dcfbad092c0072a6fb2c7094e9b53f0fa51977ab80a742ace74838785f9a1133",
+      "original_fragment_sha256": "77a12566a323c32df2df5d2440997a01226630d79ef6fd1d1f5b939a3b1fa3c5",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B125@CTL-02",
+      "owner": "CTL-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "0a36083564c7d95755126ca040b59efa5abd004855ffbaa995399a6915d6217d",
+      "original_fragment_sha256": "da6f01affaab6b25e26af7613845243eeafc15f0041b3374d39ce18adbe7721b",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B126@CTL-02",
+      "owner": "CTL-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "0054a0cfb74b77d2cfa02a6671ed1ee829854b1a9cf1cbadb05537ffa85ef532",
+      "original_fragment_sha256": "f05138039bb68e205dc185417722e7c5113d18276733c1e4f91577e83476e16d",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B127@OPT-02",
+      "owner": "OPT-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "0cb92c67b7ad455eb8cbb3bba8a88d7297d3ba6dd2e8ec6284edc152f670ac06",
+      "original_fragment_sha256": "ae9f5e873bb33019cfd9524bd407a26c8aa7a5ec84cd2af79a6f2e497427cc70",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B128@TRN-01",
+      "owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7",
+      "original_fragment_sha256": "af4e4b72706ecdef581727483780ed33bff190d295add23a9813ed7b903ffb2b",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B129@TRN-02",
+      "owner": "TRN-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a",
+      "original_fragment_sha256": "b84b680f12b3c9e1226bfe1f0db09c0afb8b4cc338bb20d850188be0ef1fc32b",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B130@TRN-01",
+      "owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3",
+      "original_fragment_sha256": "9f18f5b71de39a4ca820a167f74bf206775f04050db33327aa6ccd6525dca4e7",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B131@TRN-01",
+      "owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd",
+      "original_fragment_sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c",
+      "status": "HELD_ORIGINAL_POSITIVE_INPUT",
+      "MATCH": true
+    },
+    {
+      "id": "B132@TRN-01",
+      "owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb",
+      "original_fragment_sha256": "53d130ee4cb74e9043c80076be6e6c123789c8d6d9de51e7105c1901f1243894",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B133@TRN-02",
+      "owner": "TRN-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d",
+      "original_fragment_sha256": "8c7d3f2d133708780969d4ad10524a5cf9b461acb4d24117f4bb39506962890a",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B134@TRN-02",
+      "owner": "TRN-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d",
+      "original_fragment_sha256": "c877d26c3cb5a8d078a8e40b23e6d1bf3cf5ff5844a4357b08db2f8fb447cd3e",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B135@TRN-03",
+      "owner": "TRN-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "01ce84941fd8680e13557f709b04c7978d7003b2c358dcc81363e2d973aaa136",
+      "original_fragment_sha256": "2616ea6686a29681f5379ae2e54588f2a82afd9882dd1909aa261ee5990ed1e7",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B136@TRN-03",
+      "owner": "TRN-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116",
+      "original_fragment_sha256": "1182d49f6e0f40a47b62e7bfe488d75ff540516f4ba6f022cbedba1340c60deb",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B137@TRN-03",
+      "owner": "TRN-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f",
+      "original_fragment_sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961",
+      "status": "HELD_ORIGINAL_POSITIVE_INPUT",
+      "MATCH": true
+    },
+    {
+      "id": "B156@FUN-01",
+      "owner": "FUN-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "846c22dd69b5b1495efbaff0f982894e6e08b49e0c42e21e0f38b477aa243fa1",
+      "original_fragment_sha256": "88bc80dd038085f5bdb4e2715279d0cc6a06fa677d318e847dc00614e6a56ca0",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B157@FUN-02",
+      "owner": "FUN-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "260d939d59a70f8f9acca08bc5386d4ac4e4070c4725b6287fd2c1a4d534444b",
+      "original_fragment_sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284",
+      "status": "HELD_ORIGINAL_POSITIVE_INPUT",
+      "MATCH": true
+    },
+    {
+      "id": "B158@FUN-01",
+      "owner": "FUN-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "17cc0ecc4baa734906042063c70ef2cbd4394c206b868333448594ad8897fb9f",
+      "original_fragment_sha256": "bd4643a221c0c9934fdf37c2d8b90d97aa93ad09ac95fa3324e23bd04ea4a2c3",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B159@FUN-01",
+      "owner": "FUN-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "7c3b6b49bb03dfb2af6f56e6db82cd302fc5d9c2ae1f6e666b1ab16f11598f36",
+      "original_fragment_sha256": "d079d053de81c0e87ac40adcb2b25c4d1b5ed34f95636412a1abec5c629e0696",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B160@FUN-02",
+      "owner": "FUN-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "7f3880ae72b62b26a91f8386be0ac3391e9188fb146b3ed1c757df1a7d2eafba",
+      "original_fragment_sha256": "de9f5f2da46e9d846cdf6d085d670e14a8f42dea464b332e8764900444c026e8",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B161@FUN-03",
+      "owner": "FUN-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "64bf6d3e30756d1ee3a22a8b81bc2164a41f51931333e269114da303a8fa3b78",
+      "original_fragment_sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a",
+      "status": "HELD_ORIGINAL_POSITIVE_INPUT",
+      "MATCH": true
+    },
+    {
+      "id": "B162@FUN-02",
+      "owner": "FUN-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "806665be954b1b87fb1bcc5e05e2ef2779226c0558e4fa6a30cd18a680681075",
+      "original_fragment_sha256": "898e61d52e838908faca4e23e38fdd86046fd7678a9c44a1c38b0ebda40bd837",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B163@FUN-03",
+      "owner": "FUN-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "000272e0d8331087a33d20ff52c4d2a8696681b0c82513a8562f372789a48e92",
+      "original_fragment_sha256": "0c5055c18e4bbfb9bc2ed8cbc6904766eb95627e736de08f4084a90fb2be8ba5",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B164@FUN-03",
+      "owner": "FUN-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "a367b70e08a3ff6f3515593c46fe2686a9c2f02532daf2c243f57613777b993e",
+      "original_fragment_sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137",
+      "status": "HELD_ORIGINAL_POSITIVE_INPUT",
+      "MATCH": true
+    },
+    {
+      "id": "B165@FUN-02",
+      "owner": "FUN-02",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "42c25e1cf8e4e9d84ab45a3cb8577b7c2d5d6791112006c30aa15b6d3ce7127e",
+      "original_fragment_sha256": "93f3c511f14729529cf4353e326c6bd33ad6686ab19385bc56f88210cdd5e258",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "B41@STP-01",
+      "owner": "STP-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "4a76b7b1923f16245bdc19a10b05570aa47c2ca063e8e1a2faf3eb0112576937",
+      "original_fragment_sha256": "e1f40309a038a4a6b1e8e41e5c6aca361111791be6f58a32d8f4ccd8812d680a",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "LA-014@SRV-01",
+      "owner": "SRV-01",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd",
+      "original_fragment_sha256": "7846126004d9315f65d6e3dc9fa392b3942a05ba430f862e7c7176e87c11b0e2",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "owner": "SRV-03",
+      "role": "supplier_companion_only",
+      "original_acceptance_sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8",
+      "original_fragment_sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29",
+      "status": "SUPPLIER_COMPANION_VERIFIED_FINAL_CHECK_PENDING",
+      "MATCH": true
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "owner": "SRV-03",
+      "role": "canonical_owner",
+      "original_acceptance_sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8",
+      "original_fragment_sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29",
+      "status": "OPEN_VERIFICATION_PENDING",
+      "MATCH": true
+    }
+  ],
+  "finding_verdict_counts": {
+    "closed": 0,
+    "limited": 0,
+    "held": 5,
+    "open": 40
+  },
+  "conditional_proposals": 39,
+  "original_held_positive_ids": [
+    "B131",
+    "B137",
+    "B157",
+    "B161",
+    "B164"
+  ],
+  "B120_current_open": "OPEN_CURRENT_UPSTREAM_FAIL; actual canonical rawGateway24=21FAIL3PASS, paid-cache13 is different supplied capability and not decoder closure",
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "closure_ids": [],
+  "final_wave": {
+    "source": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "exit": -9,
+    "cause": "not_PID_established",
+    "recorded_case_nodes": 1249,
+    "case_starts": 0,
+    "case_reports": 0,
+    "case_finishes": 0,
+    "case_bodies": "ALL_UNRUN",
+    "module_collection_skips": 15,
+    "JUnit": "ABSENT",
+    "complete_collection_session_finish": "ABSENT",
+    "not_numerical_or_backend_PASS": true,
+    "carrier_ref": "ba9f1a664b818b37878e8c62454cb60bad80209c",
+    "carrier_members": 13,
+    "carrier_raw_bytes": 5395382,
+    "carrier_integrity_matches": true,
+    "current_input_paths": 5568,
+    "observed_product_paths": 1366,
+    "complete_changed_paths": 973,
+    "actual100selector_union": true
+  },
+  "source_and_environment": {
+    "final258_src_test_config_vsreviewed06c": [],
+    "production_python_vs_f2": [],
+    "continuation_973": {
+      "production_py": 60,
+      "srcREADME": 7,
+      "test_input_paths": 79,
+      "other_paths": 827
+    },
+    "actual_minimal_profile_ref": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+    "actual_packages": 148,
+    "environment_context": "Cloud sharedroot Git object reads and stdlib metadata reconciliation; no own numerical/backend/test invocation. Runtime fixture results retain each exact author/source-qualified environment."
+  },
+  "complete_original_references": {
+    "ledger": {
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+      "bytes": 555218,
+      "sha256": "702638d85dacaddcb6a7952a4c0a279897f08b23840e15a7d8af8beacb506bc4",
+      "git_blob": "adc82dcdb7ead904acd99aba8af3dde82d5d7221"
+    },
+    "owner-inputs": {
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+      "bytes": 135805,
+      "sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a",
+      "git_blob": "3b6b1e55e5a5e8b670fcfc0a5d70f3a2a62e229b"
+    },
+    "source-bindings": {
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/source-bindings.json",
+      "bytes": 116230,
+      "sha256": "63baca73e6c0691daf537c9d4dafa3db83533ab92d62e110aa0339b24baf7b7f",
+      "git_blob": "49769fe52a4a3c27dd13838622ec0cd0ddec6e10"
+    },
+    "root-G-verification-packet": {
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/root-G-verification-packet.json",
+      "bytes": 71761,
+      "sha256": "02800726dc16b224135e80f7b1ca7e9e71a1502872d362c69ccf4d248101059a",
+      "git_blob": "4986c08e4dd0520615da45a5a5535380e3ef284e"
+    },
+    "validation": {
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/validation.json",
+      "bytes": 1352,
+      "sha256": "29bc5339324c5fecd50f49162d11ed077755f99f9fb54d0e5128e068a52f6fca",
+      "git_blob": "141af10ad37d9694a714cb494abf62833f0c499d"
+    },
+    "summary": {
+      "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/summary.json",
+      "bytes": 5034,
+      "sha256": "26b73fc5397134e38ee3e1ce4338c8767985aa1240888f61f782caf8076edad9",
+      "git_blob": "90830af47830e3a7efbd570ec7bd08c0a7fb3ff9"
+    },
+    "accounting_handoff": {
+      "source_sha": "aad42a1dd4c8136e07ad7a9f6b2ea25e36a353b2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/handoff.json",
+      "bytes": 17440,
+      "sha256": "5d83ad3417157f8286a00f43a947613c1782c5f4f99a64728bd8659504ff6dfd",
+      "git_blob": "5cb9fdede1db7997a4918dd340feee7591c3d9be"
+    },
+    "native_scope_correction": {
+      "source_sha": "68c634210d2926ece915a5cf55bb1b1a66b0988c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/native-factory-scope-correction.json",
+      "bytes": 11400,
+      "sha256": "ea43ee20da9ef4fa45e03d042094a715f0029b3bb2f15e9afa7ff30d8e267056",
+      "git_blob": "05d5c40986965e2f2d297913a0420d8088d5837f"
+    },
+    "runtime_index": {
+      "source_sha": "3a901365a3f9dd12ef6ae3a0989592730fc2f9d0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-delivery-runtime-index.json",
+      "bytes": 7871,
+      "sha256": "7fc91bc34fd67f1afd7c12968c9062913ae256de0c5593f6cbe4a92f0947d614",
+      "git_blob": "69d30c4cd664a8bd007f7a9db9f687c4dcb0d618"
+    },
+    "cleanup_candidates": {
+      "source_sha": "3a901365a3f9dd12ef6ae3a0989592730fc2f9d0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-cleanup-candidates.json",
+      "bytes": 2882,
+      "sha256": "a37632102fd3bc7442d2e62d304a1d29580ff065583d33303a0e3937aea4e173",
+      "git_blob": "acf08d356683f3394d6f200879a5ac2ab41a1a71"
+    }
+  },
+  "native_factory_label_correction": {
+    "ref": {
+      "source_sha": "68c634210d2926ece915a5cf55bb1b1a66b0988c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/native-factory-scope-correction.json",
+      "bytes": 11400,
+      "sha256": "ea43ee20da9ef4fa45e03d042094a715f0029b3bb2f15e9afa7ff30d8e267056",
+      "git_blob": "05d5c40986965e2f2d297913a0420d8088d5837f"
+    },
+    "exact_pointer_old_values_verified": true,
+    "only_LA014015_nested_label": true,
+    "native15_and2701scan_provided": true,
+    "current9de1_plus_optional_skip_separate": true,
+    "final258_bodies_UNRUN_unchanged": true
+  },
+  "remaining_metadata_label_overlay": {
+    "source_sha": "8f58d7349edefebbac7e7f21e6859f8daa075c1d",
+    "tree": "8017b9362663a9d7e6d7a1d9eb82dad6b07d5236",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/capability-scope-correction.json",
+    "bytes": 22062,
+    "sha256": "8e3663f602c2ef15a542f80e06d488039625952df81d9a7236b657a709064714",
+    "git_blob": "faf1740e53258145c04fe9baeaa34f7f82de8da3",
+    "full_remote_body_readback": "MATCH",
+    "independent_disposition": "ACCEPTED_BOUNDED_APPEND_ONLY_CAPABILITY_LABEL_CORRECTION",
+    "exact_pointer_count": 5,
+    "source_test_runtime_original46_and_verdicts_unchanged": true,
+    "configured_D35_independent7_root44_provided": true,
+    "A_default_source_basis_owner_appointment_not_established": true,
+    "historical_c17_checkpoint_separate_from_final258": true,
+    "current258_all1249UNRUN_15moduleSKIP": true,
+    "interpretation": "Supersedes pending clarification wording in immutable aa1cf review; original review/output/history bodies untouched. Five exact existing metadata pointer values checked against pinned3b originals; this receipt supplies the resulting interpretation, not a new runtime property."
+  },
+  "pattern_original_definitions": {
+    "ref": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+    "bytes": 61268,
+    "sha256": "64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a",
+    "rows": [
+      {
+        "id": "P01",
+        "failure_name": "Contract-only capability",
+        "correction_name": "Demonstrated capability chain"
+      },
+      {
+        "id": "P02",
+        "failure_name": "Component sophistication with thin orchestration",
+        "correction_name": "Bridge-first orchestration"
+      },
+      {
+        "id": "P05",
+        "failure_name": "Authority dilution",
+        "correction_name": "Purpose-scoped authority boundary"
+      },
+      {
+        "id": "P09",
+        "failure_name": "Implicit soft gates",
+        "correction_name": "Owned warning lifecycle"
+      },
+      {
+        "id": "P10",
+        "failure_name": "Structural-only validation",
+        "correction_name": "Semantic adequacy validation"
+      },
+      {
+        "id": "P14",
+        "failure_name": "Raw evidence count inflation",
+        "correction_name": "Effective independence accounting"
+      },
+      {
+        "id": "P27",
+        "failure_name": "Parallel re-implementation / canonical-owner bypass",
+        "correction_name": "Owner-first placement"
+      },
+      {
+        "id": "P29",
+        "failure_name": "Authorial proof / self-attested artifact",
+        "correction_name": "Recompute-from-live evidence"
+      },
+      {
+        "id": "P32",
+        "failure_name": "Trust-by-form (presence/shape/string/keyword/self-attestation = permission; absence = permission)",
+        "correction_name": "Resolve-bind-verify evidence intake, fail closed on absence"
+      },
+      {
+        "id": "P35",
+        "failure_name": "Sampled-denominator generalization",
+        "correction_name": "Full-set enumeration by script"
+      },
+      {
+        "id": "P37",
+        "failure_name": "Declared gate predicate",
+        "correction_name": "Predicate-provenance classification, fail closed on a declared premise"
+      },
+      {
+        "id": "P38",
+        "failure_name": "Proxy gate — the implementation stands in for the property",
+        "correction_name": "Property-constructed gate with a named divergent case"
+      },
+      {
+        "id": "P40",
+        "failure_name": "Ladder repair — closing escapes one level at a time",
+        "correction_name": "Class-first disposition: bucket the finding, then widen or declare"
+      },
+      {
+        "id": "P41",
+        "failure_name": "Red of unknown provenance",
+        "correction_name": "Provenance measured by replay from the correct base, plus an intersection proof"
+      }
+    ]
+  },
+  "pattern_original_scope_supplements": {
+    "P09": "Canonical P09 is implicit soft gates -> owned warning lifecycle. D coverage is limited to explicit refusal/unavailable/status publication and named residual packets with requested owners and no waiver of B120/currentUNRUN. A universal warning-aging/escalation subsystem or owner-approved accepted-deficit law is not claimed; B137 evidence revalidation/time authority remains held.",
+    "P14": "Canonical P14 concerns effective evidence independence. Exact lesson lineage dedup/source_run_id and physical event/scenario counts guard bounded duplication; they do not measure global statistical independence, population probability or invoice authority. No global patternPASS."
+  },
+  "pattern_dispositions": [
+    {
+      "pattern": "P01",
+      "disposition": "BOUNDED_RUNTIME_CHAIN_PROVIDED_FULL258_UNRUN",
+      "evidence_and_scope": "Actual CAS→GP/registry, native request/evaluation/persisted public resume, physical event/funnel and paid-cache fresh-ledger chains are source-qualified. Static imports/constructor forwarding and final258 collection do not demonstrate a completed runtime property.",
+      "falsifier": "Remove exact producer/settlement/registry forwarding while retaining result markers; corresponding source-qualified consumer oracle must fail. Final258 phase0 cannot become PASS.",
+      "global_pattern_PASS": false
+    },
+    {
+      "pattern": "P02",
+      "disposition": "AVAILABLE_D_BRIDGES_COMPLETED_OWNER_INPUTS_SEPARATE",
+      "evidence_and_scope": "Existing D configured transfer, public native factory, hierarchical registry/tenant scope and rich Money JSON/CAS bridge are supplied. Requested A default assessed provider/context appointment and B canonical resource APIs remain precisely separate. Original native SRV criteria do not require replacing hierarchical workflow semantics.",
+      "falsifier": "Remove configured D registry/context or native public service wire: actual produced subject/hash/history/fresh report or resume controls must fail; missing A source basis stays unavailable.",
+      "global_pattern_PASS": false
+    },
+    {
+      "pattern": "P05",
+      "disposition": "AUTHORITY_POSITIVES_HELD",
+      "evidence_and_scope": "Technical ArtifactRef/corpus/receipt admission does not issue transfer rights, evidence revalidation authority, same-scope scientific law, native sample producer or promotion authority. B131/B137/B157/B161/B164 retain concrete original positive packets.",
+      "falsifier": "Fake/wrong/stale issuer/scope/permit or future evidence yields no admitted effect; valid owner-issued positive remains UNRUN until supplied.",
+      "global_pattern_PASS": false
+    },
+    {
+      "pattern": "P09",
+      "disposition": "NO_GREEN_FOR_ABSENT_OR_MALFORMED_BASIS",
+      "evidence_and_scope": "Missing threshold/unit/profile, malformed-present typed outcome, unassessed frontier and unavailable backend remain refusal/unavailable/partial as applicable. Actual B12021FAIL3PASS and historical ordinary fixture errors remain deciding failures.",
+      "falsifier": "Preserve status labels while removing threshold/unit/typed-present validation; native report/consumer oracle must fail instead of emitting score1 or scalar fallback.",
+      "global_pattern_PASS": false
+    },
+    {
+      "pattern": "P10",
+      "disposition": "INDEPENDENT_SEMANTIC_ORACLES_SOURCE_QUALIFIED",
+      "evidence_and_scope": "Retained independent fixed-parameter NumPy GP mean/full covariance, small exact box-union/rational geometry, true physical ledger/event counts and stress projection oracles are stronger than reading producer fields. They are not new258 numerical execution.",
+      "falsifier": "Bounding box8 versus axis-front union0, positive tiny volume versus exact0, covariance/parameter/transform/corpus mutation or trace-only charge must disagree or refuse.",
+      "global_pattern_PASS": false
+    },
+    {
+      "pattern": "P14",
+      "disposition": "PHYSICAL_DENOMINATORS_PRESERVED",
+      "evidence_and_scope": "Scenario attempts/finite/violated counts precede grouping/top-k; lesson evidence identity dedup precedes discovery quota/materialization while newer distinct evidence survives. Paid cache lineage distinguishes physical provider events from wrapper reuse.",
+      "falsifier": "Vary grouping/top-k or duplicate same lesson through local/transfer routes without changing raw stream: denominator/selected distinct evidence remains equal; no population/invoice-independence claim.",
+      "global_pattern_PASS": false
+    },
+    {
+      "pattern": "P27",
+      "disposition": "CANONICAL_OWNERS_AND_EXISTING_IMPLEMENTATIONS",
+      "evidence_and_scope": "Existing BoTorch/GPyTorch SingleTaskGP, B canonical1.1 ledger/settlement, existing CAS, single immutable vector generation and existing champion/service owners remain mechanisms. No parallel D ledger/permission subsystem/distributed registry created.",
+      "falsifier": "Alternate latest pointer, invented issuer, bare evaluation ID or D-shaped1.0 history cannot satisfy canonical binding; owner reader refuses incompatible semantics.",
+      "global_pattern_PASS": false
+    },
+    {
+      "pattern": "P29",
+      "disposition": "ACTUAL_EXECUTION_REQUIRED",
+      "evidence_and_scope": "Source-qualified positives/removals remain distinct. Final258 exit-9 has1249 recorded IDs but zero case starts/reports/finishes/noJUnit and15 module skips; imports are not fit/query/consumer execution. Historical617 executions are not rerun or revision.",
+      "falsifier": "A RUNNING manifest/imported backend or serialized state with no actual case/model constructor/fit cannot yield a numerical/backend PASS.",
+      "global_pattern_PASS": false
+    },
+    {
+      "pattern": "P32",
+      "disposition": "CONTENT_CONTEXT_AND_COMPATIBILITY_FAIL_CLOSED",
+      "evidence_and_scope": "Exact refs/content/current parameter state, rich Money default-null/Decimal transport, complete coordinate identity and typed-present schema are bound. Current field mutations serialize current values; no cached raw body disguises mutation. Supported optional profiles refuse/skip explicitly.",
+      "falsifier": "Alter candidate/hash/value/subject/unit/basis/receipt with markers fixed, or supply malformed-present DTO: true persisted/readback route rejects or changes outcome without fallback.",
+      "global_pattern_PASS": false
+    },
+    {
+      "pattern": "P35",
+      "disposition": "COMPLETE_DENOMINATOR_RECONCILED",
+      "evidence_and_scope": "Full ownerTSV282rows/cards127 and original45/46/17 census MATCH. Continuation973path set (60production.py+7README sourceprefix67/79tests/827other) and100union selectors,79testinputs73pytestfiles4probes2helpers,5568declaredinputs/1366observedproductpaths are distinct denominators.15 module skips do not become1249 case PASS.",
+      "falsifier": "Missing original occurrence/LA015 supplier-role, omitted changed path/input/selector or incomplete phase report invalidates complete acceptance, even if sampled query is green.",
+      "global_pattern_PASS": false
+    },
+    {
+      "pattern": "P37",
+      "disposition": "PREDICATE_BASIS_EXPLICIT",
+      "evidence_and_scope": "Literal/hash/owner/role and exact carrier/source metadata are independently_reconciled. Product static reviews are bounded. Final combined runtime/scientific positives/owner appointment and P41 are not_established; formal closure0/Gfalse.",
+      "falsifier": "Review flags, matching bytes or technical fixture issuance cannot upgrade accepted-in-G, scientific law, authority or full runtime predicates.",
+      "global_pattern_PASS": false
+    },
+    {
+      "pattern": "P38",
+      "disposition": "DIVERGENT_PROXIES_NAMED",
+      "evidence_and_scope": "Named divergences include bounding-box union, rational tiny-positive float-zero, JSON1e-1000 preguard zero, trace cost without debit, cache marker without paid lineage, access freshness, bool permit and imported backend without fit.",
+      "falsifier": "Retain each cheap marker while removing its governing mechanism; actual independently specified quantity/effect/count/readback must fail or become unavailable.",
+      "global_pattern_PASS": false
+    },
+    {
+      "pattern": "P40",
+      "disposition": "SAME_CLASS_WIDENING_AND_NAMED_RESIDUALS",
+      "evidence_and_scope": "Quantity admission widened through identity/paired axes/reference/underflow/overflow and actual consumers; rich Money transport widened through explicit-null and actualDecimalCAS/current fields; batch cancellation cleanup/persistence, lesson partial quota dedup and state corpus bindings retained. Cache ordinary fixtures now use real paidreadback. Stress old39NOT_DETECTED widened57nativeprojection with4intentional failures. B120 raw-text lexeme loss remains ordinary canonical B seam defect, not missing scientific capability.",
+      "falsifier": "Second same-class tiny cost token1e-1000 still produces21actualFAIL: owner must widen canonical JSON intake using standard Decimal/lexeme seam and affected consumers, not add another downstream helper or relabel missing science.",
+      "global_pattern_PASS": false
+    },
+    {
+      "pattern": "P41",
+      "disposition": "NOT_ESTABLISHED",
+      "evidence_and_scope": "No exact continuation slice-base command plus complete input-denominator zero-overlap evidence establishes inherited attribution. Source byte matches, old617 and interrupted waves cannot establish causality or waive current tests.",
+      "falsifier": "Claim inherited only after exactcae execution and complete denominator overlap0; absent that evidence retain not_established.",
+      "global_pattern_PASS": false
+    }
+  ],
+  "P41": "not_established: no exact correct continuation-slice-base command + complete input-denominator overlap0",
+  "ordinary_D_bridge_scope": "Source-qualified configured registry/tenant/richMoney/CAS, ordinary transfer/public native factory and paid cache resolver chains are supplied. Additional A default assessed producer/context/basis appointments and B actual default resource contracts are separate minimum packets, not omitted ordinary D fixes.",
+  "consumer_and_oracle": "Complete review body names45 engineering properties/current actual consumers/residuals and all46 original bindings; retained independent NumPyGP full-covariance, exact/rational geometry, native physical event/ledger/scenario controls and removal outcomes remain source-qualified. Final258 bodiesUNRUN.",
+  "portable_reader_and_closeout": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/read-final258-output.py",
+    "bytes": 2329,
+    "sha256": "8fbd7e9a6efade1ea81bc29702b3904885b48fc92820322e6f746554b1ad4b0a",
+    "static_disposition": "ACCEPTED_BOUNDED_STDLIB_METADATA_READER",
+    "fixed_carrier_source_tree_all13_size_hash_and_5395382raw_bytes_checked": true,
+    "no_shell_interpolation_extraction_deletion_or_product_backend": true,
+    "prints_exact_selected_member_stdout_or_names": true,
+    "author_actual_metadata_only_stdout_original_byte_equality": "result.json and execution-manifest.json; no test/backend property PASS",
+    "requires_existing_fetched_Git_objects": true
+  },
+  "index_and_cleanup": {
+    "runtime_index": {
+      "ref": {
+        "source_sha": "3a901365a3f9dd12ef6ae3a0989592730fc2f9d0",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-delivery-runtime-index.json",
+        "bytes": 7871,
+        "sha256": "7fc91bc34fd67f1afd7c12968c9062913ae256de0c5593f6cbe4a92f0947d614",
+        "git_blob": "69d30c4cd664a8bd007f7a9db9f687c4dcb0d618"
+      },
+      "scoped_actual_root44_cache13_stress57_optional17_each_separate": true,
+      "no_aggregate_currentPASS_or_new617": true,
+      "source_backend/environment/seed/input_limitations_preserved": true,
+      "profile_locator_corrected_append_only": "actual6a157f301b400fe46268bcc53610359bb9ee4a71 rather than8391 wrong path pair; actual148 runtime unchanged",
+      "cache_resolver_scope_accurate": true,
+      "GP_current8fitreturned_positiveERROR_fourprefitPASS_notclosure": true
+    },
+    "cleanup": {
+      "ref": {
+        "source_sha": "3a901365a3f9dd12ef6ae3a0989592730fc2f9d0",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-cleanup-candidates.json",
+        "bytes": 2882,
+        "sha256": "a37632102fd3bc7442d2e62d304a1d29580ff065583d33303a0e3937aea4e173",
+        "git_blob": "acf08d356683f3394d6f200879a5ac2ab41a1a71"
+      },
+      "nativeTrashAvailable": false,
+      "action": "NONE",
+      "only_exact_conditional_reproducible_candidates_after_publication_readback_inactive_check": true,
+      "unique_inputs_deciding_outputs_production_source_environments_worktrees_protected": true,
+      "no_permanent_deletion_or_prune": true
+    },
+    "closeout_drafts": {
+      "read": "published-continuation-final-closeout.json and .md",
+      "bounded_static_acceptance": true,
+      "formal0_Gfalse_39conditionalOpen_5held_B120open": true,
+      "production_local_only_minref_no_blanket_demand": true,
+      "source258_separate_from_later_metadata_head": true,
+      "append_review_and_author_correction_locators_required": true
+    }
+  },
+  "publication": {
+    "method": "Git data API metadata-only append on own existing topic; implementation then separate receipt",
+    "force": false,
+    "new_worktree_checkout": false,
+    "main_G_write": false,
+    "local_hooks": "UNRUN; remote Git API metadata publication invokes no local hooks, no hookPASS claimed",
+    "full_review_readback": "MATCH"
+  },
+  "actions": {
+    "backend_runs": 0,
+    "test_jobs": 0,
+    "source_test_writes": 0,
+    "children": 0,
+    "new_checkouts_worktrees": 0,
+    "production_reads_transfers": 0,
+    "deletion_prune_cleanup": 0
+  },
+  "limitations": [
+    "Final258 signal9/-9 cause not PID established, no completed collection/session/JUnit and0testphaseevents: all1249 recorded case bodiesUNRUN;15collectionmoduleSKIP separate.",
+    "Metadata hash/source binding is not runtime integration/numerical/backend acceptance; matching historical test source does not create replay.",
+    "Five original positive inputs remain held; canonical owner labels requested, appointment not established, missing refs null.",
+    "B120 ordinary canonical B raw-cost decoder remains actual currentFAIL and requires owner change/consumer replay; provider fixture is not invoice truth.",
+    "Additional A producer/context/B default API/history/multikey and E mutablecap/scientific fiscal contracts stay minimal scoped tasks; no narrowed original acceptance or new scientific law.",
+    "No own backend/test runs, code mutations, children, checkouts/worktrees, production transfers, messages to other user chats or cleanup. Remote metadata-only Git commits invoke no local hooks; hooksUNRUN."
+  ],
+  "next_owner": "Root attaches immutable independent review/receipt and author clarification; G solely decides composed integration/local minimum-input acceptance. Canonical input owners supply exact nullminrefs/rights/law/contracts as scoped.",
+  "root_closeout_draft_bytes_reviewed": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-continuation-final-closeout.json",
+      "bytes": 16085,
+      "sha256": "2677605e7c3096ef23e0b6256ce8442fee8d4c55bf6648011e440ae3d99ed0e4",
+      "state": "Sharedroot metadata draft; root publisher must bind final committed body separately"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-continuation-final-closeout.md",
+      "bytes": 3715,
+      "sha256": "1b225f0f00011af89bfef17ef72841eb5cd58c6460b3bb702b4187562b4fb455",
+      "state": "Sharedroot metadata draft; root publisher must bind final committed body separately"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/read-final258-output.py",
+      "bytes": 2329,
+      "sha256": "8fbd7e9a6efade1ea81bc29702b3904885b48fc92820322e6f746554b1ad4b0a",
+      "state": "Sharedroot metadata draft; root publisher must bind final committed body separately"
+    }
+  ]
+}

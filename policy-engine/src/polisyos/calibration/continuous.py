@@ -44,6 +44,7 @@ def evaluate_continuous(
         raise ValueError("y_true must be a nonempty one-dimensional sequence")
     if not np.all(np.isfinite(y_arr)):
         raise ValueError("y_true contains non-finite values")
+    bootstrap_seed = _bootstrap_replay_seed(uncertainty, required=False)
 
     issues: list[CalibrationDiagnosticIssue] = []
     warnings: list[str] = []
@@ -108,7 +109,7 @@ def evaluate_continuous(
             interval_sets=interval_sets,
             bootstrap_reps=int(uncertainty.get("bootstrap", 0) or 0),
             confidence_level=float(uncertainty.get("confidence_level", 0.95)),
-            rng_seed=None if "seed" not in uncertainty else int(uncertainty["seed"]),
+            rng_seed=bootstrap_seed,
             original_bins=curve_bins,
         )
 
@@ -180,10 +181,15 @@ def evaluate_continuous(
                 "n_comparisons": curve_result.n_comparisons,
                 "requested": int(y_arr.size * len(level_values)),
                 "eligible": sum(point.n_observations for point in curve_result.points),
-                "observed": sum(point.n_observations for point in curve_result.points),
+                # Outcomes are observed even when an interval set is missing.
+                # Repeated levels are cases, not independent source observations.
+                "observed": int(y_arr.size * len(level_values)),
+                "observed_outcomes": int(y_arr.size),
+                "observed_pairs": sum(len(interval_set) for interval_set in interval_sets),
+                "missing_outcomes": 0,
                 "missing": int(y_arr.size * len(level_values))
                 - sum(point.n_observations for point in curve_result.points),
-                "unit": "outcome_interval_pair",
+                "unit": "requested_outcome_level",
                 "row_identity_basis": "ordered_position_only",
             },
         },
@@ -231,6 +237,20 @@ class _ContinuousCalibrationArtifact(BaseModel):
     gate_eligible: Literal[False] = False
 
 
+def _bootstrap_replay_seed(uncertainty: Mapping[str, Any] | None, *, required: bool) -> int | None:
+    """Admit one exact deterministic seed before any bootstrap callback."""
+    if not uncertainty or int(uncertainty.get("bootstrap", 0) or 0) <= 0:
+        return None
+    if "seed" not in uncertainty:
+        if required:
+            raise ValueError("Persisted bootstrap calibration requires an explicit replay seed")
+        return None
+    seed = uncertainty["seed"]
+    if type(seed) is not int or seed < 0:
+        raise ValueError("Bootstrap replay seed must be a nonnegative integer, not bool or null")
+    return seed
+
+
 def persist_continuous_evaluation(
     store: ArtifactStore,
     report: CalibrationDiagnosticsReport,
@@ -248,12 +268,7 @@ def persist_continuous_evaluation(
     if report.task != "continuous" or report._continuous_inputs is None:
         raise ValueError("Continuous calibration inputs must be rebound before persistence")
     inputs = _ContinuousCalibrationInputs.model_validate(report._continuous_inputs)
-    if (
-        inputs.uncertainty
-        and inputs.uncertainty.get("bootstrap", 0)
-        and "seed" not in inputs.uncertainty
-    ):
-        raise ValueError("Persisted bootstrap calibration requires an explicit replay seed")
+    _bootstrap_replay_seed(inputs.uncertainty, required=True)
     reproduced = _reproduce_continuous(inputs)
     if reproduced.model_dump(mode="json") != report.model_dump(mode="json"):
         raise ValueError("Continuous calibration report does not reproduce from its pairs")
@@ -297,12 +312,7 @@ def load_continuous_evaluation(
     inputs = _ContinuousCalibrationInputs.model_validate(
         _load_continuous_artifact(store, pairs_ref, "continuous_calibration_pairs")
     )
-    if (
-        inputs.uncertainty
-        and inputs.uncertainty.get("bootstrap", 0)
-        and "seed" not in inputs.uncertainty
-    ):
-        raise ValueError("Persisted bootstrap calibration requires an explicit replay seed")
+    _bootstrap_replay_seed(inputs.uncertainty, required=True)
     reproduced = _reproduce_continuous(inputs)
     if reproduced.model_dump(mode="json") != artifact.report:
         raise ValueError("Persisted continuous calibration report does not reproduce")

@@ -170,6 +170,10 @@ def test_empty_and_incomplete_pair_denominators_survive_persistence(tmp_path: Pa
             eligible,
             requested - eligible,
         )
+        assert counts["observed"] == requested
+        assert counts["observed_outcomes"] == 100
+        assert counts["observed_pairs"] == eligible
+        assert counts["missing_outcomes"] == 0
         assert reopened.to_truthfulness_receipt().runtime_truthfulness_tier == "unverified"
 
 
@@ -180,6 +184,22 @@ def test_seedless_bootstrap_refused_at_persistence(tmp_path: Path):
     )
     with pytest.raises(ValueError, match="explicit replay seed"):
         persist_continuous_evaluation(FileSystemCAS(tmp_path / "cas"), report)
+
+
+@pytest.mark.parametrize("seed", [None, True, False, 1.0, "1", -1])
+def test_present_fake_seed_rejected_before_resampling(seed, monkeypatch):
+    import polisyos.calibration.continuous as continuous
+
+    def forbidden_callback(*args, **kwargs):
+        raise AssertionError("Bootstrap callback ran before seed admission")
+
+    monkeypatch.setattr(continuous, "_attach_interval_bootstrap", forbidden_callback)
+    with pytest.raises(ValueError, match="seed must be a nonnegative integer"):
+        evaluate_continuous(
+            y_true=[1.0] * 100,
+            intervals={0.95: [(0.0, 2.0)] * 100},
+            uncertainty={"bootstrap": 5, "seed": seed},
+        )
 
 
 def test_two_dimensional_observations_and_reversed_bounds_refused():

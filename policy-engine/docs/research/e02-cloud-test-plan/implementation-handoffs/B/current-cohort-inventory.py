@@ -172,7 +172,8 @@ class _Inventory:
         payload: Record = {
             "schema": "policyos.e02.pytest_inventory.v1",
             "state": self.state,
-            "predicate_basis": "recomputed_observation_not_finding_admission",
+            "predicate_basis": "recomputed",
+            "claim_grade": "runtime_observation_not_finding_admission",
             "pytest_version": pytest.__version__,
             "python_version": sys.version,
             "python_executable": sys.executable,

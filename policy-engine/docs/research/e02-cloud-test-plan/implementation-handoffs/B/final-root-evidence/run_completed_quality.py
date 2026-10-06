@@ -49,6 +49,11 @@ MYPY_GROUPS = {
         "foundry/methods/components/composer.py",
     ),
     "executor": ("scientist/orchestration/engine/executor.py",),
+    "policy_design_workers": (
+        "scientist/policy_design/_llm_accounting.py",
+        "scientist/policy_design/adversary.py",
+        "scientist/policy_design/translator.py",
+    ),
 }
 
 

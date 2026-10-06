@@ -1,0 +1,714 @@
+{
+  "schema": "policyos.e02.published_funnel_handoff.v1",
+  "closure_ids": [],
+  "finding_ids": [
+    "B118",
+    "B119",
+    "LA-015",
+    "B120",
+    "B121",
+    "B123",
+    "B156",
+    "B157",
+    "B158",
+    "B159",
+    "B160",
+    "B161",
+    "B162",
+    "B163",
+    "B164",
+    "B165"
+  ],
+  "covered_finding_ids": [
+    "B118",
+    "B119",
+    "LA-015",
+    "B120",
+    "B121",
+    "B123",
+    "B156",
+    "B157",
+    "B158",
+    "B159",
+    "B160",
+    "B161",
+    "B162",
+    "B163",
+    "B164",
+    "B165"
+  ],
+  "denominator": {
+    "canonical_bundles": 5,
+    "canonical_finding_rows": 16,
+    "standalone_paid_sentinel": {
+      "source_sha": "653ba2ac07b9bb67310175f428c9433c22d427ae",
+      "executed": 1,
+      "passed": 1,
+      "failed": 0,
+      "pytest_seconds": 8.64
+    },
+    "composed_native": {
+      "executed": 45,
+      "passed": 45,
+      "failed": 0,
+      "pytest_seconds": 32.17,
+      "wall_seconds": 37.76358286399045,
+      "maxrss_kib": 1327100
+    },
+    "composed_producer_cases": {
+      "declared": 4,
+      "executed": 4,
+      "passed": 4,
+      "failed": 0
+    },
+    "formal_closures": 0,
+    "historical_affected_gate": {
+      "source_sha": "ae5704f5de9d194369d4b39bbf4860f33313a5ff",
+      "executed": 603,
+      "passed": 603,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 132.27,
+      "wall_seconds": 138.44023391399242,
+      "maxrss_kib": 1409464,
+      "interpretation": "Earlier603PASS checkpoint; later independent projection failures triggered correction. This is not a final-candidate broad PASS."
+    },
+    "projection_corrective_gate": {
+      "source_sha": "a23da7a9d17a13738804b535491798e63af43e3c",
+      "executed": 37,
+      "passed": 37,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 9.92,
+      "wall_seconds": 14.819944877992384,
+      "maxrss_kib": 1300776,
+      "scope": "Two whole native orchestrator test files; unchanged4 owner projection cases previously FAIL on653."
+    },
+    "root_final_broad_gate": "Pending root exact aggregate source and input closure; no inherited or broadened PASS claim.",
+    "canonical_promotion_path_gate": {
+      "source_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "executed": 9,
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_seconds": 7.29,
+      "wall_seconds": 11.45802762400126,
+      "maxrss_kib": 1173628,
+      "scope": "Byte-identical relocated L6 controls, legacy-marker barrier only; typed owner permit positive UNRUN."
+    },
+    "owned_canonical_finding_rows": 15,
+    "companion_finding_rows": 1,
+    "canonical_bundle_count_interpretation": "5 admitted supplier bundles; LA-015 companion also routes to closure owner SRV-03. No closure ownership is transferred."
+  },
+  "source_binding": {
+    "canonical_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "canonical_base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "final_candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+    "final_candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+    "production_source_sha": "a23da7a9d17a13738804b535491798e63af43e3c",
+    "resource_correction_sha": "c8aafea4540b7d2a2873a73456d6c1d396dce552",
+    "controller_supplier_sha": "d42a25e4e00a8015599c63b96224a7565be97df2",
+    "production_delta_after_9e": {
+      "base_sha": "9e1897e864d12bf9808aaadc754c773a794bd32b",
+      "candidate_sha": "a23da7a9d17a13738804b535491798e63af43e3c",
+      "scope": "Only funnel/orchestrator.py: preserve accounting evidence through routing rejection and compatibility projections."
+    }
+  },
+  "environment": {
+    "python_executable": "/workspace/e02-D-locked-env/bin/python",
+    "python_version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "PYTHONPATH": "src:.",
+    "packages": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5",
+      "tiktoken": "0.12.0"
+    },
+    "module_origins": {
+      "response": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/core/llm/response.py",
+      "controller": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "orchestrator": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+    },
+    "tokenizer_cache": {
+      "environment": "TIKTOKEN_CACHE_DIR=/workspace/e02-D2-receipts/tokenizer",
+      "asset_path": "/workspace/e02-D2-receipts/tokenizer/9b5ad71b2ce5302211f9c61530b329a4922fc6a4",
+      "bytes": 1681126,
+      "sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+      "input_authority": "root official expected_hash verified receipt; installed tiktoken asset only, no proxy tokenizer"
+    },
+    "shared_environment_writes": false,
+    "ordinary_test_caps": null
+  },
+  "deciding_outputs": {
+    "affected_green": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-affected-green.txt",
+      "sha256": "0647772224174713e6766e97ab63014e559583a7b0f63d34892f026085077485"
+    },
+    "affected_red_fixture": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-affected-red-fixture.txt",
+      "sha256": "f30a3dbfe87adadf7224e25c8063cc0564b8062ff265ed995f7cc62396754f0a"
+    },
+    "composed_native": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-composed-native.txt",
+      "sha256": "51cf6aec88c21f5706924863afc11341238dd605390e420c10d62adf51593d6f"
+    },
+    "composed_producer": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-composed-producer.txt",
+      "sha256": "ba3def62e1ec2f99f802e08f6c6abdef19e0258e4cf1aa1947405fff6b1aa7e6"
+    },
+    "paid_sentinel": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-paid-sentinel.txt",
+      "sha256": "5eff5a5b13adf07073ef19564dee1b74bdf82c23d8f771816a4eff0c00ed053d"
+    },
+    "baseline_worker_negative": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-baseline-worker-negative.txt",
+      "sha256": "b4dd501ba8d2d510482905acd3d85be24b4d4c1ca5f7c4731ac139d6a4d954e7"
+    },
+    "projection_owner_red": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-projection-owner-red.txt",
+      "sha256": "687ed5baf964246b5f1b828216ffeb09cf050b0fc76357b8d752e1b670d8e336"
+    },
+    "projection_corrective_green": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-projection-corrective-green.txt",
+      "sha256": "24009a6cded6923b9c8ec7f6b4f4be0a4753db28fa4ff466f6a4b2617450cd26"
+    },
+    "canonical_promotion_green": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-canonical-promotion-green.txt",
+      "sha256": "1f3a3309271ae46e7195a17ef95dead062a1c6d874688944cff2bd6259078d5a"
+    }
+  },
+  "composed_input": {
+    "base_sha": "9e1897e864d12bf9808aaadc754c773a794bd32b",
+    "q5_sha": "592b6943c198b1b08295708bf065f29c635339fe",
+    "root": "/tmp/e02-D-funnel-composed-9e592",
+    "overlays": {
+      "policy-engine/src/polisyos/scientist/methods/search/adversarial.py": {
+        "blob": "3dfd20ca0124186989b843afad9fc518b9c81af0",
+        "sha256": "6766a3bdf3575885e7d304d3b0064a56bc37de2268af747b743f9cfbbdc98b4b"
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/stopping.py": {
+        "blob": "9c1ecc0b5ea3401c32c3c334cbb85efded438350",
+        "sha256": "a56a6d60874a44335b27cfb0bd62bef914516b353f09276e83b037d4fc1aa1e2"
+      },
+      "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py": {
+        "blob": "1a23e241868467ef25da5e328f5ae68d4e0accd9",
+        "sha256": "80986710cf9f54e8c37c3d2cb12f7edfeb303e35a41cbbd5708c695db5d075c5"
+      },
+      "policy-engine/tests/unit/scientist/search/test_search_loop.py": {
+        "blob": "5bd95646b3a35dec583142e86b1bdb44ff3e5c38",
+        "sha256": "7b838056a933764b2eed3bf0962602cd32c2443e196ef0ca601ac82ada980818"
+      }
+    }
+  },
+  "probe_input": {
+    "path": "policy-engine/tests/integration/scientist/methods/search/funnel/producer_bridge_probe.py",
+    "sha": "653ba2ac07b9bb67310175f428c9433c22d427ae",
+    "sha256": "49d49c6fce0443a4c8ff84b90406cde16d329b36d21ebc8dd7ee92f260f143f0"
+  },
+  "independent_resource_review": {
+    "sha": "a516b04756138a2b2b4da19fb4e442a8486d3f29",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-c8aafea-independent-review.json",
+    "proof_sha": "6065d9a9a5b82951234af5b98bc97af96f410cf5",
+    "observed": "36 PASS; earlier d80/dcb FAIL preserved; external billing authority not established"
+  },
+  "development_failures": {
+    "affected_red_fixture": "9e gate596 PASS/7 FAIL introduced strict present-cost fixture incompatibility; fixed with actual GatewayLLMResponse/GatewayUsage absent-cost native companions, not waived as inherited.",
+    "baseline_worker_negative": "Exact198 worker threshold0.5/GDP normalized minimization FAIL is retained only as negative context; no P41 inherited waiver. Exact Q5 deterministic GRID_EXTREME threshold-0.5/CAS companion in composed gate PASS.",
+    "native_tokenizer_input_gap": "One development rerun omitted the official tokenizer cache environment and failed pre-callback with provider blob proxy403; only verified own pytest PID147879 was interrupted. Retained external complete log /workspace/e02-D2-receipts/funnel/receipt-token-metadata-corrective.txt; not a product acceptance result.",
+    "introduced_cost_projection": "Independent actual composed8eb paid routing reject/public evaluate FAIL: measured ledger/trace evidence lost in manual stage copies. Owner source653 four finite-zero/paid projection controls FAIL. Both constructors corrected with dataclasses.replace in a23; no inherited waiver."
+  },
+  "findings": {
+    "B118": {
+      "bundle": "CTL-01",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B118"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Native controller/service initializes fresh SearchRunState; reports/history are detached across repeated ordinary, empty and zero-evaluation runs.",
+      "actual_consumer": "SearchController.run -> _NativeSearchServiceDriver -> _begin_native_run/_build_native_result",
+      "oracle": "policy-engine/tests/unit/scientist/methods/search/test_controller.py::test_repeated_native_runs_reset_acceptance_empty_generation_and_zero_evaluation",
+      "negative_or_removal": "Prior accepted report is compared after later fresh native runs; a malformed current-run result cannot carry a previous run's best into that run.",
+      "missing_input_or_capability": "Independent finding-level acceptance and deployed caller census remain separate from this bounded run fixture.",
+      "semantic_held": "Default current-run state policy is preserved; no new lifecycle profile is appointed.",
+      "next_owner": "D SearchService lifecycle owner; G finding verification",
+      "residual_classification": "verification_oracle"
+    },
+    "B119": {
+      "bundle": "CTL-01",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B119"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Persistent empty generation through the actual generate_batch port completes with generation_attempts3, ordinary evaluations0 and empty history; next fresh run resets counters.",
+      "actual_consumer": "Native controller/service empty-batch transition owner",
+      "oracle": "policy-engine/tests/unit/scientist/methods/search/test_controller.py::test_repeated_native_runs_reset_acceptance_empty_generation_and_zero_evaluation",
+      "negative_or_removal": "A legitimate empty batch is supplied through generate_batch, not an invalid list returned by the scalar generate API.",
+      "missing_input_or_capability": "Full production generator/input-profile census and finding-level verification are not established by the fixture.",
+      "semantic_held": "Existing max_empty_generation_attempts profile remains current owner policy.",
+      "next_owner": "D service/generator owners; G",
+      "residual_classification": "verification_oracle"
+    },
+    "LA-015": {
+      "bundle": "CTL-01",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/LA-015"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Detached _evaluate_for_tell runs existing StageA/StageB/arbiter/objective without accepting search state; tell owns one history/best/frontier/diversity/counter transition.",
+      "actual_consumer": "SearchController supplier -> native SearchService ask/tell",
+      "oracle": "policy-engine/tests/unit/scientist/methods/search/test_controller.py::test_evaluation_supplier_does_not_accept_state_and_real_tell_accepts_once",
+      "negative_or_removal": "Snapshot unchanged after evaluation; duplicate tell refuses without a second transition.",
+      "missing_input_or_capability": "Q3 actual caller cutover, serialized state, old-history/import consumer retirement and complete production caller census require the service owner receipt/composed review. This supplier alone does not retire the predecessor.",
+      "semantic_held": "Multi-stage lifecycle/cutover acceptance remains held; no persisted-resume API is claimed from this leaf source.",
+      "next_owner": "D Q3 SearchService lifecycle owner; A/B factory owners; G",
+      "residual_classification": "bridge_missing",
+      "companion_finding": true,
+      "canonical_closure_owner": "SRV-03",
+      "scope_role": "CTL-01 detached evaluation supplier companion only; complete service cutover remains SRV-03/Q3."
+    },
+    "B120": {
+      "bundle": "CTL-03",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B120"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Configured persisted owner snapshot drives stopping/report; real native LLM measured receipts reach FileBudgetLedger once, are reopened and override stale caller scalar cost. Routing-rejected, aggregate and native compatibility cost projections preserve the actual settled event identity, including measured zero.",
+      "actual_consumer": "Provider -> native policy worker -> LLMBudgetEnforcer -> BudgetMiddleware/FileBudgetLedger -> SearchController cost stopping",
+      "oracle": "policy-engine/tests/unit/scientist/methods/search/test_controller.py::test_measured_provider_charge_drives_stopping_and_detached_report; policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+      "negative_or_removal": "Actual tracecost1 with settlement removed fails measured accounting while fidelity markers remain; paid metrics/token failures retain spend.",
+      "missing_input_or_capability": "Independent billing attestation/provider reconciliation and measured numerical-resource producer input are missing. Unleased native factories must pass the available owner/evaluation-ID ports.",
+      "semantic_held": "Provider-reported-only spend is bounded evidence, not authoritative external billing or duration/tariff cost.",
+      "next_owner": "A/G provider accounting; B factory deployment; D numerical-resource consumer",
+      "residual_classification": "bridge_missing",
+      "actual_owner_event_consistency_ref": "#/projection_event_consistency"
+    },
+    "B121": {
+      "bundle": "CTL-03",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B121"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Warm history2 remains training input; a real native paid sentinel increments sentinel/resource counts once, spends1 and stops, with ordinary/scientific/new evaluations0.",
+      "actual_consumer": "Native ScenarioAdversaryWorker -> measured ledger -> controller sentinel transition/stopping",
+      "oracle": "policy-engine/tests/integration/scientist/methods/search/test_controller.py::test_native_paid_sentinel_stops_on_cost_without_training_or_new_evaluation_count",
+      "negative_or_removal": "Provider called once, fresh ledger spent1/remaining4, sentinel1, scientific0 and history only two iteration-1 warm records.",
+      "missing_input_or_capability": "Transfer/warm input admission and corpus/profile acceptance remain with supplier owners; this does not declare acquisition of prior training inputs free.",
+      "semantic_held": "Current counter distinctions are characterized; institutional stopping/resource profiles are not appointed.",
+      "next_owner": "D Q3 service and transfer supplier; G profile verification",
+      "residual_classification": "verification_oracle"
+    },
+    "B123": {
+      "bundle": "CTL-03",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B123"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Present malformed typed payload cannot fall back to legacy scalar or carry a previous run's champion into a fresh run; absent legacy remains accepted. Valid resolved vector is carried from detached evaluation to acceptance.",
+      "actual_consumer": "SearchController _resolve_policy_evaluation_with_status -> _evaluate_for_tell -> _accept_tell",
+      "oracle": "policy-engine/tests/unit/scientist/methods/search/test_controller.py::test_present_malformed_typed_result_never_uses_legacy_scalar; policy-engine/tests/unit/scientist/methods/search/test_controller.py::test_absent_legacy_payload_accepts_scalar_but_malformed_present_cannot_retain_prior_best",
+      "negative_or_removal": "None, extra fields, bool and list are invalid-present; {} is valid under the existing vector schema and is not used as an invalid fixture.",
+      "missing_input_or_capability": "Full typed supplier/candidate admission and producer profile are Q3/G integration properties beyond these malformed/absent controls.",
+      "semantic_held": "Existing vector schema semantics are preserved; no stronger empty-vector meaning is invented.",
+      "next_owner": "D Q3 supplier/service owner; G",
+      "residual_classification": "verification_oracle"
+    },
+    "B156": {
+      "bundle": "FUN-01",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B156"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Context/role identities remain separated; full/split and cached same-context execution retain correct ticket and trace under existing cache contract.",
+      "actual_consumer": "FunnelOrchestrator submit/context cache -> native Level3/Level4 workflow",
+      "oracle": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py; policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+      "negative_or_removal": "Different semantic context/roles do not reuse old terminal; same candidate/context terminal cache adds no provider call or charge.",
+      "missing_input_or_capability": "Institutional semantic/time-role identity profiles and complete deployed context producers remain outside this local cache mechanism.",
+      "semantic_held": "No authoritative role/profile is inferred from context markers.",
+      "next_owner": "D context producer/consumer owners; G",
+      "residual_classification": "verification_oracle"
+    },
+    "B157": {
+      "bundle": "FUN-02",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B157"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "L3 overlay does not mutate L4 full config. Actual existing Foundry BootstrapInferenceEstimator consumes n_bootstrap20 versus80, with independent NumPy CI/mean replay.",
+      "actual_consumer": "Level3/Level4 -> SimpleLoopEngine configured workflow -> existing Foundry bootstrap method",
+      "oracle": "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_foundry_consumer_uses_reduced_draws_with_independent_numeric_oracle",
+      "negative_or_removal": "Remove only draw overlay while keeping L3 fidelity/bootstrap markers: actual draw oracle fails. Caller full configuration stays80.",
+      "missing_input_or_capability": "Native _PolicyRuntimeWorkflowEngine does not forward data/estimation config into an actual raw-sample estimator; its backend synthesizes CI width and fixed draw labels. Actual native policy samples/draw/profile/estimand provider and consumer port are missing.",
+      "semantic_held": "The bounded existing bootstrap sample-mean consumer is not proof of native policy estimand/sample/draw application or scientific adequacy.",
+      "next_owner": "B native runtime factory/backend; F/E actual sample-estimator/profile suppliers; D bridge consumer; G",
+      "residual_classification": "bridge_missing"
+    },
+    "B158": {
+      "bundle": "FUN-01",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B158"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Actual configured full/split native workflow consumes identical physical provider request identity/amount sets, same draw config and one stage charge each; fresh reopen confirms spend2. Subsequent native projection correction retains event evidence across reject and compatibility projections.",
+      "actual_consumer": "Native adversary/translator -> LLMBudgetEnforcer -> same persisted ledger -> FunnelOutcome event-linked trace",
+      "oracle": "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+      "negative_or_removal": "Full/split compare actual event IDs/request IDs/amounts; cached terminal executes zero new native provider calls; settlement removal fails accounting.",
+      "missing_input_or_capability": "Default deployment factory injection and native policy numerical measured-resource inputs remain missing. Declared split boundary here is L3/4; native L2 scheduling controls are separately exercised.",
+      "semantic_held": "Provider-only stage scope is explicit; no total numerical billing is claimed.",
+      "next_owner": "B/A native factory owners; D numerical resource bridge; G",
+      "residual_classification": "bridge_missing",
+      "actual_owner_event_consistency_ref": "#/projection_event_consistency"
+    },
+    "B159": {
+      "bundle": "FUN-01",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B159"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Native signal-absent L3 still evaluates existing budget capacity/calibration guards. Paid1 plus other-owned reservation3.5 leaves0.5 and blocks estimated-cost1 L4; real unrelated spend does not resume; releasing reservation continues only L4.",
+      "actual_consumer": "FunnelOrchestrator transition -> existing VOI scheduler budget guards -> refreshed FileBudgetLedger state",
+      "oracle": "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work",
+      "negative_or_removal": "Restoring the signal-absent guard skip keeps fidelity markers but executes downstream native translator and fails zero-effects control.",
+      "missing_input_or_capability": "Stage-owned blockers/timeout retry with no existing reevaluable discriminator remain bounded owner decisions; no resume authorization event is invented.",
+      "semantic_held": "Existing budget/routing prerequisite is reused; unrelated spent-state hash is not permission.",
+      "next_owner": "D stage/guard owners; B deployment; G",
+      "residual_classification": "bounded_owner_decision",
+      "actual_owner_event_consistency_ref": "#/projection_event_consistency"
+    },
+    "B160": {
+      "bundle": "FUN-02",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B160"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Empty/capped unevaluated funnel remains not_evaluated with unknown result rather than APPROVE/zero; partial and evaluated statuses stay distinct.",
+      "actual_consumer": "FunnelOrchestrator get_outcome/compatibility_result",
+      "oracle": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py; policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+      "negative_or_removal": "Empty ticket has no provider amount/events; capped/empty native controls reject a false scientific approval. Native measured-zero events remain measured zero after reject/compatibility; none is not substituted for zero.",
+      "missing_input_or_capability": "Finding-level discrimination/JUnit reconciliation and authoritative cap/profile acceptance remain separate.",
+      "semantic_held": "No synthetic zero objective or scientific approval is minted for an unexecuted stage.",
+      "next_owner": "D funnel owner; G baseline/finding verification",
+      "residual_classification": "verification_oracle",
+      "actual_owner_event_consistency_ref": "#/projection_event_consistency"
+    },
+    "B161": {
+      "bundle": "FUN-03",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B161"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Current final-stage uncertainty and historical maximum are explicit separate projections. Actual Q5 observed stress fractions, even complete, do not become MODEL uncertainty complements.",
+      "actual_consumer": "Q5 stress producer -> CAS reopen -> actual L5 stage -> FunnelOutcome current/historical projections",
+      "oracle": "policy-engine/tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py; policy-engine/tests/integration/scientist/methods/search/funnel/producer_bridge_probe.py",
+      "negative_or_removal": "Complete sample fraction1 still yields MODEL1; partial fraction1 has partial scope; old complement1-score violates the uncertainty guard with score markers unchanged.",
+      "missing_input_or_capability": "Profile-defined bound/update semantics and complete downstream consumption of current versus historical projection require owner/G acceptance.",
+      "semantic_held": "Observed sample fraction does not establish model/population probability; unassessed MODEL remains1.",
+      "next_owner": "D uncertainty consumer; Q5 stress producer; E/G profile acceptance",
+      "residual_classification": "bounded_semantic_limitation"
+    },
+    "B162": {
+      "bundle": "FUN-02",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B162"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Native L3/L4 keep missing/null/malformed/negative/nonfinite width distinct from finite measured zero, with invalid effect-scale controls.",
+      "actual_consumer": "statistical_uncertainty_from_ci_width -> actual L3/L4 envelopes",
+      "oracle": "policy-engine/tests/unit/scientist/search/funnel/test_level3_medium.py; policy-engine/tests/unit/scientist/search/funnel/test_level4_full.py",
+      "negative_or_removal": "Broken/null widths stay unknown1; measured width0/effect0 stays measured zero, not conflated with missing input.",
+      "missing_input_or_capability": "Native scientific interval/model/profile provenance and finding-level historical reconciliation remain outside numerical intake.",
+      "semantic_held": "Current width/effect interpretation is characterized, not universal calibration adequacy.",
+      "next_owner": "D adapters; F/E estimator/calibration suppliers; G",
+      "residual_classification": "verification_oracle"
+    },
+    "B163": {
+      "bundle": "FUN-03",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B163"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Native tracker empty/warm routing projection remains coherent; declared degraded caps produce zero generic promotion effects.",
+      "actual_consumer": "CorrelationTracker -> FunnelOrchestrator routing -> actual Level6 preflight cap",
+      "oracle": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py; policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "negative_or_removal": "Empty native tracker is not treated as contradictory simultaneous routing authority; degraded prepared payload is read-only.",
+      "missing_input_or_capability": "Calibration cohort/provider profile validity and authoritative promotion-purpose admission are not established by routing markers.",
+      "semantic_held": "No route flag or calibration marker is promoted into commit authority.",
+      "next_owner": "D calibration-routing consumer; E calibration profile; B promotion owner; G",
+      "residual_classification": "verification_oracle"
+    },
+    "B164": {
+      "bundle": "FUN-03",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B164"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Effectful generic promotion runner always fails closed when no typed owner-issued permit/current independent verifier/revoke-serialized commit port is integrated, including boolTrue/retained markers.",
+      "actual_consumer": "Actual Level6PromotionStage.evaluate protected callback boundary",
+      "oracle": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "negative_or_removal": "All generic marker cases give0effects. Barrier test is LEGACY-MARKER revocation control only: external bool changes before evaluate; no issuer/preflight/verifier runs. Prepared payload is read-only.",
+      "missing_input_or_capability": "Valid owner-issued typed-permit positive is UNRUN: promotion-purpose issuer/verifier/revocation/serialized writer API is missing. Exact integrate contract below; fixture issuers are not counted as authority.",
+      "semantic_held": "Zero-effects is bounded failure-closed behavior, not proof of revoke-serialized typed commit or appointed authority.",
+      "next_owner": "B/A actual promotion writer/permit owner; D Level6 integration consumer; G admission acceptance",
+      "residual_classification": "bridge_missing"
+    },
+    "B165": {
+      "bundle": "FUN-02",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B165"
+      },
+      "canonical_criterion_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "candidate_tree": "3b71a8cfd0aa90695af299bac58d0e5d3c967fe0",
+      "mechanism_verified_bounded": "Intermediate stage APPROVE is retained as stage evidence while aggregate defer/retry/cap becomes non-approving compatibility result; prepared promotion payload has no new callback effect. Native compatibility control projection now retains actual measured resource evidence while changing only control fields.",
+      "actual_consumer": "FunnelOutcome -> _compatibility_result -> native StageA/StageB adapter",
+      "oracle": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py; policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work",
+      "negative_or_removal": "Measured native L3 approves but budget defer prevents actual translator L4; outcome remains defer without laundering stage verdict into promotion permission.",
+      "missing_input_or_capability": "Authoritative downstream promotion admission and finding-level historical discriminator reconciliation remain separate.",
+      "semantic_held": "Stage scientific feedback and aggregate control decision retain different meanings.",
+      "next_owner": "D funnel/controller consumer; B promotion integration; G",
+      "residual_classification": "verification_oracle",
+      "actual_owner_event_consistency_ref": "#/projection_event_consistency"
+    }
+  },
+  "integrate_contracts": {
+    "native_measured_resource_ports": {
+      "owner": "B/A native runtime factories; D worker/consumer",
+      "available_ports": "FunnelOrchestrator(budget_middleware=owner) forwards _resource_budget_middleware and _resource_evaluation_id to native stage context. PolicyTranslatorWorker/ScenarioAdversaryWorker accept nonserialized configured owner and explicit per-call evaluation_id; run/provider/request identity reaches existing LLMBudgetEnforcer/FileBudgetLedger.",
+      "missing_deployment": "Unleased native top-level runtime factories must supply the same persisted owner, real run/candidate/attempt identity and explicit evaluation ID. Numerical stages need a real measured-resource producer; no stage duration/tariff assignment is actual cost.",
+      "reconciliation": "Unknown paid outcome retains owned reservation until definite provider receipt/reconciliation; independent bill/identity attestation is external input."
+    },
+    "native_policy_effective_config": {
+      "owner": "B runtime backend and A/F/E input/profile supplier; D bridge",
+      "producer_locator": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py::_PolicyRuntimeWorkflowEngine.run",
+      "consumer_locator": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py::build_policy_simulation_results",
+      "divergence": "Native workflow does not pass actual data/estimation config to a raw-sample estimator. Backend bootstrap width/draw labels are projections (fixed500/64/32), so constructor config and retained fidelity fields do not prove requested draw/sample execution.",
+      "smallest_missing_capability": "An admitted actual policy sample/estimator provider plus workflow/backend execution port consuming isolated data/estimation config, with applied profile/input identity and actual result; define estimand/sample scientific profile upstream. Existing Foundry sample-mean bootstrap parameter execution is bounded separate evidence."
+    },
+    "promotion_writer_admission": {
+      "owner": "B/A appointed actual promotion-purpose issuer/verifier/commit writer; D Level6 consumer",
+      "state": "bridge_missing",
+      "required": "Owner-issued typed permit bound to exact candidate ArtifactRef, run/ticket/attempt, promotion purpose and current policy/provenance/admission generation; independent current verifier; protected commit serialized with revocation/admission state so revoke-before-commit yields0effects and a currently valid permit can yield exactly1effect.",
+      "existing_adjacent_api": "Agent-action authority is evaluation purpose and forbids promotion_authority; existing bool native recheck is preflight, not this permit/serialized writer. No permission subsystem is built here.",
+      "actual_bounded_control": "Generic runner effects0 for absent/malformed/False/True/retained markers; legacy-marker revocation barrier only. Prepared payload read-only interpretation has0newcallbackeffects.",
+      "valid_typed_permit_positive": "UNRUN: required owner API/input is missing, fixture issuer is not authority."
+    },
+    "service_supplier_cutover": {
+      "owner": "D Q3 actual SearchService lifecycle and callers; A/B deployment factories",
+      "available": "Detached evaluation plus sole tell acceptance/diversity/counters; actual repeated native runs/empty/zero and paid sentinel costs tested.",
+      "remaining": "Q3 production ask/tell caller and persistence/retirement census must be reconciled with this exact supplier; this leaf does not claim full LA-015 predecessor retirement."
+    }
+  },
+  "final_pattern_pass": {
+    "P29": "Actual provider/workflow/ledger/reopen and Foundry numerical consumer, actual Q5 producer/CAS/L5/Funnel, callback effects and removal controls exercised.",
+    "P32_P37_P38": "Provider amount is reported input, not external authority; ledger state/count/config effects recomputed; generic bool gate authority not established and fails closed; native policy draw/sample marker divergence explicit.",
+    "P40": "Known receipt intake/accounting class widened for invalid alternate fields, ancillary token errors and fallible latency metrics, not an enumerated authority ladder. Both stage-copy projection surfaces widened together after independent actual-consumer failures; measured-zero and paid controls retained.",
+    "P41": "No inherited waiver for Mock failures or worker baseline; introduced companions fixed and exact composed producer/tests run.",
+    "remaining_semantic_input": "No billing/promotion/scientific/cutover institutional profile invented; formal finding acceptance remains G."
+  },
+  "cleanup_deviation": {
+    "action": "Permanent Python shutil.rmtree of my own incomplete archive after ENOSPC; shell rm-f attempt was rejected.",
+    "removed_exact_path": "/workspace/e02-D2-receipts/funnel/base-worker-check",
+    "trash_used": false,
+    "status": "Explicit incomplete-archive permanent deletion deviated from the user Trash-only cleanup requirement. Root informed; no subsequent explicit archive deletion, Trash emptying or pruning.",
+    "retained_cleanup_candidates": [
+      "/workspace/e02-D2-receipts/funnel/base-worker-check",
+      "/tmp/e02-D-funnel-composed-9e592",
+      "/tmp/e02-D-funnel-stress-complete-fcdw2gom",
+      "/tmp/e02-D-funnel-stress-partial-66823njp",
+      "/tmp/e02-D-funnel-stress-no_finite-5d4dsvy7",
+      "/tmp/e02-D-funnel-stress-early_stop-iv_wd2ml",
+      "/tmp/e02-D-funnel-stress-complete-ll83v0n_",
+      "/tmp/e02-D-funnel-stress-partial-cs796dma",
+      "/tmp/e02-D-funnel-stress-no_finite-0gzqplvw",
+      "/tmp/e02-D-funnel-stress-early_stop-y1x_ma55",
+      "/dev/shm/e02-D-funnel-c335-l6-e2272f805cf44ff38ff03af1e529515a"
+    ],
+    "current_candidate_existence": {
+      "/workspace/e02-D2-receipts/funnel/base-worker-check": true,
+      "/tmp/e02-D-funnel-composed-9e592": true,
+      "/tmp/e02-D-funnel-stress-complete-fcdw2gom": true,
+      "/tmp/e02-D-funnel-stress-partial-66823njp": true,
+      "/tmp/e02-D-funnel-stress-no_finite-5d4dsvy7": true,
+      "/tmp/e02-D-funnel-stress-early_stop-iv_wd2ml": true,
+      "/tmp/e02-D-funnel-stress-complete-ll83v0n_": true,
+      "/tmp/e02-D-funnel-stress-partial-cs796dma": true,
+      "/tmp/e02-D-funnel-stress-no_finite-0gzqplvw": true,
+      "/tmp/e02-D-funnel-stress-early_stop-y1x_ma55": true,
+      "/dev/shm/e02-D-funnel-c335-l6-e2272f805cf44ff38ff03af1e529515a": false
+    },
+    "next_cleanup": "Only through user-compliant Trash handling; no cleanup performed by this handoff.",
+    "future_pytest_scratch": "Every subsequent invocation uses a fresh nonexisting explicit --basetemp under /dev/shm; retained after the run, no framework default retention cleanup requested.",
+    "framework_retention": "Earlier owner pytest runs used default /tmp/pytest-of-agent retention. They do not establish preservation of every framework fixture. After the explicit fresh-basetemp instruction, new pytest invocations use a new verified nonexisting /dev/shm path and retain it. The named archive/CAS candidates were separately checked to exist at handoff verification."
+  },
+  "unit": "D",
+  "slice": "published-funnel-measured-resource-and-admission-boundaries",
+  "branch": "codex/e02-D-published-funnel",
+  "pull_request": null,
+  "bundle_ids": [
+    "CTL-01",
+    "CTL-03",
+    "FUN-01",
+    "FUN-02",
+    "FUN-03"
+  ],
+  "changed_paths_ref": {
+    "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "candidate_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+    "method": "git diff --name-only base candidate; tracked inputs are cited, not embedded"
+  },
+  "predicate_basis": "recomputed bounded runtime properties; provider reports are supplied inputs; external authority not established",
+  "capability_state_or_finding_state": "partial; explicit integrate-contract bridges remain missing; closure_ids=[]",
+  "projection_event_consistency": {
+    "source_sha": "a23da7a9d17a13738804b535491798e63af43e3c",
+    "oracle": "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_native_cost_identity_survives_routing_and_compatibility_projections",
+    "aggregate": "Aggregate amount equals sum of its actual stage-linked receipts; aggregate event identity equals that candidate evaluation scope. Fresh ledger includes exactly the actual configured workflow request set, including finite-zero receipts.",
+    "native_compatibility": "Public evaluate and native StageB retain the final stage amount/source/event identity. Per-stage amount is not relabeled as whole-workflow spend; the returned FunnelOutcome remains the aggregate projection.",
+    "routing_reject": "Reject changes the control decision, not prior paid or measured-zero receipt evidence. Rejected stage, trace, aggregate and native compatibility retain the physical provider event identity and amount.",
+    "negative": "Exact owner source653 four native cost0/1 × reject/complete controls FAIL; independent composed8eb paid reject and public evaluate controls FAIL. Source a23 corrects only the two dataclass copies; earlier603PASS does not establish this property."
+  },
+  "canonical_promotion_test": {
+    "path": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+    "source_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+    "previous_ref": {
+      "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_level6_promotion.py",
+      "source_sha": "a23da7a9d17a13738804b535491798e63af43e3c"
+    },
+    "delta": "100% byte-identical relocation to the defining D.md FUN-03 test path; no duplicate wrapper."
+  },
+  "checks": {
+    "historical_affected_gate": {
+      "source_sha": "ae5704f5de9d194369d4b39bbf4860f33313a5ff",
+      "command_ref": "#/deciding_outputs/affected_green; complete COMMAND line",
+      "input_closure": "Exact tracked tests/fixtures/native producers atae with read-only locked backend and verified native tokenizer cache. This predates the independently discovered projection correction.",
+      "outcome": "PASS bounded earlier checkpoint, not final broad acceptance"
+    },
+    "paid_sentinel": {
+      "source_sha": "653ba2ac07b9bb67310175f428c9433c22d427ae",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "tests/integration/scientist/methods/search/test_controller.py"
+      ],
+      "cwd": "/workspace/e02-D-published-funnel/policy-engine",
+      "outcome": "PASS1"
+    },
+    "composed_native": {
+      "command_ref": "#/deciding_outputs/composed_native; complete COMMAND line",
+      "input_closure_ref": "#/composed_input",
+      "outcome": "PASS45"
+    },
+    "composed_producer": {
+      "code_ref": "#/probe_input",
+      "input_closure_ref": "#/composed_input",
+      "invocation": "Execute probe_input.path with locked Python while PYTHONPATH selects the exact composed_input.root/policy-engine/src and cwd selects composed policy-engine; producer/consumer origins are printed in deciding output.",
+      "outcome": "PASS4 actual producer/CAS/consumer cases"
+    },
+    "projection_corrective": {
+      "source_sha": "a23da7a9d17a13738804b535491798e63af43e3c",
+      "command_ref": "#/deciding_outputs/projection_corrective_green; complete COMMAND line and exact input hashes",
+      "outcome": "PASS37"
+    },
+    "canonical_promotion": {
+      "source_sha": "c335ae5a6335ac7760df4f4e94454d8e50810b9b",
+      "command_ref": "#/deciding_outputs/canonical_promotion_green; complete COMMAND and nonexisting basetemp lines",
+      "outcome": "PASS9; typed permit positive UNRUN"
+    }
+  },
+  "binding_verification": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-handoff-check.txt",
+    "sha256": "e0f336fa253d07dee9774c2b359afdb346bb96618be6365e0dc11e8315071fe3",
+    "interpretation": "Metadata/source/input pointer verification only; not a substitute for independent runtime property review."
+  },
+  "independent_funnel_review": {
+    "sha": "537dd9d8d30179a525da70b6822176b455026273",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent.json",
+    "sha256": "6ead1d66ea081c676a8c0ea29d1ff5fe3d9dfc0195924996bcb5d7bdadb98164",
+    "proof_sha": "b6ed7ef36f3ddf2433975d953a896a29a1a59cb6",
+    "deciding_payload_sha": "ffad3319b2cb1f7a14087ea66e3b7e024e93e07b",
+    "reviewed_source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+    "reviewed_source_tree": "04566efb021c2beeee1e160fee40ab9216a037e5",
+    "corrective_source_sha": "a23da7a9d17a13738804b535491798e63af43e3c",
+    "interpretation": "Accepted with scoped limits. Independent two native paid projection failures on8eb retained; unchanged pairPASS on correctivea23 and combinedfac5. Combined focused consumer57PASS, paid2PASS, actual producer4PASS; partial observed-fraction -> MODEL confidence removal produces the required AssertionError with markers retained. This is not a whole-repository or production-data gate.",
+    "remaining_authority": "B164 valid owner-issued typed permit positive UNRUN/bridge_missing; legacy-marker revocation only. Provider reports are not external billing authority; native policy raw-sample/estimand deployment remains unestablished.",
+    "transport": "Reviewer normal push complete and remote exact537dd read back, independently reported; receipt bytes/hash read from exact Git commit locally."
+  }
+}

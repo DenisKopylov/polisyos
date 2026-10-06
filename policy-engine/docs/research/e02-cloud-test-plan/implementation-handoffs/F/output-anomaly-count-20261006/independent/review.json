@@ -1,0 +1,93 @@
+{
+  "schema": "e02-F-independent-monitor-review/1",
+  "author": "root (independent of Foundry implementation)",
+  "source_sha": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+  "source_tree": "dc15f1956e861cd87bc0610ac03cb05d44077a17",
+  "verdict": "GO",
+  "check": "PASS",
+  "cases": 24,
+  "failed": 0,
+  "errors": 0,
+  "skips": 0,
+  "actual_backend": "Python3.14.7 native MethodDispatcher and genuine OTel SDK InMemoryMetricReader",
+  "producer_artifact_bridge_consumer": "native pure_step rawoutput → standard canonical normalizer → monitor → actual emitted warnings and OTel SDK counter",
+  "independent_oracle": [
+    "Two declared slots consuming one NaN/Inf object are two declared observations; an identical raw diagnostic sidecar is a third; actual metric count3 per reason",
+    "Empty declared vector from report alias is red once; identical raw diagnostic sidecar remains red independently; actual metric count2"
+  ],
+  "retained_controls": "Author22 native cases are repeated on immutable source; independently written2multi-slot/empty-vector cases exercise declared-contract semantics. Existing code-only3removal FAIL retained in owner packet, not relabeled PASS.",
+  "limitations": [
+    "Only standard normalizer provenance has source correspondence; custom copied/wrapped dematerializers retain two-view diagnostics",
+    "Actual SDK instrument/counter measured; external exporter and production OTel configuration UNRUN",
+    "Property follow-up has no automatically assigned historical finding ID or authority closure"
+  ],
+  "source_scope": [
+    {
+      "git_ref": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-foundry-output-anomaly-count.toml",
+      "bytes": 2377,
+      "sha256": "4e4c85567f23f0483ab176d554dcec8540a47b1cfcd20e209cd433f48303c09d"
+    },
+    {
+      "git_ref": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "bytes": 39376,
+      "sha256": "51273afac6480b557a518ec7ed8c7565cceac524ce1a4b656788f86b1899f8e1"
+    },
+    {
+      "git_ref": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "path": "policy-engine/src/polisyos/foundry/methods/lifecycle/README.md",
+      "bytes": 3411,
+      "sha256": "8a20012f96211f2fd6b6cd68fc8fb03647126a1c8758f11cbfa3c7f9d3c7ef2b"
+    },
+    {
+      "git_ref": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "path": "policy-engine/src/polisyos/foundry/methods/lifecycle/output_monitor.py",
+      "bytes": 15564,
+      "sha256": "87ef51fd2f181bc64b1bbd6d5349fc8d06066bf2a384ad1ecefac1a62de02108"
+    },
+    {
+      "git_ref": "3c152d3640f1aa9d46f4e3020cda364e25f6ef84",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_output_anomaly_count.py",
+      "bytes": 8509,
+      "sha256": "980c2fa4225233abc2b43f6d165a459bd0a4e78859f84943a67d462732d4047a"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-monitor-review/junit.xml",
+      "bytes": 4479,
+      "sha256": "d24bf15096b71b72f2bccad4c46e8b1f6f40d4b102a55cc48cbec2d7ca551075"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-monitor-review/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-monitor-review/stdout.txt",
+      "bytes": 25639,
+      "sha256": "7a722a0937c44afd9a89e477ca365d3b4bc9705dd280e3e708728816d69c4dfc"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/root-monitor-review/test_independent_slots.py",
+      "bytes": 1750,
+      "sha256": "595b23c6b304abb0875d21406f86af81ff03bbf2fc323240b53c88d6ef86d26c"
+    }
+  ],
+  "read_error_non_deciding": "Initial read of nonexistent backends/io.py returned exit2; correct canonical components/io.py was fully read. This is a navigation error, not a test verdict.",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "tests/unit/foundry/methods/backends/test_output_anomaly_count.py",
+    "/tmp/e02-F-continuation-20261006/root-monitor-review/test_independent_slots.py",
+    "--junitxml=/tmp/e02-F-continuation-20261006/root-monitor-review/junit.xml"
+  ],
+  "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-F-fry-20261006/policy-engine/src:/workspace/e02-F-fry-20261006/policy-engine/tools:/workspace/e02-F-fry-20261006/policy-engine/tests/unit/foundry/methods/backends"
+  }
+}

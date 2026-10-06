@@ -1,0 +1,193 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "ber-01-conditional-profile-c2-review-response",
+  "created_at": "2026-10-06T11:56:43Z",
+  "closure_ids": [],
+  "bundle_ids": ["BER-01"],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "previous_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-conditional-profile-c2.json",
+  "implementation_commits": [
+    "42ee488fb432cad9518dea5e611cb6d84fb86387",
+    "aca46649664e64f7a475e7d2677bba775f4b4af1",
+    "999f56c443e3b4ef74d849828641836a8f335b3d"
+  ],
+  "source_correction_sha": "aca46649664e64f7a475e7d2677bba775f4b4af1",
+  "source_correction_tree_sha": "08804bfab9883ab2066fa8f2754a5b19ccf93645",
+  "dependency_source_sha": "495043eb636275398ed729d9d01bec12059d8059",
+  "dependency_cherry_pick_sha": "999f56c443e3b4ef74d849828641836a8f335b3d",
+  "candidate_tree_sha": "20c78ec995bc8ff8f932cb262dce118283d3322d",
+  "branch": "codex/e02-C-berl-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/pyproject.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-c2-runtime-jsonschema.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-berl-conditional-profile.toml",
+    "policy-engine/src/polisyos/berl/README.md",
+    "policy-engine/src/polisyos/berl/adapters/conditional_shapley.py",
+    "policy-engine/src/polisyos/berl/contracts/validation_rules.py",
+    "policy-engine/tests/unit/berl/test_conditional_shapley.py",
+    "policy-engine/uv.lock"
+  ],
+  "environment": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "python": "3.14.0",
+    "packages": {
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "jsonschema": "4.25.1",
+      "numpy": "2.3.5"
+    },
+    "source": "admitted worktree via PYTHONPATH; original contributor venv read-only; no install or sync",
+    "inputs": "bounded synthetic Gaussian and finite-support fixtures; no production rows, law artifacts, model files, or shared CAS"
+  },
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=\"$PWD/policy-engine/src\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/tests/unit/berl/test_conditional_shapley.py::test_weighted_finite_support_stably_normalizes_overflowing_total_mass policy-engine/tests/unit/berl/test_conditional_shapley.py::test_short_draw_cap_intervals_cover_independent_gaussian_quadrature_truth policy-engine/tests/unit/berl/test_conditional_shapley.py::test_zero_width_bound_uses_zero_draws_without_calling_model policy-engine/tests/unit/berl/test_conditional_shapley.py::test_service_bundle_round_trips_before_both_consumers_fail_closed -q",
+      "target_sha": "42ee488fb432cad9518dea5e611cb6d84fb86387",
+      "outcome": "EXPECTED RED before implementation",
+      "exit_code": 1,
+      "input_closure": "Two numeric defects plus zero-width N=0 control; source code at prior candidate, tests were newly added in the worktree.",
+      "output": "FF.F [100%]. Equal 1e308 weights gave finite-support expectation 0.0 instead of 1.0. With N=1 and target Shapley error 0.05, an interval lower bound 0.5018532671357101 excluded independently computed Gauss-Hermite truth 0.38438529350887124. The N=0 constant-bound test passed. Initial integration setup also had a default infidelity threshold red; it was corrected before the decisive EchoVerifier reproduction.",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/berl-c2-review-correction.txt@458191aca4a2e36a90faa87ed0a6336d8393e83bf057497ff09ae2dd078e18a6"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=\"$PWD/policy-engine/src\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/tests/unit/berl/test_conditional_shapley.py::test_service_bundle_round_trips_before_both_consumers_fail_closed -q",
+      "target_sha": "42ee488fb432cad9518dea5e611cb6d84fb86387",
+      "outcome": "EXPECTED RED before implementation",
+      "exit_code": 1,
+      "input_closure": "Actual service producer bundle, serialized JSON round-trip, forged persisted display markers and infidelity, unresolved law/model refs, audit ref matching, and an EchoVerifier that returns accepted=true, predicate_basis=recomputed, and echoed digests/refs.",
+      "output": "The former gate returned ExplanationValidationResult(passed=True, faithfulness_claim='bounded', display_policy='analyst_display', violations=(), warnings=()). This proved the source resolver predicate was proxy-tested from callback self-labels.",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/berl-c2-review-correction.txt@458191aca4a2e36a90faa87ed0a6336d8393e83bf057497ff09ae2dd078e18a6"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=\"$PWD/policy-engine/src\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/tests/unit/berl/test_conditional_shapley.py::test_self_labeled_bound_for_unbounded_model_remains_unadmitted_candidate -q",
+      "target_sha": "42ee488fb432cad9518dea5e611cb6d84fb86387",
+      "outcome": "EXPECTED RED before implementation",
+      "exit_code": 1,
+      "input_closure": "Globally unbounded model f(x)=x1, self-labeled fake structural bounds [-1e100, 1e100], target error 2e100, seed 7, draw cap 20.",
+      "output": "The old adapter serialized precision_status='precision_met' although it had only checked sampled model outputs against the supplied interval.",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/berl-c2-review-correction.txt@458191aca4a2e36a90faa87ed0a6336d8393e83bf057497ff09ae2dd078e18a6"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=\"$PWD/policy-engine/src\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/tests/unit/berl/test_conditional_shapley.py::test_weighted_finite_support_stably_normalizes_overflowing_total_mass policy-engine/tests/unit/berl/test_conditional_shapley.py::test_short_draw_cap_intervals_cover_independent_gaussian_quadrature_truth policy-engine/tests/unit/berl/test_conditional_shapley.py::test_zero_width_bound_uses_zero_draws_without_calling_model policy-engine/tests/unit/berl/test_conditional_shapley.py::test_self_labeled_bound_for_unbounded_model_remains_unadmitted_candidate policy-engine/tests/unit/berl/test_conditional_shapley.py::test_service_bundle_round_trips_before_both_consumers_fail_closed policy-engine/tests/unit/berl/test_conditional_shapley.py::test_gaussian_model_without_structural_bound_stays_service_diagnostic -q",
+      "target_sha": "aca46649664e64f7a475e7d2677bba775f4b4af1",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "input_closure": "Six behavioral tests: independent Gauss-Hermite nonlinear oracle, N=0 zero-width case, stable overflow-weight normalization, candidate bounds, actual serialized EchoVerifier attack through both consumers, evidence-removal markers-kept control, and no-bound service diagnostic.",
+      "output": "...... [100%]. Existing PytestConfigWarning: Unknown config option: cache_dir.",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/berl-c2-review-correction.txt@458191aca4a2e36a90faa87ed0a6336d8393e83bf057497ff09ae2dd078e18a6"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=\"$PWD/policy-engine/src\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/tests/unit/remediation/test_ber_01.py policy-engine/tests/unit/berl/test_contracts.py policy-engine/tests/unit/berl/test_adapters.py policy-engine/tests/unit/berl/mirror_contracts/test_shap_kernel.py policy-engine/tests/unit/berl/test_service.py policy-engine/tests/unit/berl/test_conditional_shapley.py policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py policy-engine/tests/unit/scientist/validation/test_phase5_preflight.py policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py -q",
+      "target_sha": "aca46649664e64f7a475e7d2677bba775f4b4af1",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "class": "Focused unit and integration suite; bounded numerical tests only.",
+      "input_closure": "All nine listed BERL, adapter, Runtime reliability, Phase 5, and bridge test files; 73 tests total, including fixed-seed exact/math controls.",
+      "output": "........................................................................ [ 98%]\\n.                                                                        [100%]\\n=============================== warnings summary ===============================\\nPytestConfigWarning: Unknown config option: cache_dir.\\n73 total dots; process exit 0.",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/berl-c2-review-correction.txt@458191aca4a2e36a90faa87ed0a6336d8393e83bf057497ff09ae2dd078e18a6"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/berl/adapters/conditional_shapley.py policy-engine/src/polisyos/berl/contracts/validation_rules.py policy-engine/tests/unit/berl/test_conditional_shapley.py; /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check policy-engine/src/polisyos/berl/adapters/conditional_shapley.py policy-engine/src/polisyos/berl/contracts/validation_rules.py policy-engine/tests/unit/berl/test_conditional_shapley.py; git diff --check",
+      "target_sha": "aca46649664e64f7a475e7d2677bba775f4b4af1",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "input_closure": "All changed Python paths and complete source diff whitespace check.",
+      "output": "All checks passed!\\n3 files already formatted; git diff --check produced no output."
+    },
+    {
+      "command": "python3 -c 'import tomllib; tomllib.load(open(\"policy-engine/release-fragments/unreleased/2026-10-06-e02-berl-conditional-profile.toml\", \"rb\")); tomllib.load(open(\"policy-engine/release-fragments/unreleased/2026-10-06-c2-runtime-jsonschema.toml\", \"rb\"))'",
+      "target_sha": "999f56c443e3b4ef74d849828641836a8f335b3d",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "input_closure": "Both changed release-fragment TOML files.",
+      "output": "TOML parse exited 0. The jsonschema dependency cherry-pick makes no Python source change; no install/sync was run."
+    }
+  ],
+  "property": {
+    "statement": "Only conditional explanations backed by actual source-law bytes, model/profile identity, population/time/order/schema/epoch/support bindings, provenance, and owner-admitted verification could pass a persisted analyst-facing gate. This slice has no such admitted authority, so conditional outputs remain diagnostic candidates and Runtime and Phase 5 fail closed regardless of injected callback labels. Bounded fixed-N intervals must reflect achieved draws, and finite-support exact means must normalize weights without overflow.",
+    "runtime_path": [
+      "ExplanationOrchestrator.explain executes a conditional candidate adapter and records a typed ExplanationBundle",
+      "ExplanationBundle.model_dump(mode='json') serializes the producer output; the integration test writes and reloads the exact bytes from a temporary JSON artifact",
+      "validate_persisted_explanation_bundle validates the version-pinned generated schema profile and strict DTO",
+      "validate_explanation_bundle checks conditional semantic markers and unconditionally returns conditional_law_authority_not_admitted because the package has no admitted source/model verifier",
+      "Runtime _validate_bundle_record -> evaluate_warrant_berl_reliability and Scientist _run_berl_validation -> Phase 5 both consume that same canonical validator and reject the serialized candidate"
+    ],
+    "proxy_divergence": "Previously the conditional gate tested whether an injected callback echoed law/model digest and ref strings and declared predicate_basis='recomputed'; an unresolved law://unresolved/not-present record with display markers could pass. The gate now does not call injected callbacks and always fails conditional authority admission. The old numerical interval code used the requested epsilon after draw-cap shortfall; it now recomputes/compares the frozen plan and uses achieved_epsilon=achieved_shapley_error/2. The old weighted conditional mean divided by sum(weights), which could overflow to infinity; it now max-scales and finite-sums the whole and matched stratum weights.",
+    "negative_controls": [
+      "law://unresolved/not-present plus matching audit ref and EchoVerifier returning accepted=true, predicate_basis=recomputed, and all echoed refs/digests: Runtime and Phase 5 still fail; callback call count remains zero",
+      "remove conditional_evidence but preserve kernel_shap_conditional IDs and conditional_observational marker: direct validator, Runtime and Phase 5 fail",
+      "actual service producer serialization and JSON readback exercised before both persisted consumers",
+      "bounded f=tanh(.2+x1-.4*x2), correlated rho=.8, observed (1,1), fixed seed 7 and N=1: both Shapley intervals cover independent 96-node Gauss-Hermite truth; precision_not_met remains explicit",
+      "zero-width (3,3) structural interval has N=0, no model calls, exact zero Shapley values and point intervals",
+      "equal finite-support weights (1e308,1e308) with constant-one model yield baseline 1 and attributions (0,0), not the old false (0.5,0.5)",
+      "unbounded f=x1 with self-labeled fake bounds +/-1e100 can yield a numerical candidate only; persisted status remains precision_not_met and consumers cannot admit it",
+      "no affine profile or structural-bound callback returns a service diagnostic with no evidence or precision certification"
+    ]
+  },
+  "predicate_basis": "mixed; numerical values, exact JSON readback, schema conformance, and consumer violations are recomputed on synthetic fixtures; law/model/bound source authority and external consumer provenance remain not_established",
+  "predicate_basis_detail": {
+    "achieved fixed-N error and interval coverage": "recomputed from frozen draws, bounds as candidate assumptions, fixed seed, and independent Gauss-Hermite integration; never admitted as precision authority without an owner-bound verifier",
+    "finite-support weights and exact strata": "recomputed using max-scaled normalized weights and math.fsum",
+    "persisted conditional profile admission": "not_established for source/model provenance; by construction the current central validator fails closed even when a callback returns positive labels",
+    "conditional source bytes, producer provenance, population/cohort/time/order/schema/epoch/support binding": "not_established; only injected fixture resolver objects are present",
+    "model bytes, global output-bound proof, and consumer verifier provenance": "not_established; no admitted E/F/model-owner implementation is supplied",
+    "external JSON-schema consumer or analyst-facing API": "not_established; no external consumer endpoint was established"
+  },
+  "capability_state_or_finding_state": "The persisted-schema producer/readers remain locally exercised. Conditional attribution remains candidate-only and diagnostic; conditional source-law producer/artifact are producer_missing and artifact_missing, source/model/output-bound and persisted-consumer authority are verification_missing. Runtime and Phase 5 consumer gates are wired and fail closed. Analyst-facing attribution endpoint is surface_out_of_scope for this slice.",
+  "finding_dispositions": [
+    {
+      "id": "LA-034",
+      "code_acceptance": "bounded PASS: prior exact 1.1.0 and historical 1.0.0 profiles plus serialize/readback and both consumers remain covered by the 73-test focused suite.",
+      "finding_closure": "partial; not claimed. External schema consumers, resource-loader packaging, and production CAS persistence/readback are not established.",
+      "status_labels": ["consumer wired", "verification locally exercised", "external consumer not_established"]
+    },
+    {
+      "id": "LA-036",
+      "code_acceptance": "bounded PASS: achieved-cap intervals, stable finite-support means, N=0 behavior, unbounded diagnostics, conditional-vs-marginal oracle, identity and removal controls, and both consumer fail-closed paths are exercised.",
+      "finding_closure": "partial; not claimed. No E/F source-law producer/artifact, actual content-binding resolver, model-byte verifier, output-bound verifier, or admitted persisted consumer verifier is supplied.",
+      "status_labels": ["producer_missing", "artifact_missing", "verification_missing", "surface_out_of_scope"]
+    }
+  ],
+  "pattern_pass": {
+    "P01_P02_P05": "Producer/law authority remains absent; generated candidates never fall through to marginal KernelSHAP and both persisted readers share the canonical fail-closed gate.",
+    "P10_P29_P33": "Tests execute the numerical methods, real serializer/readback, both consumers, independent nonlinear quadrature, callback falsifier, and evidence-removal control.",
+    "P31": "The shared conditional admission gate is widened once to all persisted consumers; no consumer-specific trust patch remains.",
+    "P37": "The gate no longer trusts a self-supplied predicate_basis. Because no admitted authority registry exists, the predicate is not_established and every persisted conditional claim fails closed.",
+    "P38": "The former verifier-label/ref echo diverged from actual law/model byte resolution. The fixed code does not call the callback; the short-cap interval uses achieved error, and weight admission uses stable total mass.",
+    "P40": "The EchoVerifier escape is the same conditional evidence trust-by-label class one level deeper. The shared gate has been widened and the remaining source authority chain is declared a bounded residual rather than patched with a new verifier factory. The smallest closer is an admitted E/F source-law producer and independent content-binding/model/bounds verifier composition; no such implementation exists in this slice, only protocols and synthetic fixtures.",
+    "P41": "The earlier architecture check failed on repository-wide deep-import baseline drift. It was not rerun for this source/math correction; changed paths overlap its import-graph denominator, so ownership remains not_established without exact slice-base replay and zero-intersection proof."
+  },
+  "review": {
+    "independent_review": "blocking math and consumer findings corrected in the current delta; delta-only independent re-review pending",
+    "self_review": "not performed as an independent review"
+  },
+  "limitations_and_next_owner": [
+    {
+      "state": "producer_missing / artifact_missing",
+      "owner": "E/F source-law owner",
+      "required_binding": "Resolve law bytes and recompute digest; bind purpose, model/profile, population, cohort, observation window, feature order/schema, model epoch, support and non-producer provenance.",
+      "smallest_closing_capability": "An admitted E/F law artifact producer and independently reconcilable resolver composed with model-byte and global-bound owner verifiers. The current package has only candidate protocols and fixture callbacks."
+    },
+    {
+      "state": "verification_missing",
+      "owner": "Application composition owner with E/F model/source authorities",
+      "scope": "Runtime and Phase 5 remain fail-closed for every conditional method. Callback return fields are never consumed as authority; candidate outputs may be diagnostic only and their persisted precision status remains not_met."
+    },
+    {
+      "state": "surface_out_of_scope",
+      "owner": "Runtime/API surface owner if an analyst-facing conditional attribution endpoint is later admitted",
+      "scope": "No analyst-facing attribution endpoint or external schema client was established."
+    }
+  ],
+  "dependency_followup": "Root-owned commit 495043eb636275398ed729d9d01bec12059d8059 was appended once as 999f56c443e3b4ef74d849828641836a8f335b3d. It moves the already-locked jsonschema[format-nongpl]>=4.25.1 dependency from the test extra to base dependencies; locked identities/versions are unchanged. No shared environment install or sync was run.",
+  "raw_evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/berl-c2-review-correction.txt@458191aca4a2e36a90faa87ed0a6336d8393e83bf057497ff09ae2dd078e18a6",
+  "transport": {
+    "implementation_remote_head_verified": false,
+    "push": "not performed; parent review/integration pending",
+    "implementation_tree_readback": true,
+    "handoff_commit_separate": true
+  }
+}

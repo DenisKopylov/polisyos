@@ -35,7 +35,11 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
 
 - Last updated: 2026-04-03
 - The package still centers around `protocols.py`, `traced_client.py`, `response.py`, `cost.py`, and `retry.py`.
-- Cost telemetry falls back to shared pricing defaults when provider responses omit pricing data.
+- Response extraction distinguishes observed valid usage/cost from missing or invalid fields.
+  Numeric telemetry defaults remain available, but absent counts do not establish zero usage.
+  Reported zero and valid observed counts priced at a configured zero rate remain valid amounts.
+  An invalid reported cost cannot fall back to token pricing. Inaccessible usage/cost metadata
+  preserves an obtained response with unknown monetary evidence.
 - Asynchronous generate/ainvoke completion remains owned after initiating caller cancellation. Optional
   telemetry is isolated from required accounting. An absent durable acknowledgement is unknown,
   and cannot publish a reusable provider result. Durable budget composition is supplied by the
@@ -56,3 +60,10 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
   Known physical provider completion is always a provider event, even if its response borrows
   authentic prior cache provenance; actual cache emission remains a separate zero-extra-charge
   consumption event.
+- Producer events carry `amount=None`/`cost_origin="unknown"` when monetary evidence is missing
+  or invalid. Such an event cannot acquire a committed settlement or reusable cache publication.
+  Optional metrics can still report numeric token defaults; they do not establish a charge.
+  Trusted accounting composition fixes the attempt and request identity before provider entry.
+- The supported accounting ports are `generate`, `invoke` and `ainvoke`. Delegated
+  `generate_stream` has no settlement contract and refuses before provider entry when required
+  accounting or an active settlement owner is configured. Unmanaged streaming remains delegated.

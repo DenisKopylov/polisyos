@@ -15,11 +15,12 @@ import secrets
 import uuid
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Any, Literal
 
 from polisyos.common.serialization import stable_json_dumps, to_python_data
+from polisyos.core.observability.pricing import estimate_llm_cost_usd
 
 
 def _request_digest(value: Any) -> str:
@@ -53,13 +54,22 @@ class LLMProducerEvent:
     response_digest: str
     model: str
     provider: str
-    amount: Decimal
-    cost_origin: Literal["reported", "estimated", "reuse"]
+    amount: Decimal | None
+    cost_origin: Literal["reported", "estimated", "reuse", "unknown"]
     kind: Literal["provider", "reuse"] = "provider"
     origin_event_id: str | None = None
 
     def __post_init__(self) -> None:
-        if not self.event_id or not self.amount.is_finite() or self.amount < 0:
+        if (
+            not self.event_id
+            or (self.amount is None and (self.cost_origin != "unknown" or self.kind != "provider"))
+            or (
+                self.amount is not None
+                and (
+                    not self.amount.is_finite() or self.amount < 0 or self.cost_origin == "unknown"
+                )
+            )
+        ):
             raise ValueError("invalid LLM producer settlement event")
 
     @property
@@ -71,7 +81,7 @@ class LLMProducerEvent:
             "response_digest": self.response_digest,
             "model": self.model,
             "provider": self.provider,
-            "amount": str(self.amount),
+            "amount": str(self.amount) if self.amount is not None else None,
             "cost_origin": self.cost_origin,
             "kind": self.kind,
             "origin_event_id": self.origin_event_id,
@@ -108,6 +118,120 @@ class LLMProducerSettlement:
             or self.ack.payload_digest != self.event.payload_digest
         ):
             raise ValueError("settlement acknowledgement does not bind the producer event")
+        if self.event.amount is None and self.ack.status == "committed":
+            raise ValueError("unknown producer amount cannot acquire a committed acknowledgement")
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class LLMAuditObligation:
+    """A required audit act distinct from an already known monetary receipt."""
+
+    event: LLMProducerEvent | None
+    run_id: str
+    scope_key: tuple[str, ...]
+    charge_ack: LLMSettlementAck | None
+    actor: str = "budget_enforcer"
+    action: Literal[
+        "BUDGET_RESERVED", "BUDGET_CHECK", "BUDGET_EXCEEDED", "BUDGET_RELEASED", "BUDGET_COMMITTED"
+    ] = "BUDGET_COMMITTED"
+    act_id: str = ""
+    _metadata_json: str = field(repr=False)
+
+    def __init__(
+        self,
+        event: LLMProducerEvent | None,
+        run_id: str,
+        scope_key: tuple[str, ...],
+        charge_ack: LLMSettlementAck | None,
+        action: Literal[
+            "BUDGET_RESERVED",
+            "BUDGET_CHECK",
+            "BUDGET_EXCEEDED",
+            "BUDGET_RELEASED",
+            "BUDGET_COMMITTED",
+        ] = "BUDGET_COMMITTED",
+        act_id: str = "",
+        metadata: tuple[tuple[str, Any], ...] = (),
+        actor: str = "budget_enforcer",
+    ) -> None:
+        object.__setattr__(self, "event", event)
+        object.__setattr__(self, "run_id", run_id)
+        object.__setattr__(self, "scope_key", tuple(scope_key))
+        object.__setattr__(self, "charge_ack", charge_ack)
+        object.__setattr__(self, "actor", actor)
+        object.__setattr__(self, "action", action)
+        object.__setattr__(self, "act_id", act_id)
+        object.__setattr__(
+            self,
+            "_metadata_json",
+            stable_json_dumps(to_python_data(dict(metadata)), sort_keys=True),
+        )
+
+    @property
+    def metadata(self) -> tuple[tuple[str, Any], ...]:
+        """Return a detached view of the original canonical protected-act payload."""
+        return tuple(json.loads(self._metadata_json).items())
+
+    @property
+    def payload_digest(self) -> str:
+        """Bind the original operation, actual run, owner scope and charge receipts."""
+        return _request_digest(
+            {
+                "producer_event": self.event.payload_digest if self.event is not None else None,
+                "act_id": self.act_id,
+                "metadata": self.metadata,
+                "run_id": self.run_id,
+                "scope_key": self.scope_key,
+                "action": self.action,
+                "actor": self.actor,
+                "charge_ack": {
+                    "event_id": self.charge_ack.event_id,
+                    "payload_digest": self.charge_ack.payload_digest,
+                    "status": self.charge_ack.status,
+                    "durability": self.charge_ack.durability,
+                    "receipts": self.charge_ack.receipts,
+                }
+                if self.charge_ack is not None
+                else None,
+            }
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class LLMAuditResolution:
+    """Exact completion evidence returned by a constructor-admitted audit owner.
+
+    The reference is diagnostic. The trusted resolver verifies the physical
+    audit act; a string or this DTO alone does not establish audit authority.
+    """
+
+    obligation_digest: str
+    status: Literal["committed", "unknown"]
+    evidence_ref: str
+
+
+def _completion_amount(
+    data: Any, model: str
+) -> tuple[Decimal | None, Literal["reported", "estimated", "reuse", "unknown"]]:
+    """Admit a numeric amount only from reported cost or observed priced usage."""
+    if data.cache_hit:
+        return Decimal(0), "reuse"
+    origin: Literal["reported", "estimated"]
+    if data.cost_status == "known" and data.cost_usd is not None:
+        value, origin = data.cost_usd, "reported"
+    elif data.cost_status == "missing" and data.usage_status == "known":
+        value = estimate_llm_cost_usd(
+            model=model,
+            prompt_tokens=data.prompt_tokens,
+            completion_tokens=data.completion_tokens,
+        )
+        origin = "estimated"
+    else:
+        return None, "unknown"
+    amount = Decimal(str(value))
+    if not amount.is_finite() or amount < 0:
+        return None, "unknown"
+    return amount, origin
 
 
 class LLMSettledResponse:
@@ -192,6 +316,8 @@ def _cache_reuse_provenance(response: Any) -> _CacheReuseProvenance | None:
 class _SettlementOwner:
     scope_key: tuple[str, ...]
     settle: Callable[[LLMProducerEvent, Any], LLMSettlementAck]
+    attempt_id: str | None = None
+    request_digest: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -232,9 +358,13 @@ def _current_producer_completion() -> _ProducerCompletion | None:
 
 @contextmanager
 def _settlement_owner_context(
-    scope_key: tuple[str, ...], settle: Callable[[LLMProducerEvent, Any], LLMSettlementAck]
+    scope_key: tuple[str, ...],
+    settle: Callable[[LLMProducerEvent, Any], LLMSettlementAck],
+    *,
+    attempt_id: str | None = None,
+    request_digest: str | None = None,
 ) -> Iterator[None]:
-    token = _SETTLEMENT_OWNER.set(_SettlementOwner(scope_key, settle))
+    token = _SETTLEMENT_OWNER.set(_SettlementOwner(scope_key, settle, attempt_id, request_digest))
     try:
         yield
     finally:

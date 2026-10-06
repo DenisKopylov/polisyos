@@ -12,6 +12,7 @@ import hashlib
 import json
 import os
 import subprocess
+from contextlib import nullcontext
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -21,7 +22,7 @@ import pytest
 
 from polisyos.core.llm import response, settlement, traced_client
 from polisyos.core.llm.response import extract_llm_response_data
-from polisyos.core.llm.settlement import producer_settlement
+from polisyos.core.llm.settlement import _settlement_owner_context, producer_settlement
 from polisyos.core.llm.traced_client import LLMAccountingError, TracedLLMClient
 from polisyos.scientist.orchestration.engine import budget_ledger, budget_middleware
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
@@ -29,6 +30,10 @@ from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedg
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.llm import budget_enforcer, gateway_client, prompt_cache
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
+from polisyos.scientist.orchestration.llm.factory import (
+    GatewayLLMConfig,
+    create_traced_gateway_client,
+)
 from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayLLMClient,
     GatewayLLMResponse,
@@ -39,8 +44,27 @@ from polisyos.scientist.orchestration.llm.prompt_cache import (
     InMemoryPromptCache,
 )
 
-_UNKNOWN = ("sdk-missing-usage", "sdk-invalid-usage", "raw-none-default-usage", "none-response")
-_KNOWN = ("reported-positive", "reported-zero", "priced-known-usage", "priced-free-usage")
+_UNKNOWN = (
+    "sdk-missing-usage",
+    "sdk-invalid-usage",
+    "raw-none-default-usage",
+    "none-response",
+    "negative-cost",
+    "nan-cost",
+    "infinite-cost",
+    "fractional-usage",
+    "boolean-usage",
+    "cost-accessor-fault",
+    "positive-cost-underflow",
+    "negative-cost-underflow",
+)
+_KNOWN = (
+    "reported-positive",
+    "reported-zero",
+    "priced-known-usage",
+    "priced-free-usage",
+    "priced-known-zero-usage",
+)
 
 
 class _Span:
@@ -99,6 +123,24 @@ def _assert_source_custody() -> list[dict[str, Any]]:
 def _actual_response(kind: str, model: str) -> Any:
     if kind == "none-response":
         return None
+    if kind == "cost-accessor-fault":
+
+        class UnavailableCost:
+            prompt_tokens = 7
+            completion_tokens = 3
+
+            @property
+            def total_cost_usd(self) -> float:
+                raise OSError("obtained provider cost evidence is inaccessible")
+
+        return SimpleNamespace(
+            content="actual completed response",
+            model=model,
+            provider="synthetic-operation",
+            request_id="actual-provider-request",
+            usage=UnavailableCost(),
+            raw=None,
+        )
     if kind == "reported-zero":
         return GatewayLLMResponse(
             content="actual completed response",
@@ -118,10 +160,41 @@ def _actual_response(kind: str, model: str) -> Any:
             "completion_tokens": None,
             "cost_usd": "invalid",
         }
-    elif kind in {"reported-positive", "priced-known-usage", "priced-free-usage"}:
+    elif kind in {
+        "reported-positive",
+        "priced-known-usage",
+        "priced-free-usage",
+        "negative-cost",
+        "nan-cost",
+        "infinite-cost",
+        "fractional-usage",
+        "boolean-usage",
+        "positive-cost-underflow",
+        "negative-cost-underflow",
+    }:
         payload["usage"] = {"prompt_tokens": 7, "completion_tokens": 3, "total_tokens": 10}
         if kind == "reported-positive":
             payload["usage"]["cost_usd"] = 0.02
+        elif kind in {
+            "negative-cost",
+            "nan-cost",
+            "infinite-cost",
+            "positive-cost-underflow",
+            "negative-cost-underflow",
+        }:
+            payload["usage"]["cost_usd"] = {
+                "negative-cost": -0.02,
+                "nan-cost": "NaN",
+                "infinite-cost": "Infinity",
+                "positive-cost-underflow": "1e-1000",
+                "negative-cost-underflow": "-1e-1000",
+            }[kind]
+        elif kind == "fractional-usage":
+            payload["usage"]["prompt_tokens"] = 1.5
+        elif kind == "boolean-usage":
+            payload["usage"]["completion_tokens"] = True
+    elif kind == "priced-known-zero-usage":
+        payload["usage"] = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
     # Exercise the real supported gateway payload decoder, not a copied parser.
     sdk = GatewayLLMClient(base_url="https://oracle.invalid/v1", api_key="fixture", model=model)
     actual = sdk._parse_completion_payload(payload)
@@ -156,6 +229,10 @@ class _PhysicalProvider:
             "prompt_tokens": parsed.prompt_tokens,
             "completion_tokens": parsed.completion_tokens,
             "cost_usd": parsed.cost_usd,
+            "usage_status": parsed.usage_status,
+            "cost_status": parsed.cost_status,
+            "model": parsed.model,
+            "provider": parsed.provider,
             "raw_is_none": getattr(self.response, "raw", None) is None,
         }
         return self.response
@@ -164,15 +241,23 @@ class _PhysicalProvider:
 def _event_view(event: Any) -> dict[str, Any]:
     return {
         "event_id": event.event_id,
-        "amount": str(event.amount),
+        "amount": str(event.amount) if event.amount is not None else None,
         "cost_origin": event.cost_origin,
         "kind": event.kind,
         "payload_digest": event.payload_digest,
+        "request_digest": event.request_digest,
+        "model": event.model,
+        "provider": event.provider,
     }
 
 
 async def _exercise(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, kind: str, cancelled: bool
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    kind: str,
+    cancelled: bool,
+    *,
+    reopened_owner: bool = False,
 ) -> tuple[Any, dict[str, Any]]:
     source_origins = _assert_source_custody()
     model = "configured-free-model" if kind == "priced-free-usage" else "gpt-4o"
@@ -194,7 +279,10 @@ async def _exercise(
     path = tmp_path / "budget.json"
     ledger = FileBudgetLedger(path, ledger_id="ledger:unknown-cost-oracle")
     middleware = BudgetMiddleware(
-        BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}), ledger=ledger
+        BudgetState(
+            limits={key: BudgetLimit(key=key, max_usd=Decimal("10")) for key in ("run", "other")}
+        ),
+        ledger=ledger,
     )
     enforcer = LLMBudgetEnforcer(
         client=traced,
@@ -241,6 +329,55 @@ async def _exercise(
     result = completed[0]
     if not cancelled:
         await asyncio.gather(caller, return_exceptions=True)
+    reopened = None
+    if reopened_owner:
+        fresh_middleware = BudgetMiddleware(
+            BudgetState(limits={}),
+            ledger=FileBudgetLedger(path, ledger_id="ledger:unknown-cost-oracle"),
+        )
+        sibling = LLMBudgetEnforcer(
+            client=traced,
+            budget_state=fresh_middleware.budget_state,
+            budget_middleware=fresh_middleware,
+            budget_keys=["run"],
+            model_name=model,
+            run_id="different-run-cannot-erase-same-budget-obligation",
+        )
+        try:
+            await sibling.generate(user="new request", max_tokens=2, _prompt_tokens_estimate=1)
+        except Exception as exc:
+            sibling_error = type(exc).__name__
+        else:
+            sibling_error = None
+        other_root = tmp_path / "other-budget-operation"
+        other_root.mkdir()
+        other_provider = _PhysicalProvider(other_root, "reported-positive", model)
+        other_provider.release.set()
+        other_client = TracedLLMClient(
+            other_provider,
+            model_name=model,
+            tracer=SimpleNamespace(start_as_current_span=lambda *_a, **_k: _Span()),
+            metrics=SimpleNamespace(record_llm_call=lambda **_k: None),
+        )
+        other = LLMBudgetEnforcer(
+            client=other_client,
+            budget_state=fresh_middleware.budget_state,
+            budget_middleware=fresh_middleware,
+            budget_keys=["other"],
+            model_name=model,
+            run_id="nonintersecting-budget-control",
+        )
+        other_result = await other.generate(
+            user="other key", _prompt_tokens_estimate=1, max_tokens=2
+        )
+        other_settlement = producer_settlement(other_result)
+        reopened = {
+            "same_key_result_exception": sibling_error,
+            "same_key_actual_provider_calls": provider.calls,
+            "different_key_provider_calls": other_provider.calls,
+            "different_key_charge": str(other_settlement.event.amount),
+            "different_key_ack_status": other_settlement.ack.status,
+        }
     snapshot = FileBudgetLedger(path, ledger_id="ledger:unknown-cost-oracle").snapshot()
     work = [json.loads(line) for line in provider.path.read_text().splitlines()]
     output = {
@@ -257,6 +394,7 @@ async def _exercise(
         "required_callback_events": len(records),
         "cache_entries": cache._cache.size,
         "fresh_ledger_snapshot": snapshot.model_dump(mode="json"),
+        "reopened_owner": reopened,
     }
     print("B66_ACTUAL " + json.dumps(output, sort_keys=True))
     assert provider.calls == len(work) == 1
@@ -297,6 +435,82 @@ def test_known_usage_and_price_preserve_legitimate_charge_controls(
         assert settled.event.amount == 0 and settled.event.cost_origin == "reported"
     else:
         assert settled.event.cost_origin == "estimated"
-        assert (settled.event.amount == 0) is (kind == "priced-free-usage")
+        assert (settled.event.amount == 0) is (
+            kind in {"priced-free-usage", "priced-known-zero-usage"}
+        )
     assert settled.ack.receipts[0].amount == settled.event.amount
     assert Decimal(output["fresh_ledger_snapshot"]["state"]["spent"]["run"]) == settled.event.amount
+
+
+@pytest.mark.parametrize("profile", ["required-accounting", "active-settlement", "unmanaged"])
+def test_factory_streaming_cannot_bypass_configured_completion(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, profile: str
+) -> None:
+    work = tmp_path / "stream-provider-work.jsonl"
+
+    async def physical_stream(_client: Any, **kwargs: Any):
+        with work.open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps(kwargs) + "\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        yield "actual unmanaged stream"
+
+    monkeypatch.setattr(GatewayLLMClient, "generate_stream", physical_stream)
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "0")
+    client = create_traced_gateway_client(
+        model_name="gpt-4o",
+        config=GatewayLLMConfig(
+            base_url="https://oracle.invalid/v1",
+            api_key="fixture",
+            cache_maxsize=0,
+            enable_prompt_sanitizer=False,
+        ),
+        required_accounting=(lambda _event: None) if profile == "required-accounting" else None,
+        tracer=SimpleNamespace(start_as_current_span=lambda *_a, **_k: _Span()),
+        metrics=SimpleNamespace(record_llm_call=lambda **_k: None),
+    )
+    assert client is not None
+
+    def unexpected_settlement(*_args: Any) -> None:
+        raise AssertionError("unsupported streaming must refuse before provider/settlement")
+
+    async def consume() -> list[Any]:
+        context = (
+            _settlement_owner_context(("trusted-test-composition",), unexpected_settlement)
+            if profile == "active-settlement"
+            else nullcontext()
+        )
+        with context:
+            return [item async for item in client.generate_stream(user="actual stream request")]
+
+    if profile == "unmanaged":
+        assert asyncio.run(consume()) == ["actual unmanaged stream"]
+        assert len(work.read_text().splitlines()) == 1
+    else:
+        with pytest.raises(NotImplementedError, match="settlement contract"):
+            asyncio.run(consume())
+        assert not work.exists()
+    print(
+        "B66_STREAM_ADMISSION "
+        + json.dumps({"profile": profile, "actual_provider_work": work.exists()})
+    )
+
+
+@pytest.mark.parametrize("kind", _UNKNOWN[:4])
+@pytest.mark.parametrize("cancelled", [False, True])
+def test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, kind: str, cancelled: bool
+) -> None:
+    result, output = asyncio.run(
+        _exercise(tmp_path, monkeypatch, kind, cancelled, reopened_owner=True)
+    )
+    assert isinstance(result, LLMAccountingError)
+    reopened = output["reopened_owner"]
+    assert reopened["same_key_result_exception"] == "LLMAccountingError"
+    assert reopened["same_key_actual_provider_calls"] == 1
+    assert reopened["different_key_provider_calls"] == 1
+    assert reopened["different_key_charge"] == "0.02"
+    assert reopened["different_key_ack_status"] == "committed"
+    assert not output["actual_acks"] and not output["fresh_ledger_snapshot"]["state"]["spent"].get(
+        "run"
+    )

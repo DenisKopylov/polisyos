@@ -15,11 +15,13 @@ from typing import Any, Protocol
 
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import stable_json_dumps, to_python_data
+from polisyos.core.llm.response import LLMUsageStatus, extract_llm_response_data
 from polisyos.core.llm.settlement import (
     LLMProducerSettlement,
     LLMSettledResponse,
     _CacheReuseOwner,
     _CacheReuseProvenance,
+    _completion_amount,
     _current_producer_completion,
     _request_digest,
     producer_settlement,
@@ -180,6 +182,8 @@ class _SerializedGatewayResponse:
     request_id: str | None
     response_headers: dict[str, str] | None
     raw_json: bytes | None
+    usage_status: LLMUsageStatus | None = None
+    cost_status: LLMUsageStatus | None = None
     tool_calls: tuple[_SerializedGatewayToolCall, ...] = ()
     settlement: LLMProducerSettlement | None = None
 
@@ -636,6 +640,18 @@ class CachingLLMClient:
                 if isinstance(response, GatewayLLMResponse):
                     _mark_cache_response(response, status="miss", cache_key=cache_key)
 
+                amount, _ = _completion_amount(extract_llm_response_data(response), self._model)
+                if amount is None:
+                    from polisyos.core.llm.traced_client import LLMAccountingError
+
+                    raise LLMAccountingError(
+                        response=response,
+                        event={"settlement_status": "unknown", "cost_origin": "unknown"},
+                        cause=RuntimeError(
+                            "unknown provider amount cannot publish a reusable result"
+                        ),
+                    )
+
                 def admit() -> None:
                     self._require_emission_admission(deadline, admission)
 
@@ -962,6 +978,8 @@ def _freeze_response(response: GatewayLLMResponse) -> _SerializedGatewayResponse
         request_id=response.request_id,
         response_headers=dict(response.response_headers) if response.response_headers else None,
         raw_json=_serialize_payload(response.raw),
+        usage_status=response.usage.usage_status,
+        cost_status=response.usage.cost_status,
         settlement=producer_settlement(response),
         tool_calls=tuple(
             _SerializedGatewayToolCall(
@@ -983,6 +1001,8 @@ def _thaw_response(response: _SerializedGatewayResponse) -> GatewayLLMResponse:
             completion_tokens=response.usage_completion_tokens,
             total_tokens=response.usage_total_tokens,
             cost_usd=response.usage_cost_usd,
+            usage_status=response.usage_status,
+            cost_status=response.cost_status,
         ),
         model=response.model,
         provider=response.provider,

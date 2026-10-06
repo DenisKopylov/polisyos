@@ -8,13 +8,13 @@ import uuid
 from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from decimal import Decimal
 from email.utils import parsedate_to_datetime
 from typing import TYPE_CHECKING, Any
 
 import aiohttp
 
 from polisyos.common.logger import get_logger
+from polisyos.core.llm.response import LLMUsageStatus, extract_llm_response_data
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 logger = get_logger(__name__)
@@ -31,6 +31,18 @@ class GatewayUsage:
     completion_tokens: int = 0
     total_tokens: int = 0
     cost_usd: float | None = None
+    usage_status: LLMUsageStatus | None = None
+    cost_status: LLMUsageStatus | None = None
+
+    def __post_init__(self) -> None:
+        # Legacy numeric telemetry remains numeric. Defaults carry no evidence
+        # that the provider actually reported a zero-token operation.
+        if self.usage_status is None:
+            self.usage_status = (
+                "known" if self.prompt_tokens or self.completion_tokens else "missing"
+            )
+        if self.cost_status is None:
+            self.cost_status = "known" if self.cost_usd is not None else "missing"
 
 
 @dataclass(slots=True)
@@ -566,23 +578,14 @@ class GatewayLLMClient:
         content = self._normalize_content(raw_content)
 
         usage_payload = payload.get("usage")
-        cost_usd = _as_float(
-            _extract_usage_value(usage_payload, "total_cost_usd")
-            or _extract_usage_value(usage_payload, "cost_usd")
-            or payload.get("cost_usd")
-            or payload.get("total_cost_usd")
-            or payload.get("cost")
-        )
-        if cost_usd is None:
-            base_cost = _as_float(_extract_usage_value(usage_payload, "base_cost_usd"))
-            platform_fee = _as_float(_extract_usage_value(usage_payload, "platform_fee_usd"))
-            if base_cost is not None or platform_fee is not None:
-                cost_usd = (base_cost or 0.0) + (platform_fee or 0.0)
+        observed = extract_llm_response_data(payload)
         usage = GatewayUsage(
-            prompt_tokens=_as_int(_extract_usage_value(usage_payload, "prompt_tokens")),
-            completion_tokens=_as_int(_extract_usage_value(usage_payload, "completion_tokens")),
+            prompt_tokens=observed.prompt_tokens,
+            completion_tokens=observed.completion_tokens,
             total_tokens=_as_int(_extract_usage_value(usage_payload, "total_tokens")),
-            cost_usd=cost_usd,
+            cost_usd=observed.cost_usd,
+            usage_status=observed.usage_status,
+            cost_status=observed.cost_status,
         )
         if usage.total_tokens <= 0:
             usage.total_tokens = usage.prompt_tokens + usage.completion_tokens
@@ -669,25 +672,9 @@ def _extract_usage_value(payload: Any, key: str) -> Any:
 def _as_int(value: Any) -> int:
     try:
         parsed = int(value)
-    except (TypeError, ValueError):
+    except (OverflowError, TypeError, ValueError):
         return 0
     return max(parsed, 0)
-
-
-def _as_float(value: Any) -> float | None:
-    if value is None:
-        return None
-    if isinstance(value, bool):
-        return None
-    if not isinstance(value, (int, float, Decimal, str)):
-        return None
-    try:
-        parsed = float(value)
-    except (TypeError, ValueError):
-        return None
-    if parsed < 0:
-        return 0.0
-    return parsed
 
 
 def _as_str(value: Any) -> str | None:

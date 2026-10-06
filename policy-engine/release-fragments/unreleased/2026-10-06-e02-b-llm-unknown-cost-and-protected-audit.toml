@@ -1,0 +1,17 @@
+id = "2026-10-06-e02-b-llm-unknown-cost-and-protected-audit"
+title = "Retain unknown LLM cost and required audit completion"
+type = "fixed"
+component = "scientist-orchestration"
+owner = "team-scientist"
+summary = "Provider usage knowledge remains distinct from telemetry defaults; initialized budget composition persists request intent before provider work and retains unknown monetary or protected audit obligations before another intersecting spend."
+evidence = ["tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py", "tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py"]
+compatibility = "Default GatewayUsage zero counts no longer imply observed free usage. Known reported zero, validated zero counts and configured free pricing remain supported. Entered provider failures retain unresolved reservation rather than silently release it."
+change_class = "python-public-api"
+surface_classification = "public_experimental: GatewayUsage and LLMBudgetEnforcer; public_stable additive knowledge fields: LLMResponseData; internal: producer settlement and audit resolution contracts"
+migration = "Use explicit valid usage/cost evidence in providers and fixtures. Compose initialized BudgetMiddleware for durable intent and completion fencing. Supply an audit_reconciler only through trusted constructor composition that verifies the exact original protected act."
+api = "GatewayUsage and LLMResponseData expose usage_status/cost_status. LLMBudgetEnforcer accepts an optional trusted audit_reconciler and exposes reconcile_required_audit(act_id); unresolved monetary evidence is carried as amount=None internally."
+limitations = "No external invoice or institutional reuse permission is inferred. An unobserved entered provider attempt remains unknown without exact provider evidence. Ambiguous audit effects require owner verification, not automatic duplicate append. BudgetState alone is a memory profile; optional metrics are not financial acknowledgements."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/core/llm/README.md", "src/polisyos/scientist/orchestration/llm/README.md"]
+runbook_docs = []

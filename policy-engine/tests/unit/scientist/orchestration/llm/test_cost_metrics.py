@@ -12,6 +12,7 @@ from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
 from polisyos.scientist.orchestration.llm.cost_anomaly import CostAnomalyDetector
@@ -45,6 +46,10 @@ def _mock_response(prompt_tokens: int = 100, completion_tokens: int = 50) -> Mag
     usage = MagicMock()
     usage.prompt_tokens = prompt_tokens
     usage.completion_tokens = completion_tokens
+    for field in ("total_cost_usd", "cost_usd", "cost", "usage_status", "cost_status"):
+        setattr(usage, field, None)
+    for field in ("total_cost_usd", "cost_usd", "cost"):
+        setattr(resp, field, None)
     resp.usage = usage
     return resp
 

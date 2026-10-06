@@ -45,8 +45,32 @@ Followers share the producer deadline. Cache reads recheck the supplied owner de
 before emission; custom caches must implement `put(..., admission_check=...)` at their
 atomic storage boundary. An unsupported signature refuses before provider work starts.
 Atomic publication is verified here for `InMemoryPromptCache`; a foreign implementation
-requires its own conformance evidence. The owner decision itself remains a deployment
-premise, including any required atomic epoch semantics.
+  requires its own conformance evidence. The owner decision itself remains a deployment
+  premise, including any required atomic epoch semantics.
+
+`GatewayUsage` keeps numeric telemetry fields and adds usage/cost knowledge statuses. Its
+default zero counts represent missing evidence. The canonical SDK parser distinguishes explicit
+valid zero counts, missing fields and invalid fields; cache serialization preserves those statuses.
+An observed valid reported cost takes precedence over usage pricing. Missing cost is estimated
+only from validated observed counts; invalid or inaccessible cost evidence remains unknown.
+
+With an initialized filesystem ledger, `LLMBudgetEnforcer` atomically reserves all target keys
+and persists an exact request intent before the client is entered. Constructor-bound live-owner
+identity permits concurrent owned in-flight calls. A fresh owner blocks unresolved old intents;
+unknown cost, unknown charge ACK and pending protected audit acts block intersecting new work.
+Known charge receipts remain separate from required audit delivery. Supplied protected budget
+audit actions retain their exact run, payload and reservation/charge context on failure. A trusted
+constructor `audit_reconciler` may verify the original act and return a typed exact resolution;
+`reconcile_required_audit(act_id)` neither regenerates a response nor charges again. Restoration
+of an append target, a diagnostic reference or a caller-provided boolean cannot clear pending work.
+Ambiguous external/provider status and audit effects need exact owner evidence; the wrapper does
+not invent zero cost or blindly append a replacement act. A plain `BudgetState` has only memory
+accounting. Existing deployment call sites and the factory must explicitly compose initialized
+middleware to obtain the durable profile; these capabilities do not imply a deployed billing or
+institutional reuse-authority contract.
+The factory's traced client refuses delegated streaming when required accounting is configured;
+streaming is not a supported financial completion port in this profile. Unmanaged streaming is
+outside these completion receipts.
 
 ## Public API
 

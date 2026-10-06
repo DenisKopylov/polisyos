@@ -1,0 +1,736 @@
+{
+  "schema": "policyos.c54.final_handoff.v1",
+  "status": "final_root_adjudicated",
+  "prepared_utc_date": "2026-10-06",
+  "implementation": {
+    "branch": "codex/e02-C-continuation-20261006",
+    "commit": "d50d28e4555c4e87e1d4732b81836ae8502c6849",
+    "tree": "58d0bfc902b9cff182fe959a99a337223bcb1656",
+    "publication_owner": "root is the sole main publisher; this lane did not push",
+    "tracked_file_count": 31,
+    "committed_file_manifest_path_at_sha256": "policy-engine/.tmp/e02-C2/raw/census/postcommit-verification-d50d28e45/postcommit-verification.json@sha256:4e761f68d7c5763d4b6f108acb8dbeb59003d4f0524a418047c792a8b80920b3"
+  },
+  "decision_table": {
+    "json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+      "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+      "bytes": 322414
+    },
+    "markdown": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.md",
+      "sha256": "be86d1688acde9d3589536ab8ea2518fe2c65899bf25254743792dffe5ef4fd8",
+      "bytes": 176581
+    },
+    "source_snapshot": {
+      "branch": "codex/e02-C-continuation-20261006",
+      "commit": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+      "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+    },
+    "base": {
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "denominator": {
+      "all_bundles": 127,
+      "all_findings": 282,
+      "canonical_criterion_occurrences": 291,
+      "C_bundles": 33,
+      "C_findings": 54,
+      "C_hash_bound_criteria": 59
+    },
+    "C_denominator": {
+      "findings": 54,
+      "bundles": 33,
+      "hash_bound_criterion_occurrences": 59
+    },
+    "root_adjudication": {
+      "counts": {
+        "closed": 31,
+        "held": 14,
+        "limited": 9
+      },
+      "historical_status_is_separate": true
+    },
+    "receipt_index_entries": 210,
+    "resolvable_RFC6901_pointers": 282,
+    "row_fields": {
+      "per_finding_owner_and_remaining_work": "See each row next_owner, missing_inputs_or_skipped_backend, and remaining_verification fields; no row status is derived from historical status."
+    }
+  },
+  "postcommit_verification": {
+    "raw_manifest_path_at_sha256": "policy-engine/.tmp/e02-C2/raw/census/postcommit-verification-d50d28e45/postcommit-verification.json@sha256:4e761f68d7c5763d4b6f108acb8dbeb59003d4f0524a418047c792a8b80920b3",
+    "generator": {
+      "exit_code": 0,
+      "stdout_path_at_sha256": "policy-engine/.tmp/e02-C2/raw/census/postcommit-verification-d50d28e45/generator.stdout.json@sha256:1a59f9985be20a9e711d10c526551c52a73a31debffea140b7f3d0b1ef5851cc",
+      "json_replay": {
+        "path": "policy-engine/.tmp/e02-C2/raw/census/postcommit-replay-d50d28e45/replay.json",
+        "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+        "bytes": 322414
+      },
+      "markdown_replay": {
+        "path": "policy-engine/.tmp/e02-C2/raw/census/postcommit-replay-d50d28e45/replay.md",
+        "sha256": "be86d1688acde9d3589536ab8ea2518fe2c65899bf25254743792dffe5ef4fd8",
+        "bytes": 176581
+      },
+      "both_replays_byte_identical_to_committed_table": true
+    },
+    "validator": {
+      "exit_code": 0,
+      "stdout_path_at_sha256": "policy-engine/.tmp/e02-C2/raw/census/postcommit-verification-d50d28e45/validator.stdout.json@sha256:ef9a01fa01a8afbb8396e31cf77156acc2307600804898247d85982ef0157d52",
+      "stderr_path_at_sha256": "policy-engine/.tmp/e02-C2/raw/census/postcommit-verification-d50d28e45/validator.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "summary": {
+        "result": "PASS",
+        "cut_sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+        "companion_markdown_sha256": "be86d1688acde9d3589536ab8ea2518fe2c65899bf25254743792dffe5ef4fd8",
+        "coverage_denominator": {
+          "all_bundles": 127,
+          "all_findings": 282,
+          "canonical_criterion_occurrences": 291,
+          "C_bundles": 33,
+          "C_findings": 54,
+          "C_hash_bound_criteria": 59
+        },
+        "rows": 54,
+        "verdict_counts": {
+          "closed": 31,
+          "limited": 9,
+          "held": 14
+        },
+        "verdict_summary_aliases_checked": [
+          {
+            "path": "/final_verdict_counts_derived_from_all_54_rows",
+            "counts": {
+              "closed": 31,
+              "held": 14,
+              "limited": 9
+            }
+          },
+          {
+            "path": "/final_adjudication/counts",
+            "counts": {
+              "closed": 31,
+              "held": 14,
+              "limited": 9
+            }
+          }
+        ],
+        "historical_inventory_rows_and_four_columns_checked": 54,
+        "current_C_md_rows_checked": 54,
+        "criterion_occurrences_source_line_span_and_SHA_checked": 59,
+        "receipt_entries_SHA_size_locator_tree_blob_checked": 210,
+        "receipt_ids_derived_from_complete_declared_index": 210,
+        "nested_file_manifests_SHA_and_size_checked": [
+          {
+            "receipt_id": "R210",
+            "files": 7
+          }
+        ],
+        "RFC_6901_pointers_resolved": 282,
+        "source_DAG_semantic_closure_claimed": false
+      }
+    }
+  },
+  "independent_reviews": [
+    {
+      "scope": "complete v8-source / 54-row review and initial evidence-binding audit",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/prior-v8-full-review.md",
+      "sha256": "9dd54c19b621e58054537c7494d5b61205567b3501079ba08f7968638c6d166b"
+    },
+    {
+      "scope": "v10 delta review, including canonical tracked-input binding and declared-count aliases",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/final54-c2/v10/review/v10-independent-delta-review.md",
+      "sha256": "1b3bea51419bbc9b434b3641547ccd6130118898e6628fbf384cc6c30c92d256",
+      "decision": "GO"
+    }
+  ],
+  "source_families": {
+    "unique_final_handoff_count": 13,
+    "families": {
+      "FED": {
+        "branch": "codex/e02-C-federation-20261006",
+        "head": "26ba51d571a5ccb5da26502d4d097d801cdc5b04",
+        "tree": "04ab94e5672451a8e765b99d0feb2abe7dfd067b",
+        "handoff_receipt": {
+          "receipt_id": "R01",
+          "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/federation.json@sha256:03f7ff6db7c8e8780e4d72c70a0213c27abd211d3dbe969a66c3e060d8a98575",
+          "sha256": "03f7ff6db7c8e8780e4d72c70a0213c27abd211d3dbe969a66c3e060d8a98575",
+          "head": "26ba51d571a5ccb5da26502d4d097d801cdc5b04",
+          "tree": "04ab94e5672451a8e765b99d0feb2abe7dfd067b"
+        },
+        "source_pins": [
+          {
+            "commit": "70f6474883f572a56ce114aa6d298d33a30ef33a",
+            "tree": "18adf1408156e1461fd3cf421bae2f796f8b15ad",
+            "role": "production source freeze"
+          },
+          {
+            "commit": "575e7b16b59d374fc09e74563ba5dd2698877c64",
+            "tree": "621286c1c9a06059d3ecce983fffc7e2d1eead65",
+            "role": "reviewed tied-JOIN test delta"
+          }
+        ],
+        "declared_candidate_tree": "621286c1c9a06059d3ecce983fffc7e2d1eead65"
+      },
+      "ING": {
+        "branch": "codex/e02-C-continuation-20261006",
+        "head": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+        "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2",
+        "handoff_receipt": {
+          "receipt_id": "R02",
+          "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ing-streaming-c2.json@sha256:82eae00e0d3a3615a0adef5696526838ed4ea69f5f4ca8b1d4de76e7a466a5a0",
+          "sha256": "82eae00e0d3a3615a0adef5696526838ed4ea69f5f4ca8b1d4de76e7a466a5a0",
+          "head": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+          "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+        },
+        "source_pins": [
+          {
+            "commit": "68eed6d56f48e9a676edeb3251902300a64d5fad",
+            "tree": "0d0163f817c7b697e18f96c0056076a7360b8e8f",
+            "role": "product source freeze"
+          },
+          {
+            "commit": "81a4af184d72cd28e7ab4063140432e2af764547",
+            "tree": "c3423c94f28409ec663ec3b161ca85eecfe6207c",
+            "role": "full reviewed candidate"
+          }
+        ],
+        "declared_candidate_tree": "c3423c94f28409ec663ec3b161ca85eecfe6207c"
+      },
+      "SCL": {
+        "branch": "codex/e02-C-scholar-20261006",
+        "head": "f7af77f3373e4d22f703efa7208c19c6ffed1746",
+        "tree": "9d6c122811db158a7a84a43f534a1d1c1209b3a6",
+        "handoff_receipt": {
+          "receipt_id": "R03",
+          "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006.json@sha256:05296140c07a43bdd99c22ef8275d839cfd6b63edb37a9a423c869c459fbc1d0",
+          "sha256": "05296140c07a43bdd99c22ef8275d839cfd6b63edb37a9a423c869c459fbc1d0",
+          "head": "f7af77f3373e4d22f703efa7208c19c6ffed1746",
+          "tree": "9d6c122811db158a7a84a43f534a1d1c1209b3a6"
+        },
+        "source_pins": [
+          {
+            "commit": "01c303c2a94a1ff281e4fcc9804db60183e65d68",
+            "tree": "7bf3e8dda2bb1179b9960ffb3c5be5a5fb8e101f",
+            "role": "latest source commit listed by current handoff"
+          }
+        ],
+        "declared_candidate_tree": "7bf3e8dda2bb1179b9960ffb3c5be5a5fb8e101f"
+      },
+      "HYG": {
+        "branch": "codex/e02-C-hygiene-20261006",
+        "head": "4f55312a51bcd95ee125ac2f1bec1df59b0d65c3",
+        "tree": "bacca23097d439484585f578c5c9a75a6e81baa8",
+        "handoff_receipt": {
+          "receipt_id": "R06",
+          "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-final-adjudication-954078.json@sha256:83ef9f2f94043b62a6fe47c0c5110bd0570e6883ea013ab54b9543fcfbd039c0",
+          "sha256": "83ef9f2f94043b62a6fe47c0c5110bd0570e6883ea013ab54b9543fcfbd039c0",
+          "head": "4f55312a51bcd95ee125ac2f1bec1df59b0d65c3",
+          "tree": "bacca23097d439484585f578c5c9a75a6e81baa8"
+        },
+        "source_pins": [
+          {
+            "commit": "1e8aa374829884fcab9b6eca6616c5a7df4beb16",
+            "tree": "23e5b56e2a42a652770a698a4259a23f4a41277e",
+            "role": "current typed root-sentinel source fix"
+          },
+          {
+            "commit": "95407808d90bd7c5c7ca7898a8423fe6d4ee9180",
+            "tree": "77424caabdb0a4e0cdd7b6160de9beacceb944bf",
+            "role": "exact sdist source snapshot and appended HYG evidence handoff"
+          }
+        ],
+        "declared_candidate_tree": null
+      },
+      "CLI": {
+        "branch": "codex/e02-C-client-20261006",
+        "head": "5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1",
+        "tree": "0f4760eb05ab3ed4493417fa489870e301700293",
+        "handoff_receipt": {
+          "receipt_id": "R10",
+          "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/client-c2-20261006.json@sha256:6f377d5ccbe5a21fda904e988c4f0190172f6fec26bdce42ad015512bc1fa602",
+          "sha256": "6f377d5ccbe5a21fda904e988c4f0190172f6fec26bdce42ad015512bc1fa602",
+          "head": "5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1",
+          "tree": "0f4760eb05ab3ed4493417fa489870e301700293"
+        },
+        "source_pins": [
+          {
+            "commit": "c21584f390ae0e53602833df34571a0d9545f13e",
+            "tree": "70fbd5436efe077f046c18272e2ab64d3e178ad8",
+            "role": "latest source commit listed by current handoff"
+          }
+        ],
+        "declared_candidate_tree": "70fbd5436efe077f046c18272e2ab64d3e178ad8"
+      },
+      "PLG": {
+        "branch": "codex/e02-C-plugins-20261006",
+        "head": "976212bbefb684da4823f61d810bf7a208a6e298",
+        "tree": "208f0d81b0628e0af43425824a07882ec1cba993",
+        "handoff_receipt": {
+          "receipt_id": "R11",
+          "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/domain-plugin-training.json@sha256:54d78061215010d7072ba4e20ba2e2c16cd3128063be69b72608fce031412bbf",
+          "sha256": "54d78061215010d7072ba4e20ba2e2c16cd3128063be69b72608fce031412bbf",
+          "head": "976212bbefb684da4823f61d810bf7a208a6e298",
+          "tree": "208f0d81b0628e0af43425824a07882ec1cba993"
+        },
+        "source_pins": [
+          {
+            "commit": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+            "tree": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
+            "role": "production implementation freeze"
+          },
+          {
+            "commit": "443f346f5cf33f37175fc8e4dfe61d1060bc07f5",
+            "tree": "2fba3a9d2f78d96471eaf45b66b04054ad3a6bc8",
+            "role": "pinned PLG-03 focused selector tests (test-only commit)"
+          },
+          {
+            "commit": "6e05749123250949cd0fb34c3c0e04a0cbbdd2b0",
+            "tree": "1ff5a966ec6b7149eaba208b0bc625b9ec603183",
+            "role": "related one-call training support source"
+          }
+        ],
+        "declared_candidate_tree": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a"
+      },
+      "MIG": {
+        "branch": "codex/e02-C-migrations-20261006",
+        "head": "fe15a3604801f9a8c4fda51c73f51976f52d6c25",
+        "tree": "9c10b9ecf893ce8ce3355391c673a05823f84233",
+        "handoff_receipt": {
+          "receipt_id": "R13",
+          "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-root-resolution-004ae.json@sha256:ff2879c23edcc83e9189ce9ad767ba72fa744105138b10107e56dfe1df7cc128",
+          "sha256": "ff2879c23edcc83e9189ce9ad767ba72fa744105138b10107e56dfe1df7cc128",
+          "head": "fe15a3604801f9a8c4fda51c73f51976f52d6c25",
+          "tree": "9c10b9ecf893ce8ce3355391c673a05823f84233"
+        },
+        "source_pins": [
+          {
+            "commit": "5a72f76b360e2635d06cee791c51f6e7100bc501",
+            "tree": "e18e810747b84a59d6c37453f8eb213438c98850",
+            "role": "migration candidate source"
+          },
+          {
+            "commit": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
+            "tree": "5369c0167bc63096a12ee1bea666b42c837ea78b",
+            "role": "current validated-root source delta"
+          }
+        ],
+        "declared_candidate_tree": null
+      },
+      "OBS": {
+        "branch": "codex/e02-C-obs-udf-20261006",
+        "head": "705575be73510d40d726c82c5a0af4bf8635a2a8",
+        "tree": "623a5ddd9e9512262f7944885a811930574733f0",
+        "handoff_receipt": {
+          "receipt_id": "R15",
+          "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf.json@sha256:6dff493387ddf638f68989a9143ce16e9218329d4104c9cd657b915e61595fb2",
+          "sha256": "6dff493387ddf638f68989a9143ce16e9218329d4104c9cd657b915e61595fb2",
+          "head": "705575be73510d40d726c82c5a0af4bf8635a2a8",
+          "tree": "623a5ddd9e9512262f7944885a811930574733f0"
+        },
+        "source_pins": [
+          {
+            "commit": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+            "tree": "3602443723a9a57b1a988ae3933b2d1d7c17f2bc",
+            "role": "latest source commit listed by current handoff"
+          }
+        ],
+        "declared_candidate_tree": "3602443723a9a57b1a988ae3933b2d1d7c17f2bc"
+      },
+      "DFK": {
+        "branch": "codex/e02-C-schema-20261006",
+        "head": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+        "tree": "715e11ef478d6c8827494e6da89ed08792708fb2",
+        "handoff_receipt": {
+          "receipt_id": "R16",
+          "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-b8-final-handoff.json@sha256:f601dc0fedef9b2ddffab63bc839bd7f04a4697e6ffeea6191436bfafde28fce",
+          "sha256": "f601dc0fedef9b2ddffab63bc839bd7f04a4697e6ffeea6191436bfafde28fce",
+          "head": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+          "tree": "715e11ef478d6c8827494e6da89ed08792708fb2"
+        },
+        "source_pins": [
+          {
+            "commit": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+            "tree": "467cd6f01ec204767dc60bb939955578428bf102",
+            "role": "current ImportFrom child-module fix"
+          }
+        ],
+        "declared_candidate_tree": "467cd6f01ec204767dc60bb939955578428bf102"
+      },
+      "CAT": {
+        "branch": "codex/e02-C-catalog-20261006",
+        "head": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+        "tree": "feda38826ac6cf2a3a5ac38e0e86dd72d72d8730",
+        "handoff_receipt": {
+          "receipt_id": "R17",
+          "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006.json@sha256:cddc8c7b9cf81ba1a4f06bffd7d04f857892d479699f0874153e18d88218a987",
+          "sha256": "cddc8c7b9cf81ba1a4f06bffd7d04f857892d479699f0874153e18d88218a987",
+          "head": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+          "tree": "feda38826ac6cf2a3a5ac38e0e86dd72d72d8730"
+        },
+        "source_pins": [
+          {
+            "commit": "ab44166335130463178e65dfc29a252c96afe479",
+            "tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+            "role": "latest source commit listed by current handoff"
+          }
+        ],
+        "declared_candidate_tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "evidence_artifact_count": 74,
+        "evidence_artifact_receipt_ids": [
+          "R86",
+          "R87",
+          "R88",
+          "R89",
+          "R90",
+          "R91",
+          "R92",
+          "R93",
+          "R94",
+          "R95",
+          "R96",
+          "R97",
+          "R98",
+          "R99",
+          "R100",
+          "R101",
+          "R102",
+          "R103",
+          "R104",
+          "R105",
+          "R106",
+          "R107",
+          "R108",
+          "R109",
+          "R110",
+          "R111",
+          "R112",
+          "R113",
+          "R114",
+          "R115",
+          "R116",
+          "R117",
+          "R118",
+          "R119",
+          "R120",
+          "R121",
+          "R122",
+          "R123",
+          "R124",
+          "R125",
+          "R126",
+          "R127",
+          "R128",
+          "R129",
+          "R130",
+          "R131",
+          "R132",
+          "R133",
+          "R134",
+          "R135",
+          "R136",
+          "R137",
+          "R138",
+          "R139",
+          "R140",
+          "R141",
+          "R142",
+          "R143",
+          "R144",
+          "R145",
+          "R146",
+          "R147",
+          "R148",
+          "R149",
+          "R150",
+          "R151",
+          "R152",
+          "R153",
+          "R154",
+          "R155",
+          "R156",
+          "R157",
+          "R158",
+          "R159"
+        ]
+      },
+      "CAN": {
+        "branch": "codex/e02-C-canon-20261006",
+        "head": "9f84276408fc6b776e35050afece5c4e74ed413d",
+        "tree": "c9a5e4620abb8e643f25614a7df600ad499bf0c8",
+        "handoff_receipt": {
+          "receipt_id": "R18",
+          "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/canon-writer-strangle-c2.json@sha256:ab3bf7349812f8eb1651ee4091b5050d5ba10fdfe463a96e5fc544045c6eca3d",
+          "sha256": "ab3bf7349812f8eb1651ee4091b5050d5ba10fdfe463a96e5fc544045c6eca3d",
+          "head": "9f84276408fc6b776e35050afece5c4e74ed413d",
+          "tree": "c9a5e4620abb8e643f25614a7df600ad499bf0c8"
+        },
+        "source_pins": [
+          {
+            "commit": "3b2ce9d6b8e37941a1061fa40fdc054cd3acb344",
+            "tree": "37e4c01a4f3e6a44f6fde82baaab175130ff10ae",
+            "role": "latest source commit listed by current handoff"
+          }
+        ],
+        "declared_candidate_tree": "37e4c01a4f3e6a44f6fde82baaab175130ff10ae"
+      },
+      "DFI": {
+        "branch": "codex/e02-C-dfi-emb-20261006",
+        "head": "40d27423aa7835bc8439f139d84ff1bc909ea14a",
+        "tree": "68b85d5ea702822fccb06b07599543d26f7f2bbf",
+        "handoff_receipt": {
+          "receipt_id": "R19",
+          "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441.json@sha256:ca05094d1efa91667845d2f733bd4f3830faee32340be7cbfe8fcf77b85ccbd5",
+          "sha256": "ca05094d1efa91667845d2f733bd4f3830faee32340be7cbfe8fcf77b85ccbd5",
+          "head": "40d27423aa7835bc8439f139d84ff1bc909ea14a",
+          "tree": "68b85d5ea702822fccb06b07599543d26f7f2bbf"
+        },
+        "source_pins": [
+          {
+            "commit": "ab44166335130463178e65dfc29a252c96afe479",
+            "tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+            "role": "current source branch; scoped LA-041 cache-validity review only"
+          }
+        ],
+        "declared_candidate_tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+        "evidence_artifact_count": 56,
+        "evidence_artifact_receipt_ids": [
+          "R32",
+          "R33",
+          "R34",
+          "R35",
+          "R36",
+          "R37",
+          "R38",
+          "R39",
+          "R40",
+          "R41",
+          "R42",
+          "R43",
+          "R44",
+          "R45",
+          "R46",
+          "R47",
+          "R48",
+          "R49",
+          "R50",
+          "R51",
+          "R52",
+          "R53",
+          "R54",
+          "R55",
+          "R56",
+          "R57",
+          "R58",
+          "R59",
+          "R60",
+          "R61",
+          "R62",
+          "R24",
+          "R25",
+          "R63",
+          "R64",
+          "R65",
+          "R66",
+          "R67",
+          "R68",
+          "R69",
+          "R70",
+          "R71",
+          "R72",
+          "R73",
+          "R74",
+          "R75",
+          "R76",
+          "R77",
+          "R78",
+          "R79",
+          "R80",
+          "R81",
+          "R82",
+          "R83",
+          "R84",
+          "R85"
+        ]
+      },
+      "BER": {
+        "branch": "codex/e02-C-berl-20261006",
+        "head": "8aecb0b6e08f8d37f09c70927761576583a89828",
+        "tree": "e31935df4f03f4c8c8bc028ca169261a26ffed76",
+        "handoff_receipt": {
+          "receipt_id": "R20",
+          "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-consumer-census-c2-addendum.json@sha256:3b27c81184622186a7042aa3f4441b6a4f9b70e7dbef2e223d2c286119cac1c3",
+          "sha256": "3b27c81184622186a7042aa3f4441b6a4f9b70e7dbef2e223d2c286119cac1c3",
+          "head": "8aecb0b6e08f8d37f09c70927761576583a89828",
+          "tree": "e31935df4f03f4c8c8bc028ca169261a26ffed76"
+        },
+        "source_pins": [
+          {
+            "commit": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+            "tree": "0280403e6837c5b220ac748a7674f4e5830ba0ab",
+            "role": "current BERL product source freeze"
+          }
+        ],
+        "declared_candidate_tree": "0280403e6837c5b220ac748a7674f4e5830ba0ab"
+      }
+    },
+    "alias": {
+      "UDF": "Same source/handoff as OBS; receipt R15 and identical branch/head/tree."
+    }
+  },
+  "publication_readbacks": {
+    "count": 7,
+    "receipts": [
+      {
+        "receipt_id": "R193",
+        "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/plg-final-topic-push-readback.json@sha256:6683d5e181fcb04d23f7bd8484e63f40e477184cbf88e5541af7c19ebc9d7eae",
+        "sha256": "6683d5e181fcb04d23f7bd8484e63f40e477184cbf88e5541af7c19ebc9d7eae",
+        "head": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+        "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+      },
+      {
+        "receipt_id": "R194",
+        "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/hyg-final-topic-push-readback.json@sha256:ac41e6d8854aca986e030b8b5f93e1e1da7ae965bfd6ac3c88a3c494aa71db3a",
+        "sha256": "ac41e6d8854aca986e030b8b5f93e1e1da7ae965bfd6ac3c88a3c494aa71db3a",
+        "head": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+        "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+      },
+      {
+        "receipt_id": "R195",
+        "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/schema-final-topic-push-readback.json@sha256:6dc416adf923048919ae6c9a48a38e128e0d1252848c37a2b1e53182b48d2ec7",
+        "sha256": "6dc416adf923048919ae6c9a48a38e128e0d1252848c37a2b1e53182b48d2ec7",
+        "head": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+        "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+      },
+      {
+        "receipt_id": "R196",
+        "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/mig-current-input-push-readback.json@sha256:cd6e4fe5c1005bd83a5c2ae41fdac11d6ebf7d08a9ec5dcb3d37f2d670337e11",
+        "sha256": "cd6e4fe5c1005bd83a5c2ae41fdac11d6ebf7d08a9ec5dcb3d37f2d670337e11",
+        "head": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+        "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+      },
+      {
+        "receipt_id": "R197",
+        "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/dfi-final-push-readback.json@sha256:ca249847f0d071405e4cb8d338dc158f8a0aee18dcc45bc7d7557e02c638d50f",
+        "sha256": "ca249847f0d071405e4cb8d338dc158f8a0aee18dcc45bc7d7557e02c638d50f",
+        "head": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+        "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+      },
+      {
+        "receipt_id": "R198",
+        "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/cat-adjudicated-final-push-readback.json@sha256:034974b3b233b6a5dfdc2ded76d43d9e873225b8e9cdfb04ba9ebe42a270e8fd",
+        "sha256": "034974b3b233b6a5dfdc2ded76d43d9e873225b8e9cdfb04ba9ebe42a270e8fd",
+        "head": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+        "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+      },
+      {
+        "receipt_id": "R202",
+        "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/second-ready-topic-push-readback.json@sha256:c55bfea15fda0647fd08843d46efe0d22cceb2d83c2321c8d7e9d004b526fcab",
+        "sha256": "c55bfea15fda0647fd08843d46efe0d22cceb2d83c2321c8d7e9d004b526fcab",
+        "head": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+        "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+      }
+    ]
+  },
+  "source_dag": {
+    "decision": "ACCEPT for source-snapshot Git DAG and ownership consistency only",
+    "semantic_closure_claimed": false,
+    "review_scope": "source-snapshot ancestry, exact ownership/path overlap and Git identity; final DFI/CAT handoffs and root full54 publication are later docs-only appends",
+    "frozen_root_snapshot": "68f75e495d379ff6f74836c9fe0ce5979af0e4ea",
+    "receipt_refs": {
+      "R199": {
+        "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/index.json@sha256:d94e26c285bbd1d555bd5ee7304eed63c74271c18010d7f8cf1e88c1634d59c1",
+        "sha256": "d94e26c285bbd1d555bd5ee7304eed63c74271c18010d7f8cf1e88c1634d59c1",
+        "head": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+        "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+      },
+      "R200": {
+        "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/report.json@sha256:c4b3aecc06f6defb18d2f43e036f6c1fccb9221fee6ad29d6aa70205811def7b",
+        "sha256": "c4b3aecc06f6defb18d2f43e036f6c1fccb9221fee6ad29d6aa70205811def7b",
+        "head": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+        "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+      },
+      "R201": {
+        "path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/report.md@sha256:2fa55e4ec572fda1c2c9c1b7185ed614cd75e48411f7f634a720a2f0becc0621",
+        "sha256": "2fa55e4ec572fda1c2c9c1b7185ed614cd75e48411f7f634a720a2f0becc0621",
+        "head": "48af851db5c0e802c92d9b30226acbc4436c69ba",
+        "tree": "84b6416c9cc84a975ceb2d5d4cd5a8a4f6b3d9e2"
+      }
+    },
+    "scope_note": "The DAG review establishes source ancestry, path ownership and Git identity only; it is not semantic closure or product-wide completion."
+  },
+  "review_and_gate_integrity": {
+    "criterion_binding": "All 59 criterion/document/line-span tuples and inclusive source-line hashes were recomputed against the pinned Git documents.",
+    "receipt_binding": "The generic checker re-read 210 receipt entries with SHA/size/path/tree/blob checks, all seven files nested under R210, and 282 RFC 6901 pointers.",
+    "P29_P35_P37_P38": "The final checker binds evidence content and source spans over the declared full denominator; counts and marker presence are bookkeeping only and do not establish semantic closure.",
+    "P40": "The earlier 64-character SHA false-green was preserved as a control; the replacement checker is generic over all 59 criterion tuples and the complete declared receipt set.",
+    "P41": "An inherited red is attributable only after exact replay at base 198076863e143dea9f89f02734b13d50dae3eed5 and proof of zero intersection with the complete changed-path input denominator; otherwise provenance stays not_established."
+  },
+  "production_and_baseline_limits": {
+    "production_input_scope": {
+      "state": "bounded local scope bound to the current tracked MIG audit and remote-readback receipt",
+      "read_only_metadata_scope": "19 documented manifest-named files plus DuckDB information_schema only: 129 column rows across 10 tables",
+      "installed_cli_scope": "four genuine current 1.0 manifests exercised only as local private copies through the installed 004 public CLI and strict DTO reader; all four were semantically equal, one byte-identical and three serialization-different",
+      "negative_scope": "No historical 0.9 manifest was found within the checked paths; this does not establish absence from external corpora. Bulk/full production rows/history were not processed or exported. Original production inputs were left untouched; production bytes were not added to Git or sent to cloud.",
+      "fixture_distinction": "Synthetic 0.9 alias-renaming is separate fixture evidence and does not establish that a real historical 0.9 artifact was inspected.",
+      "audit_receipt_id": "R31",
+      "audit_path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-la050-local-input-audit-552c7d9/migrations-la050-local-input-audit-552c7d9.json@sha256:a5faaa7a50eb90922d211fc261c4db292f42a94ab4b3fa9ff124016d84ade792",
+      "remote_readback_receipt_id": "R196",
+      "remote_readback_path_at_sha256": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/mig-current-input-push-readback.json@sha256:cd6e4fe5c1005bd83a5c2ae41fdac11d6ebf7d08a9ec5dcb3d37f2d670337e11",
+      "tracked_capture_and_script_receipt_ids": [
+        "R160",
+        "R161",
+        "R162",
+        "R163",
+        "R164",
+        "R165",
+        "R166",
+        "R167",
+        "R168",
+        "R169",
+        "R170",
+        "R171",
+        "R172",
+        "R173",
+        "R174",
+        "R175",
+        "R176",
+        "R177",
+        "R178",
+        "R179",
+        "R180",
+        "R181",
+        "R182",
+        "R183",
+        "R184",
+        "R185",
+        "R186",
+        "R187"
+      ]
+    },
+    "G97": "Navigation only; historical status and capability labels are preserved as historical inputs, not projected to code outcome or verdict.",
+    "resource_observation_outside_C54": [
+      {
+        "finding_count_effect": "none; this is not a new C finding or criterion",
+        "scope": "Non-editable wheel use of the exported default seed-alignment/core-source resolver",
+        "state": "bridge_missing_if_non_editable_wheel_use_is_intended; support_not_established",
+        "current_evidence": "Wheel-only isolated probe fails to resolve the checkout-owned seed_variable_alignments.yaml; an ad-hoc staged-resource control establishes path causality but not a package-alone installation contract. Separately, the tracked CAT 8dfa exact-archive editable profile completes a 26-shard producer-to-RetrievalService fixture route; that profile result does not qualify the non-editable wheel.",
+        "supported_profile": "The documented checkout/editable profile has a positive exact-archive local fixture result: persisted checkpoint/DB receipt, 26 observations over 16 datasets, benchmark, QC, publication, and same-DB RetrievalService readback. This is a bounded supported-profile observation, not a package-alone resource contract or production-data result.",
+        "resource_owner": "team-data-forge",
+        "resource_path": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+        "resource_sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+        "resource_bytes_receipt_id": "R207",
+        "documented_profile_receipt_id": "R208",
+        "receipt_id": "R209",
+        "source_commit": "ab44166335130463178e65dfc29a252c96afe479",
+        "source_tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d",
+        "no_contract_inferred": true
+      }
+    ],
+    "no_production_export": "Bulk/full production rows and history were not processed/exported, and no production bytes were added to Git or sent to cloud."
+  },
+  "next_owner": {
+    "owner": "Root / G integration wave",
+    "action": "Continue downstream stage/publisher integration using the per-finding next_owner, missing-input, and remaining-verification fields in the 54-row table. Treat closed/limited/held as scoped findings, not a claim of universal production completeness.",
+    "publication": "Root owns any main publication; no push was made in these commits."
+  }
+}

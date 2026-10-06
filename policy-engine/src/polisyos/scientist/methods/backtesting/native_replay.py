@@ -14,11 +14,10 @@ from typing import TYPE_CHECKING, Any, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, input_ref_from_artifact_ref
-from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.artifacts import ArtifactRef, PutOptions, SchemaInfo, input_ref_from_artifact_ref
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
-from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.core.contracts.foundry import (
+from polisyos.core.contracts import (
+    DataSnapshot,
     DerivedArtifact,
     ExecuteRequest,
     ExecuteResult,
@@ -38,7 +37,7 @@ from polisyos.foundry.execute.executor import (
 from polisyos.ir.trinity import TrinityBundle
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 

@@ -91,6 +91,7 @@ class CausalMethod(str, Enum):
     FOREST_DR = "forest_dr"
     CAUSAL_BCF = "causal_bcf"
     DOUBLE_ML = "double_ml"
+    TMLE = "tmle"
     S_LEARNER = "s_learner"
     T_LEARNER = "t_learner"
     X_LEARNER = "x_learner"

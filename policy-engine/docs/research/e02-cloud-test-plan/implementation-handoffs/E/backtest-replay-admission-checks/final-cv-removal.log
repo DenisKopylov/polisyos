@@ -1,0 +1,83 @@
+PROPERTY REMOVAL: cv; source files and result markers retained
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ TestForwardChainingSplits.test_invalid_cv_parameters_are_rejected_before_loop[2-0-3] _
+
+self = <backtesting.test_cv.TestForwardChainingSplits object at 0x7f938cc715b0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f938cbb4b00>
+min_train_size = 2, step_size = 0, max_folds = 3
+
+    @pytest.mark.parametrize(
+        ("min_train_size", "step_size", "max_folds"),
+        [
+            (2, 0, 3),
+            (2, -1, 3),
+            (0, 1, 3),
+            (-1, 1, 3),
+            (1001, 1, 3),
+            (2, 1, 0),
+            (2, 1, -1),
+            (True, 1, 3),
+            (2, True, 3),
+            (2, 1, True),
+        ],
+    )
+    def test_invalid_cv_parameters_are_rejected_before_loop(
+        self,
+        monkeypatch,
+        min_train_size,
+        step_size,
+        max_folds,
+    ):
+        def forbidden_range(*args):
+            raise AssertionError("invalid parameter entered fold materialization")
+    
+        with monkeypatch.context() as scoped:
+            scoped.setattr(builtins, "range", forbidden_range)
+    
+            with pytest.raises(ValueError):
+>               forward_chaining_splits(
+                    1000,
+                    min_train_size=min_train_size,
+                    step_size=step_size,
+                    max_folds=max_folds,
+                )
+
+tests/unit/scientist/methods/backtesting/test_cv.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+n_samples = 1000
+
+    """Forward-chaining cross-validation for time-series backtesting."""
+    
+    from __future__ import annotations
+    
+    from collections.abc import Callable
+    from dataclasses import dataclass, field
+    from operator import index
+    
+    import numpy as np
+    
+    
+    @dataclass(frozen=True)
+    class CVFold:
+        """One fold of forward-chaining CV."""
+    
+        fold_id: int
+        train_indices: list[int]
+        test_indices: list[int]
+        metrics: dict[str, float] = field(default_factory=dict)
+    
+    
+    @dataclass(frozen=True)
+    class CVResult:
+        """Aggregated cross-validation result."""
+    
+        folds: list[CVFold]
+>       mean_metrics: dict[str, float]
+                                 ^^^^^^
+E       ZeroDivisionError: division by zero
+
+src/polisyos/scientist/methods/backtesting/cv.py:27: ZeroDivisionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/backtesting/test_cv.py::TestForwardChainingSplits::test_invalid_cv_parameters_are_rejected_before_loop[2-0-3]

@@ -15,7 +15,7 @@ governance calibration и backtest matrix контуром.
 
 - **HistoricalValidationPlan** — сценарий проверки предсказаний на исторических данных.
 - **BacktestOrchestrator** — координирует одиночные и пакетные backtest runs.
-- **TrustScorer** — считает coverage-first trust score и grade.
+- **TrustScorer** — удерживает trust authority до admitted versioned purpose/profile.
 - **Adversarial suites** — challenge-наборы для strategic gaming и related failure modes.
 - **Temporal evaluation** — trajectory и safe-rejection checks для time-aware scenarios.
 - **Trust eligibility** — degraded paths остаются diagnostic, но не повышают trust profile.
@@ -60,3 +60,28 @@ authority denial, and the default runtime bridge remains owned by A.
 - Exports: 25
 - Недавний delta: пакет теперь является upstream для `BacktestMatrixRunner`
   в `scientist.governance`
+
+## Replay and authority admission
+
+Scientist `n_simulation_runs=K` expands into K scalar backend replays with
+separate requested seeds/run identities, row-preserving scenarios and persisted requested,
+attempted, completed and failed counts. PROVIDED trajectories execute once;
+their original replica parameter is retained without asserting K external runs.
+Micro errors pool metric/time cells per replay; equal-scenario macro RMSE stays
+separate. Finite observed truths and eligible prediction/truth pairs have
+separate denominators; empty comparisons are `not_evaluated`.
+
+Trust grades and the matrix promotion score remain unavailable until the
+Scientist trust-profile owner admits a versioned purpose, sampling assumptions
+and any meaningful-bias margin/equivalence rule. Non-significant Student t tests
+and perfect observed agreement alone do not supply that policy. Per-kind matrix
+scores remain explicitly descriptive. Bootstrap accepts a one-dimensional
+sample and a scalar statistic; a custom callable label remains
+`consumer_asserted`, never verified functional provenance.
+
+The native Scientist facade receives the same configured core CAS. Successful
+forecast execution still requires an admitted Trinity/model/registry and a
+compatible masked-history materializer. Generic `params.random_seed` is a
+dispatch request; the native Foundry `ExecConfig.seed` binding is not established
+by this backtest adapter. A missing configured producer remains explicit and
+does not turn its native refusal or a controlled dispatch spy into backend PASS.

@@ -1,0 +1,23 @@
+PROPERTY REMOVAL: replay; source files and result markers retained
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_requested_replays_are_actual_calls_and_keep_rows_after_cas_readback[7] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7efd5b183bb0>
+tmp_path = PosixPath('/workspace/e02-E-20261006-receipts/backtest-removal-replay-001/test_requested_replays_are_act0')
+count = 7
+
+    @pytest.mark.parametrize("count", [1, 7])
+    def test_requested_replays_are_actual_calls_and_keep_rows_after_cas_readback(
+        monkeypatch, tmp_path, count
+    ):
+        orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / "cas"))
+        calls = _backend(monkeypatch, orchestrator)
+        report = orchestrator.run([_plan(tmp_path, count=count)])
+>       assert len(calls) == count
+E       AssertionError: assert 1 == 7
+E        +  where 1 = len([{'inputs': {'data_snapshot_ref': {'artifact_id': 'sha256:90c4fc9dbcbdaa29ab4b449603ed57355a5cfc7b6e7a754825c72aa95933...bric.data_snapshot', 'media_type': 'application/json'}}, 'params': {'n_simulation_runs': 1, 'random_seed': 570356716}}])
+
+tests/unit/scientist/methods/backtesting/test_replay_admission.py:88: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_requested_replays_are_actual_calls_and_keep_rows_after_cas_readback[7]

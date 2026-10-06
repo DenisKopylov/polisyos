@@ -271,3 +271,64 @@ def test_meaningful_or_forged_native_payload_is_not_dropped_by_typed_projection(
         runner._evaluate_candidate(
             effective, suite_ref=suite, candidate_payload=unknown, context={}
         )
+
+
+@pytest.mark.parametrize("carrier", ["pending", "history", "best", "frontier"])
+def test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect(tmp_path, carrier):
+    from polisyos.core.artifacts import SchemaInfo
+    from polisyos.core.artifacts.manifest_profile import artifact_manifest_profile_sha256
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.canon import CanonSpec
+
+    store = FileSystemCAS(tmp_path / "cas")
+    answer, suite = _analysis(store), _suite(store)
+    runner = SearchLoopRunner(
+        store=store, registry=ChampionRegistry(tmp_path / "registry", store=store)
+    )
+    source = runner.create_service(_spec(answer), suite_ref=suite, max_iterations=3)
+    first = source.ask(None, None, {})[0]
+    source.tell(
+        first.candidate_id,
+        source.controller._evaluate_for_tell(first.payload, iteration=0, context={}),
+    )
+    source.ask(None, None, {})
+    original = store.get_verified_snapshot(source.checkpoint_ref)
+    payload = from_canonical_bytes(original.data)
+    if carrier == "pending":
+        candidate = payload["pending_candidates"]["candidate_1_0"]
+    elif carrier == "history":
+        candidate = payload["run_state"]["history"][0]["candidate"]
+    elif carrier == "best":
+        candidate = payload["run_state"]["best_candidate"]
+    else:
+        candidate = payload["run_state"]["pareto_points"][0]["candidate"]
+    candidate["_strategy_metadata"]["candidate_id"] = "other_run:candidate_1_0"
+    bad = store.put_json(
+        payload,
+        ArtifactWriteOptions(
+            kind=original.manifest.kind,
+            media_type=original.manifest.media_type,
+            schema=SchemaInfo(name=original.manifest.artifact_schema.name, version="2.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+    )
+    bad = bad.model_copy(
+        update={
+            "manifest_profile_sha256": artifact_manifest_profile_sha256(
+                store.get_verified_snapshot(bad).manifest
+            )
+        }
+    )
+    fresh_store = FileSystemCAS(tmp_path / "cas")
+    target = SearchLoopRunner(
+        store=fresh_store, registry=ChampionRegistry(tmp_path / "registry", store=fresh_store)
+    ).create_service(_spec(answer), suite_ref=suite, max_iterations=3)
+    before = target.controller._generator.get_state()
+    print("actual_changed_native_subject", carrier, bad.model_dump(mode="json"), payload)
+    with pytest.raises(ValueError, match="search_resume_native_candidate_identity"):
+        target.restore(bad)
+    assert target.controller._run_state.search_id == ""
+    assert target.controller._history == []
+    assert target._pending_candidates == {}
+    assert target.checkpoint_ref is None
+    assert target.controller._generator.get_state() == before

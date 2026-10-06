@@ -1,0 +1,280 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-completed-quality-architecture-retention",
+  "slice_base_sha": "0a5b8217168d061906a0f7861d62bd83b1f558ba",
+  "implementation_commits": [
+    "73ad9cfaf882660e742d41ebca41376d53e8c369",
+    "10639d9dfca7c9966ec3d1166cecc140c714d987",
+    "be836dd71d7dff6dbdb070a48bf7c12c4f557df6",
+    "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b"
+  ],
+  "candidate_tree_sha": "9b6684427a49a4365431d1ff4578ea0655950a86",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/capture-final-retention-preparation.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/intermediate-style-qualification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention/actual-uv-cache-query.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention/failed-product-cwd-preparation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention/failed-product-cwd-preparation.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention/format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention/ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/completed-quality-README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py"
+  ],
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-architecture-retention.json",
+  "production_changed_paths": [],
+  "test_changed_paths": [],
+  "root_changed_paths": [],
+  "bundle_ids": [],
+  "baseline_cells": [],
+  "closure_ids": [],
+  "checks": [
+    {
+      "id": "ruff",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check --no-cache docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "be836dd71d7dff6dbdb070a48bf7c12c4f557df6",
+      "environment": {
+        "source_ref": "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/environment-and-stock-inputs.json",
+        "git_blob": "bd99ca384957de5691dcd98c8fc6f65b1b3afd73",
+        "bytes": 4333,
+        "sha256": "3948f33393295b5a559fbf2c608c09ee3ad6a57d380d58e96ab8aa4496835b1d"
+      },
+      "environment_qualification": "Same supplied author interpreter/config as earlier preparation; final root gates independently bind toolchain and final config",
+      "input_closure": {
+        "source": {
+          "source_ref": "be836dd71d7dff6dbdb070a48bf7c12c4f557df6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+          "git_blob": "5253be3db2ef281ff5c4a92c88fae32bdc8b56b7",
+          "bytes": 19849,
+          "sha256": "bf9ef7c752df342a2e4a2a69d884a3d7b60f7e5ab5b2f34ae70f865eb9ced986"
+        },
+        "driver": {
+          "source_ref": "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/capture-final-retention-preparation.source.txt",
+          "git_blob": "75ee086595beb94384fb61f89b9bed30f8222910",
+          "bytes": 5203,
+          "sha256": "4a7925f27ca6daa3e5bbd685eecbf907397ca3ba9d6c6477884f2d04d3bfa997"
+        }
+      },
+      "outcome": "PASS",
+      "observed_exit_code": 0,
+      "output": {
+        "source_ref": "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/ruff.txt",
+        "git_blob": "1f5f344d054fae10f39140fb7199c99321d9190a",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "grade": "Frozen narrow source style only; no final runtime gate"
+    },
+    {
+      "id": "format",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "be836dd71d7dff6dbdb070a48bf7c12c4f557df6",
+      "environment": {
+        "source_ref": "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/environment-and-stock-inputs.json",
+        "git_blob": "bd99ca384957de5691dcd98c8fc6f65b1b3afd73",
+        "bytes": 4333,
+        "sha256": "3948f33393295b5a559fbf2c608c09ee3ad6a57d380d58e96ab8aa4496835b1d"
+      },
+      "environment_qualification": "Same supplied author interpreter/config as earlier preparation; final root gates independently bind toolchain and final config",
+      "input_closure": {
+        "source": {
+          "source_ref": "be836dd71d7dff6dbdb070a48bf7c12c4f557df6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+          "git_blob": "5253be3db2ef281ff5c4a92c88fae32bdc8b56b7",
+          "bytes": 19849,
+          "sha256": "bf9ef7c752df342a2e4a2a69d884a3d7b60f7e5ab5b2f34ae70f865eb9ced986"
+        },
+        "driver": {
+          "source_ref": "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/capture-final-retention-preparation.source.txt",
+          "git_blob": "75ee086595beb94384fb61f89b9bed30f8222910",
+          "bytes": 5203,
+          "sha256": "4a7925f27ca6daa3e5bbd685eecbf907397ca3ba9d6c6477884f2d04d3bfa997"
+        }
+      },
+      "outcome": "PASS",
+      "observed_exit_code": 0,
+      "output": {
+        "source_ref": "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/format.txt",
+        "git_blob": "5e122f397b6d5d61b45621051851165eadce6a78",
+        "bytes": 25,
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      },
+      "grade": "Frozen narrow source style only; no final runtime gate"
+    },
+    {
+      "id": "historical-product-cwd-cache-metadata",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -B /tmp/e02-B-completed-quality-retention-preparation.py",
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "73ad9cfaf882660e742d41ebca41376d53e8c369",
+      "environment": {
+        "source_ref": "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/environment-and-stock-inputs.json",
+        "git_blob": "bd99ca384957de5691dcd98c8fc6f65b1b3afd73",
+        "bytes": 4333,
+        "sha256": "3948f33393295b5a559fbf2c608c09ee3ad6a57d380d58e96ab8aa4496835b1d"
+      },
+      "input_closure": {
+        "driver": {
+          "source_ref": "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention/failed-product-cwd-preparation.source.txt",
+          "git_blob": "3d98ca1e8cf49983b39411bda214327549f74786",
+          "bytes": 6038,
+          "sha256": "d17f931e6f11a485b125eef3abe19025aa32c4ba4e95398715aff413f004e680"
+        },
+        "query_argv": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "cache",
+          "dir"
+        ],
+        "query_cwd": "/workspace/e02-B-current-coordination/policy-engine"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "source_ref": "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention/failed-product-cwd-preparation.json",
+        "git_blob": "982ce0abbfa334e1797e8d3c2f7a7c54184e7117",
+        "bytes": 1237,
+        "sha256": "f184f99d3b469c6ff81f3f680a67266bf6f0e911005ca40ce33e54d8752048ff"
+      },
+      "complete_query_stdout": {
+        "source_ref": "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention/actual-uv-cache-query.txt",
+        "git_blob": "898870865043cd77b124f10fff23c9c1fda08b28",
+        "bytes": 10,
+        "sha256": "64f847d81df0656640e7b672bf78be0c1f358b54a4f9c199bac416b39a172072"
+      },
+      "grade": "Author metadata assertion rejects relative cache; no actual gate/helper/generator invoked; operational predicate NOT_ESTABLISHED"
+    },
+    {
+      "id": "seven-other-gate-ast-parity",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -B /tmp/e02-B-completed-quality-retention-final-preparation.py",
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "be836dd71d7dff6dbdb070a48bf7c12c4f557df6",
+      "environment": {
+        "source_ref": "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/environment-and-stock-inputs.json",
+        "git_blob": "bd99ca384957de5691dcd98c8fc6f65b1b3afd73",
+        "bytes": 4333,
+        "sha256": "3948f33393295b5a559fbf2c608c09ee3ad6a57d380d58e96ab8aa4496835b1d"
+      },
+      "input_closure": {
+        "driver": {
+          "source_ref": "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/capture-final-retention-preparation.source.txt",
+          "git_blob": "75ee086595beb94384fb61f89b9bed30f8222910",
+          "bytes": 5203,
+          "sha256": "4a7925f27ca6daa3e5bbd685eecbf907397ca3ba9d6c6477884f2d04d3bfa997"
+        },
+        "before_source": {
+          "source_ref": "36957513b0b2d58c3010cf3db9b268ba13881898:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+          "git_blob": "ec9400352366b64bfb4b5866153dfa86fa695e1b",
+          "bytes": 16407,
+          "sha256": "c378b81b1dc0b3cd61cefdc7d795e5fab364c708e653c438049bb467c538f17e"
+        },
+        "after_source": {
+          "source_ref": "be836dd71d7dff6dbdb070a48bf7c12c4f557df6:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+          "git_blob": "5253be3db2ef281ff5c4a92c88fae32bdc8b56b7",
+          "bytes": 19849,
+          "sha256": "bf9ef7c752df342a2e4a2a69d884a3d7b60f7e5ab5b2f34ae70f865eb9ced986"
+        }
+      },
+      "outcome": "PASS",
+      "output": {
+        "source_ref": "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/wrapper.json",
+        "git_blob": "b5d67b1801630d5e8d91229dbc2e82a30d8c9819",
+        "bytes": 3114,
+        "sha256": "6422106b032642ce44d9dbb983d250453f0a36dde70eb49be32f5b49d521f424"
+      },
+      "grade": "Complete selected AST/function/literal comparisons; not runtime or arbitrary import proof"
+    }
+  ],
+  "property": {
+    "statement": "Prepare canonical architecture freshness with retained generator source/private environment/maps/deciding output and explicit existing external cache, without weakening the gate",
+    "runtime_path": [
+      "root exact final SHA + architecture cache caller",
+      "explicit existing absolute external cache/marker admission",
+      "fresh /dev/shm/e02-B-completed-architecture-SHA12",
+      "canonical paired guardrails CLI flags",
+      "canonical exclusive retained workspace/private offline environment",
+      "stock full capture and generator-owned deciding output"
+    ],
+    "proxy_divergence": "Existing cache directory/marker and new-script Ruff PASS do not establish offline package sufficiency or four-family freshness; root and product UV cache queries demonstrably differ before any gate",
+    "negative_controls": [
+      {
+        "input": "Actual product-scoped uv cache dir returned _cache/uv",
+        "outcome": "FAIL",
+        "grade": "Metadata-only assertion refused relative value before effects; not a product gate or helper execution"
+      },
+      {
+        "input": "Missing architecture-only explicit cache, repository/production cache, reused retained workspace",
+        "outcome": "UNRUN",
+        "grade": "Source guards reviewed; actual immutable final gate not yet launched"
+      }
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "prepared_source_only; eight gates and new wheel UNRUN",
+  "current_source_sha": "be836dd71d7dff6dbdb070a48bf7c12c4f557df6",
+  "current_source_tree": "c1564e803950379723f0cba96bdbbdeafedc8d96",
+  "prior_preparation_receipt": {
+    "source_ref": "0a5b8217168d061906a0f7861d62bd83b1f558ba:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation.json",
+    "git_blob": "3ae53bc5a51b19974c6f4341b01c5b0d3b92f236",
+    "bytes": 21866,
+    "sha256": "5c1f39c3ea7d1037b2e169552186fe3b4d0a8cbf900b7fc717bffffe85653fe4"
+  },
+  "complete_narrow_evidence_index": {
+    "source_ref": "cd3d32f9cb5e2cfb93bd55c5e48e68c7febd2a3b:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/architecture-retention-final/index.json",
+    "git_blob": "96ecb37be57e6a700676e3adb39b27b96fb980a3",
+    "bytes": 3197,
+    "sha256": "688533428d1c1db6ac0785e3ab6994e6862097ce305de523161993911066911a"
+  },
+  "initial_fourteen_controls_qualification": "Only the two narrow style checks and selected AST parity ran; original five author controls are preserved at369, not repeated or reattributed to final source",
+  "accepted_cache_input": {
+    "path": "/home/agent/.cache/uv",
+    "role": "Root-supplied explicit shared readonly input",
+    "basis": "consumer_asserted root scope decision after actual root-scoped UV query",
+    "not_proved": [
+      "task-exclusive ownership",
+      "offline package sufficiency",
+      "cache content immutability",
+      "institutional/external authority"
+    ]
+  },
+  "foreign_source_review": {
+    "initial369": {
+      "source_ref": "d710e65453fc5f69e183b64fdb952eadf988a6e2:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-launcher-review.json",
+      "role": "Separate EXE full source review, not runtime"
+    },
+    "historical73": {
+      "source_ref": "3da02f260f40c64b8bdaf80f7f8324bfbd442cfd",
+      "role": "Historical source-only guard flow; exact path needs verified locator below",
+      "locator_qualification": "Published EXE receipt source-only head; root resolves exact retained-review path, no runtime proof"
+    },
+    "current_be836": "Independent EXE delta review requested; canonical receipt pending publication"
+  },
+  "limitations_and_next_owner": [
+    "Root must supply exact settled clean candidate and explicit cache flag before any actual gate",
+    "Other seven command branches and five shared input functions remain AST-identical369; top-level CLI/config/profile adds narrow architecture binding",
+    "No config exclusion/query/fallback in executing launcher; canonical offline gate decides actual missing dependencies",
+    "Retained workspace never reused/deleted; public tool ownership and final byte proof remain canonical generator owner",
+    "Old73 relative-cache metadata failure and106 style observation retained; no immutable gate result invented",
+    "Full changed research py/pyi and real imported stub mypy may be red; preserve literal deciding outputs",
+    "No root/product/test writes or new native/build/gate during this preparation"
+  ]
+}

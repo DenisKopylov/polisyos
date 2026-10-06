@@ -59,6 +59,13 @@ directory before publication. Concurrent writers hold the same per-checkpoint
 filesystem lock through publication and rollback, and remove only their own
 unpublished generation after a failed save.
 
+The state/history codec supports JSON values and non-object NumPy arrays.
+Every mapping, including mappings nested in lists, must use string keys and
+must not use the reserved `__npy_ref__` array tag as a user key. Unsupported
+mapping forms fail before the pointer is published, preserving the previously
+selected checkpoint. No Python mapping-key coercion is treated as a faithful
+roundtrip.
+
 Snapshot files, sidecars and their directories are fsynced before the pointer
 is replaced. If the final pointer-directory fsync fails after replacement,
 `CheckpointPublicationUncertainError` reports uncertainty and preserves the

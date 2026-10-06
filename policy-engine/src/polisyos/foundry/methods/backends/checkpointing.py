@@ -28,7 +28,8 @@ the effective execution identity and honest history completeness.
 
 Limitations
 -----------
-- State values must be JSON-serialisable or non-object NumPy arrays. Arrays
+- State values must be JSON-serialisable or non-object NumPy arrays. Mapping
+  keys must be strings; ``__npy_ref__`` is reserved for array references. Arrays
   use ``np.save`` sidecars and are loaded without pickle.
 - A parent-directory fsync failure after pointer replacement raises
   ``CheckpointPublicationUncertainError`` and preserves the visible generation;
@@ -1003,6 +1004,14 @@ def _serialise_state(
         if isinstance(value, (bool, int, float, str, type(None))):
             return value
         if isinstance(value, Mapping):
+            if any(not isinstance(key, str) for key in value):
+                raise CheckpointSerializationError(
+                    "Checkpoint mapping keys must be strings at " + repr(path)
+                )
+            if "__npy_ref__" in value:
+                raise CheckpointSerializationError(
+                    "Checkpoint mapping uses reserved array reference tag at " + repr(path)
+                )
             return {key: encode(child, path + (str(key),)) for key, child in value.items()}
         if isinstance(value, (list, tuple)):
             return [encode(child, path + (str(index),)) for index, child in enumerate(value)]

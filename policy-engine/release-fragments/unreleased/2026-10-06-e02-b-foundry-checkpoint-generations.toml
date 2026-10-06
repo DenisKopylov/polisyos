@@ -9,7 +9,7 @@ evidence = [
   "tests/unit/foundry/methods/backends/test_checkpointing.py",
   "tests/unit/remediation/test_res_04.py",
 ]
-compatibility = "New saves use a generation-v1 pointer file. Existing direct-JSON checkpoints remain readable; consumers must load through ChainCheckpoint.load rather than inspect root JSON state fields."
+compatibility = "New saves use a generation-v1 pointer file. Existing direct-JSON checkpoints remain readable; consumers must load through ChainCheckpoint.load rather than inspect root JSON state fields. New saves refuse non-string mapping keys and user dictionaries containing the reserved __npy_ref__ tag before pointer publication."
 change_class = "behavior-change"
 surface_classification = "internal: polisyos.foundry.methods.backends.checkpointing"
 migration = "Use ChainCheckpoint.load for both pointer and legacy files. Treat CheckpointPublicationUncertainError as a visible publication with unacknowledged directory durability and inspect or retry the checkpoint."

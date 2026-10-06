@@ -1,0 +1,448 @@
+{
+  "schema": "policyos.e02.audit-transfer-selection.v1",
+  "unit": "F",
+  "reviewer": "F/graph_scm",
+  "observed_utc": "2026-10-06T13:28:55.443483+00:00",
+  "check": "UNRUN",
+  "current_deciding_reference_check": "PASS",
+  "all_reference_custody_check": "UNRUN",
+  "historical_non_deciding_reference_check": "UNRUN",
+  "scope": "Read-only final published protocol audit: current15canonical/12topics/267checks/35IDs/17bundles checked. One unavailable explicitly historical blob with4occurrences retained UNRUN; it is not closure evidence. No ledger/authority/integration decisions made.",
+  "complete_report": {
+    "path": "/workspace/e02-F-20261006-receipts/protocol-audit/F-published-protocol-audit.json.gz",
+    "name": "F-published-protocol-audit.json.gz",
+    "bytes": 1567719,
+    "sha256": "95698a9ad239be857b5f130e78898fe5fd9900445374038c1b0caddc8d0e5bfe",
+    "role": "one complete lossless full audit report; uncompressed duplicate excluded from transfer",
+    "encoding": "gzip",
+    "decompressed_bytes": 23635982,
+    "decompressed_sha256": "4bcb574a49feaef3ad6c87d9843e754dcdf6f58ec4a091c6c8d48b343929e286"
+  },
+  "companions": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/F-published-protocol-audit.txt",
+      "name": "F-published-protocol-audit.txt",
+      "bytes": 6015,
+      "sha256": "d8cca894963813b2a37df45e06d67af5c0dccae379ed6325cad0a3d72f0cf4e7",
+      "role": "complete concise deciding summary"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/canonical-receipt-inventory.json",
+      "name": "canonical-receipt-inventory.json",
+      "bytes": 8571,
+      "sha256": "7c96b024d8392b23206f3ab5b6ab74b9f8c5bb71f94c73e40137dc28e9b5ee12",
+      "role": "complete15-receipt/12-topic register binding"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/remote-heads.json",
+      "name": "remote-heads.json",
+      "bytes": 1061,
+      "sha256": "2c6710330d7acafe81378fe83b0ef17a6255ab59b73b76546132500cef7453eb",
+      "role": "actual read-only remote snapshot"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/historical-blob-probe.json",
+      "name": "historical-blob-probe.json",
+      "bytes": 2337,
+      "sha256": "25767918b5fbc363238842eaf09906e361cdbb4be08b1d8fe78b1b2254ebe71d",
+      "role": "complete local/GitHub historical source availability probe"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/historical-blob-gh-response.json",
+      "name": "historical-blob-gh-response.json",
+      "bytes": 110,
+      "sha256": "9d380191985c8adc745313e4ed277e0541c2995a7f86276c76a4e012f4d8f379",
+      "role": "complete original read-only GitHub HTTP404 output"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/historical-blob-gh-stderr.txt",
+      "name": "historical-blob-gh-stderr.txt",
+      "bytes": 25,
+      "sha256": "d2c8985c89b29a842ac4946d13bdbc297709f44f20bb968faf9682664b211db6",
+      "role": "complete original GitHub stderr"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/historical-blob-local-git.stdout.txt",
+      "name": "historical-blob-local-git.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete local absent-blob probe stdout"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/historical-blob-local-git.stderr.txt",
+      "name": "historical-blob-local-git.stderr.txt",
+      "bytes": 47,
+      "sha256": "93051ef5e7bf1424b70ed514d3f012953c936894eec9c3018251c6cfb674dd83",
+      "role": "complete local absent-blob probe stderr"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/audit.py",
+      "name": "audit.py",
+      "bytes": 23096,
+      "sha256": "b99e294e322f63c5d2aa3d182e70a62d04f3f71b47f847e4c85d841b76893038",
+      "role": "complete audit/checker/replay source"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/audit_companions.py",
+      "name": "audit_companions.py",
+      "bytes": 952,
+      "sha256": "f7d1af9f709f66ba28bd50e476be6043f8fcfaca3518f62a6768fcaa7f0988ec",
+      "role": "complete audit/checker/replay source"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/audit_incremental.py",
+      "name": "audit_incremental.py",
+      "bytes": 850,
+      "sha256": "ad474ee243d2a6921d266048d06052518a6ac974a45e75cb2c3ae1ffe1ca2887",
+      "role": "complete audit/checker/replay source"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/audit_all.py",
+      "name": "audit_all.py",
+      "bytes": 256,
+      "sha256": "23856adbec264105d484d1a2cf2cec8251839935a4f863df7ab84ae7082da93d",
+      "role": "complete audit/checker/replay source"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/consolidate.py",
+      "name": "consolidate.py",
+      "bytes": 21649,
+      "sha256": "ce37636cbffd6e1384fe97efdf99cf3bfed887da85b9b4c5cbca1959d553c332",
+      "role": "complete audit/checker/replay source"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/canonical_inventory.py",
+      "name": "canonical_inventory.py",
+      "bytes": 2354,
+      "sha256": "6dde8c672f4123799a73b08518a617067ce880959695bd5b129acd1a0dc3cf71",
+      "role": "complete audit/checker/replay source"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/replay_final_protocol_audit.py",
+      "name": "replay_final_protocol_audit.py",
+      "bytes": 2958,
+      "sha256": "fde83a24e395ab546ef8952f12edef893da326f45c47c5f8a6e2ef8d833e9ff1",
+      "role": "complete audit/checker/replay source"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/apply-scoped-historical-custody.py",
+      "name": "apply-scoped-historical-custody.py",
+      "bytes": 4819,
+      "sha256": "4c2aad6653a1137963bce75c21b074c76f36842f2fd424d8b36818e280c24232",
+      "role": "complete audit/checker/replay source"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/finalize_transfer.py",
+      "name": "finalize_transfer.py",
+      "bytes": 9182,
+      "sha256": "53b053e7b01d1959dd3a17fe2038b947a6b44efca9cab314134ce95f03df9d5a",
+      "role": "complete audit/checker/replay source"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/large-source-json-hash-ref-denominator.json",
+      "name": "large-source-json-hash-ref-denominator.json",
+      "bytes": 858,
+      "sha256": "122042d1ae94f73ceea221c638f599c61cdf5f478d67cb02a7d2fcbec8c4e20f",
+      "role": "complete supplementary fully walked large source JSON reference denominator"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/large-source-source-path-alias-check.json",
+      "name": "large-source-source-path-alias-check.json",
+      "bytes": 717,
+      "sha256": "d7a4533fd9a5ae588bb607afefe0323d8a2e5c3300e252b2d4facf8e3bd27052",
+      "role": "complete supplementary fully walked large source JSON reference denominator"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/final-full.stdout.txt",
+      "name": "final-full.stdout.txt",
+      "bytes": 3269,
+      "sha256": "89ab4114d051b37bedadd0da99f16cf6f2455c8737ca1a32dd7e80acfae59cc9",
+      "role": "complete original final15 orchestration output; parser locator gaps were subsequently corrected, not product failures; stdout"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/final-full.stderr.txt",
+      "name": "final-full.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete original final15 orchestration output; parser locator gaps were subsequently corrected, not product failures; stderr"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/final-reference-forms.stdout.txt",
+      "name": "final-reference-forms.stdout.txt",
+      "bytes": 2428,
+      "sha256": "7092bf7b4e79c6f4ea3f4c85641fd767249712b5ed0564e2b65e495d7fe09aa2",
+      "role": "complete locator/card/block/source_path correction output; remaining175c unavailable source subsequently classified explicitly; stdout"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/final-reference-forms.stderr.txt",
+      "name": "final-reference-forms.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete locator/card/block/source_path correction output; remaining175c unavailable source subsequently classified explicitly; stderr"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/final-scoped-reference-check.stdout.txt",
+      "name": "final-scoped-reference-check.stdout.txt",
+      "bytes": 3809,
+      "sha256": "e2ddf39b4f05a251305b1ecfa01948d32a87753c775083bff3cb73f43cd46b29",
+      "role": "complete final API/FRY currentPASS/historicalUNRUN check output; stdout"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/final-scoped-reference-check.stderr.txt",
+      "name": "final-scoped-reference-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete final API/FRY currentPASS/historicalUNRUN check output; stderr"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/final-consolidation.stdout.txt",
+      "name": "final-consolidation.stdout.txt",
+      "bytes": 504,
+      "sha256": "9226df39ec01a24ff02472b9d5bbe14f3a95bc85559a000b0dbb305d64349cf0",
+      "role": "complete final15/267 deciding consolidation output; stdout"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/final-consolidation.stderr.txt",
+      "name": "final-consolidation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete final15/267 deciding consolidation output; stderr"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/final-canonical-inventory.stdout.txt",
+      "name": "final-canonical-inventory.stdout.txt",
+      "bytes": 185,
+      "sha256": "2ce1996d39337c890279013145c3b0bb2a9624484cb058c12c55def24cf2ff94",
+      "role": "complete canonical15/12 inventory output; stdout"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/final-canonical-inventory.stderr.txt",
+      "name": "final-canonical-inventory.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete canonical15/12 inventory output; stderr"
+    }
+  ],
+  "companion_count": 29,
+  "denominator": {
+    "primary_handoffs": 10,
+    "companion_handoffs": 4,
+    "ancillary_native_handoffs": 1,
+    "all_canonical_handoffs": 15,
+    "finding_bearing_receipts": 14,
+    "published_topics": 12,
+    "primary_canonical_check_records": 164,
+    "companion_canonical_check_records": 97,
+    "ancillary_canonical_check_records": 6,
+    "hash_records_per_component_sum": 17630,
+    "unique_git_hash_reference_count": 11009,
+    "unique_git_hash_reference_count_primary": 4244,
+    "unique_content_identity_count": 4425,
+    "decoded_hash_records_per_component_sum": 557,
+    "distinct_decoded_raw_body_count": 314,
+    "distinct_decoded_raw_body_bytes": 875107057,
+    "declared_primary_scientific_check_outcomes": {
+      "FAIL": 53,
+      "PASS": 91,
+      "UNRUN": 17,
+      "ERROR": 2,
+      "SKIP": 1
+    },
+    "explicit_blob_only_source_records": 0,
+    "distinct_explicit_immutable_blob_sources": 0,
+    "cached_gzip_decode_reuses": 41,
+    "scope": "Counts come from all hash_records, not a sample. Same content repeated at different exact SHA:path counts as separate Git references; raw body identities are deduplicated by SHA256+byte size.",
+    "all_canonical_check_records": 267,
+    "historical_unavailable_non_deciding_occurrences": 4,
+    "historical_unavailable_non_deciding_distinct_blobs": 1
+  },
+  "topic_component_inputs": [
+    {
+      "component": "cau",
+      "role": "primary",
+      "head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "bytes": 216928,
+        "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+      },
+      "candidate_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9"
+    },
+    {
+      "component": "fit",
+      "role": "primary",
+      "head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+        "bytes": 28486,
+        "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429"
+      },
+      "candidate_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "candidate_tree_sha": "4d87ce0690e001967b245ce18217cb36fff3c988"
+    },
+    {
+      "component": "rdd",
+      "role": "primary",
+      "head": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+        "bytes": 68616,
+        "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60"
+      },
+      "candidate_sha": "fb022aa12599ee1617f83d154cd9a8027b2a58b8",
+      "candidate_tree_sha": "bee112b9284e11b78c96d2f91660f330d68b26c7"
+    },
+    {
+      "component": "eco",
+      "role": "primary",
+      "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+        "bytes": 109240,
+        "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e"
+      },
+      "candidate_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+      "candidate_tree_sha": "e157c672ee734a700795bbf921f2e3657aa8e9eb"
+    },
+    {
+      "component": "lex",
+      "role": "primary",
+      "head": "77166daa0ff8b9659e3978447f9016c691694266",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-20261006.json",
+        "bytes": 24363,
+        "sha256": "0d6e1e2bde0a76edfe74fed0ed278df7c73fc209c982cbfcf54fbb7347631f1a"
+      },
+      "candidate_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+      "candidate_tree_sha": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3"
+    },
+    {
+      "component": "api",
+      "role": "primary",
+      "head": "449d32909928caf39382f4ff02ac74b0adf277eb",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-20261006.json",
+        "bytes": 33029,
+        "sha256": "6729aabae4bd540d2b1e3077e5f7f39a007868d30fb1f265ced62f6798e8ce99"
+      },
+      "candidate_sha": "729d137279b7d6334230045e420255762fe55f08",
+      "candidate_tree_sha": "7ced77fdbd83e65efbd14d4bd518de2f786b1e9a"
+    },
+    {
+      "component": "dowhy",
+      "role": "primary",
+      "head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json",
+        "bytes": 93732,
+        "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833"
+      },
+      "candidate_sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "candidate_tree_sha": "191a4c8997b4bee61a1045d4825bd98759ce0ca8"
+    },
+    {
+      "component": "fry",
+      "role": "primary",
+      "head": "f4fa51e6dd247cfd967450263579d67233a743d6",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/treasury-execution-20261006.json",
+        "bytes": 77903,
+        "sha256": "ff8a8f2b2689fb9793c5ab03f29fde1412eb5fe03dae961656fad722a108176e"
+      },
+      "candidate_sha": "63425f734946979cfc990e9cb91b00163f051898",
+      "candidate_tree_sha": "dab61c3e7a161e00837f5a128fc2768a36e9b19a"
+    },
+    {
+      "component": "graph",
+      "role": "primary",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006.json",
+        "bytes": 150139,
+        "sha256": "aca05e29aaec895349d0f7f20863429acb3ae3f8b346911575ed80a9ab806f17"
+      },
+      "candidate_sha": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "candidate_tree_sha": "f8cbe3c6c7d61599f80d533c4dcc4d75f556a8a4"
+    },
+    {
+      "component": "b220",
+      "role": "primary",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-cache-immutability-20261006.json",
+        "bytes": 66228,
+        "sha256": "b36bac6bf8f01a2821d8077e34166acdda487d21467a8c06a706177747177b6b"
+      },
+      "candidate_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+      "candidate_tree_sha": "9fd2bd6d9aebdb48d1a2bed266483a8b4ab1974e"
+    },
+    {
+      "component": "root_consumer",
+      "role": "companion",
+      "head": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-binding-20261006.json",
+        "bytes": 162224,
+        "sha256": "1f4b740e02d77c66e13704c72535fc2e38b207ee307ccc063168d59b44309a6d"
+      },
+      "candidate_sha": "74f754bd6a3388aef83188dac00e24b12ab3feb6",
+      "candidate_tree_sha": "ae08d98787075b7ea3e0ae7d276a2b19cbfe5a65"
+    },
+    {
+      "component": "installed",
+      "role": "companion",
+      "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json",
+        "bytes": 71310,
+        "sha256": "00617d32afdafcff3f986fb53043580f6a4a360c4c3f191c3867ed0631357fde"
+      },
+      "candidate_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+      "candidate_tree_sha": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e"
+    },
+    {
+      "component": "intake",
+      "role": "companion",
+      "head": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-native-20261006.json",
+        "bytes": 150755,
+        "sha256": "78b07ba01cf9b483ff23d08c8144fc55b9ab678412b46fa8f170c775a3f1f05e"
+      },
+      "candidate_sha": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "candidate_tree_sha": "f01888ab31984d1b4b801cfab87b9f1ac08d9756"
+    },
+    {
+      "component": "installed_latest",
+      "role": "companion",
+      "head": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+        "bytes": 209475,
+        "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908"
+      },
+      "candidate_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "candidate_tree_sha": "c75afd88c27037708844f48d7789fbcbe84a4797"
+    },
+    {
+      "component": "graph_native",
+      "role": "ancillary_historical_native",
+      "head": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
+      "primary": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006.json",
+        "bytes": 30467,
+        "sha256": "fc4185ba629d9cedeedbd27a3cc3f184844665be53dc056d526ae436582a7a06"
+      },
+      "candidate_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+      "candidate_tree_sha": "94ee1936893827c13316ee537e286d0791cd4854"
+    }
+  ],
+  "replay": {
+    "command": "python3 replay_final_protocol_audit.py --repo <fetched-checkout> --out <new-empty-scratch-dir> --snapshot F-published-protocol-audit.json.gz",
+    "scope": "Navigation repo/output arguments only; fixed exact15 receipt refs. Existing measured gzip decode identities are reused solely after fresh compressed Git bytes and declared raw identity reconciliation. Full uncached decoding is available by omitting --snapshot.",
+    "numeric_tests": "Not rerun; original actual source-bound scientific receipts retain PASS/FAIL/ERROR/SKIP/UNRUN."
+  },
+  "transfer_rule": "Commit only the gzip report and selected small companions, one copy of each. Original uncompressed full report and per-component caches are intentionally excluded. Raw full-body hashes and complete source-bind records are retained inside the lossless report; those original deciding output bodies remain at exact published Git refs.",
+  "oversize_exception_reason": "Complete full deciding protocol/source/raw-byte denominator is required. One compressed full report preserves all records instead of a truncated tail, sample, or duplicate raw view."
+}

@@ -1,0 +1,46 @@
+..                                                                       [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_row_permutation_source_and_effective_mechanism_tampering_refused
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] scm_spec: unexpected_key — Key 'scm_spec' not declared in output slots
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_row_permutation_source_and_effective_mechanism_tampering_refused
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] latent_vars: unexpected_key — Key 'latent_vars' not declared in output slots
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_row_permutation_source_and_effective_mechanism_tampering_refused
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] projected_graph: unexpected_key — Key 'projected_graph' not declared in output slots
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_row_permutation_source_and_effective_mechanism_tampering_refused
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: unexpected_key — Key 'warnings' not declared in output slots
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_row_permutation_source_and_effective_mechanism_tampering_refused
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] latent_vars: empty_array — Output 'latent_vars' is an empty array
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_row_permutation_source_and_effective_mechanism_tampering_refused
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] estimator_envelope: unexpected_key — Key 'estimator_envelope' not declared in output slots
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] query_result: unexpected_key — Key 'query_result' not declared in output slots
+    result = backend.run(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2 passed, 15 warnings in 28.02s

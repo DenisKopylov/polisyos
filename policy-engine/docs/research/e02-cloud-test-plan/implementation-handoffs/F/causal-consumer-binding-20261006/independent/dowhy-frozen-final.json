@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py"
+  ],
+  "cwd": "/workspace/e02-F-dowhy-20261006/policy-engine",
+  "source_sha": "d86a085f07a2d49855f465fe762ef20259b67dc3",
+  "tree": "212c90557672fe51228942026fc3c8e1d9b8981d",
+  "status": "",
+  "exit": 0,
+  "wall_s": 58.35938859300222,
+  "pythonpath": "/workspace/e02-F-dowhy-20261006/policy-engine/src:/workspace/e02-F-dowhy-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/root-review/dowhy-frozen-final.stdout",
+      "sha256": "c864abf7a85b15cfe1c93cc64e3371862af713c6f941faa5390e7a2cabacb102",
+      "bytes": 2422
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/root-review/dowhy-frozen-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

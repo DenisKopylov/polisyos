@@ -1,0 +1,37 @@
+{
+  "classification": "probe_precondition_nonmeasurement",
+  "reason": "Initial probe read items/artifacts; actual manifest uses files. Empty denominator did not establish custody.",
+  "original": {
+    "schema": "F-TMLE-independent-review-preparation/1",
+    "state": "await_exact_frozen_source_no_native_candidate_verdict",
+    "input_packet": {
+      "path": "/tmp/e02-F-continuation-20261006/tmle-bridge-investigation/transfer-selection.json",
+      "bytes": 7914,
+      "sha256": "99f611e54b29821dc716eecce588f80878b2e0552f3c5ebeea4fe8429008416d",
+      "items": 0,
+      "complete_item_byte_sum": 0,
+      "byte_binding_issues": []
+    },
+    "input_diagnostic_result": "Native default15fold job succeeded result-only; configuredJob beforefit unknownparams; real common-node actualpool failed missingEvalSafetycontext and0fits. Original ERROR/harness cases remain original ERROR.",
+    "independent_oracles": [
+      "Actual configured MethodJob/CAS/fresh native process",
+      "Exact full X/W content+order seen by real nativefold fitter, not shape/labels",
+      "All canonical dataclass fields parameterdefaults = from_params({}), requested6folds and full perrepeat heldoutpartition",
+      "Standard-library NormalDist .975 and EIF SD/sqrt(N) fieldprojection",
+      "Old result caller and historical one-result signature through real dematerializer",
+      "Typednonregular/trim/nonconverged no SUCCESS/CI; descriptive result preserved",
+      "Public realproducer factory ABI/pickle/actual monkeypatch and entire previousenum JSON readers"
+    ],
+    "marker_kept_removals": [
+      "Canonical reportfactory code projects standard_error\u00d72 while actualnative result/profile/metadata/CI unchanged",
+      "Canonical typedadapter code orders W before X with same all4columns/dimensions/signature; actualfitter content oracle rejects"
+    ],
+    "no_new_scientific_math": true,
+    "production_identification_authority": "not_established",
+    "real_shared_deployment_allstudy_budget": "UNRUN",
+    "p40_bucket_rule": "Report/basis semantic defects are new only if independent from declared missing Runtime/PDC admission/resource/source-law capability. Missing actual all-study budget/current EvalSafety/identification issuer is already declared bounded residual, no invented verifier/pool/contractId/backend shim.",
+    "source_write_paths": [],
+    "scratch_writer_scope": "/tmp/e02-F-continuation-20261006/cau/tmle-review",
+    "freeze_required_before_native": true
+  }
+}

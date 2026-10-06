@@ -1,0 +1,72 @@
+F......................................FF.............s................. [ 74%]
+.........................                                                [100%]
+=================================== FAILURES ===================================
+____________________________ test_budget_accounting ____________________________
+tests/unit/foundry/mechanisms/test_fiscal.py:32: in test_budget_accounting
+    assert float(state.government_balance) == 1000.0
+E   assert 1000.0000149011612 == 1000.0
+E    +  where 1000.0000149011612 = float(Array(1000.0000149, dtype=float64))
+E    +    where Array(1000.0000149, dtype=float64) = GlobalState(step=Array(0, dtype=int32), agents=AgentState(active=Array([ True,  True,  True,  True,  True,  True,  Tru...(0., dtype=float32), cells=None, household_cells=None, agent_sim_runtime=None, queue_runtime=None, feedback_state=None).government_balance
+__________________________ test_jit_trainer_compiles ___________________________
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py:106: in test_jit_trainer_compiles
+    trained, metrics = trainer(jax.random.PRNGKey(1))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:254: in trainer
+    final_params, losses = _train_loop(rng_key)
+                           ^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:245: in _train_loop
+    final_carry, losses = jax.lax.scan(
+src/polisyos/foundry/agent_sim/jit_training.py:229: in episode_step
+    trajectory, _ = _collect_trajectory_jit(carry.params, initial_state, key1)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:144: in _collect_trajectory_jit
+    (final_state, _), transitions = jax.lax.scan(
+E   TypeError: scan body function carry input and carry output must have equal types, but they differ:
+E   
+E     * the input carry component carry[0].agents.consumption has type float32[4] but the corresponding output carry component has type float64[4], so the dtypes do not match;
+E   
+E     * the input carry component carry[0].agents.expected_lifetime_utility has type float32[4] but the corresponding output carry component has type float64[4], so the dtypes do not match;
+E     * the input carry component carry[0].agents.wealth has type float32[4] but the corresponding output carry component has type float64[4], so the dtypes do not match.
+E   
+E   Revise the function so that all output types match the corresponding input types.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+_________________________________ test_es_runs _________________________________
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py:125: in test_es_runs
+    _, metrics = run_evolution_strategies(
+src/polisyos/foundry/agent_sim/evolution.py:82: in run_evolution_strategies
+    mean_params, best_fitness = es_step(mean_params, step_key)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/evolution.py:70: in es_step
+    fitnesses = jax.vmap(evaluate_params)(candidates, eval_keys)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/evolution.py:53: in evaluate_params
+    final_state, _ = executor.run(
+src/polisyos/foundry/agent_sim/executor.py:103: in run
+    final_state, all_metrics = jax.lax.scan(
+E   TypeError: scan body function carry input and carry output must have equal types, but they differ:
+E   
+E     * the input carry component state.agents.consumption has type float32[4] but the corresponding output carry component has type float64[4], so the dtypes do not match;
+E   
+E     * the input carry component state.agents.expected_lifetime_utility has type float32[4] but the corresponding output carry component has type float64[4], so the dtypes do not match;
+E     * the input carry component state.agents.wealth has type float32[4] but the corresponding output carry component has type float64[4], so the dtypes do not match.
+E   
+E   Revise the function so that all output types match the corresponding input types.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.
+=============================== warnings summary ===============================
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_jit_trainer_compiles
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_jit_trainer_compiles
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_jit_trainer_compiles
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_es_runs
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_es_runs
+tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_government_policy_bounds
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/equinox/nn/_normalisation.py:92: UserWarning: LayerNorm(elementwise_affine=...) is deprecated in favour of LayerNorm(use_weight=...) and LayerNorm(use_bias=...)
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/foundry/agent_sim/test_monitoring.py:147: could not import 'plotly': No module named 'plotly'
+FAILED tests/unit/foundry/mechanisms/test_fiscal.py::test_budget_accounting
+FAILED tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_jit_trainer_compiles
+FAILED tests/unit/foundry/agent_sim/test_agent_simulation_step6.py::test_es_runs

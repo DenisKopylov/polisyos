@@ -1,0 +1,11 @@
+{
+  "source_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+  "returncode": 0,
+  "wall_seconds": 10.06548023223877,
+  "output": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/cau-independent-endpoint-controls.txt",
+    "bytes": 3626,
+    "sha256": "5a88a1ad61ff3fac607a8898775ccf58a68b010176981b8ec62a500af5687087"
+  },
+  "probe": "four confidence levels .95/.9/.8/.927, both CI endpoints and adjacent nextafter floats; canonical integer rejection agrees with closed CI; row permutation retains point and standard error"
+}

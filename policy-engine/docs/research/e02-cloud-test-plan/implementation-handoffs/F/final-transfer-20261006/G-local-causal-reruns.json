@@ -1,0 +1,1743 @@
+{
+  "schema": "policyos.e02.G_local_causal_rerun_spec.v1",
+  "unit": "F",
+  "date_utc": "2026-10-06",
+  "scope": "Read-only source/data recipe for G; no new execution or finding closure. No production data/refs/issuer/commands invented. Generic synthetic criterion checks remain distinct from local scientific assumptions and production authority.",
+  "requested_finding_ids": [
+    "B207",
+    "B208",
+    "B209",
+    "B212",
+    "B213",
+    "B56"
+  ],
+  "identity_snapshot": {
+    "worker": {
+      "published_head": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "branch": "codex/e02-F-dowhy-20261006",
+      "implementation_sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "implementation_commits": [
+        "70f160c943fd878190479cb81fe80bf710cecb07",
+        "85cba8f4f40360cd213c66c344300d5e826aff00",
+        "d86a085f07a2d49855f465fe762ef20259b67dc3",
+        "cbb2015e3c96e6442a965e40c779a9c525e5060f",
+        "24ed1ec2063b0f2f6b937d5dab72b5fd821ee8d1",
+        "a7308b727fe61a4b4e3239964c558332b131f02f",
+        "0e5c2e0999fce2464228439908953a771ba5383c",
+        "e5895da2ebbb5f6108e398d78258b973dbdc7b68",
+        "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+        "66c46c32a2a99a4f218a5853174671139252e0db",
+        "423165322e508a293ffd23918c039c99fb37e7a7"
+      ],
+      "implementation_tree": "191a4c8997b4bee61a1045d4825bd98759ce0ca8",
+      "closure_ids": []
+    },
+    "root_consumer": {
+      "published_head": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "branch": "codex/e02-F-closeout-20261006",
+      "implementation_sha": "74f754bd6a3388aef83188dac00e24b12ab3feb6",
+      "implementation_commits": [
+        "93eed731088175fd244c5c66532ab6bd54e793b2",
+        "2c46736112c6cbf552490748dc086fea85c6363a",
+        "60cd548afd16ad52843fd29f3aa8bf79a3f9c027",
+        "e2f91935fb96adacad8ccee027150878cbae1373",
+        "d550a8980ec32fc5cf6186c253b409fdc75ec47e",
+        "5f432d6e749e5bba05b0d3bc35426f46a9f462b8",
+        "74f754bd6a3388aef83188dac00e24b12ab3feb6"
+      ],
+      "implementation_tree": "ae08d98787075b7ea3e0ae7d276a2b19cbfe5a65",
+      "closure_ids": [],
+      "assembled_candidate_sha": "7450e7ece415490cbf70a59871bdf1e17fb25abd",
+      "assembled_tree": "36f5f6dfc94e0990069204a90d539685e75864cb"
+    },
+    "installed": {
+      "published_head": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+      "branch": "codex/e02-F-installed-worker-20261006",
+      "implementation_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+      "implementation_commits": [
+        "157ee9e96477e67f0e3962c1114909ccc51c03c0",
+        "a02590326060d0f071693a4e99334a3debf13641",
+        "ea90b8f314c316d4a4460ec948aea0f4c311b7b7",
+        "736179db05fcce7c928cf7cb8bfd4531fc691c99",
+        "23ba331382f5d9eb1dd63b93f0ea808c88d8efe7",
+        "1ed5de613966e07515f809a1ca5e2d37639311d9",
+        "2873986cbbf42afe45a7a9b97ba7bd41cf3119c0",
+        "07b08423a09c44bab6c93dcd666e7b25ea69c859",
+        "564e1646923371ffa0d1d5c0119df7d35795a5f6",
+        "b95f2d2d5a0d96e3616059203565fe5eff40f47d",
+        "b14536b66843005be0e668e6a0ef8dc394f7e960",
+        "8d7d240a9f56e07e6d8418845d5e8162f40a1b92",
+        "838845d98c47318d1a669d1594de91cbc9153e95",
+        "d3961a101ca6bb0aa9d3e927cc6d62eae09c403d",
+        "850c97defd07beb738ddb42266ce8e2e6c4c7898",
+        "153ca918b1c35bd4ffbf6218a28b7e1ac98d4b6b",
+        "1ebca076a6afb453096409d8b3d91bab94a8ac39",
+        "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5"
+      ],
+      "implementation_tree": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e",
+      "closure_ids": []
+    },
+    "did": {
+      "published_head": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "branch": "codex/e02-F-cau-20261006",
+      "implementation_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "implementation_commits": [
+        "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+        "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+      ],
+      "implementation_tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "closure_ids": [
+        "B204",
+        "B205",
+        "B206"
+      ]
+    },
+    "tmle": {
+      "published_head": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "branch": "codex/e02-F-tmle-20261006",
+      "implementation_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "implementation_commits": [
+        "55d2e14755bda6af31c41acd4fe1dcb76f3814b1"
+      ],
+      "implementation_tree": "4d87ce0690e001967b245ce18217cb36fff3c988",
+      "closure_ids": [
+        "B54"
+      ]
+    }
+  },
+  "identity_rule": "Receipt carrier SHA differs from tested implementation/composite SHA. Freeze/read back the G-selected composed tree before local data run; independent topic receipts are not combined-tree proof.",
+  "common_actual_main_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "receipts": [
+    {
+      "role": "worker",
+      "source_sha": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/dowhy-worker-20261006.json",
+      "git_blob": "e5d1115ce08ceeeafb4e8040faa280c1f1790ff8",
+      "bytes": 93732,
+      "sha256": "0a60ca2fa939fb480a989bd87f11312c9543ac458381c197a7288060a3a53833"
+    },
+    {
+      "role": "root_consumer",
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-binding-20261006.json",
+      "git_blob": "f899dcf7ed86c38603e2253dc047da19c4fb8758",
+      "bytes": 162224,
+      "sha256": "1f4b740e02d77c66e13704c72535fc2e38b207ee307ccc063168d59b44309a6d"
+    },
+    {
+      "role": "installed",
+      "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json",
+      "git_blob": "3c2c69348b131fc84dea659a20394cc0fc8e8705",
+      "bytes": 71310,
+      "sha256": "00617d32afdafcff3f986fb53043580f6a4a360c4c3f191c3867ed0631357fde"
+    },
+    {
+      "role": "did",
+      "source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "git_blob": "0ec1597eb6f77d833cb10103513c1d16aa6d682a",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73"
+    },
+    {
+      "role": "tmle",
+      "source_sha": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json",
+      "git_blob": "2a197a789fbbc38b2d47cc594caa3fc17c6d6924",
+      "bytes": 28486,
+      "sha256": "5870aaedd4d4eb83a1f40c392c5cec79660d28927a5846981e8a363702945429"
+    }
+  ],
+  "original_cards": {
+    "B207": {
+      "criterion_id": "B207",
+      "document": "B_r19",
+      "lines": [
+        5132,
+        5145
+      ],
+      "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+      "card": "CAU-02",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "exact_original_card_text": "## B207. Bootstrap готовых ATT(g,t) не восстанавливает неопределённость панельных наблюдений\n\n**Приоритет:** высокий; содержательная замена уровня повторной выборки, не увеличение n_bootstrap. **Основание:** _cohort_time_att и _run_staggered_did; SB01–SB05. [C20.R02, C20.E01]\n\n**Проблема.** После расчёта ATT по когортам и времени повторно выбираются индексы этих уже агрегированных ячеек. Исходные единицы, их внутрипанельная зависимость и общие контрольные наблюдения в bootstrap не участвуют. Поэтому получаемый разброс относится не к принятой процедуре наблюдения данных.\n\n**Воспроизведение.** Одна когорта, один post-период, treated-изменения [2,4,6,8], control-изменения 0. ATT=5, но любая повторная выборка единственной ячейки даёт 5. При 200 и 2000 повторениях интервал [5,5]. Эффект сохраняется при 80 единицах и 160 панельных строках. Полный перебор 256 стратифицированных повторных выборок четырёх treated-единиц даёт разброс средних, SD=1,118033988750 и процентильный интервал [3,7]. Это контроль механизма, не утверждение о номинальном покрытии на этой малой выборке.\n\n**Рекомендуемое исправление.** Сохранять влияние каждой независимой единицы на набор ATT(g,t), затем повторно выбирать единицы/кластеры либо применять совместный multiplier-bootstrap к этим вкладам. Один draw должен согласованно действовать на все ячейки, имеющие общие наблюдения. Агрегируемый estimand, веса когорт и горизонтов объявляются отдельно: нынешнее взвешивание размера когорты по ячейкам не названо универсально ошибочным.\n\n**Экономный путь.** Один подготовленный panel-view, заранее рассчитанные допустимые группы, исходные разности и score-вклады; далее пакетная линейная алгебра. Это может быть значительно дешевле повторной сборки и подгонки всех моделей на каждом bootstrap. Поисковые проходы с point-only результатом остаются возможными, но не получают выдуманный интервал.\n\n**Приёмка.** Одна ячейка с варьирующими единицами не вырождается только из-за числа ячеек; постоянный модельный эффект сохраняется; идентичности единиц и повторов записаны. Затем нужны независимые симуляционные проверки покрытия при серийной корреляции и нескольких когортах. Официальная реализация did использует единичные influence-вклады и multiplier/cluster-процедуры; она не запускалась здесь. [C20.E01]\n\n"
+    },
+    "B208": {
+      "criterion_id": "B208",
+      "document": "B_r19",
+      "lines": [
+        5146,
+        5157
+      ],
+      "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+      "card": "CAU-02",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "exact_original_card_text": "## B208. Staggered p-value сравнивает bootstrap с самой оценкой, а не с нулевой гипотезой\n\n**Приоритет:** высокий вместе с B207; не ремонтировать отдельно косметическим сдвигом. **Основание:** _run_staggered_did; PV01–PV02. [C20.R02]\n\n**Проблема.** p-value вычисляется как доля |boot|≥|att| с поправкой +1. Нецентрированный bootstrap обычно расположен вокруг наблюдаемой оценки; такая доля сама по себе не является хвостовой вероятностью статистики при нулевом эффекте.\n\n**Воспроизведение.** В одной шумной ячейке из B207 одновременно получены ATT=5, CI=[5,5], p=1. На иллюстративных draws [4,9;5;5,1] исходный счётчик с +1 даёт 0,75, а счётчик отклонений boot−att относительно нуля — 0,25. Последний показан только как различение объектов сравнения, не как универсально корректная bootstrap-процедура.\n\n**Рекомендуемое исправление.** Задать H0, тестовую статистику, её масштабирование и допустимый способ получения нулевого распределения совместно с уровнем повторной выборки. Использовать согласованную инверсию интервала/теста или проверенный центрированный/studentized/bootstrap-тест согласно дизайну. Если такой вывод не вычислен, сохранить ATT и имеющуюся диагностику, указав p-value как отсутствующий.\n\n**Приёмка.** Увеличение реального эффекта при фиксированном шуме не должно механически удерживать p около 1/2. Проверять null-калибровку, мощность и соответствие интервалу на одних единицах. Больше bootstrap-повторов стабилизирует ошибочную формулу, но не исправляет её; +1 исправляет разрешение счётчика, а не выбор распределения.\n\n"
+    },
+    "B209": {
+      "criterion_id": "B209",
+      "document": "B_r19",
+      "lines": [
+        5158,
+        5169
+      ],
+      "sha256": "b774fd7cd4f1653c0771ee5e20e7d3ee990c14bb47cc698b284e581ac75cc44f",
+      "card": "CAU-02",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "exact_original_card_text": "## B209. Anticipation учитывается в baseline treated-группы, но не при выборе not-yet-treated controls\n\n**Приоритет:** высокий для ненулевого anticipation, локальное расширение определения группы. **Основание:** _cohort_time_att; AN01–AN03. [C20.R02, C20.E01]\n\n**Проблема.** Baseline сдвигается на group_start−1−anticipation, но control_mask допускает любую группу с timing>t. Группа, в которой уже действует разрешённый эффект предвосхищения, продолжает считаться нетронутым контролем.\n\n**Воспроизведение.** Когорта g=2 имеет истинный эффект 2. Когорта g=3 уже в t=2 меняется на 10, поскольку anticipation=1; ещё одна единица никогда не treated. Для ATT(2,2) текущий not-yet-control даёт −3, тогда как never-treated и контроль timing>t+anticipation дают 2. При anticipation=0 и фактически отсутствующем раннем эффекте исходный выбор правильно даёт 2.\n\n**Рекомендуемое исправление.** Формировать admissible-control по полной временной области воздействия, включая anticipation и необходимые baseline-окна. Сохранять идентификаторы использованных ячеек/когорт и правило контроля. Если пригодных controls нет, сохранить пробел конкретной ячейки и изменить область агрегирования только явно.\n\n**Производительность и приёмка.** Подготовить cohort-time eligibility один раз и использовать также при повторных выборках. Не запрещать not-yet-treated или anticipation вообще: они полезны при корректных условиях. Контроль должен охватить границу g=t+a, никогда не treated, недостаточный baseline и case a=0. Внешняя документация определяет anticipation как период возможного влияния до назначения; это не подтверждение любой эмпирической гипотезы о его длине. [C20.E01]\n\n"
+    },
+    "B212": {
+      "criterion_id": "B212",
+      "document": "B_r19",
+      "lines": [
+        5194,
+        5205
+      ],
+      "sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+      "card": "CAU-04",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "exact_original_card_text": "## B212. Point-only ответ DoWhy превращается в почти точный доверительный интервал\n\n**Приоритет:** высокий, центральная граница частичной полезности. **Основание:** _run_dowhy и _extract_confidence_interval; DW01–DW04. [C20.R06–R07]\n\n**Проблема.** Если backend не возвращает interval, адаптер создаёт point±max(|point|×10⁻⁹,10⁻⁹) и вызывает build_success_report. В общем CausalEffectReport для SUCCESS требуются одновременно point и interval. Это создаёт давление заполнить отсутствующую неопределённость, но не делает такое заполнение обоснованным.\n\n**Воспроизведение.** Recorder-backend вернул конечную точку 7 без CI и SE. Исходный адаптер запросил успешный report с [6,999999993;7,000000007], уровнем 0,95 и SE=None. Интервал [5,9], когда backend действительно его предоставил, сохранён. Ошибка identify и нечисловая point корректно пошли по отказным ветвям.\n\n**Рекомендуемое исправление.** Независимо сохранять определённый estimand, вычисленную point и состояние inferential-части. Недоступность CI не должна ни стирать полезную point, ни создавать очень узкую фикцию. Вызывать действительную поддержанную CI-процедуру либо использовать реальный SE только при подходящем распределении и предпосылках. Для point-only пути нужен существующий совместимый частичный результат или адресное расширение общего контракта с согласованными потребителями.\n\n**Приёмка и граница.** Recorder не является DoWhy; реальная библиотека, IR-envelope, права и публикация здесь не запускались. В production-тесте backend без inference должен давать point-only; backend с настоящим interval — сохранить его; недоступный backend — прежнее явное ограничение. Нельзя подставлять нулевую дисперсию, бесконечно узкую полосу или общий SUCCESS-гейт только ради завершения pipeline.\n\n"
+    },
+    "B213": {
+      "criterion_id": "B213",
+      "document": "B_r19",
+      "lines": [
+        5206,
+        5217
+      ],
+      "sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+      "card": "CAU-04",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "exact_original_card_text": "## B213. Запрошенный estimand_type остаётся только подписью отчёта DoWhy\n\n**Приоритет:** высокий при нескольких видах причинного запроса; небольшой явный binding. **Основание:** _run_dowhy; DW05–DW06. [C20.R06, C20.E04]\n\n**Проблема.** Параметр estimand_type объявлен в методе и читается, но не передаётся ни CausalModel, ни identify_effect. В estimate_effect передаётся только method_name. Итоговый report записывает именно запрошенную строку, хотя фактический backend мог использовать свой default.\n\n**Воспроизведение.** Для requested nonparametric-nie recorder с определённым default ATE получил constructor(data,treatment,outcome,graph), identify(proceed_when_unidentifiable=False), estimate(method_name=...). В отчёте одновременно оказались estimand_type=nonparametric-nie и identified_estimand='ATE(x:0->1) [fixture default]'. Это различающий протокольный опыт, не численное оценивание реального NIE.\n\n**Рекомендуемое исправление.** До исполнения связать запрос с поддержанным типом estimand, вмешательством/контрастом, target population и фактической формулой идентификации. Для поддержанного профиля передать параметры по API конкретной версии, проверить ответ; для неподдержанного — точный capability-result. Неизвестное имя нельзя просто переслать в библиотеку и надеяться, что она корректно его поймёт.\n\n**Приёмка.** Наблюдать реальные аргументы identify/estimate на обычном dispatcher-маршруте, а не только совпадение labels. Default ATE должен остаться рабочим. Существующий proceed_when_unidentifiable=False передаётся правильно и сохраняется. Документация DoWhy показывает отдельную точку задания estimand_type; её чтение не доказывает установленную runtime-версию проекта. [C20.E04]\n\n"
+    },
+    "B56": {
+      "criterion_id": "B56",
+      "document": "B_r19",
+      "lines": [
+        1409,
+        1424
+      ],
+      "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+      "card": "FIT-01",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "exact_original_card_text": "## B56. Внутренняя параллельность folds не связана с общим ресурсом исследования\n\n**Происхождение:** C04-08. **Основание:** `ATENuisanceContract` и `_fit_crossfit_nuisance_bundle_uncached`; PW1–PW3. **Приоритет:** условная оптимизация нескольких одновременных fit; охват S/M. [C04.K05]\n\n**Проблема.** По умолчанию используются пять folds и три повторения. Если `parallel_folds=True` и `max_parallel_folds=0`, число workers берётся из числа tasks — здесь 15 на один fit. Каждый fit создаёт собственный `ThreadPoolExecutor`. Четыре внешних одновременных fit могут тем самым запросить 60 внутренних рабочих потоков ещё до учёта прочих стадий. Это расчёт конфигурационной ёмкости, не наблюдение 60 реально загруженных CPU и не измеренное замедление.\n\n**Важный существующий контроль.** У создаваемых LightGBM и RandomForest в прочитанных ветвях явно стоит `n_jobs=1`. Значит, часть вложенной параллельности уже ограничена. Неверно утверждать, что весь проект бесконтрольно размножает все native threads. Но лимит конкретного модельного backend не объединяет несколько независимых fold-пулов внешнего цикла. [C04.K05]\n\n**Рекомендуемое решение.** Сначала использовать уже имеющийся `max_parallel_folds` и передавать его из действительного ресурса текущего исследования. Для первого малого прогона практичный выбор — распараллелить один уровень: несколько моделей с внутренним cap=1 либо один fit с ограниченным числом folds. Затем измерять полезную пропускную способность и память и перераспределять разрешённый ресурс. Не нужен новый кластерный scheduler.\n\nЕсли нужен общий механизм допуска, он должен исключать циклическое ожидание: внешняя работа не должна занять все ресурсы, удерживать их и ждать внутренних задач, которым нужны те же ресурсы. Механическая замена всех пулов одним общим пулом может создать именно такой тупик. Сохранять детерминированные seeds, порядок агрегации и реальное число повторений; ограничение работников не должно сокращать число научных повторений молча.\n\n**Приёмка.** При заданном общем ресурсе сумма допущенной работы ограничена; задачи ожидают без потери результатов; тот же набор folds/repeats исполнен независимо от уровня параллелизма; численные результаты и provenance согласованы. Измерять общее время, пиковую память, число активных workers и ожидание, а не предполагать, что максимальный worker-count оптимален.\n\n**Граница.** Это возможность настройки и композиции, не доказанный дефект одиночного запуска. PW показывает точную формулу выбора 15, 2 и 1 работников при разных разрешённых настройках. Нет универсальной рекомендации «всё сделать последовательным» и нет новой постоянной границы мощности системы.\n\n"
+    }
+  },
+  "method_sections": {
+    "F-M2": {
+      "source_ref": {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+        "git_blob": "f3248e61065316f06f7b1dbe5476f09cb3a4588a",
+        "bytes": 144848,
+        "sha256": "0f09c4d8e28888bb1262b007b771c586e0dbb057ea24173a8e1dddbb378b97c8"
+      },
+      "section_bytes": 4226,
+      "section_sha256": "159a73eb9138b73f3581332b2cd14d38242b2fd5134666438aa4709337ce8b28",
+      "scope": "Historical G97 method decision, not current execution receipt; current actual lock/metadata facts override stale planning dependency statements."
+    },
+    "F-M5": {
+      "source_ref": {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+        "git_blob": "f3248e61065316f06f7b1dbe5476f09cb3a4588a",
+        "bytes": 144848,
+        "sha256": "0f09c4d8e28888bb1262b007b771c586e0dbb057ea24173a8e1dddbb378b97c8"
+      },
+      "section_bytes": 5408,
+      "section_sha256": "c6bc6ebf1f82a6ad367d1d05bf7d0998433d2d5a9bbe5bec4319c8d0da63df91",
+      "scope": "Historical G97 method decision, not current execution receipt; current actual lock/metadata facts override stale planning dependency statements."
+    },
+    "F-M6": {
+      "source_ref": {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+        "git_blob": "f3248e61065316f06f7b1dbe5476f09cb3a4588a",
+        "bytes": 144848,
+        "sha256": "0f09c4d8e28888bb1262b007b771c586e0dbb057ea24173a8e1dddbb378b97c8"
+      },
+      "section_bytes": 5495,
+      "section_sha256": "67025ba53933eb50306f50c6fb721b32f03b317471d98f5ebb32bb94b91ee84d",
+      "scope": "Historical G97 method decision, not current execution receipt; current actual lock/metadata facts override stale planning dependency statements."
+    },
+    "F-M7": {
+      "source_ref": {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+        "git_blob": "f3248e61065316f06f7b1dbe5476f09cb3a4588a",
+        "bytes": 144848,
+        "sha256": "0f09c4d8e28888bb1262b007b771c586e0dbb057ea24173a8e1dddbb378b97c8"
+      },
+      "section_bytes": 6580,
+      "section_sha256": "0b9c77790fd8d7d47904215b9cd34037ba1e30a5f5d4d0fffbf21625e241f5cd",
+      "scope": "Historical G97 method decision, not current execution receipt; current actual lock/metadata facts override stale planning dependency statements."
+    },
+    "F-M8": {
+      "source_ref": {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+        "git_blob": "f3248e61065316f06f7b1dbe5476f09cb3a4588a",
+        "bytes": 144848,
+        "sha256": "0f09c4d8e28888bb1262b007b771c586e0dbb057ea24173a8e1dddbb378b97c8"
+      },
+      "section_bytes": 3964,
+      "section_sha256": "9d4cc5700951d780a4521e992914908bd2ce58a25254f87dafb7ccca44ec9589",
+      "scope": "Historical G97 method decision, not current execution receipt; current actual lock/metadata facts override stale planning dependency statements."
+    }
+  },
+  "tracked_basis_refs": [
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+      "git_blob": "b04b58837a5767a3194dbaf0dc3cb63580a649ff",
+      "bytes": 36326,
+      "sha256": "5a086df1622e4dfa060b432f0643f3634c839d735894d9640208a66c7ad40a82"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "git_blob": "e939b0ef5f8ee2553648e1537268c70dc29a2b20",
+      "bytes": 46944,
+      "sha256": "35e15ee0f92a76df0af8cbef16cda9bc3d6b21838a7f81c868c71db3e1d317f0"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/semantic-decisions.md",
+      "git_blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a",
+      "bytes": 11008,
+      "sha256": "30b8b82573381ffac6fb18e984e36273be9ed29579027818c4e2a9711e994d1a"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+      "git_blob": "b242397fb26eaf0bee86a867aed6e21768d094e2",
+      "bytes": 52438,
+      "sha256": "4d09c54010b46a6e9b59a37e82dce9b9d75b853bea3e799078382afb16ee8db0"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/input-identity.json",
+      "git_blob": "6c2c976235f8662235189079be4517a82e596eaf",
+      "bytes": 119667,
+      "sha256": "e7ca6a26ee731dd085258896b466d30be39c9414774a93b8e7dfd82a799549a9"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "git_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+      "bytes": 549568,
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+      "git_blob": "eb335a62bc1f8bce2cddfcf59f649980a08e88c4",
+      "bytes": 96417,
+      "sha256": "8a2697280ff17913847806fa09cfa932a6260ce5053a2d293c5f6878ccf3b990"
+    }
+  ],
+  "source_contract_refs": [
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/scientist/api.py",
+      "git_blob": "00a723f27c161fd8304d494e24525ffd9529c378",
+      "bytes": 12901,
+      "sha256": "8c18960085bb5c519fa9fcfe7f7a57aad8413151c4fffbd22120a38ed1110ff3"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "git_blob": "d0eb06b68a4fa044213fee8641b25f2585c8d5d0",
+      "bytes": 64173,
+      "sha256": "04a13ca7d81cf88ea0dddabd7ab36174800a5050da7dbfcc9f49a0aa03237ef0"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py",
+      "git_blob": "913e5916acbfddadf408a11d627757495e597e89",
+      "bytes": 16485,
+      "sha256": "d8821a51d417d90edc265eabbc9c544ca04e5602fe613094425a3fb8c95812dc"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+      "git_blob": "938e25daf571f2b95e50f40b421fe16f3f21892e",
+      "bytes": 3822,
+      "sha256": "af6ed089cbc85b13730b640dfe089504f61dfa2a21d296744ede3f18920c7375"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+      "git_blob": "3724db92babaa2e2da1d1e35f8467159d3afe980",
+      "bytes": 3769,
+      "sha256": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+      "git_blob": "1c57325b0133222154b0298c814a701b568ccc50",
+      "bytes": 6899,
+      "sha256": "f926950c6b5dff4d6f90f688210f41b13f534ef09e7cb252df4c69cebbf23a6c"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+      "bytes": 29575,
+      "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+      "git_blob": "420fe9cb32ed4eec6e6f120c9a96c200e312b3d2",
+      "bytes": 2662,
+      "sha256": "c409c976c98b57247d9469a9f33a295e099188d15abf5dbc6a0edb72422ce2f4"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/pdc/_impl/evaluation_safety.py",
+      "git_blob": "e05611289505432f90550aac85375976b38800ad",
+      "bytes": 9436,
+      "sha256": "87831ae9b6b4b1ec331d97ae3ed8ac85d7bc013f3103804202d8a6297267e031"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+      "git_blob": "efa454a8eaf663b2d393bbc0b51c4920fc345a27",
+      "bytes": 85385,
+      "sha256": "bc12bb95f5381d4f2b0235ce3cdb8705a27051a8bb33cf628ca10ab402af36cd"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/runtime/quality/evaluation_safety.py",
+      "git_blob": "d390f002c09cffa24f87ddd403bd28c4e5cee1d8",
+      "bytes": 97542,
+      "sha256": "9f5146deb64ce4038fbdb2f8b034e6f88b184a3479e38aff1b43108042c592f8"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "git_blob": "2d35616ebe69a23b820cca258c77cf296d155bef",
+      "bytes": 89157,
+      "sha256": "250497e0024481a5bdc4e0b941fb31e57eaeb841702164490874f3978a3134c1"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "git_blob": "16b7964d5434c57174a7bde0ea440c7347a78ebd",
+      "bytes": 50088,
+      "sha256": "5b35566ab38d121c43146edf809b9f3194030db950e953b660e0715450538f20"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a",
+      "bytes": 59964,
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+      "git_blob": "749154a57340793c223da2b40d02bd5bcd8e7fea",
+      "bytes": 23546,
+      "sha256": "50e0b78c639b52444cc97abe35f8b71a5ce66c8c33cb2c920c34cbe42633c04e"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+      "git_blob": "0473a4280ff55fb23e73cf7c561ae3d7e2149519",
+      "bytes": 16599,
+      "sha256": "582ad243fec5406d577154b7bc1f97e03664cf01843e1fa6f23c3ea28746db56"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/foundry/data_plane/__init__.py",
+      "git_blob": "9aa6e5fd5d8202778964771322721e41acbea477",
+      "bytes": 801,
+      "sha256": "604b7bb3e4b6dd610fc4b9a8f753f6cc9076da51cd5a625187f518e0fc192b92"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+      "git_blob": "20b9a4128c6bba5813fe13f55520952079befd41",
+      "bytes": 53511,
+      "sha256": "67f724b4707781bf361f0bbf59cefaa77e4f6dfd31fce94dcdedd31aa96d53ee"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+      "git_blob": "061441cccf7f52e8fdea33a4c63b47dd95372dad",
+      "bytes": 29103,
+      "sha256": "1d23266e6881fc23c8d9e0cce5786d47a3a1978046ffe62e452d9a561e5abfb2"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/ir/observation/bundles.py",
+      "git_blob": "413372825b89f1fecb2e7ef0724576ac9459c5d9",
+      "bytes": 37082,
+      "sha256": "b986fc5433fdc29d65e0ed5e5643a27b8370e3f49594812a8718f478cebda4c3"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/foundry/plugins/core.py",
+      "git_blob": "af250d21ff33d48af6e9c7f56b200fdbae363f7e",
+      "bytes": 7063,
+      "sha256": "8b3a9f93bb522d509651fed13c436316944d01f0cd25b48ae021f338ad613c32"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/foundry/plugins/discovery.py",
+      "git_blob": "19b9a2e2cb1e2f93702f59f6c2926f4da4972c54",
+      "bytes": 7264,
+      "sha256": "c0761cc98bb5b90a8e83e7d671e95d182ec9e7a4ef3b46da2d991f4044680f86"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/core/discovery/base.py",
+      "git_blob": "dddb72dfe46791c1a6959b37862f8d894ebfb1b3",
+      "bytes": 5733,
+      "sha256": "c6ca686a2823557950e9e801419f404ee58c5f7b74666c2a9518719db9f0f7bf"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+      "git_blob": "7f9b4477173973f2fe60e70fd0ecf631e541d21a",
+      "bytes": 16555,
+      "sha256": "9764207aba27eeae2beb64fd2bf132c3d43c1e3900829a5ef1408aedf3d1bf33"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py",
+      "git_blob": "bdac41f4fa8589110117966f44731b92c0bd73b2",
+      "bytes": 16099,
+      "sha256": "9988079c7d39566f3c059861759a8027115581ed8d2eaa994a798ce74fd4ed2e"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/foundry/extensions/registry.py",
+      "git_blob": "96daaf500cefcfac4a4e4c909efc76525ed2642d",
+      "bytes": 9073,
+      "sha256": "2d0ef04222089e60e5bf887ad6c4459f4ef74e013e4422e0cf72586c8de5224b"
+    },
+    {
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/io.py",
+      "git_blob": "ef58fdce69de184765575024b25934daf317c927",
+      "bytes": 7890,
+      "sha256": "11fd5a3c49d0beb745d3007cb123671c9a53981f1856c1c1591ad909fcb6a621"
+    }
+  ],
+  "execution_outcome": "UNRUN_by_this_spec",
+  "finding_outcomes": {
+    "B207": "limited",
+    "B208": "limited",
+    "B209": "limited",
+    "B212": "limited",
+    "B213": "limited",
+    "B56": "limited"
+  },
+  "closure_ids": [],
+  "runtime_profiles": {
+    "application": {
+      "requires_python": ">=3.14,<3.15",
+      "actual_cloud_python": "3.14.7",
+      "project_ref": {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+      },
+      "lock_ref": {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+      },
+      "markers": "DoWhy: python_version < 3.13; EconML: python_version < 3.14. Both absent in measured app3.14 profile; absence/optional skips are never backend PASS. G records its own fresh actual interpreter/packages/origins. No app downgrade."
+    },
+    "selected_worker": {
+      "requires_python": ">=3.12,<3.13",
+      "actual_cloud_python": "3.12.14",
+      "actual_dowhy": "0.14",
+      "actual_linux_distribution_count": 52,
+      "lock_package_count": 55,
+      "lock_reconciliation": "Virtual project and Windows-only colorama/tzdata are not installed on Linux; full locked/installed inventory is committed.",
+      "project_ref": {
+        "source_sha": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+        "path": "policy-engine/workers/dowhy-014/pyproject.toml",
+        "git_blob": "770a46160a0b13614507d345f729910c9e81acde",
+        "bytes": 379,
+        "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447"
+      },
+      "lock_ref": {
+        "source_sha": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+        "path": "policy-engine/workers/dowhy-014/uv.lock",
+        "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+        "bytes": 98340,
+        "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a"
+      },
+      "server_setting": "POLISYOS_DOWHY_WORKER_PYTHON: actual existing server-owned absolute Python3.12 interpreter. No request-selected executable/script URL.",
+      "test_setting": "E02_TEST_DOWHY_WORKER_PYTHON: resolve the same actual executable; do not guess a G-local path.",
+      "bounded_protocol": "Fixed script, versioned strict JSON, source/data/ordered row/graph/adjustment/contrast/target binding,8MiB request/reply and60s timeout; no PolicyOS import/CAS/authority in worker.",
+      "metadata_correction": "DoWhy0.14 EconML dependency is optional extra, not mandatory transitive; no EconML runtime witness."
+    },
+    "installed_companion": {
+      "implementation_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+      "implementation_tree": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e",
+      "hatch_ref": {
+        "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+        "path": "policy-engine/hatch.toml",
+        "git_blob": "37a9763de588c676d8590b8d00a5bb3891f98ab8",
+        "bytes": 1480,
+        "sha256": "a23fb874185dd4c1213c43984ba31986fa2d5884b93e5a640e6f5b7eb8db3f4a"
+      },
+      "assets": [
+        {
+          "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+          "path": "policy-engine/workers/dowhy-014/worker.py",
+          "git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+          "bytes": 10652,
+          "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253"
+        },
+        {
+          "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+          "path": "policy-engine/workers/dowhy-014/protocol.py",
+          "git_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+          "bytes": 4704,
+          "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239"
+        },
+        {
+          "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+          "path": "policy-engine/workers/dowhy-014/pyproject.toml",
+          "git_blob": "770a46160a0b13614507d345f729910c9e81acde",
+          "bytes": 379,
+          "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447"
+        },
+        {
+          "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+          "path": "policy-engine/workers/dowhy-014/uv.lock",
+          "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+          "bytes": 98340,
+          "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a"
+        },
+        {
+          "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+          "path": "policy-engine/workers/dowhy-014/.python-version",
+          "git_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+          "bytes": 5,
+          "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d"
+        },
+        {
+          "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+          "path": "policy-engine/workers/dowhy-014/README.md",
+          "git_blob": "84528b455b39585aa3e507e4c6697213c7f7365a",
+          "bytes": 4934,
+          "sha256": "fc4b60aecff0f52a19866c17da419ac4583de6fe09d74b424f8f9908f795f198"
+        }
+      ],
+      "scope": "Separate ab56 wheel/sdist candidate packages six canonical assets into private causal/_dowhy_profile; sdist retains originals. Own source423 topic and root921 are not claimed to carry this hatch mapping.",
+      "application_dependency_boundary": "Cloud installed app uses read-only shared third-party directory via literal .pth; all product origins/bytes checked. Fully independently resolved G app dependency environment is a separate measurement.",
+      "later_source_boundary": "Graph b692 import-only validator change not carried in ab56; a different composed tree needs fresh consumer evidence."
+    }
+  },
+  "minimal_actual_owner_inputs": [
+    {
+      "role": "observational_data_ref",
+      "required": true,
+      "api": "ExperimentState.observational_data_ref",
+      "actual_value_supplied": false,
+      "owner": "Relevant source/adapter owner supplies existing local CAS source, not G-minted fixture passed as measured data.",
+      "checks": "Resolve Core artifact ID/kind/media/manifest/schema/producer/inputs and exact bytes from the actual tenant store. Direct DoWhy: GraphCausalData finite ordered matrix, unique column names, treatment/outcome/covariates and graph_dot. DiD: PanelObservationalData. ObservationMethodInputEnvelope additionally verifies exact kind/media/integrity and allowed contract ID/FQN.",
+      "scope": "Byte custody only, not causal assumptions/rights/governance."
+    },
+    {
+      "role": "execution_context",
+      "required": true,
+      "api": "ExecutionContext.eval_safety_execution_context; scientist.run_experiment(eval_safety_execution_context=...)",
+      "actual_value_supplied": false,
+      "owner": "Existing Runtime owner.",
+      "fields": [
+        "intake_ref",
+        "evaluator_owner_id",
+        "design_problem_ref",
+        "evaluation_mode",
+        "candidate_ref",
+        "world_model_record_ref",
+        "target_population_scope_ref",
+        "rule_version",
+        "intended_start_at",
+        "evaluation_input_refs",
+        "evaluation_input_provenance",
+        "eval_safety_certificate_ref",
+        "eval_safety_revision_head_ref"
+      ],
+      "checks": "Owner must match scientist.node_run_causal_evaluation@2.0.0; mode owner-resolved and not simulate_only; recomputed attempt_class non_simulation. Every input provenance recomputed or independently_reconciled. consumer_asserted/institutionally_supplied/not_established cannot pass this consumer predicate."
+    },
+    {
+      "role": "complete_actual_node_input_set",
+      "required": true,
+      "api": "_actual_causal_input_identities(state)",
+      "members": [
+        "state.observational_data_ref",
+        "state.inputs.ukraine_selected_method_contract_ref when present",
+        "state.inputs.ukraine_foundry_method_bundle_ref when present",
+        "state.artifacts_index.ukraine_foundry_intake_receipt_ref when present"
+      ],
+      "checks": "No duplicates; exact set equality with context.evaluation_input_refs and context.evaluation_input_provenance. Current node compares (str(Core artifact_id),str(Core artifact_id)) with PDC (artifact_id,content_hash), so retain native identity representation. No manufactured hash alias or omitted optional actual member."
+    },
+    {
+      "role": "fresh_consumer_challenge",
+      "required": true,
+      "api": "EvalSafetyAdmissionChallenge.fresh(consumer_component_id=node owner)",
+      "owner": "Actual consumer generates fresh nonce immediately before verification.",
+      "checks": "Fresh exact owner/nonce must reach verifier and receipt; challenge is not a reusable external ref G should fabricate/request."
+    },
+    {
+      "role": "runtime_verifier",
+      "required": true,
+      "api": "ExecutionContext.eval_safety_verifier; scientist.run_experiment(eval_safety_verifier=...)",
+      "actual_value_supplied": false,
+      "owner": "Existing Runtime EvaluationSafetyAdmissionVerifier.",
+      "dependencies": [
+        "persistence_service",
+        "current_state_resolver",
+        "authority_resolver",
+        "appointment_resolver",
+        "verifier_registry"
+      ],
+      "checks": "require_admission(context,challenge) re-resolves current CAS material, replays authority and complete revision chain, returns exact Runtime-produced privately sealed receipt. Plain JSON/model status=verified, callback boolean, copied producer marker or old serialized receipt is insufficient."
+    },
+    {
+      "role": "runtime_authority_replay_closure",
+      "required": true,
+      "api": "EvaluationSafetyReplayMaterial / EvaluationSafetyAttemptAuthorities",
+      "actual_value_supplied": false,
+      "owner": "Existing appointed Runtime/semantic/authority/verifier owners; G/F appoint no issuer.",
+      "direct_context_refs": [
+        "intake_ref",
+        "eval_safety_certificate_ref",
+        "eval_safety_revision_head_ref"
+      ],
+      "resolved_roles": [
+        "request_ref matching certificate.request_ref",
+        "decision_ref matching certificate.decision_ref",
+        "ratified mode_basis_ref/mode_basis",
+        "domain pack_ref/DomainEvalSafetyPack",
+        "semantic facet registry/full denominator receipt",
+        "actual evidence_contract_id→evidence_ref for required contracts",
+        "verifier appointment: component_discovery_manifest_ref, appointing_authority_ref, appointment_verification_receipt_ref and valid time",
+        "complete certificate revision chain/current head",
+        "current decision evaluated_at and fresh revalidated_at"
+      ],
+      "checks": "Kind/schema/producer/authority identity and resolved content; exact intake/request/decision/certificate/context/source/scope/rule/time agreement; required mode/pack/facets/evidence/appointments close. Missing values cause typed blocker; not synthesized."
+    },
+    {
+      "role": "institutional_source_rights_measurement",
+      "required": "According to actual scientific/admission contract",
+      "actual_value_supplied": false,
+      "owner": "External institution/source signs its own rights, measurement/sample and version/scope; C owns adapter/content-bound ingestion and PolicyOS admission receipt, not institutional source truth.",
+      "checks": "Exact local snapshot/selected bytes, sampling units/time/population/selection and applicable rights/measurement evidence. No institutional issuer supplied here. Scientific assumptions remain explicit and grounded, not request metadata."
+    },
+    {
+      "role": "shared_admitted_study_resource",
+      "required": "B56 aggregate production rerun",
+      "actual_value_supplied": false,
+      "api": "Existing Scientist LocalWorkerPool/NodeTask admission and outer job permits",
+      "owner": "Actual study/orchestration owner supplies current admitted workload/budget and complete fold/repeat/seed/model plans. No new scheduler or artificial cloud quota.",
+      "checks": "Measure all concurrently admitted actual studies/inner folds, queue waits, active workers, elapsed/RSS, backend native thread profile, all numerical outputs/uncertainty/CAS lineage. Serial inner folds retain every planned fold/repeat/seed. Four synthetic StudyNodes are not the common production MethodJob bridge."
+    }
+  ],
+  "production_invocation": {
+    "check_outcome": "UNRUN",
+    "reason": "Current receipts supply no real owner-issued source IDs, intact intake/request/certificate/revision closure, scoped real-world provenance or configured current-state Runtime verifier for production. Exact lawful production argv cannot be assembled.",
+    "public_api": {
+      "fqn": "polisyos.scientist.run_experiment",
+      "parameters": {
+        "state": "Existing owner-bound ExperimentState(run_id, observational_data_ref, actual causal_method_fqn/params, chosen supported workflow/execution_profile and all optional actual inputs). No data/workflow choice invented.",
+        "store": "Actual tenant ArtifactStore resolving original source and current authority artifacts.",
+        "eval_safety_execution_context": "Existing Runtime-owned context above.",
+        "eval_safety_verifier": "Existing verification-only owner port above, not mock or serialized receipt.",
+        "quota_registry": "Existing resource input when applicable; does not replace pool admission or authority."
+      }
+    },
+    "node_api": "RunCausalEvaluationNode.execute(ctx,state); safety blockers precede source load/job. _run_primary_causal_job is numerical binding only; direct fixture helper execution is not production admission.",
+    "actual_job_input_roles": [
+      "dowhy_observational_data for selected DoWhy",
+      "causal_observational_data for other scalar methods",
+      "ukraine_selected_method_contract when present",
+      "ukraine_method_input_bundle when present",
+      "ukraine_intake_receipt when present"
+    ],
+    "output_roles": [
+      "method_result_ref",
+      "method_evidence_ref",
+      "whole typed report",
+      "actual eligible derived uncertainty envelope"
+    ],
+    "required_admission_negatives": [
+      "Missing context→execution_context_missing",
+      "Synthetic/unresolved class, consumer_asserted provenance or complete-set mismatch→execution_context_binding_mismatch",
+      "Missing verifier→verifier_unresolved",
+      "Plain/forged/copied/replayed verified receipt fails Runtime seal/current context/fresh challenge predicate",
+      "Changed source/optional input/certificate/request/decision/revision/rule/scope/time/appointment must refuse before work"
+    ],
+    "authority_boundary": "Evaluation admission is not proof of no confounding/parallel trends/graph validity/Gaussian law. Scientific/code/DGP PASS does not grant institution truth, production admission, publication or deployment permission."
+  },
+  "unavailable_exact_production_arguments": {
+    "artifact_ids": [],
+    "issuer_ids": [],
+    "source_paths": [],
+    "evaluation_rule_version": null,
+    "target_population_scope_ref": null,
+    "runtime_verifier_instance": null,
+    "production_command": null,
+    "meaning": "Intentionally unknown, not command placeholders. Actual existing owner values needed; production conclusion stays typed UNRUN. Full data remains local read-only."
+  },
+  "per_finding": [
+    {
+      "finding_id": "B207",
+      "original_criterion_ref": {
+        "criterion_id": "B207",
+        "document": "B_r19",
+        "lines": [
+          5132,
+          5145
+        ],
+        "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+        "card": "CAU-02",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+      },
+      "criterion": "Panel-unit contribution resampling must not degenerate solely because only one ATT cell exists.",
+      "scientific_profile": "F-M5 θ_sel=Σgπg mean(t∈E_g)ATT(g,t), estimated cohort share ratio IF and unit-shared iid Mammen draws; large-independent-unit pointwise inference.",
+      "actual_local_input_roles": [
+        "Dense finite unit×period outcome, original ordered unit identities and time index",
+        "Binary ever-treated status consistent with integer treatment_timing, −1 for never-treated",
+        "Predeclared study_horizon/fixed eligible_periods for every cohort; chosen control_group/nonnegative integer anticipation",
+        "Actual local source CAS ref plus complete admission closure for production",
+        "Actual independent sampling-unit/parallel-trends/common-support/no-interference/anticipation assumptions; code labels are not evidence"
+      ],
+      "output_oracles": [
+        "Independently recompute each eligible ATT cell, cohort shares, θ_sel and estimated-share IF from exactly the same raw units. Persisted data_sha256/target_binding matches source/params.",
+        "Single noisy cell stays nondegenerate; constant effect retained; unequal-cohort/follow-up θ_sel differs from θ_W when appropriate; whole CAS report/peer/derived envelope reconciles."
+      ],
+      "falsifiers": [
+        "Delete estimated-share IF but retain markers; heterogeneous finite-derivative oracle fails.",
+        "Change/misalign units/E_g/cohort/horizon while retaining bindings; actual source/target consumer refuses.",
+        "Missing baseline/control support cannot silently drop/renormalize requested target cells."
+      ],
+      "available_generic_check_ids": [
+        "did-selected-unit-target-and-law",
+        "did-selected-seeded-coverage",
+        "root-selected-consumer-binding"
+      ],
+      "data_dependent_remaining": "Exact did receipt marks original scientific discriminator closed for its synthetic selected profile, overall B207 limited for separate final whole production-node binding. Real source/assumption/admission refs and actual positive node unavailable; this recipe does not reverse the scoped scientific decision.",
+      "spec_check_outcome": "UNRUN",
+      "finding_outcome": "limited"
+    },
+    {
+      "finding_id": "B208",
+      "original_criterion_ref": {
+        "criterion_id": "B208",
+        "document": "B_r19",
+        "lines": [
+          5146,
+          5157
+        ],
+        "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+        "card": "CAU-02",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+      },
+      "criterion": "Selected centered/studentized null law and matching CI inversion; not uncentered bootstrap tail around observed effect.",
+      "scientific_profile": "Same scalar/unit law as B207; add-one integer tail count, finite-B resolution and closed endpoint decision; no simultaneous/small-cluster promise.",
+      "actual_local_input_roles": [
+        "Dense finite unit×period outcome, original ordered unit identities and time index",
+        "Binary ever-treated status consistent with integer treatment_timing, −1 for never-treated",
+        "Predeclared study_horizon/fixed eligible_periods for every cohort; chosen control_group/nonnegative integer anticipation",
+        "Actual local source CAS ref plus complete admission closure for production",
+        "Actual independent sampling-unit/parallel-trends/common-support/no-interference/anticipation assumptions; code labels are not evidence",
+        "Declared null_effect/confidence_level and actual n_bootstrap/seed"
+      ],
+      "output_oracles": [
+        "Independently recompute Tobs, centered studentized draws, exact (1+tail_count)/(B+1), finite-B cutoff and closed interval/test endpoint decision.",
+        "Known seeded null size/power/alternative coverage meets declared binomial bounds. One real dataset cannot prove repeated-sampling nominal coverage."
+      ],
+      "falsifiers": [
+        "Replace centered null law by uncentered effects with unchanged confidence/bootstrap markers; oracle fails.",
+        "Corrupt p/CI or observed scalar with matching persisted/peer markers; canonical producer quantity must still govern.",
+        "Degenerate IF or unresolvable finite-B level yields absent inference, never invented p/CI."
+      ],
+      "available_generic_check_ids": [
+        "did-selected-unit-target-and-law",
+        "did-selected-seeded-coverage",
+        "root-selected-consumer-binding"
+      ],
+      "data_dependent_remaining": "Actual source/admission/final production node unavailable. Source card B208 is p-value law, not the historical generic coverage paraphrase about weights. Scientific source predicate closed in selected synthetic receipt; whole continuation remains limited.",
+      "spec_check_outcome": "UNRUN",
+      "finding_outcome": "limited"
+    },
+    {
+      "finding_id": "B209",
+      "original_criterion_ref": {
+        "criterion_id": "B209",
+        "document": "B_r19",
+        "lines": [
+          5158,
+          5169
+        ],
+        "sha256": "b774fd7cd4f1653c0771ee5e20e7d3ee990c14bb47cc698b284e581ac75cc44f",
+        "card": "CAU-02",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+      },
+      "criterion": "Not-yet-treated controls exclude all anticipated exposure; unsupported requested cells explicit.",
+      "scientific_profile": "F-M5 controls never-treated or timing>t+anticipation; baseline g−1−anticipation must exist; fixed target/support.",
+      "actual_local_input_roles": [
+        "Dense finite unit×period outcome, original ordered unit identities and time index",
+        "Binary ever-treated status consistent with integer treatment_timing, −1 for never-treated",
+        "Predeclared study_horizon/fixed eligible_periods for every cohort; chosen control_group/nonnegative integer anticipation",
+        "Actual local source CAS ref plus complete admission closure for production",
+        "Actual independent sampling-unit/parallel-trends/common-support/no-interference/anticipation assumptions; code labels are not evidence"
+      ],
+      "output_oracles": [
+        "Recompute g=t+a boundary, never-treated/a=0 and insufficient-baseline controls; all requested fixed target cells require support.",
+        "Explicit allowed E_g change changes target/binding and remains visible after CAS/fresh reader."
+      ],
+      "falsifiers": [
+        "Allow affected g=t+a cohort with same labels; known contrast changes2→contaminated−3 and oracle fails.",
+        "Silently omit zero-start cohort or missing baseline/cell; complete fixed-target consumer refuses."
+      ],
+      "available_generic_check_ids": [
+        "did-selected-unit-target-and-law",
+        "root-selected-consumer-binding"
+      ],
+      "data_dependent_remaining": "Empirical anticipation window, support/parallel-trends and actual source/admission remain local owner inputs. Chosen synthetic window or nonrejected pretrend proves none of them. Original eligibility discriminator closed in synthetic receipt, whole continuation limited.",
+      "spec_check_outcome": "UNRUN",
+      "finding_outcome": "limited"
+    },
+    {
+      "finding_id": "B212",
+      "original_criterion_ref": {
+        "criterion_id": "B212",
+        "document": "B_r19",
+        "lines": [
+          5194,
+          5205
+        ],
+        "sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+        "card": "CAU-04",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+      },
+      "criterion": "Preserve legitimate point-only useful estimate with absent CI/inference; no tiny manufactured interval or SUCCESS gate.",
+      "scientific_profile": "F-M7 actual numeric nonbool finite ordered scalarCI shape(2)/(1,2), actual effective level .95; unavailable legitimate inference differs from malformed inference.",
+      "actual_local_input_roles": [
+        "Actual full source GraphCausalData finite ordered matrix/unique column_names, binary treatment0/1, outcome/covariates and graph_dot",
+        "nonparametric-ate/backdoor.linear_regression/control0/treatment1/target_units ate/confidence .95; no effect modifiers",
+        "Actual independent units/full-rank correctly specified constant-effect linear model/iid homoskedastic Gaussian errors; valid graph/adjustment/positivity/no unmeasured confounding for exact OLS t interval",
+        "Actual locked server-selected worker interpreter and original CAS source; complete Runtime admission closure for production"
+      ],
+      "output_oracles": [
+        "Actual estimator confidence_level .95 and explicit get_confidence_intervals(.95); exact same raw-row Statsmodels treatment coefficient/t interval alpha=.05, not echoed level.",
+        "Point-only partial/noneligible report with CI absent survives parent→CAS→fresh3.14 reader; whole typed report/peer/derived envelope agree.",
+        "Known Gaussian200replicate coverage is fixed-DGP evidence, not arbitrary admitted real-data95% coverage."
+      ],
+      "falsifiers": [
+        "Replace genuine estimate by0/narrowCI with profile/version/class markers intact; numerical oracle fails.",
+        "Strings/bools/overflow/extra rows/values/reversed/NaN/Inf/wronglevel CI refused without coercion/flatten/swap/repair.",
+        "Corrupt both stored/offered report/envelope consistently across any typed fields (point/CI/pvalue/status/reason/assumptions/diagnostics/methodparams/metadata), keep worker/source untouched; whole canonical factory reconciliation refuses."
+      ],
+      "available_generic_check_ids": [
+        "worker-native-scientific",
+        "parent-native-cas-and-canonical-abi",
+        "root-selected-consumer-binding"
+      ],
+      "data_dependent_remaining": "Real source/law/admission and positive production node unavailable. Raw declared-slot monitor ERROR/warnings persist even though actual dematerializer alias works; zero-warning condition unmet. Primary corrected c8 follows original B212 card.",
+      "spec_check_outcome": "UNRUN",
+      "finding_outcome": "limited"
+    },
+    {
+      "finding_id": "B213",
+      "original_criterion_ref": {
+        "criterion_id": "B213",
+        "document": "B_r19",
+        "lines": [
+          5206,
+          5217
+        ],
+        "sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+        "card": "CAU-04",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+      },
+      "criterion": "Actual identification/estimand/contrast/target binds genuine dispatcher/backend behavior, not labels.",
+      "scientific_profile": "F-M7 defaultATE only,0→1 ate,backdoor.linear_regression on returned actual identified estimand,identify_effect(False). CDE/NDE/NIE/other contrasts/targets/estimators unsupported.",
+      "actual_local_input_roles": [
+        "Actual full source GraphCausalData finite ordered matrix/unique column_names, binary treatment0/1, outcome/covariates and graph_dot",
+        "nonparametric-ate/backdoor.linear_regression/control0/treatment1/target_units ate/confidence .95; no effect modifiers",
+        "Actual independent units/full-rank correctly specified constant-effect linear model/iid homoskedastic Gaussian errors; valid graph/adjustment/positivity/no unmeasured confounding for exact OLS t interval",
+        "Actual locked server-selected worker interpreter and original CAS source; complete Runtime admission closure for production"
+      ],
+      "output_oracles": [
+        "Observe actual CausalModel→identify_effect(proceed_when_unidentifiable=False)→estimate_effect call and real identified adjustment/estimand; defaultATE numerical/CI Statsmodels parity.",
+        "Source/ordered row/graph/adjustment/contrast/target/method/version/profile/lock/code bindings persist and fresh reader revalidates actual original source. Public existing class canonical factory shares real signature defaults."
+      ],
+      "falsifiers": [
+        "Requested mediation cannot be relabeled defaultATE; precise unsupported capability result.",
+        "Unidentified/backdoor graph refuses; confounder/source/graph/row alteration without actual bindings fails.",
+        "Alter contrast/target/level while keeping labels or malformed/missing nested persisted fields; typed WorkerBindingError/consumer refusal."
+      ],
+      "available_generic_check_ids": [
+        "worker-native-scientific",
+        "parent-native-cas-and-canonical-abi",
+        "root-selected-consumer-binding"
+      ],
+      "data_dependent_remaining": "No actual real graph/identification/production authority. Current installed e9 metadata and primary c8 both follow original B213 card; packaging/native evidence remains bounded and limited. Genuine backend/source binding does not certify causal assumptions or admission.",
+      "spec_check_outcome": "UNRUN",
+      "finding_outcome": "limited"
+    },
+    {
+      "finding_id": "B56",
+      "original_criterion_ref": {
+        "criterion_id": "B56",
+        "document": "B_r19",
+        "lines": [
+          1409,
+          1424
+        ],
+        "sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+        "card": "FIT-01",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+      },
+      "criterion": "Aggregate admitted resource bounds; waits preserve complete folds/repeats/seeds/results and uncertainty.",
+      "scientific_profile": "F-M2 serial folds inside admitted outer job; real LocalWorkerPool cap1/2 bounded witness, not universal CPU/native-thread/cross-process cap. TMLE regular_iid inference needs regularity/positivity/nuisance law.",
+      "actual_local_input_roles": [
+        "Actual owner-selected existing pool/budget and competing admitted production study jobs",
+        "Complete source/fold/repeat/seed/model/config plans and immutable nuisance identity",
+        "Measured active/queued workers/waits/elapsed/RSS/native-thread profile and every actual executed held-out fold",
+        "Actual requested target/law/source and common production consumer/admission closure"
+      ],
+      "output_oracles": [
+        "Admitted work≤configured resource; waits lose no study/fold/repeat/seed; supported parallel request results/uncertainty/provenance invariant.",
+        "Bounded test executes all24folds across4native studies at cap1/2, exact CAS readback and effective_fold_workers1.",
+        "Binary/bounded targeting/score/ATE/EIF oracle; positivity failure/unsupported law has absent CI/noneligible status."
+      ],
+      "falsifiers": [
+        "Reintroduce nested fold ThreadPoolExecutor with effective-workers1 metadata intact; real pressure gate fails.",
+        "Omit folds/repeats to fake budget; full held-out/seed and numerical metamorphic oracle fails.",
+        "Same caller nuisance key with changed data/folds/models must cache-miss/refuse."
+      ],
+      "available_generic_check_ids": [
+        "tmle-shared-admitted-work-and-output"
+      ],
+      "data_dependent_remaining": "Exact FIT f460 B56 remains limited pending common production MethodJob bridge. Four synthetic StudyNodes are not it. Actual integrated configured pool/multiple production jobs and admission unavailable; no production budget/workload/command invented.",
+      "spec_check_outcome": "UNRUN",
+      "finding_outcome": "limited"
+    }
+  ],
+  "method_context_limits": {
+    "F-M6": "Separate B210/B211 sharp RDD RBC/license task; no GPL distribution permission, rdrobust install or fuzzy-treatment authority inferred from this recipe. Consult exact independently owned current native CCT/rdrobust receipt before real RD claim.",
+    "F-M8": "Finite ADMG m-separation/perfect-do corpus does not certify unrestricted identification/PAG/Rule1–3 or real graph validity/no hidden confounding. Optional Ananke/NetworkX absence not PASS; canonical nonempty packages/facades preserved.",
+    "IR_semantics": "Identification set differs from statistical/model uncertainty. E owns uncertainty law/summary; F consumes. Historical proposed v2/CAS-only semantics require appointed canonical semantic owner; G/F do not ratify them."
+  },
+  "metadata_source_alignment": {
+    "primary_worker": "Corrected c8 receipt original B212(point-only) and B213(actualestimand). Exact source card blocks/hashes included.",
+    "did": "Original B208 null p-value law and B209 anticipation prevail over generic coverage paraphrases.",
+    "installed_latest": "Current e9 installed receipt corrected original B212 point-only/no invented CI and B213 actual estimand/contrast/target. Both limited/closure_ids empty, ab56 source/all evidence unchanged. Previous036 mislabeled scope retained only in historical delta refs."
+  },
+  "available_runnable_generic_commands": [
+    {
+      "id": "worker-native-scientific",
+      "source_sha": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "cwd_repo_relative": "policy-engine/workers/dowhy-014",
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "python",
+        "-m",
+        "pytest",
+        "tests/test_worker.py",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short"
+      ],
+      "actual_test_selectors": [
+        "tests/test_worker.py"
+      ],
+      "test_source_refs": [
+        {
+          "source_sha": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "path": "policy-engine/workers/dowhy-014/tests/test_worker.py",
+          "git_blob": "c3c81a4f426e3e1301ad986f34925360e08063b6",
+          "bytes": 10899,
+          "sha256": "cd0e9f0547e711c0d5763e91d9ea04e0a9424ec81f52d829b3dc5cff094aca46"
+        }
+      ],
+      "scope": "Real selected identify/estimate/strictCI/OLS/knownDGP200pilot and actual GCM base/refit call witnesses; synthetic scope.",
+      "required_environment_roles": [],
+      "execution_outcome": "UNRUN_by_this_spec",
+      "rule": "Run only from stated immutable candidate with actual matching profile/import origins. Capture new complete bytes/exits/denominator; a listed command is not a new PASS."
+    },
+    {
+      "id": "parent-native-cas-and-canonical-abi",
+      "source_sha": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "cwd_repo_relative": "policy-engine",
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--extra",
+        "research",
+        "--extra",
+        "runtime",
+        "--extra",
+        "test",
+        "python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_estimate_point_only_survives_parent_cas_and_reader",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_actual_estimator_malformed_ci_refused_in_parent",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_persisted_binding_missing_and_malformed_fields_are_typed_refusals",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_selected_profile_does_not_relabel_unsupported_requests",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_public_complete_report_builder_abi_and_real_producer_invocation"
+      ],
+      "actual_test_selectors": [
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_estimate_point_only_survives_parent_cas_and_reader",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_actual_estimator_malformed_ci_refused_in_parent",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_persisted_binding_missing_and_malformed_fields_are_typed_refusals",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_selected_profile_does_not_relabel_unsupported_requests",
+        "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_public_complete_report_builder_abi_and_real_producer_invocation"
+      ],
+      "test_source_refs": [
+        {
+          "source_sha": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+          "git_blob": "5f41c64d6f2df411a0cf49f2d4d19f9dd672ab39",
+          "bytes": 16553,
+          "sha256": "3ab405d256bd4ff53b2d4e04afadc7f1ae3ebe50d5d029f290862f1bb259c095"
+        }
+      ],
+      "scope": "Actual MethodJob/dispatcher→worker→CAS→fresh3.14 reader; canonical full factory/override/pickle ABI. f6 full legacy suite had26PASS5SKIP1pydoc-harnessFAIL; corrected66 selector is separate, no fullmasterPASS.",
+      "required_environment_roles": [
+        "Installed frozen worker profile; E02_TEST_DOWHY_WORKER_PYTHON actual absolute executable. Source fixture also uses canonical existing worker/.venv when present."
+      ],
+      "execution_outcome": "UNRUN_by_this_spec",
+      "rule": "Run only from stated immutable candidate with actual matching profile/import origins. Capture new complete bytes/exits/denominator; a listed command is not a new PASS."
+    },
+    {
+      "id": "root-selected-consumer-binding",
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "cwd_repo_relative": "policy-engine",
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--extra",
+        "research",
+        "--extra",
+        "runtime",
+        "--extra",
+        "test",
+        "python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py",
+        "tests/unit/remediation/test_cau_04.py"
+      ],
+      "actual_test_selectors": [
+        "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py",
+        "tests/unit/remediation/test_cau_04.py"
+      ],
+      "test_source_refs": [
+        {
+          "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+          "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py",
+          "git_blob": "33cb0de43673581a92968ea743e9f351c0795c09",
+          "bytes": 15719,
+          "sha256": "5e76fded6af00be4f6c7ac723ec3b5530c4d7e5f83c8d7d437b2884162766d83"
+        },
+        {
+          "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+          "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py",
+          "git_blob": "b4e3850d87489455b9e19bebcce05c470578fc1e",
+          "bytes": 34481,
+          "sha256": "789da503f643c0124c2a791053e4935939c858c6ef705de81ebf835329c793e5"
+        },
+        {
+          "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+          "path": "policy-engine/tests/unit/remediation/test_cau_04.py",
+          "git_blob": "7991bd45f484ebd01199a5ed092fd58179de6033",
+          "bytes": 7543,
+          "sha256": "7f75f0c230186d6219265df1ce63c94c33012d9720843335089db89c003f8ce2"
+        }
+      ],
+      "scope": "Actual numerical helper/MethodJob/CAS whole report+peer+derived envelope source/target binding; admission-negative; not production-positive node.",
+      "required_environment_roles": [
+        "E02_TEST_DOWHY_WORKER_PYTHON is the actual selected absolute interpreter."
+      ],
+      "execution_outcome": "UNRUN_by_this_spec",
+      "rule": "Run only from stated immutable candidate with actual matching profile/import origins. Capture new complete bytes/exits/denominator; a listed command is not a new PASS."
+    },
+    {
+      "id": "did-selected-unit-target-and-law",
+      "source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "cwd_repo_relative": "policy-engine",
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--extra",
+        "research",
+        "--extra",
+        "runtime",
+        "--extra",
+        "test",
+        "python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+        "tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+        "tests/unit/remediation/test_cau_02.py",
+        "-k",
+        "not seeded_serial_panel_null_coverage"
+      ],
+      "actual_test_selectors": [
+        "tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+        "tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+        "tests/unit/remediation/test_cau_02.py"
+      ],
+      "test_source_refs": [
+        {
+          "source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+          "git_blob": "70e0826dab7814db7a49113d02677eee8204dadf",
+          "bytes": 11239,
+          "sha256": "18b884d40aef24336724c42c4fef604885164dec26d1d67c473c129f08216c46"
+        },
+        {
+          "source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+          "git_blob": "b1f32b765d3c2596bd908c11bb91023031c8df56",
+          "bytes": 8901,
+          "sha256": "0d64f24b0812795de0400b5353c65a84d976b2b96e67945fcfa33d7bab01d0af"
+        },
+        {
+          "source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/tests/unit/remediation/test_cau_02.py",
+          "git_blob": "bda82aa094a701fec517937e45eef9dbbbd28828",
+          "bytes": 9862,
+          "sha256": "4bb3e9426fb615fe0d1757bf84b1b90522ace4720a5f0e6422fbc65f638e7ee6"
+        }
+      ],
+      "scope": "Finite independent cell/ratioIF/nullCI/anticipation/fixedtarget controls; repeated-DGP measurement separate.",
+      "required_environment_roles": [],
+      "execution_outcome": "UNRUN_by_this_spec",
+      "rule": "Run only from stated immutable candidate with actual matching profile/import origins. Capture new complete bytes/exits/denominator; a listed command is not a new PASS."
+    },
+    {
+      "id": "did-selected-seeded-coverage",
+      "source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "cwd_repo_relative": "policy-engine",
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--extra",
+        "research",
+        "--extra",
+        "runtime",
+        "--extra",
+        "test",
+        "python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py::test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds"
+      ],
+      "actual_test_selectors": [
+        "tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py::test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds"
+      ],
+      "test_source_refs": [
+        {
+          "source_sha": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+          "git_blob": "70e0826dab7814db7a49113d02677eee8204dadf",
+          "bytes": 11239,
+          "sha256": "18b884d40aef24336724c42c4fef604885164dec26d1d67c473c129f08216c46"
+        }
+      ],
+      "scope": "Known serial/multicohort null/alternative DGP with declared binomial size/power/coverage bounds, not empirical identification.",
+      "required_environment_roles": [],
+      "execution_outcome": "UNRUN_by_this_spec",
+      "rule": "Run only from stated immutable candidate with actual matching profile/import origins. Capture new complete bytes/exits/denominator; a listed command is not a new PASS."
+    },
+    {
+      "id": "tmle-shared-admitted-work-and-output",
+      "source_sha": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+      "cwd_repo_relative": "policy-engine",
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--extra",
+        "research",
+        "--extra",
+        "runtime",
+        "--extra",
+        "test",
+        "python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_effective_fold_policy_retains_all_folds_and_native_results",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_native_binary_target_score_ate_and_eif_oracle",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_observed_positivity_failure_is_limited_at_actual_method_consumer"
+      ],
+      "actual_test_selectors": [
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_effective_fold_policy_retains_all_folds_and_native_results",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_native_binary_target_score_ate_and_eif_oracle",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py::test_observed_positivity_failure_is_limited_at_actual_method_consumer"
+      ],
+      "test_source_refs": [
+        {
+          "source_sha": "f460bd81b8124be58f890f59a53e2aba9e7ceb76",
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+          "git_blob": "630265e9216390b58c4eb3e2c2aa5bdaa0ae17a5",
+          "bytes": 18330,
+          "sha256": "7b7da64baf54cdf94752c63f52fd2dda05eeec4469f81f09ae61a5515d5a3f04"
+        }
+      ],
+      "scope": "Real LocalWorkerPool cap1/2, four native studies/all24folds/no loss; native output metamorphism; not global resource/production admission.",
+      "required_environment_roles": [],
+      "execution_outcome": "UNRUN_by_this_spec",
+      "rule": "Run only from stated immutable candidate with actual matching profile/import origins. Capture new complete bytes/exits/denominator; a listed command is not a new PASS."
+    },
+    {
+      "id": "tracked-C-contract-focused-readers",
+      "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+      "cwd_repo_relative": "policy-engine",
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "--extra",
+        "research",
+        "--extra",
+        "runtime",
+        "--extra",
+        "test",
+        "python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "-s",
+        "--tb=short",
+        "tests/unit/foundry/data_plane/test_method_contract_materialization.py",
+        "tests/unit/core/artifacts/test_ir_adapter.py",
+        "tests/unit/remediation/test_plg_01.py"
+      ],
+      "actual_test_selectors": [
+        "tests/unit/foundry/data_plane/test_method_contract_materialization.py",
+        "tests/unit/core/artifacts/test_ir_adapter.py",
+        "tests/unit/remediation/test_plg_01.py"
+      ],
+      "test_source_refs": [
+        {
+          "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+          "path": "policy-engine/tests/unit/foundry/data_plane/test_method_contract_materialization.py",
+          "git_blob": "cdb55d57bc7e8e9b4ed15fe044009acdd2d981bc",
+          "bytes": 2553,
+          "sha256": "a6e9832dce0eee39d6143e7362dfc65576b0fc68a285090f241d7efd3cf11d3c"
+        },
+        {
+          "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+          "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+          "git_blob": "b1583a98989ab64a53a12c9cafc19b220836087b",
+          "bytes": 3113,
+          "sha256": "446539b83f6d7d6235d5acfeb0e9579a1f3deb8810d56eca48e2c0e6e533eb57"
+        },
+        {
+          "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+          "path": "policy-engine/tests/unit/remediation/test_plg_01.py",
+          "git_blob": "99c6bf64b0445e67be6648ade115e0209fc049f8",
+          "bytes": 13449,
+          "sha256": "2b3134ff8c219bce1cba5d46ed32b5ca962377e2edfc715a371de59e0c2977ff"
+        }
+      ],
+      "scope": "Current materialization exact contractID/FQN, Core→IR byte profile and bounded DomainPlugin discovery/ABI; no all-installed plugins/source/authority/C-topic acceptance.",
+      "required_environment_roles": [],
+      "execution_outcome": "UNRUN_by_this_spec",
+      "rule": "Run only from stated immutable candidate with actual matching profile/import origins. Capture new complete bytes/exits/denominator; a listed command is not a new PASS."
+    },
+    {
+      "id": "resolve-selected-test-worker-executable",
+      "source_sha": "c8c2319d6c48f23f90103322da8cd63bc959da6f",
+      "cwd_repo_relative": "policy-engine",
+      "argv": [
+        "uv",
+        "run",
+        "--project",
+        "workers/dowhy-014",
+        "--frozen",
+        "python",
+        "-c",
+        "import sys; print(sys.executable)"
+      ],
+      "scope": "Resolve actual selected absolute interpreter for env roles above; record fresh version/inventory, no guessed G executable.",
+      "execution_outcome": "UNRUN_by_this_spec"
+    }
+  ],
+  "installed_local_consumer": {
+    "execution_outcome": "UNRUN_by_this_spec",
+    "exact_candidate": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+    "tree": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e",
+    "actual_carrier_refs": [
+      {
+        "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+        "git_blob": "093d88257fe28274fc01b8ae9daa140c31a2ad77",
+        "bytes": 11758,
+        "sha256": "b8f9227a18737490a539a70cbace221344a72e4935c6f28d9a7f35b65dc40f42"
+      },
+      {
+        "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+        "git_blob": "5f41c64d6f2df411a0cf49f2d4d19f9dd672ab39",
+        "bytes": 16553,
+        "sha256": "3ab405d256bd4ff53b2d4e04afadc7f1ae3ebe50d5d029f290862f1bb259c095"
+      },
+      {
+        "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+        "git_blob": "1ba29602702927e3aa80b6d85f017ea71d4afd89",
+        "bytes": 21216,
+        "sha256": "acd5d0bd70fa0768df0e517882501d7c8ea836038102f046dac42888e7776d40"
+      }
+    ],
+    "actual_binding_manifest_ref": {
+      "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-setup-manifest.json",
+      "git_blob": "883598dd94f6deb8144bb1c0490edfe182758f92",
+      "bytes": 3841,
+      "sha256": "0578fcaedfc77bb35813a68fd0da3fef8e85a0e25bb2ee8abb920a60e93e1be0"
+    },
+    "existing_complete_replayers": [
+      {
+        "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/final_setup.py",
+        "git_blob": "b5d46bbd8f6c9f782879eff52cb3a5d27e1fa1fa",
+        "bytes": 2536,
+        "sha256": "b5aa7833dc43bde471b8acb57b2b28ab5a7f01e5509d72770bd02e929d46a51d"
+      },
+      {
+        "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/final_launch.py",
+        "git_blob": "a25f1f471c985065a0fbfdc3c7e6780e439e49b4",
+        "bytes": 972,
+        "sha256": "b59ab8838685777576373b0de9aa9ac6ea0ba59bb8542ae7315b5419ec3c5c0f"
+      },
+      {
+        "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/archive_binding.py",
+        "git_blob": "6c7344f4a1843c2e3b68c3588035cf431e608bc6",
+        "bytes": 3167,
+        "sha256": "d919d9530fba81bc855b45d65936adf8e9962e117902100e1aa0c572d701fa59"
+      },
+      {
+        "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/installed_binding.py",
+        "git_blob": "a7908eebaa824e1fb6561b04c42cb2c40cac519d",
+        "bytes": 1473,
+        "sha256": "ab2db72ddfef3bcbfa23bdbd563f09eb57d26d15cfe422ca4d477a2dc2ae1026"
+      },
+      {
+        "source_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/compatibility_launch.py",
+        "git_blob": "dc38211a44da6c0a1f6c8cbce0ae27fe8ab41c58",
+        "bytes": 1502,
+        "sha256": "ecd2336691871de46001a5746135f31550272979b121c01da00dac504b8f5008"
+      }
+    ],
+    "parameter_roles": [
+      "Rebuild wheel/sdist exact immutable ab56; install each own noneditable Python3.14 environment; neutral cwd and no source-product PYTHONPATH. Committed cloud replayers contain cloud absolute paths: evidence, not G-path commands.",
+      "Copy exact three carrier blobs into actual neutral consumer directory. Run selected installed interpreter with -I -m pytest -o addopts= -q -s test_installed_worker_profile.py only after env/carriers are real. No local interpreter/site/path is invented.",
+      "E02_TEST_DOWHY_WORKER_PYTHON actual external locked3.12 interpreter; E02_DOWHY_FIXTURE_PATH/E02_GCM_FIXTURE_PATH actual exact copied carriers; E02_PROFILE_EXPECTED_JSON actual six asset name→committed hash mapping.",
+      "Compare every archive/source/installed product/resource byte, six assets and module origins owned installed site; genuine MethodJob/CAS/fresh isolated reader.",
+      "Worker.py retirement only in disposable owned installation, serialized with same-site readers; keep CAS reply/markers, expect typed WorkerUnavailable, restore exact bytes before positive rerun. Production source/data remains read-only."
+    ],
+    "scope": "Existing ab56 wheel3PASS/sdist3PASS plus13ABIeach/independentwheel3PASS known fixtures. Not root921 composition or production admission; raw declared-slot ERROR/14warnings retained.15MBwheel/65MBsdist not Git, source/binding manifests and full deciding logs are Git; rebuild exact candidate."
+  },
+  "cross_C_data_bridge_and_plugin_contracts": {
+    "basis_refs": [
+      {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+        "git_blob": "eb335a62bc1f8bce2cddfcf59f649980a08e88c4",
+        "bytes": 96417,
+        "sha256": "8a2697280ff17913847806fa09cfa932a6260ce5053a2d293c5f6878ccf3b990"
+      },
+      {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+        "git_blob": "b242397fb26eaf0bee86a867aed6e21768d094e2",
+        "bytes": 52438,
+        "sha256": "4d09c54010b46a6e9b59a37e82dce9b9d75b853bea3e799078382afb16ee8db0"
+      },
+      {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/PLG-01.md",
+        "git_blob": "b264a42ee5e5ca1f1362cc55901e82f6970f91ee",
+        "bytes": 10050,
+        "sha256": "ef1462850e6fd992be872cb15472169140e2fdc50a026e646b108e8532732600"
+      },
+      {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/dependency_graph.json",
+        "git_blob": "078b22d80683ce0bdf37da764f251ef0404e38e2",
+        "bytes": 92263,
+        "sha256": "91dc65b0daab5ec1596685f9b153643f7b77914f3b6059cb1ba2a215aedfe231"
+      }
+    ],
+    "complete_declared_C_F_relation_rows": {
+      "edges": [],
+      "read_contract_impacts": [],
+      "write_conflicts": []
+    },
+    "relation_scope": "Full historical tracked bundle/dependency graph, not runtime call graph; actual source seams below are explicit tracked contracts. No invented C→F implementation/read barrier or C topic acceptance. E UQS→F CAU04/SCM01 and F graph→A EMP are separately declared impacts.",
+    "data_path": [
+      "C producer/read owner: polisyos.data_forge.read_api.ukraine.load_verified_stage_artifacts/load_verified_stage_output_bytes resolves exact manifest/output bytes",
+      "Existing Foundry polisyos.foundry.data_plane.load_ukraine_foundry_intake(store,stage_manifests,allowed_root) verifies d0_p0,d1,d2,d3→typed method contracts/intake receipt/method-input bundle",
+      "Scientist BindFoundryInputsNode selects d2_panel_observational as observational_data_ref + actual chosen FQN; retains selected contract/bundle/intake refs",
+      "RunCausalEvaluationNode._load_observational_data verifies native allowed contract ID/FQN or direct typed source→actual source-bound primary job"
+    ],
+    "data_roles": "Direct existing owner-issued GraphCausalData/Panel source is a separate allowed numerical input; do not require the Ukraine pipeline universally. When using the actual Ukraine bridge, all four stage manifest paths/allowed_root and every required declared output must exist from source owner. Missing production paths/hashes are UNRUN, never guessed. Intake receipt proves bytes/compatibility, not governance/method-validity. d2 selected output is panel, not automatic GraphCausalData/DoWhy. ObservationMethodInputEnvelope uses ir.observation_method_input and exact contract ID/FQN/payload.",
+    "plugin_path": [
+      "C PLG-01 owns DomainPlugin discovery/core; preserve polisyos.plugins group/state/reward/objectives/observation/lifecycle/dependency/order ABI",
+      "Core discovery primitives and components bootstrap/discovery are read contracts for that adapter, not an automatic DomainPlugin→FoundryMethodPlugin bridge",
+      "F ensure_causal_methods_registered→bootstrap_builtin_foundry_method_family(\"causal\",registry)→retained canonical classes/_registry_boot; actual MethodRegistry/dispatcher and methods/components/io dematerializer consume separate method-family outputs"
+    ],
+    "plugin_read_refs": [
+      {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/src/polisyos/core/components/bootstrap.py",
+        "git_blob": "d1cc3baabe15db526f66c8a57782fb44eb002f27",
+        "bytes": 6574,
+        "sha256": "6a5d7216f16bd1d659cc8b9876d776fcc862bc18c0bfd27b58247b0b771b4d10"
+      },
+      {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/src/polisyos/core/components/discovery.py",
+        "git_blob": "54efe19873fc8087426120eb6fcff5e0bd48fc5d",
+        "bytes": 42689,
+        "sha256": "d82889dc55e74b6e80d4243364a980e2f763c65930a803c9b8efdfbb074e7b22"
+      },
+      {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/src/polisyos/core/discovery/base.py",
+        "git_blob": "dddb72dfe46791c1a6959b37862f8d894ebfb1b3",
+        "bytes": 5733,
+        "sha256": "c6ca686a2823557950e9e801419f404ee58c5f7b74666c2a9518719db9f0f7bf"
+      },
+      {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/src/polisyos/foundry/plugins/core.py",
+        "git_blob": "af250d21ff33d48af6e9c7f56b200fdbae363f7e",
+        "bytes": 7063,
+        "sha256": "8b3a9f93bb522d509651fed13c436316944d01f0cd25b48ae021f338ad613c32"
+      },
+      {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/src/polisyos/foundry/plugins/discovery.py",
+        "git_blob": "19b9a2e2cb1e2f93702f59f6c2926f4da4972c54",
+        "bytes": 7264,
+        "sha256": "c0761cc98bb5b90a8e83e7d671e95d182ec9e7a4ef3b46da2d991f4044680f86"
+      },
+      {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/src/polisyos/foundry/extensions/registry.py",
+        "git_blob": "96daaf500cefcfac4a4e4c909efc76525ed2642d",
+        "bytes": 9073,
+        "sha256": "2d0ef04222089e60e5bf887ad6c4459f4ef74e013e4422e0cf72586c8de5224b"
+      },
+      {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+        "git_blob": "7f9b4477173973f2fe60e70fd0ecf631e541d21a",
+        "bytes": 16555,
+        "sha256": "9764207aba27eeae2beb64fd2bf132c3d43c1e3900829a5ef1408aedf3d1bf33"
+      },
+      {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/__init__.py",
+        "git_blob": "bdac41f4fa8589110117966f44731b92c0bd73b2",
+        "bytes": 16099,
+        "sha256": "9988079c7d39566f3c059861759a8027115581ed8d2eaa994a798ce74fd4ed2e"
+      },
+      {
+        "source_sha": "92148340601ac6ea69f0dbd4764aae7428ad83d7",
+        "path": "policy-engine/src/polisyos/foundry/methods/components/io.py",
+        "git_blob": "ef58fdce69de184765575024b25934daf317c927",
+        "bytes": 7890,
+        "sha256": "11fd5a3c49d0beb745d3007cb123671c9a53981f1856c1c1591ad909fcb6a621"
+      }
+    ],
+    "plugin_scope": "DomainPlugin is not FoundryMethodPlugin; preserve group identities and authorities. No ready Components bridge, all-installed/external-plugin census or owner-issued admission from import/marker/bounded Economics fixture. Actual installed provider/FQN conflicts route to canonical C owner; no second registry/loader/shim.",
+    "focused_existing_command_id": "tracked-C-contract-focused-readers",
+    "institutional_owner": "Source/institution signs rights/measurements/source truth; C adapts/content-binds ingestion and PolicyOS admission receipt. G/F cannot issue institution evidence.",
+    "additional_causal_gate_boundary": "Tracked F reconcile_causal_graph + E heldout forecast/calibration/UQ→A existing cycle gate is proposed routing extension in historical G97 contract. Generic CAS HTTP byte integrity/confidence/ref strings are not consumer-specific verifier provenance/admission."
+  },
+  "required_fresh_output_receipt": {
+    "identity": [
+      "Actual final G composed candidate_sha/tree, imported runtime/test/worker/protocol/lock/resource blobs and module origins",
+      "Fresh app/worker Python and installed dependency/backend versions with complete selected-profile inventory",
+      "Complete resolved artifact input set and manifest kind/schema/producer/inputs/authority/scope/rule/time plus source/data/graph/unit order hashes; production raw bytes remain local",
+      "Actual Runtime context/current certificate/revision closure, fresh challenge and appointed verifier receipt; no fabricated issuer"
+    ],
+    "measurements": [
+      "Full stdout/stderr/argv/cwd/env/exit/elapsed/RSS and collected/call/pass/fail/skip/setup/teardown/collection errors per exact selector",
+      "Actual numerical producer→CAS→fresh reader with whole canonical report/peer/envelope equality; independent analytic/DGP or raw-data numerical oracle; remove-property/present-fake/sibling negative",
+      "B56 all concurrently admitted study/fold/repeat/seed/queue/wait/resource measurements and numerical/uncertainty invariance for exact actual pool/thread profile"
+    ],
+    "classification": [
+      "Separate generic scientific criterion/source code acceptance from actual local data assumptions and production permission; typed UNRUN/limited for missing law/ref/authority",
+      "Preserve optional skips, raw DoWhy output-slot ERROR/warnings, whole architecture/docs/static FAIL/UNRUN; no blanket PASS/all35 closure",
+      "P41 inherited-red attribution not_established without exact slice-base and complete disjoint input proof; static/compressed bytes do not establish runtime invocation",
+      "Generic uncertainty law/semantic changes require appointed semantic owner; G is verifier/integration publisher only, not institutional or causal authority"
+    ]
+  },
+  "recipe_integrity": {
+    "no_chat_basis": "All facts/paths/criteria/roles are pinned tracked source/cards/receipts; no cross-owner chat contents used as evidence.",
+    "no_production_command": "Exact missing production arguments represented as null/empty unknown roles, never interpolated placeholders. Generic source commands name actual tested selectors/profiles only.",
+    "no_new_execution": "This artifact is a rerun specification. All listed command outcomes are UNRUN_by_this_spec; historic exact receipt measurements stay scope-bound.",
+    "composition_boundary": "Install ab56, source423 and root assembled745 are separate candidates. G must freeze a reconciled final tree and repeat affected consumers before any combined claim."
+  },
+  "publication_delta_history": {
+    "previous_read_only_draft_receipt_refs": [
+      {
+        "role": "installed",
+        "source_sha": "036299ea41007a9869a48a4230a7b72cd88e6e09",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json",
+        "git_blob": "2b059cc9e9dfcfe4f411df5bf3461e631429adc9",
+        "bytes": 70234,
+        "sha256": "ddd5a94a3f148996c3f55e9b8657f8791d22eb0c5f64ccd3358b741e1fc9a40e"
+      },
+      {
+        "role": "did",
+        "source_sha": "fe7a8354bab24678fa9c8361fe80acb8cddae2fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+        "git_blob": "7080c0c059ce6fce102acad6b5616a01ae1f40dc",
+        "bytes": 216692,
+        "sha256": "e4c1971103757282ee81c380ad4d6e4e2d6ff2a3f4b68e54ada5742f8d2f26e8"
+      }
+    ],
+    "latest_ref_updates": {
+      "036299ea41007a9869a48a4230a7b72cd88e6e09": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+      "fe7a8354bab24678fa9c8361fe80acb8cddae2fe": "4c5a11ff8050c6108f6753177b96e6714cef401f"
+    },
+    "scope": "Receipt-only original-card mapping/transport corrections; every test/runtime/profile/asset source binding carried in this recipe was byte-compared unchanged. No new backend/production/scientific execution claimed."
+  },
+  "validation": {
+    "all_nested_unique_Git_byte_refs_verified": 84,
+    "candidate_trees_and_ancestry": {
+      "worker": {
+        "implementation_ancestor": true,
+        "tree_verified": "191a4c8997b4bee61a1045d4825bd98759ce0ca8"
+      },
+      "root_consumer": {
+        "implementation_ancestor": true,
+        "tree_verified": "ae08d98787075b7ea3e0ae7d276a2b19cbfe5a65",
+        "assembled_ancestor": true,
+        "assembled_tree_verified": "36f5f6dfc94e0990069204a90d539685e75864cb"
+      },
+      "installed": {
+        "implementation_ancestor": true,
+        "tree_verified": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e"
+      },
+      "did": {
+        "implementation_ancestor": true,
+        "tree_verified": "a2ed0a07151263cd747cff5ec410643e326620a9"
+      },
+      "tmle": {
+        "implementation_ancestor": true,
+        "tree_verified": "4d87ce0690e001967b245ce18217cb36fff3c988"
+      }
+    },
+    "actual_generic_commands_with_existing_selectors": 8,
+    "production_args_issued": false,
+    "new_tests_executed": false,
+    "scope": "Read-only recipe validation; no new runtime/scientific/authority PASS."
+  }
+}

@@ -1,0 +1,273 @@
+{
+  "source_sha": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+  "source_tree": "f241cad69761f19a5e7cf4a7e468143ebb80fb2b",
+  "files": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/review.json",
+      "bytes": 35022,
+      "sha256": "b68f68004b308cd5c3ff89945a9166a4457802e19787bc6d8026f8736358fb11"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/test_tmle_generated_consumer.py",
+      "bytes": 11246,
+      "sha256": "c0d747992c167f8c817b3b22add43060d79ca7e131027102f2c1870cb6219ad1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/remove_enum_or_hash.py",
+      "bytes": 1650,
+      "sha256": "1b2610475115244e3689f3f509fe2f436bd2b602ce5526ffa8a37746e19ef41a"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/run_review.py",
+      "bytes": 3443,
+      "sha256": "d13df7137aba97f16c6b877cd0be7849974773615c6f8f1b63665517881217e9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/audit_companion.py",
+      "bytes": 6077,
+      "sha256": "4cae764fc0160b43e0f440c1baff8705aac8e0c7dcc17649d6c00bc8e9433ac2"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/finish_review.py",
+      "bytes": 7310,
+      "sha256": "6653a2f1322bc4570e23b683fdc4fc6a573cf8287319502b6cfcc2d410a885e0"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/source-paths.json",
+      "bytes": 1149,
+      "sha256": "f9f46a561aa2372e4b034b1888d67ed753b41817b903676d57e01561860cc7b8"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/harness-correction.json",
+      "bytes": 251,
+      "sha256": "03996994c9116d989d31e4ea3165a0c8a8e39eb958b18d744c4507671133ab71"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/source-audit.stdout.txt",
+      "bytes": 15811,
+      "sha256": "0c77e239db07daa95c9df79a34607d63a9276c85e991374a618acbe87d66c302"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/source-audit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/finish-first.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/finish-first.stderr.txt",
+      "bytes": 341,
+      "sha256": "9b6a792b3cd2de648502f7362db10e80fb67177ce5eed8a5f88e9901863b4320"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-harness-first.json",
+      "bytes": 1290,
+      "sha256": "f7e2b0a25045e069d5f553bbed942d4430b756c2ec0d9df7f5abb73cef49a05e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-harness-first.stdout.txt",
+      "bytes": 9745,
+      "sha256": "08821562f4c9f476a3e5be5db137db1652300eb74419f5de314873aa4b8e7fd6"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-harness-first.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-corrected.json",
+      "bytes": 1331,
+      "sha256": "5ed3d903199c67a0160c37811696a1b97d544df478466511a4c0dba80bed256d"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-corrected.stdout.txt",
+      "bytes": 4226,
+      "sha256": "6bb6f2bafaa8ec6853aa1ebefe5946e889c215d59b2ed8ed17f54b17e80e76e1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/native-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-causal_effect_report.json",
+      "bytes": 1189,
+      "sha256": "7d340e6014b03b9c6730fe3fd144f1b767b13d452e34d4d3c01aaf075c49d2ae"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-causal_effect_report.stdout.txt",
+      "bytes": 6560,
+      "sha256": "6502d84fa1eb63e34bed81742596861b584786d2e8119edf90bdf8c9b6e2bc7f"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-causal_effect_report.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-hte_result.json",
+      "bytes": 1147,
+      "sha256": "c0bad35e776a596fe7bff7c83bf043ea5230c0cafde5bb17e43ecf0a4967d614"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-hte_result.stdout.txt",
+      "bytes": 6347,
+      "sha256": "75f621b9c58deaff06a13c4f57976d3bd2cf0c79ca1d229b1e18e9a5d542e3df"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-enum-hte_result.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-causal_effect_report.json",
+      "bytes": 1189,
+      "sha256": "32bd19252ddc184522ad262eb36394e2455807b56ab9269ca8870fcc41b347df"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-causal_effect_report.stdout.txt",
+      "bytes": 3605,
+      "sha256": "1beae527f1dd28a055856f5c404f88415b2cbd3b5e9bb21b2f9b6d6e66b3c3bb"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-causal_effect_report.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-hte_result.json",
+      "bytes": 1149,
+      "sha256": "e55fd818f6bd6d8c4b4373bd74eb942d18d1f30447fd985b638ac4cb31cc9bf9"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-hte_result.stdout.txt",
+      "bytes": 3585,
+      "sha256": "1af07f439bc73a05f8b5336119829b971c237af60c2aebe1a976dd3ef3d6ba89"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/tmle-generated-review/removal-hash-hte_result.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "author_existing_refs": [
+    {
+      "name": "positive",
+      "receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-generated/positive.json",
+        "bytes": 996,
+        "sha256": "5e3d8dcc51cd092e34161fce9cb97a6ff792825a9e163d3f749d00372938e2f6"
+      },
+      "outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/positive.stdout.txt",
+          "bytes": 431,
+          "sha256": "e4d5e74bc99998295d344b970782e98d717f186f31ffd9d0ab2af20d4f5d9142"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/positive.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "actual_exit_code": 0,
+      "execution": "Author actual execution independently read; no reviewer duplicate full generator run."
+    },
+    {
+      "name": "enum",
+      "receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-generated/enum.json",
+        "bytes": 983,
+        "sha256": "abaffd35b20aae4122932403ee17d2f7786aa6a4c0e4cee2b720006a99c0f363"
+      },
+      "outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/enum.stdout.txt",
+          "bytes": 429,
+          "sha256": "833fb1e3e37eee709ec60ab4cc9c2c2f9bdfbf5015c49240aadeea39a7d9bc1e"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/enum.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "actual_exit_code": 1,
+      "execution": "Author actual execution independently read; no reviewer duplicate full generator run."
+    },
+    {
+      "name": "hash",
+      "receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-generated/hash.json",
+        "bytes": 984,
+        "sha256": "d9de2bc8a1b4ba1f4d1ab3259a079a0376391a7fafe999bd9603132ead3d1ed1"
+      },
+      "outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/hash.stdout.txt",
+          "bytes": 393,
+          "sha256": "10ad93906be8a8e2eaec4f9dbd7cfd08a7de0a51101e2ebc15e231e4a39586b4"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/hash.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "actual_exit_code": 1,
+      "execution": "Author actual execution independently read; no reviewer duplicate full generator run."
+    },
+    {
+      "name": "full",
+      "receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-generated/full.json",
+        "bytes": 1051,
+        "sha256": "608c24f9fda22d55507d3cc8d827c1ebb647a88a2cb3b2d0018528e971641386"
+      },
+      "outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/full.stdout.txt",
+          "bytes": 263,
+          "sha256": "e00f927927d3cfc6c761f0e3a5ebd13e4f8007fdb55aeacd4821f3bf5fbd9db2"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/full.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "actual_exit_code": 1,
+      "execution": "Author actual execution independently read; no reviewer duplicate full generator run."
+    },
+    {
+      "name": "selected-first-debug",
+      "receipt": {
+        "path": "/tmp/e02-F-continuation-20261006/tmle-generated/selected-first-debug.json",
+        "bytes": 299,
+        "sha256": "c6b7164ed91f8170c54551435ea4d3b667d614670f3bc754bba698864774d5af"
+      },
+      "outputs": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/selected-first-debug.stdout.txt",
+          "bytes": 173,
+          "sha256": "879415970b795fd1708da13c2742bc06aeebef6d06907393e7a2a642c4252497"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/tmle-generated/selected-first-debug.stderr.txt",
+          "bytes": 1233,
+          "sha256": "4fd3cf80982cbc1d60cd8b0b2e2ef4ad8e625e5e13f5c468f6718fca3a34bca9"
+        }
+      ],
+      "actual_exit_code": 1,
+      "execution": "Author actual execution independently read; no reviewer duplicate full generator run."
+    }
+  ],
+  "omitted_redundant_views": [
+    "runs.json",
+    "whole generated99snapshot tree",
+    "tracked source/snapshot/catalog bodies"
+  ]
+}

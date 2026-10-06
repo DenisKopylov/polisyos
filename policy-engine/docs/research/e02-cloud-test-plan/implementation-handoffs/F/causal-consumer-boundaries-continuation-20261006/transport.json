@@ -1,0 +1,497 @@
+{
+  "schema": "policyos.e02.output_transport.v1",
+  "source_sha": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+  "path_translation": {
+    "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/resolver-independent-multiview.stdout",
+    "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/resolver-independent-multiview.stderr",
+    "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/resolver-independent-multiview.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native.stdout",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native.stderr",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stdout",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stderr",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.stdout",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.stderr",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-removal.stdout",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-removal.stderr",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-removal.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-siblings.stdout",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-siblings.stderr",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-siblings.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-oracle.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-oracle.stdout",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-oracle.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-oracle.stderr",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-oracle.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-oracle.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-native.stdout",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-native.stderr",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-native.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-control.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-control.stdout",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-control.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-control.stderr",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-control.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-control.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-removal.stdout",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-removal.stderr",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-removal.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-environment.stdout",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-environment.stderr",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-environment.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.stdout",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.stderr",
+    "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.execution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.execution.json",
+    "/tmp/e02-F-continuation-20261006/cau/capture.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/capture.py",
+    "/tmp/e02-F-continuation-20261006/cau/review-input-resolver.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/review-input-resolver.py",
+    "/tmp/e02-F-continuation-20261006/cau/frozen-import/sitecustomize.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/frozen-import/sitecustomize.py",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-removal.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-removal.py",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-sibling-controls.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-sibling-controls.py",
+    "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent-oracle.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent-oracle.py",
+    "/tmp/e02-F-continuation-20261006/cau/root-frozen-native.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-frozen-native.py",
+    "/tmp/e02-F-continuation-20261006/cau/root-frozen-native-v2.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-frozen-native-v2.py",
+    "/tmp/e02-F-continuation-20261006/cau/root-selected-views-independent.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-selected-views-independent.py",
+    "/tmp/e02-F-continuation-20261006/cau/root-review-environment.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-review-environment.py",
+    "/tmp/e02-F-continuation-20261006/cau/root-review-environment-v2.py": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-review-environment-v2.py",
+    "/tmp/e02-F-continuation-20261006/cau/root-causal-consumer-independent-review.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-causal-consumer-independent-review.json",
+    "/tmp/e02-F-continuation-20261006/cau/root-causal-consumer-review-transfer-selection.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-causal-consumer-review-transfer-selection.json",
+    "/tmp/e02-F-continuation-20261006/root-input-binding/first-receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-input-binding/first-receipt.json",
+    "/tmp/e02-F-continuation-20261006/root-input-binding/first-stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-input-binding/first-stderr",
+    "/tmp/e02-F-continuation-20261006/root-input-binding/first-stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-input-binding/first-stdout",
+    "/tmp/e02-F-continuation-20261006/root-did-consumer/corrected-receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-did-consumer/corrected-receipt.json",
+    "/tmp/e02-F-continuation-20261006/root-did-consumer/corrected-stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-did-consumer/corrected-stderr",
+    "/tmp/e02-F-continuation-20261006/root-did-consumer/corrected-stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-did-consumer/corrected-stdout",
+    "/tmp/e02-F-continuation-20261006/root-did-consumer/first-receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-did-consumer/first-receipt.json",
+    "/tmp/e02-F-continuation-20261006/root-did-consumer/first-stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-did-consumer/first-stderr",
+    "/tmp/e02-F-continuation-20261006/root-did-consumer/first-stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-did-consumer/first-stdout",
+    "/tmp/e02-F-continuation-20261006/root-input-views/receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-input-views/receipt.json",
+    "/tmp/e02-F-continuation-20261006/root-input-views/stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-input-views/stderr",
+    "/tmp/e02-F-continuation-20261006/root-input-views/stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-input-views/stdout",
+    "/tmp/e02-F-continuation-20261006/root-admission-resume.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-admission-resume.json",
+    "/tmp/e02-F-continuation-20261006/root-before-G-merge.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-before-G-merge.json",
+    "/tmp/e02-F-continuation-20261006/root-after-G-merge.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-after-G-merge.json",
+    "/tmp/e02-F-continuation-20261006/root-G-merge.stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-G-merge.stdout",
+    "/tmp/e02-F-continuation-20261006/root-G-merge.stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-G-merge.stderr",
+    "/tmp/e02-F-continuation-20261006/root-CAU-merge-resolution.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-CAU-merge-resolution.json",
+    "/tmp/e02-F-continuation-20261006/existing-lanes.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/existing-lanes.json",
+    "/tmp/e02-F-continuation-20261006/api/core-pdc-dependency-packet.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/api/core-pdc-dependency-packet.json"
+  },
+  "companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/resolver-independent-multiview.stdout",
+      "bytes": 1526,
+      "sha256": "dbbabe72f86302d1d690cdca94cba0de73c93a92879ee70523d250dd4ae3a8cc",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/resolver-independent-multiview.stderr",
+      "bytes": 876,
+      "sha256": "06e203ff590fd1e4f04f31660e2e787ed9ca7b6860e6fac7db651782b09781e3",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/resolver-independent-multiview.execution.json",
+      "bytes": 1115,
+      "sha256": "d80bae29fd93d2fb7b35146ed96cc9d64b1b123812bd23654d32d3996c0eb5eb",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native.stdout",
+      "bytes": 6314,
+      "sha256": "ca1958bae2a3c6dd204f3308a3f2db5956324dc7dc64a4df3b0227e8e2ecee2d",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native.execution.json",
+      "bytes": 1374,
+      "sha256": "81f7d5000ef4a4db9c4089567a799c01a550296cf2f8ca2843918e5f2ab21907",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stdout",
+      "bytes": 7822,
+      "sha256": "fd75ace75fab35605ffae9058549144a09be020f7133eedda5a7466b6decac06",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.execution.json",
+      "bytes": 1198,
+      "sha256": "84cc16787c3721565fd3baf03a95e5c09e5ed3fc446a1462f5dea7137d4c9bcf",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.stdout",
+      "bytes": 2885,
+      "sha256": "5ef254cdfaddcda2f6b3592cd980a21f1b2a11f6b5d4f2c013518ec93b704135",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.execution.json",
+      "bytes": 1217,
+      "sha256": "10372c4b8b6133e1ef63c8dd5059646b7c3945099c925a93679862db9c7faef9",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-removal.stdout",
+      "bytes": 24280,
+      "sha256": "21e4e1da7fe154c6e2de5896620862de6121db63f268b863e5113bbf3b88d97b",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-removal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-removal.execution.json",
+      "bytes": 1186,
+      "sha256": "23ab36b2c137815397d487f79a6495f2a33cb979eee03d12723d202b6d3b03cc",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-siblings.stdout",
+      "bytes": 3125,
+      "sha256": "0bec70a68ac69975e2f0ee1f18e847c2918976cd378be0c333af2a41e18843c4",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-siblings.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-siblings.execution.json",
+      "bytes": 1196,
+      "sha256": "59be15557af72aeba78db86a6dfc20f7381e0882fb1a34d8ed7a34c2becfb725",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-oracle.stdout",
+      "bytes": 1282,
+      "sha256": "ff3079349c5d62afaf0a176fc39d8dcc6b65e8c566571df0ec16369dd0c28f60",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-oracle.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-oracle.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-oracle.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent86-oracle.execution.json",
+      "bytes": 1194,
+      "sha256": "a41b3cd632a0fe9e4f51e4b53130b8fcc3446fc1cf03035cd950f55733b216b5",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-oracle.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-native.stdout",
+      "bytes": 2885,
+      "sha256": "08f041859d6ae91668cd88187e032999793e1474e70d20055ee6ec20f4c4f56c",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-native.execution.json",
+      "bytes": 1184,
+      "sha256": "56b092471b055569319afcf0e8ad0f7a9a87520a0fd734e4ab9f5dfbe952a676",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-control.stdout",
+      "bytes": 1565,
+      "sha256": "ffafe365b4ae520b25bb0ba2b56173334f9489440134f00a10b8f07d817e8656",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-control.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-control.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-control.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-control.execution.json",
+      "bytes": 1197,
+      "sha256": "a8e03fd3a67cca5fe2414e2dd885bc2ceda216f145d8314dbfa8ca8c6a9f0d9d",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-control.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-removal.stdout",
+      "bytes": 1608,
+      "sha256": "1d381267257816c5f29b6eb2abd772b43f91141e0958590a3af4c9b86da33c56",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-removal.stderr",
+      "bytes": 372,
+      "sha256": "a1837b5f85bd0b5ced4566c85fee8520ba53d5d60a7f86ab62ae966c4eb03471",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-removal.execution.json",
+      "bytes": 1216,
+      "sha256": "1c14475873367f48064cbbecfa6c1a8d6c1a473c67ece66eada34e4b05571158",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-environment.stdout",
+      "bytes": 313,
+      "sha256": "1dad33fdbc5e49d6ef7fac170c78072be5e27a9ca7b03e11eae4fcf34d919c49",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-environment.stderr",
+      "bytes": 827,
+      "sha256": "ff6d1776a6a3be8cce877c1d0d6afd1f6bb4042ee1f635ee303e230cfcd5807a",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-environment.execution.json",
+      "bytes": 1198,
+      "sha256": "e18c0cb10e515cf8a529b5dc8bc08e18249513bd8f3260f84a0d29dfc546a21a",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.stdout",
+      "bytes": 5233,
+      "sha256": "7e6caa4d54e7a858ef625fe25254219d5b9ace9f2dd70ae5d01a470a8a49945b",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.execution.json",
+      "bytes": 1220,
+      "sha256": "f8da36bd4b83932910cbf2e3b73118e3042e735f4239127c394e32034e19a9df",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.execution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/capture.py",
+      "bytes": 1108,
+      "sha256": "faba4e389019eea9fd1a67ad657a5563376c5c1f3c9107b99ef05bd3c2ec7c81",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/capture.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/review-input-resolver.py",
+      "bytes": 3414,
+      "sha256": "61206ef3c966e5d2d6cc51ab71829a5e9de2fb21563e387f9ea4faf6588dea2a",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/review-input-resolver.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/frozen-import/sitecustomize.py",
+      "bytes": 2008,
+      "sha256": "d5edde33451e99397b65a59dca050cc4f6afc2e82b91898ba10807de12b43542",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/frozen-import/sitecustomize.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-removal.py",
+      "bytes": 1007,
+      "sha256": "fbdb2153155e891703a542223579c9854f6bca9c3bd1da29095166d7c8528266",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-removal.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-sibling-controls.py",
+      "bytes": 1805,
+      "sha256": "fbdcaf11a25335131487c7ec4e899361480fb730a4b4dcea37f93ae81fd23c4c",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-sibling-controls.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-diagnostic-independent-oracle.py",
+      "bytes": 2057,
+      "sha256": "0aa752cf8eea886bac573e62638ef806acc3e2722214426fa2954cf58edd3731",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent-oracle.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-frozen-native.py",
+      "bytes": 1102,
+      "sha256": "31e7e4af9871d1493c0597656d83141bb39eae4003b667673330af1ab2d665c6",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-frozen-native.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-frozen-native-v2.py",
+      "bytes": 1763,
+      "sha256": "109e393761f8cf76b66de65197f26e1db5fe1e66ccffe6a30278e5f4295eb691",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-frozen-native-v2.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-selected-views-independent.py",
+      "bytes": 3733,
+      "sha256": "5cf789e94e2b52f1b42f6c0f6740b8270a29c6cc1bf9e09aa6b780fcb82fb4ea",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-selected-views-independent.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-review-environment.py",
+      "bytes": 2514,
+      "sha256": "900dcf4beecad79024e6cdff201c323904a5d6e7430ce7fa8d8ea2584481a840",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-review-environment.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-review-environment-v2.py",
+      "bytes": 2507,
+      "sha256": "b2679662c3b01ecd424df4d53d14010d07fbac9aca3e39dfacff5d50105a67d2",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-review-environment-v2.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-causal-consumer-independent-review.json",
+      "bytes": 27315,
+      "sha256": "e6857858d1aec5075b1552e58080d6bf7065a7e330f4566015bc02f3f00855e8",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-causal-consumer-independent-review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-causal-consumer-independent-review.json",
+      "bytes": 27315,
+      "sha256": "e6857858d1aec5075b1552e58080d6bf7065a7e330f4566015bc02f3f00855e8",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-causal-consumer-independent-review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/cau/root-causal-consumer-review-transfer-selection.json",
+      "bytes": 10972,
+      "sha256": "065f705d42095e4e33423e70c84e1a83949b9d890103a68d3b9867db2f967fa2",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/cau/root-causal-consumer-review-transfer-selection.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-input-binding/first-receipt.json",
+      "bytes": 885,
+      "sha256": "911a0769fc0e0594435deca9e5c5b06d82e44923b49b0fe1d469b980be2dac02",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-input-binding/first-receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-input-binding/first-stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-input-binding/first-stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-input-binding/first-stdout",
+      "bytes": 100,
+      "sha256": "442ffe9128a932ea585b401eb1fd4773c982647a18f6867d24a77eefcaec26eb",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-input-binding/first-stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-did-consumer/corrected-receipt.json",
+      "bytes": 956,
+      "sha256": "4027bb16747e7dd37f84768da4be2734ba509120c3bda3ae665d0a033ff5deb0",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-did-consumer/corrected-receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-did-consumer/corrected-stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-did-consumer/corrected-stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-did-consumer/corrected-stdout",
+      "bytes": 974,
+      "sha256": "d495d68d251d7aed55ad2881b4912d2b4d8fb9ce0bf5e9c643bfc5799d00cc69",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-did-consumer/corrected-stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-did-consumer/first-receipt.json",
+      "bytes": 775,
+      "sha256": "f4542474b279864dc21f782c3089cf9951b32d0ac1faba4aa1da0e9c0032d005",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-did-consumer/first-receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-did-consumer/first-stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-did-consumer/first-stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-did-consumer/first-stdout",
+      "bytes": 3936,
+      "sha256": "bf62a6c9e65b27d52fe442faa4d4692ec4df95d60ecefdf1b918e66a9266a0dd",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-did-consumer/first-stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-input-views/receipt.json",
+      "bytes": 1213,
+      "sha256": "89a588e47bcbc9ec57629008a3b2065e7e421b2adf576669fa07f7f7579d3c3a",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-input-views/receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-input-views/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-input-views/stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-input-views/stdout",
+      "bytes": 975,
+      "sha256": "001576cf73522ec863dbd308e5d93ca9d5f017b53363a4c6588d187a4c83791f",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-input-views/stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-admission-resume.json",
+      "bytes": 147971,
+      "sha256": "8729e1893e4edc4a92eecc87b98b1269e1218d19c929e48e7ab6c8e48b10de3c",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-admission-resume.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-before-G-merge.json",
+      "bytes": 56865,
+      "sha256": "2596e11010b14561fbc9ce4c89bfd63a6651ad3d22d0bdb87b2211aa828b459a",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-before-G-merge.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-after-G-merge.json",
+      "bytes": 57026,
+      "sha256": "f185cd68f455a433370440f23728e683da46527d4ea4187f30228483ed9d8719",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-after-G-merge.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-G-merge.stdout",
+      "bytes": 24253,
+      "sha256": "30d9cd997e3168be32ad5b0ad5200cc6d1547f94b05e496cbf1c3875e0432f13",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-G-merge.stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-G-merge.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-G-merge.stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/root-CAU-merge-resolution.json",
+      "bytes": 956,
+      "sha256": "4f738096f88c261719c967e5c2173cd4382c772450ae410c549937e06c6a05ac",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/root-CAU-merge-resolution.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/existing-lanes.json",
+      "bytes": 2213,
+      "sha256": "a0ae3bce84731faeefe3a76ec24d4052a9b464188a3a143f9a7d64070101a700",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/existing-lanes.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006/api/core-pdc-dependency-packet.json",
+      "bytes": 12793,
+      "sha256": "a2c9f51c9a6f75a7ea69ff017a2ddf38a1da917ea4f9122e43b328d6e4f69dcf",
+      "original_execution_path": "/tmp/e02-F-continuation-20261006/api/core-pdc-dependency-packet.json"
+    }
+  ]
+}

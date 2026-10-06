@@ -1,0 +1,324 @@
+{
+  "grade": "source_reported_compact_text_only; candidate_routes",
+  "matching_cells": 1,
+  "displayed_cells": 1,
+  "states": {
+    "FAILED": 1
+  },
+  "cells": [
+    {
+      "id": "F01-P025",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_scm_02.py",
+      "state": "FAILED",
+      "collected": "24",
+      "calls": "24",
+      "call_pass": "23",
+      "call_failed": "1",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "17.09",
+      "rss_kib": "518032",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "142",
+      "extra_json": "{}"
+    }
+  ],
+  "finding_routes": [
+    {
+      "finding_id": "B215",
+      "unit": "F",
+      "cell_id": "F01-P025",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B215"
+    },
+    {
+      "finding_id": "B223",
+      "unit": "F",
+      "cell_id": "F01-P025",
+      "source_status": "partial",
+      "route_grade": "candidate_unverified",
+      "source_ref": "research_main",
+      "semantic_adequacy": "not_established",
+      "canonical_route": "../full-run/finding-routes.json#B223"
+    }
+  ],
+  "finding_basis": [
+    {
+      "finding_id": "B215",
+      "bundle_ids": [
+        "SCM-02"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#scm-02; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B215",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B215",
+      "assigned_routes": [
+        {
+          "job": "F01",
+          "ref": "research_main",
+          "cell_ids": [
+            "F01-P019",
+            "F01-P025"
+          ]
+        },
+        {
+          "job": "F04",
+          "ref": "research_main",
+          "cell_ids": [
+            "F04-P045"
+          ]
+        },
+        {
+          "job": "F06",
+          "ref": "e02_execution_base",
+          "cell_ids": [
+            "F06-P065"
+          ]
+        },
+        {
+          "job": "F07",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F07-P026"
+          ]
+        },
+        {
+          "job": "F08",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F08-P050"
+          ]
+        },
+        {
+          "job": "F10",
+          "ref": "main",
+          "cell_ids": [
+            "F10-P048"
+          ]
+        },
+        {
+          "job": "F13",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F13-P030",
+            "F13-P053"
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B223",
+      "bundle_ids": [
+        "SCM-02"
+      ],
+      "recorded_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "discriminator_ref": "bundle-catalog.md#scm-02; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-02.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B223",
+      "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B223",
+      "assigned_routes": [
+        {
+          "job": "F01",
+          "ref": "research_main",
+          "cell_ids": [
+            "F01-P019",
+            "F01-P025"
+          ]
+        },
+        {
+          "job": "F04",
+          "ref": "research_main",
+          "cell_ids": [
+            "F04-P045"
+          ]
+        },
+        {
+          "job": "F06",
+          "ref": "e02_execution_base",
+          "cell_ids": [
+            "F06-P065"
+          ]
+        },
+        {
+          "job": "F07",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F07-P026"
+          ]
+        },
+        {
+          "job": "F08",
+          "ref": "e02_head",
+          "cell_ids": [
+            "F08-P050"
+          ]
+        },
+        {
+          "job": "F10",
+          "ref": "main",
+          "cell_ids": [
+            "F10-P048"
+          ]
+        },
+        {
+          "job": "F13",
+          "ref": "integration_head",
+          "cell_ids": [
+            "F13-P030",
+            "F13-P053"
+          ]
+        }
+      ]
+    }
+  ],
+  "unrouted_findings": [],
+  "matching_source_blocks": 1,
+  "source_blocks": [
+    {
+      "job": "F01",
+      "source_file": "received/F01.txt",
+      "line_start": 345,
+      "line_end": 345,
+      "kind": "json_block",
+      "cell_ids": [
+        "F01-P025"
+      ],
+      "keys": [
+        "cell",
+        "phase",
+        "outcome",
+        "exception",
+        "error",
+        "attempt",
+        "nodeids"
+      ],
+      "grade": "source_locator_not_normalized_failure_event",
+      "source_text": "{\"cell\":\"F01-P025\",\"phase\":\"call\",\"outcome\":\"failed\",\"exception\":\"pydantic_core._pydantic_core.ValidationError\",\"error\":\"1 validation error for CausalQueryResultRef\\n  Input should be a valid dictionary or instance of CausalQueryResultRef [type=model_type, input_value=ArtifactRef(artifact_id=A...est_profile_sha256=None), input_type=ArtifactRef]\\n    For further information visit https://errors.pydantic.dev/2.12/v/model_type\",\"attempt\":\"attempt-1\",\"nodeids\":[\"tests/unit/remediation/test_scm_02.py::test_causal_query_producer_persists_typed_contrast_and_v1_1_manifest\"]}"
+    }
+  ],
+  "referenced_messages": [],
+  "available_job_context_blocks": 5,
+  "job_dictionary_or_context_blocks": [
+    {
+      "job": "F01",
+      "source_file": "received/F01.txt",
+      "line_start": 365,
+      "line_end": 365,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "id",
+        "argv",
+        "state",
+        "exit",
+        "tests",
+        "pass",
+        "fail",
+        "skipped",
+        "wall_s",
+        "user_cpu_s",
+        "system_cpu_s",
+        "rss_kib"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F01",
+      "source_file": "received/F01.txt",
+      "line_start": 366,
+      "line_end": 366,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "id",
+        "argv",
+        "state",
+        "exit",
+        "tests",
+        "pass",
+        "fail",
+        "skipped",
+        "wall_s",
+        "user_cpu_s",
+        "system_cpu_s",
+        "rss_kib"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F01",
+      "source_file": "received/F01.txt",
+      "line_start": 367,
+      "line_end": 367,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "id",
+        "argv",
+        "state",
+        "exit",
+        "verdict",
+        "wall_s",
+        "user_cpu_s",
+        "system_cpu_s",
+        "rss_kib"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F01",
+      "source_file": "received/F01.txt",
+      "line_start": 368,
+      "line_end": 368,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "id",
+        "argv",
+        "state",
+        "exit",
+        "verdict",
+        "UNRUN_subchecks",
+        "wall_s",
+        "user_cpu_s",
+        "system_cpu_s",
+        "rss_kib",
+        "cause_status",
+        "raw_transfer_missing"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    },
+    {
+      "job": "F01",
+      "source_file": "received/F01.txt",
+      "line_start": 370,
+      "line_end": 386,
+      "kind": "json_block",
+      "cell_ids": [],
+      "keys": [
+        "projection_hash",
+        "source_dependency_hash",
+        "bound_dependency_count",
+        "worker_validation_receipt_hash",
+        "measured",
+        "not_measured"
+      ],
+      "grade": "source_locator_not_normalized_failure_event"
+    }
+  ],
+  "matching_route_cells": 1,
+  "raw_archives_received": 0,
+  "limitations": "Locators are structured source blocks, not a normalized event census. PASS does not establish semantic adequacy or finding closure."
+}

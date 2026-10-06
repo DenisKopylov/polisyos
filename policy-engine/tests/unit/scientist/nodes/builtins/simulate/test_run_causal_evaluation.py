@@ -563,6 +563,7 @@ def test_method_job_carries_selected_contract_bundle_and_intake_lineage(
     assert outcome.status == "fail"
     assert len(captured_specs) == 1
     assert captured_specs[0].input_refs == {
+        "causal_observational_data": selected_ref,
         "ukraine_selected_method_contract": selected_ref,
         "ukraine_method_input_bundle": bundle_ref,
         "ukraine_intake_receipt": intake_ref,

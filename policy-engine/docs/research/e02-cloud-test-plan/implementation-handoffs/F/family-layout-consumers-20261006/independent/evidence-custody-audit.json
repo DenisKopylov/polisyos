@@ -1,0 +1,306 @@
+{
+  "source_inputs": [
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "2bac1cc0f59c236419bc41a199844677872bc664",
+      "bytes": 11681,
+      "sha256": "3abfcab5247de83372f956d0974a86a12c3d2cf30826cbcbc6821bd78fc00555"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "a76ec31da00b706e251a43e72d0b4a4ba58b09f3",
+      "bytes": 8646,
+      "sha256": "e8a26613978c76c52c8deeff620f82b81a9b033f5d2661baed7d5d78df4f4092"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/mechanisms/test_mechanism_design.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "02f1dc19ff01ca6edb7aa8652bab9ff9558bc3de",
+      "bytes": 947,
+      "sha256": "7f9cfc895b5abad2df04e9a53289e1a353b8ffbafb0e75b3ce4c373ed14144a9"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "ecab027e577267ffd680d96b816bee31352f922e",
+      "bytes": 4626,
+      "sha256": "475e5f0d195c9facbfbc56feef13b9cf385ec734de6b5b6a1b0beb8e5c5b1901"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "e853b6ecd7dae25148f9a526b3029aa0aeb705cd",
+      "bytes": 16866,
+      "sha256": "d8da13a8a19f53f4357456ef6c4da09060c900a910ba8f4d1712776e2ded1e37"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "1cf28e384f09f6e9a3224b776d54f6588b8d19f2",
+      "bytes": 8018,
+      "sha256": "867f43def30b6a27fd780718ca502c69f7c617246f160b09e827dfff8928f5be"
+    },
+    {
+      "path": "policy-engine/docs/reference/foundry/state.md",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "4285201b5ecfa2d4e4b207bd61dd80e84d4f2b9f",
+      "bytes": 4810,
+      "sha256": "008b08d202406a570cc837a2c6f78c6f68bedcefb59057b7d0cdd269ba3a90a9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/families.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "82b0dfa3b8b1bc34e038f37e567562f8bed2c6d0",
+      "bytes": 3839,
+      "sha256": "f2d93bcbf6af0623f2d3b7290cb6dddcf3b776ef235ee37072fb26e3686cd019"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/mechanisms/design.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "a00264c882eef6ce1e01db271454fb36371b07a1",
+      "bytes": 742,
+      "sha256": "40d35c0a867710d15a9b447370da4eda1be211eb6fc4336067f1160fc2b3f25e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/mechanism_design.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "c4f27c281dad325194cfe7c458fe396b13ae5a5e",
+      "bytes": 30226,
+      "sha256": "40a58363f5b019c0b01153872c9f784fcc19909692e1b40c3a84a8c691cd8123"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/verification/ic/service.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "c248f5e1c7fa1ec91aafbf3fef960a335d85580d",
+      "bytes": 87657,
+      "sha256": "8c29a0639c5ccadefd69cda575e690bbb846bc3a770dcd0f2345ef9df049497d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8",
+      "bytes": 18445,
+      "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/layout.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "a48ecff22baec80ddaf8d2939417f48086a00555",
+      "bytes": 350,
+      "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/layout.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "a732c7945a25c09de05ee0a7be8f1a8ec8c90fe3",
+      "bytes": 220,
+      "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "5c107ad0fd66811c0702e1a808eb31b2c62561f0",
+      "bytes": 21006,
+      "sha256": "f2c622c699f85375925582d2d66ff683f40d3a925834f4ed523b2203d3ac8a23"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "git_blob": "d80a17cd92b0127b85abd4e48bb4ed271283efae",
+      "bytes": 17693,
+      "sha256": "7608e9476321519fe9f8a024dc483caf909d97cefb185a7ec491fc21651bbe07"
+    }
+  ],
+  "original_card": {
+    "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRY-01.md",
+    "git_blob": "a811402415f70da517c8e86e3f41a9653af906c7",
+    "bytes": 19821,
+    "sha256": "6831c42cb91615b080d160a16a77a8c2dda2d13fc174631631fbb559d56b7dc3"
+  },
+  "docs_inputs": [
+    {
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "path": "policy-engine/mkdocs.yml",
+      "git_blob": "096a0b56f4fffe10cda0fc96f2b69503ba156d64",
+      "bytes": 221,
+      "sha256": "6c0f5281f0d25246dde5a3963dfcbfa1c6f7d6e6ae9df36fd457973bb6d4e567"
+    },
+    {
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "path": "policy-engine/architecture/tooling/mkdocs/generated.yml",
+      "git_blob": "d614c9d8d5681316bda683128b02c16c012003df",
+      "bytes": 29832,
+      "sha256": "c121a8014d24456bc9158b63af0d69fc14401b329d4806021ba6606b638c1851"
+    },
+    {
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "path": "policy-engine/docs/reference/foundry/state.md",
+      "git_blob": "4285201b5ecfa2d4e4b207bd61dd80e84d4f2b9f",
+      "bytes": 4810,
+      "sha256": "008b08d202406a570cc837a2c6f78c6f68bedcefb59057b7d0cdd269ba3a90a9"
+    },
+    {
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+      "git_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8",
+      "bytes": 18445,
+      "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81"
+    },
+    {
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "path": "policy-engine/src/polisyos/foundry/contracts/state.py",
+      "git_blob": "42e3251a9b82608d1d2f77e5b6e30e935708b44f",
+      "bytes": 16421,
+      "sha256": "40ef94643b25a00ab5dd2d8eb4db97dca2dcfb646a0eda855869c91de05f9338"
+    },
+    {
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "path": "policy-engine/src/polisyos/foundry/execute/executor.py",
+      "git_blob": "1319ad807b921d5809e481e7967c56c3ae3f3fa7",
+      "bytes": 2305,
+      "sha256": "7577afbd9236d6a7e2670888c923f7a79f98df39521e967919eb56b2ebe788db"
+    }
+  ],
+  "docs_run": {
+    "path": "/tmp/e02-F-continuation-20261006/foundry/state-docs.json",
+    "bytes": 3560,
+    "sha256": "7ef6f4390f8a1b8a84c8b8b628e4d1cf077c3a347420479185eb40aea36ef880"
+  },
+  "docs_supplement": {
+    "path": "/tmp/e02-F-continuation-20261006/foundry/state-docs-reconciled.json",
+    "bytes": 1545,
+    "sha256": "c999227055313996466f78c9953f886ebd6c58eabb461dc9781abcdc3a8cd593"
+  },
+  "rendered_output": {
+    "path": "/tmp/e02-F-continuation-20261006/foundry/state-docs-site/reference/foundry/state/index.html",
+    "bytes": 422842,
+    "sha256": "2506604b81c603f4f598f03e1c2e56697972eed976837e2f2053e9cc1887433e"
+  },
+  "namespace_anchors": {
+    "polisyos.ir.kernel.slots": 12,
+    "polisyos.foundry.contracts.state": 12,
+    "polisyos.foundry.execute.executor": 33
+  },
+  "installed_source_bindings": [
+    {
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+      "git_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8",
+      "bytes": 18445,
+      "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81"
+    },
+    {
+      "git_ref": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+      "git_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8",
+      "bytes": 18445,
+      "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81"
+    },
+    {
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "path": "policy-engine/src/polisyos/foundry/methods/layout.py",
+      "git_blob": "a48ecff22baec80ddaf8d2939417f48086a00555",
+      "bytes": 350,
+      "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b"
+    },
+    {
+      "git_ref": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "path": "policy-engine/src/polisyos/foundry/methods/layout.py",
+      "git_blob": "a48ecff22baec80ddaf8d2939417f48086a00555",
+      "bytes": 350,
+      "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b"
+    },
+    {
+      "git_ref": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/layout.py",
+      "git_blob": "a732c7945a25c09de05ee0a7be8f1a8ec8c90fe3",
+      "bytes": 220,
+      "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7"
+    },
+    {
+      "git_ref": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/layout.py",
+      "git_blob": "a732c7945a25c09de05ee0a7be8f1a8ec8c90fe3",
+      "bytes": 220,
+      "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7"
+    }
+  ],
+  "existing_git_files": [
+    {
+      "git_ref": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/wheel-compatibility.stdout.txt",
+      "git_blob": "397f7bc14ab3840ad259442f887f27049da804b8",
+      "bytes": 144237,
+      "sha256": "5191d6133ab7e753c5e9bd151bbe5a2085b668dafb433a376dd1232b1ee95b7b"
+    },
+    {
+      "git_ref": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006/independent/fit/sdist-compatibility.stdout.txt",
+      "git_blob": "11a666e061aae5a76c0e3c6f7d870fd9231735c1",
+      "bytes": 144237,
+      "sha256": "2ed8d20b54410462f00badbdb875c5269f432afa97c676ff4bb1936a60c1dd5c"
+    },
+    {
+      "git_ref": "3dde887e22592cdd7c1fe8865707afdfd72dc6fb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-latest-dependencies-20261006.json",
+      "git_blob": "3cdb63e03cebff1667de93028677e7b7a5dee163",
+      "bytes": 209475,
+      "sha256": "1ebacf5377764b5c0958d7e6597e10eab56536c570aacea64d25be3ee7cff908"
+    }
+  ],
+  "author_output_byte_checks": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/family-layout-frozen-native.stdout.txt",
+      "bytes": 99,
+      "sha256": "364bf2ceda7fac9cd1a8f3c782e2cdcdad38b0f8e69214486a3e19382a2cff1c"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/family-layout-frozen-native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/family-removal-catalog_is_ic.stdout.txt",
+      "bytes": 4061,
+      "sha256": "2946c9523db5acf2f8b2930214db5c8fd47053459febaf1219a119246e62d06e"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/family-removal-catalog_is_ic.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/family-removal-family_owner.stdout.txt",
+      "bytes": 4641,
+      "sha256": "6dc9bbc7d2b11478af72ea29ec0e9bd678f67a6bea0f3de4242460ab1bd38fc5"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/family-removal-family_owner.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/family-removal-layout_paths.stdout.txt",
+      "bytes": 4783,
+      "sha256": "d0d463e8db769eae217723cc05bfc89cdf1e634d7bc71046392159d58b02d271"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/family-removal-layout_paths.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/family-layout-docs-backend.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/foundry/family-layout-docs-backend.stderr.txt",
+      "bytes": 90,
+      "sha256": "5e97e0b26312eba3d14f18e4f1f143e24d1006a552cb46877794b7e912132873"
+    }
+  ]
+}

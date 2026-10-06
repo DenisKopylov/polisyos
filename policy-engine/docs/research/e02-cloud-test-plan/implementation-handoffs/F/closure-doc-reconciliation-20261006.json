@@ -1,0 +1,624 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "closure-doc-reconciliation-20261006",
+  "role": "documentation_reconciliation_companion_not_primary_finding_closure",
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B204",
+    "B205",
+    "B206",
+    "B207",
+    "B208",
+    "B209",
+    "B210",
+    "B211",
+    "B212",
+    "B213",
+    "B214",
+    "B215",
+    "B216",
+    "B217",
+    "B218",
+    "B219",
+    "B220",
+    "B221",
+    "B222",
+    "B223",
+    "B224",
+    "B225",
+    "B54",
+    "B56",
+    "LA-001",
+    "LA-002",
+    "LA-003",
+    "LA-004",
+    "LA-007",
+    "LA-016",
+    "LA-017",
+    "LA-019",
+    "LA-020",
+    "LA-035",
+    "LA-037"
+  ],
+  "bundle_ids": [
+    "API-01",
+    "CAU-01",
+    "CAU-02",
+    "CAU-03",
+    "CAU-04",
+    "CAU-05",
+    "ECO-01",
+    "FIT-01",
+    "FRY-01",
+    "FRY-03",
+    "GRF-01",
+    "GRF-02",
+    "GRF-03",
+    "LEX-01",
+    "SCM-01",
+    "SCM-02",
+    "SCM-03"
+  ],
+  "slice_base_sha": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+  "slice_base_tree_sha": "b1473b5ad04576d4a1a6502450fb95208fca3b52",
+  "root_comparison_source_sha": "53afa77611c98cb0ac8c271d0aa6ddc205b40f76",
+  "root_comparison": "Exact same3doc sourceblobs as own slice base; append merge not required and not performed.",
+  "implementation_commits": [
+    "99f196be45dec7acabdc05f0cb3af5430ec94c9e"
+  ],
+  "candidate_tree_sha": "18711c5732863a4e50672112c7f3c5ba4a1b229b",
+  "branch": "codex/e02-F-economics-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md"
+  ],
+  "baseline_cells": [],
+  "baseline_role": "HistoricalG97 andfrozen421 originalsource/cards/audit preserved explicitly; no baselinecell relabelled currentPASS.",
+  "checks": [
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/reconcile_current35.py --repo-root /workspace/e02-F-economics-20261006 --evidence-root /workspace/e02-F-economics-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006 --outdir /tmp/e02-F-continuation-20261006/economics/docs-reconciliation/portable-replay",
+      "target_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "environment": "Python3.12.14 tooling stdlib +Git; admitted own attached lane. All numerical/backend environments remain those in original immutable receipts.",
+      "input_closure": "Exact three immutable doc blobs plus full35 original owner/card and10 current source-bound receipts; no native/scientific execution",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/portable-replay-corrected.stdout.txt"
+    },
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/verify_docs.py --repo-root /workspace/e02-F-economics-20261006 --evidence-root /workspace/e02-F-economics-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006",
+      "target_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "environment": "Python3.12.14 tooling stdlib +Git; admitted own attached lane. All numerical/backend environments remain those in original immutable receipts.",
+      "input_closure": "Exact three immutable doc blobs plus full35 original owner/card and10 current source-bound receipts; no native/scientific execution",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/docs-verification-portable-final.stdout.json"
+    },
+    {
+      "command": "git diff d9c48853c5ab9ad7473df204bf3a7a1995a32057..99f196be45dec7acabdc05f0cb3af5430ec94c9e --check",
+      "target_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "environment": "Python3.12.14 tooling stdlib +Git; admitted own attached lane. All numerical/backend environments remain those in original immutable receipts.",
+      "input_closure": "Exact three immutable doc blobs plus full35 original owner/card and10 current source-bound receipts; no native/scientific execution",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/diff-check.stdout.txt"
+    },
+    {
+      "command": "Initial portable samecard assertion before reconstruction of duplicatedLA016 block",
+      "target_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "environment": "Python3.12.14 tooling stdlib +Git; admitted own attached lane. All numerical/backend environments remain those in original immutable receipts.",
+      "input_closure": "Read-only helper assumed scratchcard=one block; actualCAU scratch LA016 is same block twice joinednewline6097bytes. No source/product/scientific error; corrected fullreconstruction verifies original36bindings/35distinct.",
+      "outcome": "ERROR",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/portable-replay.stderr.txt"
+    },
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/review_docs.py"
+      ],
+      "target_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "environment": "SystemPython scratch read-onlyGit/docs/JSON; no imported numericalbackend/sourcewrites",
+      "input_closure": "Complete3changed docs, full35originalcard hashes,10current148checkreceipts,17citation bindings, actualDID/RDD rawoutputs and exactoracle source",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/deciding-output.json",
+      "execution_stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/reconciliation.stdout.txt",
+        "bytes": 474,
+        "sha256": "5e9ad30ff6f71ba0b7b041d0551a76c5b25badf9948e5db8f35ff7b2f5b1a2b5",
+        "full": true
+      },
+      "execution_stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/reconciliation.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "full": true
+      },
+      "output_transport": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/transport.json"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py",
+        "--self-check"
+      ],
+      "target_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "environment": "Readonly applicationPython3.14.7; PYTHONDONTWRITEBYTECODE1; cwd /workspace/e02-F-economics-20261006",
+      "input_closure": "Existing full canonical planningcoverage127bundles282IDs291sourcebindings +all6taskdocs; bookkeeping only, not scientificproof",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/coverage.stdout.txt",
+      "stdout_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/coverage.stdout.txt",
+        "bytes": 435,
+        "sha256": "46a173fcb04644e1f1c9ff0e7753b5f41d1360fe68204299eb58e91fbd86623a",
+        "full": true
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/graph/eco-doc-review/coverage.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "full": true
+      },
+      "count_preserving_controls_rejected": 4,
+      "output_transport": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/transport.json"
+    },
+    {
+      "command": "git diff --cached --check before lossless rawdiff encoding",
+      "target_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "environment": "Git tool; author own receipt staging only",
+      "input_closure": "Moderate complete raw git patch includes blank context-prefix whitespace; actual3doc source diff --checkPASS unchanged",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/staged-raw-patch-check.stdout.text.json"
+    },
+    {
+      "command": "git diff --cached --check after lossless rawdiff/stderr transfer encoding",
+      "target_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+      "environment": "Git tool; source3docs frozen, unique receipt/evidence staging",
+      "input_closure": "Allmoderate complete CAU/reviewer companions, full raw patch losslesslygzip, ownreceipt JSON; no sciencechanges",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/staged-encoded-check.stdout.txt"
+    }
+  ],
+  "property": {
+    "statement": "All current F method/runtime/doc recommendations bind original criterion bytes and immutable actual deciding source receipts; G97 history, technical finite properties, pending authority/consumer/G decisions remain separate.",
+    "runtime_path": [
+      "original finding-owner TSV/cards reconstructedfromGit",
+      "published immutable source/implementation tree/check/output receipts",
+      "F method/runtime documentation",
+      "root scratch35 proposal and separate canonicalG admission"
+    ],
+    "proxy_divergence": "A future GPLblocked rdrobust productextra plan onG97 is not currentnative clean-room CCT RBC; a welfare norm hold is not originalLA004 distinct-model criterion; identicaldoc/source labels cannot replace fulloriginalcard bytes or science-source identities.",
+    "negative_controls": [
+      "Falsecarddigest with identicalfinding/path/range/size is rejected against completeGit sourcebytes.",
+      "Falsecandidate_tree with sameimplementation commit rejected against actualGit tree.",
+      "Independent reviewer canonical coverage self-check includes4actual corruption controls; scope/card semantics reviewed separately from documentmarkers."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "document_reconciliation_PASS; no new originalfinding closure or science/runtime/productionauthority/Gacceptance",
+  "per_id_outcomes": [],
+  "original_criterion_proposal_scope": {
+    "finding_ids": 35,
+    "bundles": 17,
+    "original_card_bindings": 36,
+    "unique_original_card_blocks": 35,
+    "technical_proposals": {
+      "closed": 26,
+      "limited": 8,
+      "held": 1
+    },
+    "current_continuation_proposals": {
+      "closed": 21,
+      "limited": 13,
+      "held": 1
+    },
+    "G_acceptance": "UNRUN for all35 currentrecommendations; prior accepted bounded codecheckpoints historical",
+    "LA004": "closed finite distinct-model criterion under exactECO412 receipt; no welfare norm prerequisite",
+    "LA002_LA037": "closed original supportedcatalog/IC/nativeIR/compiler/docs/install migration; optionalnewfamilykernels notprerequisite",
+    "LA003": "limited actualdecimalfiscalprecision FAIL; relocation anddtypecompanions separate",
+    "LA035": "held normative units/population/time/sign intent andnamedoptimizer; historicalformula/aliases/JIT/guards retained",
+    "API_TMLE": "latest currentowner genericABI/resource/native report packets pending; no promotionfromuncommitted/BLOCK evidence"
+  },
+  "source_receipt_registry": [
+    {
+      "key": "eco",
+      "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-continuation-20261006.json",
+      "bytes": 127652,
+      "sha256": "ced279a2a9ce169c271c4dedbb2ac18a27193de75dd7cd2cf80375fb633c4162",
+      "implementation_commits": [
+        "964c76dad1dc9f56bd89e2216bded373f0e66883",
+        "4128879c3cec37dcb2bd1e7f91a1da5e4f51d2d3"
+      ],
+      "candidate_tree_sha": "134aca5ad6bac87da8d2f3d18a4be0ab20652251"
+    },
+    {
+      "key": "eco_dtype",
+      "git_ref": "d9c48853c5ab9ad7473df204bf3a7a1995a32057",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-training-dtype-continuation-20261006.json",
+      "bytes": 58922,
+      "sha256": "cb9efb8452c6446d78d19225dcae4c69dadaa817810e16fcc9c8741dee8ad6c7",
+      "implementation_commits": [
+        "c003bd673fd672726db18773bf888357a468d901"
+      ],
+      "candidate_tree_sha": "16927b18be300fc6c1723c2af4bb8a421ccac357"
+    },
+    {
+      "key": "fry",
+      "git_ref": "e00dd3799cf2cdd14baf4b26e175ba1e848c3a6a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/family-layout-consumers-20261006.json",
+      "bytes": 97248,
+      "sha256": "04fba06be549c934631ea496ae1cbf6b3698e2f235a94b61880ba540308f2cbf",
+      "implementation_commits": [
+        "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+        "3e1819173f0593ce93d257c3c62cdb2fa627e426"
+      ],
+      "candidate_tree_sha": "45852a68bb786a96d6d23c52cea790f13d3489d3"
+    },
+    {
+      "key": "scm_version",
+      "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-schema-version-20261006.json",
+      "bytes": 131648,
+      "sha256": "0aef8daff10c6a047fd5104910bdf79bfc06f58a2cd0c7ef3ba80c2406292570",
+      "implementation_commits": [
+        "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+        "e94a40e78416b7392edf96f1f24c7846a808c8d0"
+      ],
+      "candidate_tree_sha": "8fcab970c187cb6f15f4b3a7cb368b9f929db2fd"
+    },
+    {
+      "key": "scm_static",
+      "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006.json",
+      "bytes": 50088,
+      "sha256": "d71112938c6ee404c4436979df7139a2b6c7948d34fea1597de48ec2d0704818",
+      "implementation_commits": [
+        "5182825c190aa403bee765e339a119bb53e805e0"
+      ],
+      "candidate_tree_sha": "87e2bc0e426a2e1cc41fdb3adb340a70ed0c8b1e"
+    },
+    {
+      "key": "scm_poly",
+      "git_ref": "3ad29e43aaa16d2ce320d4b850f8b84f9abdd1e0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/polynomial-helper-cas-20261006.json",
+      "bytes": 44860,
+      "sha256": "2aa65d305f67d094489b849ee64cff927db717bd866acb51484e99ed051f91f4",
+      "implementation_commits": [
+        "6f95f55ca7d9c5cd9489256a354a27da058b46b9"
+      ],
+      "candidate_tree_sha": "1481e08664a271f12e77807f2468906efd7e40c5"
+    },
+    {
+      "key": "cau",
+      "git_ref": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-diagnostic-basis-20261006.json",
+      "bytes": 162688,
+      "sha256": "ba2405cc2cafdb42b2bcfaab0606aacb60056cdffe9fc4f304f854c1283e62dc",
+      "implementation_commits": [
+        "759c984f475d07c982c0f22f747588706ac752e8",
+        "856caddfa71423a439b1257d947d9657b6a29ff3",
+        "0b522ed173730b4ec744253bb75b6ee260bfcebb"
+      ],
+      "candidate_tree_sha": "a402720194c41d0b6c5bb93cceb326cd4699df72"
+    },
+    {
+      "key": "cau_science",
+      "git_ref": "4c5a11ff8050c6108f6753177b96e6714cef401f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006.json",
+      "bytes": 216928,
+      "sha256": "bfbe2d38cc248e6c6a4ae5ab762bc751109007822ada68b707de3a3abdc00e73",
+      "implementation_commits": [
+        "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+        "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+      ],
+      "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9"
+    },
+    {
+      "key": "rdd",
+      "git_ref": "15a04c4400497374416e167a5f61ebc12f61b8e4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/rdd-sharp-rbc-20261006.json",
+      "bytes": 68616,
+      "sha256": "99a51663ca672ad1809a04dfbdca89bcf65c65f964b43a5bd9305b33dd5cae60",
+      "implementation_commits": [
+        "cdede69e8c0713aac4fd6c8b393ae34837c3a594",
+        "fb022aa12599ee1617f83d154cd9a8027b2a58b8"
+      ],
+      "candidate_tree_sha": "bee112b9284e11b78c96d2f91660f330d68b26c7"
+    },
+    {
+      "key": "root",
+      "git_ref": "4a0c831ce1088c4e2fe1587b6c5a2eb1fb85b75c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-boundaries-continuation-20261006.json",
+      "bytes": 13477,
+      "sha256": "0ec2f8e09b0dfc2be368d6aa30dd1160ffc4c0d2e3fc9bf1f9f1bdcc398d0927",
+      "implementation_commits": [
+        "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282",
+        "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+        "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77"
+      ],
+      "candidate_tree_sha": "508884be8ea79e5b87844030ea4122c8e74d610a"
+    }
+  ],
+  "full_original_reconciliation_input": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-inputs/original35-reconciliation.json",
+    "bytes": 235804,
+    "sha256": "95f728b758fde25591b0124bc0a2cd8b6c0acd86a61deb6d13bc07e99c4ba2a7",
+    "selection_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-inputs/original35-reconciliation.selection.json",
+    "transport": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-input-transport.json",
+    "selection_items": 9,
+    "root_authorization": "Root explicitly approved fulloriginalCAU JSON/Markdown/replayer/9selection companions exactbytes in uniqueFdocsreceipt; not repeatedscientificlogs or current35index."
+  },
+  "scratch_only_current_ledger_draft": {
+    "path": "/tmp/e02-F-continuation-20261006/economics/docs-reconciliation/current35-doc-ledger-draft.json",
+    "bytes": 162693,
+    "sha256": "f9b89e45ec7d349716385bb44879121b737d24dd929fb5ccd8629eda9543ebf0",
+    "transfer_status": "local_not_admitted_as_commonledger; rootreadsandowns finaltracked35 generation",
+    "replay": "portable checker reconstructs equivalentfull35rows; only topdocsource/inputpathidentity changes, complete equivalencefile included"
+  },
+  "independent_review": {
+    "status": "GO_bounded_docs_only",
+    "owner": "graph_scm",
+    "implementation_sha": "99f196be45dec7acabdc05f0cb3af5430ec94c9e",
+    "tree_sha": "18711c5732863a4e50672112c7f3c5ba4a1b229b",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/review.json",
+    "bytes": 10014,
+    "sha256": "065c08b809176d46fe0e4b8ba468bcd000b0f4d0430757d886daf961f491e30d",
+    "full_selection": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/transfer-selection.json",
+    "transport": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/transport.json",
+    "selected_unique_files": 12,
+    "full_bytes": 66211,
+    "scope": "Complete3docs, original35/36card hashes,10current148checks,17actualcitation bindings, rawdecoded DID/RDD results/removals, canonicalcoverage bookkeeping self-check. No scientific reruns/G acceptance."
+  },
+  "implementation_diff": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/implementation.patch.gz",
+    "encoding": "gzip binary,mtime0",
+    "bytes": 66958,
+    "sha256": "6bbfa0185d3ec221dbc4c50b52325b22acbff8b5482daedd948474b948ba94a8",
+    "decoded_bytes": 190939,
+    "decoded_sha256": "e9e8ef27c547510e5f3fa9797ae204c3d346b3c3cc16e29b332e2d13df3ec088",
+    "decode": "gzip.decompress(git show exactcarrier:path) yields full original git diff --binary d9..99 bytes.",
+    "reason": "Full moderate original patch has meaningful context whitespace; preserve losslessly rather than trim it to satisfy source whitespace gate. Original retained in ignored raw; actual source Git commits also reconstruct complete delta."
+  },
+  "limitations_and_next_owner": [
+    "Root alone owns common35/index/audit/closuredecision admission; this unique companion does not promote per-ID states or claim G accepts recommendations.",
+    "Scientificnumericalwaves remain immutable and were not rerun; DID160 atcebe and diagnostic/caller0b distinct, RDDfb/cdede methodequivalence explicit, B225math.erfc originalsource correctedlabelonly.",
+    "Full scientific/source currentparent confidence/API/TMLE composition and real Runtime evaluator/rights/revision/appointment/freshchallenge remain pending exactsource receipts.",
+    "Global architecture/docs/compatibility/static diagnostics FAIL/ERROR/SKIP/UNRUN remain on their own source. P41 inheritedrednot_established without exactbaseandfullzerointersection.",
+    "Fullproductioninputs remainlocal G; no semanticnorm, signedfunctional, backendshim, blanketexternalABIclaim or newlaw is invented."
+  ],
+  "evidence_transfer": {
+    "manifest": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/diff-check.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/diff-check.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/docs-verification-portable-final.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/docs-verification-portable-final.stdout.json",
+        "bytes": 7556,
+        "sha256": "b8886677e42839a41dcf0049d0fa61f0625705c531d3b7f1b1eadc1de171c1cd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/docs-verification.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/docs-verification.stdout.json",
+        "bytes": 7501,
+        "sha256": "5500107fd0807ebfa9cd49a0adf4d06fc55b55e342d92fbc62f4311529d8d236"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/implementation.patch.gz",
+        "bytes": 66958,
+        "sha256": "6bbfa0185d3ec221dbc4c50b52325b22acbff8b5482daedd948474b948ba94a8",
+        "encoding": "gzip",
+        "decoded_bytes": 190939,
+        "decoded_sha256": "e9e8ef27c547510e5f3fa9797ae204c3d346b3c3cc16e29b332e2d13df3ec088"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/coverage.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/coverage.stdout.txt",
+        "bytes": 435,
+        "sha256": "46a173fcb04644e1f1c9ff0e7753b5f41d1360fe68204299eb58e91fbd86623a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/deciding-output.json",
+        "bytes": 36794,
+        "sha256": "bb473ea653133231678dec64f0e988a55f2c394050b5e150b55e318c02ce0f61"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/finish_review.py",
+        "bytes": 7780,
+        "sha256": "86510c979c7ca575767a771a1d6159f5831be0b10a8734cbfbfca11705633071"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/reconciliation-citation-harness.stderr.txt",
+        "bytes": 210,
+        "sha256": "0b18057e9366e8d00647e53cb247b1f22904110b6be30b1693d64de69cd3a2be"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/reconciliation-citation-harness.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/reconciliation-initial.stderr.txt",
+        "bytes": 386,
+        "sha256": "08ca6d7e47342ad4ff6c960c1b4b2ebbab3703d50e09a23e03d5c45dfcff58f4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/reconciliation-initial.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/reconciliation.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/reconciliation.stdout.txt",
+        "bytes": 474,
+        "sha256": "5e9ad30ff6f71ba0b7b041d0551a76c5b25badf9948e5db8f35ff7b2f5b1a2b5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/review.json",
+        "bytes": 10014,
+        "sha256": "065c08b809176d46fe0e4b8ba468bcd000b0f4d0430757d886daf961f491e30d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/review_docs.py",
+        "bytes": 10118,
+        "sha256": "ff3cd0357294b9de621036eb0ad03855f0758efe04e8623b8626f1773d7ec8a0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/transfer-selection.json",
+        "bytes": 3048,
+        "sha256": "772718eb8b35a87612475040b5121652b720d49711a563549d6d4d4595e6b03d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/independent-graph/transport.json",
+        "bytes": 4733,
+        "sha256": "aac4fd4fbec764d127fb008d3a31447f86211a5e5d78cbdb345f8e66c31a6d3f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-input-transport.json",
+        "bytes": 3817,
+        "sha256": "4cf10d1209dc6280cfc013a173fbd1893c4026868d87728811cc8fa386ed3ac0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-inputs/original35-reconciliation.execution.json",
+        "bytes": 1271,
+        "sha256": "8d5027817bef7e4464f2304777ab68705643a526fe63d14cdd774e654ea1c46e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-inputs/original35-reconciliation.initial.execution.json",
+        "bytes": 636,
+        "sha256": "af3a461e56c806aa69a571bb0a15410cb5b18ea830ee535c5013fa166057f228"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-inputs/original35-reconciliation.initial.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-inputs/original35-reconciliation.initial.stdout.txt",
+        "bytes": 1483,
+        "sha256": "746818b7e81c5516942cdefc04d52ef399024a948f2ca104a6ec647d1a13664d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-inputs/original35-reconciliation.json",
+        "bytes": 235804,
+        "sha256": "95f728b758fde25591b0124bc0a2cd8b6c0acd86a61deb6d13bc07e99c4ba2a7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-inputs/original35-reconciliation.md",
+        "bytes": 11817,
+        "sha256": "e0bc6c25bd908fedfdc20e05fb70f017296f8d88fd7be0a3ddd5b2b933a439b9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-inputs/original35-reconciliation.replayer.py",
+        "bytes": 41994,
+        "sha256": "b493f41a7b8fa4c2410dd4310281383c446d1b69eb856ac9ee217d9813e706f6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-inputs/original35-reconciliation.selection.json",
+        "bytes": 2297,
+        "sha256": "d99de6436a1b4d7606b831011e301d42b738b3da47c2ecff55689d1020f24c2c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-inputs/original35-reconciliation.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/original-inputs/original35-reconciliation.stdout.txt",
+        "bytes": 421,
+        "sha256": "c380fdf67d8ce318bd9fbfa3331f12d88a0de780454c57b27e4379a9a75219a5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/portable-draft-equivalence.json",
+        "bytes": 854,
+        "sha256": "bc3be76f3419513cd1a749f5659bcb73da56c8b368bebf639add9816a1f75465"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/portable-replay-corrected.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/portable-replay-corrected.stdout.txt",
+        "bytes": 734,
+        "sha256": "a8ed8efb7b94f91c10a5a3d2e0ebb3719282f383a07667672669d88e86a38365"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/portable-replay.stderr.txt",
+        "bytes": 412,
+        "sha256": "8f03b3ef3b5137a351cf504af7b4fade4ae9923d2540647dd6294bbcf7c4f586"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/portable-replay.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/reconcile_current35.py",
+        "bytes": 8807,
+        "sha256": "325ea6ec87b935ebda96504860c1a94d9cb5fa6be9943aa4dacec085ba65b597"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/source-receipts.json",
+        "bytes": 5312,
+        "sha256": "b09457fb9df535ded4d8388185cb596107c9a496d73c5505325cdcf9697456ee"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/staged-raw-patch-check.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/staged-raw-patch-check.stdout.text.json",
+        "bytes": 21483,
+        "sha256": "84ffe36cc40062c10b9387154798075da339d81a254f3206f5a3ebd2d0d836af",
+        "encoding": "utf8-json-string",
+        "decoded_bytes": 21056,
+        "decoded_sha256": "fb3ed5a9409996fcdc068798a361e8608ecc7fd4a6310ae9b28ff567c976da3a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/verify_docs.py",
+        "bytes": 4434,
+        "sha256": "e95d15e7301150f324deec1049dd97e1f88045bbf7e7793c27d65b684be8e137"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/staged-encoded-check.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/closure-doc-reconciliation-20261006/staged-encoded-check.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "complete_files": 44,
+    "complete_bytes": 497583,
+    "format": "Complete raw approved CAU/independent review/text/Python/JSON bytes; complete original diff encodedgzip and staging diagnostic encodedtextJSON with decoded hashes. No lossy whitespace normalization.",
+    "source_fidelity": "Original selection9input items and independent selection12items each exact fullbytes SHA; no lossysummary substitutes."
+  }
+}

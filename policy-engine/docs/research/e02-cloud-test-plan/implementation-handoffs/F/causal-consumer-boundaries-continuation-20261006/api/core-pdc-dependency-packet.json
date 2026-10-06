@@ -1,0 +1,231 @@
+{
+  "schema": "polisyos.e02.F.readonly-core-pdc-dependency-packet.v1",
+  "unit": "F",
+  "author": "causal_api",
+  "source_sha": "421f1dd977b237307394c68820caab4156716eb2",
+  "fresh_G": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "runtime_source": "acdc3536f93f085d665a7b53460935525373d015",
+  "own_base": "449d32909928caf39382f4ff02ac74b0adf277eb",
+  "scope": "READ ONLY; proposal, not code acceptance or authority receipt",
+  "source_bindings": [
+    {
+      "role": "core_cas",
+      "source_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "git_path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "blob": "418c9db4c37ea56510fe179585fc708acb8a3795",
+      "sha256": "2a45894dd5f69a377248fdb80b5157ed99bffdcf2362908c5a2c6e93d68d72d2",
+      "bytes": 5379,
+      "scratch_complete_source": "/tmp/e02-F-continuation-20261006/api/source-core_cas.txt"
+    },
+    {
+      "role": "pdc_ref_hash",
+      "source_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "git_path": "policy-engine/src/polisyos/pdc/_impl/gy_waist.py",
+      "blob": "def61a737aa88f06cc3a9856df3c9c3b8b6f9bdc",
+      "sha256": "15949b6fe9d8e2d3b6de8844aedb6322e3bd1ae50ec022a057133a4e66dec7c6",
+      "bytes": 91302,
+      "scratch_complete_source": "/tmp/e02-F-continuation-20261006/api/source-pdc_ref_hash.txt"
+    },
+    {
+      "role": "pdc_admission",
+      "source_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "git_path": "policy-engine/src/polisyos/pdc/_impl/evaluation_safety.py",
+      "blob": "e05611289505432f90550aac85375976b38800ad",
+      "sha256": "87831ae9b6b4b1ec331d97ae3ed8ac85d7bc013f3103804202d8a6297267e031",
+      "bytes": 9436,
+      "scratch_complete_source": "/tmp/e02-F-continuation-20261006/api/source-pdc_admission.txt"
+    },
+    {
+      "role": "runtime_byte_adapter",
+      "source_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "git_path": "policy-engine/src/polisyos/runtime/quality/workspace/scientist_node_adapters.py",
+      "blob": "18fe5c73cf59efad6be53fbb5951ee25db73649f",
+      "sha256": "3192aca235b0092813d4ea1793d6ad9b2dfa716829a1189a9bbbb6dd710f5818",
+      "bytes": 45105,
+      "scratch_complete_source": "/tmp/e02-F-continuation-20261006/api/source-runtime_byte_adapter.txt"
+    },
+    {
+      "role": "runtime_admission",
+      "source_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "git_path": "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+      "blob": "efa454a8eaf663b2d393bbc0b51c4920fc345a27",
+      "sha256": "bc12bb95f5381d4f2b0235ce3cdb8705a27051a8bb33cf628ca10ab402af36cd",
+      "bytes": 85385,
+      "scratch_complete_source": "/tmp/e02-F-continuation-20261006/api/source-runtime_admission.txt"
+    },
+    {
+      "role": "runtime_recorded_panel",
+      "source_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "git_path": "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+      "blob": "3c5635a52efc4660a2dcd27f5c2fad96b70bf810",
+      "sha256": "a6091cdb0cd9490dd5f86d046afc122663390223290dfc8f162af6cdcef742ac",
+      "bytes": 140625,
+      "scratch_complete_source": "/tmp/e02-F-continuation-20261006/api/source-runtime_recorded_panel.txt"
+    },
+    {
+      "role": "foundry_intake",
+      "source_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "git_path": "policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+      "blob": "20b9a4128c6bba5813fe13f55520952079befd41",
+      "sha256": "67f724b4707781bf361f0bbf59cefaa77e4f6dfd31fce94dcdedd31aa96d53ee",
+      "bytes": 53511,
+      "scratch_complete_source": "/tmp/e02-F-continuation-20261006/api/source-foundry_intake.txt"
+    },
+    {
+      "role": "neutral_observation",
+      "source_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "git_path": "policy-engine/src/polisyos/ir/observation/bundles.py",
+      "blob": "413372825b89f1fecb2e7ef0724576ac9459c5d9",
+      "sha256": "b986fc5433fdc29d65e0ed5e5643a27b8370e3f49594812a8718f478cebda4c3",
+      "bytes": 37082,
+      "scratch_complete_source": "/tmp/e02-F-continuation-20261006/api/source-neutral_observation.txt"
+    },
+    {
+      "role": "scientist_projection",
+      "source_sha": "421f1dd977b237307394c68820caab4156716eb2",
+      "git_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "blob": "d0eb06b68a4fa044213fee8641b25f2585c8d5d0",
+      "sha256": "04a13ca7d81cf88ea0dddabd7ab36174800a5050da7dbfcc9f49a0aa03237ef0",
+      "bytes": 64173,
+      "scratch_complete_source": "/tmp/e02-F-continuation-20261006/api/source-scientist_projection.txt"
+    }
+  ],
+  "deciding_observation": {
+    "consumer": "_actual_causal_input_identities",
+    "actual_quantity": "(str(CoreArtifactRef.artifact_id), str(CoreArtifactRef.artifact_id)); no store resolution",
+    "divergent_case": "unresolved or wrong kind/media-type Core ref carries same string identity and reaches verifier before an actual source read; PDC semantic policy can independently require content_hash different from CAS physical identity",
+    "status": "source-inspected; executable replay pending"
+  },
+  "maintained_contracts": [
+    {
+      "owner": "Core",
+      "public_api": "polisyos.core.artifacts.ArtifactStore.get_bytes/get_manifest/verify; ArtifactRef/ArtifactManifest",
+      "policy": "CAS physical ID is sha256 of exact stored bytes. Exact requested ID, manifest ID/integrity/size, typed ref kind/media_type must reconcile; Core has no generic PDC semantic-hash policy."
+    },
+    {
+      "owner": "PDC",
+      "public_api": "ArtifactRef.from_payload; gy_content_hash; ArtifactRef; EvaluationExecutionContext; EvaluationInputProvenance",
+      "policy": "ArtifactRef ID and content_hash independent. from_payload uses operational-time-stripped canonical JSON hash; this generic constructor does not admit source custody or authority."
+    },
+    {
+      "owner": "Runtime adapter",
+      "current_function": "workspace.scientist_node_adapters._read_binding then _pdc_binding_ref",
+      "policy": "Actual CAS bytes and exact manifest are recomputed; byte digest deliberately maps to PDC content_hash. Physical ID=hash is valid for this explicitly bounded adapter profile. Helpers are private Runtime implementation, not a maintained public Scientist import."
+    },
+    {
+      "owner": "Runtime authority",
+      "public_api": "EvaluationSafetyAdmissionVerifier.require_admission(context, challenge); EvaluationSafetyPersistenceService; EvaluationSafetyCurrentStateResolver.resolve(context)",
+      "policy": "Reload/reconcile owner-produced intake/request/certificate; scan complete current revision lineage; revalidate current appointed evidence verifiers and authority; fresh consumer challenge bound to complete context; no reconstructed/copy/replay receipt admitted."
+    }
+  ],
+  "full_top_level_input_denominator": [
+    {
+      "state_path": "observational_data_ref",
+      "required": true,
+      "supported_typed_payloads": [
+        "PanelObservationalData",
+        "RDDObservationalData",
+        "HTEObservationalData",
+        "GraphCausalData",
+        "GraphCausalDataV1",
+        "ObservationMethodInputEnvelope"
+      ],
+      "policy": "Method-specific typed input; direct synthetic test kind is not a production schema policy."
+    },
+    {
+      "state_path": "inputs.ukraine_selected_foundry_method_contract_ref",
+      "optional_route": "Ukraine staged route",
+      "kind": "foundry.ukraine_method_input",
+      "schema": "model_type.contract_id",
+      "schema_version": "1.0"
+    },
+    {
+      "state_path": "inputs.ukraine_foundry_method_input_bundle_ref",
+      "optional_route": "Ukraine staged route",
+      "kind": "foundry.ukraine_method_input_bundle",
+      "schema": "polisyos.foundry.UkraineMethodInputBundle",
+      "schema_version": "1.0"
+    },
+    {
+      "state_path": "artifacts_index.ukraine_foundry_intake_receipt_ref",
+      "optional_route": "Ukraine staged route",
+      "kind": "foundry.ukraine_intake_receipt",
+      "schema": "polisyos.foundry.UkraineIntakeReceipt",
+      "schema_version": "1.0"
+    }
+  ],
+  "source_owner_custody": [
+    {
+      "public_api": "produce_recorded_panel_method_input / verify_recorded_panel_method_input",
+      "output": "RecordedPanelMethodInput + RecordedPanelBindingReceipt",
+      "observational_kind": "ir.observation_method_input",
+      "observational_schema": "policyos.gy.phase2.recorded_panel_measurement_root.v3",
+      "schema_version": "3.0",
+      "authority": "descriptive_only; causal_identification_established=False; treatment/timing declared assumptions; rederive actual local source/manifest/selected rows and materialized DTO"
+    },
+    {
+      "public_api": "polisyos.foundry.data_plane.load_ukraine_foundry_intake / materialize_method_contract",
+      "output": "UkraineFoundryIntakeResult",
+      "authority": "producer_artifact_content_binding only; explicitly may_not_use_for governance_admissibility/method_validity"
+    },
+    {
+      "public_api": "Runtime verify_staged_foundry_input_state",
+      "output": "no seal; replays original public intake in fresh CAS",
+      "policy": "Complete emitted contract/bundle/receipt refs + recursive actual lineage, bytes, manifests equal except CAS storage-created_at. source.stage_manifests and allowed_root must remain available."
+    }
+  ],
+  "proposed_root_consumer_delta": [
+    "Change _actual_causal_input_identities to take ctx.store and derive typed resolved bindings before require_admission, load or job.",
+    "Use one complete tuple of actual state refs; absent observational source or malformed/duplicate actual/declared/provenance refs refuse. Exact equality of offered context/provenance and recomputed source identities, not subset inclusion.",
+    "Require schema-owner-selected PDC semantic hash projection. Existing verified byte adapter profile is available; semantic distinct-ID/hash source profile remains unresolved until C/Runtime supplies exact supported mapping. Do not accept either hash opportunistically or inspect arbitrary embedded content_hash.",
+    "Validate current typed input/kind/schema/media type and byte integrity at this boundary; preserve later scientific DTO and worker checks.",
+    "Only after complete source reconciliation invoke maintained Runtime verifier with freshly generated consumer-owned challenge; unchanged neutral seal validator confirms owner receipt."
+  ],
+  "independent_test_design": [
+    {
+      "case": "actual unresolvable/wrong manifest/source tamper/byte tamper",
+      "expected": "typed blocker before verifier/load/run_job; observer counters remain zero",
+      "authority": "negative needs no synthetic real_world label or issuer"
+    },
+    {
+      "case": "missing/extra/duplicate context or provenance input refs; optional Ukraine set",
+      "expected": "exact-denominator blocker before verifier/load/job; valid coherent optional route reads all4 source refs"
+    },
+    {
+      "case": "distinct physical ID/semantic hash canonical mapping",
+      "expected": "positive input-binding only using actual owner-issued supported resolver output; wrong semantic hash refuses",
+      "status": "UNRUN until schema-owner mapping supplied; generic PDC constructor demonstrates representation only"
+    },
+    {
+      "case": "actual current Runtime verifier positive with full revision/appointment context and consumer fresh challenge",
+      "expected": "whole Node can run only with existing lawful owner-issued observational/admission/evidence packet; copied/replayed challenge, stale revision, wrong consumer/context refuse",
+      "status": "UNRUN; current service passing fixture self-supplies synthetic novel-domain authority/appointments/evidence and is not admissible F authority proof"
+    }
+  ],
+  "minimal_next_owner_packet": {
+    "owner": "C/Runtime source-intake and evaluation-admission owners",
+    "needed": [
+      "supported typed causal source schema/version and producer identity",
+      "actual Core ArtifactRef + exact verified manifest/bytes hash/size and schema-selected PDC ArtifactRef content_hash algorithm/output",
+      "complete optional input ref/provenance set and source-route local coordinates when staged intake selected",
+      "current lawful persisted intake/request/certificate/revision head, full revision lineage, mode basis/domain pack/facet basis, appointed verifier registry and authority resolver",
+      "consumer issues fresh challenge immediately; no supplied seal"
+    ],
+    "not_supplied": [
+      "distinct-ID/hash semantic policy for direct typed Graph/Panel causal source",
+      "lawful authority-positive whole-node fixture"
+    ]
+  },
+  "patterns": [
+    "P02",
+    "P27",
+    "P29",
+    "P32",
+    "P35",
+    "P37",
+    "P38",
+    "P40"
+  ],
+  "code_writes": false,
+  "closure_ids": []
+}

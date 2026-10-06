@@ -12,6 +12,22 @@ from importlib import import_module
 from typing import Any
 
 _EXPORTS: dict[str, tuple[str, str]] = {
+    "causal_worker_execution_context": (
+        "polisyos.foundry.methods.catalog.causal._dowhy_worker",
+        "worker_execution_context",
+    ),
+    "validate_source_bound_gcm_spec": (
+        "polisyos.foundry.methods.catalog.causal.gcm_fit",
+        "validate_persisted_gcm_spec",
+    ),
+    "validate_source_bound_causal_estimator_interval": (
+        "polisyos.foundry.methods.catalog.causal.gcm_query",
+        "validate_persisted_estimator_interval",
+    ),
+    "validate_source_bound_causal_worker_response": (
+        "polisyos.foundry.methods.catalog.causal._dowhy_worker",
+        "validate_persisted_worker_response",
+    ),
     "ADVISOR_EXECUTION_CONTEXT_PARAM": (
         "polisyos.foundry.methods.selection.history",
         "ADVISOR_EXECUTION_CONTEXT_PARAM",

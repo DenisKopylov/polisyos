@@ -1,0 +1,37 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "/tmp/e02-F-continuation-20261006/api/eco-independent/test_current_reader_independent.py",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles",
+  "tree_sha": "d9c6ba34e1a4cfae1b06d8b5d8d26e28a165b7e5",
+  "source_status_before": "",
+  "elapsed_seconds": 12.650866270065308,
+  "exit_code": 1,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles.stdout",
+    "bytes": 3817,
+    "sha256": "4856d53ce18110e32194a1b203050868f3e8cf428f0420fcd52a54594f5f1e33"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/independent-oracles.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": ""
+}

@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+  "source_tree": "1c5151f1f97d2c81b2b1599fedd904d8cba839f3",
+  "utc": "2026-10-06T15:34:14.857709+00:00",
+  "elapsed_s": 36.5493974389974,
+  "exit_code": 1,
+  "environment": {
+    "python": "3.14.7",
+    "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/tmp/e02-F-continuation-20261006/cau/frozen-import:/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine:."
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.stdout",
+    "bytes": 6314,
+    "sha256": "ca1958bae2a3c6dd204f3308a3f2db5956324dc7dc64a4df3b0227e8e2ecee2d"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

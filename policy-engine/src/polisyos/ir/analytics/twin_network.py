@@ -20,12 +20,13 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.ir.analytics.causal_queries import (
+    CausalEstimatorInterval,
+    CausalResultKind,
+    _causal_distribution_envelope,
+)
 from polisyos.ir.analytics.uncertainty import (
-    DistributionFamily,
-    IntervalSemantics,
-    PropagationMethod,
     UncertaintyEnvelope,
-    UncertaintySource,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
@@ -65,8 +66,27 @@ class TwinNetworkResult(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field("1.1", pattern=r"^\d+\.\d+$")
     outcome_variable: str
+    result_kind: CausalResultKind = CausalResultKind.ITE_DISTRIBUTION
+    interval_level: float = Field(default=0.95, gt=0.0, lt=1.0)
+    estimator_interval: CausalEstimatorInterval | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_historical_result(cls, value: Any) -> Any:
+        if isinstance(value, dict):
+            version = value.get("schema_version", "1.1")
+            if version not in {"1.0", "1.1"}:
+                raise ValueError("unsupported twin result schema version")
+            if version == "1.0":
+                return {
+                    **value,
+                    "schema_version": "1.1",
+                    "result_kind": "ite_distribution",
+                    "estimator_interval": None,
+                }
+        return value
 
     factual_intervention: InterventionSpec
     """The intervention applied in the factual world (x₀)."""
@@ -95,7 +115,7 @@ class TwinNetworkResult(BaseModel):
     """Std dev of the ITE distribution — non-zero when individual responses vary."""
 
     ite_ci: tuple[float, float]
-    """Percentile confidence interval for the ITE."""
+    """Central quantile span of the ITE distribution, not an estimator CI."""
 
     # ── Dependence between potential outcomes ──────────────────────────────────
     po_correlation: float = Field(ge=-1.0, le=1.0)
@@ -185,18 +205,12 @@ class TwinNetworkResult(BaseModel):
 
     def to_uncertainty_envelope(self) -> UncertaintyEnvelope:
         """Convert ITE summary to a standard UncertaintyEnvelope."""
-        ci_lo, ci_hi = self.ite_ci
-        return UncertaintyEnvelope(
-            point_estimate=float(self.ite_mean),
-            confidence_interval=(float(ci_lo), float(ci_hi)),
-            confidence_level=0.95,
-            distribution_family=DistributionFamily.BOOTSTRAP,
-            source=UncertaintySource.CAUSAL,
-            propagation_method=PropagationMethod.MONTE_CARLO,
-            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
-            sample_size=len(self.ite_distribution) if self.ite_distribution is not None else 0,
-            is_heuristic_ci=False,
-            gate_eligible=True,
+        return _causal_distribution_envelope(
+            kind=self.result_kind,
+            point=self.ite_mean,
+            bounds=self.ite_ci,
+            level=self.interval_level,
+            n_samples=len(self.ite_distribution) if self.ite_distribution else None,
             metadata={
                 "query_type": "twin_network",
                 "outcome_variable": self.outcome_variable,
@@ -204,6 +218,12 @@ class TwinNetworkResult(BaseModel):
                 "po_correlation": self.po_correlation,
                 **dict(self.metadata),
             },
+        )
+
+    def to_estimator_uncertainty_envelope(self) -> UncertaintyEnvelope | None:
+        """Return a separate CI over refitted replicate effect estimators."""
+        return (
+            self.estimator_interval.to_uncertainty_envelope() if self.estimator_interval else None
         )
 
 
@@ -216,15 +236,18 @@ def persist_twin_network_result(
     *,
     inputs: list[InputRef] | None = None,
     schema_name: str = "ir.twin_network_result",
-    schema_version: str = "1.0",
+    schema_version: str | None = None,
 ) -> TwinNetworkResultRef:
     """Persist a TwinNetworkResult to the artifact store."""
+    resolved_version = schema_version or result.schema_version
+    if resolved_version != result.schema_version or resolved_version != "1.1":
+        raise ValueError("new twin results require matching payload/CAS schema 1.1")
     ref = put_json_artifact(
         store,
         result.model_dump(mode="json"),
         kind="ir.twin_network_result",
         schema_name=schema_name,
-        schema_version=schema_version,
+        schema_version=resolved_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -237,6 +260,20 @@ def load_twin_network_result(
 ) -> TwinNetworkResult:
     """Load a TwinNetworkResult from the artifact store."""
     payload = get_json_artifact(store, ref.artifact_id)
+    manifest = store.get_manifest(ref.artifact_id)
+    schema = getattr(manifest, "artifact_schema", None)
+    if schema is None or schema.version not in {"1.0", "1.1"}:
+        raise ValueError("twin result requires a supported CAS schema manifest")
+    if payload.get("schema_version", "1.0") != schema.version:
+        raise ValueError("twin result payload/CAS schema version mismatch")
+    if schema.version == "1.0":
+        payload = {
+            **payload,
+            "schema_version": "1.1",
+            "result_kind": "ite_distribution",
+            "estimator_interval": None,
+        }
+        payload["metadata"] = {**payload.get("metadata", {}), "source_schema_version": "1.0"}
     return TwinNetworkResult.model_validate(payload)
 
 

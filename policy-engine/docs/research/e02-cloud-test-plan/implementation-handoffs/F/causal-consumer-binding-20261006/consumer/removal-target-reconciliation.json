@@ -1,0 +1,29 @@
+{
+  "source_start": "93eed731088175fd244c5c66532ab6bd54e793b2",
+  "tree_start": "5deefe459b0b0c55d6f421258322ad5447dfc166",
+  "status_start": "",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-F-20261006-receipts/consumer/removal_replay.py",
+    "target_reconciliation"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "93eed731088175fd244c5c66532ab6bd54e793b2",
+  "tree": "5deefe459b0b0c55d6f421258322ad5447dfc166",
+  "status": "",
+  "exit": 1,
+  "wall_s": 14.031823629993596,
+  "pythonpath": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/removal-target-reconciliation.stdout",
+      "sha256": "619e4f92a6f33564b6b4e109f277ca7838a970d7d6ed80404e06f74e29a4e8fe",
+      "bytes": 6738
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/removal-target-reconciliation.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

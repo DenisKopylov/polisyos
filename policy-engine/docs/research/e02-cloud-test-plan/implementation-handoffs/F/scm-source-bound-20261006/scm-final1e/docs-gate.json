@@ -1,0 +1,36 @@
+{
+  "source_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+  "source_tree": "1a078f2fd38602dd0f885f77be1f3fa7585852ad",
+  "argv": [
+    "uv",
+    "run",
+    "polisyos-tools",
+    "validation",
+    "check-docs-gate",
+    "--repo-root",
+    ".",
+    "--base-ref",
+    "198076863e143dea9f89f02734b13d50dae3eed5"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "src:.",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-F-closeout-20261006/policy-engine/.venv",
+    "UV_NO_SYNC": "1"
+  },
+  "started_utc": "2026-10-06T10:56:10.142814+00:00",
+  "wall_s": 298.7305392450071,
+  "exit": 1,
+  "outputs": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/docs-gate.stdout.txt",
+      "bytes": 129050,
+      "sha256": "dbd127720020cebda89b4978eaa28736b99543a6933da0523469c340f134de3a"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/graph/scm-final1e/docs-gate.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

@@ -71,3 +71,81 @@ calibration evidence fails.
 ```bash
 uv run pytest tests/unit/foundry/validation/test_causal_validity.py tests/unit/scientist/validation/test_policy_grounding_matrix.py -q
 ```
+
+## Selected runtime profiles
+
+The family table above describes the historical offline benchmark contract;
+its labels do not establish the current estimator's inference law. The selected
+staggered DiD target is `theta_sel = sum_g pi_g mean_{t in E_g} ATT(g,t)`.
+`E_g` is fixed before fitting from each admitted cohort's post-periods and the
+declared study horizon. `pi_g` is the estimated ever-treated cohort share; its
+ratio influence term is part of the scalar unit influence function. Missing
+cells, unsupported controls, insufficient bootstrap resolution or a degenerate
+unit score do not produce successful inference. Anticipation excludes contaminated
+controls; the input binds dense panel rows, unique unit IDs and treatment timing.
+
+One iid Mammen multiplier per independent panel unit is shared across every
+cell. The scalar centered studentized null test and closed pointwise interval
+use the same finite-B-plus-one tail law. Consumers use `null_rejected` and the
+integer `minimum_accepted_tail_count` against `null_tail_count`; the reported
+`significance_level` is the exact decimal confidence-level complement. Recomputing
+a decision from binary floating subtraction `p < 1 - confidence_level` can disagree
+at a discrete endpoint. This is a large-independent-unit asymptotic profile,
+without a small-cluster coverage or simultaneous-band guarantee. Synthetic
+recovery does not identify parallel trends on an admitted real population.
+
+The causal evaluator resolves the actual observational CAS source around its
+existing MethodJob runner. For `dowhy_identify_estimate`, the parent binds this
+source to the selected Python3.12/DoWhy0.14 worker; Python3.14 reads its persisted
+strict response. The canonical output dematerializer projects historical
+`report`/`envelope` ports to declared report/result/uncertainty slots. Raw dispatch
+monitor warnings about these historical ports remain separate diagnostics.
+The selected DiD consumer independently recomputes the target/data binding.
+
+These numerical bindings grant no evaluation permission. The production node's
+existing EvalSafety admission remains mandatory. Its current non-simulation
+contract requires independently grounded real-world inputs and Runtime-issued
+authority; a synthetic DGP cannot be relabelled to satisfy it. Numerical
+MethodJob/CAS witnesses and blocked admission controls therefore do not establish
+a successful production-node evaluation. The unavailable exact local admission
+and source inputs are handed to G separately. TMLE's candidate/limited result
+remains its own typed numerical profile; no successful causal report or interval
+is manufactured for an unavailable EIF interval.
+
+## Current DiD diagnostic provenance
+
+The preceding family table describes the offline benchmark contract. The
+dedicated runtime DiD producers separately record descriptive pretrend evidence
+and its current-input basis. They do not use an offline benchmark pass or
+diagnostic non-rejection to establish identification on an admitted real panel.
+
+Computed Standard and Staggered DiD reports include `diagnostic_contract` and
+`diagnostic_binding` in `method_params`. The contract binds the complete outcome
+array, binary treatment membership and `time_treatment`, and the complete typed
+diagnostic list under the group-mean linear HC1/normal profile. The diagnostic
+window follows the supplied `time_treatment`; this descriptive contrast is not
+a proof that every staggered cohort has untreated potential-outcome parallel
+trends. The existing Standard warning diagnostic is included in the projection.
+
+This binding is separate from the staggered fixed scalar `target_contract`.
+Changing only `time_treatment` can change a testable diagnostic to `not_testable`
+while leaving cohort timing, eligible periods, theta_sel and its inference
+unchanged. Matching scalar-target markers therefore cannot validate that
+diagnostic. The internal typed `_diagnostic_contract` seam on the existing
+dedicated method recomputes the full result from the current panel. A consuming
+validator must compare both contract metadata and the actual typed
+`report.diagnostics` against this projection. Recomputing a hash of an offered
+diagnostic alone is not an independent check.
+
+Insufficient preperiods and missing groups retain `not_testable`, no statistic
+or p-value, and `passed=False`. Standard DiD with no preperiod remains
+`INPUT_INVALID` before diagnostic computation. Historical reports and output
+aliases remain readable; current-input validation requires recomputation or
+refusal when their diagnostic contract is missing or stale. All diagnostic
+dispositions explicitly retain `identification_authority=False`.
+
+Native NumPy and independent Statsmodels HC1 checks verify this finite
+descriptive profile. Python 3.14 optional DoWhy/EconML marker exclusions are not
+backend witnesses. Current-input diagnostic custody, numerical SUCCESS and an
+actual Runtime identification admission are distinct properties; the last
+requires its canonical verifier and admitted inputs.

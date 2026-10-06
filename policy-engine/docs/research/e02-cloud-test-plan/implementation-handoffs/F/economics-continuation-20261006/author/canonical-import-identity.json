@@ -1,0 +1,112 @@
+{
+  "source_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+  "tree_sha": "d9c6ba34e1a4cfae1b06d8b5d8d26e28a165b7e5",
+  "imports": [
+    {
+      "module": "polisyos.foundry.agent_sim.distributions",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+      "origin": "/workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+      "bytes": 29812,
+      "sha256": "1ba48e44496458401ca36e7b89d6f0fcad862d43531d0c7e4a32610c0162f3e1"
+    },
+    {
+      "module": "polisyos.foundry.agent_sim.analysis",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+      "origin": "/workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/analysis.py",
+      "bytes": 9267,
+      "sha256": "9797e4f20c8cff01b4739e6b804dca0ce0cd0e17556a2ab2010550730dbaf53e"
+    },
+    {
+      "module": "polisyos.foundry.agent_sim.credit_assignment",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py",
+      "origin": "/workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/credit_assignment.py",
+      "bytes": 6354,
+      "sha256": "a02de06376ebbba07ab2c726d211c5b709f98bbaf9a3198e99fd44054a058b63"
+    },
+    {
+      "module": "polisyos.foundry.agent_sim.metrics",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+      "origin": "/workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/metrics.py",
+      "bytes": 9293,
+      "sha256": "5b8f5016cad408eaf6bc26851d8588175445cc3fb95a759351f9b67258bb95cc"
+    },
+    {
+      "module": "polisyos.foundry.agent_sim.modes",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+      "origin": "/workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/modes.py",
+      "bytes": 12598,
+      "sha256": "9c4926795d7960b2a2c20a50446a1c7e05f0f39949d3f2b5d5951010c844e249"
+    },
+    {
+      "module": "polisyos.foundry.agent_sim.government_policy",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+      "origin": "/workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/agent_sim/government_policy.py",
+      "bytes": 7100,
+      "sha256": "fbeb8b4183ad654f1efe8bdc9e1cc871480b65bf3c34e29bf5d0f6afce6d23aa"
+    },
+    {
+      "module": "polisyos.foundry.methods.catalog.simulation.dynamics",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+      "origin": "/workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+      "bytes": 37839,
+      "sha256": "63a2e796d1a279a4191b267599d1f344a36e3e944e1c238c2935b06aca132c96"
+    },
+    {
+      "module": "polisyos.foundry.plugins.economics.objectives",
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+      "origin": "/workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+      "bytes": 4208,
+      "sha256": "753d0c12ba10312fdf428bcd898072535d291581446381c46f4116fd51d620a3"
+    },
+    {
+      "module": "polisyos.foundry.plugins.economics.plugin",
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+      "origin": "/workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+      "bytes": 6966,
+      "sha256": "ff61358038184967b9039d8cc0e6bd05bf653e0ba26124ac37182aa4c9db08c5"
+    },
+    {
+      "module": "polisyos.foundry.execute.mechanisms.fiscal",
+      "path": "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+      "origin": "/workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+      "bytes": 4831,
+      "sha256": "bc52074e63f5aa72c977b1fa3b1cdba98683a31294fc8209eaba546b4b190425"
+    },
+    {
+      "module": "polisyos.foundry.execute.mechanisms.labor",
+      "path": "policy-engine/src/polisyos/foundry/execute/mechanisms/labor.py",
+      "origin": "/workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/execute/mechanisms/labor.py",
+      "bytes": 3749,
+      "sha256": "c69d8d1e4c672a41f6eef1a4e752c1dd3bf1b9aaf2dfc06183ab1e4208bf1875"
+    },
+    {
+      "module": "polisyos.foundry.plugins.economics.baselines",
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+      "origin": "/workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+      "bytes": 1629,
+      "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3"
+    },
+    {
+      "module": "polisyos.foundry.methods.loss",
+      "path": "policy-engine/src/polisyos/foundry/methods/loss.py",
+      "origin": "/workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/methods/loss.py",
+      "bytes": 227,
+      "sha256": "23c1070b37ee54a5a6af6ddeede0b0c833d0bfd30df66d4a6714564238b343ef"
+    },
+    {
+      "module": "polisyos.foundry.methods._internal.loss",
+      "path": "policy-engine/src/polisyos/foundry/methods/_internal/loss.py",
+      "origin": "/workspace/e02-F-economics-20261006/policy-engine/src/polisyos/foundry/methods/_internal/loss.py",
+      "bytes": 232,
+      "sha256": "e32770ae2079f857c3be2718189b3747f5e374c901f25015437d949fe14b77f0"
+    }
+  ],
+  "aliases_same_object": true,
+  "gini_signature": "(values: 'jnp.ndarray', active: 'jnp.ndarray') -> 'jnp.ndarray'",
+  "descriptors": {
+    "income_tax": "polisyos.foundry.execute.mechanisms:IncomeTax",
+    "tax_subsidy": "polisyos.foundry.execute.mechanisms:TaxSubsidy",
+    "labor_market": "polisyos.foundry.execute.mechanisms:LaborMarketMechanism"
+  },
+  "scope": "fresh import identity and canonical descriptor body source; actual ABI invoke deciding witnesses in native pytest outputs"
+}

@@ -1,0 +1,37 @@
+PT012 `pytest.raises()` block should contain a single simple statement
+   --> tests/unit/foundry/agent_sim/test_gini_science.py:117:5
+    |
+115 |       state = EconomicState.empty(n_agents=2, seed=7)
+116 |       state = state.replace(agents=state.agents.replace(wealth=jnp.asarray([-1.0, 1.0])))
+117 | /     with pytest.raises(RuntimeError, match="classical Gini requires finite nonnegative"):
+118 | |         refreshed = jax.jit(EconomicState.update_aggregates)(state)
+119 | |         jax.block_until_ready(plugin.get_objectives()["gini"].evaluate(refreshed))
+    | |__________________________________________________________________________________^
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/foundry/plugins/test_economic_profile_consumers.py:3:1
+   |
+ 1 |   """Actual consumer witnesses for distinct fiscal and transition-labor profiles."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import jax
+ 6 | | import jax.numpy as jnp
+ 7 | | import numpy as np
+ 8 | | import pytest
+ 9 | |
+10 | | from polisyos.foundry._registry import create_mechanism_from_spec
+11 | | from polisyos.foundry.contracts.state import GlobalState
+12 | | from polisyos.foundry.execute.executor import apply_patch_map
+13 | | from polisyos.foundry.plugins.composite import CompositeExecutor, CompositeState, CompositeStateConfig
+14 | | from polisyos.foundry.plugins.core import DomainConfig, PluginRegistry
+15 | | from polisyos.foundry.plugins.economics import EconomicsPlugin, EconomicState
+16 | | from polisyos.ir.kernel.merge_rules import DEFAULT_MERGE_RULE_REGISTRY
+17 | | from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
+   | |__________________________________________________________^
+   |
+help: Organize imports
+
+Found 2 errors.
+[*] 1 fixable with the `--fix` option.

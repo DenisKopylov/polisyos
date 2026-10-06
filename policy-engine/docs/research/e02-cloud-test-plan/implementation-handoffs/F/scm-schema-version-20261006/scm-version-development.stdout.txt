@@ -1,0 +1,58 @@
+F..........2026-10-06 15:57:37 [info     ] method_registered              backend=numpy fqn=causal.structural.gcm_query@1.0.0 lazy=False namespace=causal.structural override=True tags=['causal', 'estimation', 'gcm', 'query', 'structural'] version=1.0.0
+2026-10-06 15:57:37 [debug    ] method_dispatch_start          backend=numpy fqn=causal.structural.gcm_query@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 15:57:37 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=13.64 fqn=causal.structural.gcm_query@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"fresh_mean": 3.9999999999999982, "persisted_mean": 3.9999999999999987, "family": "additive_noise", "selected_backend_claim": false}
+.2026-10-06 15:57:43 [info     ] method_registered              backend=numpy fqn=causal.structural.gcm_query@1.0.0 lazy=False namespace=causal.structural override=True tags=['causal', 'estimation', 'gcm', 'query', 'structural'] version=1.0.0
+2026-10-06 15:57:43 [debug    ] method_dispatch_start          backend=numpy fqn=causal.structural.gcm_query@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 15:57:43 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=13.42 fqn=causal.structural.gcm_query@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"fresh_mean": 7.0, "persisted_mean": 7.0, "family": "linear", "selected_backend_claim": false}
+.2026-10-06 15:57:50 [info     ] method_registered              backend=numpy fqn=causal.structural.twin_network_query@1.0.0 lazy=False namespace=causal.structural override=True tags=['causal', 'counterfactual', 'estimation', 'structural', 'twin_network'] version=1.0.0
+2026-10-06 15:57:50 [debug    ] method_dispatch_start          backend=numpy fqn=causal.structural.twin_network_query@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 15:57:50 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=13.71 fqn=causal.structural.twin_network_query@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{"fresh_ite": 2.999999999999999, "persisted_ite": 2.999999999999999, "fresh_counter": 4.249999999999999, "selected_backend_claim": false}
+..
+=================================== FAILURES ===================================
+_______ test_current_scm_default_and_real_catalog_advertise_same_version _______
+tests/unit/ir/test_structural_causal_model_versions.py:40: in test_current_scm_default_and_real_catalog_advertise_same_version
+    assert not negotiate_schema_version("structural_causal_model_spec", "1.1", "1.0").can_read
+E   AssertionError: assert not True
+E    +  where True = SchemaCompatibilityDecision(artifact='structural_causal_model_spec', producer_version='1.1', consumer_version='1.0', can_read=True, mode=<CompatibilityMode.FULL: 'full'>, migration_required=False, reason='same_major_full').can_read
+E    +    where SchemaCompatibilityDecision(artifact='structural_causal_model_spec', producer_version='1.1', consumer_version='1.0', can_read=True, mode=<CompatibilityMode.FULL: 'full'>, migration_required=False, reason='same_major_full') = negotiate_schema_version('structural_causal_model_spec', '1.1', '1.0')
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[additive_noise-4.0]
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[linear-7.0]
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] query_result: unexpected_key — Key 'query_result' not declared in output slots
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[additive_noise-4.0]
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[linear-7.0]
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_fit_helper_shared_residual_twin_cas_and_fresh_reader
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] envelope: unexpected_key — Key 'envelope' not declared in output slots
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[additive_noise-4.0]
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[linear-7.0]
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_fit_helper_shared_residual_twin_cas_and_fresh_reader
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] estimator_envelope: unexpected_key — Key 'estimator_envelope' not declared in output slots
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[additive_noise-4.0]
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[linear-7.0]
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_fit_helper_shared_residual_twin_cas_and_fresh_reader
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: unexpected_key — Key 'warnings' not declared in output slots
+    result = backend.run(
+
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[additive_noise-4.0]
+tests/unit/foundry/methods/catalog/causal/test_polynomial_helper_cas_consumers.py::test_existing_polynomial_helper_to_typed_cas_real_query_and_fresh_reader[linear-7.0]
+  /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    result = backend.run(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/ir/test_structural_causal_model_versions.py::test_current_scm_default_and_real_catalog_advertise_same_version
+1 failed, 14 passed, 14 warnings in 28.10s

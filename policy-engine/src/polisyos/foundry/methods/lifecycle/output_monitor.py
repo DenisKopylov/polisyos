@@ -3,9 +3,9 @@ Method Output Monitor — anomaly detection on pure_step results.
 
 ``MethodOutputMonitor`` provides two tiers of output validation:
 
-1. **Basic** (always-on, near-zero cost): checks for NaN/Inf values and
-   validates that output dict keys match the declared output slot names.
-   Runs on every dispatch call.
+1. **Basic** (always-on): checks normalized output slots against declared
+   names and checks numeric values in both slots and backend diagnostics.
+   Runs on every dispatch call; raw aliases and sidecar names are not slots.
 
 2. **Statistical** (opt-in): z-score-based distribution shift detection
    against a rolling history of previous results. Useful for production
@@ -38,7 +38,7 @@ from __future__ import annotations
 import statistics
 import threading
 from collections import defaultdict, deque
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -127,6 +127,45 @@ class MethodOutputMonitor:
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
+
+    def check_output_contract(
+        self,
+        *,
+        slot_outputs: Mapping[str, Any],
+        raw_output: Any,
+        expected_keys: set[str] | frozenset[str] | None = None,
+        array_keys: set[str] | frozenset[str] = frozenset(),
+    ) -> list[AnomalyFlag]:
+        """Check canonical slots and retain numeric backend diagnostics.
+
+        Only ``slot_outputs`` participates in the declared key contract.
+        Backend output may contain supported aliases, envelopes, and other
+        sidecars. Its numeric anomalies still produce the existing typed
+        flags, without treating those raw names as missing or extra slots.
+        ``array_keys`` identifies declared vector/matrix/tensor slots, so
+        even an untyped empty sequence in those slots remains an empty-array
+        anomaly. Identical flags visible in both views are emitted once.
+
+        Args:
+            slot_outputs: Canonical values produced by backend dematerialization.
+            raw_output: Backend payload, including aliases and diagnostic sidecars.
+            expected_keys: Declared slot names to validate against canonical keys.
+            array_keys: Declared vector, matrix, and tensor slot names whose empty
+                sequences must retain numeric empty-output diagnostics.
+
+        Returns:
+            Existing typed key and numeric anomaly flags, deduplicated when an
+            identical flag occurs in both views.
+        """
+        numeric_slots = {
+            key: np.asarray(value)
+            if key in array_keys and isinstance(value, (list, tuple)) and not value
+            else value
+            for key, value in slot_outputs.items()
+        }
+        slot_flags = self.check_basic(numeric_slots, expected_keys=expected_keys)
+        raw_flags = self.check_basic(raw_output)
+        return list(dict.fromkeys([*slot_flags, *raw_flags]))
 
     def check_basic(
         self,
@@ -372,6 +411,10 @@ def _try_as_array(value: Any) -> np.ndarray | None:
         return None
     if isinstance(value, np.ndarray):
         return value
+    if isinstance(value, (list, tuple)) and not value:
+        # Empty metadata sequences carry no numeric dtype; NumPy's inferred
+        # float64 would turn a valid empty diagnostic list into a false flag.
+        return None
     try:
         arr = np.asarray(value)
         if arr.dtype == object or np.issubdtype(arr.dtype, np.str_):

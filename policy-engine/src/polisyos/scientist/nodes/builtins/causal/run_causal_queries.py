@@ -3,14 +3,22 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from contextlib import nullcontext
 from dataclasses import dataclass
 from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.common import serialization
+from polisyos.core import canon
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.foundry import (
+    causal_worker_execution_context,
+    validate_source_bound_causal_estimator_interval,
+    validate_source_bound_gcm_spec,
+)
 from polisyos.foundry.methods.catalog import (
     ensure_all_methods_registered as ensure_causal_methods_registered,
 )
@@ -25,10 +33,6 @@ from polisyos.ir.analytics.uncertainty import persist_uncertainty_envelope
 from polisyos.ir.registry.refs import StructuralCausalModelSpecRef
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -38,6 +42,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_QUERY_RESULT_REF,
     ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 _METHOD_FQN = "causal.structural.gcm_query@1.0.0"
 
@@ -59,6 +72,7 @@ _SPEC = NodeSpec(
     state_reads=[
         "params.random_seed",
         "params.causal_query",
+        "params.causal_estimator_bootstrap_replicates",
         "params.structural_causal_model_ref",
         f"artifacts_index.{ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF}",
     ],
@@ -82,6 +96,7 @@ _SPEC = NodeSpec(
 
 _CAUSAL_QUERY_REF_ERRORS = (TypeError, ValueError, ValidationError)
 _CAUSAL_QUERY_LOAD_ERRORS = (
+    KeyError,
     OSError,
     RuntimeError,
     TypeError,
@@ -129,6 +144,57 @@ def _append_input_ref(
     if artifact_id is None:
         return
     refs.append(InputRef(artifact_id=artifact_id, role=role))
+
+
+def _load_bound_query_result(
+    ctx: ExecutionContext,
+    result: Any,
+    query: CausalQuery,
+    scm_ref: ArtifactRef,
+) -> CausalQueryResult:
+    """Reconcile the complete job projection and requested query against actual CAS."""
+    ref = result.method_result_ref
+    if not isinstance(ref, ArtifactRef):
+        raise ValueError("causal query method_result_ref is required")
+    manifest = ctx.store.get_manifest(ref)
+    schema = manifest.artifact_schema
+    if (
+        ref.kind != "scientist.method_result.causal.structural"
+        or manifest.kind != ref.kind
+        or ref.media_type != "application/json"
+        or manifest.media_type != ref.media_type
+        or schema is None
+        or schema.name != "polisyos.scientist.MethodResult"
+        or schema.version != "0.1.0"
+        or not ctx.store.verify(ref).ok
+    ):
+        raise ValueError("causal query method-result artifact identity mismatch")
+    if not any(
+        item.artifact_id == scm_ref.artifact_id and item.role == "input:scm_spec"
+        for item in manifest.inputs
+    ):
+        raise ValueError("causal query method result lacks original SCM input binding")
+    source_bytes = ctx.store.get_bytes(ref)
+    payload = canon.from_canonical_bytes(source_bytes)
+    if not isinstance(payload, dict) or not isinstance(result.final_state, dict):
+        raise ValueError("causal query method result must be an object")
+    # Use the same complete runtime-to-JSON projection as the canonical job writer.
+    # This includes draws, both aliases, metadata, envelopes and ancillary outputs.
+    peer_bytes = canon.to_canonical_bytes(
+        serialization.to_python_data(result.final_state, sort_keys=True),
+        canon.CanonSpec(forbid_floats=False),
+    )
+    if peer_bytes != source_bytes:
+        raise ValueError("causal query peer output differs from canonical method-result payload")
+    if "causal_query_result" not in payload or "query_result" not in payload:
+        raise ValueError("causal query output requires canonical and historical result aliases")
+    canonical = CausalQueryResult.model_validate(payload["causal_query_result"])
+    historical_alias = CausalQueryResult.model_validate(payload["query_result"])
+    if canonical.model_dump(mode="json") != historical_alias.model_dump(mode="json"):
+        raise ValueError("causal query result aliases disagree")
+    if canonical.query.model_dump(mode="json") != query.model_dump(mode="json"):
+        raise ValueError("causal query result does not match original requested query")
+    return canonical
 
 
 @dataclass(frozen=True)
@@ -186,6 +252,7 @@ class RunCausalQueriesNode:
                 scm_ref.model_dump(mode="json")
             )
             scm_spec = load_structural_causal_model_spec(ctx.store, scm_spec_ref)
+            validate_source_bound_gcm_spec(scm_spec, ctx.store)
         except _CAUSAL_QUERY_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="fail",
@@ -210,16 +277,37 @@ class RunCausalQueriesNode:
             )
 
         ensure_causal_methods_registered()
-        result = run_job(
-            JobSpec(
-                job_kind="method",
-                method_fqn=_METHOD_FQN,
-                method_params={},
-                seed=seed,
-            ),
-            cas_root=ctx.store.root,
-            method_state=method_state,
-        )
+        bootstrap_replicates = state.params.get("causal_estimator_bootstrap_replicates", 0)
+        execution_context = nullcontext()
+        if bootstrap_replicates and scm_spec.training_rows is not None:
+            execution_context = causal_worker_execution_context(
+                store=ctx.store,
+                source_ref=ArtifactRef.model_validate(
+                    scm_spec.training_rows.source_ref.model_dump(mode="json")
+                ),
+            )
+        try:
+            with execution_context:
+                result = run_job(
+                    JobSpec(
+                        job_kind="method",
+                        method_fqn=_METHOD_FQN,
+                        method_params={"bootstrap_replicates": bootstrap_replicates},
+                        input_refs={"scm_spec": scm_ref},
+                        seed=seed,
+                    ),
+                    cas_root=ctx.store.root,
+                    method_state=method_state,
+                )
+        except _CAUSAL_QUERY_LOAD_ERRORS as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
+                    message=f"Causal query source/refit execution failed: {exc}",
+                ),
+            )
         if result.issues:
             return NodeOutcome(
                 status="fail",
@@ -231,20 +319,15 @@ class RunCausalQueriesNode:
                 ),
             )
 
-        output = result.final_state if isinstance(result.final_state, dict) else {}
-        raw_query_result = output.get("query_result")
-        if raw_query_result is None:
-            return NodeOutcome(
-                status="fail",
-                state=state,
-                error=NodeError(
-                    code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
-                    message="Causal query output missing query_result",
-                ),
-            )
-
         try:
-            query_result = CausalQueryResult.model_validate(raw_query_result)
+            query_result = _load_bound_query_result(ctx, result, query, scm_ref)
+            if query_result.estimator_interval is not None:
+                validate_source_bound_causal_estimator_interval(
+                    query_result.estimator_interval,
+                    scm_spec,
+                    query,
+                    ctx.store,
+                )
         except _CAUSAL_QUERY_LOAD_ERRORS as exc:
             return NodeOutcome(
                 status="fail",

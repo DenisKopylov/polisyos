@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/graph/remove-profile-property.py",
+    "admission"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "source_sha": "5182825c190aa403bee765e339a119bb53e805e0",
+  "source_tree_sha": "87e2bc0e426a2e1cc41fdb3adb340a70ed0c8b1e",
+  "exit_code": 1,
+  "wall_s": 13.874323896001442,
+  "rss_kib": 590156,
+  "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
+  "outputs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/profile-removal-admission.stdout.txt",
+      "bytes": 1770,
+      "sha256": "d47bcc526439d9500d5db5fa4dc60555ac5626678622412563401406382bfde1"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/profile-removal-admission.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "check": "FAIL"
+}

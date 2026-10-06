@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py"
+  ],
+  "cwd": "/workspace/e02-F-dowhy-20261006/policy-engine",
+  "source_sha": "85cba8f4f40360cd213c66c344300d5e826aff00",
+  "tree": "6ec484d70e06bc5d9b7f6814b515c2ca0efbcc19",
+  "status": "M policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+  "exit": 0,
+  "wall_s": 63.39262586699624,
+  "pythonpath": "/workspace/e02-F-dowhy-20261006/policy-engine/src:/workspace/e02-F-dowhy-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/root-review/dowhy-parent.stdout",
+      "sha256": "fa34872eee2e35ae93a48232b4caa2f9c1458fd685de11fd493e20b2b5d0a57f",
+      "bytes": 1922
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/root-review/dowhy-parent.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

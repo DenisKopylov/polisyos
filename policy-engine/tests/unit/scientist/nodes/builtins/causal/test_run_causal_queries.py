@@ -6,7 +6,7 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
+
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.causal.run_causal_queries import (
     RunCausalQueriesNode,
@@ -18,6 +18,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_QUERY_METHOD_RESULT_REF,
     ARTIFACT_CAUSAL_QUERY_RESULT_REF,
     ARTIFACT_STRUCTURAL_CAUSAL_MODEL_SPEC_REF,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 
@@ -104,6 +107,7 @@ def test_run_causal_queries_uses_branch_state_for_declared_outputs(
         outcome_variable="Y",
     )
     query_result = MagicMock()
+    query_result.estimator_interval = None
     query_result.to_uncertainty_envelope.return_value = MagicMock()
 
     state = minimal_state.model_copy(deep=True)
@@ -140,6 +144,10 @@ def test_run_causal_queries_uses_branch_state_for_declared_outputs(
             return_value=MagicMock(),
         ),
         patch(
+            "polisyos.scientist.nodes.builtins.causal.run_causal_queries.validate_source_bound_gcm_spec",
+            return_value=None,
+        ),
+        patch(
             "polisyos.scientist.nodes.builtins.causal.run_causal_queries.SCMQueryData",
             side_effect=lambda **kwargs: kwargs,
         ),
@@ -159,7 +167,7 @@ def test_run_causal_queries_uses_branch_state_for_declared_outputs(
             ),
         ),
         patch(
-            "polisyos.scientist.nodes.builtins.causal.run_causal_queries.CausalQueryResult.model_validate",
+            "polisyos.scientist.nodes.builtins.causal.run_causal_queries._load_bound_query_result",
             return_value=query_result,
         ),
         patch(

@@ -1,0 +1,62 @@
+{
+  "finding_id": "LA-035",
+  "primary_bundle": "ECO-01",
+  "implementation_sha": "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6",
+  "candidate_tree_sha": "e157c672ee734a700795bbf921f2e3657aa8e9eb",
+  "check": "PASS",
+  "check_scope": "Bounded verified mechanism/criterion checks only; author has no canonical aggregate per-ID check. Residual subcriteria not promoted.",
+  "outcome": "held",
+  "receipt_ref": {
+    "head": "fb51511fef60c5123875e99ab2f19a9a0bd5d16f",
+    "branch": "refs/heads/codex/e02-F-economics-20261006",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-science-profiles-20261006.json",
+    "bytes": 109240,
+    "sha256": "cd005af9bf2e45edcd88f54b4bb223636351abefc991a52828167f2070aead1e",
+    "table": "finding_outcomes",
+    "per_id": "LA-035"
+  },
+  "predicate_basis": "independently_reconciled",
+  "original_source_criterion_refs": [
+    {
+      "criterion_id": "LA-035",
+      "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document_git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "lines": [
+        2066,
+        2102
+      ],
+      "bytes": 7176,
+      "sha256": "59a23ac14a1d02f92da6bad843f4beffa7e61bd67830b0a792bec1610083ac69",
+      "title": "## LA-035. policy_loss_fn: ранний экономический baseline у общего method-владельца"
+    }
+  ],
+  "receipt_registry_index": 3,
+  "deciding_check_registry_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13
+  ],
+  "criterion_short_ru": "Historical normalized-income score и optimizer owner",
+  "actual_consumer": "normalized_income_budget_loss → legacy aliases → GlobalState/JIT/grad",
+  "code_shas": [
+    "532ca1f5ff78dad58ac00d261aeabff3a99f9aa6"
+  ],
+  "limit_next_owner_short_ru": "income≥1 score=−1 сохранён; actual production optimizer/norm — G, held.",
+  "check_interpretation": "PASS denotes the bounded measured property only; a limited/held remainder is UNRUN unless its immutable receipt records an explicit FAIL/ERROR/SKIP.",
+  "complete_decision_oracle_negative_and_companions": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/final-transfer-20261006/audit/final35-complete-audit.json",
+    "finding_id": "LA-035"
+  }
+}

@@ -1053,15 +1053,25 @@
       "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-03.md",
       "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B214.json",
       "downstream_companion": {
-        "sha": "e6cb0949e58399b0a8f0e3086aecdac70503c138",
+        "sha": "fe7a8354bab24678fa9c8361fe80acb8cddae2fe",
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006.json",
-        "bytes": 34553,
-        "sha256": "eea70a5e18fb463309efb98d531f2d911e2eaf1090c81119a2f25035a1f94a82",
+        "bytes": 47474,
+        "sha256": "a1fe644a1ba0f8f54897c626bd86a76062a3ddfca8e55cb5fa03e326f230499d",
         "endpoint_check": "FAIL",
         "temporal_protected_route_check": "UNRUN",
         "repair_branch": "codex/e02-F-graph-intake-20261006",
         "next_owner": "F/cau separate canonical reconciliation intake author; root final integration index",
-        "scope": "primitive PASS does not close actual downstream intake class"
+        "scope": "Historical endpoint FAIL from the original e6 publication is preserved by this corrected transport-only CAU review; current bounded graph-intake receipt2044260c39dc4988b37d5a1568b65a1cdb1e3d31 records its own exact implementation profile separately. B214/B218 primary outcomes remain limited and protected temporal route remains UNRUN.",
+        "previous_ref_history": {
+          "sha": "e6cb0949e58399b0a8f0e3086aecdac70503c138",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006.json",
+          "bytes": 34553,
+          "sha256": "eea70a5e18fb463309efb98d531f2d911e2eaf1090c81119a2f25035a1f94a82",
+          "classification": "historical_non_deciding",
+          "historical_endpoint_check": "FAIL",
+          "historical_transport_metadata_check": "FAIL",
+          "scope": "Exact old sealed receipt retained as history; ten scratch_artifacts_original fields used encoded paths with original raw hashes. Corrected current metadata is the new parent reference; old nested scratch fields are not current deciding evidence."
+        }
       }
     },
     {
@@ -1120,15 +1130,25 @@
       "canonical_bundle_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-03.md",
       "baseline_route_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/scm-source-bound-20261006/baseline-routes-full/B218.json",
       "downstream_companion": {
-        "sha": "e6cb0949e58399b0a8f0e3086aecdac70503c138",
+        "sha": "fe7a8354bab24678fa9c8361fe80acb8cddae2fe",
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006.json",
-        "bytes": 34553,
-        "sha256": "eea70a5e18fb463309efb98d531f2d911e2eaf1090c81119a2f25035a1f94a82",
+        "bytes": 47474,
+        "sha256": "a1fe644a1ba0f8f54897c626bd86a76062a3ddfca8e55cb5fa03e326f230499d",
         "endpoint_check": "FAIL",
         "temporal_protected_route_check": "UNRUN",
         "repair_branch": "codex/e02-F-graph-intake-20261006",
         "next_owner": "F/cau separate canonical reconciliation intake author; root final integration index",
-        "scope": "primitive PASS does not close actual downstream intake class"
+        "scope": "Historical endpoint FAIL from the original e6 publication is preserved by this corrected transport-only CAU review; current bounded graph-intake receipt2044260c39dc4988b37d5a1568b65a1cdb1e3d31 records its own exact implementation profile separately. B214/B218 primary outcomes remain limited and protected temporal route remains UNRUN.",
+        "previous_ref_history": {
+          "sha": "e6cb0949e58399b0a8f0e3086aecdac70503c138",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006.json",
+          "bytes": 34553,
+          "sha256": "eea70a5e18fb463309efb98d531f2d911e2eaf1090c81119a2f25035a1f94a82",
+          "classification": "historical_non_deciding",
+          "historical_endpoint_check": "FAIL",
+          "historical_transport_metadata_check": "FAIL",
+          "scope": "Exact old sealed receipt retained as history; ten scratch_artifacts_original fields used encoded paths with original raw hashes. Corrected current metadata is the new parent reference; old nested scratch fields are not current deciding evidence."
+        }
       }
     },
     {

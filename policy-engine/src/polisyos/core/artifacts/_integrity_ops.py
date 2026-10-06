@@ -43,6 +43,21 @@ class VerifiedArtifactSnapshot:
     actual_sha256_hex: str
     byte_size: int
 
+    @property
+    def manifest(self) -> ArtifactManifest:
+        """Decode only this validated snapshot's retained immutable metadata bytes."""
+        return ArtifactManifest.model_validate_json(self.manifest_bytes)
+
+    def verification_report(self, artifact_id: ArtifactID) -> VerificationReport:
+        """Project this locally verified pair without another read or content hash."""
+        return VerificationReport(
+            ok=True,
+            artifact_id=str(artifact_id),
+            expected_sha256_hex=artifact_id.hex,
+            actual_sha256_hex=self.actual_sha256_hex,
+            byte_size=self.byte_size,
+        )
+
 
 def validate_manifest_identity(
     artifact_id: ArtifactID,
@@ -84,9 +99,7 @@ def _validate_read_integrity_with_digest(
     """Validate a loaded pair without recomputing a caller-independent digest."""
     validate_manifest_identity(artifact_id, manifest)
     if actual_sha256_hex != artifact_id.hex:
-        raise ArtifactIntegrityError(
-            f"Blob sha256 mismatch for {artifact_id}: {actual_sha256_hex}"
-        )
+        raise ArtifactIntegrityError(f"Blob sha256 mismatch for {artifact_id}: {actual_sha256_hex}")
     if manifest.byte_size != len(data):
         raise ArtifactIntegrityError(
             f"Manifest byte_size mismatch for {artifact_id}: "

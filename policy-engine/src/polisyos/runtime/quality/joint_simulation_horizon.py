@@ -688,6 +688,39 @@ def _snapshot_joint_simulation_request(
     return snapshot
 
 
+def _contains_invalid_original_numeric_element(value: object) -> bool:
+    """Detect disallowed original elements before NumPy can coerce them."""
+
+    pending: list[object] = [value]
+    visited: set[int] = set()
+    while pending:
+        item = pending.pop()
+        if item is None or isinstance(
+            item,
+            (str, bytes, bytearray, bool, np.bool_, complex, np.complexfloating),
+        ):
+            return True
+        if isinstance(item, np.ndarray):
+            if item.dtype.kind in {"b", "U", "S", "c"} or np.iscomplexobj(item):
+                return True
+            if item.dtype.kind == "O" and id(item) not in visited:
+                visited.add(id(item))
+                pending.extend(item.flat)
+            continue
+        if isinstance(item, Mapping):
+            identity = id(item)
+            if identity not in visited:
+                visited.add(identity)
+                pending.extend(item.values())
+            continue
+        if isinstance(item, Sequence):
+            identity = id(item)
+            if identity not in visited:
+                visited.add(identity)
+                pending.extend(item)
+    return False
+
+
 def _required_finite_scalar(
     value: object,
     *,
@@ -704,6 +737,8 @@ def _required_finite_scalar(
     if isinstance(value, (str, bytes, bytearray, bool, np.bool_)):
         raise JointSimulationControllerError(malformed_code, field)
     try:
+        if _contains_invalid_original_numeric_element(value):
+            raise TypeError("output contains a disallowed original element")
         raw_array = np.asarray(value)
         if raw_array.dtype.kind in {"b", "U", "S", "c"} or np.iscomplexobj(raw_array):
             raise TypeError("output is not a real numeric value")

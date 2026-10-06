@@ -11644,6 +11644,7 @@ def _build_s10_forecast_inputs(
             evidence=evidence,
             calibration_bound=calibration_bound,
             empirical_evidence_error=empirical_evidence_error,
+            calibration_status=calibration_status,
         ),
         s8_value_choice_provenance_ref=f"s8://{problem.design_problem_id}/value-choice",
         s8_value_tradeoff_disclosure_ref=f"s8://{problem.design_problem_id}/tradeoff",
@@ -11934,6 +11935,7 @@ def _s10_limitation_refs(
     evidence: Mapping[str, object],
     calibration_bound: bool,
     empirical_evidence_error: str | None,
+    calibration_status: str | None,
 ) -> list[str]:
     """Expose a bounded reason whenever S10 cannot admit observable calibration."""
 
@@ -11942,7 +11944,10 @@ def _s10_limitation_refs(
     if not calibration_bound:
         return (
             ["s10://calibration/fail-closed/insufficient-history"]
-            if evidence.get("calibration_status") is not None
+            if (
+                evidence.get("calibration_status") is not None
+                or calibration_status is not None
+            )
             else []
         )
     if str(evidence.get("calibration_status")) == "pass":

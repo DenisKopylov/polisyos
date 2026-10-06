@@ -53,6 +53,7 @@ from polisyos.runtime.quality.generation_cycle import (
     SimulationPortObservation,
     _DefaultSimulationBoundFoundryValuePort,
     load_joint_simulation_result,
+    persist_joint_simulation_result,
     simulation_evaluation_input_ref,
 )
 from polisyos.runtime.quality.intervention_atom_binding import (
@@ -295,7 +296,6 @@ def _persist_n5_content_valid_variant(
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationResult,
         build_content_bound_simulation_receipt,
-        persist_joint_simulation_result,
         verify_simulation_receipt,
     )
 

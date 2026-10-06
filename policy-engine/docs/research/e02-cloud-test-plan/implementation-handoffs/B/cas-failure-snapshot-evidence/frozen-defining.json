@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+    "--basetemp=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/frozen-defining-pytest",
+    "--junitxml=/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/frozen-defining.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+  "target_sha": "ad55562b60dcc7b449c9bc7962e2430632b578fb",
+  "target_tree": "b15be892aa450d36427b41a9c5577431fa462b47",
+  "exit_code": 1,
+  "wall_s": 26.8114866620017,
+  "maxrss_kib": 883828,
+  "environment": {
+    "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/workspace/e02-B-current-cas-generation/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "numerical_caps": "all6absent"
+  },
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/frozen-defining.txt",
+      "bytes": 7978,
+      "sha256": "0d929c8eed5d3377a214bc1517f14f64bdbc4a5bbdb4809359fd851053990326"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/frozen-defining.xml",
+      "bytes": 7525,
+      "sha256": "f13d3290805b4f78dff34cdf10225d299ab96532dfb5e7f31df3bce0703b0a34"
+    }
+  ]
+}

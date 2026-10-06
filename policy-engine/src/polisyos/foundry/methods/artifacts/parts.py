@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
@@ -122,7 +123,7 @@ def store_compiled_chain_plan(
     """Persist one cold executable plan through the normal guarded CAS writer."""
     from polisyos.core.artifacts.store import PutOptions
 
-    return cas.put_bytes(
+    ref = cas.put_bytes(
         plan.to_canonical_bytes(),
         PutOptions(
             kind="foundry.compiled_chain_plan",
@@ -133,6 +134,13 @@ def store_compiled_chain_plan(
             ),
             producer=ProducerInfo(component="foundry.artifacts", version=__version__),
         ),
+    )
+    manifest = cas.get_manifest(ref)
+    return ArtifactRef(
+        artifact_id=ref.artifact_id,
+        kind=ref.kind,
+        media_type=ref.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(manifest),
     )
 
 

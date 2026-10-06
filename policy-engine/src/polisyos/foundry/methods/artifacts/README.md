@@ -69,6 +69,11 @@ retain the existing typed refusals; a changed essential edge cannot silently
 be replaced by a reader default. Original warnings are captured as advisory
 provenance; restored warnings are recomputed by the current STRICT builder.
 
+The writer returns the selected profile of the actual guarded persisted
+manifest, using the existing CAS-owned profile projection. The reader retains
+that full typed reference for both guarded manifest and blob reads; an
+unprofiled content ID is not admitted as a runnable plan.
+
 The payload profile is finite plain JSON scalars, lists and string-keyed objects;
 nonfinite numbers, tuple/array/dtype/custom Python values and the canonical
 `_type` parameter key are refused before plan publication. There is no implicit

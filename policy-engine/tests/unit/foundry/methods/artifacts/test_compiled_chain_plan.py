@@ -8,8 +8,8 @@ from typing import Any, ClassVar
 
 import pytest
 
-from polisyos.core.artifacts import FileSystemCAS
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts import FileSystemCAS, artifact_manifest_profile_sha256
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.foundry.methods.artifacts import (
@@ -110,6 +110,15 @@ def _chain(*, data_flow: bool = False):
     )
 
 
+def _selected_ref(cas, ref):
+    return ArtifactRef(
+        artifact_id=ref.artifact_id,
+        kind=ref.kind,
+        media_type=ref.media_type,
+        manifest_profile_sha256=artifact_manifest_profile_sha256(cas.get_manifest(ref)),
+    )
+
+
 @pytest.mark.parametrize("data_flow", [False, True])
 def test_real_cas_reopen_restores_payload_occurrences_and_executes(tmp_path, data_flow):
     fixture = _chain(data_flow=data_flow)
@@ -160,7 +169,9 @@ def test_persisted_plan_mutation_refuses_before_body(tmp_path, mutation):
         ),
     )
     with pytest.raises((ValueError, CyclicDependencyError)):
-        load_compiled_chain_plan(FileSystemCAS(tmp_path / "cas"), ref, registry=fixture.registry)
+        load_compiled_chain_plan(
+            FileSystemCAS(tmp_path / "cas"), _selected_ref(cas, ref), registry=fixture.registry
+        )
     assert fixture.calls == []
 
 
@@ -208,7 +219,7 @@ def test_selected_manifest_schema_is_consumed(tmp_path, schema_name):
         ),
     )
     with pytest.raises(ValueError, match="manifest schema mismatch"):
-        load_compiled_chain_plan(cas, ref, registry=fixture.registry)
+        load_compiled_chain_plan(cas, _selected_ref(cas, ref), registry=fixture.registry)
     assert fixture.calls == []
 
 
@@ -223,4 +234,20 @@ def test_non_json_payload_refused_at_real_producer(value):
     )
     with pytest.raises(ValueError, match="Compiled plan parameters"):
         CompiledChainPlan.from_chain(fixture.chain)
+    assert fixture.calls == []
+
+
+def test_cyclic_python_payload_refused_at_real_producer():
+    values = []
+    values.append(values)
+    test_non_json_payload_refused_at_real_producer(values)
+
+
+def test_unprofiled_reference_is_not_a_selected_plan(tmp_path):
+    fixture = _chain()
+    cas = FileSystemCAS(tmp_path / "cas")
+    ref = store_compiled_chain_plan(cas, CompiledChainPlan.from_chain(fixture.chain))
+    unprofiled = ArtifactRef(artifact_id=ref.artifact_id, kind=ref.kind, media_type=ref.media_type)
+    with pytest.raises(ValueError, match="exact typed selected-manifest reference"):
+        load_compiled_chain_plan(cas, unprofiled, registry=fixture.registry)
     assert fixture.calls == []

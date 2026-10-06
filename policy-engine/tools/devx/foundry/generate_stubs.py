@@ -62,6 +62,11 @@ def _run_stubgen(module: str, out_dir: Path, *, verbose: bool) -> Path | None:
         str(out_dir),
         "--no-analysis",
         "--export-less",
+        *(
+            ("--include-private",)
+            if module == "polisyos.foundry.methods.components.composer"
+            else ()
+        ),
     )
     result = run_command(cmd, cwd=REPO_ROOT, capture_output=True, text=True, check=False)
     if result.returncode != 0:

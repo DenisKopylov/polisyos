@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
+from threading import Event
 
 import pytest
 
@@ -137,3 +139,41 @@ def test_bridge_preserves_the_declared_limit_on_nonempty_admitted_sources(tmp_pa
     assert len(rows) == 1
     assert rows[0].metadata["transfer_history_ref"] == first.history_ref.model_dump(mode="json")
     assert bridge.last_load_report["loaded"] == bridge.last_load_report["accepted"] == 1
+
+
+def test_whole_catalog_query_captures_one_native_generation_during_publication(
+    tmp_path, monkeypatch
+):
+    import hnswlib
+
+    store, _, _, _, _, _, _ = measured_history(tmp_path, count=1)
+    memory = VectorMemoryStore(dim=2, max_elements=5)
+    memory.add("old-first", [1, 0], {"generation": "old"})
+    memory.add("old-second", [0, 1], {"generation": "old"})
+    replacement = VectorMemoryStore(dim=2, max_elements=5)
+    for key, vector in (("new-first", [-1, 0]), ("new-second", [0, -1]), ("new-third", [1, 1])):
+        replacement.add(key, vector, {"generation": "new"})
+    ref = replacement.save_to_artifact(store)
+    arrived, release = Event(), Event()
+    native_query = hnswlib.Index.knn_query
+
+    def paused(index, *args, **kwargs):
+        result = native_query(index, *args, **kwargs)
+        arrived.set()
+        assert release.wait(10), "writer did not release captured catalog reader"
+        return result
+
+    monkeypatch.setattr(hnswlib.Index, "knn_query", paused)
+    with ThreadPoolExecutor() as pool:
+        reader = pool.submit(memory.query, [1, 0], top_k=None)
+        try:
+            assert arrived.wait(10), "reader did not execute native HNSW"
+            memory.load_from_artifact(store, ref)
+        finally:
+            release.set()
+        rows = reader.result(10)
+    assert {key for key, _, _ in rows} == {"old-first", "old-second"}
+    assert all(metadata == {"generation": "old"} for _, _, metadata in rows)
+    current = memory.query([1, 0], top_k=None)
+    assert {key for key, _, _ in current} == {"new-first", "new-second", "new-third"}
+    assert all(metadata == {"generation": "new"} for _, _, metadata in current)

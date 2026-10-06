@@ -183,11 +183,10 @@ class TransferLearningManager:
         """
         if self._index is None or not fingerprint.embedding:
             return []
-        limit = len(self._index) if top_k is None else top_k
-        if limit <= 0:
+        if top_k is not None and top_k <= 0:
             return []
         discoveries = []
-        window = limit if top_k is None else limit * 2
+        window = None if top_k is None else top_k * 2
         for key, _, metadata in self._index.query(fingerprint.embedding, top_k=window):
             ref = self._history_ref_from_metadata(metadata)
             if key == fingerprint.run_id or ref is None:
@@ -202,7 +201,7 @@ class TransferLearningManager:
                 discoveries.append(RunFingerprint.model_validate(data))
             except (TypeError, ValueError):
                 continue
-            if len(discoveries) >= limit:
+            if top_k is not None and len(discoveries) >= top_k:
                 break
         return discoveries
 

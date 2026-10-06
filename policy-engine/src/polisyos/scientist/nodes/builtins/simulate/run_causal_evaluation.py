@@ -25,6 +25,7 @@ from polisyos.foundry.methods import MethodRegistry
 from polisyos.foundry.methods.catalog import (
     ensure_all_methods_registered as ensure_causal_methods_registered,
 )
+from polisyos.foundry.methods.catalog.causal.treatment_effects import TMLEEstimator
 from polisyos.foundry.methods.causal import (
     DoWhyIdentifyEstimate,
     GraphCausalData,
@@ -313,7 +314,11 @@ def _is_rdd_method(method_fqn: str) -> bool:
 
 
 def _is_hte_method(method_fqn: str) -> bool:
-    return method_fqn.startswith("causal.hte.") or method_fqn.startswith("causal.targeting.")
+    return (
+        method_fqn.startswith("causal.hte.")
+        or method_fqn.startswith("causal.targeting.")
+        or method_fqn.split("@", 1)[0] == "causal.treatment_effects.tmle"
+    )
 
 
 def _is_dowhy_method(method_fqn: str) -> bool:
@@ -511,6 +516,20 @@ def _run_primary_causal_job(
     else:
         result = run_job(bound_spec, cas_root=ctx.store.root, method_state=observational_data)
     did_method = (spec.method_fqn or "").split("@", 1)[0]
+    if not result.issues and did_method == "causal.treatment_effects.tmle":
+        _reconcile_selected_causal_output(ctx=ctx, result=result)
+        bound_data = _load_observational_data(ctx, state, spec.method_fqn)
+        if not isinstance(observational_data, HTEObservationalData) or not isinstance(
+            bound_data, HTEObservationalData
+        ):
+            raise ValueError("selected TMLE requires its typed observational source")
+        if observational_data.model_dump(mode="json") != bound_data.model_dump(mode="json"):
+            raise ValueError("selected TMLE materialization/source mismatch")
+        _verify_selected_tmle_projection(
+            result.final_state,
+            observational_data=bound_data,
+            params=spec.method_params,
+        )
     if not result.issues and did_method in {
         "causal.inference.did.standard",
         "causal.inference.did.staggered",
@@ -530,6 +549,28 @@ def _run_primary_causal_job(
                     params=spec.method_params,
                 )
     return result
+
+
+def _verify_selected_tmle_projection(
+    output: dict[str, Any],
+    *,
+    observational_data: HTEObservationalData,
+    params: dict[str, Any],
+) -> None:
+    """Reconcile the report with its persisted native numerical result.
+
+    This uses the maintained producer's projection, preserving its regular iid
+    profile and unsupported-profile refusals. It establishes no identification,
+    execution permission, or shared production resource admission.
+    """
+    report = CausalEffectReport.model_validate(output["report"])
+    expected = TMLEEstimator.report_from_result(
+        data=observational_data, params=params, result=output["result"]
+    )
+    if report.model_dump(mode="json") != expected.model_dump(mode="json"):
+        raise ValueError("selected TMLE numerical report projection mismatch")
+    if UncertaintyEnvelope.model_validate(output["envelope"]) != expected.to_uncertainty_envelope():
+        raise ValueError("selected TMLE uncertainty projection mismatch")
 
 
 def _reconcile_selected_causal_output(*, ctx: ExecutionContext, result: JobResult) -> None:

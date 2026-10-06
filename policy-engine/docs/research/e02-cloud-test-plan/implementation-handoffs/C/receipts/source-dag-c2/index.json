@@ -1,0 +1,38 @@
+{
+  "schema": "policyos.e02.C.source_dag_review_receipts.v1",
+  "frozen_root_snapshot": "68f75e495d379ff6f74836c9fe0ce5979af0e4ea",
+  "review_scope": "source-snapshot ancestry, exact ownership/path overlap and Git identity; final DFI/CAT handoffs and root full54 publication are later docs-only appends",
+  "semantic_closure_not_inferred": true,
+  "receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/check_worktrees.py",
+      "sha256": "3779878a39b07530033b106ef7e8545d6925b4e050d902b8232418770760a246",
+      "bytes": 1750
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/deciding-commands.txt",
+      "sha256": "15d917c15c7d65dd2511244167e749b2c68386a384eab40a59fe27b764f386d3",
+      "bytes": 4027
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/namespace-refs.txt",
+      "sha256": "7130ec989153f0c2ddf7b9323e0b61cfc862a620131417a82b7032c7dc3c0dec",
+      "bytes": 4021
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/report.json",
+      "sha256": "c4b3aecc06f6defb18d2f43e036f6c1fccb9221fee6ad29d6aa70205811def7b",
+      "bytes": 7709
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/report.md",
+      "sha256": "2fa55e4ec572fda1c2c9c1b7185ed614cd75e48411f7f634a720a2f0becc0621",
+      "bytes": 6337
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/source-dag-c2/worktree-state.txt",
+      "sha256": "91e6383f8c036011ce272f7fbd23a244d176e33c29eb55a0d96a230734c6c0d2",
+      "bytes": 1823
+    }
+  ]
+}

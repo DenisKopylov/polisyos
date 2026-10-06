@@ -1,0 +1,225 @@
+{
+  "decision": "ACCEPT for source-snapshot Git DAG and ownership consistency only",
+  "semantic_closure_claimed": false,
+  "base": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "accepted_G97": "97c85fae2d4505ec8248540d98b9556296244208",
+  "writer_denominator": [
+    "ING/root",
+    "BER",
+    "CANON",
+    "CAT",
+    "CLI",
+    "DFI-EMB",
+    "FED",
+    "HYG",
+    "MIG",
+    "OBS-UDF",
+    "PLG",
+    "SCHEMA",
+    "SCL"
+  ],
+  "writer_count": 13,
+  "auxiliary_support": {
+    "branch": "codex/e02-C-ing-oracle-20261006",
+    "head": "5231cf93a399fcc2944870c8a590b8770f3ba931",
+    "tree": "cef4443d936178eaae8678236e74417af7c1dd0f",
+    "excluded_from_denominator": true
+  },
+  "local_topic_namespace_refs": 31,
+  "origin_current_writer_tip_exact": [
+    "BER",
+    "CANON",
+    "CLI",
+    "FED",
+    "HYG",
+    "MIG",
+    "OBS-UDF",
+    "PLG",
+    "SCHEMA",
+    "SCL"
+  ],
+  "origin_docs_evidence_lag": {
+    "ING/root": {
+      "origin": "9f35e19ff8f39895d66cbce78644470e52f8ec09",
+      "local": "68f75e495d379ff6f74836c9fe0ce5979af0e4ea",
+      "changed_paths": 43,
+      "scope": "docs/evidence only"
+    }
+  },
+  "active_current_topic_refs_absent_from_origin": [
+    "CAT",
+    "DFI-EMB"
+  ],
+  "source_publication_readback_count": 11,
+  "clean_topic_worktrees": 12,
+  "known_pending_untracked_DFI_evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ab441-evidence/",
+  "source_freeze_commits": {
+    "ING/root": "68eed6d56f48e9a676edeb3251902300a64d5fad",
+    "BER": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+    "CANON": "3b2ce9d6b8e37941a1061fa40fdc054cd3acb344",
+    "CAT": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+    "CLI": "c21584f390ae0e53602833df34571a0d9545f13e",
+    "DFI-EMB": "ab44166335130463178e65dfc29a252c96afe479",
+    "FED": "575e7b16b59d374fc09e74563ba5dd2698877c64",
+    "HYG": "1e8aa374829884fcab9b6eca6616c5a7df4beb16",
+    "MIG": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
+    "OBS-UDF": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+    "PLG-production": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+    "PLG-test": "443f346f5cf33f37175fc8e4dfe61d1060bc07f5",
+    "SCHEMA": "b8d9115cdc6a55920c1e0a3cae2e5f9092010c27",
+    "SCL": "01c303c2a94a1ff281e4fcc9804db60183e65d68"
+  },
+  "complete_source_path_census": {
+    "per_writer_changed_paths": {
+      "BER": 44,
+      "CANON": 8,
+      "CAT": 94,
+      "CLI": 6,
+      "DFI-EMB": 60,
+      "FED": 4,
+      "HYG": 131,
+      "MIG": 162,
+      "OBS-UDF": 71,
+      "PLG": 52,
+      "SCHEMA": 76,
+      "SCL": 53
+    },
+    "writer_incidence": 761,
+    "writer_union": 648,
+    "root_count": 98,
+    "root_plus_writers_union": 743,
+    "root_plus_writers_incidence": 859,
+    "snapshot": "frozen source commits; later CAT/MIG metadata deltas are docs/evidence only"
+  },
+  "overlaps": [
+    {
+      "families": [
+        "DFI-EMB",
+        "CAT"
+      ],
+      "shared_paths": 60,
+      "provider_relation": "CAT merge parent is DFI head ab441…; 58 same final entries; two expected CAT downstream overlays: data_forge/domains/catalog/batch/README.md and data_forge/domains/catalog/batch/config.py",
+      "conflict": false
+    },
+    {
+      "families": [
+        "HYG",
+        "MIG"
+      ],
+      "shared_paths": 53,
+      "provider_commit": "1e8aa374829884fcab9b6eca6616c5a7df4beb16",
+      "all_final_entries_identical": true,
+      "conflict": false
+    },
+    {
+      "families": [
+        "ING/root",
+        "BER"
+      ],
+      "shared_files": 3,
+      "root_commit": "495043eb636275398ed729d9d01bec12059d8059",
+      "authorized_BER_cherry_pick": "999f56c443e3b4ef74d849828641836a8f335b3d",
+      "patch_id": "568b7bc408dfe8ee3150866d69e0e1b2df08965b",
+      "conflict": false
+    },
+    {
+      "families": [
+        "ING/root",
+        "ING-oracle support"
+      ],
+      "shared_path": "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+      "patch_id_equal_commits": 8,
+      "conflict": false
+    },
+    {
+      "families": "all other pairs",
+      "result": "no overlaps in complete source-snapshot census"
+    }
+  ],
+  "canonical_owners": [
+    "root ING: policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+    "HYG provider inherited by MIG: policy-engine/tools/lib/imports.py",
+    "DFI-EMB shared data_forge kernel/basis/publisher bytes inherited by CAT; CAT separate catalog registry owner"
+  ],
+  "limitations": [
+    "Read-only Git DAG/source identity/attachment/overlap review; no product tests/builds/new worktrees.",
+    "No semantic capability or finding closure inferred.",
+    "DFI evidence handoff pending; CAT and DFI topic publication pending."
+  ],
+  "current_heads": {
+    "ING/root": {
+      "sha": "68f75e495d379ff6f74836c9fe0ce5979af0e4ea",
+      "tree": "a261d25309f154b6cea001cf39d3b3963fa0e0e4",
+      "post_freeze_delta": "one added MIG current-input publication-readback JSON"
+    },
+    "BER": {
+      "sha": "8aecb0b6e08f8d37f09c70927761576583a89828",
+      "tree": "e31935df4f03f4c8c8bc028ca169261a26ffed76"
+    },
+    "CANON": {
+      "sha": "9f84276408fc6b776e35050afece5c4e74ed413d",
+      "tree": "c9a5e4620abb8e643f25614a7df600ad499bf0c8"
+    },
+    "CAT": {
+      "sha": "5169abdbb1db103d25cfddab5f361e973aafa850",
+      "tree": "6806066a29e0fc82ea23fc993018e1316f45c710",
+      "post_freeze_delta": "docs/evidence only"
+    },
+    "CLI": {
+      "sha": "5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1",
+      "tree": "0f4760eb05ab3ed4493417fa489870e301700293"
+    },
+    "DFI-EMB": {
+      "sha": "ab44166335130463178e65dfc29a252c96afe479",
+      "tree": "b1eaa06c81fae89d56ae467e8036d5923b886f3d"
+    },
+    "FED": {
+      "sha": "26ba51d571a5ccb5da26502d4d097d801cdc5b04",
+      "tree": "04ab94e5672451a8e765b99d0feb2abe7dfd067b"
+    },
+    "HYG": {
+      "sha": "4f55312a51bcd95ee125ac2f1bec1df59b0d65c3",
+      "tree": "bacca23097d439484585f578c5c9a75a6e81baa8"
+    },
+    "MIG": {
+      "sha": "fe15a3604801f9a8c4fda51c73f51976f52d6c25",
+      "tree": "9c10b9ecf893ce8ce3355391c673a05823f84233",
+      "post_freeze_delta": "docs/evidence only"
+    },
+    "OBS-UDF": {
+      "sha": "705575be73510d40d726c82c5a0af4bf8635a2a8",
+      "tree": "623a5ddd9e9512262f7944885a811930574733f0"
+    },
+    "PLG": {
+      "sha": "976212bbefb684da4823f61d810bf7a208a6e298",
+      "tree": "208f0d81b0628e0af43425824a07882ec1cba993"
+    },
+    "SCHEMA": {
+      "sha": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+      "tree": "715e11ef478d6c8827494e6da89ed08792708fb2"
+    },
+    "SCL": {
+      "sha": "f7af77f3373e4d22f703efa7208c19c6ffed1746",
+      "tree": "9d6c122811db158a7a84a43f534a1d1c1209b3a6"
+    }
+  },
+  "cached_origin_refs_only": true,
+  "current_metadata_append_checks": {
+    "root_previous_head": "cc6024d759d0fb95453b61dc198f1640f70d1859",
+    "root_delta": [
+      "A policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/publication-c2/mig-current-input-push-readback.json"
+    ],
+    "root_source_ancestor": "68eed6d56f48e9a676edeb3251902300a64d5fad",
+    "MIG_previous_head": "d3e058ff9ec1784d71367c82b1db2284646a5e1c",
+    "MIG_delta": [
+      "M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-la050-local-input-audit-552c7d9/migrations-la050-local-input-audit-552c7d9.json",
+      "M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-root-resolution-004ae.json"
+    ],
+    "MIG_source_ancestor": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
+    "MIG_origin_now_matches_local": "fe15a3604801f9a8c4fda51c73f51976f52d6c25"
+  }
+}

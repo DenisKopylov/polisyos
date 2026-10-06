@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/capture_frozen.py", line 50, in main
+    os.execvpe(argv[0], argv, dict(os.environ))  # noqa: S606 - reviewed argv-only launcher
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 613, in execvpe
+  File "<frozen os>", line 627, in _execvpe
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/absent-actual-executable'

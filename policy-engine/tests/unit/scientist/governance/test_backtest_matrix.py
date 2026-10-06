@@ -218,7 +218,7 @@ def test_matrix_expands_actual_scientist_replays(monkeypatch, tmp_path, cas_stor
     bundle = bundle.model_copy(update={"plans": [plan.model_dump(mode="json")]})
     calls = []
 
-    def execute(state):
+    def execute(state, **kwargs):
         calls.append(state)
         snapshot = get_json_artifact(
             runner._orchestrator._store, state["inputs"]["data_snapshot_ref"]["artifact_id"]

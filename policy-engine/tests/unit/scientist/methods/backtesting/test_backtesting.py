@@ -154,7 +154,7 @@ def test_orchestrator_rejects_malformed_metadata_report_id(tmp_path) -> None:
 
 @pytest.mark.parametrize(
     "invalid_report_id",
-    ("", " ", " leading", "trailing ", "line\nbreak", "nul\x00byte"),
+    ["", " ", " leading", "trailing ", "line\nbreak", "nul\x00byte"],
 )
 def test_orchestrator_rejects_malformed_preallocated_report_id(
     invalid_report_id: str,
@@ -235,10 +235,7 @@ def test_predictive_trust_screening_only_denies_trust(tmp_path) -> None:
     assert default_report.trust_score is None
     assert screened_report.trust_eligible is False
     assert screened_report.trust_score is None
-    assert (
-        "trust_screening:predictive_only_bridge_pending"
-        in screened_report.degraded_reasons
-    )
+    assert "trust_screening:predictive_only_bridge_pending" in screened_report.degraded_reasons
     assert screened_report.metadata["trust_screening"] == "predictive_only_bridge_pending"
 
 
@@ -309,11 +306,7 @@ def _put_backtest_artifact(
             kind=kind,
             media_type="application/json",
             schema={"name": kind, "version": "1.0"},
-            producer=(
-                {"component": "test.bkt01", "version": "1.0"}
-                if include_producer
-                else None
-            ),
+            producer=({"component": "test.bkt01", "version": "1.0"} if include_producer else None),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -351,7 +344,8 @@ def _scientist_result_with_artifacts(
 
     captured: dict[str, Any] = {}
 
-    def _run_experiment(state: dict[str, Any]) -> dict[str, Any]:
+    def _run_experiment(state: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
+        assert kwargs["store"] is orchestrator._scientist_store
         captured["state"] = state
         return {"artifacts_index": artifacts}
 

@@ -41,7 +41,7 @@ governance calibration и backtest matrix контуром.
 ## Replay and authority admission
 
 Scientist `n_simulation_runs=K` expands into K scalar backend replays with
-separate seeded streams, row-preserving scenarios and persisted requested,
+separate requested seeds/run identities, row-preserving scenarios and persisted requested,
 attempted, completed and failed counts. PROVIDED trajectories execute once;
 their original replica parameter is retained without asserting K external runs.
 Micro errors pool metric/time cells per replay; equal-scenario macro RMSE stays
@@ -55,3 +55,10 @@ and perfect observed agreement alone do not supply that policy. Per-kind matrix
 scores remain explicitly descriptive. Bootstrap accepts a one-dimensional
 sample and a scalar statistic; a custom callable label remains
 `consumer_asserted`, never verified functional provenance.
+
+The native Scientist facade receives the same configured core CAS. Successful
+forecast execution still requires an admitted Trinity/model/registry and a
+compatible masked-history materializer. Generic `params.random_seed` is a
+dispatch request; the native Foundry `ExecConfig.seed` binding is not established
+by this backtest adapter. A missing configured producer remains explicit and
+does not turn its native refusal or a controlled dispatch spy into backend PASS.

@@ -6,6 +6,7 @@ import json
 import math
 import uuid
 from collections.abc import Callable, Mapping, Sequence
+from copy import deepcopy
 from dataclasses import dataclass
 from enum import Enum
 from importlib import import_module
@@ -15,7 +16,11 @@ from typing import TYPE_CHECKING, Any, cast
 import numpy as np
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.ir_adapter import build_ir_artifact_store, ensure_ir_artifact_store
+from polisyos.core.artifacts.ir_adapter import (
+    CoreToIRArtifactStoreAdapter,
+    build_ir_artifact_store,
+    ensure_ir_artifact_store,
+)
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.ir.analytics.backtest import (
@@ -215,6 +220,11 @@ class BacktestOrchestrator:
         else:
             factory = store_factory or _default_backtest_store_factory
             self._store = ensure_ir_artifact_store(factory(Path(cas_root)))
+        self._scientist_store = (
+            self._store.store
+            if isinstance(self._store, CoreToIRArtifactStoreAdapter)
+            else self._store
+        )
         self._masker = OutcomeMasker()
         self._evaluator = PredictionEvaluator()
         self._trust_scorer = TrustScorer()
@@ -308,6 +318,16 @@ class BacktestOrchestrator:
                     "random_seed": (
                         int(streams[index].generate_state(1)[0]) if streams else plan.random_seed
                     ),
+                    "scientist_state": (
+                        deepcopy(
+                            {
+                                **plan.scientist_state,
+                                "run_id": f"{plan.scientist_state['run_id']}:replica:{index}",
+                            }
+                        )
+                        if count > 1 and plan.scientist_state and plan.scientist_state.get("run_id")
+                        else deepcopy(plan.scientist_state)
+                    ),
                     "metadata": {
                         **plan.metadata,
                         "source_plan_id": plan.plan_id,
@@ -346,9 +366,10 @@ class BacktestOrchestrator:
                 plan.prediction_source.value,
             ),
             "degraded": bool(prediction_payload.get("degraded", False)),
-            "replay_seed": plan.random_seed,
+            "requested_replay_seed": plan.random_seed,
             "source_plan_id": plan.metadata.get("source_plan_id", plan.plan_id),
             "backend_attempted": bool(prediction_payload.get("backend_attempted", False)),
+            "backend_run_id": prediction_payload.get("backend_run_id"),
         }
         if "historical_snapshot_ref" in prediction_payload:
             scenario_metadata["historical_snapshot_ref"] = prediction_payload[
@@ -463,7 +484,7 @@ class BacktestOrchestrator:
         state_payload["inputs"] = inputs
 
         try:
-            result = run_experiment(state_payload)
+            result = run_experiment(state_payload, store=self._scientist_store)
         except Exception as exc:
             reason = f"scientist_execution_failed:{type(exc).__name__}"
             naive = self._predict_with_naive(plan, masked_data)
@@ -474,8 +495,14 @@ class BacktestOrchestrator:
                 degraded_reasons=[reason],
                 historical_snapshot_ref=inputs["data_snapshot_ref"],
                 backend_attempted=True,
+                backend_run_id=state_payload.get("run_id"),
             )
             return naive
+        backend_run_id = (
+            result.get("run_id", state_payload.get("run_id"))
+            if isinstance(result, dict)
+            else state_payload.get("run_id")
+        )
         artifacts = result.get("artifacts_index", {}) if isinstance(result, dict) else {}
         if not isinstance(artifacts, dict):
             reason = "scientist_artifacts_index_missing"
@@ -487,6 +514,7 @@ class BacktestOrchestrator:
             naive["degraded_reasons"] = [reason]
             naive["historical_snapshot_ref"] = inputs["data_snapshot_ref"]
             naive["backend_attempted"] = True
+            naive["backend_run_id"] = backend_run_id
             return naive
 
         metrics_ref_payload = artifacts.get("metrics_ref")
@@ -544,6 +572,7 @@ class BacktestOrchestrator:
             naive["degraded_reasons"] = [reason]
             naive["historical_snapshot_ref"] = inputs["data_snapshot_ref"]
             naive["backend_attempted"] = True
+            naive["backend_run_id"] = backend_run_id
             return naive
         result = {
             "predictions": predictions,
@@ -554,6 +583,7 @@ class BacktestOrchestrator:
             "degraded_reasons": list(interval_degraded_reasons),
             "historical_snapshot_ref": inputs["data_snapshot_ref"],
             "backend_attempted": True,
+            "backend_run_id": backend_run_id,
         }
         result.update(interval_metadata)
         return result

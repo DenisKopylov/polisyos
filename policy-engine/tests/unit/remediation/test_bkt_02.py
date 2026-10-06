@@ -195,9 +195,7 @@ def test_micro_rmse_is_partition_invariant_and_macro_is_explicit(tmp_path) -> No
     whole_report = BacktestOrchestrator(cas_root=str(tmp_path / "whole")).run(
         [plan("whole", [0.0, 10.0, 10.0], [0.0, 0.0, 0.0])]
     )
-    partitioned_report = BacktestOrchestrator(
-        cas_root=str(tmp_path / "partitioned")
-    ).run(
+    partitioned_report = BacktestOrchestrator(cas_root=str(tmp_path / "partitioned")).run(
         [
             plan("first", [0.0], [0.0]),
             plan("second", [10.0, 10.0], [0.0, 0.0]),
@@ -208,10 +206,7 @@ def test_micro_rmse_is_partition_invariant_and_macro_is_explicit(tmp_path) -> No
     assert whole_report.overall_rmse == pytest.approx(expected_micro_rmse)
     assert partitioned_report.overall_rmse == pytest.approx(expected_micro_rmse)
     assert partitioned_report.overall_macro_rmse == pytest.approx(5.0)
-    assert (
-        partitioned_report.aggregation_policy
-        == "micro_rmse_with_explicit_equal_scenario_macro"
-    )
+    assert partitioned_report.aggregation_policy == "micro_rmse_with_explicit_equal_scenario_macro"
 
 
 def test_invalid_prediction_is_counted_and_kept_out_of_valid_denominator() -> None:
@@ -368,7 +363,7 @@ def test_persisted_envelope_metadata_overrides_plan_contract(monkeypatch, tmp_pa
     monkeypatch.setattr(
         orchestrator_module,
         "run_experiment",
-        lambda _state: {
+        lambda _state, **_kwargs: {
             "artifacts_index": {
                 "metrics_ref": metrics_ref,
                 "simulation_result_ref": simulation_ref,
@@ -472,7 +467,7 @@ def test_invalid_persisted_interval_metadata_is_degraded_and_unscored(
     monkeypatch.setattr(
         orchestrator_module,
         "run_experiment",
-        lambda _state: {
+        lambda _state, **_kwargs: {
             "artifacts_index": {
                 "metrics_ref": metrics_ref,
                 "simulation_result_ref": simulation_ref,

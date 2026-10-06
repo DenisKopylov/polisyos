@@ -44,7 +44,8 @@ def _plan(tmp_path, *, count: int = 1, source=PredictionSource.SCIENTIST):
 def _backend(monkeypatch, orchestrator, *, fail_at: int | None = None):
     calls = []
 
-    def execute(state):
+    def execute(state, **kwargs):
+        assert kwargs["store"] is orchestrator._scientist_store
         calls.append(state)
         snapshot = get_json_artifact(
             orchestrator._store,
@@ -104,7 +105,9 @@ def test_requested_replays_are_actual_calls_and_keep_rows_after_cas_readback(
         assert [scenario.metadata["replica_index"] for scenario in observed.scenarios] == list(
             range(count)
         )
-        assert [scenario.metadata["replay_seed"] for scenario in observed.scenarios] == seeds
+        assert [
+            scenario.metadata["requested_replay_seed"] for scenario in observed.scenarios
+        ] == seeds
         assert all(
             scenario.metadata["source_plan_id"] == "replays" for scenario in observed.scenarios
         )
@@ -293,3 +296,53 @@ def test_requested_denominator_survives_missing_terminal_scenario(tmp_path):
     assert denominator["attempted"] == 0
     assert report.metadata["evaluation_status"] == "not_evaluated"
     assert report.trust_eligible is False
+
+
+def test_native_scientist_missing_trinity_is_not_counted_as_prediction_success(
+    monkeypatch, tmp_path
+):
+    """Exercise the real facade/workflow, preserving its missing-input failure."""
+    native = orchestrator_module.run_experiment
+    calls = []
+    errors = []
+    orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / "cas"))
+
+    def observed_native(state, **kwargs):
+        assert kwargs["store"] is orchestrator._scientist_store
+        calls.append(state)
+        try:
+            return native(state, **kwargs)
+        except Exception as exc:
+            errors.append({"type": type(exc).__name__, "message": str(exc)})
+            raise
+
+    monkeypatch.setattr(orchestrator_module, "run_experiment", observed_native)
+    plan = _plan(tmp_path, count=2).model_copy(
+        update={
+            "scientist_state": {
+                "run_id": "e02-native-missing-trinity",
+                "params": {"workflow_id": "scientist_default"},
+                "inputs": {},
+            }
+        }
+    )
+    report = orchestrator.run([plan])
+    assert len(calls) == 2
+    assert len({state["run_id"] for state in calls}) == 2
+    assert all(state["params"]["n_simulation_runs"] == 1 for state in calls)
+    for state in calls:
+        snapshot = get_json_artifact(
+            orchestrator._store, state["inputs"]["data_snapshot_ref"]["artifact_id"]
+        )
+        consumed = get_json_artifact(orchestrator._store, snapshot["data_ref"]["artifact_id"])
+        assert consumed["metric"] == [1.0, 2.0]
+    for observed in (report, _reopen(orchestrator, report)):
+        counts = observed.metadata["replay_denominators"][0]
+        assert counts["requested"] == counts["attempted"] == counts["failed"] == 2
+        assert counts["completed"] == 0
+        assert len({row.metadata["backend_run_id"] for row in observed.scenarios}) == 2
+        assert observed.trust_eligible is False
+    # This proves native refusal, never successful forecast backend execution.
+    assert errors
+    assert any("trinity" in error["message"].lower() for error in errors)
+    print(json.dumps({"actual_native_errors": errors, "submitted_states": calls}, sort_keys=True))

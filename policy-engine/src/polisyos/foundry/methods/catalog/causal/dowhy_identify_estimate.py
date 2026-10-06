@@ -28,7 +28,7 @@ from polisyos.foundry.methods.catalog.causal._common import (
     wrap_causal_output,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData, GraphCausalDataV1
-from polisyos.ir.analytics.causal import CausalMethod, EstimationStatus
+from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod, EstimationStatus
 
 logger = get_logger(__name__)
 
@@ -522,36 +522,9 @@ def _run_dowhy(
             },
         )
         return wrap_causal_output(report, warnings=[reason])
-    result = response["result"]
-    metadata = {
-        "execution_profile": profile,
-        "worker": response,
-        "inference_status": result["inference_status"],
-        "authority": "candidate_computation_only",
-        "scientific_scope": "declared graph; IID full-rank constant-effect Gaussian linear profile",
-    }
-    details = {
-        **common,
-        "point_estimate": result["point"],
-        "standard_error": result["standard_error"],
-        "identified_estimand": result["identified_estimand"],
-        "metadata": metadata,
-    }
-    if result["interval"] is None:
-        reason = "DoWhy point estimate retained without an available confidence interval"
-        report = build_failure_report(
-            **details,
-            status=EstimationStatus.NUMERICAL_FAILURE,
-            reason=reason,
-            confidence_level=None,
-        )
-        return wrap_causal_output(report, warnings=[reason])
-    report = build_success_report(
-        **details,
-        confidence_interval=tuple(result["interval"]),
-        inference_method=result["method_name"],
-        confidence_level=0.95,
-    )
+    report = DoWhyIdentifyEstimate.report_from_worker_result(data=data, params=params, response=response)
+    if report.status is EstimationStatus.NUMERICAL_FAILURE:
+        return wrap_causal_output(report, warnings=[str(report.status_reason)])
     return wrap_causal_output(report)
 
 
@@ -594,6 +567,68 @@ class DoWhyIdentifyEstimate:
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.LIBRARY_DETERMINISTIC
     signature: ClassVar[MethodSignature] = _base_signature()
     metadata: ClassVar[MethodMetadata] = _BASE_METADATA
+
+    @staticmethod
+    def report_from_worker_result(
+        *, data: GraphCausalData, params: Mapping[str, Any], response: Mapping[str, Any]
+    ) -> CausalEffectReport:
+        """Project a validated worker candidate through the complete canonical report model.
+
+        Args:
+            data: Actual source-bound input already validated by the parent.
+            params: Public job parameters or the dispatcher's resolved parameters.
+            response: Worker reply already validated against the source and selected profile.
+
+        Returns:
+            The same complete typed numerical report used by the producer and consumers.
+
+        This pure projection resolves public defaults from the method signature,
+        launches no backend, performs no CAS writes and admits no scientific or
+        governance authority. Callers must validate actual source/reply bindings
+        before consuming this object.
+        """
+        resolved = {
+            parameter.name: params.get(parameter.name, parameter.default)
+            for parameter in DoWhyIdentifyEstimate.signature.parameters
+        }
+        result = response["result"]
+        treatment = data.data[:, data.column_names.index(data.treatment)]
+        details = {
+            "method": _METHOD_MAP[str(resolved["method_name"])],
+            "estimand": str(resolved["estimand_type"]),
+            "sample_size": data.sample_size,
+            "n_treated": int(np.sum(treatment == 1)),
+            "n_control": int(np.sum(treatment == 0)),
+            "pre_periods": 0,
+            "post_periods": 0,
+            "assumptions": dict(DoWhyIdentifyEstimate.metadata.assumptions),
+            "method_params": _sanitize_method_params(resolved),
+            "estimand_type": str(resolved["estimand_type"]),
+            "graph_ref": data.graph_ref,
+            "point_estimate": result["point"],
+            "standard_error": result["standard_error"],
+            "identified_estimand": result["identified_estimand"],
+            "metadata": {
+                "execution_profile": resolved["execution_profile"],
+                "worker": dict(response),
+                "inference_status": result["inference_status"],
+                "authority": "candidate_computation_only",
+                "scientific_scope": "declared graph; IID full-rank constant-effect Gaussian linear profile",
+            },
+        }
+        if result["interval"] is None:
+            return build_failure_report(
+                **details,
+                status=EstimationStatus.NUMERICAL_FAILURE,
+                reason="DoWhy point estimate retained without an available confidence interval",
+                confidence_level=None,
+            )
+        return build_success_report(
+            **details,
+            confidence_interval=tuple(result["interval"]),
+            inference_method=result["method_name"],
+            confidence_level=0.95,
+        )
 
     @staticmethod
     def pure_step(state: GraphCausalData, params: Mapping[str, Any]) -> dict[str, Any]:

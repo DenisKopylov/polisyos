@@ -1,0 +1,89 @@
+{
+  "baseline": {
+    "candidate_source_used": "SCL immutable archive 01c303c2a94a1ff281e4fcc9804db60183e65d68; both dependency-file bytes exactly match base 198.",
+    "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "pyproject_toml_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+    "uv_lock_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+  },
+  "commands": {
+    "post_scl_install_dependency_closure": {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv/bin/python",
+        "-I",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/scl-01c/dependency-closure-probe.py"
+      ],
+      "cwd": "/tmp",
+      "env_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "script": {
+        "bytes": 1615,
+        "mtime_utc": "2026-10-06T14:04:50.986434+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/scl-01c/dependency-closure-probe.py",
+        "sha256": "58aa554bf0f8afe1d633e321d9af219dde0a8508368327ea44b7836fed3ddf1f"
+      },
+      "stderr": {
+        "bytes": 0,
+        "mtime_utc": "2026-10-06T14:04:53.747391+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/scl-01c/dependency-closure.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 10942,
+        "mtime_utc": "2026-10-06T14:04:53.907870+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/scl-01c/dependency-closure.stdout",
+        "sha256": "0b8f81dcfd0b4fc032656cbb6827fefc40756d749df089a63d1c68f30f7d7e4e"
+      },
+      "wall_time_s": 0.044
+    },
+    "provision": {
+      "argv": [
+        "uv",
+        "sync",
+        "--offline",
+        "--frozen",
+        "--no-dev",
+        "--no-install-project",
+        "--python",
+        "/opt/homebrew/bin/python3"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/scl-01c/source/policy-engine",
+      "env_delta": {
+        "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv",
+        "UV_PROJECT_ENVIRONMENT": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/venv"
+      },
+      "exit_code": 0,
+      "selected_optional_extras": [],
+      "stderr": {
+        "bytes": 2898,
+        "mtime_utc": "2026-10-06T14:00:37.115391+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/provision.stderr",
+        "sha256": "c6313b40fc98fc2399708414585164ed9478ef1ff56d4e3bfa958468aadcebd2"
+      },
+      "stdout": {
+        "bytes": 0,
+        "mtime_utc": "2026-10-06T14:00:36.532433+00:00",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/provision.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_ms": 30000,
+      "wall_time_s": 0.463
+    }
+  },
+  "environment_id": "base198-no-extra",
+  "profile": {
+    "base_closure_method": "uv sync from the exact frozen baseline pyproject+uv.lock with --no-dev --no-install-project and no --extra flags; the exact SCL wheel was then installed with --no-deps.",
+    "jsonschema_present": false,
+    "missing_base_requirements": [],
+    "optional_extras_selected": [],
+    "post_scl_wheel_install_distribution_count": 114,
+    "pre_package_install_resolved_base_distributions": 113,
+    "project_base_requirements_satisfied": true,
+    "project_requires_dist_base_count": 34,
+    "pytest_present": false,
+    "python": "3.14.0"
+  },
+  "raw_outputs_retained": true
+}

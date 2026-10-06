@@ -1,0 +1,18 @@
+## codex/e02-C-scholar-20261006
+refs/heads/codex/e02-C-scholar-20261006
+9a9dc96307dcb8d1e912d56386eef6f5779f956d
+67ddc9af3620a9283ff08ffaf2c27d52756a2d62
+ .../C/scholar-scl-20261006.json                    | 207 +++++++++++++++++++++
+ .../src/polisyos/scholar/discover/http_fetch.py    |  27 +--
+ .../src/polisyos/scholar/discover/transport.py     |  38 +++-
+ .../src/polisyos/scholar/fetch_contracts.py        |   2 +
+ policy-engine/src/polisyos/scholar/search/cache.py |   6 +
+ .../src/polisyos/scholar/search/fetcher.py         |  85 ++++++++-
+ policy-engine/src/polisyos/scholar/search/jobs.py  |   2 +-
+ .../src/polisyos/scholar/search/models.py          |   6 +-
+ .../src/polisyos/scholar/search/providers.py       | 137 +++++++++++---
+ .../src/polisyos/scholar/search/service.py         |  40 ++--
+ .../tests/unit/remediation/test_scl_01.py          | 191 ++++++++++++++++++-
+ .../scholar/search/test_fetcher_security_cache.py  |  11 +-
+ .../unit/scholar/search/test_service_jobs_tools.py |   2 +-
+ 13 files changed, 675 insertions(+), 79 deletions(-)

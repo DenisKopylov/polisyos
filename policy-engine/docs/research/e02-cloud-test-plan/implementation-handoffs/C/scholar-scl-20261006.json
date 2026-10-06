@@ -15,7 +15,9 @@
   "candidate_tree_sha": "7bf3e8dda2bb1179b9960ffb3c5be5a5fb8e101f",
   "branch": "codex/e02-C-scholar-20261006",
   "pull_request": null,
+  "changed_paths_basis": "Complete `git diff --name-status 198076863e143dea9f89f02734b13d50dae3eed5 01c303c2a94a1ff281e4fcc9804db60183e65d68`: 23 paths total, comprising 17 product source files, 5 test files, and the earlier Scholar handoff companion. `changed_paths` is the full path set; the handoff companion is mandatory evidence outside any mechanism-path count.",
   "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006.json",
     "policy-engine/src/polisyos/scholar/README.md",
     "policy-engine/src/polisyos/scholar/api.py",
     "policy-engine/src/polisyos/scholar/discover/README.md",
@@ -76,11 +78,11 @@
   "candidate_verdicts": [
     {
       "finding_id": "B17",
-      "candidate_verdict": "PASS_bounded",
+      "candidate_verdict": "closed",
       "closure_now": "not_adjudicated",
-      "property": "Permitted providers are queried in policy order; empty, unsuitable, and error outcomes continue; first useful result short-circuits; exhaustion is terminal only after the permitted list is consumed; each provider request is bounded by the remaining aggregate wall deadline; persisted query state distinguishes provider exhaustion from a max-wall budget stop.",
+      "property": "Permitted providers are queried in policy order; empty, unsuitable, and error outcomes continue; first useful result short-circuits; exhaustion is terminal only after the permitted list is consumed; each request consumes the remaining aggregate logical deadline and timed-out work is cancelled; persisted query state distinguishes provider exhaustion from a max-wall budget stop. Cancellation and result finalization may make total process elapsed time exceed the logical deadline.",
       "producer_bridge_consumer": "ProviderFailoverPolicy.search_detailed → ScholarDeepSearchService.deep_search → persisted WebEvidenceBundle v1.2/query trace and budget-stop record.",
-      "independent_oracle": "Scripted real async providers record request timeout arguments, cancellation, and call sequence. A 0.70s empty provider leaves less than 0.50s for the next 0.70s provider under a 1.0s wall budget; the next provider is cancelled, the third is not called, and persisted readback records terminal max_wall_time_s with one budget stop and no no-hit frontier.",
+      "independent_oracle": "Scripted real async providers record request timeout arguments, cancellation, and call sequence. Under a 1.0s logical wall budget, a 0.70s empty provider leaves less than 0.50s for the next 0.70s provider; the next provider is cancelled, the third is not called, and persisted readback records terminal max_wall_time_s with one budget stop and no no-hit frontier. The isolated installed-package replay observed 1.002498s total elapsed, rounded to 2 seconds against a 1-second limit because of cancellation/finalization; this supports logical deadline enforcement and visible stop state, not a hard whole-process wall-clock cap.",
       "negative_control": "The prior empty-result removal control still fails the real-service test. The new removal probe omits deadline_monotonic from the real deep_search → search_detailed call while retaining the outer stop marker; the test reproduces 1.406s and fails its 1.4s bound. The mutation was reverted before source freeze.",
       "predicate_basis": [
         {"predicate": "provider order/call sequence", "basis": "independently_reconciled"},
@@ -89,12 +91,13 @@
         {"predicate": "source raw digest and CAS ID", "basis": "recomputed"},
         {"predicate": "source identity from expected final URL and digest", "basis": "recomputed"}
       ],
-      "p38_divergence": "At the reviewed source, a max-wall check only ran between query batches, while sequential provider requests each received the full timeout; two 0.70s empty responses therefore ran for 1.403s under a 1.0s budget. The candidate passes the absolute deadline into ProviderFailoverPolicy, applies min(per-provider timeout, remaining wall time), cancels timed-out work, and persists max_wall_time_s separately from providers_exhausted. Omitting the deadline forwarding reproduces the overrun and fails the behavioral test.",
-      "remaining": "Independent review and integration admission are still required before any ledger closure claim."
+      "p38_divergence": "At the reviewed source, a max-wall check only ran between query batches, while sequential provider requests each received the full timeout; two 0.70s empty responses therefore ran for 1.403s under a 1.0s budget. The candidate passes the absolute deadline into ProviderFailoverPolicy, applies min(per-provider timeout, remaining logical time), cancels timed-out work, and persists max_wall_time_s separately from providers_exhausted. Omitting deadline forwarding reproduces the overrun and fails the behavioral test. Installed evidence also shows cancellation cleanup can slightly exceed the configured elapsed duration.",
+      "scope_limit": "Closed for the original empty-fallback, useful-result short-circuit, typed exhaustion, logical deadline, and persisted CAS stop criterion. There is no hard guarantee that Python cancellation cleanup keeps total process elapsed time at or below the configured number of seconds.",
+      "remaining": "The exact 01c source received a passing bounded delta review. Candidate closure does not itself update the historical ledger; G integration admission remains separate."
     },
     {
       "finding_id": "LA-024",
-      "candidate_verdict": "LIMITED",
+      "candidate_verdict": "limited",
       "closure_now": "not_adjudicated",
       "property": "Fresh search/seed responses and cached CAS bytes pass one current URL/MIME/actual-byte-size admission seam. Cached reuse resolves and verifies the original raw snapshot and refuses missing, denied, or mismatched bytes; response metadata, license strings, and acquisition profile remain provenance fields, not permission authority.",
       "producer_bridge_consumer": "discover.transport.fetch_raw → search.fetcher.fetch_open_page and discover.http_fetch.fetch_url → cache/CAS and typed Scholar result adapters.",
@@ -108,12 +111,12 @@
       ],
       "p38_divergence": "At the reviewed source, cached.to_fetch_result returned metadata/text without resolving bytes or rechecking current final URL, MIME, or max_bytes; a blocked cached redirect and oversized payload could be accepted. Cached and fresh raw payloads now call admit_raw_payload, cached CAS bytes are bound to digest/artifact/size markers, and missing/unavailable/mismatched snapshots are typed refusals. License admissibility remains not_established because no authoritative owner rule was supplied.",
       "remaining_capability_label": "absent/unallocated",
-      "remaining": "Do not claim disallowed-license refusal coverage or reuse authorization. No license allowlist or license-policy owner decision was invented; license admissibility remains not_established. Independent review and integration admission remain open."
+      "remaining": "License admissibility remains not_established because the authoritative license-policy owner and rule are absent/unallocated. The candidate preserves license metadata without treating `public-web` or another nonempty value as permission; do not claim disallowed-license refusal coverage or reuse authorization. The exact 01c source received passing technical delta review, while G integration admission remains separate."
     },
     {
       "finding_id": "LA-025",
-      "candidate_verdict": "HELD",
-      "technical_snapshot_continuity_verdict": "PASS_bounded",
+      "candidate_verdict": "held",
+      "technical_snapshot_continuity_verdict": "closed",
       "closure_now": "not_adjudicated",
       "property": "Technical snapshot continuity: enrichment and the downstream decision-packet web-evidence consumer bind to exact search-time CAS v1 after the mutable URL cache advances to v2; unavailable, denied, missing, or mismatched refs yield typed gaps without a second URL fetch. Final reuse admissibility is held because a nonempty license string or `public-web` default is not permission and no authoritative license owner rule exists.",
       "producer_bridge_consumer": "Real local HTTP search → persisted Scholar raw CAS v1 → actual enrich_topic/_enrich_topic → KnowledgeBundle and document metadata → actual decision-packet web-evidence section builder resolving the same source ArtifactID.",
@@ -125,11 +128,109 @@
         {"predicate": "packet source snapshot content", "basis": "recomputed"},
         {"predicate": "license reuse permission", "basis": "not_established"}
       ],
-      "p38_divergence": "The technical consumer now resolves and verifies the source-bound CAS snapshot and the removal control catches URL fallback. The remaining authority predicate is license permission: current `public-web`/other nonempty strings are metadata, while the license-policy owner/allowlist is absent. No code flag or allowlist can close this by assertion, so the final candidate verdict is HELD even though technical continuity is proven.",
+      "p38_divergence": "The technical consumer now resolves and verifies the source-bound CAS snapshot and the removal control catches URL fallback. The remaining authority predicate is license permission: current `public-web`/other nonempty strings are metadata, while the license-policy owner/allowlist is absent. No code flag or allowlist can close this by assertion, so the finding verdict remains held even though technical continuity is closed.",
       "remaining_capability_label": "absent/unallocated",
-      "remaining": "Technical exact-CAS continuity is demonstrated; overall reuse remains HELD until an authoritative license-policy owner supplies the admissibility rule. Independent delta review and integration admission remain required before any ledger closure claim."
+      "remaining": "Technical exact-CAS continuity is demonstrated and passed source delta review; overall reuse remains held until an authoritative license-policy owner supplies the admissibility rule. G integration admission remains separate, and the installed-runtime replay has not yet exercised the downstream packet consumer."
     }
   ],
+  "independent_review": {
+    "reviewed_source_sha": "01c303c2a94a1ff281e4fcc9804db60183e65d68",
+    "reviewed_source_tree_sha": "7bf3e8dda2bb1179b9960ffb3c5be5a5fb8e101f",
+    "source_blob_readback": "All 12 Python source/test paths reviewed by c2_canon_writer have identical blob hashes at source 01c, handoff 9a, and the worktree. The complete base-to-source path set is listed in changed_paths.",
+    "delta_test_result": "23 passed, 1 pytest cache_dir configuration warning, 12.87s. Ruff lint and git diff --check passed.",
+    "packet_reader_result": "The actual decision-packet `_build_web_evidence_section` reader verified exact CAS bytes for Scholar bundle schemas 1.1 and 1.2; this source review does not establish an installed-package packet-consumer run.",
+    "tracked_receipts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/independent-review/authorized-handoff-source-readback.txt",
+        "sha256": "7685c5b524d5754eb98b4f710b23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/independent-review/focused-provider-cache-packet.verbose.txt.gz",
+        "sha256": "1f2f8b124be9eaefff5a987b7cf32c2792252f152ef42bf5bd65a78ddc46cbcc",
+        "uncompressed_sha256": "141c7f86c2b993471fefc46f40e955f254b29a0d1dbe30858204332628aba392"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/independent-review/schema-1.1-1.2-packet-reader.txt",
+        "sha256": "8b0052e3988f2199cee3119d8ecb070f1be124831cb8610e204979e2fdab5696"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/independent-review/candidate-pin-and-delta.txt",
+        "sha256": "53c5e9adf4af3092cf77fde67b7a94d2dad27acf515d5f61daf35b6dc5b4edb5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/independent-review/ruff-check.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/independent-review/diff-check.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "installed_replay": {
+    "base_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "source_commit": "01c303c2a94a1ff281e4fcc9804db60183e65d68",
+    "source_tree_sha": "7bf3e8dda2bb1179b9960ffb3c5be5a5fb8e101f",
+    "environment": "Fresh locked base-198 environment: 113 base distributions before candidate install and 114 after; no optional extras selected; pytest and jsonschema absent; source and lockfile bytes match base.",
+    "result": "Actual installed SCL package runtime passed isolated `-I` execution from /tmp. It exercised raw transport into CAS and reopened cached bytes/headers, seed adapter metadata, empty-provider fallback to useful result, and terminal deadline-stop persistence/readback.",
+    "deadline_result": {
+      "logical_limit_s": 1.0,
+      "observed_elapsed_s": 1.002498,
+      "rounded_observed_seconds": 2,
+      "provider_cancelled": true,
+      "next_provider_called": false,
+      "terminal_reason": "max_wall_time_s",
+      "budget_stop_count": 1,
+      "no_hit_frontier_count": 0,
+      "hard_whole_process_wall_limit": false
+    },
+    "downstream_packet_consumer": "not_run; the installed probe does not execute `_build_web_evidence_section`. A separate isolated installed consumer probe is queued with c2_installed_audit.",
+    "tracked_commands_stdout_and_scripts": {
+      "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006-installed/",
+      "sha256": {
+        "command-results.json": "b3a7524792b566c3d3ca6bec843e92ccfd91abc010fc135caa80415f5ef4b87a",
+        "base198-command-results.json": "a15ffb852af6ff48ebfa545ad875fec00460c21575fa453230b63e6f19b742ea",
+        "base198-provision.stderr": "c6313b40fc98fc2399708414585164ed9478ef1ff56d4e3bfa958468aadcebd2",
+        "installed_scl_probe.py": "b2984a0974bab740815da9222ac6c799e644487e785f6c29f294a470c8226d5c",
+        "runtime.stdout": "acccec917cd39cb29b7d34c640f9a3b7e2aa8d146054697e1ab8587513a41830",
+        "dependency-closure-probe.py": "58aa554bf0f8afe1d633e321d9af219dde0a8508368327ea44b7836fed3ddf1f",
+        "dependency-closure.stdout": "0b8f81dcfd0b4fc032656cbb6827fefc40756d749df089a63d1c68f30f7d7e4e",
+        "package-census.py": "0e5c5f7f9f744c82be986198a75f22509c6d49cbfbe03d1743678218ff4ae7a3",
+        "package-census.stdout": "72616b62b7d487a0a6f85f5db8e49c33f754e190537d2c542178286e8915814d",
+        "payload-scope.py": "b8b3c65f32278e9d66294b9480adb43a1baffce330ad4d7c280c7becfca95d8a",
+        "payload-scope.stdout": "3cdc89e9084db21b3b7004ca7423a62a18c4ae9e194c95761093262883f10de0",
+        "changed-source-map.py": "bff9a3dbbe1f3860e7bff57839ba6011268c19e2289ee07080b5aaac9c9cbf7f",
+        "changed-source-map.stdout": "18a872534a776525bc3dd7682bf498c8eda40ff31380c45707d93aa58bf551a6",
+        "build.stderr": "3ca9f96a40c31046488b71c035ac9e5848e1ac17d061cef676fae8ef83a2fb75",
+        "install.stderr": "ef2eabd5657a59403ea613879bfccfa6d83e91dfccaa36e11de6123534644c75"
+      }
+    },
+    "raw_command_results": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/scl-01c/command-results.json",
+      "sha256": "b3a7524792b566c3d3ca6bec843e92ccfd91abc010fc135caa80415f5ef4b87a"
+    },
+    "raw_base_environment_receipt": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/base198/command-results.json",
+      "sha256": "a15ffb852af6ff48ebfa545ad875fec00460c21575fa453230b63e6f19b742ea"
+    },
+    "large_archive_retained_ignored": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/scl-01c/candidate.tar",
+      "bytes": 460032000,
+      "sha256": "e9b3b4041cc5df618f373a3535bd882b274a20e0fe42b12d252f56bd1f9c3c53"
+    },
+    "built_package_artifacts_retained_ignored": [
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/scl-01c/dist/policy_engine-0.1.0-py3-none-any.whl",
+        "bytes": 15023950,
+        "sha256": "e83f4cf6418b5dbe4d9962e39f9d4725ae79e4d9658901e542e559dd6d135fdb"
+      },
+      {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/scl-01c/dist/policy_engine-0.1.0.tar.gz",
+        "bytes": 65184320,
+        "sha256": "52a44ef3b49e380ea74e5b3e945c2bdadbc8fb0b4397eddea78a79ad521272c1"
+      }
+    ]
+  },
   "checks": [
     {
       "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos/policy-engine/src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider -c pytest.ini --tb=short tests/unit/remediation/test_scl_01.py tests/unit/remediation/test_scl_03.py tests/unit/scholar/search/test_providers.py tests/unit/scholar/search/test_service_jobs_tools.py tests/unit/scholar/search/test_fetcher_security_cache.py tests/unit/scholar/search/test_openalex_provider.py tests/unit/scholar/test_api_web_bootstrap.py tests/unit/scientist/evidence/test_decision_packet_web_evidence.py",
@@ -254,20 +355,20 @@
       "Earlier LA-025 test fixture used a stub _enrich_topic and did not prove the real consumer chain."
     ],
     "target_pattern": "Retain existing provider, URL-policy, transport, cache, CAS, enrich, and packet owners; pass one absolute remaining deadline through provider fallback, use one current-admission seam for fresh and cached raw bytes, verify source-bound CAS readback, and keep license permission held until its authoritative owner supplies a rule.",
-    "capability_state": "B17 aggregate provider-deadline stop and LA-024 fresh/cached payload admission are wired through existing owners and behaviorally verified. LA-025 exact-CAS continuity is technically demonstrated, but reuse permission is HELD because the authoritative license-policy owner is absent/unallocated. All current-main ledger rows remain partial/not_adjudicated until independent delta review and integration admission.",
+    "capability_state": "The source candidate has passing independent delta review; B17 is closed for the bounded technical criterion, LA-024 is limited by absent license-admissibility authority, and LA-025 is held on that same authority gap after technical exact-CAS continuity closes. Installed runtime producer/cache/deadline behavior is demonstrated, but the downstream packet consumer has not yet been exercised in the installed environment. Historical ledger rows remain partial/not_adjudicated until G records integration admission.",
     "p37_basis": "Raw hash/size/artifact identity and elapsed wall time are recomputed; provider and local-server call sequences are independently reconciled; current URL/MIME admission is consumed from its existing owner; configured wall limit is institutionally supplied; license reuse permission is not_established and blocks LA-025.",
     "p38_property_code_divergence": "B17's prior loop passed each fallback provider the full timeout and only checked max-wall between batches; LA-024's prior cached.to_fetch_result trusted stored text/markers without current final-URL/MIME/actual-size admission. The implementation now tests the real search service and cached CAS intake; property-removal controls fail. LA-025's technical snapshot consumer is correct, but no code property establishes permission from `public-web` or other nonempty license strings."
   },
   "missing_inputs_and_limits": [
     "No authoritative license-policy owner contract or allowlist was supplied. LA-024 remains limited for license admissibility, and LA-025 is HELD overall despite its technical snapshot-continuity pass. Literal license metadata is preserved; no allowlist, trusted flag, or authorization rule was invented.",
-    "Independent review of source freeze 8fa returned the B17 deadline and LA-024 cached-admission blockers; both were corrected in source freeze 01c303c2. Delta review of that exact freeze is pending, and G integration admission is not recorded. The three original coverage rows remain closure_now=not_adjudicated; this candidate does not change the ledger.",
-    "No installed-package probe was run: this writer lease permitted the existing Python environment with candidate source on PYTHONPATH and explicitly prohibited installs. An installed environment/command remains a separate missing input.",
+    "Independent review of source freeze 8fa returned the B17 deadline and LA-024 cached-admission blockers; both were corrected in source freeze 01c. The exact 01c/tree 7bf3 delta passed 23 focused tests and reviewer source-blob readback. G integration admission is not recorded; the three original coverage rows remain closure_now=not_adjudicated and this handoff does not change the ledger.",
+    "The installed SCL package producer/cache/deadline probe passed against a fresh no-extra base environment. Its actual downstream decision-packet consumer is not covered by that probe; an additive isolated installed consumer check is queued with c2_installed_audit. No live external provider, production data, or model backend was used.",
     "No production invocation was run under the lease's no-full-production boundary. A source-only audit is not represented as runtime proof.",
     "Architecture guardrails were attempted but interrupted after the runner spawned the runtime OpenAPI exporter for more than four minutes; the outer command was stopped with exit 143 and no deciding output. Record UNRUN, not a product failure.",
     "The checkout-local pre-commit dispatcher was missing apps/runtime-dashboard/node_modules/.bin/lefthook. No install or shared hook configuration was changed; commits used a per-command core.hooksPath=/dev/null after Ruff, focused tests, and diff checks."
   ],
   "next_owner": [
-    "Independent reviewer: delta-review source freeze 01c303c2a94a1ff281e4fcc9804db60183e65d68/tree 7bf3e8dda2bb1179b9960ffb3c5be5a5fb8e101f and the three candidate verdicts; verify aggregate deadline persistence, cached current-admission behavior, and LA-025 HELD licensing boundary.",
+    "c2_installed_audit: complete the queued isolated installed-package `_build_web_evidence_section` consumer check against the exact installed SCL wheel and raw ArtifactRef/CAS fixture; record exact command, stdout, script, readback, and hashes. No source or new wheel is needed.",
     "G: decide integration/admission and update the three separate ledger rows only with accepted evidence; do not treat this handoff or candidate tests as current-main closure.",
     "License-policy owner: supply the authoritative admissibility rule before any disallowed-license behavior is implemented or claimed."
   ]

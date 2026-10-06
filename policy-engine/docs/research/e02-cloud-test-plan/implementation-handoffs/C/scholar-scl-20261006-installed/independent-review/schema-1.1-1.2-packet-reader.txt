@@ -1,0 +1,34 @@
+{
+  "outcomes": [
+    {
+      "bundle_ref": "sha256:a3d08d9697f77c55034bf335bacf18baf2e38530450b3b6f9a1ecc6b93a32b04",
+      "bundle_schema": "1.1",
+      "packet_status": "available",
+      "source_snapshot": {
+        "artifact_id": "sha256:738570d55370dfcf38e53fd59eca8981fb81dbac03e88bbd239aa093cd3200c5",
+        "byte_size": 41,
+        "computed_sha256": "738570d55370dfcf38e53fd59eca8981fb81dbac03e88bbd239aa093cd3200c5",
+        "content_sha256": "738570d55370dfcf38e53fd59eca8981fb81dbac03e88bbd239aa093cd3200c5",
+        "source_id": "src-1-1",
+        "status": "verified"
+      }
+    },
+    {
+      "bundle_ref": "sha256:6bc1a2c4defbf9cb4b05e6c6f6c24ac2c0e131fe5eba4b072799998dcf966991",
+      "bundle_schema": "1.2",
+      "packet_status": "available",
+      "source_snapshot": {
+        "artifact_id": "sha256:738570d55370dfcf38e53fd59eca8981fb81dbac03e88bbd239aa093cd3200c5",
+        "byte_size": 41,
+        "computed_sha256": "738570d55370dfcf38e53fd59eca8981fb81dbac03e88bbd239aa093cd3200c5",
+        "content_sha256": "738570d55370dfcf38e53fd59eca8981fb81dbac03e88bbd239aa093cd3200c5",
+        "source_id": "src-1-2",
+        "status": "verified"
+      }
+    }
+  ],
+  "raw_byte_size": 41,
+  "raw_cas_ref": "sha256:738570d55370dfcf38e53fd59eca8981fb81dbac03e88bbd239aa093cd3200c5",
+  "raw_sha256": "738570d55370dfcf38e53fd59eca8981fb81dbac03e88bbd239aa093cd3200c5",
+  "reader": "_build_web_evidence_section"
+}

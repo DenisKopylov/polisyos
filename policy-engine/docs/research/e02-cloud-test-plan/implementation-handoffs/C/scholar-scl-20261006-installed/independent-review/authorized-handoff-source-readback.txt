@@ -1,0 +1,37 @@
+branch: refs/heads/codex/e02-C-scholar-20261006
+HEAD: 9a9dc96307dcb8d1e912d56386eef6f5779f956d
+HEAD tree: 67ddc9af3620a9283ff08ffaf2c27d52756a2d62
+status:
+## codex/e02-C-scholar-20261006
+01c..9a path delta:
+M	policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006.json
+candidate changed paths: 13 total; 12 Python source/test paths
+candidate paths:
+  policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/scholar-scl-20261006.json
+  policy-engine/src/polisyos/scholar/discover/http_fetch.py
+  policy-engine/src/polisyos/scholar/discover/transport.py
+  policy-engine/src/polisyos/scholar/fetch_contracts.py
+  policy-engine/src/polisyos/scholar/search/cache.py
+  policy-engine/src/polisyos/scholar/search/fetcher.py
+  policy-engine/src/polisyos/scholar/search/jobs.py
+  policy-engine/src/polisyos/scholar/search/models.py
+  policy-engine/src/polisyos/scholar/search/providers.py
+  policy-engine/src/polisyos/scholar/search/service.py
+  policy-engine/tests/unit/remediation/test_scl_01.py
+  policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py
+  policy-engine/tests/unit/scholar/search/test_service_jobs_tools.py
+source/test blob readback:
+policy-engine/src/polisyos/scholar/discover/http_fetch.py | 01c=f0409ad180f911c9e03899b803bdedf8f485ac21 | 9a=f0409ad180f911c9e03899b803bdedf8f485ac21 | worktree=f0409ad180f911c9e03899b803bdedf8f485ac21 | head_equal=True | worktree_equal=True | staged_clean=True | unstaged_clean=True
+policy-engine/src/polisyos/scholar/discover/transport.py | 01c=b129aec32b192891e8ea0792fa0c39b8b0f21ad1 | 9a=b129aec32b192891e8ea0792fa0c39b8b0f21ad1 | worktree=b129aec32b192891e8ea0792fa0c39b8b0f21ad1 | head_equal=True | worktree_equal=True | staged_clean=True | unstaged_clean=True
+policy-engine/src/polisyos/scholar/fetch_contracts.py | 01c=a73440b4789124af09a3b5ad24cdf689e1f904cf | 9a=a73440b4789124af09a3b5ad24cdf689e1f904cf | worktree=a73440b4789124af09a3b5ad24cdf689e1f904cf | head_equal=True | worktree_equal=True | staged_clean=True | unstaged_clean=True
+policy-engine/src/polisyos/scholar/search/cache.py | 01c=345181f7a6588085363748721cd5e98d3e4ae81e | 9a=345181f7a6588085363748721cd5e98d3e4ae81e | worktree=345181f7a6588085363748721cd5e98d3e4ae81e | head_equal=True | worktree_equal=True | staged_clean=True | unstaged_clean=True
+policy-engine/src/polisyos/scholar/search/fetcher.py | 01c=16f6dafe31941c33a0f9d137a3b7bd0ccb728c68 | 9a=16f6dafe31941c33a0f9d137a3b7bd0ccb728c68 | worktree=16f6dafe31941c33a0f9d137a3b7bd0ccb728c68 | head_equal=True | worktree_equal=True | staged_clean=True | unstaged_clean=True
+policy-engine/src/polisyos/scholar/search/jobs.py | 01c=1e4f9c6efde606e9430a14165cfbc46a1f97a83d | 9a=1e4f9c6efde606e9430a14165cfbc46a1f97a83d | worktree=1e4f9c6efde606e9430a14165cfbc46a1f97a83d | head_equal=True | worktree_equal=True | staged_clean=True | unstaged_clean=True
+policy-engine/src/polisyos/scholar/search/models.py | 01c=30666966ed6f6a91308e36757c018a460a17286d | 9a=30666966ed6f6a91308e36757c018a460a17286d | worktree=30666966ed6f6a91308e36757c018a460a17286d | head_equal=True | worktree_equal=True | staged_clean=True | unstaged_clean=True
+policy-engine/src/polisyos/scholar/search/providers.py | 01c=2e5a1b6a9f97937df4ae29c1dd820650c99f4edc | 9a=2e5a1b6a9f97937df4ae29c1dd820650c99f4edc | worktree=2e5a1b6a9f97937df4ae29c1dd820650c99f4edc | head_equal=True | worktree_equal=True | staged_clean=True | unstaged_clean=True
+policy-engine/src/polisyos/scholar/search/service.py | 01c=b5122a4a0654bfea7e539cfcd322dbd3e4e02826 | 9a=b5122a4a0654bfea7e539cfcd322dbd3e4e02826 | worktree=b5122a4a0654bfea7e539cfcd322dbd3e4e02826 | head_equal=True | worktree_equal=True | staged_clean=True | unstaged_clean=True
+policy-engine/tests/unit/remediation/test_scl_01.py | 01c=133582a2e6515e56d55ab6d6ec30f1bee057e77a | 9a=133582a2e6515e56d55ab6d6ec30f1bee057e77a | worktree=133582a2e6515e56d55ab6d6ec30f1bee057e77a | head_equal=True | worktree_equal=True | staged_clean=True | unstaged_clean=True
+policy-engine/tests/unit/scholar/search/test_fetcher_security_cache.py | 01c=f2c4d9cdb1ae8e97ebe767a9a09de9004d313f0b | 9a=f2c4d9cdb1ae8e97ebe767a9a09de9004d313f0b | worktree=f2c4d9cdb1ae8e97ebe767a9a09de9004d313f0b | head_equal=True | worktree_equal=True | staged_clean=True | unstaged_clean=True
+policy-engine/tests/unit/scholar/search/test_service_jobs_tools.py | 01c=49d805e4082786ac76549ebe500a1ffc5102b518 | 9a=49d805e4082786ac76549ebe500a1ffc5102b518 | worktree=49d805e4082786ac76549ebe500a1ffc5102b518 | head_equal=True | worktree_equal=True | staged_clean=True | unstaged_clean=True
+policy-engine/tests/unit/remediation/test_scl_03.py | 01c=3ff62bfa9a1e45a9d00535311eb280c88566c294 | 9a=3ff62bfa9a1e45a9d00535311eb280c88566c294 | worktree=3ff62bfa9a1e45a9d00535311eb280c88566c294 | head_equal=True | worktree_equal=True | staged_clean=True | unstaged_clean=True
+result: all listed candidate/reviewed Python source and test blobs match 01c, 9a, and worktree

@@ -1,0 +1,258 @@
+{
+  "schema": "e02-c2-supplier-contract-refresh.v2",
+  "purpose": "Read-only refresh of the exact C handoff supplier contracts against pinned published refs. Ref scope is enumerated below; this is not an all-remote E/F absence claim.",
+  "base_identity": {
+    "main_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "main_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "authoritative_criteria": [
+      "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md@eb335a62bc1f8bce2cddfcf59f649980a08e88c4",
+      "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md@b242397fb26eaf0bee86a867aed6e21768d094e2"
+    ],
+    "G97_commit": "97c85fae2d4505ec8248540d98b9556296244208",
+    "G97_tree": "e77c0741d3b19acb43e07a0de2bdb97c8fa98ee3",
+    "G97_and_adapter_anchor_are_ancestors_of_main": true
+  },
+  "published_supplier_refs": {
+    "B_current_topics": {
+      "CAS_generation": "f53842e1c635dc390f47073f6ad1526a3f2e12c5",
+      "adapters": "d242c3ceb940ddb322dd0b03659c4ade98554ccb",
+      "runtime": "42b777ef381f14794bbb91ad1905a07ada768577",
+      "durability": "69592e5ca095011bfd724a01da1e1f44cfb9f9d4"
+    },
+    "A_current_owner_heads": {
+      "custody": "289571b0b51d8404fe44702f1345552b6b10af32",
+      "empirical_scope": "f1f7a1b5a9914d1a040e2fe182e0b1bdf393b43b",
+      "full_queue": "205b8ab49c713dcb024b7fa8962a2fdf7bf94d6e",
+      "n5_readback": "03ea5babece94bd443022dd54998aab201f058b1",
+      "replay_owner": "a683059753cbb366574793474fa8ffc17b3ba7a8",
+      "requirement_context": "a0302b7c717fe9eb7652a8e2bbbbea230115aedd",
+      "selection": "c020fd9629fa36cfdd6f7de12cff8b263f1a42b9",
+      "compiler_full": "577521c6651bba048d6bdfdc13f36a383c8146c6",
+      "replay_full": "162231e8baf0ff3e840cf7ff9ef99a9acfb02878",
+      "s10_verifier": "be8f8d53597b8cdd480a28b9ab023c34facf5726",
+      "selection_full": "0c8842191a69e4c47158ad29de37ea1268b3fa41"
+    },
+    "C_relevant_published_topics": {
+      "continuation": "9f35e19ff8f39895d66cbce78644470e52f8ec09",
+      "canon_20261006": "9f84276408fc6b776e35050afece5c4e74ed413d",
+      "obs_udf": "6e24cbaf5fb1d78830fd918ab17e6495095250ed",
+      "ukraine_ops": "62a9140aaf28630d24688d5c850e752048dbbe9a",
+      "migrations": "1164718054d3a409269a724c832706b524f78864"
+    },
+    "E_relevant_published_topics": {
+      "continuation": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+      "composition": "991f5f280027dfa8e95b61cfb49bd01234811ca2",
+      "cal": "491562fab29f61efda7eaa57d09791740a7d53cc",
+      "mc_20261006": "c4e8092d52cfff633465a8de1b8c93195388d401",
+      "frc_20261006": "f73e554bfe567aec29aff957a2c026f1537e4834"
+    },
+    "F_relevant_published_topics": {
+      "closeout_20261006": "421f1dd977b237307394c68820caab4156716eb2",
+      "graph_intake_20261006": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "graph_scm": "85c16de9f16a4e21c05c516271b6c81e08b7a39f"
+    }
+  },
+  "findings": [
+    {
+      "criteria": [
+        "B80",
+        "ING-01"
+      ],
+      "current_candidate_evidence": {
+        "ref": "9f35e19ff8f39895d66cbce78644470e52f8ec09",
+        "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ing-streaming-c2.json",
+        "candidate_verdict": "held",
+        "code_outcome": "implemented_bounded_with_typed_refusal",
+        "closure_ids": [],
+        "exact_limitation": "C handoff says _save_confirmed_cursors remains fail-closed until a source evidence binder content-binds dataset and ingestion_run_id before promotion."
+      },
+      "existing_mechanism": {
+        "source_versions": "policy-engine/src/polisyos/ir/connectors/__init__.py@c08e6a8dae0e207f4d1d1014a45c3a06fa29f3dc: FetchRequest.incremental_since and FetchResult.version are DataVersion snapshot/revision fields.",
+        "stream_cursor": "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py@31525859297cf05d5c190db00e5389ab0c61b0ff; stream cursor checkpoint carries an offset/watermark.",
+        "connector_run_evidence": "policy-engine/src/polisyos/fabric/ingestion/ingestion.py@996e1d8cc8dac15f023ae5260146f49b0336bf69: actual connector_ingestion_run evidence bundle has source-version/data artifact refs; current streaming cursor artifact still does not bind it as confirmed progress.",
+        "C_branch_route": "Current C stream handoff exercises per-source fail/retry and deliberately declines promotion without source confirmation."
+      },
+      "owner_input_needed": "B connector/cursor evidence owner supplies or ratifies the source-progress evidence binder that resolves and content-binds exact dataset/source progress and ingestion_run_id, then C/G wires it to confirmed cursor promotion. No entity/local-hash substitute.",
+      "capability_state": "bridge_missing"
+    },
+    {
+      "criteria": [
+        "B83",
+        "ING-03"
+      ],
+      "current_candidate_evidence": {
+        "ref": "9f35e19ff8f39895d66cbce78644470e52f8ec09",
+        "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ing-streaming-c2.json",
+        "candidate_verdict": "held",
+        "code_outcome": "implemented_bounded_with_typed_refusal",
+        "closure_ids": [],
+        "exact_limitation": "C's 24h UTC horizon/composite key mechanism rejects missing or ambiguous configured keys; handoff explicitly says the source `_message_id` offset is not source event/version authority and fixture keys do not admit the contract."
+      },
+      "existing_mechanism": {
+        "source_api": "policy-engine/src/polisyos/ir/connectors/__init__.py@c08e6a8dae0e207f4d1d1014a45c3a06fa29f3dc",
+        "stream_protocol": "policy-engine/src/polisyos/fabric/connectors/base.py@791d3927acc040a7932e69a4886339f08b190bb1: SourceConnector.fetch_stream yields DataChunk after the connector has formed it.",
+        "chunk_type": "policy-engine/src/polisyos/fabric/connectors/types/connector_types.py@f27a1b1e27bfde574994c4e356083fefdcfec840: DataChunk has data, chunk_index, row_count, bytes_size default 0 and optional resume_token; none is typed source-owned event/version identity.",
+        "C_key_gate": "policy-engine/src/polisyos/fabric/data_plane/streaming.py@08b304cc85885e0a95348b4b2d69bf3459e11e21: resolve_dedupe_key encodes exact configured primitive fields and raises StreamDedupeUnsupported when missing; field names do not establish source ownership."
+      },
+      "owner_input_needed": "B source/connector owner supplies a source-owned event/version idempotency key scoped by source and partition, preserving distinct versions of an entity; absent/ambiguous is typed unsupported. Retain C's 86400s UTC horizon, isolation, restart, and bounded durable-index/refusal rules.",
+      "capability_state": "producer_missing"
+    },
+    {
+      "criteria": [
+        "B84",
+        "ING-03"
+      ],
+      "current_candidate_evidence": {
+        "ref": "9f35e19ff8f39895d66cbce78644470e52f8ec09",
+        "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ing-streaming-c2.json",
+        "candidate_verdict": "closed",
+        "code_outcome": "implemented_and_independently_verified",
+        "closure_ids": [],
+        "verified": "retained-state cap; input row/serialized-byte cap before local row materialization; output-ref budget before publish; lower-cap restore refuses before flush/write/rewind/poll/frontier advance and preserves predecessor checkpoint.",
+        "residual": "handoff explicitly excludes RSS, connector allocation before fetch_stream returns, and a real staged-spill reader; B owns the pre-return connector allocation contract.",
+        "integration_closure_status": "closure_ids=[] on this candidate branch; this is not a ledger/integration closure."
+      },
+      "existing_source_mechanisms": {
+        "generic_connector": "SourceConnector.fetch_stream and DataChunk data are typed at the post-connector boundary, with no generic max-input negotiation/refusal in the selected B current refs.",
+        "http_body_helper": "policy-engine/src/polisyos/fabric/connectors/http_limits.py@c4ab38b9937132179c86e04733b01396116ef3d8 checks incrementally for response.content.iter_chunked, but its compatibility fallback calls response.read() before checking, so it is not a universal before-materialization guarantee.",
+        "file_helper": "policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py@f99d73848682b6b45a0a20dafbf8a5b3588b3e5e applies source-family file limits but does not ratify the generic connector protocol."
+      },
+      "owner_input_needed": "B connector owner defines the pre-return source chunk allocation/bound or a typed refusal when that connector cannot honor it. Keep separate from C logical row/serialized-byte admission, retained-state restore and output-ref budgets; do not claim RSS or spill.",
+      "capability_state": "producer_missing"
+    },
+    {
+      "criteria": [
+        "A target-world-scope profile admission",
+        "B79 served cursor",
+        "retrieval HTTP refusal"
+      ],
+      "current_owner_head_audit": {
+        "A_heads_checked": [
+          "289571b0b51d8404fe44702f1345552b6b10af32",
+          "f1f7a1b5a9914d1a040e2fe182e0b1bdf393b43b",
+          "205b8ab49c713dcb024b7fa8962a2fdf7bf94d6e",
+          "03ea5babece94bd443022dd54998aab201f058b1",
+          "a683059753cbb366574793474fa8ffc17b3ba7a8",
+          "a0302b7c717fe9eb7652a8e2bbbbea230115aedd",
+          "c020fd9629fa36cfdd6f7de12cff8b263f1a42b9",
+          "577521c6651bba048d6bdfdc13f36a383c8146c6",
+          "162231e8baf0ff3e840cf7ff9ef99a9acfb02878",
+          "be8f8d53597b8cdd480a28b9ab023c34facf5726",
+          "0c8842191a69e4c47158ad29de37ea1268b3fa41"
+        ],
+        "scoped_path_diff": "No diff from main across these A refs for control route/lifecycle/generation-cycle/profile gate, cursor store/modes/streaming, and retrieval service paths; receipts under raw/supplier-refresh/relevant-A-*-status.stdout and refresh-A-*-relevant-paths.stdout."
+      },
+      "profile": "main profile selector is carried but _classify_target_world_scope_profile returns only profile_not_requested/profile_admission_missing; function docstring says no authoritative registry/admission exists. No A ref above changes that route.",
+      "served_cursor": "Current C branch gives a limited positive: served batch_incremental sends exact persisted hint to the real REST connector and independently expected rows are persisted. C handoff still holds source-confirmed promotion without a content-bound progress binder (B80).",
+      "retrieval_refusal": "The canonical control route delegates directly to search_capabilities; missing lifecycle service raises a bare RuntimeError. Provider validation has an internal typed CapabilityProviderUnavailableError, but no owner-defined end-to-end HTTP refusal mapping is established. No status code prescribed.",
+      "owner_input_needed": "A ratifies authoritative profile binding/admission and route refusal semantics. B supplies source-confirmed progress evidence; G performs integrated served-route acceptance. Do not substitute cursor_ref/local time for source version.",
+      "capability_state": [
+        "producer_missing",
+        "bridge_missing"
+      ]
+    },
+    {
+      "criteria": [
+        "CAN-01",
+        "LA-021"
+      ],
+      "current_C_candidate": {
+        "ref": "9f84276408fc6b776e35050afece5c4e74ed413d",
+        "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/canon-writer-strangle-c2.json",
+        "implementation_commit": "3b2ce9d6b8e37941a1061fa40fdc054cd3acb344",
+        "candidate_tree": "37e4c01a4f3e6a44f6fde82baaab175130ff10ae",
+        "closure_ids": [],
+        "verified_path": "IR put_json_artifact, CoreToIR adapter, NCM selected-view, and two paired entity-resolution writes share one canonical byte writer; runtime paired readback and unsupported-tag refusal controls pass.",
+        "divergence": "Direct Core FileSystemCAS.put_json can still persist a Core-only float_hex object which the IR consumer rejects. Handoff explicitly says full raw-Core-to-IR strangle/LA-021 closure is not established.",
+        "production_invocation": "The handoff records exact-base production_invocation static audit as UNRESOLVED exit 3; it is diagnostic, not a runtime witness."
+      },
+      "B_core_contract_at_current_ref": {
+        "B_ref": "f53842e1c635dc390f47073f6ad1526a3f2e12c5",
+        "formal_protocol": "policy-engine/src/polisyos/core/artifacts/protocol.py@7748250f475b0ac2c212468ecb6609c8f80ed8b9 still types put_bytes(data: bytes, opts: ArtifactWriteOptions).",
+        "current_c_call": "C serializes using IR CanonSpec and passes IR StorePutOptions to raw Core put_bytes; runtime compatibility does not ratify that cross-package type/profile contract.",
+        "neighboring_B_seams": "manifest_profile.py@fac90cf474c8e86418d0fc4e8c83b6077c8c0e6e wraps existing ManifestLifecycle profile projection/digest only. verify_all_signatures(required_refs) is an exact signature-integrity producer/consumer, not a source-ingestion binder or IR profile write-admission contract."
+      },
+      "owner_input_needed": "B/Core owner ratifies typed raw-byte CAS write options, complete manifest lifecycle fields, exact-byte hash/store/no second serializer guarantee, ArtifactRef identity and profile read/admission discriminator. C does not widen the IR decoder or add an invented schema version.",
+      "capability_state": [
+        "verification_missing",
+        "contract_only"
+      ]
+    },
+    {
+      "criteria": [
+        "LA-036",
+        "BER-01"
+      ],
+      "E_current_mechanism": {
+        "refs": {
+          "E_mc": "c4e8092d52cfff633465a8de1b8c93195388d401",
+          "E_frc": "f73e554bfe567aec29aff957a2c026f1537e4834",
+          "E_cal": "491562fab29f61efda7eaa57d09791740a7d53cc",
+          "E_continuation": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3"
+        },
+        "existing_reuse": "E Monte Carlo recomputes joint_carrier_digest(parameter order, ordered draw IDs, exact PosteriorSamplesCarrier payloads/weights) and refuses missing/mismatched joint metadata. Configured uncertainty nodes persist uncertainty envelope/report to CAS and fresh-read them. CalibrationReport v2 persists exact calibration_config and objective-profile input refs and the configured welfare consumer resolves exact CAS kind/schema/content.",
+        "explicit_remaining": "The E MC handoff says CAL producer must emit joint_law_sha256, joint_parameter_order and ordered joint_draw_ids for paired multivariate carriers. In selected source, joint_law_sha256 is validated by MC but no calibration producer in the inspected path emits it. E MC handoff: general served evaluator bridge_missing, production-law verification_missing. E CAL handoff: internal mathematical producer exists but no production/served calibration provenance/source-law authority.",
+        "calibration_content": "CalibrationBatchInputs binds ordered states, schedule times and row IDs; source says it does not assert population law. Runtime context records population_law_basis=not_established. Gaussian observation profile records row_law_basis=consumer_asserted and gate_eligible=false. This is a real bounded internal artifact path, not an admitted external population law.",
+        "mechanism_source_blobs": {
+          "sampling_admission": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py@8d0430675982d654f41599a50501a7af3071298b",
+          "monte_carlo_joint_admission": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py@7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+          "persisted_uncertainty_node": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py@ee8eda0ce495b37881f91344b9606502f84636ea",
+          "calibration_report_v2": "policy-engine/src/polisyos/foundry/calibration/report.py@fc6a1df59013b46c01dcf2eb966923fb896f8498",
+          "calibrator_batch_inputs": "policy-engine/src/polisyos/foundry/calibration/calibrator.py@0acbaffef2c9732cdf68da69fbd149e6694e6007",
+          "configured_welfare_consumer": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py@954fad791cfdc8363aa31302952ad2286a867b00",
+          "BERL_service": "policy-engine/src/polisyos/berl/service.py@6c73971f16f63e7aaa5e60a07a706d2cefe82491",
+          "BERL_kernel_adapter": "policy-engine/src/polisyos/berl/adapters/shap_kernel.py@d2a598b5a03f6f2ea24f67a024ae7d056e2ba6d2"
+        }
+      },
+      "BERL_existing_consumer": "BERL service currently binds kernel_shap_conditional to KernelSHAPAdapter; adapter replaces absent features with background rows, so it is the marginal/background game and no E law bridge exists.",
+      "F_current_candidate": "F closeout structural_causal_model.py@f8b14ea9e8fd4a43100193e2781353777f714d2d persists v1.1 SCMTrainingRows with source_ref/source/data/row/graph digests and exact fit input; SCMFitProvenance records DoWhy 0.14 worker/profile, code/lock/request/seed. The class states that this does not establish iid law or causal identification. It has no population/cohort/time/model-epoch admission and no BERL bridge.; current query implementation is policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py@31d3a9093cc5927d360f680da811e2a33b222239, with persisted SCM fit provenance and query logic but no BERL conditional-law admission bridge.",
+      "owner_input_needed": "Reuse E's numerical admission and CAS readback as substrate, but E/F source owner must provide one content-bound admitted conditional-law artifact with exact variable order/nodes, population/cohort/time, source/content digest, model/schema epoch and verifier provenance. BERL then needs a conditional sampler bridge and independent analytic oracle; unsupported on missing/mismatch, no marginal fallback. No specific new DTO is prescribed.",
+      "capability_state": [
+        "producer_missing",
+        "artifact_missing",
+        "bridge_missing",
+        "verification_missing"
+      ]
+    },
+    {
+      "criteria": [
+        "LA-032",
+        "UDF-05"
+      ],
+      "current_C_ref_audit": {
+        "C_obs_udf": "6e24cbaf5fb1d78830fd918ab17e6495095250ed changes Ukrainian OBS source reader to per-file verified immutable snapshots; handoff explicitly says no UDF-05 demography files modified.",
+        "C_ukraine_ops": "62a9140aaf28630d24688d5c850e752048dbbe9a changes CLI/server operational gates; no demography artifact producer/readers.",
+        "C_continuation": "9f35e19ff8f39895d66cbce78644470e52f8ec09 streaming ING slice; not D3 demography inventory.",
+        "tracked_paths": "Current data_forge/domains/ukraine/builders/demography.py@e22295965423ce472babfe2171b6bd883c1dd537, domains/ukraine/demography/__init__.py@32d925f0d443ea61c08b16986b87ed053dd8c9a8 and kernel/io/generation_basis.py@19ca41eead188afac99ed21cca386c460763e15d are not changed by these selected C refs."
+      },
+      "owner_input_needed": "D3 producer/read_api owner supplies one versioned inventory for required targets/transition priors and explicit optional donor, with content/provenance/rule/time basis; composite and sibling readers resolve the same generation and reject mixed/incomplete generations.",
+      "capability_state": "bridge_missing"
+    },
+    {
+      "criteria": [
+        "LA-005",
+        "LA-026",
+        "LA-027",
+        "DFK-01"
+      ],
+      "current_owner_state": "Main C.md states canonical schema owner and safe defaults, but owner support-window/sunset decision is absent. Selected C-migrations ref 1164718054d3a409269a724c832706b524f78864 changes migration handoff/test only; selected C refs do not change DFK schema owner paths.",
+      "existing_mechanism": "data_forge.kernel.schemas owns CompatibilityMode/SchemaRegistry/SchemaVersion; data_forge.kernel.pipeline.schemas is an identity reexport; GeneratedSchemaModule is a three-string placeholder; AgentType/RegionProfile/SimulationConfig remain in foundry/domain/schema.py.",
+      "owner_input_needed": "Complete FQN census with separate full source/test, tool string-loader, config/serialized name, package resource, wheel and sdist denominators; then ratify supported legacy FQN window/sunset, or name exact true consumer and minimal alias. No change inferred from similar code.",
+      "capability_state": "verification_missing"
+    }
+  ],
+  "B_neighboring_contracts_not_substitutes": {
+    "CAS_signature": "B current CAS generation's verify_all_signatures(verifier, required_refs...) returns a complete per-reference signature report. It is CAS signing integrity only; it cannot establish source event identity or the ingestion_run/dataset cursor binder.",
+    "CAS_manifest_profile": "B current CAS generation manifest_profile seam delegates unchanged versioned ManifestLifecycle projection/digest and adds no profile admission algorithm.",
+    "connector_pool": "B current adapters pool/admission/backpressure is connector pool lifecycle control; it does not alter FetchRequest, FetchResult, SourceConnector.fetch_stream or DataChunk source identity/materialization bounds."
+  },
+  "raw_capture_root": ".tmp/e02-C2/raw/supplier-refresh",
+  "raw_capture_receipts": [
+    "ls-remote.cmd/stdout/stderr/exit; fetch-<owner-topic>.cmd/stdout/stderr/exit",
+    "base-diff-paths-<B/E/F-topic>.stdout and source-paths-<B/E/F-topic>.stdout",
+    "scan-C-<topic>-paths.stdout, refresh-A-<topic>-relevant-paths.stdout, refresh-E-<topic>-focus.stdout",
+    "refreshed-source-blobs.stdout and supplier-advanced-source-blobs.stdout",
+    "refreshed-C-<handoff>.stdout"
+  ],
+  "workspace_effects": "No product edits, test/build runs, worktree/branch creation, or production/shared-data access. Captures are under ignored .tmp scratch; worktree remains clean."
+}

@@ -1,0 +1,84 @@
+{
+  "schema": "e02-c2-supplier-contract-refresh-correction.v1",
+  "purpose": "Append-only interpretive corrections to the BERL current-candidate scope and DFK FQN census status. The original receipt and its captured results are preserved byte-for-byte.",
+  "original_receipt": {
+    "path": ".tmp/e02-C2/raw/supplier-refresh/supplier-contract-refresh.json",
+    "sha256": "5e27a6640abe6d8e4f18a80a0e4c7ce52aa102d671a66357724414bbe7d67644",
+    "bytes": 21777,
+    "preservation": "unchanged; this sidecar qualifies the cited observations and does not rewrite the original capture."
+  },
+  "corrections": [
+    {
+      "criteria": [
+        "LA-036",
+        "BER-01"
+      ],
+      "corrects_field": "findings[BER-01].BERL_existing_consumer",
+      "prior_wording": "BERL service currently binds kernel_shap_conditional to KernelSHAPAdapter; adapter replaces absent features with background rows, so it is the marginal/background game and no E law bridge exists.",
+      "scope_of_prior_observation": {
+        "identity": "pinned main/base snapshot 198076863e143dea9f89f02734b13d50dae3eed5, tree 2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "service": "policy-engine/src/polisyos/berl/service.py@6c73971f16f63e7aaa5e60a07a706d2cefe82491",
+        "adapter": "policy-engine/src/polisyos/berl/adapters/shap_kernel.py@d2a598b5a03f6f2ea24f67a024ae7d056e2ba6d2",
+        "qualification": "The marginal/background replacement observation describes this pinned base only."
+      },
+      "current_candidate": {
+        "name": "C879 BER-01 frozen candidate",
+        "commit": "87999f69c5f99d69ee2622ef00cd7f4e04d7d572",
+        "tree": "0280403e6837c5b220ac748a7674f4e5830ba0ab",
+        "source_refs": {
+          "conditional_engine": "policy-engine/src/polisyos/berl/adapters/conditional_shapley.py@741b3d4ac17fbf5d4325ad1e4e14a577c9372f06",
+          "service": "policy-engine/src/polisyos/berl/service.py@694e7e9c57d21f2c5e846b334d265a31a3fe665f",
+          "conditional_engine_tests": "policy-engine/tests/unit/berl/test_conditional_shapley.py@ba13b5d8bbff2e53dcb0874540001a61966fafe1",
+          "candidate_review_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-conditional-profile-c2-review-response.json@8bb94d33b9dff95f3b80ad0f40184a9c382fc09c",
+          "final_adjudication": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ber-01-final-combined-c2-adjudication.json@dc7561e149e2b875784b9bb42228e9e01465c98b"
+        },
+        "implemented": "The frozen candidate has conditional-Gaussian and weighted finite-support conditional engine/provider mechanics with synthetic exact-oracle evidence. This is not the base marginal/background implementation.",
+        "admission_status": "held",
+        "missing_chain": "No E/F producer plus admitted content-bound source-law artifact and verifier chain establishes model, bounds/support, population/cohort/time, variable order/schema/epoch, and verifier provenance. The candidate adjudication records that producer/artifact/verification are missing and the persisted Runtime/Phase 5 admission gate fails closed; synthetic math/oracle evidence does not grant conditional authority.",
+        "evidence_disposition": "Numerical and identity mechanics PASS on bounded synthetic cases; persisted source-law authority criterion UNRUN because the E/F law/model/bounds producer and admitted source verifier are absent."
+      }
+    },
+    {
+      "criteria": [
+        "LA-005",
+        "LA-026",
+        "LA-027",
+        "DFK-01"
+      ],
+      "corrects_fields": [
+        "findings[DFK-01].current_owner_state",
+        "findings[DFK-01].owner_input_needed"
+      ],
+      "status_split": {
+        "owner_ruling": "HELD: public-surface/Data Forge owner support-window and sunset/compatibility ruling remains unmade. Completion of a census is evidence for that decision, not the decision itself.",
+        "8A_cold_census": "COMPLETED at source target 8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35; PASS only for complete_for_selected_local_text_inputs. Handoff commit cf751b1b4bec5f7ef97d965370e8562f3b4c5b49 records 13,604 selected UTF-8 text/resource inputs read from 13,672 tracked paths, 68 known binary paths excluded, 979 ignored paths, and 13 ignored candidate text paths not read. It reports 876 recognized dynamic-loader sites, including 317 unresolved nonliteral targets. Wheel and sdist audit fields are UNRUN; external consumers are not established.",
+        "b8_toolfix_and_audit": "The later source head b8d9115cdc6a55920c1e0a3cae2e5f9092010c27 (tree 467cd6f01ec204767dc60bb939955578428bf102) fixes package ImportFrom child-module handling in the census tool and adds corresponding DFK-01 tests. The full candidate-census/package audit on that tool-fix candidate is QUEUED/PENDING; do not present the 8A result as a b8 rerun or package/archive audit."
+      },
+      "exact_whole_inventory_target_scope": {
+        "finding_citation": "Main C criteria LA-005/DFK-01 at policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md@eb335a62bc1f8bce2cddfcf59f649980a08e88c4; criterion calls for separate full source/test, tool string-loader, config/serialized-name, package-resource, built-wheel and sdist denominators. Its selected acceptance row also names docs and archives.",
+        "separate_denominators": [
+          "all source files",
+          "all tests",
+          "tool string loaders",
+          "documentation",
+          "configuration and serialized FQN/name references",
+          "package resources",
+          "built wheel contents/resource membership",
+          "sdist contents/resource membership"
+        ],
+        "required_readback": "Exact target hits by denominator and actual built wheel/sdist member/resource readback; do not infer shipped contents from hatch configuration.",
+        "bounded_not_established": "External clients/checkouts/registries and arbitrary nonliteral dynamic dispatch are not proven absent by the local census. The completed 8A output names these limits and is not an external ABI ruling."
+      },
+      "pinned_evidence": {
+        "8A_census_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-handoff.json@948e33d4deddf90367dcfc07d77026e2295e0766",
+        "8A_census_output_reference": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/schema-fqn-census-final.json@1bb60dcf846b8c1fd702ecf3099c7094a8be648c437b9eca6c0b988ade4602c8",
+        "b8_tool": "policy-engine/tools/quality/validation/schema_fqn_census.py@f1d93ce453b00be37e764c4f09b40f8acc48fcb3",
+        "b8_test": "policy-engine/tests/unit/remediation/test_dfk_01.py@26a7e6a92b2ee7596920bef9099361f639a209a3"
+      }
+    }
+  ],
+  "capture_preservation": {
+    "original_capture_outputs": "unchanged; hashes and outcomes in the original receipt remain authoritative for their original pinned scopes.",
+    "correction_mode": "append-only sidecar; no product/source edits, branch movement, test/build execution, production/shared-data access, or network access."
+  }
+}

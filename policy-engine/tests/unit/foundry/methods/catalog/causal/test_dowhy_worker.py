@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import os
@@ -19,7 +20,7 @@ from polisyos.foundry.methods.catalog.causal import _dowhy_worker as bridge
 from polisyos.foundry.methods.catalog.causal.dowhy_identify_estimate import DoWhyIdentifyEstimate
 from polisyos.foundry.methods.catalog.causal.protocols import GraphCausalData
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.ir.analytics.causal import EstimationStatus
+from polisyos.ir.analytics.causal import CausalEffectReport, EstimationStatus
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
 
@@ -171,3 +172,77 @@ def test_default_without_actual_source_context_has_no_backend_witness():
     assert report.status is EstimationStatus.NUMERICAL_FAILURE
     assert report.metadata["capability"] == "backend_unavailable"
     assert report.point_estimate is None
+
+
+def instrument_actual_worker(monkeypatch, mutation):
+    """Instrument the actual installed backend in a test child; never a fallback."""
+    original = subprocess.Popen
+    script = str(bridge._worker_directory() / "worker.py")
+    prefix = """
+import runpy,sys
+from dowhy import CausalModel
+original=CausalModel.estimate_effect
+def controlled(self,*args,**kwargs):
+    actual=original(self,*args,**kwargs)
+"""
+    program = (
+        prefix
+        + mutation
+        + "\n    return actual\nCausalModel.estimate_effect=controlled\nrunpy.run_path(sys.argv[1],run_name='__main__')"
+    )
+
+    def launch(args, **kwargs):
+        if args == [os.environ["POLISYOS_DOWHY_WORKER_PYTHON"], "-I", script]:
+            args = [args[0], "-I", "-c", program, script]
+        return original(args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "Popen", launch)
+
+
+def test_real_estimate_point_only_survives_parent_cas_and_reader(
+    tmp_path, selected_worker, monkeypatch
+):
+    instrument_actual_worker(
+        monkeypatch,
+        "    actual.get_confidence_intervals=lambda **kwargs:None\n    actual.get_standard_error=lambda:None",
+    )
+    data = dgp(n=100)
+    store, source = admit(tmp_path, data)
+    MethodRegistry.get_instance().register(DoWhyIdentifyEstimate, override=True)
+    spec = JobSpec(
+        job_kind="method",
+        method_fqn=DoWhyIdentifyEstimate.signature.fqn,
+        input_refs={"dowhy_observational_data": source},
+    )
+    with bridge.worker_execution_context(store=store, source_ref=source):
+        result = run_job(spec, cas_root=tmp_path, method_state=data)
+    assert not result.issues
+    reopened = FileSystemCAS(tmp_path)
+    persisted = from_canonical_bytes(reopened.get_bytes(result.method_result_ref))
+    report = CausalEffectReport.model_validate(persisted["report"])
+    assert report.point_estimate is not None
+    assert report.status is EstimationStatus.NUMERICAL_FAILURE
+    assert report.confidence_interval is None and report.confidence_level is None
+    assert not report.to_uncertainty_envelope().gate_eligible
+    bridge.validate_persisted_worker_response(
+        response=report.metadata["worker"], state=data, store=reopened, source_ref=source
+    )
+
+
+@pytest.mark.parametrize(
+    "malformed",
+    ["[[0.,1.],[2.,3.]]", "[0.,1.,2.]", "[3.,1.]", "[float('nan'),1.]", "[0.,float('inf')]"],
+)
+def test_actual_estimator_malformed_ci_refused_in_parent(
+    tmp_path, selected_worker, monkeypatch, malformed
+):
+    instrument_actual_worker(
+        monkeypatch, f"    actual.get_confidence_intervals=lambda **kwargs:{malformed}"
+    )
+    data = dgp(n=100)
+    store, source = admit(tmp_path, data)
+    with bridge.worker_execution_context(store=store, source_ref=source):
+        report = DoWhyIdentifyEstimate.pure_step(data, {})["report"]
+    assert report.status is EstimationStatus.NUMERICAL_FAILURE
+    assert report.point_estimate is None and report.confidence_interval is None
+    assert report.confidence_level is None

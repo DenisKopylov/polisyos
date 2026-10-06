@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from fractions import Fraction
 from itertools import combinations
-from math import prod
+from math import isfinite, prod
 from pathlib import Path
 from typing import Any
 
@@ -300,11 +300,13 @@ def test_mo_actual_derived_reference_rejects_finite_input_span_overflow_before_a
     from polisyos.scientist.methods.search.strategies.space import SearchSpace
     from polisyos.scientist.methods.search.strategies.types import ParameterBounds
 
-    # Exact binary-input arithmetic remains finite as a rational; the declared
-    # float64 reference rule produces an unrepresentable derived coordinate.
+    # The exact final reference is representable. The existing float64
+    # subtraction order overflows its intermediate span; that arithmetic
+    # limitation must refuse rather than assign a non-finite reference.
     width = Fraction.from_float(1e308) - Fraction.from_float(-1e308)
     reference = Fraction.from_float(-1e308) - Fraction.from_float(0.1) * width
     assert width > 0 and reference < 0
+    assert isfinite(float(reference))
     optimizer = MOBayesianOptimizer(
         SearchSpace([ParameterBounds("x", 0.0, 1.0)]),
         ["length", "duration"],

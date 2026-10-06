@@ -654,7 +654,7 @@ class ParetoRegistry:
         if not entries:
             return (
                 [],
-                0.0,
+                None,
                 ParetoViewAssessment(
                     status=(
                         "no_usable_inputs"
@@ -666,7 +666,13 @@ class ParetoRegistry:
                     input_count=0,
                     assessed_count=0,
                 ),
-                HypervolumeAssessment(status="available", basis="recomputed"),
+                HypervolumeAssessment(
+                    version="hypervolume-assessment.v2",
+                    status="unavailable",
+                    basis="not_established",
+                    reason="no_usable_inputs",
+                    profile="dominated_box_union.float64.maximize.v1",
+                ),
             )
         observed_objective_maps = {
             entry.candidate_hash: entry.evaluation.frontier_objectives(view_name)
@@ -692,7 +698,7 @@ class ParetoRegistry:
             hashes = [entry.candidate_hash for entry in ordered_entries]
             return (
                 [],
-                0.0,
+                None,
                 ParetoViewAssessment(
                     status="basis_limited",
                     coverage_status="no_usable_inputs",
@@ -702,7 +708,13 @@ class ParetoRegistry:
                     unassessed_candidate_hashes=hashes,
                     unresolved_axis_contract_candidate_hashes=hashes,
                 ),
-                HypervolumeAssessment(status="available", basis="recomputed"),
+                HypervolumeAssessment(
+                    version="hypervolume-assessment.v2",
+                    status="unavailable",
+                    basis="not_established",
+                    reason="no_usable_inputs",
+                    profile="dominated_box_union.float64.maximize.v1",
+                ),
             )
 
         evaluations_by_identity: dict[int, str] = {}

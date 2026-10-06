@@ -1,0 +1,22 @@
+import sys, json, hashlib, importlib.metadata, platform
+from collections import Counter
+from pathlib import Path
+counts=Counter()
+def observe(frame,event,arg):
+    if event != 'call': return
+    filename=frame.f_code.co_filename; name=frame.f_code.co_name
+    if ('box_decompositions/dominated.py' in filename or '/scientist/methods/autotune/pareto.py' in filename or '/search/pareto_registry.py' in filename or '/strategies/multi_objective.py' in filename) and name in {'compute_hypervolume','compute_hypervolume_assessed','_compute_hypervolume','_compute_hypervolume_assessed','_objective_vector','_frontier_hashes','get_snapshot','_find_non_dominated','_get_partitioning','_compute_hypervolume_if_y_has_data'}:
+        counts[filename+':'+name]+=1
+
+def pytest_sessionstart(session):
+    sys.setprofile(observe)
+
+def pytest_sessionfinish(session,exitstatus):
+    sys.setprofile(None)
+    modules={}
+    for name in ['polisyos.scientist.methods.autotune.pareto','polisyos.scientist.methods.search.strategies.multi_objective','polisyos.scientist.methods.search.pareto_registry','botorch.utils.multi_objective.box_decompositions.dominated','torch']:
+        module=sys.modules.get(name); filename=getattr(module,'__file__',None)
+        if filename:
+            modules[name]={'path':filename,'sha256':hashlib.sha256(Path(filename).read_bytes()).hexdigest()}
+    versions={key:importlib.metadata.version(key) for key in ['torch','botorch','gpytorch','pytest','pydantic','numpy']}
+    Path(session.config.option.xmlpath).with_suffix('.native.json').write_text(json.dumps({'python':platform.python_version(),'versions':versions,'modules':modules,'native_calls':dict(counts),'exitstatus':exitstatus,'torch_runtime':{'num_threads':sys.modules['torch'].get_num_threads(),'num_interop_threads':sys.modules['torch'].get_num_interop_threads()} if 'torch' in sys.modules else None},indent=2))

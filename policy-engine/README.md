@@ -59,10 +59,47 @@ producer inputs and use their new CAS references; numeric strings and boolean
 numbers cannot be repaired by the registry. Comparison records support only
 `benchmark-comparison.v1`.
 
-`SearchLoopRunner` uses public native `ask`/`tell` around the controller-owned evaluator.
-The existing service instance supports pending-candidate continuation; persisted
-SearchService restore is unsupported. This route does not establish cutover of the
-separate served hierarchical caller or distributed registry coordination.
+`SearchLoopRunner` uses `NativeSearchService` public `ask`/`tell` around the
+controller-owned evaluator and persists immutable `search-service.v2` checkpoints
+in its configured artifact store. `create_service()` exposes that same native
+factory. A fresh runner can `resume(..., checkpoint_ref=ref)` with the same suite,
+metric policy, generator corpus/configuration and stopping rules. The final
+result contains the exact reference in `telemetry["checkpoint_ref"]`; an exposed
+service also retains its latest reference after an evaluator failure. Resume
+restores pending/completed candidate IDs, typed history/frontier and the original
+wall clock, and keeps stopped runs terminal. The exact reference binds the B
+verified byte/manifest snapshot and selected manifest profile. A failed tell
+publication or readback restores local pending ownership and the prior run ledger;
+retry acknowledges the transition only after checkpoint readback. Reopened callbacks and external
+owner handles remain caller inputs; callback source authority, a transaction
+across external promotion and checkpoint publication, and distributed
+coordination are not established. Generators without an atomic `get_state()` /
+`set_state()` replay contract and enabled diversity tracking explicitly refuse
+resume. Generic checkpoint resume supports the four built-in objectives with
+stateless function evaluation ports whose source, defaults and JSON globals bind
+the profile; arbitrary objective objects and closures refuse resume. The actual
+native autotune factory binds the actual suite/data snapshots, mutation model
+implementation/schema, evaluator configuration and supported evaluation context.
+The five built-in evaluator constructor profiles are recognized directly; a
+stateful custom evaluator must expose JSON `checkpoint_configuration()` with its
+actual settings and exact data references. Opaque configurations or callbacks
+refuse resume. Pass the same supported context to `resume` or `restore`.
+Original
+`search-service.v1` checkpoints are preserved and refused; use their original
+reader or start a new configured run rather than rewriting their version.
+Unknown schema/configuration is refused rather than migrated. These APIs
+are exported lazily from `polisyos.scientist`; they do not appoint or cut over the
+separate served hierarchical caller.
+
+`CostBudgetStopping` accepts finite nonnegative recorded cost and refuses invalid
+budget limits. Configured budget owners supply their public recorded state;
+provider aggregates remain `recorded_by_provider`, with provider-reported origin,
+receipt identity and ledger revision explicitly unavailable through this port.
+Missing or invalid observations stop with unavailable evidence. Recorded zero is
+distinct from a claim of measured zero.
+`ImprovementPlateau` rejects unrepresentable coefficients and treats invalid or
+nonzero-underflow observations as unavailable. Its declared-unit, direction and
+0.01 absolute/relative default formula remain the same.
 
 ## Architecture Diagram
 

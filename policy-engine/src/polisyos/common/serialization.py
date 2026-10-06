@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import math
 from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum
+from numbers import Real
 from typing import Any, Literal, cast
 
 from polisyos.common.logger import get_logger
@@ -347,6 +349,18 @@ def _fenced_json_payloads(text: str) -> tuple[str, ...]:
             block = block[4:].strip()
         payloads.append(block)
     return tuple(payloads)
+
+
+def finite_real_scalar(raw: object) -> float | None:
+    """Internal admission of finite, float-representable real numerical inputs."""
+    if isinstance(raw, bool) or not isinstance(raw, Real):
+        return None
+    try:
+        value = float(raw)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return value if math.isfinite(value) else None
+
 
 __all__ = [
     "JsonDataVisitor",

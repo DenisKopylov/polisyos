@@ -1,0 +1,54 @@
+...........................................                              [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_actual_quantity_is_exact_and_order_independent[points0-ref0-2.0]
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_actual_quantity_is_exact_and_order_independent[points1-ref1-5.0]
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_actual_quantity_is_exact_and_order_independent[points2-ref2-0.0]
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_actual_quantity_is_exact_and_order_independent[points3-ref3-16.0]
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_actual_quantity_is_exact_and_order_independent[points4-ref4-16.0]
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_unsupported_backend_has_no_substitute_quantity
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_mutable_scalar_input_is_refused_as_one_original_row[True]
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_mutable_scalar_input_is_refused_as_one_original_row[broken]
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_mutable_scalar_input_is_refused_as_one_original_row[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_mutable_scalar_input_is_refused_as_one_original_row[nan]
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_mutable_scalar_input_is_refused_as_one_original_row[inf]
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_full_coordinate_version_split_unit_roundtrip_and_changed_basis_refusal
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_supported_dimension_and_no_input_boundaries_are_explicit
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_actual_strategy_quantity_and_backend_absence_are_distinct
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_strategy_excludes_invalid_scalar_without_fabricating_zero[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_strategy_excludes_invalid_scalar_without_fabricating_zero[True]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_strategy_excludes_invalid_scalar_without_fabricating_zero[broken]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_strategy_excludes_invalid_scalar_without_fabricating_zero[nan]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_strategy_excludes_invalid_scalar_without_fabricating_zero[inf]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_actual_zero_and_no_usable_inputs_have_different_assessments
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_reference_intake_precedes_any_torch_conversion[reference0]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_reference_intake_precedes_any_torch_conversion[reference1]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_reference_intake_precedes_any_torch_conversion[reference2]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_reference_intake_precedes_any_torch_conversion[reference3]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_reference_intake_precedes_any_torch_conversion[reference4]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_reference_intake_precedes_any_torch_conversion[reference5]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_derived_reference_uses_the_same_numeric_intake[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_derived_reference_uses_the_same_numeric_intake[True]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_derived_reference_uses_the_same_numeric_intake[broken]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_derived_reference_uses_the_same_numeric_intake[nan]
+PASSED tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py::test_derived_reference_uses_the_same_numeric_intake[inf]
+PASSED tests/unit/scientist/methods/search/test_frontier_quantity_readback.py::test_registry_native_disk_reader_retains_quantity_unavailability
+PASSED tests/unit/scientist/methods/search/test_frontier_quantity_readback.py::test_registry_computed_zero_stays_available_on_readback
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[missing]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[null]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[bool-false]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[bool-true]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[malformed]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[nan]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[inf]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[negative-inf]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[conversion-overflow]
+PASSED tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py::test_actual_native_frontier_cannot_use_unavailable_coordinate_to_dominate[conflicting-aliases]
+43 passed, 2 warnings in 17.14s

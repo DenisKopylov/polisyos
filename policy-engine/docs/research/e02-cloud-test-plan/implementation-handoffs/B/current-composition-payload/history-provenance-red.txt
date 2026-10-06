@@ -1,0 +1,100 @@
+.............FF                                                          [100%]
+=================================== FAILURES ===================================
+____ test_present_rows_do_not_restore_incomplete_history_authority[header] _____
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/history-provenance-red-84b9c91-tmp/test_present_rows_do_not_resto0')
+incomplete_provenance = 'header'
+
+    @pytest.mark.parametrize("incomplete_provenance", ["header", "original_warning"])
+    def test_present_rows_do_not_restore_incomplete_history_authority(tmp_path, incomplete_provenance):
+        chain, registry, calls = _bound_chain()
+        writer_dir = tmp_path / "writer"
+        CheckpointingChainExecutor(registry=registry, checkpoint_dir=writer_dir).execute(
+            chain, initial_state={"x": 4}, seed=7
+        )
+        checkpoint = ChainCheckpoint.load(next(writer_dir.glob("*_0000_*.json")))
+        assert checkpoint.history_complete
+        assert len(checkpoint.node_results) == checkpoint.n_completed == 1
+        if incomplete_provenance == "header":
+            checkpoint.history_complete = False
+        else:
+            checkpoint.node_results[0]["warnings"].append("history_incomplete")
+        path = tmp_path / "incomplete-provenance.json"
+        checkpoint.save(path)
+        checkpoint = ChainCheckpoint.load(path)
+        calls.clear()
+        resumed_dir = tmp_path / "resumed"
+        result = CheckpointingChainExecutor(registry=registry, checkpoint_dir=resumed_dir).execute(
+            chain, initial_state={"x": 4}, checkpoint=checkpoint, seed=7
+        )
+        # The original slot is available for real suffix arithmetic, while its
+        # explicitly incomplete provenance must survive result and republishing.
+        assert calls == ["add"]
+        assert result.final_state["total"] == 13
+        assert len(result.node_results) == 2
+        assert result.missing_history_node_ids == ()
+>       assert not result.history_complete
+E       AssertionError: assert not True
+E        +  where True = ChainExecutionResult(final_state={'product': 12, 'x': 4, 'total': 13}, node_results=((UUID('f2bd8fed-9fc7-48e9-8025-c9...al', 'history_complete': True, 'completed_node_count': 2, 'missing_history_node_ids': []}, missing_history_node_ids=()).history_complete
+
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:404: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 09:59:46 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_execution.multiply@1.0.0 lazy=False namespace=tests.checkpoint_execution override=True tags=['test'] version=1.0.0
+2026-10-06 09:59:46 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_execution.add@1.0.0 lazy=False namespace=tests.checkpoint_execution override=True tags=['test'] version=1.0.0
+2026-10-06 09:59:46 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.multiply@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:59:46 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=12.67 fqn=tests.checkpoint_execution.multiply@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:59:46 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.add@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:59:46 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=12.78 fqn=tests.checkpoint_execution.add@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:59:46 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.add@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:59:46 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=12.16 fqn=tests.checkpoint_execution.add@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+_ test_present_rows_do_not_restore_incomplete_history_authority[original_warning] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/history-provenance-red-84b9c91-tmp/test_present_rows_do_not_resto1')
+incomplete_provenance = 'original_warning'
+
+    @pytest.mark.parametrize("incomplete_provenance", ["header", "original_warning"])
+    def test_present_rows_do_not_restore_incomplete_history_authority(tmp_path, incomplete_provenance):
+        chain, registry, calls = _bound_chain()
+        writer_dir = tmp_path / "writer"
+        CheckpointingChainExecutor(registry=registry, checkpoint_dir=writer_dir).execute(
+            chain, initial_state={"x": 4}, seed=7
+        )
+        checkpoint = ChainCheckpoint.load(next(writer_dir.glob("*_0000_*.json")))
+        assert checkpoint.history_complete
+        assert len(checkpoint.node_results) == checkpoint.n_completed == 1
+        if incomplete_provenance == "header":
+            checkpoint.history_complete = False
+        else:
+            checkpoint.node_results[0]["warnings"].append("history_incomplete")
+        path = tmp_path / "incomplete-provenance.json"
+        checkpoint.save(path)
+        checkpoint = ChainCheckpoint.load(path)
+        calls.clear()
+        resumed_dir = tmp_path / "resumed"
+        result = CheckpointingChainExecutor(registry=registry, checkpoint_dir=resumed_dir).execute(
+            chain, initial_state={"x": 4}, checkpoint=checkpoint, seed=7
+        )
+        # The original slot is available for real suffix arithmetic, while its
+        # explicitly incomplete provenance must survive result and republishing.
+        assert calls == ["add"]
+        assert result.final_state["total"] == 13
+        assert len(result.node_results) == 2
+        assert result.missing_history_node_ids == ()
+>       assert not result.history_complete
+E       AssertionError: assert not True
+E        +  where True = ChainExecutionResult(final_state={'product': 12, 'x': 4, 'total': 13}, node_results=((UUID('8f8b8377-42a7-4034-a9c8-4b...al', 'history_complete': True, 'completed_node_count': 2, 'missing_history_node_ids': []}, missing_history_node_ids=()).history_complete
+
+tests/unit/foundry/methods/backends/test_checkpointing_execution.py:404: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 09:59:46 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_execution.multiply@1.0.0 lazy=False namespace=tests.checkpoint_execution override=True tags=['test'] version=1.0.0
+2026-10-06 09:59:46 [info     ] method_registered              backend=numpy fqn=tests.checkpoint_execution.add@1.0.0 lazy=False namespace=tests.checkpoint_execution override=True tags=['test'] version=1.0.0
+2026-10-06 09:59:46 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.multiply@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:59:46 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=13.15 fqn=tests.checkpoint_execution.multiply@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:59:46 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.add@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:59:46 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=12.36 fqn=tests.checkpoint_execution.add@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:59:46 [debug    ] method_dispatch_start          backend=numpy fqn=tests.checkpoint_execution.add@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 09:59:46 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=12.38 fqn=tests.checkpoint_execution.add@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/backends/test_checkpointing_execution.py::test_present_rows_do_not_restore_incomplete_history_authority[header]
+FAILED tests/unit/foundry/methods/backends/test_checkpointing_execution.py::test_present_rows_do_not_restore_incomplete_history_authority[original_warning]
+2 failed, 13 passed in 1.20s

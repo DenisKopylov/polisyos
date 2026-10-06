@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/res03-real-route-061-cache",
+    "-q",
+    "tests/integration/scientist/test_res_03_real_simulation_route.py",
+    "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/res03-real-route-061-tmp",
+    "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/res03-real-route-061.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+    "tree": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+    "status": "",
+    "changed_paths_sha256": {}
+  },
+  "environment": {
+    "PYTHONPATH": "src",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "Python 3.14.2",
+  "start_utc": "2026-10-06T11:43:29.978160+00:00",
+  "exit_code": 1,
+  "wall_seconds": 51.67244660599681,
+  "max_rss_kib": 991144,
+  "resource_method": "direct wait4 child rusage; Linux KiB",
+  "source_after": {
+    "sha": "061c94bf27bb6a2ad951047605bafa3b2e4d9cdf",
+    "tree": "fdc138d132c9bb0b23f79ff5f27db1cb8091bd68",
+    "status": "",
+    "changed_paths_sha256": {}
+  },
+  "end_utc": "2026-10-06T11:44:21.704458+00:00"
+}

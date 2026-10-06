@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm",
+    "install",
+    "--frozen-lockfile",
+    "--ignore-scripts"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "node": "v22.22.0",
+  "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "exit_code": 0,
+  "start_utc": "2026-10-06T09:41:40.676449+00:00",
+  "end_utc": "2026-10-06T09:41:43.286704+00:00",
+  "wall_seconds": 2.6102604040061124,
+  "max_rss_kib": 312832,
+  "resource_method": "direct wait4 child rusage"
+}

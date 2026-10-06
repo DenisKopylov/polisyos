@@ -1,0 +1,44 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-mapping-red-0e-cache",
+    "-q",
+    "tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "--basetemp=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-mapping-red-0e-tmp",
+    "--junitxml=/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/publication-mapping-red-0e.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "0e441daa8eff8008ed120c94c77e39c451901ccb",
+    "tree": "ccfabcf90c837072a3bb7ba2c743d48686665f5e",
+    "status": "M policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "changed_paths_sha256": {
+      "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py": "025f395d25306b5a94d392489d1eea5ed9a1a0649cc0b28607b860b8d259385f"
+    }
+  },
+  "environment": {
+    "PYTHONPATH": "src",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "python": "Python 3.14.2",
+  "start_utc": "2026-10-06T10:44:48.602741+00:00",
+  "exit_code": 1,
+  "wall_seconds": 2.5418020369979786,
+  "max_rss_kib": 171340,
+  "resource_method": "direct wait4 child rusage; Linux KiB",
+  "source_after": {
+    "sha": "0e441daa8eff8008ed120c94c77e39c451901ccb",
+    "tree": "ccfabcf90c837072a3bb7ba2c743d48686665f5e",
+    "status": "M policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+    "changed_paths_sha256": {
+      "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py": "025f395d25306b5a94d392489d1eea5ed9a1a0649cc0b28607b860b8d259385f"
+    }
+  },
+  "end_utc": "2026-10-06T10:44:51.205924+00:00"
+}

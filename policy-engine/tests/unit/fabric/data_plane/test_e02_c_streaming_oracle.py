@@ -895,3 +895,126 @@ async def test_b86_schema_membership_and_quarantine_do_not_depend_on_batch_size(
     non_finite_records = [record for _, record in records if record.reason == "non_finite_metric"]
     assert len(non_finite_records) == 1
     assert result.quarantined_rows == 4
+
+
+def test_b88_served_replay_uses_owned_fixture_catalog_and_reads_back_evidence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The served replay path runs end to end against a tiny owned catalog."""
+    from dataclasses import replace
+
+    from _helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
+
+    from polisyos.core.artifacts.manifest import ArtifactID
+    from polisyos.core.security.identity import PolicyOSRole
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.data_forge.read_api import catalog as catalog_api
+    from polisyos.fabric.data_plane.replay_store import ReplayStore
+    from polisyos.runtime.quality import substrate_registry
+    from tests.unit.runtime.http import test_b88_served_replay as b88
+
+    catalog_root = tmp_path / "fixture-catalog"
+    catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+    original_catalog_paths = substrate_registry.default_substrate_catalog_paths
+    startup_root = Path.cwd().resolve()
+    monkeypatch.setattr(
+        substrate_registry,
+        "default_substrate_catalog_paths",
+        lambda root: (
+            replace(
+                original_catalog_paths(root),
+                l1_dcat_path=catalog_root / "catalog.duckdb",
+            )
+            if Path(root).resolve() == startup_root
+            else original_catalog_paths(root)
+        ),
+    )
+
+    ConnectorRegistry.reset_instance()
+    env = build_runtime_api_env(tmp_path / "runtime", include_test_client=True)
+    try:
+        b88._register_connector()
+        client, cell_id, headers = b88._secure_control_client(
+            env,
+            role=PolicyOSRole.ANALYST,
+            case_id="e02-b88-fixture-catalog",
+        )
+        simulators, native_requests = b88._capture_replay(monkeypatch)
+        ordinary_calls: list[bool] = []
+
+        import polisyos.fabric.data_plane.orchestrator as orchestrator_module
+
+        original_ordinary = orchestrator_module.run_orchestrated_ingestion
+
+        def observe_ordinary(**kwargs: Any):
+            ordinary_calls.append(True)
+            return original_ordinary(**kwargs)
+
+        monkeypatch.setattr(
+            orchestrator_module,
+            "run_orchestrated_ingestion",
+            observe_ordinary,
+        )
+        fixture_body = b'[{"value":714,"marker":"b88-owned-catalog-replay"}]'
+        with client:
+            container = client.app.state.runtime_container
+            assert container.control_service is not None
+            assert container.control_service._retrieval_catalog is not None
+            assert container.control_service._retrieval_catalog._store._db_path == (
+                catalog_root / "catalog.duckdb"
+            )
+            store = container.runtime_api_context.store
+            with tenant_scope(None, tenant_id=env["tenant_a"], cell_id=cell_id):
+                replay_ref, request_hash = b88._persist_session(
+                    store,
+                    response_body=fixture_body,
+                )
+            response = b88._post_ingest(client, headers, replay_ref=replay_ref)
+
+            assert response.status_code == 200
+            body = response.json()
+            assert body["status"] == "completed"
+            assert body["mode_effective"] == "replay"
+            assert body["datasets_fetched"] == 1
+            assert body["evidence_bundle_ref"] is not None
+            assert len(simulators) == 1
+            assert simulators[0].call_count == 1
+            assert simulators[0].call_log[0]["hash"] == request_hash
+            assert native_requests == []
+            assert ordinary_calls == []
+
+            with tenant_scope(None, tenant_id=env["tenant_a"], cell_id=cell_id):
+                persisted = ReplayStore(store).load_record_session(
+                    ArtifactID.model_validate(replay_ref)
+                )
+                assert len(persisted.fixtures) == 1
+                assert persisted.fixtures[0]["request_hash"] == request_hash
+                assert b88.base64.b64decode(persisted.fixtures[0]["body"]) == fixture_body
+                b88._assert_evidence_contains_source_bytes(
+                    store,
+                    body["evidence_bundle_ref"],
+                    b"b88-owned-catalog-replay",
+                )
+
+            for broken_body in (None, b"not-json"):
+                with tenant_scope(None, tenant_id=env["tenant_a"], cell_id=cell_id):
+                    broken_ref, _ = b88._persist_session(
+                        store,
+                        response_body=broken_body,
+                    )
+                failed = b88._post_ingest(client, headers, replay_ref=broken_ref)
+                assert failed.status_code == 200
+                failed_body = failed.json()
+                assert failed_body["status"] == "failed"
+                assert failed_body["mode_effective"] == "replay"
+                assert failed_body["datasets_fetched"] == 0
+                assert failed_body["evidence_bundle_ref"] is None
+
+            assert len(simulators) == 3
+            assert all(simulator.call_count == 1 for simulator in simulators)
+            assert native_requests == []
+            assert ordinary_calls == []
+    finally:
+        close_runtime_api_env(env)
+        ConnectorRegistry.reset_instance()

@@ -46,6 +46,7 @@ def registry_card(tmp_path, *, days=0):
 def test_real_controller_keeps_typed_nested_context_in_lesson_consumer(tmp_path, serialized):
     _, registry, source, card = registry_card(tmp_path)
     registry.record_local(card, context=source)
+    source = source.model_copy(update={"timestamp": datetime.now(UTC)})
     payload = source.model_dump(mode="json") if serialized else source
     controller = object.__new__(SearchController)
     hints = controller._build_lesson_hints(
@@ -58,7 +59,9 @@ def test_real_controller_keeps_typed_nested_context_in_lesson_consumer(tmp_path,
 def test_destination_projection_uses_all_effective_query_filters(tmp_path):
     _, registry, source, card = registry_card(tmp_path)
     registry.record_local(card, context=source)
-    target = source.model_copy(update={"domain": "destination", "run_id": "target-run"})
+    target = source.model_copy(
+        update={"domain": "destination", "run_id": "target-run", "timestamp": datetime.now(UTC)}
+    )
     query = LessonQuery(
         task_family="discovery",
         domain="destination",

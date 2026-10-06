@@ -112,14 +112,40 @@
       "full_stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/native.txt",
       "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/native.xml",
       "wrapper_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/wrapper.json",
-      "predicate_basis": "independently_reconciled"
+      "predicate_basis": "independently_reconciled",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "--noconftest",
+        "-c",
+        "/dev/null",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/optional-spend-review/candidate-a2f/cache",
+        "--basetemp=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/optional-spend-review/candidate-a2f/tmp",
+        "--junitxml=/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/optional-spend-review/candidate-a2f/native.xml",
+        "-vv",
+        "-s",
+        "/workspace/e02-B-current-composition/policy-engine/tests/unit/scientist/agent/test_optional_spend_projection_boundary.py"
+      ],
+      "input_closure": "Exact immutable test4969B/sourcea2f, four actualmodule Gitbyte guards, three realfilesystemprovider cases; limits remain explicitly recorded.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-optional-spend-projection-evidence/native.txt"
     },
     {
       "kind": "New test Ruff check/format before immutable input commit",
       "outcome": "PASS",
       "target_sha": "4f3cfcc78d6185e4d407ed1aa7a8477e2960bd6d",
       "scope": "Only new4969B test; not a product gate or source-wide quality verdict. Actual shell output format1file/checkAll checks passed before commit.",
-      "predicate_basis": "consumer_asserted"
+      "predicate_basis": "consumer_asserted",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tests/unit/scientist/agent/test_optional_spend_projection_boundary.py"
+      ],
+      "input_closure": "Only new test at immutable4f3cfcc78; actual shell observation, no retained standalone staticstdout.",
+      "output": "Only new4969B test; not a product gate or source-wide quality verdict. Actual shell output format1file/checkAll checks passed before commit."
     }
   ],
   "test_input": {
@@ -184,6 +210,31 @@
     {
       "receipt_sha": "ffed0655fa816ac84b64d99125d8fa8a2369e616",
       "correction": "Style-check predicate_basis direct was outside mandatory enum; consumer_asserted binds actual shell check observation without a separately retained static stdout. All deciding test/source/evidence bytes unchanged."
+    },
+    {
+      "receipt_sha": "bf1d46114c0e3c12302a9d9841632985771a63ce",
+      "correction": "Required property/capability/limitations fields added forward; full source, test, deciding output and implementation footprint unchanged."
     }
+  ],
+  "property": {
+    "statement": "An optional spend projection used downstream must preserve the distinction between unknown monetary evidence from one physical provider attempt and a legitimate explicitly reportedzero.",
+    "runtime_path": [
+      "Synthetic physical provider.generate writes/flushes/fsyncs actualrequest",
+      "Canonical extract_llm_response_data and _completion_amount",
+      "Canonical TracedLLMClient.generate/_record_tokens emits actualcall_observer event",
+      "Unmodified canonical A response_shapes._sum_call_events consumes actualevents"
+    ],
+    "proxy_divergence": "Actual unknown provider event cost_usd=None/cost_origin=unknown is projected as numeric0.0, equal to known reportedzero. Source-traced NL run_budget summation uses this numeric projection, but this oracle does not execute the full NL guard or establish its later-provider behavior.",
+    "negative_controls": [
+      "Actual reported0.02 control produces known event and helper0.02 PASS",
+      "Actual reported0 control produces knownreported event and helper0.0 PASS",
+      "Actual unknown no-usage/no-cost response gives one provider effect, preservedNone event and helper0.0; final knowledge-preservation assertion FAIL"
+    ]
+  },
+  "capability_state_or_finding_state": "A_G_consumer_contract_handoff_required; actual helper information-loss reproduced; full served-budget consumer semantic_test_missing in this packet",
+  "limitations_and_next_owner": [
+    "A owns response_shapes/nl_pipeline consumer policy and typed unknown projection; no A source changed here.",
+    "Local G owns separately acquired production-route input closure and exact candidate replay; prepared request has no dataset/catalog/route-authority closure.",
+    "B packet formal closure_ids empty; actual1FAIL2PASS is retained, P41not_established with no waiver."
   ]
 }

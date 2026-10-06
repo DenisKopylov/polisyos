@@ -188,9 +188,7 @@ def main() -> None:
         adaptive_calls == [6, 12] and adaptive.total_evaluations == 18 and len(adaptive.rounds) == 2
     )
     # The next estimated round is refused before sampling/materialization.
-    from polisyos.scientist.methods.doe import adaptive as adaptive_module
-
-    original_adaptive_sampling = adaptive_module.generate_sensitivity_samples
+    original_adaptive_sampling = sampling.generate_sensitivity_samples
     admitted_rounds = []
     guarded_calls = []
 
@@ -202,7 +200,7 @@ def main() -> None:
         guarded_calls.append(len(matrix))
         return 2.0 * matrix[:, 0] + 0.5 * matrix[:, 1]
 
-    adaptive_module.generate_sensitivity_samples = counted_adaptive_sampling
+    sampling.generate_sensitivity_samples = counted_adaptive_sampling
     try:
         guarded = AdaptiveSampler(
             SensitivityPlan(
@@ -218,7 +216,7 @@ def main() -> None:
             ConvergenceConfig(max_rounds=2, trajectory_step=2),
         ).run(guarded_evaluate)
     finally:
-        adaptive_module.generate_sensitivity_samples = original_adaptive_sampling
+        sampling.generate_sensitivity_samples = original_adaptive_sampling
     assert admitted_rounds == guarded_calls == [6]
     assert guarded.total_evaluations == 6 and len(guarded.rounds) == 1
     assert guarded.stop_reason == "max_estimated_runs_exceeded"

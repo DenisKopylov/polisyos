@@ -1,0 +1,49 @@
+{
+  "python": "3.14.7",
+  "versions": {
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "numpy": "2.3.5"
+  },
+  "modules": {
+    "polisyos.scientist.methods.autotune.pareto": {
+      "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "sha256": "1bb22dbeb57ad0311955dd755da3d0bd0726d55caf968980f4c9d57af83afeac"
+    },
+    "polisyos.scientist.methods.search.strategies.multi_objective": {
+      "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "sha256": "63fb9950862812e30e64fde899f8e2d08ea9e4c5cc65d70bde02b861ab295467"
+    },
+    "botorch.utils.multi_objective.box_decompositions.dominated": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/utils/multi_objective/box_decompositions/dominated.py",
+      "sha256": "167660f54d5b92f6c2f1a9d05c2f13232138d11e5ed5fbed6837d9562c62b26d"
+    },
+    "torch": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+      "sha256": "d6388b1e3b16c1f9a22a87898e5f205fa13a97bd65c163f4829a157e0d9d602f"
+    },
+    "polisyos.scientist.methods.search.strategies.bayesian": {
+      "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066"
+    },
+    "polisyos.scientist.methods.search.strategies.types": {
+      "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "sha256": "17b0816b851c3c2c278587a7953c7ae3c408cb199d7b1e7bed844281aff5a956"
+    },
+    "polisyos.common.serialization": {
+      "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/common/serialization.py",
+      "sha256": "46010b962ef21b1967a5743d9d76627eb1c36b0bf68f7a01fd3cd85d16731852"
+    },
+    "botorch.fit": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/fit.py",
+      "sha256": "4c59cb8c850c49c75a69682081c49c5ee5b082d4d008a03228daaeab6b551c44"
+    }
+  },
+  "native_calls": {
+    "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py:is_valid": 49
+  },
+  "exitstatus": 0
+}

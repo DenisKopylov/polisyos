@@ -1,0 +1,17 @@
+"""Internal finite real scalar admission shared by numerical consumers."""
+
+from __future__ import annotations
+
+import math
+from numbers import Real
+
+
+def finite_real_scalar(raw: object) -> float | None:
+    """Refuse boolean, non-real and unrepresentable values before arithmetic."""
+    if isinstance(raw, bool) or not isinstance(raw, Real):
+        return None
+    try:
+        value = float(raw)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return value if math.isfinite(value) else None

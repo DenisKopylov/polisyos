@@ -1,0 +1,10 @@
+import importlib.util,json,sys,tomllib
+from pathlib import Path
+root=Path('.').resolve();p=root/'tools/ops_runners/release/check_compatibility_release_gates.py'
+spec=importlib.util.spec_from_file_location('release_gate',p);m=importlib.util.module_from_spec(spec);sys.modules[spec.name]=m;spec.loader.exec_module(m)
+policy=tomllib.loads((root/'architecture/gates/compatibility_release.toml').read_text())
+fragments=[]
+for name in ['2026-10-06-D-generator-resume.toml','2026-10-06-D-exact-pareto-quantity.toml']:
+ p=root/'release-fragments/unreleased'/name;v=tomllib.loads(p.read_text());v['__path__']=str(p.relative_to(root));fragments.append(v)
+errors,findings=m._validate_fragments(root,policy,fragments,breaking_classes=('runtime-state-format','persisted-artifact-format'))
+print(json.dumps({'errors':[str(x) for x in errors],'findings':[str(x) for x in findings]},indent=2));assert not errors

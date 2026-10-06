@@ -1,0 +1,8 @@
+"""Deliberate property removal: preserve schema/model/hashes/IDs, bypass row association."""
+import copy
+
+def pytest_sessionstart(session):
+    from polisyos.scientist.methods.search.strategies.bayesian import BayesianOptimizer
+    def unreconciled_rows(self, meta, X, Y, fitted_ids, warm):
+        return copy.deepcopy(meta["fitted_evaluations"])
+    BayesianOptimizer._reconcile_fitted_evaluations = unreconciled_rows

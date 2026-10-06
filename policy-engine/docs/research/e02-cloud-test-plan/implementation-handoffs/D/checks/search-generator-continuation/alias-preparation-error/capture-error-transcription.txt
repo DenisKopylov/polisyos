@@ -1,0 +1,1 @@
+FileNotFoundError before pytest while hashing selector path containing ::testname; exact traceback was tool-reported but not retained in scratch. Predicate basis not_established for traceback bytes. No child existed.

@@ -1,0 +1,3 @@
+Using CPython 3.14.2 interpreter at: /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
+Creating virtual environment at: /dev/shm/e02-B-architecture-cache-warm-1862c021df74/environment
+Activate with: source /dev/shm/e02-B-architecture-cache-warm-1862c021df74/environment/bin/activate

@@ -1,0 +1,78 @@
+{
+  "observation": "installed-wheel-child-dispatch",
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_root": "/workspace/e02-B-current-coordination/policy-engine",
+  "python": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/bin/python",
+  "site": "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/lib/python3.14/site-packages",
+  "wheel": "/tmp/e02-B-la057-final-1862c021df74-run/wheels/policy_engine-0.1.0-py3-none-any.whl",
+  "consumer_sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09",
+  "outer_sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702",
+  "command": [
+    "/tmp/e02-B-la057-final-1862c021df74-run/installed-env/bin/python",
+    "-I",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "-s",
+    "--noconftest",
+    "--import-mode=importlib",
+    "-c",
+    "/dev/null",
+    "-o",
+    "addopts=",
+    "-o",
+    "pythonpath=",
+    "-o",
+    "cache_dir=/tmp/e02-B-la057-final-1862c021df74-run/pytest-scratch/test_installed_wheel_consumers0/cache",
+    "--basetemp",
+    "/tmp/e02-B-la057-final-1862c021df74-run/pytest-scratch/test_installed_wheel_consumers0/child-scratch",
+    "--junitxml",
+    "/tmp/e02-B-la057-final-1862c021df74-run/pytest-scratch/test_installed_wheel_consumers0/installed-child.xml",
+    "/workspace/e02-B-current-coordination/policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py"
+  ],
+  "exit": 0,
+  "wall_s": 0.7886826150061097,
+  "child_maxrss_platform_units": 49804,
+  "maxrss_unit": "KiB on Linux; bytes on macOS",
+  "stdout": "/tmp/e02-B-la057-final-1862c021df74-run/pytest-scratch/test_installed_wheel_consumers0/installed-child.txt",
+  "stdout_sha256": "1fbcdb15b259954a496a8ab35968ea6ff512655f1af836fa3089734af55f3313",
+  "xml": "/tmp/e02-B-la057-final-1862c021df74-run/pytest-scratch/test_installed_wheel_consumers0/installed-child.xml",
+  "xml_sha256": "211b05505ba7e24734d525058b2d3c9e2dd38cc21dece361ce8fc583d5dd8651",
+  "actual_consumer_cases": [
+    {
+      "name": "test_installed_generic_identities[direct]",
+      "outcome": "passed"
+    },
+    {
+      "name": "test_installed_generic_identities[alias]",
+      "outcome": "passed"
+    },
+    {
+      "name": "test_installed_generic_identities[facade]",
+      "outcome": "passed"
+    },
+    {
+      "name": "test_installed_generic_identities[star_reflection]",
+      "outcome": "passed"
+    },
+    {
+      "name": "test_installed_direct_and_running_loop_context",
+      "outcome": "passed"
+    },
+    {
+      "name": "test_installed_timeout_cleans_real_pending_tasks",
+      "outcome": "passed"
+    },
+    {
+      "name": "test_installed_cancel_reaches_awaitable_finally[False]",
+      "outcome": "passed"
+    },
+    {
+      "name": "test_installed_cancel_reaches_awaitable_finally[True]",
+      "outcome": "passed"
+    }
+  ],
+  "module_origin_profile": "Complete actual child stdout, source/installed/wheel binding fixture.",
+  "count_scope": "One outer case and eight child consumer cases are separate denominators."
+}

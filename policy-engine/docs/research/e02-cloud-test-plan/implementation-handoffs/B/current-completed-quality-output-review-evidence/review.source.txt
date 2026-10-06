@@ -1,0 +1,126 @@
+import collections, hashlib, json, pathlib, re, shutil, subprocess
+ROOT=pathlib.Path('/workspace/e02-B-current-coordination')
+LANE=pathlib.Path('/workspace/e02-B-current-runtime')
+SHA='1862c021df74a5c5815bc5cd21a20e61b30132b6'
+TREE='f765043b27b96a1fbb0795aa600db9bd94df0e36'
+BASE='198076863e143dea9f89f02734b13d50dae3eed5'
+SCRATCH=pathlib.Path('/tmp/e02-B-quality-first-output-review-1862c021df74')
+RAW=ROOT/'.polisyos/e02-B-current/raw/review'
+DEST=LANE/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-output-review-evidence'
+DEST.mkdir(exist_ok=True)
+GATES=('ruff','format','mypy','architecture','runtime-api','production-invocation','verify-uncapped','parity-uncapped')
+CAPS=('OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS')
+def git(*args): return subprocess.check_output(['git','-C',str(ROOT),*args])
+def identify(path):
+ data=path.read_bytes()
+ return {'path':str(path),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+def write(name,data):
+ (DEST/name).write_text(json.dumps(data,indent=2)+'\n')
+checks=[]; git_bindings={}; local_bindings={}; rows=[]; profiles={}; texts={}; wrappers={}
+def verify_reads(obj):
+ if isinstance(obj,dict):
+  if {'path','source_sha','git_blob','bytes','sha256'} <= obj.keys():
+   key=obj['source_sha']+':'+obj['path']
+   if key not in git_bindings:
+    data=git('show',key); blob=git('rev-parse',key).decode().strip()
+    assert blob==obj['git_blob'] and len(data)==obj['bytes'] and hashlib.sha256(data).hexdigest()==obj['sha256'],key
+    git_bindings[key]={'source_ref':key,'git_blob':blob,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'actual_complete_byte_check':'PASS'}
+  if {'lexical_path','resolved_path','bytes','sha256'} <= obj.keys():
+   path=pathlib.Path(obj['lexical_path']); key=str(path)
+   if key not in local_bindings:
+    actual=identify(path); assert str(path.resolve())==obj['resolved_path'] and actual['bytes']==obj['bytes'] and actual['sha256']==obj['sha256'],key
+    local_bindings[key]={**actual,'resolved_path':str(path.resolve()),'actual_complete_byte_check':'PASS','qualification':'Actual current filesystem bytes; not proof of installed transitive execution graph or immutable shared ownership.'}
+  for v in obj.values(): verify_reads(v)
+ elif isinstance(obj,list):
+  for v in obj:verify_reads(v)
+assert git('rev-parse','HEAD').decode().strip()==SHA
+assert git('rev-parse','HEAD^{tree}').decode().strip()==TREE
+assert not git('status','--porcelain')
+for gate in GATES:
+ tag=f'completed-final-{gate}-{SHA[:12]}'
+ profile_path=RAW/(tag+'-profile.json'); capture_path=RAW/(tag+'.json'); output_path=RAW/(tag+'.txt')
+ profile_data=profile_path.read_bytes(); capture_data=capture_path.read_bytes(); output_data=output_path.read_bytes()
+ profile=json.loads(profile_data); capture=json.loads(capture_data)
+ assert (profile['sha'],profile['tree'],profile['gate'],profile['tag'])==(SHA,TREE,gate,tag)
+ assert (capture['head'],capture['tree'],capture['head_after'])==(SHA,TREE,SHA)
+ assert capture['harness_state']=='EXECUTED' and capture['exec_setup_error'] is None
+ assert capture['command']==profile['argv'] and capture['cwd']==profile['cwd']
+ assert capture['output_sha256']==hashlib.sha256(output_data).hexdigest()
+ assert profile['all_cap_names_absent_in_child'] and all(k not in profile['environment'] for k in CAPS)
+ assert profile['execution_state_at_profile_write']=='UNRUN'
+ verify_reads(profile)
+ for suffix,data in (('-profile.json',profile_data),('.json',capture_data),('.txt',output_data)):
+  (DEST/(gate+suffix)).write_bytes(data)
+  original=RAW/(tag+suffix); assert original.read_bytes()==data
+ row={'gate':gate,'tag':tag,'exit_code':capture['exit_code'],'harness_state':capture['harness_state'],'wall_seconds':capture['wall_s'],'maxrss_kib':capture['process_rusage_maxrss_kib'],'stdout':identify(output_path),'profile':identify(profile_path),'capture':identify(capture_path),'source_before_after':SHA,'profile_time_state':'UNRUN at profile creation, terminal state comes from completed capture','all_six_caps_absent':True}
+ rows.append(row); profiles[gate]=profile; texts[gate]=output_data.decode(); wrappers[gate]=capture
+changed=git('diff','--name-only','-z',BASE,SHA).split(b'\0'); changed=[p.decode() for p in changed if p]
+py_paths=[p for p in changed if pathlib.Path(p).suffix in ('.py','.pyi')]
+for gate in ('ruff','format'):
+ inputs=profiles[gate]['inputs']
+ assert inputs['all_changed_tracked_paths']==changed
+ assert inputs['changed_py_pyi_paths']==py_paths==inputs['active_gate_paths']
+ assert inputs['all_changed_tracked_count']==len(changed)==3332
+ assert inputs['active_gate_count']==inputs['changed_py_pyi_count']==len(py_paths)==273
+ assert inputs['deleted_paths']==[] and inputs['deleted_count']==0
+ruff=texts['ruff']; headers=re.findall(r'^([A-Z]+\d{3,4})\b(.*)$',ruff,re.M); locations=re.findall(r'^\s*--> ([^\n]+?):(\d+):(\d+)\s*$',ruff,re.M)
+assert len(headers)==len(locations)==4443
+assert 'Found 4443 errors.' in ruff
+ruff_rows=[{'code':h[0],'message':h[1].strip(),'path':loc[0],'line':int(loc[1]),'column':int(loc[2])} for h,loc in zip(headers,locations)]
+write('ruff-complete-diagnostic-census.json',{'full_raw_committed':'ruff.txt','diagnostics':ruff_rows,'count':len(ruff_rows),'rule_counts':dict(collections.Counter(row['code'] for row in ruff_rows)),'file_count':len(set(row['path'] for row in ruff_rows)),'research_count':sum(row['path'].startswith('docs/research/') for row in ruff_rows),'tests_count':sum(row['path'].startswith('tests/') for row in ruff_rows),'source_count':sum(row['path'].startswith('src/') for row in ruff_rows)})
+format_paths=re.findall(r'^Would reformat: (.+)$',texts['format'],re.M)
+assert len(format_paths)==101 and '101 files would be reformatted, 172 files already formatted' in texts['format']
+write('format-complete-path-census.json',{'paths':format_paths,'would_reformat':101,'already_formatted':172,'denominator':273,'research_count':sum(p.startswith('docs/research/') for p in format_paths)})
+mypy_lines=[line for line in texts['mypy'].splitlines() if ': error:' in line]
+assert len(mypy_lines)==3 and 'Found 3 errors in 3 files (checked 15 source files)' in texts['mypy']
+assert profiles['mypy']['inputs']['target_count']==15
+arch_unrun=re.findall(r'^- UNRUN (\S+) \[([^]]+)\]: (.+)$',texts['architecture'],re.M)
+assert len(arch_unrun)==4 and all(row[1]=='environment' and 'pillow==12.3.0' in row[2] for row in arch_unrun)
+workspace=pathlib.Path(profiles['architecture']['inputs']['retained_workspace_root'])
+assert workspace.is_dir()
+outputs=[str(p.relative_to(workspace)) for p in (workspace/'outputs').rglob('*') if p.is_file() or p.is_symlink()]
+assert outputs==[]
+arch_new_deep_lines=[line for line in texts['architecture'].splitlines() if line.startswith('- New deep-import creep detected:')]
+# Preserve the exact lines and let full output define their wording/quantity.
+write('architecture-first-attempt-state.json',{'workspace':str(workspace),'workspace_exists':True,'private_environment_cfg':identify(workspace/'environment/pyvenv.cfg'),'copied_uv_lock':identify(workspace/'source/uv.lock'),'copied_pyproject':identify(workspace/'source/pyproject.toml'),'required_unrun_families':[{'family':r[0],'stage':r[1],'message':r[2]} for r in arch_unrun],'actual_measured_output_files':outputs,'actual_measured_output_count':0,'four_family_map':'not_established: provisioning failed before measurement; historical JSON present in source copy is not a new measured map','partial_static_deep_import_diagnostic_lines':arch_new_deep_lines,'partial_static_deep_import_diagnostic_count':len(arch_new_deep_lines),'complete_verdict':'UNRUN','later_cache_environment_change':'Online frozen default-profile restoration separately recorded; does not reinterpret this first attempt.'})
+uncapped={}
+for gate in ('verify-uncapped','parity-uncapped'):
+ plan,end=json.JSONDecoder().raw_decode(texts[gate]); actual=re.findall(r'^\[uncapped constituent\] (.+)$',texts[gate],re.M)
+ assert plan['target_source_sha']==SHA and plan['target_tree']==TREE and plan['execute']
+ assert not plan['environment_delta']['ambient_names_present'] and not plan['numerical_cap_option_exists']
+ assert actual==[row['label'] for row in plan['commands'][:len(actual)]]
+ expected=['doctor','lint imports'] if gate=='verify-uncapped' else ['doctor']
+ assert actual==expected
+ unrun=plan['commands'][len(actual):]
+ config_refs=[]
+ for rel in ('policy-engine/tools/devx/workspace/verify.py','policy-engine/tools/devx/workspace/ci_parity.py','policy-engine/tools/devx/workspace/_common.py','policy-engine/apps/runtime-dashboard/package.json'):
+  origin=plan['config_source_sha']+':'+rel; data=git('show',origin); target=git('show',SHA+':'+rel)
+  assert data==target
+  config_refs.append({'configuration_ref':origin,'candidate_ref':SHA+':'+rel,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest(),'whole_byte_equal':True})
+ uncapped[gate]={'planned_top_level':plan['original_top_level_commands'],'planned_expanded':plan['expanded_commands'],'actual_started_count':len(actual),'actual_started':actual,'remaining_unrun_count':len(unrun),'remaining_unrun_complete_commands':unrun,'complete_actual_plan':plan,'configuration_source_role':'Pinned factory source, whole-byte equal to actual target for all four config inputs; not previous gate evidence','configuration_target_byte_checks':config_refs,'fail_fast_consumer_source':{'source_ref':SHA+':policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py','lines':'main executes each actual spec with subprocess.run(check=True); first failed constituent prevents later commands.'}}
+write('uncapped-complete-phase-interpretation.json',uncapped)
+prod_json=pathlib.Path(profiles['production-invocation']['outputs']['analysis_json']) if 'analysis_json' in profiles['production-invocation']['outputs'] else None
+prod_candidates=[pathlib.Path(wrappers['production-invocation']['command'][i+1]) for i,arg in enumerate(wrappers['production-invocation']['command'][:-1]) if arg in ('--json-output','--output-json','--receipt')]
+assert wrappers['production-invocation']['exit_code']==-9 and texts['production-invocation']==''
+write('source-and-artifact-custody.json',{'source_sha':SHA,'source_tree':TREE,'source_clean_before_after':True,'all_changed_tracked_count':3332,'all_changed_python_pyi_count':273,'all_changed_paths':changed,'all_changed_python_pyi_paths':py_paths,'deleted_python_gate_paths':[],'unique_git_read_bindings_count':len(git_bindings),'complete_git_read_bindings':list(git_bindings.values()),'unique_actual_file_read_bindings_count':len(local_bindings),'complete_actual_file_read_bindings':list(local_bindings.values()),'profile_final_state_relation':'Profiles are written before execution (UNRUN); completed captures bind the actual final exits/output bytes.','production_output_candidates':[{'path':str(p),'exists':p.exists()} for p in prod_candidates],'production_signal_interpretation':'Direct child exit -9 is SIGKILL; no PID-victim or causal OOM proof available to this reviewer. Parent reports cgroup oom2/kill1→oom5/kill3 in concurrent interval, consistent resource events only.','source_origin_attribution':'No inherited-red attribution: no exact baseline repeat/input-zero-overlap proof performed.','this_reviewer_execution':'Data-only full-byte reads, Git/source custody, literal phase interpretation; no native/collection/gates/build replay and no launcher code self-review.'})
+interpretations={
+'ruff':{'outcome':'FAIL','classification':'completed global code-quality RED','literal':'4443 diagnostics / 105 files; complete 273 changed Python/PYI denominator including research; no inherited waiver'},
+'format':{'outcome':'FAIL','classification':'completed formatting RED','literal':'101 would reformat +172 already formatted =273 complete files'},
+'mypy':{'outcome':'FAIL','classification':'completed proper-import type RED','literal':mypy_lines,'targets':15},
+'architecture':{'outcome':'UNRUN','classification':'canonical required four-family measurement unavailable','literal':'All four family environment stages blocked by missing locked Pillow12.3.0 offline cache; static deep-import drift remains partial completed evidence; no complete verdict or family map'},
+'runtime-api':{'outcome':'PASS','classification':'completed finite canonical contract checker PASS','literal':'Generated OpenAPI byte drift, hardening and runtime client byte bindings only; not endpoint/auth/client behavior, hosted CI or deployment'},
+'production-invocation':{'outcome':'ERROR','classification':'executed scanner terminated SIGKILL','literal':'exit -9, empty stdout and no complete JSON receipt; complete static verdict not established; causal process/PID OOM proof not established'},
+'verify-uncapped':{'outcome':'FAIL','classification':'completed failed lint constituent; later commands UNRUN','literal':'Doctor PASS then lint imports FAIL:21 unadjudicated,0 lapsed, no exceptions;2 of15 constituents started, remaining13 UNRUN'},
+'parity-uncapped':{'outcome':'FAIL','classification':'doctor FAIL with mixed schema RED/runtime resource termination; later commands UNRUN','literal':'Doctor only of35 expanded;2 stale schema snapshot diagnostics; nested runtime checker exit137; nested frontend contracts1PASS; remaining34 UNRUN; signal cause not established'} }
+for row in rows:row['interpretation']=interpretations[row['gate']]
+write('all-eight-first-attempt-interpretation.json',{'scope':'Eight literal first completed-final quality attempts on immutable1862 only. Root affected47 wave, current250 cohort and future retries are separate denominators.','rows':rows,'fully_terminal_first_attempts':8,'gate_counts':dict(collections.Counter(interpretations[g]['outcome'] for g in GATES)),'finding_closure':[],'source_clean_after':not git('status','--porcelain')})
+# Full moderate deciding outputs/profiles/captures are committed exactly, not replaced by summaries.
+shutil.copyfile(SCRATCH/'package.source.txt',DEST/'review.source.txt')
+warm=pathlib.Path('/tmp/e02-B-architecture-cache-warm-record-1862c021df74')
+for path in sorted(warm.iterdir()):
+ if path.is_file(): shutil.copyfile(path,DEST/('cache-warm-'+path.name))
+index=[]
+for path in sorted(DEST.iterdir()):
+ if path.is_file() and path.name!='index.json':index.append({'path':path.name,'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
+write('index.json',{'payload_count':len(index),'payload_bytes':sum(row['bytes'] for row in index),'files':index,'scope':'Actual first8 full moderate outputs/captures/profiles plus exact data-only census and separately authorized frozen dependency-cache preparation. No large copied environments, wheels, cached distributions or production data committed.'})
+print(json.dumps({'payload_count':len(index),'payload_bytes':sum(row['bytes'] for row in index),'git_bindings':len(git_bindings),'local_bindings':len(local_bindings),'outcomes':dict(collections.Counter(interpretations[g]['outcome'] for g in GATES))},indent=2))

@@ -1,0 +1,61 @@
+import hashlib, json, os, pathlib, subprocess, sys, time, tomllib
+from tools.devx.architecture import guardrails
+
+ROOT = pathlib.Path('/workspace/e02-B-current-coordination')
+PRODUCT = ROOT / 'policy-engine'
+RECORD = pathlib.Path('/tmp/e02-B-architecture-cache-warm-record-1862c021df74')
+WORK = pathlib.Path('/dev/shm/e02-B-architecture-cache-warm-1862c021df74')
+CACHE = pathlib.Path('/home/agent/.cache/uv')
+SHA = '1862c021df74a5c5815bc5cd21a20e61b30132b6'
+UV = pathlib.Path('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv')
+def git(*args):
+    return subprocess.check_output(['git','-C',str(ROOT),*args],text=True).strip()
+def identity(path):
+    data = path.read_bytes()
+    return {'path':str(path),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+def cache_inventory(name):
+    rows=[]
+    for path in sorted(CACHE.rglob('*')):
+        if path.is_file() and not path.is_symlink():
+            rows.append({'path':str(path.relative_to(CACHE)),'bytes':path.stat().st_size})
+    data={'cache_root':str(CACHE),'ownership':'existing shared cache; restoration explicitly authorized, not task-exclusive','files':rows,'regular_file_count':len(rows),'regular_bytes':sum(row['bytes'] for row in rows),'markers':[identity(CACHE/name) for name in ('CACHEDIR.TAG','.gitignore') if (CACHE/name).is_file()]}
+    (RECORD/(name+'.json')).write_text(json.dumps(data,indent=2)+'\n')
+    return data
+assert git('rev-parse','HEAD') == SHA
+assert not git('status','--porcelain')
+assert WORK.is_absolute() and not WORK.exists()
+WORK.mkdir(exist_ok=False)
+cache_inventory('cache-before')
+source=WORK/'source'
+guardrails._copy_isolated_probe_source(PRODUCT, source)
+env=guardrails._isolated_probe_environment(source,uv_cache_dir=CACHE,offline=False)
+env.pop('UV_OFFLINE',None)
+env['PATH']=str(UV.parent)+os.pathsep+env['PATH']
+inputs=[identity(PRODUCT/name) for name in ('pyproject.toml','uv.lock','vendor/wheels/odfpy-1.4.1-py2.py3-none-any.whl','tools/devx/architecture/guardrails.py')]
+for row in inputs:
+    copied=source/pathlib.Path(row['path']).relative_to(PRODUCT)
+    assert identity(copied)['sha256']==row['sha256']
+locked=tomllib.loads((source/'uv.lock').read_text())
+pillow=next(pkg for pkg in locked['package'] if pkg['name']=='pillow' and pkg['version']=='12.3.0')
+wheel=next(w for w in pillow['wheels'] if 'cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64' in w['url'])
+profile={'source_sha':SHA,'source_tree':git('rev-parse','HEAD^{tree}'),'canonical_module':identity(PRODUCT/'tools/devx/architecture/guardrails.py'),'copier_origin':guardrails.__file__,'input_refs':inputs,'source_copy':str(source),'private_environment':env['UV_PROJECT_ENVIRONMENT'],'shared_cache':str(CACHE),'mode':'online prerequisite preparation only; deciding architecture still offline','default_profile':'exact canonical uv venv then uv sync --frozen; no extra/group selectors','locked_pillow_wheel':wheel,'env':{k:env[k] for k in ('UV_FROZEN','UV_PROJECT','UV_PROJECT_ENVIRONMENT','UV_CACHE_DIR','UV_WORKING_DIR','UV_PYTHON','UV_NO_ENV_FILE','PYTHONPATH','PYTHONDONTWRITEBYTECODE','PYTHONNOUSERSITE','PATH')},'uv_offline_absent': 'UV_OFFLINE' not in env,'inherited_environment_names':sorted(env),'steps':[]}
+(RECORD/'profile.json').write_text(json.dumps(profile,indent=2)+'\n')
+steps=[('venv',[str(UV),'venv','--python',sys.executable,env['UV_PROJECT_ENVIRONMENT']]),('sync',[str(UV),'sync','--frozen'])]
+for name,argv in steps:
+    if name=='sync':
+        (source/'.venv').symlink_to(pathlib.Path(env['UV_PROJECT_ENVIRONMENT']),target_is_directory=True)
+    before=git('rev-parse','HEAD'); start=time.monotonic()
+    with (RECORD/(name+'.txt')).open('xb') as output:
+        child=subprocess.run(argv,cwd=source,env=env,stdout=output,stderr=subprocess.STDOUT,check=False)
+    row={'name':name,'argv':argv,'cwd':str(source),'exit_code':child.returncode,'wall_seconds':time.monotonic()-start,'head_before':before,'head_after':git('rev-parse','HEAD'),'clean_after':not git('status','--porcelain'),'stdout':identity(RECORD/(name+'.txt'))}
+    profile['steps'].append(row)
+    (RECORD/(name+'.json')).write_text(json.dumps(row,indent=2)+'\n')
+    (RECORD/'profile.json').write_text(json.dumps(profile,indent=2)+'\n')
+    print(json.dumps(row),flush=True)
+    if child.returncode:
+        cache_inventory('cache-after')
+        raise SystemExit(child.returncode)
+cache_inventory('cache-after')
+profile['import_origins_preflight']='UNRUN until private canonical import check follows'
+profile['cache_readiness']='default frozen sync completed; does not establish four generated-family freshness'
+(RECORD/'profile.json').write_text(json.dumps(profile,indent=2)+'\n')

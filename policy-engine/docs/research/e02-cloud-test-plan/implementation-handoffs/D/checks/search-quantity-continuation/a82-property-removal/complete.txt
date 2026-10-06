@@ -1,0 +1,53 @@
+..FF                                                                     [100%]
+=================================== FAILURES ===================================
+____ test_actual_quantity_is_exact_and_order_independent[points2-ref2-0.0] _____
+
+points = [(2.0, 0.0, 0.0), (0.0, 2.0, 0.0), (0.0, 0.0, 2.0)]
+ref = (0.0, 0.0, 0.0), expected = 0.0
+
+    @pytest.mark.parametrize(
+        ("points", "ref", "expected"),
+        [
+            ([(2.0,)], (0.0,), 2.0),
+            ([(3.0, 1.0), (1.0, 3.0)], (0.0, 0.0), 5.0),
+            ([(2.0, 0.0, 0.0), (0.0, 2.0, 0.0), (0.0, 0.0, 2.0)], (0.0, 0.0, 0.0), 0.0),
+            ([(3.0, 1.0, 2.0), (1.0, 3.0, 2.0), (2.0, 2.0, 3.0)], (0.0, 0.0, 0.0), 16.0),
+        ],
+    )
+    def test_actual_quantity_is_exact_and_order_independent(points, ref, expected):
+        for ordered in permutations(points):
+            result = compute_hypervolume_assessed(list(ordered), ref)
+>           assert result.value == expected
+E           AssertionError: assert 8.0 == 0.0
+E            +  where 8.0 = HypervolumeResult(value=8.0, assessment=HypervolumeAssessment(version='hypervolume-assessment.v2', status='available',...inated_box_union.float64.maximize.v1', algorithm='exact_empty', backend_version=None), reference_point=(0.0, 0.0, 0.0)).value
+
+tests/unit/scientist/methods/autotune/test_hypervolume_profile.py:46: AssertionError
+____ test_actual_quantity_is_exact_and_order_independent[points3-ref3-16.0] ____
+
+points = [(3.0, 1.0, 2.0), (1.0, 3.0, 2.0), (2.0, 2.0, 3.0)]
+ref = (0.0, 0.0, 0.0), expected = 16.0
+
+    @pytest.mark.parametrize(
+        ("points", "ref", "expected"),
+        [
+            ([(2.0,)], (0.0,), 2.0),
+            ([(3.0, 1.0), (1.0, 3.0)], (0.0, 0.0), 5.0),
+            ([(2.0, 0.0, 0.0), (0.0, 2.0, 0.0), (0.0, 0.0, 2.0)], (0.0, 0.0, 0.0), 0.0),
+            ([(3.0, 1.0, 2.0), (1.0, 3.0, 2.0), (2.0, 2.0, 3.0)], (0.0, 0.0, 0.0), 16.0),
+        ],
+    )
+    def test_actual_quantity_is_exact_and_order_independent(points, ref, expected):
+        for ordered in permutations(points):
+            result = compute_hypervolume_assessed(list(ordered), ref)
+>           assert result.value == expected
+E           AssertionError: assert 27.0 == 16.0
+E            +  where 27.0 = HypervolumeResult(value=27.0, assessment=HypervolumeAssessment(version='hypervolume-assessment.v2', status='available'...ithm='botorch_dominated_partitioning', backend_version='botorch=0.16.1;torch=2.10.0'), reference_point=(0.0, 0.0, 0.0)).value
+
+tests/unit/scientist/methods/autotune/test_hypervolume_profile.py:46: AssertionError
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_actual_quantity_is_exact_and_order_independent[points0-ref0-2.0]
+PASSED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_actual_quantity_is_exact_and_order_independent[points1-ref1-5.0]
+FAILED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_actual_quantity_is_exact_and_order_independent[points2-ref2-0.0]
+FAILED tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_actual_quantity_is_exact_and_order_independent[points3-ref3-16.0]
+2 failed, 2 passed in 0.34s

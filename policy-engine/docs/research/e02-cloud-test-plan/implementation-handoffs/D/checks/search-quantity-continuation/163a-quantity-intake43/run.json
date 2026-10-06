@@ -1,0 +1,69 @@
+{
+  "source_sha": "163a3b51630bca46b99ce660b40749fb79ed6b40",
+  "source_tree": "c0d81a144e904119db8521eb5ac9c533214e957c",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "native_observer",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp=/dev/shm/search-quantity-final-b7cc8787a0ef44b194ddc17dd33bb589",
+    "--junitxml=/workspace/e02-D2-receipts/search-quantity-intake-final-67f49161b1be481e9c5cd7601005f719/junit.xml",
+    "-q",
+    "-rA",
+    "tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+    "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+    "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+    "tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py"
+  ],
+  "environment_overrides": {
+    "PYTHONPATH": "src:.:/workspace/e02-D2-receipts/search-quantity-intake-final-67f49161b1be481e9c5cd7601005f719",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+  },
+  "cwd": "/workspace/e02-D-published-search/policy-engine",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-exact-pareto-quantity.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-generator-resume.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py"
+  ],
+  "changed_file_sha256": {
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-exact-pareto-quantity.toml": "2a1b7d4c306fdce60e7df635a5d13f656e5c604e855895d87c5b1b8ab8039713",
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-generator-resume.toml": "bf18525da0e28625c260e2c3295cfe71ed630e4d60df75629848068f06d548d3",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py": "9118b78b8462fba27ca7af39e0e0c3a4ceed4b4e5ac86c8dec7f15eaf550b10c",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py": "ad369ca3657d5a797c385ec1b7a70440cea78f9daf3b0b3c85404e08107c99e6",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py": "63fb9950862812e30e64fde899f8e2d08ea9e4c5cc65d70bde02b861ab295467",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py": "af36c6cb9647e9271aca81c993068eaff759fb01270ff36c8147cc565fa7be3b",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_profile.py": "1a2f7b4e752b8011df82731c708a0afd46eb75068f9caf11ef8c18d99530cf04",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py": "f9096dad70b07b8eae9a976e7a65010c592bc2352ad1ded425f47f5b534d1f25",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py": "125812f64a5fc6c6a679969f8117819792c17a98e1c7030a815e15e346cea4b8",
+    "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071"
+  },
+  "selector_sha256": {
+    "tests/unit/scientist/methods/autotune/test_hypervolume_profile.py": "1a2f7b4e752b8011df82731c708a0afd46eb75068f9caf11ef8c18d99530cf04",
+    "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py": "125812f64a5fc6c6a679969f8117819792c17a98e1c7030a815e15e346cea4b8",
+    "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071",
+    "tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py": "87c9db46c72bfbd59b8c3f62fc78392548cc71d00cd1adb8570278e3d536733b"
+  },
+  "returncode": 0,
+  "wall_seconds": 22.760946494992822,
+  "source_after": "163a3b51630bca46b99ce660b40749fb79ed6b40",
+  "status_after": "",
+  "output_sha256": "19596da7de0dab0c91fe40726c29cb5ad038ede9e217b6ae3c86b1b42b3f21a4"
+}

@@ -323,7 +323,8 @@ class TestParetoFront:
         promoter = ParetoPromoter(_policies("acc"))
         front = promoter.compute_front([])
         assert front.size == 0
-        assert front.hypervolume == 0.0
+        assert front.hypervolume is None
+        assert front.hypervolume_assessment.reason == "no_usable_inputs"
 
     def test_single_objective(self):
         promoter = ParetoPromoter(_policies("score"))
@@ -548,6 +549,7 @@ class TestParetoFront:
             "schema_version",
             "members",
             "hypervolume",
+            "hypervolume_assessment",
             "reference_point",
             "coordinate_schema",
             "coordinate_reference_point",
@@ -776,7 +778,7 @@ class TestParetoFront:
             {"acc": float("-inf"), "speed": 0.0},
         )
 
-        assert hypervolume == 0.0
+        assert hypervolume is None
 
     @pytest.mark.parametrize(
         ("metric_names", "points"),

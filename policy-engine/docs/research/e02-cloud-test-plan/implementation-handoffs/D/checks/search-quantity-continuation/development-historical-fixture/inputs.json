@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp=/dev/shm/search-quantity-0faa2d755ec040a49f1340ba91095462",
+    "--junitxml=/workspace/e02-D2-receipts/search-quantity-f4a50858c717468ea717ad4a6037a0f9/junit.xml",
+    "-q",
+    "-rA",
+    "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+    "tests/unit/scientist/methods/autotune/test_pareto.py"
+  ],
+  "scope": "uncommitted source at96eb plus changed files"
+}

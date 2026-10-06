@@ -1,0 +1,69 @@
+{
+  "source_sha": "a82a02b816b619d706b398100024a9bb5b0daf21",
+  "source_tree": "5135c198a39906961a6496fabe0072c70cb2e31b",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "native_observer",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp=/dev/shm/search-quantity-final-5cc823f1fb8544629577587a5edcd658",
+    "--junitxml=/workspace/e02-D2-receipts/search-quantity-final/junit.xml",
+    "-q",
+    "-rA",
+    "tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+    "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+    "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+    "tests/unit/scientist/methods/autotune/test_pareto.py",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "tests/unit/scientist/search/test_frontier_runtime.py",
+    "tests/unit/scientist/search/test_frontier.py",
+    "tests/unit/scientist/search/test_pareto_transfer.py"
+  ],
+  "environment_overrides": {
+    "PYTHONPATH": "src:.:/workspace/e02-D2-receipts/search-quantity-final",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+  },
+  "cwd": "/workspace/e02-D-published-search/policy-engine",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-exact-pareto-quantity.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py"
+  ],
+  "changed_file_sha256": {
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-exact-pareto-quantity.toml": "23d89946a927b7a709f7d58751ffb1ef052ad6be5a6912f9296d76ca5a137f6a",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py": "a31db780f862a38b301911aeb0861c9d847b7296853098e40bb2cf88111e51b6",
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py": "ecca7c958ca3b050c679a60edcd1483cad1618cd3ad57d51d73af4789c5904d0",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_profile.py": "9cbc2f31a34e3a0f00f6bad1c4b56fd2089f7f3748c796c9f109524200f2ce14",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py": "f9096dad70b07b8eae9a976e7a65010c592bc2352ad1ded425f47f5b534d1f25",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py": "be321b0a0fc446f7d44179b10a4f020c4f942d67d306697a8ed9f513b74aff3e",
+    "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071"
+  },
+  "selector_sha256": {
+    "tests/unit/scientist/methods/autotune/test_hypervolume_profile.py": "9cbc2f31a34e3a0f00f6bad1c4b56fd2089f7f3748c796c9f109524200f2ce14",
+    "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py": "be321b0a0fc446f7d44179b10a4f020c4f942d67d306697a8ed9f513b74aff3e",
+    "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071",
+    "tests/unit/scientist/methods/autotune/test_pareto.py": "f9096dad70b07b8eae9a976e7a65010c592bc2352ad1ded425f47f5b534d1f25",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py": "3e61bd27dbf7a3e769e5effa843d5e98306475bc95fe16d94c35694a26ca7df4",
+    "tests/unit/scientist/search/test_frontier_runtime.py": "4daa4d6f0dbe1a00eeed53e37dabcd5f022d14193d11a9185d000d34dba41380",
+    "tests/unit/scientist/search/test_frontier.py": "db452e942e98827005997942d1bf7a5fa4002a87e4dbf8e8f5bf35888b3d7b51",
+    "tests/unit/scientist/search/test_pareto_transfer.py": "2d9588023559d94c178e9e71ce93d450eed00809349b2de1e9b6d5b0febaf84b"
+  },
+  "returncode": 1,
+  "wall_seconds": 22.939995162989362,
+  "source_after": "a82a02b816b619d706b398100024a9bb5b0daf21",
+  "status_after": "",
+  "output_sha256": "ab36862eba6e21ec0b753f334adc8737499f20687b2a4e4d9a4ed0c13d362a20"
+}

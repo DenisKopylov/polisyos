@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-p",
+    "quantity_removal",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp=/dev/shm/search-quantity-removal-b03d85a91ec24f108a4d14b7b043e263",
+    "--junitxml=/workspace/e02-D2-receipts/search-quantity-removal-2814a17a77ca48de87f2e1d8c59a4992/junit.xml",
+    "-q",
+    "-rA",
+    "tests/unit/scientist/methods/autotune/test_hypervolume_profile.py::test_actual_quantity_is_exact_and_order_independent"
+  ],
+  "source_sha": "a82a02b816b619d706b398100024a9bb5b0daf21",
+  "exit": 1,
+  "wall_seconds": 15.790833258011844,
+  "purpose": "child-only property removal retains original members/schema/reference/assessment/profile/backend marker; replaces3Dunion by bounding box"
+}

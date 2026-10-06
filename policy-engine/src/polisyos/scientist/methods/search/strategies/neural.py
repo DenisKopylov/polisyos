@@ -359,7 +359,7 @@ class NeuralSearchStrategy(BaseSearchStrategy):
                     for value, encoded in zip(actual, expected, strict=True)
                 )
             )
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, OverflowError):
             return False
 
     def _read_warm(

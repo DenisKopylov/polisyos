@@ -162,6 +162,68 @@ def test_caller_mutation_and_duplicate_artifact_do_not_change_training_corpus(tm
     assert len(live._warm_data) == 3
 
 
+def test_duplicate_warm_artifact_refs_stay_one_effective_corpus_after_restore(tmp_path):
+    store, bridge, space, config, live, rows, basis = _prepared(tmp_path, n_initial=4)
+    live.warm_start(deepcopy(rows))
+    assert len(live._warm_data) == 6
+    assert len(live._training_corpus([])) == 3
+    first = live.suggest([])
+    assert first.source_strategy == "neural_sobol_init"
+    fresh = _fresh(space, config, bridge, basis)
+    fresh.set_state(StrategyState.from_artifact(store.get_bytes(_persist_state(store, live))))
+    assert len(fresh._warm_data) == 6
+    assert len(fresh._training_corpus([])) == 3
+    assert fresh.suggest([]).params_normalized == live.suggest([]).params_normalized
+
+
+@pytest.mark.parametrize("field", ["python_version", "python_word", "gaussian", "sobol_cursor"])
+def test_malformed_base_rng_checkpoint_refuses_without_live_mutation(tmp_path, field):
+    _, _, _, _, live, _, _ = _prepared(tmp_path)
+    live.suggest([])
+    before = live.get_state().to_artifact()
+    state = StrategyState.from_artifact(before)
+    state.iteration += 50
+    if field == "python_version":
+        state.rng_state["python"]["codec_version"] = True
+    elif field == "python_word":
+        state.rng_state["python"]["state"][0] = True
+    elif field == "gaussian":
+        state.rng_state["python"]["gauss_next"] = float("nan")
+    else:
+        state.rng_state["sobol"]["cursor"] = True
+    with pytest.raises(ValueError):
+        live.set_state(state)
+    assert live.get_state().to_artifact() == before
+
+
+@pytest.mark.parametrize("field", ["scalar_score", "params_normalized"])
+def test_unrepresentable_checkpoint_number_is_typed_atomic_refusal(tmp_path, field):
+    _, _, _, _, live, _, _ = _prepared(tmp_path)
+    before = live.get_state().to_artifact()
+    state = StrategyState.from_artifact(before)
+    row = state.metadata["warm_evaluations"][0]
+    row[field] = 10**400 if field == "scalar_score" else [10**400]
+    state.metadata["warm_corpus_sha256"] = live._corpus_digest(state.metadata)
+    with pytest.raises(ValueError, match="malformed"):
+        live.set_state(state)
+    assert live.get_state().to_artifact() == before
+
+
+@pytest.mark.parametrize("field", ["scalar_score", "params"])
+def test_unrepresentable_current_number_is_not_a_training_row(tmp_path, field):
+    _, _, _, _, live, rows, _ = _prepared(tmp_path)
+    row = deepcopy(rows[0])
+    row.metadata = {}
+    row.provenance_ref = None
+    row.candidate_id = "local-unrepresentable-number"
+    if field == "scalar_score":
+        row.scalar_score = 10**400
+    else:
+        row.params["x"] = 10**400
+    assert not live._compatible(row)
+    assert live._training_corpus([row]) == live._warm_data
+
+
 def test_native_single_task_gp_next_proposal_matches_fresh_cas_resume(tmp_path, monkeypatch):
     """Observe genuine fits and native EI; no model/acquisition is substituted."""
     import torch

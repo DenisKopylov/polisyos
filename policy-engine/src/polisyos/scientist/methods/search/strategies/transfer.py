@@ -268,9 +268,15 @@ class TransferLearningManager:
 
     @staticmethod
     def _number(value: Any, name: str) -> float:
-        if type(value) not in (int, float) or not math.isfinite(value):
+        if type(value) not in (int, float):
             raise ValueError(f"{name} must be a finite JSON number")
-        return float(value)
+        try:
+            number = float(value)
+        except OverflowError as exc:
+            raise ValueError(f"{name} must be a finite JSON number") from exc
+        if not math.isfinite(number):
+            raise ValueError(f"{name} must be a finite JSON number")
+        return number
 
     @staticmethod
     def _boolean(value: Any, name: str) -> bool:

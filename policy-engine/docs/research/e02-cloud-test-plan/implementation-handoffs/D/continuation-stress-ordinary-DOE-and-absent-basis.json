@@ -1,0 +1,574 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "continuation-stress-ordinary-DOE-and-absent-basis",
+  "closure_ids": [],
+  "finding_ids": [
+    "B106",
+    "B107"
+  ],
+  "bundle_ids": [
+    "STR-01"
+  ],
+  "companion_bundle_ids": [
+    "DOE-01",
+    "CTL-03",
+    "FUN-02"
+  ],
+  "slice_base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "implementation_commits": [
+    "c3a074b5d865815d8c1fa8227afcf967792109c1",
+    "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+    "2af38d95e83cf3f1ab121c47ff8898f5a0920bec"
+  ],
+  "source_sha": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+  "candidate_tree_sha": "9acd8a77a1018fecd3c6dca030eb1b9b387b4856",
+  "branch": "codex/e02-D-published-stress",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-actual-profile-complete.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-actual-profile-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-actual-profile-resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-environment-provision.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-environment-requirements.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-complete.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-origin-check.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-report-consumer-complete.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-report-consumer-resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-green-complete.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-green-resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-red-complete.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-red-resource.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/payload-manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/E-DOE-dependency.json",
+    "policy-engine/release-fragments/unreleased/2026-10-06-doe-block-replay.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+    "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+    "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+    "policy-engine/tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+    "policy-engine/tests/integration/scientist/methods/search/stress_doe_bridge_probe.py",
+    "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+    "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+    "policy-engine/tests/unit/scientist/search/test_challenge_scenario_projection.py"
+  ],
+  "supersedes_only": {
+    "original_handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-producer-blueprint.json",
+      "source_sha": "83ee2ef08de961b03ecb6b63259b75954541d286",
+      "sha256": "686126c40709d00ac8b39ce6bc5731c2f52e724b1cd85b096bcf74a2847a8896",
+      "bytes": 30066
+    },
+    "scope": "E combined execution/dependency and truthful no-prior fallback status. Original completed and failed outputs remain immutable. Original generic production/history limitation is not a new mandatory B106/B107 acceptance input."
+  },
+  "criterion_bindings": {
+    "original_document_bindings": {
+      "B_r19": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "97c85fae2d4505ec8248540d98b9556296244208",
+        "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+      },
+      "LA_r09": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "source_sha": "97c85fae2d4505ec8248540d98b9556296244208",
+        "blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+      }
+    },
+    "canonical_criteria": [
+      {
+        "finding_id": "B106",
+        "canonical_closure_owner": "STR-01",
+        "task_anchors": [
+          "D.md#bundle-str-01"
+        ],
+        "criterion_occurrences": [
+          {
+            "bundle": "STR-01",
+            "document": "B_r19",
+            "lines": [
+              2738,
+              2749
+            ],
+            "bytes": [
+              614780,
+              617772
+            ],
+            "criterion_sha256": "250b3bd2f5bc433b540605f3c9e37eddab7a5c693326c6193bb94cc9d4c67e33"
+          }
+        ]
+      },
+      {
+        "finding_id": "B107",
+        "canonical_closure_owner": "STR-01",
+        "task_anchors": [
+          "D.md#bundle-str-01"
+        ],
+        "criterion_occurrences": [
+          {
+            "bundle": "STR-01",
+            "document": "B_r19",
+            "lines": [
+              2750,
+              2761
+            ],
+            "bytes": [
+              617772,
+              621010
+            ],
+            "criterion_sha256": "35367e5237da490c93fb99395113d7251a972437ec52e1a54a8003e74d63eb7e"
+          }
+        ]
+      }
+    ],
+    "task_card": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+      "source_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+      "sha256": "622284b984ec12fcba96084cfad13e346112a0539ae081da683e1b663c5b4b6d",
+      "bytes": 110393
+    },
+    "canonical_scope": "B106 finite observed-stream counts/fraction before presentation, payload bound k+1, zero/unknown/incomplete/early-stop truthfulness. B107 reuse actual objective direction for search/worst-case with both directions, signs and invalid evidence. Population probability, deployment acceptance and empirical product performance are separate claims, not added mandatory acceptance criteria."
+  },
+  "original_baseline_acceptance": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json",
+    "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+    "sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17",
+    "index_acceptance": "transfer_and_navigation_only",
+    "product_closure": "not_established"
+  },
+  "baseline_cells": [
+    "F02-P067",
+    "F04-P120",
+    "F06-P088",
+    "F08-P120",
+    "F09-P068",
+    "F10-P068",
+    "F15-P079",
+    "F15-P142"
+  ],
+  "complete_census_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json",
+    "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+    "sha256": "b35d8860e60d926f4b99cd464cfb141fb1166a7318ea7a12147e28348e55ca11",
+    "bytes": 79975
+  },
+  "dependency_route": {
+    "kind": "ordinary_git_adoption",
+    "E_supplier_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+    "root_supplier_adoption_sha": "a843d963cf5f245035f32a6abd74f72206302c46",
+    "own_selected_adoption_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+    "D_threshold_intake": "D raw before-validator and DOE README retained by ordinary Git adoption; E owner branch is not rewritten.",
+    "prior_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-E-DOE01-bridge-request.json",
+      "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+      "sha256": "3e2a8bad7c8dc5b715e0408d7329044d120392cabef354ade085fbc3186987f8",
+      "bytes": 4579
+    }
+  },
+  "environment": {
+    "provision": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-environment-provision.json",
+      "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "sha256": "4597f650e105af4db2113715b72f6cb8dfc0db0b6608892a9dce5d9fd1af627f",
+      "bytes": 2538
+    },
+    "requirements": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-environment-requirements.txt",
+      "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "sha256": "ecc8c61909749407fd3cba2e8f4d1d2a5293937672315069d4b5bfe165942164",
+      "bytes": 284
+    },
+    "executable": "/workspace/e02-D-doe-env/bin/python",
+    "python": "3.14.7",
+    "base_purelib": "/workspace/e02-D-locked-env/lib/python3.14/site-packages",
+    "SALib": "1.5.2",
+    "multiprocess": "0.70.19",
+    "dill": "0.4.1",
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "compute_caps": null,
+    "resource_scope": "Measured wall/RSS; no artificial CPU/thread/process/time/memory limits."
+  },
+  "checks": [
+    {
+      "name": "ordinary E producer to D stress/blueprint consumer",
+      "target_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+      "command": [
+        "/workspace/e02-D-doe-env/bin/python",
+        "tests/integration/scientist/methods/search/stress_doe_bridge_probe.py"
+      ],
+      "outcome": "PASS",
+      "predicate_basis": "recomputed",
+      "wall_seconds": 89.74578591099998,
+      "peak_rss_kib": 815156,
+      "input_closure": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-inputs.json",
+        "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+        "sha256": "fb74df437369cf759695564e47bd5ab243bce285f469106a62bf2d543f390850",
+        "bytes": 5597
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-complete.txt",
+        "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+        "sha256": "40844bb8fddbc2e45d53c90f1a15cd01decf367bfa8c7d8df85a9446497ac1c7",
+        "bytes": 6859
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-resource.json",
+        "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+        "sha256": "8cc5190d16e6050cfc05ce6dbc4f1a845b4c052174941f1a54b46a4ff8ecbebe",
+        "bytes": 467
+      },
+      "actual_module_origin_reconciliation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-origin-check.json",
+        "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+        "sha256": "128c9b499252146d279aebb33e6fa18f7cf40f5293fe147b9b9bb5b85879a09c",
+        "bytes": 4913
+      },
+      "observations": {
+        "Morris_evaluations": 6,
+        "adaptive_round_rows": [
+          6,
+          12
+        ],
+        "adaptive_rounds": 2,
+        "adaptive_evaluations": 18,
+        "oversized_Morris_sampling_and_evaluator_calls": 0,
+        "guarded_per_round_estimate_limit": 9,
+        "guarded_admitted_rows": [
+          6
+        ],
+        "refused_next_estimated_rows": 12,
+        "guarded_stop_reason": "max_estimated_runs_exceeded",
+        "stress_attempted": 38,
+        "stress_finite": 38,
+        "stress_violated": 15,
+        "observed_fraction": "23/38",
+        "retained_examples_by_cap": {
+          "1": 1,
+          "20": 10
+        },
+        "fixed_stream_same": true,
+        "CAS_fresh_reader": true,
+        "grid_prefix_rows": 3,
+        "grid_possible_corners": 4096
+      },
+      "scope": "Actual existing E APIs and D native physical minimize-cost/search/report/blueprint recomputation/CAS fresh reader. Per-round estimated-run admission, not a total cumulative evaluation quota. No population or deployment verdict."
+    },
+    {
+      "name": "Pre-c3 expected-red attempt had no actual test verdict",
+      "target_sha": "b6d6910c35035e33d977201737bef31b4985ce06",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+        "-q",
+        "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+        "-k",
+        "no_prior_report",
+        "--basetemp",
+        "/dev/shm/e02-D-no-prior-report-red-e3749eeab1f642468219076b1f0a600f",
+        "--junitxml",
+        "/workspace/e02-D3-receipts/stress/no-prior-report-red-junit.xml"
+      ],
+      "outcome": "ERROR",
+      "uncompleted_cells": "UNRUN",
+      "predicate_basis": "not_established",
+      "exit_code": -9,
+      "wall_seconds": 106.01788733400463,
+      "peak_rss_kib": 733808,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-red-complete.txt",
+        "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-red-resource.json",
+        "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+        "sha256": "6ca14108073d2013bf35831e6f8803140d287d8a0866fdac4a76c0541e89857f",
+        "bytes": 664
+      },
+      "scope": "SIGKILL with empty output/no JUnit; no per-cell or product-cause inference."
+    },
+    {
+      "name": "Post-c3 main locked profile whole18 had no actual test verdict",
+      "target_sha": "c3a074b5d865815d8c1fa8227afcf967792109c1",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+        "-q",
+        "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+        "--basetemp",
+        "/dev/shm/e02-D-no-prior-report-green-f04b2dca951e4c7d86686e0722584f65",
+        "--junitxml",
+        "/workspace/e02-D3-receipts/stress/no-prior-report-green-junit.xml"
+      ],
+      "outcome": "ERROR",
+      "uncompleted_cells": "UNRUN",
+      "predicate_basis": "not_established",
+      "exit_code": -9,
+      "wall_seconds": 166.74240684098913,
+      "peak_rss_kib": 515128,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-green-complete.txt",
+        "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-green-resource.json",
+        "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+        "sha256": "d726c03c9d673ac7c8915c4172ffab80b6f8d36771d5325254c9335f12671142",
+        "bytes": 635
+      },
+      "scope": "SIGKILL with empty output/no JUnit; no per-cell or product-cause inference."
+    },
+    {
+      "name": "Post-c3 optional DOE profile whole18 had no actual test verdict",
+      "target_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+      "command": [
+        "/workspace/e02-D-doe-env/bin/python",
+        "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+        "-q",
+        "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+        "--basetemp",
+        "/dev/shm/e02-D-doe-report-consumer-9831d362eabc4315a3eb16a9efa7de23",
+        "--junitxml",
+        "/workspace/e02-D3-receipts/stress/doe-report-consumer-junit.xml"
+      ],
+      "outcome": "ERROR",
+      "uncompleted_cells": "UNRUN",
+      "predicate_basis": "not_established",
+      "exit_code": -9,
+      "wall_seconds": 166.00261650899483,
+      "peak_rss_kib": 428964,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-report-consumer-complete.txt",
+        "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-report-consumer-resource.json",
+        "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+        "sha256": "060e39d60988112307c3984c12c9aa943ad654e16a4ac664f5051bd221374c86",
+        "bytes": 776
+      },
+      "scope": "SIGKILL with empty output/no JUnit; no per-cell or product-cause inference."
+    },
+    {
+      "name": "assembled optional-profile diagnostic only",
+      "outcome": "PASS",
+      "acceptance_role": "diagnostic_only",
+      "predicate_basis": "recomputed",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-actual-profile-complete.txt",
+        "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+        "sha256": "cf3bc2f9c245fd54c6e51444e5bf8d407b872f677881b73c578e0fb3e1ae8ae2",
+        "bytes": 6899
+      },
+      "input_closure": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-actual-profile-inputs.json",
+        "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+        "sha256": "e1cf845f3c3c5f7b66b5b8a4523580606b235bf9b84798485c69bf1113522c2c",
+        "bytes": 4072
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-actual-profile-resource.json",
+        "source_sha": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+        "sha256": "c0a23e410de539026714cd394e10964baaffbc7fcac4f17693b199e846e7ad33",
+        "bytes": 518
+      },
+      "scope": "Earlier assembled source projection retained; ordinary Git run above is the canonical mechanism evidence."
+    },
+    {
+      "name": "Actual no-prior blueprint positive",
+      "target_sha": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+      "command": [
+        "/workspace/e02-D-doe-env/bin/python",
+        "tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+        "positive",
+        "2af38d95e83cf3f1ab121c47ff8898f5a0920bec"
+      ],
+      "outcome": "PASS",
+      "predicate_basis": "recomputed",
+      "wall_seconds": 19.554849375999765,
+      "peak_rss_kib": 804996,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-positive-complete.txt",
+        "source_sha": "29a7d8fe1971ae4cb9e18968179f9473d1661f0b",
+        "sha256": "62de12349cfcd142f15530f2c0d882907550f11cb724c8b7b4da57038817c159",
+        "bytes": 8911
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-positive-resource.json",
+        "source_sha": "29a7d8fe1971ae4cb9e18968179f9473d1661f0b",
+        "sha256": "d179b049f6044e6de77d5ac488c8f8d5e0be8bef33a59534018e8532ed77a2c9",
+        "bytes": 747
+      },
+      "scope": "Actual defining blueprint function and ordinary context/registry/case producer/CAS fresh reader; no pytest collection/extracted defining function in positive mode.",
+      "expected_outcome": "PASS",
+      "actual_module_origins": 8,
+      "actual_module_origin_reconciliation": "The executing probe compares all eight loaded files to source_sha Git bytes and refuses mismatch before verdict.",
+      "property_effect": "Positive empty total/base0, supplemental actual32/1 violation component31/32, unknown base keeps overallNone/partial; body/manifest1.1. Removal changes only actual zero total/base to1 in memory, same checks FAIL while schema/status/unknown-component markers stay true."
+    },
+    {
+      "name": "Actual no-prior blueprint invent_attempt",
+      "target_sha": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+      "command": [
+        "/workspace/e02-D-doe-env/bin/python",
+        "tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+        "invent_attempt",
+        "2af38d95e83cf3f1ab121c47ff8898f5a0920bec"
+      ],
+      "outcome": "FAIL",
+      "predicate_basis": "recomputed",
+      "wall_seconds": 19.27716282599431,
+      "peak_rss_kib": 818932,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-removal-complete.txt",
+        "source_sha": "29a7d8fe1971ae4cb9e18968179f9473d1661f0b",
+        "sha256": "5e6136a8b443d260f4ad1570a82f1980a1a0d52c626339f50f41775f081a01dd",
+        "bytes": 8327
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-removal-resource.json",
+        "source_sha": "29a7d8fe1971ae4cb9e18968179f9473d1661f0b",
+        "sha256": "25c34bedffdbe590585c092002b16b086bd9ac1a8444abaf7ac4fbe2adf83ccd",
+        "bytes": 756
+      },
+      "scope": "Only actual defining no-prior zero-count property removed in memory; same ordinary context/case/CAS controls, markers/body/schema preserved; no production file writes.",
+      "expected_outcome": "FAIL",
+      "actual_module_origins": 8,
+      "actual_module_origin_reconciliation": "The executing probe compares all eight loaded files to source_sha Git bytes and refuses mismatch before verdict.",
+      "property_effect": "Positive empty total/base0, supplemental actual32/1 violation component31/32, unknown base keeps overallNone/partial; body/manifest1.1. Removal changes only actual zero total/base to1 in memory, same checks FAIL while schema/status/unknown-component markers stay true."
+    },
+    {
+      "name": "Current owned whole-path Ruff/check+format",
+      "target_sha": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python -m ruff check <seven paths>",
+        "/workspace/e02-D-locked-env/bin/python -m ruff format --check <seven paths>"
+      ],
+      "input_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+        "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "policy-engine/tests/integration/scientist/methods/search/stress_absent_report_probe.py"
+      ],
+      "outcome": "PASS",
+      "predicate_basis": "recomputed",
+      "complete_output": "All checks passed!\n7 files already formatted\n",
+      "scope": "Static check/format of complete actual paths; not a runtime or broad quality verdict."
+    }
+  ],
+  "no_prior_fallback": {
+    "implementation_sha": "c3a074b5d865815d8c1fa8227afcf967792109c1",
+    "property": "Absent actual report publishes schema1.1 with total0/base_total0, unavailable combined basis and partial status. A known32-case supplemental component keeps31/32 separately; no synthetic base attempt.",
+    "state": "implemented_and_runtime_verified_author_scope",
+    "consumer_verdict": "PASS",
+    "probe_ref": {
+      "path": "policy-engine/tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+      "source_sha": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+      "sha256": "5b7ff27e6f5418d2f2cffdf624b1c3df9797747a432d0820d571eba45697d022",
+      "bytes": 9100
+    }
+  },
+  "property": {
+    "statement": "Actual E received sensitivity output feeds the D stress generator. Full finite-scenario counts determine observed fraction before grouping/topk, direction matches physical cost objective, oversize E sampling is refused before materialization.",
+    "runtime_path": [
+      "SensitivityBridge/SensitivityPlan -> real Morris sampling and analysis",
+      "analysis CAS -> SensitivityAwareCandidateGenerator.from_artifact",
+      "run_stress_test -> StressScenarioEvidence/StressTestReport1.1",
+      "actual blueprint _recompute -> CAS -> fresh typed reader"
+    ],
+    "proxy_divergence": "Same38 finite outcomes retain1 vs10 displayed examples while violated15 and23/38 remain fixed. Oversized plan produces no samples/evaluations. Known supplemental cases must not invent an absent base attempt.",
+    "negative_controls": [
+      "Real oversized Morris intake refuses before sampler/evaluator",
+      "Real AdaptiveSampler refuses next estimated12-row matrix at configured9 before sampler",
+      "Real grid iterator yields3 of4096 corners before numpy materialization"
+    ]
+  },
+  "predicate_basis": "not_established",
+  "predicate_scope": "Author-proposed bounded B106/B107 engineering closure awaits independent review/admission. Individual recorded runtime properties and actual Git-origin bindings have separate bounded predicates. Combined/local G acceptance and whole-population claims remain not_established.",
+  "capability_state_or_finding_state": "implemented_and_verified_author_scope; independent_admission_pending",
+  "limitations_and_next_owner": [
+    {
+      "owner": "Independent numerical oracle + G STR-01 admission",
+      "input": "Independent read/reconciliation of exact source2af, current E/no-prior outputs and original full criterion controls",
+      "ref": null,
+      "state": "Author-proposed bounded closure; no author self-review/authority claim. Actual direct fallback PASS and removal expectedFAIL now received; earlier killed pytest scopes remain ERROR/UNRUN."
+    },
+    {
+      "owner": "G acceptance",
+      "input": "Authorized combined/local acceptance on its actual canonical inputs",
+      "ref": null,
+      "state": "not_established; no deployment/whole-space probability assertion."
+    },
+    {
+      "owner": "A evaluation-admission/runtime caller + D FUN-02",
+      "input": "Actual evaluation certificate/context/verifier and deployed configurable caller mapping for default node paid-provider execution",
+      "ref": null,
+      "state": "Separate factory capability not established; does not add a scientific input to B106/B107."
+    },
+    {
+      "owner": "G verification/backend",
+      "input": "Completed four-path typecheck and global required quality gates",
+      "ref": null,
+      "state": "Earlier killed typechecks remain ERROR; E mechanism PASS is not a quality-gate waiver."
+    }
+  ],
+  "source_copy_deviation": {
+    "user_constraint": "No further copies of tracked source; contracts travel through Git branches/checkpoints.",
+    "earlier_retained_assembled_paths": [
+      "/dev/shm/e02-D-E-composed-np9pjw79",
+      "/dev/shm/e02-D-E-composed-full-036mrf56",
+      "/dev/shm/e02-D-E-doe-profile-3i1gxyjg"
+    ],
+    "diagnostic_only": true,
+    "new_canonical_route": "Actual existing admitted own lane at eb826b57fd9ea98550b93f840aca6d54e6454a27; ordinary selected E dependency, no source mirror/overlay.",
+    "cleanup": "None; paths and diagnostic evidence retained. No permanent deletion/cleanup."
+  },
+  "retention_scope": "Fresh isolated test/CAS fixtures. No global preservation claim; no permanent cleanup/deletion.",
+  "original_receipts_preserved": true,
+  "independent_prior_scope": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/stress-correction-independent-review.json",
+      "source_sha": "5084a2f596a4478d3e5a15926010e23affe4976c",
+      "sha256": "30535b8355cac99396f4b2cbd32af956456d4abb602679dd36c6c848fe21ad81",
+      "bytes": 35947
+    },
+    "scope": "Independent acceptance applies to ee6 complete-component/schema/resource projection correction only. New ordinary E composition and no-prior fallback have not yet been independently admitted."
+  },
+  "criterion_disposition_proposals": [
+    {
+      "finding_id": "B106",
+      "canonical_closure_owner": "STR-01",
+      "proposed_disposition": "closed_bounded_engineering",
+      "admission_status": "pending_independent_review",
+      "criterion_content": "Original paragraph and canonical STR-01 path unchanged; see exact byte/hash anchors above.",
+      "basis": "Actual finite-stream/reference and cap/grouping controls, direction/invalid-evidence controls, native typed report/blueprint/CAS consumer and property-removal evidence in original handoff plus current E/no-prior addendum.",
+      "excluded_claims": "No population probability, model uncertainty, empirical product performance or combined/local G acceptance is asserted. These are separate claims, not extra required inputs to this finite engineering criterion."
+    },
+    {
+      "finding_id": "B107",
+      "canonical_closure_owner": "STR-01",
+      "proposed_disposition": "closed_bounded_engineering",
+      "admission_status": "pending_independent_review",
+      "criterion_content": "Original paragraph and canonical STR-01 path unchanged; see exact byte/hash anchors above.",
+      "basis": "Actual finite-stream/reference and cap/grouping controls, direction/invalid-evidence controls, native typed report/blueprint/CAS consumer and property-removal evidence in original handoff plus current E/no-prior addendum.",
+      "excluded_claims": "No population probability, model uncertainty, empirical product performance or combined/local G acceptance is asserted. These are separate claims, not extra required inputs to this finite engineering criterion."
+    }
+  ]
+}

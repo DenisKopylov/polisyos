@@ -230,3 +230,41 @@ def test_empty_component_stays_incomplete_beside_a_complete_case_set(tmp_path: P
         from_canonical_bytes(FileSystemCAS(tmp_path / "cas").get_bytes(ref.artifact_id))
     )
     assert restored.set_adequacy_status == "partial" and restored.is_robust is False
+
+
+@pytest.mark.parametrize("with_cases", [False, True])
+def test_no_prior_report_has_no_invented_attempt_and_keeps_available_case_component(
+    tmp_path: Path, with_cases: bool
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry, run_id="no-prior-report")
+    context = ExecutionContext(store=store, run=run, logger=logging.getLogger("no-prior-report"))
+    supplemental = (
+        [_suite(store, [_case(index, index < 31) for index in range(32)]).stress_test_report]
+        if with_cases
+        else []
+    )
+    reference = _ensure_stress_test_report(
+        context,
+        ExperimentState(run_id="no-prior-report"),
+        evaluation_vector=PolicyEvaluationVector(candidate_id="c"),
+        supplemental_reports=supplemental,
+    )
+    reopened = FileSystemCAS(tmp_path / "cas")
+    observed = StressTestReport.model_validate(
+        from_canonical_bytes(reopened.get_bytes(reference.artifact_id))
+    )
+    assert observed.schema_version == "1.1"
+    assert observed.total_scenarios_evaluated == (32 if with_cases else 0)
+    assert observed.metadata["base_total_scenarios_evaluated"] == 0
+    assert observed.robustness_score is None and observed.set_adequacy_status == "partial"
+    assert observed.is_robust is False
+    if with_cases:
+        component = observed.scenario_evidence_components[f"suite:{STRATEGIC_GAMING_SUITE_ID}"]
+        assert component is not None
+        assert component.finite_evaluated == 32 and component.violated_scenarios == 1
+        assert component.observed_fraction == 31 / 32
+        assert any(item is None for item in observed.scenario_evidence_components.values())
+    else:
+        assert observed.scenario_evidence is None

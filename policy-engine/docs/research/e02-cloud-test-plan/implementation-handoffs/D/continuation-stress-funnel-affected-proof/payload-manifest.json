@@ -1,0 +1,39 @@
+{
+  "schema": "policyos.e02.captured_payload_manifest.v1",
+  "runtime_candidate_sha": "420d3ab6bc63ef3088e5fa32c04ed5e618edc208",
+  "payloads": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-funnel-affected-proof/funnel-affected-complete.txt",
+      "sha256": "3d6c4d97e5022f10f77374e54e9b60c1828c75931519cfbed14847c5df6603c2",
+      "bytes": 6914
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-funnel-affected-proof/funnel-affected-junit.xml",
+      "sha256": "70d1930273d3c1602eae94c437eb616d94a26a423469665aa43af64fae8387f8",
+      "bytes": 1677
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-funnel-affected-proof/funnel-affected-resource.json",
+      "sha256": "d673f1882000556e4f38dfc584e691066eed4805b4b0450fb25ac96909384dfe",
+      "bytes": 1344
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-funnel-affected-proof/inputs.json",
+      "sha256": "74c13b8ea45c6234e25fa77b31e10f40c3ecdbcdc541545e2a2d2d4fda218e97",
+      "bytes": 3508
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-funnel-affected-proof/runner.py.txt",
+      "sha256": "29761f38463a74c2e3eea1f845bc3ac31a71f5ba1470fa9296eacd3053b515b6",
+      "bytes": 1833
+    }
+  ],
+  "outcome": "PASS",
+  "executed_tests": 7,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "actual_boundary_origins": 17,
+  "scope": "Actual merged L5component consumer plus configured native paid/pending producer\u2192blueprint\u2192ordinaryJSON\u2192CASfreshreader, no default-node paid-provider or global acceptance verdict.",
+  "packaging_note": "First summary extraction assumed origin footer started a line and raised StopIteration before any evidence file write. Actual footer followed pytest progress on same line; exact JSON decoded from its unique producer delimiter. Original output bytes unchanged; no new runtime."
+}

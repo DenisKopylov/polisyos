@@ -1,0 +1,18 @@
+{
+  "source_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+  "command": [
+    "/workspace/e02-D-doe-env/bin/python",
+    "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+    "-q",
+    "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+    "--basetemp",
+    "/dev/shm/e02-D-doe-report-consumer-9831d362eabc4315a3eb16a9efa7de23",
+    "--junitxml",
+    "/workspace/e02-D3-receipts/stress/doe-report-consumer-junit.xml"
+  ],
+  "profile": "Optional provisionedSALibprofile reusinglockedPython3.14.7 stack; actual EReport/blueprint affectedconsumer scope, separatefrom earlierlocked-envERROR.",
+  "exit_code": -9,
+  "wall_seconds": 166.00261650899483,
+  "peak_rss_kib": 428964,
+  "source_sha_after": "eb826b57fd9ea98550b93f840aca6d54e6454a27"
+}

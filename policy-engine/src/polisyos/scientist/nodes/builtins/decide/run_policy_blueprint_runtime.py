@@ -1588,8 +1588,10 @@ def _ensure_stress_test_report(
     report = _load_stress_test_report(ctx, existing_ref)
     if report is None:
         report = StressTestReport(
+            schema_version="1.1",
             report_id=f"stress_{state.run_id}",
-            total_scenarios_evaluated=1,
+            # Evaluation-vector issues do not establish an executed scenario count.
+            total_scenarios_evaluated=0,
             vulnerabilities=build_vulnerabilities(
                 evaluation=evaluation_vector,
                 distributional=load_distributional_report_for_state(ctx, state),
@@ -1602,7 +1604,8 @@ def _ensure_stress_test_report(
                 "generated_by": "run_policy_blueprint_runtime",
                 "phase_d4_suite_ids": [],
                 "phase_d4_suite_scenario_counts": {},
-                "base_total_scenarios_evaluated": 1,
+                "base_total_scenarios_evaluated": 0,
+                "base_scenario_basis": "unavailable",
             },
         )
     report = _merge_stress_test_reports(

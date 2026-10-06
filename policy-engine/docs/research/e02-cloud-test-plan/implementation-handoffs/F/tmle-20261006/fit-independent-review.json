@@ -1,0 +1,111 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "F/foundry; independent from FIT author",
+  "source_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+  "source_tree": "4d87ce0690e001967b245ce18217cb36fff3c988",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "outcome": "PASS",
+  "code_review": "GO for bounded B54 cache/content-reader class and B56 nested-fold admission; no product/domain closure",
+  "changed_paths": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py"
+  ],
+  "source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+      "bytes": 59964
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+      "sha256": "7b7da64baf54cdf94752c63f52fd2dda05eeec4469f81f09ae61a5515d5a3f04",
+      "bytes": 18330
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py",
+      "sha256": "dc6364a0a7045219711e0bfbc4ce674888e15c556533be3933d7a6f9d4ac3476",
+      "bytes": 8608
+    }
+  ],
+  "native_execution": {
+    "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+    "argv": [
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "/workspace/e02-F-20261006-receipts/rdd/test_fit_independent.py",
+      "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+      "tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py",
+      "tests/unit/remediation/test_fit_01.py",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra"
+    ],
+    "environment": "readonly root application Python3.14.7; PYTHONPATH=src:.",
+    "exit_code": 0,
+    "tests_passed": 73,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "warnings": 144,
+    "pytest_duration_s": 18.49,
+    "wall_time_s": null,
+    "wall_time_limit": "wall measurement unavailable for this direct reviewer launch; actual pytest time retained",
+    "output_refs": [
+      {
+        "path": "/workspace/e02-F-20261006-receipts/rdd/test_fit_independent.py",
+        "sha256": "0564c8d1de2ee4b5799a9dfcfc3ceb07a33b6d55c0abbdd05031aed5ebcc1aff",
+        "bytes": 5815
+      },
+      {
+        "path": "/workspace/e02-F-20261006-receipts/rdd/fit-independent-native.stdout",
+        "sha256": "f7a20e17f7df0f2a5177806cc92c5a041e822341d5ac7aa4ecac9c5cf67221d0",
+        "bytes": 986
+      },
+      {
+        "path": "/workspace/e02-F-20261006-receipts/rdd/fit-independent-native.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    ]
+  },
+  "per_id": [
+    {
+      "id": "B54",
+      "outcome": "PASS",
+      "criterion_scope": "recomputed full statistical fit identity within controlled process cache; same caller label with changed data/model/folds/seeds/config cannot substitute; immutable data bytes and independent reader headers/current diagnostics",
+      "independent_controls": [
+        "whole reader .base chain rejects writeability; mutate all shape/dtype headers and nested metadata then fresh read matches original",
+        "actual row permutation changes fit identity under same namespace",
+        "current diagnostic policy reuses fit but rebinds fresh metadata",
+        "offered predictions ignored; forged identity with no issued controlled cache entry rejected",
+        "independent SciPy brent root matches native logit score solver",
+        "native targeting retains bounded predictions/score and independent EIF SE",
+        "positivity/trimmed/unsupported/nonconvergence emit limited non-gate result without CI"
+      ]
+    },
+    {
+      "id": "B56",
+      "outcome": "PASS",
+      "criterion_scope": "serial fold tasks execute under actual outer LocalWorkerPool admission; pressure with budgets1/2 retains all4studies×2repeats×3folds and exactheldout rows",
+      "independent_controls": [
+        "fresh replay author worker pressure tests using actual native models, real node dispatch, CAS and fresh CAS reader",
+        "serial vs requested parallel returns same native EIF/point/interval and records effectivefoldworkers1"
+      ]
+    }
+  ],
+  "scientific_limits": [
+    "regular_iid EIF normal interval remains asymptotic; no finite-sample arbitrary-DGP or admitted-real-data guarantee",
+    "public TMLE payload always candidate/limited and gate_eligiblefalse with consumer_asserted identification assumptions",
+    "120-seed known randomized binary DGP pilot replayed; not broad coverage for other laws",
+    "custom test StudyNode through actual LocalWorkerPool is bounded execution witness; actual production Scientist causal consumer and shared output ABI belong to root",
+    "serial folds prevent nested pool fanout; no claim of global BLAS/process/thread cap outside actual outer job admission",
+    "DoWhy/EconML are not exercised or required for this native nuisance owner; optional absent/marker excluded paths not counted as backend PASS"
+  ],
+  "defects": [],
+  "harness_errors": [
+    "first navigation used nonexistent guessed fit/test directory; corrected by rg --files before execution; no product invocation involved"
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "checked_complete_files": 40,
+  "credential_or_signed_query_hits": [],
+  "sanitation": "none; all output bytes retained; gzip lossless with decompressed hashes",
+  "scope": "all delivered companion outputs, receipts, independent test, baseline queries"
+}

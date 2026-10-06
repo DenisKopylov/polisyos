@@ -1,0 +1,19 @@
+Independent FIT source55d2e147 / tree4d87ce06 / base19807686
+Complete native stdout:
+........................................................................ [ 98%]
+.                                                                        [100%]
+=============================== warnings summary ===============================
+tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py: 48 warnings
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMClassifier was fitted with feature names
+    warnings.warn(
+
+tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py: 96 warnings
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+73 passed, 144 warnings in 18.49s
+
+Complete native stderr:
+
+GO boundedB54/B56 only. Source bindings/controls/full command in siblingJSON; no admitted-real-data/globalbudget/domainclosure.

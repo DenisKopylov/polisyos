@@ -1,16 +1,30 @@
 id = "2026-10-06-e02-evidence-facades"
-title = "Expose canonical predictive evidence and sampling consumer entrypoints"
+title = "Expose canonical predictive evidence through Calibration"
 type = "added"
-component = "calibration-foundry-uncertainty"
-owner = "E"
-summary = "Scientist imports predictive evidence and terminal-draw reconciliation through existing Calibration and Foundry uncertainty facades. Exports resolve to canonical objects and preserve non-gating authority boundaries."
+component = "calibration"
+owner = "team-scientist"
+summary = "Scientist imports predictive evidence through the existing Calibration facade. Exports resolve to canonical objects and preserve non-gating authority boundaries. The Foundry uncertainty companion has its own canonical owner."
 change_class = "python-public-api"
-surface_classification = "public_experimental: polisyos.calibration; public_stable: polisyos.foundry.uncertainty"
+surface_classification = "public_experimental: polisyos.calibration"
 compatibility = "Additive exports; existing entrypoints and candidate schema semantics unchanged. No Core or IR facade admission is inferred."
 migration = "Use package-level exports for the listed Scientist evidence and sampling callers."
 limitations = "Core artifacts/canon and missing IR analytics exports still require their canonical public-surface owner decision."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
 evidence = ["tests/unit/calibration/test_evidence_facades.py", "tests/unit/scientist/methods/backtesting/test_forecast_owner.py"]
-migration_docs = ["src/polisyos/calibration/README.md", "src/polisyos/foundry/uncertainty/README.md"]
+migration_docs = ["src/polisyos/calibration/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "calibration-predictive-evidence-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.calibration"
+owner = "team-scientist"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Expose canonical predictive evidence writer and loader objects through the existing Calibration facade."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/calibration/README.md"]
 runbook_docs = []

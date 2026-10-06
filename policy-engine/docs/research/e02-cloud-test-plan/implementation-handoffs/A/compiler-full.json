@@ -291,7 +291,40 @@
         "compiler_persisted_readback": {
           "path": "compiler-full/compiler-readback.json",
           "sha256": "d1d31eef31ddf6c0781d601be7325144e3f36292142abac20e5dd4413fb481d2"
+        },
+        "result_summary": "1 passed in 4.07s; one non-failing record_property/xunit2 warning.",
+        "pytest_stdout": {
+          "path": "compiler-full/installed-wheel.stdout.log",
+          "sha256": "2157a41636a8f355c4e82a72ac0a56fe0b263a112b723bb3457133e87869353e"
+        },
+        "pytest_junit": {
+          "path": "compiler-full/installed-wheel.junit.xml",
+          "sha256": "14dec41f5a42a0edd54a86a31b5934ee5dd1d324de63a8e8b0df139ea533efb7"
+        },
+        "wheel_origin_receipt": {
+          "path": "compiler-full/wheel-origin-and-report.json",
+          "sha256": "7fbe252bf667e9375e62a1f3d4d4b1e456902ed191206da5df3a3fa54d97f407"
+        },
+        "persisted_compiler_readback": {
+          "path": "compiler-full/compiler-readback.json",
+          "sha256": "d1d31eef31ddf6c0781d601be7325144e3f36292142abac20e5dd4413fb481d2"
         }
+      },
+      "input_closure": {
+        "implementation_commit": "5650b7aed7991606d62cd8510b377698a778ce39",
+        "implementation_tree": "b03120869a77b27d02aba456fb7dfc88d582f832",
+        "test_source": {
+          "path": "policy-engine/tests/unit/remediation/test_req_01_installed.py",
+          "git_blob": "c05a7da95fffb1e4dc2550d11f7a33dfaab8ea89",
+          "sha256": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830",
+          "selector": "tests/unit/remediation/test_req_01_installed.py::test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers"
+        },
+        "product_wheel": {
+          "filename": "policy_engine-0.1.0-py3-none-any.whl",
+          "sha256": "fcf6fdcba77630799a2dbdacab1ac9c2ce6286605675992f0c44da74635c2231"
+        },
+        "runtime_fixture": "Committed test input compiles Employment Panel -> employment_panel -> employment_status through DataRequirementCompiler.compile_for_claim_ledger and the injected RecordingResolver, then writes and reads the versioned compilation report.",
+        "dependency_scope": "Fresh venv installs the wheel with --no-deps; the -S child supplies root-venv dependency purelib/platlib paths, while all imported polisyos modules must originate from the installed wheel."
       }
     },
     {
@@ -353,5 +386,205 @@
   ],
   "source_register_status": "partial",
   "source_criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/REQ-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
-  "source_status_ref": "policy-engine/docs/research/e02-cloud-test-plan/bundle-catalog.md#req-01 records LA-045=partial."
+  "source_status_ref": "policy-engine/docs/research/e02-cloud-test-plan/bundle-catalog.md#req-01 records LA-045=partial.",
+  "pull_request": null,
+  "baseline_cells": [
+    {
+      "id": "F03-P036",
+      "reported_state": "FAILED",
+      "test_path": "policy-engine/tests/unit/remediation/test_acq_01.py",
+      "calls": 23,
+      "call_pass": 6,
+      "call_failed": 17,
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt:166",
+      "source_message_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@git-blob:ef0d25ff4e71483e861eefece0a9e458bf2ec4dd#L166",
+      "cell_record_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@git-blob:51c6234d89edf66d0a88025572b24960fce0c22d#F03-P036",
+      "route_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv@git-blob:484108de4691f41cfac81996eeff477607774c05#LA-045/F03-P036",
+      "selected_by": "policy-engine/docs/research/e02-cloud-test-plan/results/query.py@git-blob:cad358a5161df08d72388d3eb5c58897645360cc --finding LA-045",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "evidence_grade": "source-reported compact text only; raw archives not received"
+    },
+    {
+      "id": "F03-P055",
+      "reported_state": "PASS",
+      "test_path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+      "calls": 15,
+      "call_pass": 15,
+      "call_failed": 0,
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt:185",
+      "source_message_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@git-blob:ef0d25ff4e71483e861eefece0a9e458bf2ec4dd#L185",
+      "cell_record_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@git-blob:51c6234d89edf66d0a88025572b24960fce0c22d#F03-P055",
+      "route_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv@git-blob:484108de4691f41cfac81996eeff477607774c05#LA-045/F03-P055",
+      "selected_by": "policy-engine/docs/research/e02-cloud-test-plan/results/query.py@git-blob:cad358a5161df08d72388d3eb5c58897645360cc --finding LA-045",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "evidence_grade": "source-reported compact text only; raw archives not received"
+    },
+    {
+      "id": "F06-P077",
+      "reported_state": "PASS",
+      "test_path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+      "calls": 9,
+      "call_pass": 9,
+      "call_failed": 0,
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt:261",
+      "source_message_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@git-blob:a07cf684bf09389c5ff8ec3372be80e6d458f063#L261",
+      "cell_record_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@git-blob:51c6234d89edf66d0a88025572b24960fce0c22d#F06-P077",
+      "route_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv@git-blob:484108de4691f41cfac81996eeff477607774c05#LA-045/F06-P077",
+      "selected_by": "policy-engine/docs/research/e02-cloud-test-plan/results/query.py@git-blob:cad358a5161df08d72388d3eb5c58897645360cc --finding LA-045",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "evidence_grade": "source-reported compact text only; raw archives not received"
+    },
+    {
+      "id": "F09-P043",
+      "reported_state": "FAILED",
+      "test_path": "policy-engine/tests/unit/remediation/test_acq_01.py",
+      "calls": 18,
+      "call_pass": 10,
+      "call_failed": 8,
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt:159",
+      "source_message_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@git-blob:33829d04c5388789d71dfae9dba220e2f910a306#L159",
+      "cell_record_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@git-blob:51c6234d89edf66d0a88025572b24960fce0c22d#F09-P043",
+      "route_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv@git-blob:484108de4691f41cfac81996eeff477607774c05#LA-045/F09-P043",
+      "selected_by": "policy-engine/docs/research/e02-cloud-test-plan/results/query.py@git-blob:cad358a5161df08d72388d3eb5c58897645360cc --finding LA-045",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "evidence_grade": "source-reported compact text only; raw archives not received"
+    },
+    {
+      "id": "F09-P059",
+      "reported_state": "PASS",
+      "test_path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+      "calls": 15,
+      "call_pass": 15,
+      "call_failed": 0,
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt:175",
+      "source_message_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@git-blob:33829d04c5388789d71dfae9dba220e2f910a306#L175",
+      "cell_record_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@git-blob:51c6234d89edf66d0a88025572b24960fce0c22d#F09-P059",
+      "route_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv@git-blob:484108de4691f41cfac81996eeff477607774c05#LA-045/F09-P059",
+      "selected_by": "policy-engine/docs/research/e02-cloud-test-plan/results/query.py@git-blob:cad358a5161df08d72388d3eb5c58897645360cc --finding LA-045",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "evidence_grade": "source-reported compact text only; raw archives not received"
+    },
+    {
+      "id": "F11-P061",
+      "reported_state": "PASS",
+      "test_path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+      "calls": 9,
+      "call_pass": 9,
+      "call_failed": 0,
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt:190",
+      "source_message_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@git-blob:474cf6cabd084b7d8d6c52db0d4f2a403c31d6c0#L190",
+      "cell_record_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@git-blob:51c6234d89edf66d0a88025572b24960fce0c22d#F11-P061",
+      "route_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv@git-blob:484108de4691f41cfac81996eeff477607774c05#LA-045/F11-P061",
+      "selected_by": "policy-engine/docs/research/e02-cloud-test-plan/results/query.py@git-blob:cad358a5161df08d72388d3eb5c58897645360cc --finding LA-045",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "evidence_grade": "source-reported compact text only; raw archives not received"
+    },
+    {
+      "id": "F13-P064",
+      "reported_state": "PASS",
+      "test_path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+      "calls": 15,
+      "call_pass": 15,
+      "call_failed": 0,
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt:191",
+      "source_message_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@git-blob:e6df58d190115f41d79d48cbb659c334061ad2ee#L191",
+      "cell_record_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@git-blob:51c6234d89edf66d0a88025572b24960fce0c22d#F13-P064",
+      "route_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv@git-blob:484108de4691f41cfac81996eeff477607774c05#LA-045/F13-P064",
+      "selected_by": "policy-engine/docs/research/e02-cloud-test-plan/results/query.py@git-blob:cad358a5161df08d72388d3eb5c58897645360cc --finding LA-045",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "evidence_grade": "source-reported compact text only; raw archives not received"
+    },
+    {
+      "id": "F14-P044",
+      "reported_state": "FAILED",
+      "test_path": "policy-engine/tests/unit/remediation/test_acq_01.py",
+      "calls": 23,
+      "call_pass": 6,
+      "call_failed": 17,
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt:394",
+      "source_message_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@git-blob:cad1b1b8365ca05e206170e059e26b34d67b6a1b#L394",
+      "cell_record_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@git-blob:51c6234d89edf66d0a88025572b24960fce0c22d#F14-P044",
+      "route_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv@git-blob:484108de4691f41cfac81996eeff477607774c05#LA-045/F14-P044",
+      "selected_by": "policy-engine/docs/research/e02-cloud-test-plan/results/query.py@git-blob:cad358a5161df08d72388d3eb5c58897645360cc --finding LA-045",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "evidence_grade": "source-reported compact text only; raw archives not received"
+    }
+  ],
+  "property": {
+    "statement": "Installed public DataRequirementCompiler resolves the active employment-panel mapping, constructs and hands a capability query to its injected resolver port, persists a versioned compilation report for readback, and does not expose the eight retired private names through module/facade reflection or dynamic import.",
+    "actual_compiler": [
+      {
+        "path": "policy-engine/src/polisyos/data_requirement/compiler.py@git-blob:d91823b593427fe275b4b0b6d4f14c499a12aa2d",
+        "symbol": "DataRequirementCompiler.compile_for_claim_ledger",
+        "active_mapping": "Employment Panel -> employment_panel -> employment_status"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_requirement/__init__.py@git-blob:b2d7b1ec8e58a7c5f24cacc2d405d81d70be0c47",
+        "symbol": "public DataRequirementCompiler facade; facade/compiler class identity asserted"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/capability_resolution.py@git-blob:c056ebdc92207c43dec77e3dd2d5f8f8d8c4cdff",
+        "symbol": "RequirementToCapabilityQuery resolver-port contract"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_req_01_installed.py@git-blob:c05a7da95fffb1e4dc2550d11f7a33dfaab8ea89",
+        "selector": "test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers"
+      }
+    ],
+    "installed_wheel": {
+      "wheel_sha256": "fcf6fdcba77630799a2dbdacab1ac9c2ce6286605675992f0c44da74635c2231",
+      "origin_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/wheel-origin-and-report.json@sha256:7fbe252bf667e9375e62a1f3d4d4b1e456902ed191206da5df3a3fa54d97f407",
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/installed-wheel.environment.json@sha256:2ee9af60c5d8b7c76c3c427c147cb996455f1e1b5d306277a8db15dc796977d0",
+      "origin_rule": "Outside-checkout -S child asserts imported polisyos Python files resolve under fresh installed wheel purelib; source/test/architecture checkout paths are absent."
+    },
+    "persisted_readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/compiler-readback.json@sha256:d1d31eef31ddf6c0781d601be7325144e3f36292142abac20e5dd4413fb481d2; actual policyos.data_requirement_compilation.v1 report reloaded and checked for spec family, construct_ref and capability-index refs.",
+    "resolver_boundary": {
+      "implementation": "RecordingResolver test fixture",
+      "fixture_path": "policy-engine/tests/unit/remediation/test_req_01_installed.py@git-blob:c05a7da95fffb1e4dc2550d11f7a33dfaab8ea89#RecordingResolver",
+      "established": "Query construction, resolver-port handoff, binding propagation and persisted artifact readback.",
+      "not_established": "Production catalog/source-admission decision; the fixture cannot authorize or establish live capability resolution."
+    },
+    "source_imports": "Eight retired-name negatives exercise package/module __all__, getattr and dynamic __import__; active DataRequirementCompiler facade identity and family mapping remain positive.",
+    "proxy_divergence": "Complete tracked .py/.pyi AST census establishes no statically resolved tracked Python caller only. The 270 computed dynamic import targets and external/generated/non-Python/exec/native/service dispatch remain unresolved; static zero is not universal caller absence."
+  },
+  "capability_state_or_finding_state": "LA-045 remains limited (historical source ledger status partial); the bounded installed compiler/wheel witness is positive, no closure ID or full LA-045/REQ-01/LA-046 closure is asserted.",
+  "limitations_and_next_owner": [
+    {
+      "scope": "Computed/dynamic and external caller boundary",
+      "state": "not_established",
+      "basis": "The complete pinned-base census parsed 6,444 tracked .py/.pyi paths (6,439 .py plus 5 .pyi) and found no statically resolved retired-name callers; it also found 270 computed dynamic import targets. External clients/plugins, generated/untracked, non-Python and exec/eval/native/service dispatch remain outside the finite predicate.",
+      "next_owner": "A / REQ-01 is the source-card closure owner; G adjudicates candidate status.",
+      "next_action": "Preserve limited status and private-name scope. Resolve only source-supported callers or lifecycle evidence needed for the actual boundary; do not claim universal absence."
+    },
+    {
+      "scope": "Production resolver authority",
+      "state": "not_established by this witness",
+      "basis": "RecordingResolver is deliberately a test fixture, not the production capability catalog/source-admission authority.",
+      "next_owner": "ACQ-01 owner for LA-046 source-admission semantics if separately in scope; G for finding adjudication.",
+      "next_action": "Do not promote this REQ-01 test into a live capability-admission claim; retain active compiler/resolver boundary."
+    },
+    {
+      "scope": "Transferred historical baseline cells",
+      "state": "source-reported compact text only",
+      "basis": "The eight exact LA-045 route cells are listed above; the E02 results set reports zero raw archives received, so their PASS/FAILED states are navigation/context, not deciding current-product evidence.",
+      "next_owner": "A / REQ-01 and G.",
+      "next_action": "Use the exact-head installed-wheel PASS below as the deciding runtime witness; preserve historical 6,431-path c40 count separately from the current 6,444-path base census."
+    }
+  ]
 }

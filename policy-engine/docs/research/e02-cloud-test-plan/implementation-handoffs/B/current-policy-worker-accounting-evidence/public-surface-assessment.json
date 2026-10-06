@@ -1,0 +1,76 @@
+{
+  "source_identities": [
+    {
+      "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/architecture/public_surface/contract.toml",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    {
+      "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/architecture/public_surface/inventory.json",
+      "bytes": 220738,
+      "sha256": "58ec72001a9d236b4cb247a4229c64291a14f3c47429b26666cca484cb06cf0d"
+    },
+    {
+      "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/docs/reference/public-surface.md",
+      "bytes": 152713,
+      "sha256": "3621f45572f23b6e0b5d3d1af7aefa56cfa2c3734129c814a6ac1b239520b102"
+    },
+    {
+      "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/docs/how-to/release-policy.md",
+      "bytes": 16531,
+      "sha256": "acaacc39b399d4c1430ed23c028bd5fb3fd118f7848cc8bf02682264a1958804"
+    },
+    {
+      "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/CONTRIBUTING.md",
+      "bytes": 10553,
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783"
+    },
+    {
+      "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/__init__.py",
+      "bytes": 7829,
+      "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90"
+    },
+    {
+      "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/api.py",
+      "bytes": 12901,
+      "sha256": "8c18960085bb5c519fa9fcfe7f7a57aad8413151c4fffbd22120a38ed1110ff3"
+    },
+    {
+      "source_ref": "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd:policy-engine/src/polisyos/scientist/policy_design/__init__.py",
+      "bytes": 8526,
+      "sha256": "18bfb35730f0148d4542decc052e18f7e29fcb4f49360f379f1fe629d54cb82c"
+    }
+  ],
+  "full_contract_package_count": 20,
+  "full_inventory_parsed": true,
+  "full_inventory_package_count": 20,
+  "registered_worker_module_rows": [],
+  "registered_worker_symbols": [],
+  "local_lazy_facade_contains": [
+    "ScenarioAdversaryWorker",
+    "PolicyTranslatorWorker"
+  ],
+  "scientist_registered_ancestor": [
+    {
+      "module": "polisyos.scientist",
+      "classification": "public_stable",
+      "facade_mode": "lazy_facade",
+      "owner": "team-polisyos",
+      "readme": "src/polisyos/scientist/README.md",
+      "reference_doc": "docs/reference/public-surface.md",
+      "supported_entrypoints": [
+        "polisyos.scientist",
+        "polisyos.scientist.governance.continuous",
+        "polisyos.scientist.methods.research_dag",
+        "polisyos.scientist.replay"
+      ],
+      "major_subsystem": true,
+      "notes": "Workflow orchestration facade for experiment execution and shared observability hooks."
+    }
+  ],
+  "internal_rule": "Any polisyos module path not listed in this manifest is internal by default.",
+  "classification": "internal; local lazy exports do not promote unlisted worker module paths to registered public scope",
+  "facade_change": "None; Scientist root/api and local policy_design namespace exports unchanged",
+  "docs_companion": "9d80998f77300d226e152620fe73f7b905b023c5 modifies only README/release to correct initial4b public_experimental claim",
+  "regeneration": "Not invoked. No registered facade/export change or generated family modified; assessment is literal source/inventory review, not a gate PASS."
+}

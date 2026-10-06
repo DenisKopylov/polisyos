@@ -1,0 +1,141 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/checks-and-limits.json",
+      "bytes": 1318,
+      "sha256": "5038bd849f4cd3cd7ddf4a4e4a43e9c2682a91a044e234a5e79dd1c722554a83"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/foreign-runtime-bindings.json",
+      "bytes": 12246,
+      "sha256": "9f2474f620ca98112a81124cf2d9dcc6fc0ca1447580af1f87b5242df08bbcca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/child.source.txt",
+      "bytes": 1764,
+      "sha256": "7c5abb26f3cb71930b14252d1adba9b90c792f4361e1ff8b8cf45dbe08d1d7e3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/declared-source-context.json",
+      "bytes": 7067,
+      "sha256": "cfce2f3a2dba559ff7676293dc5dc1b579db9e0ff8fe94c6df516ec510187cd3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/native.json",
+      "bytes": 7212,
+      "sha256": "47535f1acf77b7816b54e185a4ae8799d0a3ba7d43000f5a7134936273d8168e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/native.txt",
+      "bytes": 2344,
+      "sha256": "71bd86ddc99ef5edd6395f5b7fad918b027faa84150de637506e0ac3c7e859d9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/native.xml",
+      "bytes": 5618,
+      "sha256": "fcec9fb6a8947a676d51c55879ae32ab2f95648f640ca5775d7ebd839243a242"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/run-native.source.txt",
+      "bytes": 4147,
+      "sha256": "731efff59aad3dc8cba27ef1af73b96d84328faeea273a9bc3fd50487335cfad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/native-4b/selectors.json",
+      "bytes": 241,
+      "sha256": "6f2a06c71d3381eb550c58cd936af6b59ad810e6826127aa4a1afc0939660df7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/public-surface-assessment.json",
+      "bytes": 3441,
+      "sha256": "c2c8754a0607120c9f257430222b06dce5b6edb145d0f0f5decdcfd91205920d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/slice-base.json",
+      "bytes": 830,
+      "sha256": "65d8dcddb85b29af332da092985cbdf26bbec0f05e47c22e9e23b5dfa7453b1d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/source-and-input-bindings.json",
+      "bytes": 4390,
+      "sha256": "9f924fe2d071e3cfa07ccbfae66b05df1d82733f5f361fe751722f34940bba04"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-control.json",
+      "bytes": 3032,
+      "sha256": "dd923c7980d5f21dcdf03db5da0e511ccb685127616807022888f0b8c1c4902a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-control.txt",
+      "bytes": 3686,
+      "sha256": "f5a520e7fb0025d01af356790ba963e133ecd2619b8d9c27322cee33326a1402"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/__init__.source.txt",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/__init__.source.txt",
+      "bytes": 7829,
+      "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/policy_design/__init__.source.txt",
+      "bytes": 8526,
+      "sha256": "18bfb35730f0148d4542decc052e18f7e29fcb4f49360f379f1fe629d54cb82c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/policy_design/adversary.source.txt",
+      "bytes": 15332,
+      "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/base-source/polisyos/scientist/policy_design/translator.source.txt",
+      "bytes": 15582,
+      "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/check-0.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/check-1.txt",
+      "bytes": 26,
+      "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/check-2.txt",
+      "bytes": 3612,
+      "sha256": "2cc75a9a69a154db872c30e157ea99e319948184517ddff99de2268f7fc24c46"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/checks.json",
+      "bytes": 2514,
+      "sha256": "cdee87e67eac2a9eed778a68978632cd49b365a1a9d44c813cd68cd27994c5be"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/format-first.txt",
+      "bytes": 295,
+      "sha256": "3a19874a1bbe85b1930778c266c16ab569f65352ebecd3dc08ac0e1be777c914"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-policy-worker-accounting-evidence/static/ruff.txt",
+      "bytes": 1349,
+      "sha256": "efbd3db4f998e49e59d0dd16b1916dc7a03d74dbdf161453796db413eae27b95"
+    }
+  ],
+  "file_count": 25,
+  "total_bytes": 112444,
+  "raw_only": [
+    {
+      "path": "/dev/shm/e02-B-workers-native-4b368/source-context.json",
+      "bytes": 1049048,
+      "sha256": "355b9ec4434484f399426c0a76162b7d739bd35d463d9723e5166286d5bfe216",
+      "G_availability": "not_established",
+      "role": "Full hook/pytest-main-return module origin census; compact declared origins/counters committed separately. Exact rerun needed for full source/resource review."
+    }
+  ]
+}

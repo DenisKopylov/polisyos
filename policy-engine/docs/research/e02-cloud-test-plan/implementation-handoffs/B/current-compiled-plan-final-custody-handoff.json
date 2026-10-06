@@ -1,0 +1,375 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-compiled-plan-final-custody-independent",
+  "reviewer": "/root/dur_probe",
+  "author_reviewed": [
+    "/root/cmp_res_probe",
+    "/root/cas_probe",
+    "/root/run_writer"
+  ],
+  "finding_ids": [
+    "B43"
+  ],
+  "bundle_ids": [
+    "CMP-01"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "2d6318b0acc25fd30dfdf8de0229ef43e221c1b0",
+  "implementation_commits": [
+    "0b69840df64e3630c41e59aa85ce8e58f220df9a"
+  ],
+  "candidate_sha": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+  "candidate_tree_sha": "e9dc9c636e655ba13fdf89ee0b48459c8a75d19e",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-final-custody-qualification.json"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F02-P117",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main"
+    },
+    {
+      "id": "F03-P010",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main"
+    },
+    {
+      "id": "F08-P117",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head"
+    },
+    {
+      "id": "F15-P137",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head"
+    }
+  ],
+  "baseline_navigation_qualification": {
+    "exact_prior_receipt": {
+      "sha": "2d6318b0acc25fd30dfdf8de0229ef43e221c1b0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-source-independent.json",
+      "bytes": 38590,
+      "sha256": "88b2041ddb287331de03ebb4e69efbb27c4071c2b8fc6b42e91e39e01dfd1c6f"
+    },
+    "purpose": "Four historical B43 cells remain navigation only; canonical criteria/environment/input closure resolved there. No baseline summary proves new source."
+  },
+  "checks": [
+    {
+      "id": "complete-inventory-contract-and-final-custody-source-review",
+      "command": [
+        "git",
+        "show",
+        "85e97d91801bac9a4314655e81a4fe8c68a17235:policy-engine/architecture/public_surface/contract.toml"
+      ],
+      "command_role": "Representative actual Git read from complete manual source/JSON/TOML/AST/SHA256 reconciliation; no runtime command claimed. Full immutable inputs/outputs named by qualification.",
+      "target_sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-durability",
+        "tools": "Git immutable-object reads, stdlib Python JSON/TOML/AST/XML/SHA256; no product imports, wheel/native/checker/gates UNRUN by reviewer"
+      },
+      "input_closure": {
+        "complete_immutable_inputs": {
+          "sha": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-final-custody-qualification.json",
+          "bytes": 19240,
+          "sha256": "4e4931c3e842250b8c259e44bfbdf77ec5048ebd95914df34e20b1f0928db3a3"
+        },
+        "JSON_pointer": "/public_surface_classification",
+        "prior_review_sha": "2d6318b0acc25fd30dfdf8de0229ef43e221c1b0",
+        "purpose": "Full contract + recursive5165scalars/713keys + all5listedfacades and internalparts, hash-bound once in qualification; no sampled inventory or absence-only authority."
+      },
+      "outcome": "NONBLOCKING source/custody only; INTERNAL classification",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-final-custody-qualification.json",
+      "output_git_sha": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+      "output_sha256": "4e4931c3e842250b8c259e44bfbdf77ec5048ebd95914df34e20b1f0928db3a3",
+      "output_bytes": 19240,
+      "predicate_basis": "independently_reconciled",
+      "runtime_by_reviewer": "UNRUN"
+    },
+    {
+      "id": "immutable-CMP-complete-custody-reconciliation",
+      "command": [
+        "git",
+        "show",
+        "75ec14287da9e1f288de4699ff01240682bffe89:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan.json"
+      ],
+      "command_role": "Actual immutable Git object read for independent data-only source/output/custody reconciliation. Original foreign execution commands/env/input/origins/wrappers retained in cited canonical receipt; no new execution.",
+      "target_sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-durability",
+        "mode": "Git immutable objects; stdlib SHA256/JSON/XML/AST; no product/native/checker/gates execution"
+      },
+      "input_closure": {
+        "canonical_receipt": {
+          "sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan.json",
+          "bytes": 77658,
+          "sha256": "bec3267b25dd757b4d67b5ea85bd8904bb624727feedb1c16c29e2de822095f4",
+          "mandatory_check_fields": "All19 checks have command,target_sha,environment,input_closure,outcome,output. Exact73 implementation paths exclude future receipt; closure_ids empty."
+        },
+        "complete_source_input_output_index": {
+          "sha": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-final-custody-qualification.json",
+          "bytes": 19240,
+          "sha256": "4e4931c3e842250b8c259e44bfbdf77ec5048ebd95914df34e20b1f0928db3a3"
+        },
+        "JSON_pointer": "/CMP_actual_final",
+        "deciding_foreign_executions": [
+          {
+            "id": "foreign-CMP-native-final",
+            "target_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+            "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/native-final.txt",
+            "output_git_sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+            "output_sha256": "3d62d17cda0245ac103dacbc19a54714f32a472955ffa1297184c4315837fbd1",
+            "output_bytes": 160,
+            "outcome": "PASS81actualXML"
+          },
+          {
+            "id": "foreign-CMP-mypy-final",
+            "target_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+            "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/mypy-final.txt",
+            "output_git_sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+            "output_sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8",
+            "output_bytes": 43,
+            "outcome": "PASS3sourcefiles"
+          },
+          {
+            "id": "foreign-CMP-ruff-candidate",
+            "target_sha": "7cecfd7efbfe0e1d17d9513def504455f222cc1c",
+            "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/ruff-candidate.txt",
+            "output_git_sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+            "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+            "output_bytes": 19,
+            "outcome": "PASS7paths"
+          },
+          {
+            "id": "foreign-CMP-format-candidate",
+            "target_sha": "7cecfd7efbfe0e1d17d9513def504455f222cc1c",
+            "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/format-candidate.txt",
+            "output_git_sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+            "output_sha256": "0321fffcb91606a42c0a19d8c1121d5c544379d663821fce616c71a7bb62f6b5",
+            "output_bytes": 26,
+            "outcome": "PASS7paths"
+          }
+        ],
+        "custody_qualification": "Metadata target is published receipt cut; rows preserve actual foreign executed sources, never relabel current metadata SHA as runtime. All original input/env/driver/blob identities remain content-bound in cited receipt."
+      },
+      "outcome": "PASS immutable custody/source/output join only; no formal runtime acceptance",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-final-custody-qualification.json",
+      "output_git_sha": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+      "output_sha256": "4e4931c3e842250b8c259e44bfbdf77ec5048ebd95914df34e20b1f0928db3a3",
+      "output_bytes": 19240,
+      "predicate_basis": "independently_reconciled",
+      "runtime_by_reviewer": "UNRUN"
+    },
+    {
+      "id": "immutable-CAS-complete-custody-reconciliation",
+      "command": [
+        "git",
+        "show",
+        "e774768af0bbcc68ed14b101f8d5f869122fd87a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json"
+      ],
+      "command_role": "Actual immutable Git object read for independent data-only source/output/custody reconciliation. Original foreign execution commands/env/input/origins/wrappers retained in cited canonical receipt; no new execution.",
+      "target_sha": "e774768af0bbcc68ed14b101f8d5f869122fd87a",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-durability",
+        "mode": "Git immutable objects; stdlib SHA256/JSON/XML/AST; no product/native/checker/gates execution"
+      },
+      "input_closure": {
+        "canonical_receipt": {
+          "sha": "e774768af0bbcc68ed14b101f8d5f869122fd87a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json",
+          "bytes": 282230,
+          "sha256": "318d97c4ea1e0880614a469fce35883cf2c897fc2290498422687b884f000c83"
+        },
+        "complete_source_input_output_index": {
+          "sha": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-final-custody-qualification.json",
+          "bytes": 19240,
+          "sha256": "4e4931c3e842250b8c259e44bfbdf77ec5048ebd95914df34e20b1f0928db3a3"
+        },
+        "JSON_pointer": "/CAS_independent_consumer",
+        "deciding_foreign_executions": [
+          {
+            "id": "foreign-independent-CAS-final-6d7",
+            "target_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+            "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/native-stdout.txt",
+            "output_git_sha": "ec8ec7c3eeb708bb82975be18b7750d8951e811d",
+            "output_sha256": "7eb649d830dc263750aae0b41238c94ccf41a6ed3311f89bb469e5875d5b8724",
+            "output_bytes": 8263,
+            "outcome": "PASS"
+          },
+          {
+            "id": "foreign-independent-CAS-removal-plan",
+            "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+            "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-plan/native-stdout.txt",
+            "output_git_sha": "ec8ec7c3eeb708bb82975be18b7750d8951e811d",
+            "output_sha256": "3de114c88d9c756e08c730c3a688d25be894916eddaaec94b66a08dce88b99d6",
+            "output_bytes": 10151,
+            "outcome": "FAIL"
+          },
+          {
+            "id": "foreign-independent-CAS-removal-preparation",
+            "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+            "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-preparation/native-stdout.txt",
+            "output_git_sha": "ec8ec7c3eeb708bb82975be18b7750d8951e811d",
+            "output_sha256": "1861bcd797764c69d827ce199733c05cbef4614bca6000dadc8cadc6f35f7f0e",
+            "output_bytes": 4518,
+            "outcome": "FAIL"
+          },
+          {
+            "id": "foreign-independent-CAS-removal-seed",
+            "target_sha": "9ce4d3fefd35b4e8d2982ebf8cf12a5e999ca640",
+            "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-seed/native-stdout.txt",
+            "output_git_sha": "ec8ec7c3eeb708bb82975be18b7750d8951e811d",
+            "output_sha256": "ab32e7d59feaad6f6f7dfb7dbd28260ce35a11ec0deefcd9966b08d6badb5ad9",
+            "output_bytes": 5185,
+            "outcome": "FAIL"
+          }
+        ],
+        "custody_qualification": "Metadata target is published receipt cut; rows preserve actual foreign executed sources, never relabel current metadata SHA as runtime. All original input/env/driver/blob identities remain content-bound in cited receipt."
+      },
+      "outcome": "PASS immutable custody/source/output join only; no formal runtime acceptance",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-final-custody-qualification.json",
+      "output_git_sha": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+      "output_sha256": "4e4931c3e842250b8c259e44bfbdf77ec5048ebd95914df34e20b1f0928db3a3",
+      "output_bytes": 19240,
+      "predicate_basis": "independently_reconciled",
+      "runtime_by_reviewer": "UNRUN"
+    },
+    {
+      "id": "immutable-RUN-complete-custody-reconciliation",
+      "command": [
+        "git",
+        "show",
+        "7dd59ddc2b6885ce6b917bfac6b94a0d24e2794e:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-review.json"
+      ],
+      "command_role": "Actual immutable Git object read for independent data-only source/output/custody reconciliation. Original foreign execution commands/env/input/origins/wrappers retained in cited canonical receipt; no new execution.",
+      "target_sha": "7dd59ddc2b6885ce6b917bfac6b94a0d24e2794e",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-durability",
+        "mode": "Git immutable objects; stdlib SHA256/JSON/XML/AST; no product/native/checker/gates execution"
+      },
+      "input_closure": {
+        "canonical_receipt": {
+          "sha": "7dd59ddc2b6885ce6b917bfac6b94a0d24e2794e",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-review.json",
+          "bytes": 70444,
+          "sha256": "b699cefef5697967f3290f5002f513fd9a9228af628d0b08ff30a14b78fa925d"
+        },
+        "complete_source_input_output_index": {
+          "sha": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-final-custody-qualification.json",
+          "bytes": 19240,
+          "sha256": "4e4931c3e842250b8c259e44bfbdf77ec5048ebd95914df34e20b1f0928db3a3"
+        },
+        "JSON_pointer": "/RUN_shared_flight_custody",
+        "deciding_foreign_executions": [
+          {
+            "id": "foreign-independent-RUN-shared-flight-custody",
+            "target_sha": "b138b0d10237d4704c1cf59dec502be4b745b3a1",
+            "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-evidence/native/native.txt",
+            "output_git_sha": "823a3f7b4e1eec20be5a2aac50cf80830319a881",
+            "output_sha256": "7014831eb7a15287efb6c318414fc55eb3f24eaafd2bdfae2afa33cdf79ca62e",
+            "output_bytes": 34767,
+            "outcome": "PASS custody of literal7PASS; no formal semantic acceptance by reviewer"
+          }
+        ],
+        "custody_qualification": "Metadata target is published receipt cut; rows preserve actual foreign executed sources, never relabel current metadata SHA as runtime. All original input/env/driver/blob identities remain content-bound in cited receipt."
+      },
+      "outcome": "PASS immutable custody/source/output join only; no formal runtime acceptance",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-final-custody-qualification.json",
+      "output_git_sha": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+      "output_sha256": "4e4931c3e842250b8c259e44bfbdf77ec5048ebd95914df34e20b1f0928db3a3",
+      "output_bytes": 19240,
+      "predicate_basis": "independently_reconciled",
+      "runtime_by_reviewer": "UNRUN"
+    }
+  ],
+  "property": {
+    "statement": "Selected actual CAS cold plan restores finite plainJSON concrete occurrences/current ABI/effective predecessors/parameters/order into existing executors before bodies; complete contract/inventory/facade read classifies additive helpers as INTERNAL.",
+    "runtime_path": [
+      "MethodComposer→CompiledChainPlan.from_chain→store real FileSystemCAS→freshCAS load→current registry STRICT rebuild→existing executor",
+      "Internal artifact parts facade; no new listed stable facade export"
+    ],
+    "proxy_divergence": "First unprofiled producer refs refused before intended graph negatives; corrected actual guarded-manifest writer reaches defining inlet. Historical reds/input-premise failures retained. Source/classification/metadata PASS is not new root runtime.",
+    "negative_controls": [
+      "Three actual independent removals@9ce each FAIL: actual restored effective graph, preparation body-entry, real seed substitution. Exact source/input/driver/observations in e774 checks.",
+      "Sparse/cycle/missing-edge/current ABI/selected-profile guards retain original producer/loader tests."
+    ],
+    "authority_purpose": "Finite cold operational plan under stable current-registry/caller/backend premises; no old implementation/prefix/scientific/tenant/institutional authority"
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_basis_by_quantity": {
+    "frozen_bytes_hashes_counts_actualorigin_records": "recomputed",
+    "manual_source_and_full_foreign_deciding_outputs": "independently_reconciled",
+    "current_registry_stability_known_numericfixture_and_constructor_trust": "consumer_asserted",
+    "externalfinancial_scientific_or_permission_authority": "not_established",
+    "newrootcohort_and_formalclosure": "not_established"
+  },
+  "capability_state_or_finding_state": "NONBLOCKING finite immutable source/custody review; exact foreign81+16 PASS and3 expected removalFAIL available. Current combined root runtime/acceptance not established; no formal closure.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B43",
+      "state": "limited",
+      "proposal_only": true,
+      "formal_closure": false,
+      "criterion_basis": "Full CMP-01 canonical B43 criterion/source and four baseline cells bound prior2d; finite cold plan actual producers/readback/executor predicates now evidenced at named source, pending current joint cohort/root adjudication.",
+      "deciding_refs": [
+        {
+          "sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan.json",
+          "bytes": 77658,
+          "sha256": "bec3267b25dd757b4d67b5ea85bd8904bb624727feedb1c16c29e2de822095f4",
+          "mandatory_check_fields": "All19 checks have command,target_sha,environment,input_closure,outcome,output. Exact73 implementation paths exclude future receipt; closure_ids empty."
+        },
+        {
+          "sha": "e774768af0bbcc68ed14b101f8d5f869122fd87a",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json",
+          "bytes": 282230,
+          "sha256": "318d97c4ea1e0880614a469fce35883cf2c897fc2290498422687b884f000c83"
+        }
+      ],
+      "next_owner": "Root independently joins NEW frozen cohort and applies final criterion decision; CMP owns producer, CAS independent consumer."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "B43/B53 finite real predicate evidence now available on named source. Root/G independently decides closure after current canonical integration and NEW fullcohort; old DD all60 proposal and statuses remain historical. No new closure totals. B65/B66 real newer evidence is distinct from DD negatives and external owner law; B87 C cleanup OPEN/six semantic held unaffected.",
+    "Root alone applies inventory-reviewed/release/sync companion. Internal classification does not ratify new public stable facade.",
+    "Actual12soft scientific-output validation warnings, no all-Ray/backend/historical-code authority claim. No powerloss/multihost requirement invented.",
+    "Manual all60 NEW nativeXML/stdout/wrapper/profile/inventory/phasepartition pending; six held laws/B87 actual C cleanup/A data and publication contracts remain separately exact.",
+    "Own lower9f is not accepted by its author; foreign EXE/root review required. B65/B66 RUN7PASS custody does not erase old DD negatives or substitute current integrated affected consumers."
+  ],
+  "evidence": {
+    "qualification": {
+      "sha": "0b69840df64e3630c41e59aa85ce8e58f220df9a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-plan-final-custody-qualification.json",
+      "bytes": 19240,
+      "sha256": "4e4931c3e842250b8c259e44bfbdf77ec5048ebd95914df34e20b1f0928db3a3"
+    },
+    "canonical_CMP": {
+      "sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan.json",
+      "bytes": 77658,
+      "sha256": "bec3267b25dd757b4d67b5ea85bd8904bb624727feedb1c16c29e2de822095f4",
+      "mandatory_check_fields": "All19 checks have command,target_sha,environment,input_closure,outcome,output. Exact73 implementation paths exclude future receipt; closure_ids empty."
+    },
+    "canonical_CAS": {
+      "sha": "e774768af0bbcc68ed14b101f8d5f869122fd87a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-oracle.json",
+      "bytes": 282230,
+      "sha256": "318d97c4ea1e0880614a469fce35883cf2c897fc2290498422687b884f000c83"
+    },
+    "canonical_RUN": {
+      "sha": "7dd59ddc2b6885ce6b917bfac6b94a0d24e2794e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-shared-flight-independent-review.json",
+      "bytes": 70444,
+      "sha256": "b699cefef5697967f3290f5002f513fd9a9228af628d0b08ff30a14b78fa925d"
+    }
+  },
+  "created_at_utc": "2026-10-06T21:48:08.029500+00:00"
+}

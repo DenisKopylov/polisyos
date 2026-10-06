@@ -84,9 +84,13 @@ def external(config):
     assert finite["unresolved_by_construction"]
 
 
-def test_case_insensitive_lexical_mentions_do_not_invent_import_clients() -> None:
+@pytest.mark.parametrize("filename", ["CAUSAL_ENGINE.PY", "INTERFERENCE.PY", "ID_ENGINE.PY"])
+def test_case_insensitive_lexical_mentions_do_not_invent_import_clients(filename: str) -> None:
     functions = _census_functions()
-    code = b'import importlib\nTEXT = "CAUSAL_ENGINE.PY"\ndef external(name):\n    return importlib.import_module(name)\n'
+    code = (
+        f'import importlib\nTEXT = "{filename}"\ndef external(name):\n'
+        "    return importlib.import_module(name)\n"
+    ).encode()
     assert functions["TOKEN"].search(code.decode())
     imports, strings, dynamic = functions["python_rows"]("outside/runtime.py", code)
     assert imports == strings == []

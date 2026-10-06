@@ -1,4 +1,4 @@
-"""Enumerate immutable tracked inputs to the two LA-020 package facades.
+"""Enumerate immutable tracked inputs to the three selected causal package facades.
 
 This is a bounded research instrument, not an arbitrary-Python call graph.
 It reads every tracked blob at the chosen ref, parses every Python member,
@@ -24,7 +24,7 @@ from pathlib import Path
 
 PREFIX = "polisyos.foundry.methods.catalog.causal"
 TARGETS = (f"{PREFIX}.causal_engine", f"{PREFIX}.interference", f"{PREFIX}.id_engine")
-TOKEN = re.compile(r"causal_engine|interference", re.IGNORECASE)
+TOKEN = re.compile(r"causal_engine|interference|id_engine", re.IGNORECASE)
 GIT = shutil.which("git")
 if GIT is None:
     raise RuntimeError("The immutable input census requires Git")

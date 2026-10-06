@@ -26,6 +26,7 @@ from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
 from polisyos.data_forge.domains.catalog.batch.publish import run_publish
 from polisyos.data_forge.domains.catalog.knowledge.store import DatasetCatalogStore
 from polisyos.data_forge.domains.catalog.knowledge.types import DatasetRecord, DistributionRecord
+from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
 
 
 class _FakeSentenceTransformer:
@@ -35,7 +36,16 @@ class _FakeSentenceTransformer:
     def __init__(self, model_name: str, device: str | None = None) -> None:
         self.model_name = model_name
         self.device = device
+        self.config = {"model_name": model_name, "dimension": 4}
+        self.tokenizer = _FakeTokenizer()
         type(self).instances.append(self)
+
+    def state_dict(self) -> dict[str, np.ndarray]:
+        revision = 1.0 if self.model_name.endswith("@v1") else 2.0
+        return {"encoder.weight": np.asarray([revision, 4.0], dtype=np.float32)}
+
+    def modules(self) -> list[_FakeSentenceTransformer]:
+        return [self]
 
     def encode(
         self,
@@ -57,6 +67,18 @@ class _FakeSentenceTransformer:
         return np.vstack(vectors)
 
 
+class _FakeTokenizer:
+    def get_vocab(self) -> dict[str, int]:
+        return {"<unk>": 0, "fixture": 1}
+
+    @property
+    def special_tokens_map(self) -> dict[str, str]:
+        return {"unk_token": "<unk>"}
+
+    def get_added_vocab(self) -> dict[str, int]:
+        return {}
+
+
 def _install_fake_sentence_transformer(monkeypatch: pytest.MonkeyPatch) -> None:
     _FakeSentenceTransformer.instances.clear()
     _FakeSentenceTransformer.encode_calls = 0
@@ -70,9 +92,42 @@ def _install_fake_sentence_transformer(monkeypatch: pytest.MonkeyPatch) -> None:
 def _prepare_db(path: Path, rows: list[tuple[str, str, str]]) -> None:
     con = duckdb.connect(str(path))
     try:
-        con.execute("CREATE TABLE ac_works (id VARCHAR, title VARCHAR, abstract VARCHAR)")
+        con.execute(
+            "CREATE TABLE ac_works ("
+            "id VARCHAR, title VARCHAR, doi VARCHAR, abstract VARCHAR, year INTEGER, "
+            "publication_date VARCHAR, language VARCHAR, work_type VARCHAR, "
+            "is_retracted BOOLEAN, cited_by_count INTEGER, fwci DOUBLE, "
+            "citation_percentile DOUBLE, citation_top_1 BOOLEAN, citation_top_10 BOOLEAN, "
+            "journal VARCHAR, source_id VARCHAR, is_oa BOOLEAN, has_fulltext BOOLEAN, "
+            "full_text_url VARCHAR, trust_score DOUBLE, study_design VARCHAR)"
+        )
+        con.execute("CREATE TABLE ac_topic_selections (work_id VARCHAR, topic_id VARCHAR)")
+        con.execute(
+            "CREATE TABLE ac_parameter_estimates ("
+            "id VARCHAR, work_id VARCHAR, variable_name VARCHAR, estimate DOUBLE, "
+            "ci_low DOUBLE, ci_high DOUBLE, std_error DOUBLE, unit VARCHAR, domain VARCHAR, "
+            "study_design VARCHAR, sample_size INTEGER, country VARCHAR, period_start INTEGER, "
+            "period_end INTEGER, trust_score DOUBLE, raw_context VARCHAR)"
+        )
         if rows:
-            con.executemany("INSERT INTO ac_works VALUES (?, ?, ?)", rows)
+            con.executemany(
+                "INSERT INTO ac_works (id, title, abstract) VALUES (?, ?, ?)", rows
+            )
+        con.execute("CHECKPOINT")
+    finally:
+        con.close()
+
+
+def _replace_academic_works(
+    path: Path, rows: list[tuple[str, str, str]]
+) -> None:
+    con = duckdb.connect(str(path))
+    try:
+        con.execute("DELETE FROM ac_works")
+        if rows:
+            con.executemany(
+                "INSERT INTO ac_works (id, title, abstract) VALUES (?, ?, ?)", rows
+            )
         con.execute("CHECKPOINT")
     finally:
         con.close()
@@ -264,6 +319,143 @@ def test_model_revision_selects_new_generation_and_keeps_id_vector_binding(
     assert _FakeSentenceTransformer.encode_calls == 2
     for row_id in first_vectors:
         assert not np.array_equal(first_vectors[row_id], second_vectors[row_id])
+
+
+def test_late_alias_failure_keeps_new_academic_generation_readable_and_selector_is_authority(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _install_fake_sentence_transformer(monkeypatch)
+    from polisyos.data_forge.kernel import embeddings as kernel_embeddings
+
+    db_path = tmp_path / "academic.duckdb"
+    index_dir = tmp_path / "academic"
+    index_dir.mkdir()
+    _prepare_db(db_path, [("a-1", "First", "old corpus")])
+    build_academic_hnsw_index(
+        db_path=db_path,
+        index_dir=index_dir,
+        embedding_model="fake-model@v1",
+        embedding_dimension=4,
+    )
+    _replace_academic_works(db_path, [("a-2", "Second", "new corpus")])
+
+    original_copy = kernel_embeddings._atomic_copy_file
+    copy_count = 0
+
+    def _fail_second_alias(source: Path, destination: Path) -> None:
+        nonlocal copy_count
+        copy_count += 1
+        if copy_count == 2:
+            raise OSError("injected late legacy alias failure")
+        original_copy(source, destination)
+
+    monkeypatch.setattr(kernel_embeddings, "_atomic_copy_file", _fail_second_alias)
+    with pytest.raises(OSError, match="late legacy alias failure"):
+        build_academic_hnsw_index(
+            db_path=db_path,
+            index_dir=index_dir,
+            embedding_model="fake-model@v2",
+            embedding_dimension=4,
+        )
+    selector = _selector(index_dir)
+    generation_dir = index_dir / "embedding_generations" / str(selector["generation_id"])
+    with np.load(generation_dir / "embeddings.npz", allow_pickle=True) as payload:
+        query = np.asarray(payload["vectors"][0], dtype=np.float32)
+    assert selector["status"] == "complete"
+    assert _inventory(index_dir, selector)["ids"] == ["a-2"]
+
+    store = ScholarKnowledgeStore(db_path, index_dir)
+    try:
+        results = store.search_works_by_vector(query, top_k=1, min_similarity=0.0)
+        assert [result.id for result in results] == ["a-2"]
+    finally:
+        store.close()
+
+    _replace_academic_works(db_path, [("a-2", "Changed title", "changed corpus")])
+    stale_content_store = ScholarKnowledgeStore(db_path, index_dir)
+    try:
+        assert stale_content_store.search_works_by_vector(
+            query, top_k=1, min_similarity=0.0
+        ) == []
+    finally:
+        stale_content_store.close()
+
+    _replace_academic_works(db_path, [("a-3", "Third", "third corpus")])
+    old_selector = _selector(index_dir)
+    monkeypatch.setattr(kernel_embeddings, "_atomic_copy_file", original_copy)
+    original_write_json = kernel_embeddings.atomic_write_json
+
+    def _suppress_selector_write(path: Path, payload: object) -> None:
+        if path.name == "embedding_generation.json":
+            return
+        original_write_json(path, payload)
+
+    monkeypatch.setattr(kernel_embeddings, "atomic_write_json", _suppress_selector_write)
+    assert build_academic_hnsw_index(
+        db_path=db_path,
+        index_dir=index_dir,
+        embedding_model="fake-model@v3",
+        embedding_dimension=4,
+    ) == (1, 4)
+    assert _selector(index_dir) == old_selector
+    inventory_files = list((index_dir / "embedding_generations").glob("*/inventory.json"))
+    assert len(inventory_files) == 3
+
+    store = ScholarKnowledgeStore(db_path, index_dir)
+    try:
+        store._load_work_index()
+        assert store._work_index is None
+        assert store.search_works_by_vector(query, top_k=1, min_similarity=0.0) == []
+    finally:
+        store.close()
+
+
+def test_selectorless_legacy_pair_requires_hnsw_matrix_coherence(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _install_fake_sentence_transformer(monkeypatch)
+    first_dir = tmp_path / "first"
+    second_dir = tmp_path / "second"
+    first_dir.mkdir()
+    second_dir.mkdir()
+    first_db = tmp_path / "first.duckdb"
+    second_db = tmp_path / "second.duckdb"
+    _prepare_db(first_db, [("a-1", "First", "first")])
+    _prepare_db(second_db, [("b-1", "Second", "different")])
+    build_academic_hnsw_index(
+        db_path=first_db,
+        index_dir=first_dir,
+        embedding_model="fake-model@v1",
+        embedding_dimension=4,
+    )
+    build_academic_hnsw_index(
+        db_path=second_db,
+        index_dir=second_dir,
+        embedding_model="fake-model@v2",
+        embedding_dimension=4,
+    )
+    first_selector = _selector(first_dir)
+    second_selector = _selector(second_dir)
+    first_generation = first_dir / "embedding_generations" / str(first_selector["generation_id"])
+    second_generation = second_dir / "embedding_generations" / str(second_selector["generation_id"])
+    legacy_embeddings = first_dir / "ac_work_embeddings.npz"
+    legacy_index = first_dir / "ac_work_index.hnsw"
+    (first_dir / "embedding_generation.json").unlink()
+    reference = resolve_embedding_generation(
+        first_dir,
+        legacy_embeddings_path=legacy_embeddings,
+        legacy_index_path=legacy_index,
+    )
+    assert reference is not None
+    assert reference.status == "legacy"
+
+    legacy_index.write_bytes((second_generation / "index.hnsw").read_bytes())
+    assert resolve_embedding_generation(
+        first_dir,
+        legacy_embeddings_path=legacy_embeddings,
+        legacy_index_path=legacy_index,
+    ) is None
+    assert first_generation.is_dir()
 
 
 def test_row_permutation_preserves_id_vector_binding(
@@ -491,6 +683,91 @@ def test_catalog_reader_and_publish_manifest_bind_to_selected_inventory(
         f"embedding_generations/{generation_id}/inventory.json" in item["path"]
         for item in manifest["artifacts"]
     )
+
+
+def test_catalog_search_reads_new_selected_generation_after_late_alias_failure(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _install_fake_sentence_transformer(monkeypatch)
+    from polisyos.data_forge.kernel import embeddings as kernel_embeddings
+
+    registry_path = tmp_path / "registry.yaml"
+    _write_catalog_registry(registry_path)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot", registry_path=registry_path)
+    config.index_dir.mkdir(parents=True, exist_ok=True)
+
+    def _record(identifier: str, title: str) -> DatasetRecord:
+        return DatasetRecord(
+            id=identifier,
+            title=title,
+            description=f"Description for {title}",
+            source="worldbank",
+            dataset_id=identifier,
+            source_dataset_id=identifier,
+            execution_tier="transport_ready",
+            distributions=[
+                DistributionRecord(
+                    id=f"dist-{identifier}",
+                    connector_type="worldbank.wdi",
+                    source_locator=identifier,
+                    parser_supported=True,
+                    machine_readable=True,
+                )
+            ],
+        )
+
+    build_graph(records=[_record("ds-1", "Old dataset")], db_path=config.db_path)
+    build_catalog_hnsw_index(
+        db_path=config.db_path,
+        index_dir=config.index_dir,
+        embedding_model="fake-model@v1",
+        embedding_batch_size=1,
+        embedding_device="cpu",
+    )
+    build_graph(records=[_record("ds-2", "New dataset")], db_path=config.db_path)
+
+    original_copy = kernel_embeddings._atomic_copy_file
+    copy_count = 0
+
+    def _fail_second_alias(source: Path, destination: Path) -> None:
+        nonlocal copy_count
+        copy_count += 1
+        if copy_count == 2:
+            raise OSError("injected late catalog alias failure")
+        original_copy(source, destination)
+
+    monkeypatch.setattr(kernel_embeddings, "_atomic_copy_file", _fail_second_alias)
+    with pytest.raises(OSError, match="late catalog alias failure"):
+        build_catalog_hnsw_index(
+            db_path=config.db_path,
+            index_dir=config.index_dir,
+            embedding_model="fake-model@v2",
+            embedding_batch_size=1,
+            embedding_device="cpu",
+        )
+
+    selector = _selector(config.index_dir)
+    generation_dir = config.index_dir / "embedding_generations" / str(selector["generation_id"])
+    with np.load(generation_dir / "embeddings.npz", allow_pickle=True) as payload:
+        query = np.asarray(payload["vectors"][0], dtype=np.float32)
+    store = DatasetCatalogStore(config.db_path, config.index_dir)
+    try:
+        results = store.search_by_vector(query, top_k=1, min_similarity=0.0)
+        assert [result.id for result in results] == ["ds-2"]
+    finally:
+        store.close()
+
+    build_graph(
+        records=[_record("ds-2", "Changed dataset title")],
+        db_path=config.db_path,
+    )
+    stale_content_store = DatasetCatalogStore(config.db_path, config.index_dir)
+    try:
+        assert stale_content_store.search_by_vector(
+            query, top_k=1, min_similarity=0.0
+        ) == []
+    finally:
+        stale_content_store.close()
 
 
 def test_catalog_empty_generation_reader_does_not_reuse_legacy_files(

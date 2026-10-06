@@ -10,12 +10,25 @@ import duckdb
 import numpy as np
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.legal.embedding_projection import (
+    entity_embedding_text as _entity_embedding_text,
+)
+from polisyos.data_forge.domains.legal.embedding_projection import (
+    fact_embedding_text as _fact_embedding_text,
+)
+from polisyos.data_forge.domains.legal.embedding_projection import (
+    provision_embedding_text as _provision_embedding_text,
+)
 from polisyos.data_forge.kernel.embeddings import (
     _build_embedding_generation_from_vectors,
     _generator_rule_version,
+    derive_encoder_identity,
     resolve_embedding_generation,
 )
-from polisyos.data_forge.kernel.io.generation_basis import build_generation_basis
+from polisyos.data_forge.kernel.io.generation_basis import (
+    GenerationIdentity,
+    build_generation_basis,
+)
 from polisyos.data_forge.kernel.runtime import pause_between_batches
 
 if TYPE_CHECKING:
@@ -41,62 +54,6 @@ class EmbeddingStats:
     elapsed_seconds: float = 0.0
 
 
-def _entity_embedding_text(row: tuple) -> str:
-    name_en, name_uk, entity_type, aliases_en, aliases_uk = row
-    parts = ["ENTITY", f"en: {name_en}", f"uk: {name_uk or ''}", f"type: {entity_type}"]
-    aliases: list[str] = []
-    if aliases_en:
-        aliases.extend(str(aliases_en).split("; ")[:6])
-    if aliases_uk:
-        aliases.extend(str(aliases_uk).split("; ")[:6])
-    if aliases:
-        parts.append("aliases: " + "; ".join(aliases))
-    return "\n".join(parts)
-
-
-def _fact_embedding_text(row: tuple) -> str:
-    (
-        subject_en,
-        subject_uk,
-        predicate,
-        object_en,
-        object_uk,
-        fact_text,
-        norm_type,
-        action_canon,
-        norm_type_canon,
-        condition_text_uk,
-        exception_text_uk,
-        procedure_text_uk,
-        thresholds_json,
-        source_quote_uk,
-    ) = row
-
-    parts = [
-        "FACT",
-        f"norm_type: {norm_type_canon or norm_type or 'unknown'}",
-        f"action: {action_canon or predicate or 'unknown'}",
-        f"spo: {subject_en} ({subject_uk or ''}) {predicate} {object_en} ({object_uk or ''})",
-        f"fact_en: {fact_text}",
-    ]
-    if condition_text_uk:
-        parts.append(f"condition_uk: {condition_text_uk}")
-    if exception_text_uk:
-        parts.append(f"exception_uk: {exception_text_uk}")
-    if procedure_text_uk:
-        parts.append(f"procedure_uk: {procedure_text_uk}")
-    if thresholds_json:
-        parts.append(f"thresholds: {thresholds_json}")
-    if source_quote_uk:
-        parts.append(f"quote_uk: {str(source_quote_uk)[:400]}")
-    return "\n".join(parts)
-
-
-def _provision_embedding_text(row: tuple) -> str:
-    (provision_text,) = row
-    return str(provision_text or "")
-
-
 def _generation_index_dir(output_dir: Path, npz_name: str) -> Path:
     """Return the authoritative generation directory for one legal projection."""
     return output_dir / _LEGAL_GENERATION_ROOT / npz_name
@@ -113,6 +70,7 @@ def _load_reusable_vectors(
     embedding_dimension: int,
     basis_kind: str,
     projection_rule_version: str,
+    encoder_identity: GenerationIdentity,
     incremental: bool,
 ) -> dict[str, np.ndarray]:
     """Load only vectors proven reusable by the selected generation metadata."""
@@ -146,6 +104,7 @@ def _load_reusable_vectors(
         embedding_model=embedding_model,
         embedding_device=embedding_device,
         embedding_dimension=embedding_dimension,
+        encoder_identity=encoder_identity,
     )
     persisted_basis = inventory.get("basis")
     if not isinstance(persisted_basis, dict):
@@ -211,6 +170,7 @@ def _embed_table(
     npz_name: str,
     hnsw_name: str,
     model,
+    encoder_identity: GenerationIdentity,
     embedding_model: str,
     embedding_device: str,
     batch_size: int,
@@ -224,33 +184,37 @@ def _embed_table(
 
     con = duckdb.connect(str(db_path), read_only=True)
     try:
+        con.execute("BEGIN TRANSACTION")
         total = int(con.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
-    finally:
-        con.close()
-
-    dim = int(model.get_sentence_embedding_dimension())
-    if dim < 1:
-        raise ValueError("embedding model dimension must be positive")
-
-    current_rows: list[tuple[str, str]] = []
-    offset = 0
-
-    while offset < total:
-        con = duckdb.connect(str(db_path), read_only=True)
-        try:
+        current_rows: list[tuple[str, str]] = []
+        offset = 0
+        while offset < total:
             rows = con.execute(
                 f"SELECT {id_column}, {text_columns} FROM {table} "
                 f"ORDER BY {id_column} LIMIT {chunk_size} OFFSET {offset}"
             ).fetchall()
-        finally:
-            con.close()
+            if not rows:
+                break
+            current_rows.extend(
+                (str(row[0]), text_builder(tuple(row[1:]))[:32000]) for row in rows
+            )
+            offset += len(rows)
+        con.execute("COMMIT")
+    except Exception:
+        try:
+            con.execute("ROLLBACK")
+        except duckdb.Error:
+            pass
+        raise
+    finally:
+        con.close()
 
-        if not rows:
-            break
-        current_rows.extend(
-            (str(row[0]), text_builder(tuple(row[1:]))[:32000]) for row in rows
-        )
-        offset += len(rows)
+    if len(current_rows) != total:
+        raise ValueError(f"{table} changed while reading its embedding inputs")
+
+    dim = int(model.get_sentence_embedding_dimension())
+    if dim < 1:
+        raise ValueError("embedding model dimension must be positive")
 
     current_rows.sort(key=lambda row: row[0])
     if len({identifier for identifier, _ in current_rows}) != len(current_rows):
@@ -267,6 +231,7 @@ def _embed_table(
                 embedding_model=embedding_model,
                 embedding_device=embedding_device,
                 embedding_dimension=dim,
+                encoder_identity=encoder_identity,
             ),
             members=[
                 (identifier, text.encode("utf-8")) for identifier, text in current_rows
@@ -284,6 +249,7 @@ def _embed_table(
             embedding_dimension=dim,
             basis_kind=basis_kind,
             projection_rule_version=projection_rule_version,
+            encoder_identity=encoder_identity,
             incremental=incremental,
         )
         if current_basis is not None
@@ -336,6 +302,7 @@ def _embed_table(
         embedding_dimension=dim,
         basis_kind=basis_kind,
         projection_rule_version=projection_rule_version,
+        encoder_identity=encoder_identity,
         legacy_embeddings_path=npz_path,
         legacy_index_path=hnsw_path,
     )
@@ -355,14 +322,13 @@ def build_local_embeddings_and_indexes(
     thermal_pause_seconds: float = 0.0,
     incremental: bool = False,
     fp16: bool = False,
+    encoder: object | None = None,
 ) -> EmbeddingStats:
     """Build local embeddings + HNSW for entities/facts/provisions."""
-    from sentence_transformers import SentenceTransformer
-
     t0 = time.monotonic()
 
     model_kwargs = {}
-    if fp16 and embedding_device in ("mps", "cuda"):
+    if encoder is None and fp16 and embedding_device in ("mps", "cuda"):
         try:
             import torch
 
@@ -371,14 +337,26 @@ def build_local_embeddings_and_indexes(
         except ImportError:
             pass
 
-    if model_kwargs:
-        model = SentenceTransformer(
-            embedding_model,
-            device=embedding_device,
-            model_kwargs=model_kwargs,
-        )
+    if encoder is not None:
+        if fp16:
+            raise ValueError("fp16 cannot be applied to a preloaded legal embedding encoder")
+        model = encoder
     else:
-        model = SentenceTransformer(embedding_model, device=embedding_device)
+        from sentence_transformers import SentenceTransformer
+
+        if model_kwargs:
+            model = SentenceTransformer(
+                embedding_model,
+                device=embedding_device,
+                model_kwargs=model_kwargs,
+            )
+        else:
+            model = SentenceTransformer(embedding_model, device=embedding_device)
+
+    try:
+        encoder_identity = derive_encoder_identity(model)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"unsupported legal embedding encoder: {exc}") from exc
 
     stats = EmbeddingStats()
     embedded, skipped = _embed_table(
@@ -391,6 +369,7 @@ def build_local_embeddings_and_indexes(
         npz_name="lex_entity_embeddings",
         hnsw_name="lex_entity_index",
         model=model,
+        encoder_identity=encoder_identity,
         embedding_model=embedding_model,
         embedding_device=embedding_device,
         batch_size=embedding_batch_size,
@@ -417,6 +396,7 @@ def build_local_embeddings_and_indexes(
         npz_name="lex_fact_embeddings",
         hnsw_name="lex_fact_index",
         model=model,
+        encoder_identity=encoder_identity,
         embedding_model=embedding_model,
         embedding_device=embedding_device,
         batch_size=embedding_batch_size,
@@ -438,6 +418,7 @@ def build_local_embeddings_and_indexes(
         npz_name="lex_provision_embeddings",
         hnsw_name="lex_provision_index",
         model=model,
+        encoder_identity=encoder_identity,
         embedding_model=embedding_model,
         embedding_device=embedding_device,
         batch_size=embedding_batch_size,
@@ -458,16 +439,38 @@ def build_embeddings_and_index(
     db_path: Path,
     output_dir: Path,
     *,
-    backend=None,
+    backend: object | None = None,
     chunk_size: int = 2000,
 ) -> EmbeddingStats:
-    """Build embeddings and index."""
+    """Adapt the legacy entrypoint to the canonical legal embedding builder.
+
+    A supplied backend must be a preloaded SentenceTransformer-compatible
+    encoder with a declared device.  Its weights and tokenizer are bound into
+    the generation identity; other backend-shaped values fail closed.
+    """
+    embedding_model = "intfloat/multilingual-e5-large"
+    embedding_device = "mps"
     if backend is not None:
-        raise ValueError("unsupported backend: local legal embeddings are canonical")
+        if not callable(getattr(backend, "encode", None)) or not callable(
+            getattr(backend, "get_sentence_embedding_dimension", None)
+        ):
+            raise ValueError("unsupported backend: expected a local encoder instance")
+        raw_device = getattr(backend, "device", None)
+        if raw_device is None:
+            raise ValueError("unsupported backend: encoder device is not declared")
+        embedding_device = str(raw_device)
+        for attribute in ("model_name_or_path", "model_name"):
+            label = getattr(backend, attribute, None)
+            if isinstance(label, str) and label.strip():
+                embedding_model = label.strip()
+                break
+        else:
+            embedding_model = "legacy-compatible-encoder"
     return build_local_embeddings_and_indexes(
         db_path=db_path,
         output_dir=output_dir,
-        embedding_model="intfloat/multilingual-e5-large",
-        embedding_device="mps",
+        embedding_model=embedding_model,
+        embedding_device=embedding_device,
         embedding_chunk_size=chunk_size,
+        encoder=backend,
     )

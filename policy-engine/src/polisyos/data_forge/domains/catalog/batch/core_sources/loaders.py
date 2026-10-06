@@ -99,6 +99,10 @@ if TYPE_CHECKING:
         _WVSObservationAccumulator,
     )
 
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    resolve_core_sources_compatibility_binding,
+)
+
 logger = get_logger(__name__)
 
 __OWNER_BOUND_PROXIES: dict[str, Any] = {}
@@ -106,6 +110,11 @@ __OWNER_BOUND_PROXIES: dict[str, Any] = {}
 
 def __resolve_implementation_dependency(name: str, owner: str) -> Any:
     """Resolve a split-module dependency without facade-global injection."""
+    has_context_override, context_override = resolve_core_sources_compatibility_binding(
+        f"{__package__}.{owner}", name
+    )
+    if has_context_override:
+        return context_override
     override = globals().get(name)
     if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
         return override

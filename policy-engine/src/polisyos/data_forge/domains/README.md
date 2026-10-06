@@ -20,7 +20,7 @@ packages are build-time implementation unless registered through
 | --- | --- |
 | `academic/` | Academic literature and knowledge build pipelines. |
 | `catalog/` | Source catalog build, curation, and registry materialization. |
-| `legal/` | Legal corpus extraction and normalization. |
+| `legal/` | Legal corpus extraction, normalization, and shared embedding text projection. |
 | `ukraine/` | Ukraine data domain build surfaces. |
 
 ## Extension Points

@@ -5,8 +5,10 @@
 - Allowed contents: stable kernel APIs, internal helpers, runtime contracts, and kernel-local fixtures that are required by package tests.
 - Embedding extraction in `embeddings.py` accepts prepared `(id, text)` rows
   and owns the shared encode/index mechanics. Academic and Catalog wrappers
-  retain their distinct SQL/text profiles; generation publication and reader
-  selection remain an EMB-02 concern.
+  retain their distinct SQL/text profiles; the Legal builder retains its
+  chunked incremental contract. Non-empty generations bind loaded encoder
+  weights, tokenizer assets, and module projection settings in their existing
+  generation rule version.
 - EMB-02 publishes each successful build below `embedding_generations/` with
   NPZ, HNSW (when non-empty), IDs, basis, and inventory bytes, then atomically
   advances `embedding_generation.json`. A typed `empty_generation` is selected

@@ -15,6 +15,7 @@ from typing import Any, Iterator
 
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
     CatalogTransportDataset,
+    CoreSourcesCompatibilityContext,
     CoreSourcesIngestStats,
     ObservationFetchKey,
     ObservationFetchPayload,
@@ -27,6 +28,7 @@ from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts im
     WriterFlushState,
     _ObservationRuntimeMetrics,
     _SourceBudgetWindow,
+    bind_core_sources_compatibility_context,
 )
 from polisyos.data_forge.domains.catalog.batch.core_sources import (
     api as _api,
@@ -109,9 +111,18 @@ _LOCAL_NAMES = frozenset(
 
 
 @contextmanager
-def _temporary_compatibility_overrides() -> Iterator[None]:
-    """Apply only explicitly supported facade overrides for one call."""
-    applied: list[tuple[ModuleType, str, Any]] = []
+def _temporary_compatibility_overrides(
+    context: CoreSourcesCompatibilityContext | None = None,
+) -> Iterator[None]:
+    """Bind a snapshot of supported overrides without mutating owner modules."""
+    scoped = context or _compatibility_context_from_facade()
+    with bind_core_sources_compatibility_context(scoped):
+        yield
+
+
+def _compatibility_context_from_facade() -> CoreSourcesCompatibilityContext:
+    """Snapshot explicitly changed facade bindings into an immutable context."""
+    bindings: dict[tuple[str, str], Any] = {}
     for name, (module, owner_name) in _BINDINGS.items():
         if name in _LOCAL_NAMES or name not in globals():
             continue
@@ -119,16 +130,8 @@ def _temporary_compatibility_overrides() -> Iterator[None]:
         current = getattr(module, owner_name, None)
         if replacement is current:
             continue
-        applied.append((module, owner_name, current))
-        setattr(module, owner_name, replacement)
-    try:
-        yield
-    finally:
-        for module, owner_name, current in reversed(applied):
-            if current is None:
-                delattr(module, owner_name)
-            else:
-                setattr(module, owner_name, current)
+        bindings[(module.__name__, owner_name)] = replacement
+    return CoreSourcesCompatibilityContext(bindings=bindings)
 
 
 def _compatibility_delegate(name: str, target: Any) -> Any:
@@ -168,17 +171,29 @@ def _sync_implementation_globals() -> None:
     """Retained as a no-op compatibility hook; no globals are broadcast."""
 
 
-async def run_core_sources_ingest_async(config: Any) -> CoreSourcesIngestStats:
+async def run_core_sources_ingest_async(
+    config: Any,
+    *,
+    compatibility_context: CoreSourcesCompatibilityContext | None = None,
+) -> CoreSourcesIngestStats:
     """Run the canonical API while honoring bounded legacy test seams."""
-    with _temporary_compatibility_overrides():
+    with _temporary_compatibility_overrides(compatibility_context):
         return await _api.run_core_sources_ingest_async(config)
 
 
-def run_core_sources_ingest(config: Any) -> CoreSourcesIngestStats:
+def run_core_sources_ingest(
+    config: Any,
+    *,
+    compatibility_context: CoreSourcesCompatibilityContext | None = None,
+) -> CoreSourcesIngestStats:
     """Run the canonical API from synchronous callers."""
     from polisyos.common.async_tools import run_coro_sync
 
-    return run_coro_sync(run_core_sources_ingest_async(config))
+    return run_coro_sync(
+        run_core_sources_ingest_async(
+            config, compatibility_context=compatibility_context
+        )
+    )
 
 
 __all__ = ["CoreSourcesIngestStats", "run_core_sources_ingest"]

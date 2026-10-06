@@ -14,6 +14,9 @@ import duckdb
 import numpy as np
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.academic.knowledge.embedding_projection import (
+    work_embedding_text,
+)
 from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     decode_edge_evidence_strength,
 )
@@ -39,7 +42,11 @@ from polisyos.data_forge.domains.academic.knowledge.types import (
     ParameterEstimateResult,
     WorkSearchResult,
 )
-from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
+from polisyos.data_forge.kernel.embeddings import (
+    generation_basis_matches_members,
+    hnsw_index_matches_vectors,
+    resolve_embedding_generation,
+)
 from polisyos.ir.analytics import (
     ClaimVocabularyAxisStatus,
     DesignFamily,
@@ -182,10 +189,30 @@ class ScholarKnowledgeStore:
 
             with np.load(str(generation.embeddings_path), allow_pickle=True) as data:
                 ids = [str(identifier) for identifier in data["ids"].tolist()]
+                vectors = np.asarray(data["vectors"], dtype=np.float32)
+            current_rows = self._con.execute(
+                "SELECT id, title, abstract FROM ac_works ORDER BY id"
+            ).fetchall()
+            database_ids = [str(row[0]) for row in current_rows]
+            current_members = [
+                (identifier, work_embedding_text(row).encode("utf-8"))
+                for identifier, row in zip(database_ids, current_rows, strict=True)
+            ]
+            if (
+                ids != database_ids
+                or not generation_basis_matches_members(
+                    generation,
+                    basis_kind="academic_work_embedding",
+                    members=current_members,
+                )
+            ):
+                raise ValueError("selected work basis differs from current works")
             idx = hnswlib.Index(space="cosine", dim=generation.dimension)
             idx.load_index(str(generation.index_path), max_elements=len(ids))
+            if not hnsw_index_matches_vectors(idx, vectors):
+                raise ValueError("selected work HNSW vectors differ from its matrix")
             idx.set_ef(100)
-        except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        except (duckdb.Error, ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
             logger.warning("Selected work index is unreadable: %s", exc)
             self._work_index = None
             self._work_ids = None

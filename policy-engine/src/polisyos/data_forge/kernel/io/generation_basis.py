@@ -28,6 +28,27 @@ class GenerationBasisMember:
         }
 
 
+@dataclass(frozen=True, slots=True)
+class GenerationIdentity:
+    """Internal content identity for a generation derivation input.
+
+    This does not change the persisted generation-basis schema. Callers bind
+    the digest into the existing generator rule version so model assets and
+    projection settings participate in the already-versioned basis contract.
+    """
+
+    content_identity: str
+
+    def __post_init__(self) -> None:
+        if not _CONTENT_IDENTITY_PATTERN.fullmatch(self.content_identity):
+            raise ValueError("generation identity must be a sha256 content identity")
+
+    @classmethod
+    def from_bytes(cls, raw: bytes) -> GenerationIdentity:
+        """Build an immutable identity directly from canonical bytes."""
+        return cls(content_identity=_sha256(raw))
+
+
 @dataclass(frozen=True)
 class GenerationBasis:
     """A versioned identity for the complete basis of one generated artifact."""
@@ -248,6 +269,7 @@ __all__ = [
     "GenerationBasis",
     "GenerationBasisComparison",
     "GenerationBasisMember",
+    "GenerationIdentity",
     "build_generation_basis",
     "compare_generation_basis",
 ]

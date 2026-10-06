@@ -6,6 +6,7 @@ This is the persistence layer used by ``search.py``.
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,16 @@ import numpy as np
 
 from polisyos.common.logger import get_logger
 from polisyos.core import artifacts, contracts
+from polisyos.data_forge.domains.legal.embedding_projection import (
+    entity_embedding_text,
+    fact_embedding_text,
+    provision_embedding_text,
+)
+from polisyos.data_forge.kernel.embeddings import (
+    generation_basis_matches_members,
+    hnsw_index_matches_vectors,
+    resolve_embedding_generation,
+)
 from polisyos.lex.knowledge.types import (
     LegalDocVersionResult,
     LegalFactResult,
@@ -909,65 +920,109 @@ class LegalKnowledgeStore:
     # Vector index loading (lazy)
     # ------------------------------------------------------------------
 
+    def _load_legal_embedding_index(
+        self,
+        *,
+        embedding_name: str,
+        index_name: str,
+        table_name: str,
+        id_column: str,
+        text_columns: str,
+        text_builder: Callable[[tuple[object, ...]], str],
+    ) -> tuple[object | None, list[str] | None]:
+        """Load only the selected, matrix-bound generation with current membership."""
+        flat_embeddings = self._index_dir / f"{embedding_name}.npz"
+        flat_index = self._index_dir / f"{index_name}.hnsw"
+        generation_dir = (
+            self._index_dir / ".legal_embedding_generations" / embedding_name
+        )
+        generation = resolve_embedding_generation(
+            generation_dir,
+            legacy_embeddings_path=flat_embeddings,
+            legacy_index_path=flat_index,
+        )
+        if (
+            generation is None
+            or generation.status == "empty_generation"
+            or generation.index_path is None
+        ):
+            return None, None
+        try:
+            import hnswlib
+
+            with np.load(str(generation.embeddings_path), allow_pickle=True) as data:
+                ids = [str(identifier) for identifier in data["ids"].tolist()]
+                vectors = np.asarray(data["vectors"], dtype=np.float32)
+            current_rows = self._con.execute(
+                f"SELECT {id_column}, {text_columns} FROM {table_name} ORDER BY {id_column}"
+            ).fetchall()
+            current_ids = [str(row[0]) for row in current_rows]
+            current_members = [
+                (identifier, text_builder(tuple(row[1:]))[:32000].encode("utf-8"))
+                for identifier, row in zip(current_ids, current_rows, strict=True)
+            ]
+            if (
+                ids != list(generation.ids)
+                or ids != current_ids
+                or not generation_basis_matches_members(
+                    generation,
+                    basis_kind=f"legal_{table_name}_embedding",
+                    members=current_members,
+                )
+            ):
+                raise ValueError(
+                    f"selected {table_name} basis differs from current projected records"
+                )
+            index = hnswlib.Index(space="cosine", dim=generation.dimension)
+            index.load_index(str(generation.index_path), max_elements=len(ids))
+            if not hnsw_index_matches_vectors(index, vectors):
+                raise ValueError(f"selected {table_name} HNSW vectors differ from its matrix")
+            index.set_ef(100)
+        except (duckdb.Error, ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            logger.warning("Selected legal {} index is unreadable: {}", table_name, exc)
+            return None, None
+        return index, ids
+
     def _load_entity_index(self) -> None:
         if self._entity_index is not None:
             return
-        import hnswlib
-
-        npz_path = self._index_dir / "lex_entity_embeddings.npz"
-        hnsw_path = self._index_dir / "lex_entity_index.hnsw"
-        if not npz_path.exists() or not hnsw_path.exists():
-            logger.warning("Entity index files not found in %s", self._index_dir)
-            return
-
-        data = np.load(str(npz_path), allow_pickle=True)
-        self._entity_ids = list(data["ids"])
-        dim = int(data["vectors"].shape[1])
-
-        idx = hnswlib.Index(space="cosine", dim=dim)
-        idx.load_index(str(hnsw_path), max_elements=len(self._entity_ids))
-        idx.set_ef(100)
-        self._entity_index = idx
+        self._entity_index, self._entity_ids = self._load_legal_embedding_index(
+            embedding_name="lex_entity_embeddings",
+            index_name="lex_entity_index",
+            table_name="lex_entities",
+            id_column="entity_id",
+            text_columns="name_en, name_uk, entity_type, aliases_en, aliases_uk",
+            text_builder=entity_embedding_text,
+        )
 
     def _load_fact_index(self) -> None:
         if self._fact_index is not None:
             return
-        import hnswlib
-
-        npz_path = self._index_dir / "lex_fact_embeddings.npz"
-        hnsw_path = self._index_dir / "lex_fact_index.hnsw"
-        if not npz_path.exists() or not hnsw_path.exists():
-            logger.warning("Fact index files not found in %s", self._index_dir)
-            return
-
-        data = np.load(str(npz_path), allow_pickle=True)
-        self._fact_ids = list(data["ids"])
-        dim = int(data["vectors"].shape[1])
-
-        idx = hnswlib.Index(space="cosine", dim=dim)
-        idx.load_index(str(hnsw_path), max_elements=len(self._fact_ids))
-        idx.set_ef(100)
-        self._fact_index = idx
+        self._fact_index, self._fact_ids = self._load_legal_embedding_index(
+            embedding_name="lex_fact_embeddings",
+            index_name="lex_fact_index",
+            table_name="lex_facts",
+            id_column="fact_id",
+            text_columns=(
+                "subject_en, subject_uk, predicate, object_en, object_uk, "
+                "fact_text, norm_type, action_canon, norm_type_canon, "
+                "condition_text_uk, exception_text_uk, procedure_text_uk, "
+                "thresholds_json, source_quote_uk"
+            ),
+            text_builder=fact_embedding_text,
+        )
 
     def _load_provision_index(self) -> None:
         if self._provision_index is not None:
             return
-        import hnswlib
-
-        npz_path = self._index_dir / "lex_provision_embeddings.npz"
-        hnsw_path = self._index_dir / "lex_provision_index.hnsw"
-        if not npz_path.exists() or not hnsw_path.exists():
-            logger.warning("Provision index files not found in %s", self._index_dir)
-            return
-
-        data = np.load(str(npz_path), allow_pickle=True)
-        self._provision_ids = list(data["ids"])
-        dim = int(data["vectors"].shape[1])
-
-        idx = hnswlib.Index(space="cosine", dim=dim)
-        idx.load_index(str(hnsw_path), max_elements=len(self._provision_ids))
-        idx.set_ef(100)
-        self._provision_index = idx
+        self._provision_index, self._provision_ids = self._load_legal_embedding_index(
+            embedding_name="lex_provision_embeddings",
+            index_name="lex_provision_index",
+            table_name="lex_provisions",
+            id_column="provision_id",
+            text_columns="provision_text",
+            text_builder=provision_embedding_text,
+        )
 
     def _to_fact_result(self, row: tuple, *, similarity: float) -> LegalFactResult:
         return LegalFactResult(

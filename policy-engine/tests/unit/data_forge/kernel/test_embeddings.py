@@ -24,8 +24,16 @@ class _FakeSentenceTransformer:
     def __init__(self, model_name: str, device: str | None = None) -> None:
         self.model_name = model_name
         self.device = device
+        self.config = {"model_name": model_name, "dimension": 4}
+        self.tokenizer = _FakeTokenizer()
         self.calls: list[dict[str, object]] = []
         type(self).instances.append(self)
+
+    def state_dict(self) -> dict[str, np.ndarray]:
+        return {"encoder.weight": np.asarray([len(self.model_name), 4.0], dtype=np.float32)}
+
+    def modules(self) -> list[_FakeSentenceTransformer]:
+        return [self]
 
     def encode(
         self,
@@ -50,6 +58,18 @@ class _FakeSentenceTransformer:
                 vector /= np.linalg.norm(vector)
             vectors.append(vector)
         return np.vstack(vectors)
+
+
+class _FakeTokenizer:
+    def get_vocab(self) -> dict[str, int]:
+        return {"<unk>": 0, "fixture": 1}
+
+    @property
+    def special_tokens_map(self) -> dict[str, str]:
+        return {"unk_token": "<unk>"}
+
+    def get_added_vocab(self) -> dict[str, int]:
+        return {}
 
 
 def _install_fake_sentence_transformer(monkeypatch: pytest.MonkeyPatch) -> None:

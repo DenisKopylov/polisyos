@@ -18,6 +18,7 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.cursor import (
     CursorState,
+    StreamCheckpoint,
     StreamLifecycleState,
     WatermarkType,
     WindowStrategy,
@@ -1016,6 +1017,142 @@ async def test_b81_raw_byte_oracle_detects_marker_preserving_chunk_content_drift
         assert payload["data"] == expected_rows, (
             "persisted stream rows differ from the raw-byte oracle"
         )
+
+
+@pytest.mark.asyncio
+async def test_b81_returned_final_checkpoint_ref_reads_committed_frontier_after_restart(
+    tmp_path: Path,
+    stream_registry: ConnectorRegistry,
+) -> None:
+    """The returned checkpoint reference resolves to the durable committed frontier."""
+    from polisyos.core.artifacts.ids import ArtifactID
+
+    connector_id = "stream.jsonl"
+    dataset_id = "returned-final-checkpoint-ref"
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
+    stream_path.write_text(
+        '{"event_id":"final-event","value":7}\n',
+        encoding="utf-8",
+    )
+    registry = _configure_stream_registry(stream_registry, stream_path)
+    cas_root = tmp_path / f"{dataset_id}-cas"
+    store = FileSystemCAS(cas_root)
+    cursor_store = CursorStore(store)
+    result = await process_stream_dataset(
+        connector_id=connector_id,
+        dataset_id=dataset_id,
+        store=store,
+        cursor_store=cursor_store,
+        sanitize_rows=_valid_rows,
+        runtime_options=StreamRuntimeOptions(
+            checkpoint_every_chunks=1,
+            window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=1),
+        ),
+        registry=registry,
+    )
+
+    assert result.final_checkpoint is not None
+    assert result.final_checkpoint_ref is not None
+    assert result.final_cursor is not None
+    assert result.final_cursor_ref is not None
+
+    def _assert_returned_refs_match_persisted_frontier(
+        read_store: FileSystemCAS,
+        read_cursor_store: CursorStore,
+        *,
+        checkpoint_ref: str,
+    ) -> None:
+        stream_id = f"{connector_id}:{dataset_id}:default"
+        cursor_id = f"{connector_id}:{dataset_id}"
+        stream_index = json.loads((cas_root / "stream_checkpoint_index.json").read_text())
+        cursor_index = json.loads((cas_root / "cursor_index.json").read_text())
+        latest_checkpoint_ref = stream_index[stream_id]
+        latest_cursor_ref = cursor_index[cursor_id]
+        assert checkpoint_ref == latest_checkpoint_ref, (
+            "returned final checkpoint ref does not equal durable latest index ref"
+        )
+
+        returned_checkpoint = StreamCheckpoint.model_validate(
+            from_canonical_bytes(read_store.get_bytes(ArtifactID.model_validate(checkpoint_ref)))
+        )
+        indexed_checkpoint = StreamCheckpoint.model_validate(
+            from_canonical_bytes(
+                read_store.get_bytes(ArtifactID.model_validate(latest_checkpoint_ref))
+            )
+        )
+        latest_checkpoint = read_cursor_store.find_latest_stream_checkpoint(
+            connector_id,
+            dataset_id,
+        )
+        assert latest_checkpoint is not None
+        assert returned_checkpoint.model_dump(mode="json") == result.final_checkpoint.model_dump(
+            mode="json"
+        )
+        assert indexed_checkpoint.model_dump(mode="json") == result.final_checkpoint.model_dump(
+            mode="json"
+        )
+        assert latest_checkpoint.model_dump(mode="json") == result.final_checkpoint.model_dump(
+            mode="json"
+        )
+        assert result.final_checkpoint.lifecycle_state == StreamLifecycleState.CLOSED
+        assert result.final_checkpoint.committed_at is not None
+        assert result.final_checkpoint.metadata["frontier_intent"]["state"] == "committed"
+
+        assert result.final_cursor_ref == latest_cursor_ref
+        returned_cursor = CursorState.model_validate(
+            from_canonical_bytes(read_store.get_bytes(ArtifactID.model_validate(latest_cursor_ref)))
+        )
+        latest_cursor = read_cursor_store.find_latest_cursor(connector_id, dataset_id)
+        assert latest_cursor is not None
+        assert returned_cursor.model_dump(mode="json") == result.final_cursor.model_dump(
+            mode="json"
+        )
+        assert latest_cursor.model_dump(mode="json") == result.final_cursor.model_dump(mode="json")
+        assert returned_cursor.watermark_value == str(result.final_checkpoint.offset)
+        assert returned_cursor.watermark_value == "0"
+
+    restarted_store = FileSystemCAS(cas_root)
+    restarted_cursor_store = CursorStore(restarted_store)
+    stream_id = f"{connector_id}:{dataset_id}:default"
+    final_intent_id = result.final_checkpoint.metadata["frontier_intent"]["intent_id"]
+    prepared_refs: list[str] = []
+    for artifact_id in restarted_store.iter_artifact_ids():
+        if restarted_store.get_manifest(artifact_id).kind != "fabric.stream_checkpoint":
+            continue
+        checkpoint = StreamCheckpoint.model_validate(
+            from_canonical_bytes(restarted_store.get_bytes(artifact_id))
+        )
+        intent = checkpoint.metadata.get("frontier_intent", {})
+        if (
+            checkpoint.stream_id == stream_id
+            and intent.get("state") == "prepared"
+            and intent.get("intent_id") == final_intent_id
+        ):
+            prepared_refs.append(str(artifact_id))
+    assert len(prepared_refs) == 1
+
+    # The same property oracle must reject a real prepared checkpoint artifact
+    # if the returned reference is repointed to it while the committed index is intact.
+    with pytest.raises(
+        AssertionError,
+        match="returned final checkpoint ref does not equal durable latest index ref",
+    ):
+        _assert_returned_refs_match_persisted_frontier(
+            restarted_store,
+            restarted_cursor_store,
+            checkpoint_ref=prepared_refs[0],
+        )
+
+    _assert_returned_refs_match_persisted_frontier(
+        store,
+        cursor_store,
+        checkpoint_ref=result.final_checkpoint_ref,
+    )
+    _assert_returned_refs_match_persisted_frontier(
+        restarted_store,
+        restarted_cursor_store,
+        checkpoint_ref=result.final_checkpoint_ref,
+    )
 
 
 @pytest.mark.parametrize(

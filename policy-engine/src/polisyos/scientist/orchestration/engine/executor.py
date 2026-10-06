@@ -482,9 +482,7 @@ def _merge_cached_outcome_state(
 
 def _prepared_read_origin(outcome: NodeOutcome, *, selector_version: str) -> dict[str, str] | None:
     """Read the bound-connection query evidence in the persisted cached outcome."""
-    origins = [
-        event for event in outcome.events if event.code == "skg.prepared_connection_query"
-    ]
+    origins = [event for event in outcome.events if event.code == "skg.prepared_connection_query"]
     if len(origins) != 1:
         return None
     attrs = origins[0].attrs
@@ -543,6 +541,7 @@ def _persist_prepared_read_receipt(
 ) -> ArtifactRef | None:
     """Persist a current hit receipt while retaining the cached result's source lineage."""
     from polisyos.data_forge.domains.academic.knowledge.skg_query import PreparedSKGReadReceipt
+
     if not prepared_read.source_generation_matches():
         return None
     selector_version = _prepared_read_selector_version(node_id)
@@ -550,8 +549,7 @@ def _persist_prepared_read_receipt(
     if (
         origin is None
         or origin["source_snapshot_sha256"] != prepared_read.source_snapshot_sha256
-        or origin["source_binding_schema_version"]
-        != prepared_read.source_binding_schema_version
+        or origin["source_binding_schema_version"] != prepared_read.source_binding_schema_version
     ):
         return None
     receipt = PreparedSKGReadReceipt(
@@ -1135,7 +1133,9 @@ class WorkflowExecutor:
                                     )
                                     cache_bind_params["prepared_skg_read"] = (
                                         prepared_read.cache_binding(
-                                            selector_version=_prepared_read_selector_version(node_id)
+                                            selector_version=_prepared_read_selector_version(
+                                                node_id
+                                            )
                                         )
                                     )
                             except _EXECUTOR_DEGRADED_ERRORS as exc:
@@ -1427,8 +1427,8 @@ class WorkflowExecutor:
 
                     if prepared_read is not None and query_execution_marker is not None:
                         if prepared_read.source_generation_matches():
-                            connection_query_fingerprints = (
-                                prepared_read.query_fingerprints_since(query_execution_marker)
+                            connection_query_fingerprints = prepared_read.query_fingerprints_since(
+                                query_execution_marker
                             )
 
                     if (

@@ -198,8 +198,8 @@ def test_native_graph_returns_refs_from_its_configured_cas(tmp_path) -> None:
         _assert_fresh_source_and_pairs(store, ref)
     public_refs = _build_standard_derived_refs(artifacts)
     assert {
-        (item.role, item.ref.artifact_id) for item in public_refs if ":calibration." in item.role
-    } == {(role, ref.artifact_id) for role, ref in artifacts.derived_artifacts}
+        (item.role, str(item.ref.artifact_id)) for item in public_refs if ":calibration." in item.role
+    } == {(role, str(ref.artifact_id)) for role, ref in artifacts.derived_artifacts}
     stored_graph = from_canonical_bytes(store.get_bytes(graph_ref))
     assert stored_graph["nodes"][0]["method_params"]["artifact_store"] == "untrusted-client-store"
     assert client_params["artifact_store"] == "untrusted-client-store"

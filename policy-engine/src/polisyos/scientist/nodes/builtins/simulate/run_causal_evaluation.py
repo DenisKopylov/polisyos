@@ -604,7 +604,7 @@ def _verify_dowhy_worker_projection(
     expected = DoWhyIdentifyEstimate.report_from_worker_result(
         data=observational_data, params=params, response=response
     )
-    if report != expected:
+    if report.model_dump(mode="json") != expected.model_dump(mode="json"):
         raise ValueError("selected DoWhy report does not project its validated worker result")
 
 

@@ -640,6 +640,85 @@
       "outcome": "UNRUN",
       "output": "Not executed by this slice. Root owns the composed integration checks; no inherited-red attribution or blanket gate claim.",
       "p41_attribution": "not_established"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-o",
+        "cache_dir=/tmp/e02-F-continuation-20261006/envelope/final-neighbor-cache",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/envelope/final-neighbor-tmp",
+        "tests/unit/foundry/methods/catalog/causal/test_did.py",
+        "tests/unit/foundry/methods/catalog/causal/test_rdd.py",
+        "tests/unit/foundry/methods/catalog/causal/test_synthetic_control.py",
+        "tests/unit/foundry/methods/catalog/causal/test_structural_time_series.py",
+        "tests/unit/ir/test_uncertainty.py",
+        "tests/unit/ir/analytics/test_estimand_normalization.py",
+        "tests/unit/ir/mirror_contracts/test_causal.py",
+        "tests/unit/foundry/methods/test_value_evidence.py",
+        "/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py"
+      ],
+      "target_sha": "2577a3fa7f11fdaf596d30b364d6ad527d4430b6",
+      "environment": {
+        "python": {
+          "executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+          "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+          "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+        },
+        "versions": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "pydantic": "2.12.5",
+          "statsmodels": "0.14.6"
+        },
+        "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+        "environment_overrides": {
+          "PYTHONPATH": "src:."
+        },
+        "quota_introduced": false
+      },
+      "input_closure": {
+        "complete_source_and_test_bindings": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/final-neighbor.json",
+        "unique_scratch_carrier": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/test_causal_identification_consumer.py",
+          "original_path": "/tmp/e02-F-continuation-20261006/envelope/test_causal_identification_consumer.py",
+          "bytes": 9361,
+          "sha256": "f5e642c34a078ac4f5ed54e64d8ce30ae62eb7557270d6f11b8916fd4989ad08"
+        },
+        "replayer": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/final_neighbor_wave.py",
+          "original_path": "/tmp/e02-F-continuation-20261006/envelope/final_neighbor_wave.py",
+          "bytes": 5343,
+          "sha256": "186e37f50387f30963772ded6ef6f37608993e9e8c42e40da766e12a273e4280"
+        }
+      },
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/final-neighbor.stdout.txt",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/final-neighbor.stdout.txt",
+        "original_path": "/tmp/e02-F-continuation-20261006/envelope/final-neighbor.stdout.txt",
+        "bytes": 5044,
+        "sha256": "a7997849b60b430414169ffbbfd8c6d51989b0bad47edf3b2b1fb7220eefb5ca"
+      },
+      "measurements": {
+        "exit_code": 0,
+        "passed": 72,
+        "failed": 0,
+        "skipped": 0,
+        "warnings": 23,
+        "errors": 0,
+        "wall_seconds": 24.821237794996705,
+        "pytest_seconds": 20.26,
+        "child_max_rss_kib": 639484
+      },
+      "scope": "Focused existing native DID/RDD/synthetic-control/structural-time-series, uncertainty/estimand/value-evidence consumers and unique adversarial CAS reader carrier; no full integration or real-data admission claim.",
+      "warning_limits": "All23 warnings retained. Raw dispatcher diagnostics include missing_key ERROR labels for result/uncertainty_envelope/causal_effect_report and extra-key warnings; they are warnings in this pytest observation, not a successful full producer-slot/common consumer ABI claim. No exact slice-base paired complete-denominator attribution is claimed. Actual identification remains UNRUN."
     }
   ],
   "property": {
@@ -862,7 +941,8 @@
     "Native DID known parallel-panel ATT3 is a synthetic numerical property, not admitted-real-data identification.",
     "B54 prior math/cache evidence preserved by exact bytes; B56 existing four-job/repeat/seed/all-fold pool fixture is not current production study. No new global scheduler or cloud quota.",
     "DoWhy/EconML baseline Python3.14 marker exclusions do not count as backend witnesses.",
-    "Whole architecture/composed integration and full production positive owned by root/G; no P41 inherited claim."
+    "Whole architecture/composed integration and full production positive owned by root/G; no P41 inherited claim.",
+    "Final native neighbor assertions pass while raw dispatcher output-slot diagnostics remain declared warnings, including ERROR labels. No blanket producer/common-output ABI closure or inherited attribution follows; common consumer normalization belongs to its existing owner."
   ],
   "closure_id_semantics": "No new full finding closure. Prior B54 remains closed only in its original technical scope; B56 and identification authority remain limited/UNRUN.",
   "p40_bucket_rule": "Unverified shared emission and consumer-role intake are the same authority class: structural candidate cap covers the declared causal-purpose window. An arbitrary false noncausal role is the named finite residual requiring accepted identification issuer/bridge, not another local flag repair.",
@@ -1132,10 +1212,34 @@
       "original_path": "/tmp/e02-F-continuation-20261006/envelope/fragment-frozen.stderr.txt",
       "bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/final_neighbor_wave.py",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/final_neighbor_wave.py",
+      "bytes": 5343,
+      "sha256": "186e37f50387f30963772ded6ef6f37608993e9e8c42e40da766e12a273e4280"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/final-neighbor.json",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/final-neighbor.json",
+      "bytes": 7767,
+      "sha256": "e97d41d3a5df5a3eec784d0f2c84b80e48126be52307fd12ee8ae055877ef106"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/final-neighbor.stdout.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/final-neighbor.stdout.txt",
+      "bytes": 5044,
+      "sha256": "a7997849b60b430414169ffbbfd8c6d51989b0bad47edf3b2b1fb7220eefb5ca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/final-neighbor.stderr.txt",
+      "original_path": "/tmp/e02-F-continuation-20261006/envelope/final-neighbor.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
   ],
   "artifact_policy": "Complete moderate original outputs and unique scratch replayers preserved. Tracebacks with source whitespace are losslessly JSON-escaped to preserve every decoded byte while passing diff checks; decoded bytes/hash recorded. Tracked source/card/TSV bodies and derived views are referenced by Git identity, not copied.",
-  "further_verification": "Root-approved final focused neighbor-method/IR/value projection delta wave pending; no claim it has run in this early receipt.",
+  "further_verification": "Completed single focused frozen neighbor/IR/value delta wave:72PASS23warnings0skip/error/fail on implementation2577; entire output/source/environment/exit/time retained. Full composed root integration and genuine identification/B56 production positive remain separate UNRUN.",
   "baseline_navigation": {
     "source": "policy-engine/docs/research/e02-cloud-test-plan/results@f460bd81b8124be58f890f59a53e2aba9e7ceb76",
     "first_query": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --unit F --failures-only --limit 30",
@@ -1199,5 +1303,11 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/consumer-final-red.stdout.txt.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/direct-consumer-deciding.stdout.txt.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-identification-candidates-20261006/implementation-native-first.stdout.txt.json"
+  ],
+  "receipt_append_history": [
+    {
+      "prior_receipt_git_ref": "8e4f98569959570df1916c4a92271e9a60084c19",
+      "delta": "Added actual frozen focused neighbor wave and complete four unique companions. Runtime/test/doc bytes unchanged; closure_ids[] and finding decisions unchanged."
+    }
   ]
 }

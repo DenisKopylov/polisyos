@@ -6,9 +6,14 @@ import numpy as np
 import pytest
 from scipy.stats import binom
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.did import StaggeredDifferenceInDifferences
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
-from polisyos.ir.analytics.causal import EstimationStatus
+from polisyos.ir.analytics.causal import (
+    EstimationStatus,
+    load_causal_effect_report,
+    persist_causal_effect_report,
+)
 
 
 def _panel() -> PanelObservationalData:
@@ -137,6 +142,37 @@ def test_same_centered_studentized_law_drives_null_test_and_interval():
     assert report.method_params["multiplier_distribution"] == "iid_mammen"
     assert report.method_params["bootstrap_shared_draw"] is True
     assert report.method_params["null_statistic"] == "centered_studentized_scalar"
+
+
+@pytest.mark.parametrize("level, draws", [(0.95, 399), (0.99, 999), (0.8, 99)])
+def test_closed_interval_endpoints_and_adjacent_nulls_share_integer_decision(
+    tmp_path, level, draws
+):
+    data = _panel()
+    reference = _run(data, seed=4, confidence_level=level, n_bootstrap=draws)
+    lower, upper = reference.confidence_interval
+    for null, outside in (
+        (lower, False),
+        (upper, False),
+        (np.nextafter(lower, -np.inf), True),
+        (np.nextafter(upper, np.inf), True),
+    ):
+        null = float(null)
+        report = _run(data, seed=4, confidence_level=level, n_bootstrap=draws, null_effect=null)
+        # Compare actual native closed endpoints, then fresh persisted decision fields.
+        assert (
+            null < report.confidence_interval[0] or null > report.confidence_interval[1]
+        ) is outside
+        assert report.method_params.get("null_rejected") is outside
+        count = report.method_params["null_tail_count"]
+        threshold = report.method_params["minimum_accepted_tail_count"]
+        assert (count < threshold) is outside
+        assert report.p_value == (1 + count) / (draws + 1)
+        assert (report.p_value < report.method_params["significance_level"]) is outside
+        ref = persist_causal_effect_report(FileSystemCAS(tmp_path), report)
+        fresh = load_causal_effect_report(FileSystemCAS(tmp_path), ref)
+        assert fresh.method_params["null_rejected"] is outside
+        assert fresh.confidence_interval == (lower, upper)
 
 
 @pytest.mark.parametrize(

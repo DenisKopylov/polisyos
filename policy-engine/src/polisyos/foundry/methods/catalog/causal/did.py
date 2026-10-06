@@ -6,6 +6,7 @@ import hashlib
 import json
 import math
 from collections.abc import Mapping
+from decimal import ROUND_CEILING, Decimal
 from statistics import NormalDist
 from typing import Any, ClassVar
 
@@ -773,8 +774,14 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
         ):
             raise ValueError("n_bootstrap must be an integer of at least 2")
         n_bootstrap = int(raw_bootstrap)
-        critical_index = math.floor((n_bootstrap + 1) * confidence_level)
-        if critical_index >= n_bootstrap:
+        # The confidence level is a declared decimal probability, not a binary
+        # subtraction such as 1-.95 that can spuriously reject p=.05.
+        significance = Decimal(1) - Decimal(str(confidence_level))
+        minimum_accepted_tail = int(
+            (significance * (n_bootstrap + 1) - 1).to_integral_value(rounding=ROUND_CEILING)
+        )
+        critical_index = n_bootstrap - minimum_accepted_tail
+        if minimum_accepted_tail <= 0:
             raise ValueError(
                 "n_bootstrap is insufficient for the requested confidence-level test inversion"
             )
@@ -915,8 +922,12 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
         absolute_statistics[start : start + size] = np.abs(
             unit_draws @ influence / (data.n_units * standard_error)
         )
-    observed = abs((att - null_effect) / standard_error)
-    p_value = float((1 + np.count_nonzero(absolute_statistics >= observed)) / (n_bootstrap + 1))
+    # Equivalent to |Z_b| >= |Tobs| in real arithmetic, but evaluated on the
+    # very same closed effect-scale intervals as the reported CI. This keeps
+    # reconstructed endpoints and their immediately adjacent floats consistent.
+    radii = absolute_statistics * standard_error
+    tail_count = int(np.count_nonzero((att - radii <= null_effect) & (null_effect <= att + radii)))
+    p_value = float((1 + tail_count) / (n_bootstrap + 1))
     critical = float(np.sort(absolute_statistics)[critical_index])
     report = build_success_report(
         method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
@@ -939,7 +950,11 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
             **method_params,
             "critical_value": critical,
             "critical_order_index_zero_based": critical_index,
-            "test_rejection_rule": "p_value < 1-confidence_level",
+            "test_rejection_rule": "null_tail_count < minimum_accepted_tail_count",
+            "significance_level": float(significance),
+            "null_tail_count": tail_count,
+            "minimum_accepted_tail_count": minimum_accepted_tail,
+            "null_rejected": tail_count < minimum_accepted_tail,
         },
     )
     return _wrap_did_output(report)

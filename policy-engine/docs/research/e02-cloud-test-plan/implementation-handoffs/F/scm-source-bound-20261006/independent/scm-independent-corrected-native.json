@@ -1,0 +1,85 @@
+{
+  "schema": "policyos.e02.independent_execution.v1",
+  "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+  "source_before": {
+    "head": "1e70434b8e5a04661bb22c02362854ca14714436",
+    "tree": "1a078f2fd38602dd0f885f77be1f3fa7585852ad",
+    "target_sha": "1e70434b8e5a04661bb22c02362854ca14714436",
+    "target_tree": "1a078f2fd38602dd0f885f77be1f3fa7585852ad",
+    "source_hashes": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/removal_replayer.py": "916b996f5ee6e8690b1c88331999d4fdbdb07f65649ee821eae39bb304f5dd78",
+      "policy-engine/schemas/snapshots/ir/_manifest.json": "28c3d16267ad9de8c7f741c2547055fafd60275bc0f9f9d9bfee9b5b6abf21ae",
+      "policy-engine/schemas/snapshots/ir/causal_query_result.schema.json": "b86f113bcc605935333601130f235242849ee7ff8bc418954ef3ea32b33bb775",
+      "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json": "6af18c2cdb9901cd54568d0b1e83676ced66d809dc7851817c6efc1def40fde5",
+      "policy-engine/src/polisyos/foundry/methods/api.py": "ba60c5f67c777c4ab4ce3e76d366956f2ab08fc31cf0065df139d5de4361c1b1",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py": "09ffb8d14adf307a6bce36837218dc1f7bd3ef1ff596a33583581c729f8083f1",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py": "ff9a4161417eb568aa69799b945005f3ebc360d24087d16adada6df1a0d001c7",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py": "7a29bfa1be4a16452b480c59bf7a73eb5fb8d83f78d7f9f3b345d3b9231f8754",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py": "2f8aa68fdfa8bf9ab076ec982b24b6a0e02d74448fe5b93529bb09c2a73e6db3",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py": "1fc139c4f81799f801e53e1abaf6db9cbd7a7d0f2e290f42694d5bb4f9367aeb",
+      "policy-engine/src/polisyos/ir/__init__.py": "48610c596a941bb1c0b53d761d93d2a60e0f8ecda035681500e53e1f5bce8954",
+      "policy-engine/src/polisyos/ir/analytics/causal_queries.py": "704676490c54d5ce21f03d93f8273940b8145c9595cd8ab8b3fa651f53aa7f59",
+      "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py": "a235e72714e9c6709c63ff12cce64251293f63d44be171d55672d693db5502d0",
+      "policy-engine/src/polisyos/ir/analytics/twin_network.py": "3dda67abbeca3e6180e8215fe1e55e0699ba3084ee0521ea37ed63a447ab6189",
+      "policy-engine/src/polisyos/ir/api.py": "5330aa6b4da8b3f61df54006e193b879c0acb2d52a1f19e779ddf3332a788372",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py": "7eff95bf5cfa72c3e20594877a6fc361c51ef31f1c3ddc046933842f05b94569",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py": "4ea4c07555000dee55d3b1b4d7ed15b07862899b3776c8362485322a9e64a253",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py": "b1ab54dad1f2aef2d310a3145dee2970b1f7c703ac8b198fbc156ed7486a34b6",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py": "addb6953d465810c9af6ec1b4099807dd96e7757310a5db21e411748289fef34",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py": "fbade972d7124c9f241b9ada5c15646268633aba26c834958ab512099c8234b3",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py": "545a1ea96087f8564ad9956d4ba2b7bca1667543dd4249af6b54f37b9a6f0520",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py": "ec9b57479a47f26edcee9ee3821dba285ca290b0674d8bd5f20588d17e07f354",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py": "3ae76719c0a4951ee8d40f7e95b8d6d60e6926d98e4dcdebcd2c3fc0f813c54b",
+      "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py": "7dff47e167e6ecbf5088b755a429047b6aa0586b8e27e927bff997c606a471ec",
+      "policy-engine/tests/unit/ir/test_causal_queries_contract.py": "2cbfdf509b1bf12259c5f9beded7e1aaf49f2dcb059768a1b9396a05a1bacb00",
+      "policy-engine/tests/unit/remediation/test_cau_04.py": "7f75f0c230186d6219265df1ce63c94c33012d9720843335089db89c003f8ce2",
+      "policy-engine/tests/unit/remediation/test_scm_01.py": "540cea3d50bae0d1fed9126800e6142c73cc312f05357c591d8e9876173fb7ce",
+      "policy-engine/tests/unit/remediation/test_scm_02.py": "767b12baaaefb3c39d253d8f2adae9b98fc7114a9b7c9d29d70fee4010d66a22",
+      "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py": "0459c52da8f553800e4d5ff3bf0244981c76a82f675b9414d13f6ade04bc20b1",
+      "policy-engine/workers/dowhy-014/.python-version": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+      "policy-engine/workers/dowhy-014/README.md": "065d3789235521c3b28f406d5843cb02a8f2198a19cf743d63743a1b6e5d8786",
+      "policy-engine/workers/dowhy-014/protocol.py": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+      "policy-engine/workers/dowhy-014/pyproject.toml": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+      "policy-engine/workers/dowhy-014/tests/test_worker.py": "cd0e9f0547e711c0d5763e91d9ea04e0a9424ec81f52d829b3dc5cff094aca46",
+      "policy-engine/workers/dowhy-014/uv.lock": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+      "policy-engine/workers/dowhy-014/worker.py": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253"
+    }
+  },
+  "head_after": "1e70434b8e5a04661bb22c02362854ca14714436",
+  "checked_source_hashes_unchanged": true,
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+    "tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py",
+    "-o",
+    "addopts=",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/workspace/e02-F-20261006-receipts/cau/scm-corrected-independent-pytest"
+  ],
+  "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:.:tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "thread_cpu_quotas": "none"
+  },
+  "exit": 0,
+  "wall_seconds": 175.24648714065552,
+  "maxrss_kib": 661644,
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-corrected-native.stdout.txt",
+      "bytes": 6944,
+      "sha256": "27b8d2333666ad5484843a1f6ab3232204130db766f21c6fc43dde2cab805657"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-corrected-native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

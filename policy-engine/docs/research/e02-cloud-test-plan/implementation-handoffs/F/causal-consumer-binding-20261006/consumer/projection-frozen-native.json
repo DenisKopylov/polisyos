@@ -1,0 +1,33 @@
+{
+  "source_start": "2c46736112c6cbf552490748dc086fea85c6363a",
+  "tree_start": "47d17c98fca53a90539acaff32dbee69873bad1e",
+  "status_start": "",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py",
+    "tests/unit/remediation/test_cau_04.py"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "2c46736112c6cbf552490748dc086fea85c6363a",
+  "tree": "47d17c98fca53a90539acaff32dbee69873bad1e",
+  "status": "",
+  "exit": 0,
+  "wall_s": 59.7023455860035,
+  "pythonpath": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/projection-frozen-native.stdout",
+      "sha256": "8871b9d599ffa96db3104d0de54813b955377a63bbd77c88741ecc27a4c90015",
+      "bytes": 3768
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/projection-frozen-native.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

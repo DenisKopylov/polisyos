@@ -1,0 +1,90 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "F/cau",
+  "target_sha": "d88fcd5ec298d0884b809c6a786731eb70d0d27e",
+  "target_tree": "2e90d63e7149a4816d409c770dfeff3db0a71539",
+  "specification_verdict": "PARTIAL_NATIVE_SCIENTIFIC_PROFILE_PASS; FAIL_CONSUMER_CONTENT_BINDING",
+  "engineering_verdict": "BLOCK_CONSUMER_CLOSURE_PENDING_CLASS_REPAIR_OR_EXPLICIT_RESIDUAL",
+  "positive_native": {
+    "outcome": "PASS",
+    "counts": "20PASS/0SKIP/0ERROR",
+    "source_hashes_unchanged": true,
+    "execution_receipt": "/workspace/e02-F-20261006-receipts/cau/scm-independent-native.json"
+  },
+  "finding": {
+    "id": "F-SCM-CONSUMER-BINDING",
+    "severity": "P2",
+    "confidence": "high_direct_runtime",
+    "property": "The consumed causal query result must be the genuine source-bound method result for the original requested query, rather than an independently editable peer summary.",
+    "location": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py:281",
+    "P40_bucket": "New SCM consumer result-content binding class, equivalent wider mechanism to root DiD consumer repair; outside declared real-data/finite-bootstrap/non-Gaussian-posterior limitations.",
+    "actual_measurement": {
+      "genuine_job_point": 2.1300856285262015,
+      "real_method_artifact_point": 2.1300856285262015,
+      "real_method_result_ref": {
+        "artifact_id": "sha256:a146162160453268fa8aa8de8826dc95228103b46362b2e0cf93e62536ceac7f",
+        "kind": "scientist.method_result.causal.structural",
+        "media_type": "application/json"
+      },
+      "producer": "actual registered GCM job on genuine source-bound DoWhy0.14 fit",
+      "positive_node_status": "ok",
+      "negative_node_status": "ok",
+      "negative_error": "None",
+      "same_source_and_worker_markers": true,
+      "actual_method_result_artifact_unchanged": true,
+      "persisted_corrupt_point": 7.130085628526201,
+      "actual_draw_mean": 2.1300856285262015,
+      "gating": false
+    },
+    "control": "Executes original registered run_job and genuine selected DoWhy0.14 source-bound fit, then process-local alteration only of final_state query_result mean+span. Actual CAS method artifact and actual draw values remain unchanged. Negative assertion fails after fresh persistence, not setup/collection.",
+    "smallest_repair": "Resolve and consume the immutable canonical method-result artifact, reconcile complete projection with any peer output, and bind the reported query/estimand to the original request. Do not repair only result_mean."
+  },
+  "limitations": [
+    "Known synthetic/static DAG iid-row profile, not real-data identification or authority.",
+    "Draw/predictive/ITE/conditional posterior envelope remains nongating; separate approximate iid refit CI remains nongating.",
+    "20 positive tests execute final worker code and actual node/CAS/fresh-reader with matching source hashes, but do not establish whole repository gates.",
+    "The negative preserves gateFalse; this is incorrect source/result custody in a candidate report, not demonstrated protected production promotion."
+  ],
+  "deciding_artifacts": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-native.json",
+      "bytes": 6467,
+      "sha256": "407481e43a85f09714a3e9e04d7e15761718688d69381f01666a474b7631544b"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-native.stdout.txt",
+      "bytes": 5583,
+      "sha256": "b5a106558a8aea8c58a89c6e27917e3fb449ace0cbe11753d81dbad3341f940b"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-independent-native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding.json",
+      "bytes": 6208,
+      "sha256": "cbdcc79e6c4a93f2bce9bcecdebab0d9dc23a8ccafd8a48985969e235107045e"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding.stdout.txt",
+      "bytes": 130619,
+      "sha256": "9e7284deccfa06bac48ce80acd8e3f4bf546fb2cd95d2001adb2880452350361"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding.stderr.txt",
+      "bytes": 2373,
+      "sha256": "07355e1a5b15a16cfa1396d12bf335b1be39802f9dde150c52642cbee5ba1dd9"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/scm-consumer-binding-probe.py",
+      "bytes": 3638,
+      "sha256": "5001cd8e349c3ab3895ee0b833f526e18af96f379364efdf13f175492adf0124"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/cau/run-scm-independent.py",
+      "bytes": 1953,
+      "sha256": "fd56f3a080a2f8c01e2c7ff7a709829ecff6a43e6122675f27fe2cf685ec9ea1"
+    }
+  ]
+}

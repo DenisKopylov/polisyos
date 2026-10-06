@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json,pathlib,subprocess,sys; m=json.loads(pathlib.Path("docs/research/e02-cloud-test-plan/closure-decisions/coverage.json").read_text()); paths=sorted({p.removeprefix("policy-engine/") for b in m["bundles"] for p in b["test_paths"]}); missing=[p for p in paths if not pathlib.Path(p).exists()]; print("MISSING_NAMED_TESTS="+json.dumps(missing)); sys.exit(2 if missing else subprocess.call([sys.executable,"-m","pytest","-q",*paths]))
+                                                                                                                                                                                                                                   ~^^^^^^^^^^^^^^
+KeyError: 'test_paths'

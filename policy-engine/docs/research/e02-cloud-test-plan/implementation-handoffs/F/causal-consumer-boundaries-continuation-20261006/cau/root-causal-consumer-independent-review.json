@@ -1,0 +1,527 @@
+{
+  "schema_version": "F.independent-causal-consumer-review.v1",
+  "reviewer": "/root/cau",
+  "writer": "/root",
+  "source_sha": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+  "source_tree": "508884be8ea79e5b87844030ea4122c8e74d610a",
+  "review_decision": "GO_BOUNDED",
+  "check": "PASS",
+  "outcome": "limited",
+  "scope": "Core CAS actual byte/selected typed-manifest custody and separate finite descriptive DiD diagnostic custody at real selected job/CAS readers",
+  "remaining_current_issues": [],
+  "historical_findings": [
+    {
+      "id": "P40-input-view-continuity",
+      "baseline_sha": "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282",
+      "check": "FAIL",
+      "mechanism": "actual resolver retains full typed ref but subsequent materializer drops it to bare artifact_id, reading a different default manifest of identical physical bytes",
+      "impact": "availability / selected view continuity, no evaluation authority acceptance",
+      "current_sha": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+      "current_check": "PASS",
+      "outcome": "closed",
+      "canonical_owner": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "repair_scope": "all selected store reads plus canonical lineage/refusal projections, not single envelope kind branch",
+      "auxiliary_locator_correction": "Original ancillary label was misstated; exact05f lines700/702/705 are _load_output_contract_json, not a Ukraine receipt loader."
+    }
+  ],
+  "requirements": [
+    {
+      "property": "Actual byte/manifest binding before verifier/load/job",
+      "check": "PASS",
+      "basis": "13 native byte/manifest/kind/media/size/integrity and exact optional/duplicate denominator controls; original resolver function bytes unchanged05f\u21923af"
+    },
+    {
+      "property": "Selected manifest continuity across reads and lineage",
+      "check": "PASS",
+      "basis": "Independent actual samebytes/two-manifest probe, canonical removal property, new native selected-view control and entire-owner zero-bare-ID read census"
+    },
+    {
+      "property": "Separate diagnostic input/result custody, not theta markers",
+      "check": "PASS",
+      "basis": "Actual dedicated Standard/Staggered jobs; time_treatment-only current-source mismatch refuses despite unchanged scalar target; full metadata+typed diagnostic reconciliation; coherent hash substitution and marker-only controls"
+    },
+    {
+      "property": "Invalid/not-testable diagnostic dispositions",
+      "check": "PASS",
+      "basis": "Actual pre0 input_invalid empty diagnostic; pre2 not_testable for both methods; pre3 nonrejection retains identification_authority=False"
+    },
+    {
+      "property": "Independent diagnostic mathematical oracle",
+      "check": "PASS",
+      "basis": "Hand group difference [0,.5,-.3], intercept+slope HC1 with factor3 and Normal erfc; prior real Statsmodels producer proof remains separate exact0b provenance"
+    },
+    {
+      "property": "PDC semantic hash agreement, owner packet, positive evaluation authority",
+      "check": "UNRUN",
+      "basis": "Distinct governed owner contract unavailable; no positive authority fabricated, fresh admission challenge unchanged"
+    },
+    {
+      "property": "Full local production inputs / real parallel trends identification",
+      "check": "UNRUN",
+      "basis": "Cloud synthetic finite diagnostic property does not establish admitted-real-data assumptions; exact G local composition remains separate"
+    }
+  ],
+  "source_bindings": {
+    "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282": {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "sha256": "4ffdae21af04092cb8fdaf10d33c3a9335fa68984003a91e1e3fb963967b9029",
+      "bytes": 66256,
+      "tree": "80f91a963923115303dc7f526e3bac58e60f90b0"
+    },
+    "86e7f9afe25e5f171a0fb03669ce0d9cb5269624": {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "sha256": "164d0c6d960a9ec12b9afb18cb5dcc2d1a1dbc2479d40f847b7fc7335c2ca656",
+      "bytes": 67785,
+      "tree": "1c5151f1f97d2c81b2b1599fedd904d8cba839f3"
+    },
+    "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77": {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "sha256": "b8699aaa117aa4912f5446ed880f874aca5c7d703274c66c5656b455f9c3f74b",
+      "bytes": 67651,
+      "tree": "508884be8ea79e5b87844030ea4122c8e74d610a"
+    }
+  },
+  "unchanged_function_source_hashes": {
+    "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282": {
+      "_actual_causal_input_identities": "4b44dab1b29bd6adffb99a2c3a3caa3186baeb07005399738598e5eea2d26f36",
+      "_verify_selected_did_target": "53ed6a2045a9c6b5a786b6dc5502be8a3822700fd54316a380aa38694b8b5913"
+    },
+    "86e7f9afe25e5f171a0fb03669ce0d9cb5269624": {
+      "_actual_causal_input_identities": "4b44dab1b29bd6adffb99a2c3a3caa3186baeb07005399738598e5eea2d26f36",
+      "_verify_selected_did_diagnostics": "0daf3f7aa58c5f53506e8d4b336604e6f3f4b32f89f8cee586787c3e9d6c16ca",
+      "_verify_selected_did_target": "53ed6a2045a9c6b5a786b6dc5502be8a3822700fd54316a380aa38694b8b5913"
+    },
+    "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77": {
+      "_actual_causal_input_identities": "4b44dab1b29bd6adffb99a2c3a3caa3186baeb07005399738598e5eea2d26f36",
+      "_verify_selected_did_diagnostics": "0daf3f7aa58c5f53506e8d4b336604e6f3f4b32f89f8cee586787c3e9d6c16ca",
+      "_verify_selected_did_target": "53ed6a2045a9c6b5a786b6dc5502be8a3822700fd54316a380aa38694b8b5913"
+    }
+  },
+  "checks": [
+    {
+      "name": "resolver-independent-multiview",
+      "source_sha": "05f86c84a3cc9720fc5d7eb86a6b0c1b7090c282",
+      "check": "FAIL",
+      "scope": "Valid selected manifest resolves, then actual materializer drops selected ref and refuses valid Panel input",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/review-input-resolver.py"
+      ],
+      "exit_code": 1,
+      "elapsed_s": 13.782310572001734,
+      "output": "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.stdout",
+        "bytes": 1526,
+        "sha256": "dbbabe72f86302d1d690cdca94cba0de73c93a92879ee70523d250dd4ae3a8cc"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.stderr",
+        "bytes": 876,
+        "sha256": "06e203ff590fd1e4f04f31660e2e787ed9ca7b6860e6fac7db651782b09781e3"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/resolver-independent-multiview.execution.json",
+        "bytes": 1115,
+        "sha256": "d80bae29fd93d2fb7b35146ed96cc9d64b1b123812bd23654d32d3996c0eb5eb"
+      },
+      "observed_working_tree_head": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "observed_working_tree_tree": "14ac7f7b160037fe461cfe0f1f320ee9690ef164",
+      "deciding_baseline": true
+    },
+    {
+      "name": "root-diagnostic-independent86-native",
+      "source_sha": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+      "check": "FAIL",
+      "scope": "Mixed test-source denominator: frozen owner; pytest assertion rewriting collected mutable added selected-view probe; 22PASS/1FAIL, not immutable whole denominator",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py"
+      ],
+      "exit_code": 1,
+      "elapsed_s": 36.5493974389974,
+      "output": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.stdout",
+        "bytes": 6314,
+        "sha256": "ca1958bae2a3c6dd204f3308a3f2db5956324dc7dc64a4df3b0227e8e2ecee2d"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native.execution.json",
+        "bytes": 1374,
+        "sha256": "81f7d5000ef4a4db9c4089567a799c01a550296cf2f8ca2843918e5f2ab21907"
+      },
+      "observed_working_tree_head": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+      "observed_working_tree_tree": "1c5151f1f97d2c81b2b1599fedd904d8cba839f3",
+      "classification": "review_harness_source_denominator_mismatch",
+      "deciding": false
+    },
+    {
+      "name": "root-diagnostic-independent86-native-corrected",
+      "source_sha": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+      "check": "FAIL",
+      "scope": "Preload-only correction still allowed a second pytest import name to read mutable added selected-view probe; 22PASS/1FAIL",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/root-frozen-native.py"
+      ],
+      "exit_code": 1,
+      "elapsed_s": 35.757710563993896,
+      "output": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stdout",
+        "bytes": 7822,
+        "sha256": "fd75ace75fab35605ffae9058549144a09be020f7133eedda5a7466b6decac06"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-corrected.execution.json",
+        "bytes": 1198,
+        "sha256": "84cc16787c3721565fd3baf03a95e5c09e5ed3fc446a1462f5dea7137d4c9bcf"
+      },
+      "observed_working_tree_head": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+      "observed_working_tree_tree": "1c5151f1f97d2c81b2b1599fedd904d8cba839f3",
+      "classification": "review_harness_source_denominator_mismatch",
+      "deciding": false
+    },
+    {
+      "name": "root-diagnostic-independent86-native-frozen-collection",
+      "source_sha": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+      "check": "PASS",
+      "scope": "Supported collection hook supplies exact Git-native test objects and asserts all22 source SHA; 9 diagnostic +13 original byte-binding controls",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/root-frozen-native-v2.py"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 35.995373024998116,
+      "output": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.stdout",
+        "bytes": 2885,
+        "sha256": "5ef254cdfaddcda2f6b3592cd980a21f1b2a11f6b5d4f2c013518ec93b704135"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-native-frozen-collection.execution.json",
+        "bytes": 1217,
+        "sha256": "10372c4b8b6133e1ef63c8dd5059646b7c3945099c925a93679862db9c7faef9"
+      },
+      "observed_working_tree_head": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+      "observed_working_tree_tree": "1c5151f1f97d2c81b2b1599fedd904d8cba839f3",
+      "tests": 22,
+      "passed": 22,
+      "failed": 0,
+      "skip": 0,
+      "error": 0,
+      "warnings": 5
+    },
+    {
+      "name": "root-diagnostic-independent86-removal",
+      "source_sha": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+      "check": "FAIL",
+      "scope": "Only canonical consumer diagnostic verifier body removed; genuine job/CAS/target/status/profile unchanged; 7 actual expected refusal assertions fail",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-removal.py"
+      ],
+      "exit_code": 1,
+      "elapsed_s": 14.167142464997596,
+      "output": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.stdout",
+        "bytes": 24280,
+        "sha256": "21e4e1da7fe154c6e2de5896620862de6121db63f268b863e5113bbf3b88d97b"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-removal.execution.json",
+        "bytes": 1186,
+        "sha256": "23ab36b2c137815397d487f79a6495f2a33cb979eee03d12723d202b6d3b03cc"
+      },
+      "observed_working_tree_head": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+      "observed_working_tree_tree": "1c5151f1f97d2c81b2b1599fedd904d8cba839f3",
+      "negative_control": true,
+      "expected_check": "FAIL",
+      "actual_behavioral_failures": 7,
+      "setup_nonmeasurements": 0,
+      "property_verdict": "PASS"
+    },
+    {
+      "name": "root-diagnostic-independent86-siblings",
+      "source_sha": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+      "check": "PASS",
+      "scope": "Four genuine invalid/not-testable/nonrejection dispositions preserve false identification authority",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-sibling-controls.py"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 11.757352934000664,
+      "output": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.stdout",
+        "bytes": 3125,
+        "sha256": "0bec70a68ac69975e2f0ee1f18e847c2918976cd378be0c333af2a41e18843c4"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-siblings.execution.json",
+        "bytes": 1196,
+        "sha256": "59be15557af72aeba78db86a6dfc20f7381e0882fb1a34d8ed7a34c2becfb725"
+      },
+      "observed_working_tree_head": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+      "observed_working_tree_tree": "1c5151f1f97d2c81b2b1599fedd904d8cba839f3",
+      "cases": 4
+    },
+    {
+      "name": "root-diagnostic-independent86-oracle",
+      "source_sha": "86e7f9afe25e5f171a0fb03669ce0d9cb5269624",
+      "check": "PASS",
+      "scope": "Independent hand slope/HC1/Normal oracle [-.15, .0704166667, .5718922636] matches actual typed diagnostic and consumer",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent-oracle.py"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 11.402803003002191,
+      "output": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-oracle.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-oracle.stdout",
+        "bytes": 1282,
+        "sha256": "ff3079349c5d62afaf0a176fc39d8dcc6b65e8c566571df0ec16369dd0c28f60"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-oracle.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-diagnostic-independent86-oracle.execution.json",
+        "bytes": 1194,
+        "sha256": "a41b3cd632a0fe9e4f51e4b53130b8fcc3446fc1cf03035cd950f55733b216b5"
+      },
+      "observed_working_tree_head": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+      "observed_working_tree_tree": "508884be8ea79e5b87844030ea4122c8e74d610a",
+      "runtime_source_binding": "printed frozen owner86e; capture observes newer worktree HEAD3af independently, not code identity"
+    },
+    {
+      "name": "root-input-views-independent3af-native",
+      "source_sha": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+      "check": "PASS",
+      "scope": "All23 exact final Git-native test objects: diagnostic9, old source13, new typed-view1, actual jobs and fresh subprocess readers",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/root-frozen-native-v2.py"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 38.45212431899563,
+      "output": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.stdout",
+        "bytes": 2885,
+        "sha256": "08f041859d6ae91668cd88187e032999793e1474e70d20055ee6ec20f4c4f56c"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-native.execution.json",
+        "bytes": 1184,
+        "sha256": "56b092471b055569319afcf0e8ad0f7a9a87520a0fd734e4ab9f5dfbe952a676"
+      },
+      "observed_working_tree_head": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+      "observed_working_tree_tree": "508884be8ea79e5b87844030ea4122c8e74d610a",
+      "tests": 23,
+      "passed": 23,
+      "failed": 0,
+      "skip": 0,
+      "error": 0,
+      "warnings": {
+        "actual_empty_array": 3,
+        "review_harness": 2
+      }
+    },
+    {
+      "name": "root-input-views-independent3af-control",
+      "source_sha": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+      "check": "PASS",
+      "scope": "Independent genuine CoreCAS same-bytes/two-manifest source: byte resolver, selected output reader, full-profile lineage, Panel materializer",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/root-selected-views-independent.py"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 10.632267605993547,
+      "output": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-control.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-control.stdout",
+        "bytes": 1565,
+        "sha256": "ffafe365b4ae520b25bb0ba2b56173334f9489440134f00a10b8f07d817e8656"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-control.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-control.execution.json",
+        "bytes": 1197,
+        "sha256": "a8e03fd3a67cca5fe2414e2dd885bc2ceda216f145d8314dbfa8ca8c6a9f0d9d"
+      },
+      "observed_working_tree_head": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+      "observed_working_tree_tree": "508884be8ea79e5b87844030ea4122c8e74d610a"
+    },
+    {
+      "name": "root-input-views-independent3af-removal",
+      "source_sha": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+      "check": "FAIL",
+      "scope": "Only3 canonical observational store reads restored to bare IDs; all preceding resolver/output-reader/lineage assertions pass before genuine selected materializer refuses",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/root-selected-views-independent.py",
+        "--removal"
+      ],
+      "exit_code": 1,
+      "elapsed_s": 10.792312101999414,
+      "output": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.stdout",
+        "bytes": 1608,
+        "sha256": "1d381267257816c5f29b6eb2abd772b43f91141e0958590a3af4c9b86da33c56"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.stderr",
+        "bytes": 372,
+        "sha256": "a1837b5f85bd0b5ced4566c85fee8520ba53d5d60a7f86ab62ae966c4eb03471"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-removal.execution.json",
+        "bytes": 1216,
+        "sha256": "1c14475873367f48064cbbecfa6c1a8d6c1a473c67ece66eada34e4b05571158"
+      },
+      "observed_working_tree_head": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+      "observed_working_tree_tree": "508884be8ea79e5b87844030ea4122c8e74d610a",
+      "negative_control": true,
+      "expected_check": "FAIL",
+      "actual_property_rejection": "observational_envelope_artifact_identity_mismatch",
+      "setup_nonmeasurements": 0,
+      "property_verdict": "PASS"
+    },
+    {
+      "name": "root-input-views-independent3af-environment",
+      "source_sha": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+      "check": "ERROR",
+      "scope": "Provenance collector guessed nonexistent internal models module; no scientific/consumer behavior measured",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/root-review-environment.py"
+      ],
+      "exit_code": 1,
+      "elapsed_s": 10.975776193008642,
+      "output": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment.stdout",
+        "bytes": 313,
+        "sha256": "1dad33fdbc5e49d6ef7fac170c78072be5e27a9ca7b03e11eae4fcf34d919c49"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment.stderr",
+        "bytes": 827,
+        "sha256": "ff6d1776a6a3be8cce877c1d0d6afd1f6bb4042ee1f635ee303e230cfcd5807a"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment.execution.json",
+        "bytes": 1198,
+        "sha256": "e18c0cb10e515cf8a529b5dc8bc08e18249513bd8f3260f84a0d29dfc546a21a"
+      },
+      "observed_working_tree_head": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+      "observed_working_tree_tree": "508884be8ea79e5b87844030ea4122c8e74d610a",
+      "classification": "review_harness_import_error",
+      "deciding": false
+    },
+    {
+      "name": "root-input-views-independent3af-environment-corrected",
+      "source_sha": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+      "check": "PASS",
+      "scope": "Correct public Core namespace; actual stable providers byte-equal final Git blobs, native versions/origins and no canonical bare-ID store read remaining",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/cau/root-review-environment-v2.py"
+      ],
+      "exit_code": 0,
+      "elapsed_s": 11.256645667002886,
+      "output": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.stdout",
+      "output_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.stdout",
+        "bytes": 5233,
+        "sha256": "7e6caa4d54e7a858ef625fe25254219d5b9ace9f2dd70ae5d01a470a8a49945b"
+      },
+      "stderr_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "execution_ref": {
+        "path": "/tmp/e02-F-continuation-20261006/cau/root-input-views-independent3af-environment-corrected.execution.json",
+        "bytes": 1220,
+        "sha256": "f8da36bd4b83932910cbf2e3b73118e3042e735f4239127c394e32034e19a9df"
+      },
+      "observed_working_tree_head": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+      "observed_working_tree_tree": "508884be8ea79e5b87844030ea4122c8e74d610a"
+    }
+  ],
+  "limitations": [
+    "23 native tests are this finite consumer property denominator, not whole CI or production PASS.",
+    "Two harness-source failures and one environment import ERROR remain preserved as nondeciding observations; no silent retry count replacement.",
+    "3 actual empty-array monitor warnings remain; separate monitor slice is not included or claimed resolved here.",
+    "DoWhy/EconML absent in baseline Python3.14 do not provide a backend witness; no optional backend or shim involved.",
+    "No160-panel or4000-RDD numerical sweep rerun; estimator math and prior exact scientific artifacts not relabeled.",
+    "No source, ledger, schema, lock, checkout, ref or shared environment mutations in independent review.",
+    "GO_BOUNDED is property acceptance; formal G ledger/production acceptance remains separate."
+  ],
+  "replay_harness": {
+    "frozen_loader": {
+      "path": "/tmp/e02-F-continuation-20261006/cau/frozen-import/sitecustomize.py",
+      "bytes": 2008,
+      "sha256": "d5edde33451e99397b65a59dca050cc4f6afc2e82b91898ba10807de12b43542"
+    },
+    "collection_hook": {
+      "path": "/tmp/e02-F-continuation-20261006/cau/root-frozen-native-v2.py",
+      "bytes": 1763,
+      "sha256": "109e393761f8cf76b66de65197f26e1db5fe1e66ccffe6a30278e5f4295eb691"
+    },
+    "explanation": "Git snapshot selects the real unmodified native module code and native test code; supported pytest collection hook bypasses alternate mutable import names; actual fixtures and actual fresh subprocess consumer are retained; child inherits frozen owner import selector. This is source pinning, not parallel implementation or backend shim."
+  }
+}

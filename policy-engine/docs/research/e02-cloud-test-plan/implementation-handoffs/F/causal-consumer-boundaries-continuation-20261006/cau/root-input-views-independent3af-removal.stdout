@@ -1,0 +1,28 @@
+{"independent_frozen_owner": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77", "source_sha256": "b8699aaa117aa4912f5446ed880f874aca5c7d703274c66c5656b455f9c3f74b", "pid": 668116, "origin": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77:policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py"}
+{
+  "source_sha": "3afb3ea5f26ad429ac45be78bd2cbd180fcc5a77",
+  "source_sha256": "b8699aaa117aa4912f5446ed880f874aca5c7d703274c66c5656b455f9c3f74b",
+  "default_ref": {
+    "artifact_id": "sha256:c11c27e7a7e5c16c611d42558443658d97a2b7585e80a6c59e16374003beff72",
+    "kind": "ir.observation_method_input",
+    "media_type": "application/json"
+  },
+  "selected_ref": {
+    "artifact_id": "sha256:c11c27e7a7e5c16c611d42558443658d97a2b7585e80a6c59e16374003beff72",
+    "kind": "ir.observational_data",
+    "media_type": "application/json",
+    "manifest_profile_sha256": "sha256:d910b9fb0f8a67bac58eaeaa3d668ee4703792a943acc1360966579244755741"
+  },
+  "default_manifest_kind": "ir.observation_method_input",
+  "selected_manifest_kind": "ir.observational_data",
+  "actual_resolver": "PASS",
+  "actual_output_reader": "PASS",
+  "actual_lineage": {
+    "artifact_id": "sha256:c11c27e7a7e5c16c611d42558443658d97a2b7585e80a6c59e16374003beff72",
+    "role": "independent-selected-source",
+    "manifest_profile_sha256": "sha256:d910b9fb0f8a67bac58eaeaa3d668ee4703792a943acc1360966579244755741"
+  },
+  "removal": true,
+  "authority": "UNRUN; none manufactured",
+  "removal_detail": "Only3 canonical selected-ref store reads restored to bare artifact_id; resolver/output reader/lineage/markers unchanged"
+}

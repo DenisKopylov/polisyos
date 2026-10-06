@@ -67,8 +67,45 @@ broader `polisyos.foundry.methods` facade.
   recourse, strategic response, and space-time DSCM.
 - Optional backend adapters such as `_econml_adapter.py` and
   `_sklearn_compat.py` must degrade by explicit capability contract.
+- `_dowhy_worker.py` owns the selected source-resolved cross-interpreter bridge
+  inside the existing method job. The separate pinned Python 3.12
+  [DoWhy worker profile](../../../../../../workers/dowhy-014/README.md) executes
+  actual DoWhy 0.14 linear ATE identification/estimation and explicit GCM fitting;
+  it imports no PolicyOS code and owns neither CAS nor scientific authority.
+  The Python 3.14 parent requires an actual resolved source context, validates
+  aligned input and result bindings, and persists the typed result. Native
+  synthetic-DGP tests establish bounded implementation properties; they do not
+  establish admitted real-data assumptions or Scientist evaluation authority.
+  `DoWhyIdentifyEstimate.report_from_worker_result` is the complete pure report
+  projection shared by the actual producer and source-validating consumers.
+  It derives parameter defaults from the registered signature and preserves
+  default diagnostics, assumptions and absent p-values; it launches no backend
+  and grants no authority. The existing class facades retain the same object and
+  pickle addresses, and their supported method override reaches the producer.
 
 ## Extension Points
+
+### DiD diagnostic basis
+
+The dedicated Standard and Staggered DiD producers attach a separate
+`diagnostic_contract` and `diagnostic_binding` to computed reports. The contract
+binds the complete outcome, treatment membership and `time_treatment`, and the
+complete typed diagnostic list under the declared group-mean linear HC1/normal
+pretrend profile. These fields are separate from the staggered scalar target:
+changing only `time_treatment` can change diagnostics while leaving the fixed
+cohort target and its estimate unchanged.
+
+The internal `_diagnostic_contract` class method recomputes this projection for
+the Scientist consumer. A consumer must compare both metadata and the actual
+typed `report.diagnostics` against current-input recomputation. Hash presence or
+matching scalar-target markers alone does not validate a diagnostic. Historical
+reports remain readable; a current-input validator must recompute or refuse a
+report without its diagnostic contract.
+
+Insufficient preperiods and missing groups remain `not_testable`, with no test
+statistic or p-value and `passed=False`. Standard DiD with no preperiod remains
+`INPUT_INVALID` before diagnostic computation. Neither diagnostic non-rejection
+nor this provenance contract establishes parallel-trends identification.
 
 ### Causal engine and interference compatibility surface (LA-020)
 

@@ -1,0 +1,126 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "F economics direct reviewer",
+  "source_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+  "source_tree": "c9e855889a3b8eb92964bfae91a95145dc466497",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "created_utc": "2026-10-06T10:57:07.698551+00:00",
+  "verdict": "GO",
+  "scope": "Bounded compiler Treasury producer→persisted selected-CAS lineage→actual low/high32 folding→native mechanism/public persisted state consumer. LA002 limited, no invented family activation.",
+  "findings": [],
+  "all7_source_test_doc_release_paths_fully_read": [
+    {
+      "path": "policy-engine/docs/reference/foundry/randomization-profile.md",
+      "bytes": 3406,
+      "sha256": "8744e0f5885f99ff8d356acd37b4c9b34b135d5a1614893e4c8e97f7374cf22d"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-foundry-treasury-salts.toml",
+      "bytes": 2112,
+      "sha256": "2da3ae89196b0b1fb026db5be8fbaaae2c171745f34a9a62051a0ec9bfc743e2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/compile/randomization.py",
+      "bytes": 2179,
+      "sha256": "8b49c7b17d328aa8c117de72410cd11ce489c305a9f46294ebb0ac5a1aa07a4a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+      "bytes": 17693,
+      "sha256": "7608e9476321519fe9f8a024dc483caf909d97cefb185a7ec491fc21651bbe07"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+      "bytes": 46124,
+      "sha256": "db3f2630e0c7ca4ad159a4d4b1d8ed99892189b0d76e00ff8c669a0992d8625a"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+      "bytes": 8018,
+      "sha256": "867f43def30b6a27fd780718ca502c69f7c617246f160b09e827dfff8928f5be"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/compile/test_treasury_execution.py",
+      "bytes": 22267,
+      "sha256": "98a9a099cfe96f674e64161e1ffa4d5b9853dc6b526be7b4924e76248cf3efc9"
+    }
+  ],
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= tests/unit/foundry/compile/test_treasury_execution.py tests/unit/foundry/compile/test_compile_artifact_contracts.py tests/unit/foundry/compile/test_randomization.py tests/unit/foundry/facade/test_compile_facade.py tests/unit/foundry/facade/test_execute_facade_smoke.py -v --tb=short",
+      "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+      "outcome": "PASS",
+      "passed": 45,
+      "skipped": 0,
+      "errors": 0,
+      "pytest_s": 19.47,
+      "output": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/fry-review/native.txt",
+        "bytes": 7876,
+        "sha256": "dc319c6557f3150182eae2b1c0e45825731f2b8f58f6ebe88a3841420375611f"
+      }
+    },
+    {
+      "command": "PYTHONPATH=src:. /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= /workspace/e02-F-20261006-receipts/economics/fry-review/test_independent_treasury_controls.py -v --tb=short",
+      "target_sha": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+      "outcome": "PASS",
+      "passed": 33,
+      "skipped": 0,
+      "errors": 0,
+      "pytest_s": 10.46,
+      "output": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/fry-review/controls.txt",
+        "bytes": 7243,
+        "sha256": "af5fb7eec5b974d5f46454beb5a6cb86f36cab60aa4fad0f9b46131381ad9e1a"
+      },
+      "oracle_replay": {
+        "path": "/workspace/e02-F-20261006-receipts/economics/fry-review/test_independent_treasury_controls.py",
+        "bytes": 5781,
+        "sha256": "0cccfa73c8f5f3bebe338a34c59cbf26f38a59b4dddd296ec874a046f42f1111"
+      }
+    }
+  ],
+  "properties_independently_reviewed": [
+    "Independent raw SHA256 first8bytes converted big-endian; default stream then node, low32 then high32. 27 combinations root/effective seed/node including non-ASCII and >2^31 seeds. All same keys and reverse words/reverse salts/highword removal adverse controls differ.",
+    "Six real selected-CAS admission escapes refused before forbidden native kernel: duplicate program edge, missing/duplicate/wrong loweredIR edge, explicit requested program profile mismatch, same Treasury payload selected with wrong lineage. Original good selected Treasury view remains executable after another same-byte bad profile is stored.",
+    "Public execute fresh CAS readback with default/0/101 override yields actual adaptive-agent income equal independent SHA256/JAX stream; explicit override changes base key and preserves compile-root salts.",
+    "Historical unmarked default0/explicit overrides and sequential prior-draw sensitivity retained. Versioned scheduled prior draw and graph storage permutation do not move another node stream. Registered method dispatcher actual kernel/seed observes persisted salt-derived words; returned result does not imply family state activation.",
+    "Three remove-salt/keep-profile+CAS markers controls yield native output inequality while successful marker/artifact posture retained. Treasury builder schema1.0/name/zero-root bytes/formula unchanged."
+  ],
+  "author_frozen_check_reviewed": {
+    "command_json": {
+      "path": "/workspace/e02-F-20261006-receipts/fry/native-frozen.json",
+      "bytes": 2053,
+      "sha256": "c2899d33074df2a571ea0b4fb65e81c924547a7fcd6bc02bb4ed6185f9401e3d"
+    },
+    "full_output": {
+      "path": "/workspace/e02-F-20261006-receipts/fry/native-frozen.stdout.txt",
+      "bytes": 180,
+      "sha256": "02a53857091c61a3c8b2bd45bb9954decd969c64ce4283782f1e9aedb174b341"
+    },
+    "complete_test_census": {
+      "path": "/workspace/e02-F-20261006-receipts/fry/native-frozen.pytest.json",
+      "bytes": 67542,
+      "sha256": "c5c876aeb4a5f32cdf545fd39c0ba684fe3ee1c2449bb9dc158236544a7a2fad"
+    },
+    "result": "76 PASS31.57s, zeroSKIP/ERROR, exact03bb source/tree, clean before/after."
+  },
+  "limitations": [
+    "Finite synthetic determinism and actual consumer evidence; no general randomness quality, real policy outcome, current law/data authority or causal-economic validity claim.",
+    "No new family→economic runtime/state activation mapping, no normative law. Original LA002 remains limited and LA001/LA037 whole-criterion decision remains author/root/G scope; API installed-layout evidence separate.",
+    "Unmarked historical profile deliberately bypasses new Treasury admission to preserve prior RNG law. Recompile selects new marked law; old persisted artifacts are not silently rewritten.",
+    "Method returned patches/result ABI alone does not prove those family catalog certificates mutate GlobalState.",
+    "DoWhy/EconML backend, production/institutional data and current G acceptance remain separate; no inherited P41 claim."
+  ],
+  "environment": {
+    "python": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "python_version": "3.14.7",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "numpy": "2.3.5",
+    "readonly_shared_interpreter": true
+  },
+  "head_after": "03bbfe14225d64a9977b77775c200e83eb717c5f",
+  "tracked_diff_after": "",
+  "no_worktree_edits": true
+}

@@ -1,0 +1,16 @@
+{
+  "outcome": "PASS",
+  "implementation_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+  "runtime_and_test_sha": "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+  "only_delta": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml"
+  ],
+  "fragment_sha256": "3d7d75c328e06b1b630793fe0b2932f179c18517b22fb1fa6fc6360f3404e8be",
+  "fragment_bytes": 1640,
+  "structured_record_count": 1,
+  "errors": [],
+  "findings": [],
+  "rendered_output": "/workspace/e02-F-20261006-receipts/final-root/b220-independent-review/release-rendered.md",
+  "historical_e2c_release_scope": "0structuredrecords: top-level classification ignored, metadata-only corrected at213",
+  "gate_scope": "Canonical _validate_fragments and release renderer on exactone ownedfragment+policy only; no whole repository release/architecture gate claim."
+}

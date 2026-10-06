@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-c",
+    "import json,pathlib,subprocess,sys; m=json.loads(pathlib.Path(\"docs/research/e02-cloud-test-plan/closure-decisions/coverage.json\").read_text()); paths=sorted({p.removeprefix(\"policy-engine/\") for b in m[\"bundles\"] for p in b[\"test_paths\"]}); missing=[p for p in paths if not pathlib.Path(p).exists()]; print(\"MISSING_NAMED_TESTS=\"+json.dumps(missing)); sys.exit(2 if missing else subprocess.call([sys.executable,\"-m\",\"pytest\",\"-q\",*paths]))"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "outcome": "ERROR",
+  "exit": 1,
+  "source_inputs": "coverage.json exactbase198unchanged trackedbytes; source navigation only, notG97candidate",
+  "test_execution": "none; KeyError before collecting/running tests",
+  "output": "/workspace/e02-F-20261006-receipts/final-root/coverage-selector-generator.stdout.txt",
+  "stderr": "/workspace/e02-F-20261006-receipts/final-root/coverage-selector-generator.stderr.txt",
+  "interpreter_substitution": "Uses existing readonlyPython3.14.7 instead of uv run to avoid environment synchronization; exact documented Python body unchanged.",
+  "actual_coverage_input_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+  "actual_coverage_input_bytes": 549568,
+  "actual_coverage_equals_bound_base198": true
+}

@@ -1,0 +1,24 @@
+id = "2026-10-06-causal-consumer-binding"
+title = "Bind causal numerical jobs to their actual source and scalar target"
+type = "fixed"
+component = "scientist"
+owner = "team-policyos-runtime"
+summary = "The admitted primary causal job retains observational-source lineage, passes it into the selected DoWhy worker and independently reconciles the fixed staggered DiD target. Numerical binding preserves the separate EvalSafety admission."
+compatibility = "Existing public method FQNs and report schemas remain unchanged."
+change_class = "internal"
+surface_classification = "internal"
+limitations = "Synthetic numerical consumers do not establish production evaluation authority or real-data identification."
+evidence = ["tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py"]
+
+[[compatibility_change]]
+id = "causal-numerical-source-binding"
+change_class = "internal"
+impact = "internal"
+surface = "scientist: admitted primary causal method invocation"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Retain actual source lineage and reconcile the selected fixed scalar before report persistence."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

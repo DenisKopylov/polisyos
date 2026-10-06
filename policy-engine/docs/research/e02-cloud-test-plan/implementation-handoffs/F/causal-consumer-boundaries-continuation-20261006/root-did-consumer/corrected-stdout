@@ -1,0 +1,10 @@
+.........                                                                [100%]
+=============================== warnings summary ===============================
+tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py::test_real_method_job_and_fresh_reader_validate_complete_diagnostic[StandardDifferenceInDifferences]
+tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py::test_real_method_job_and_fresh_reader_validate_complete_diagnostic[StaggeredDifferenceInDifferences]
+tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py::test_changed_only_diagnostic_window_refuses_in_actual_primary_job
+  /workspace/e02-F-closeout-20261006/policy-engine/src/polisyos/scientist/compute/runner.py:686: UserWarning: [WARNING] warnings: empty_array — Output 'warnings' is an empty array
+    result = backend.run(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+9 passed, 3 warnings in 42.92s

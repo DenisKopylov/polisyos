@@ -1,0 +1,29 @@
+id = "2026-10-06-causal-input-byte-binding"
+title = "Resolve the complete causal input set before evaluation admission"
+type = "fixed"
+component = "scientist"
+owner = "team-policyos-scientist"
+summary = "The existing causal node reconciles exact typed CAS bytes and manifests before admission and preserves the selected manifest view through readers and lineage."
+evidence = ["tests/unit/scientist/nodes/builtins/simulate/test_causal_input_byte_binding.py", "docs/reference/scientist/causal-selected-consumers.md"]
+change_class = "internal-only"
+surface_classification = "internal: causal node input identity projection"
+compatibility = "Public node identity, method routes, output slots and Runtime verifier protocol remain unchanged. Malformed, unresolved or incomplete input bindings now refuse before load/job."
+limitations = "The supported identity projection is the verified CAS byte profile. Distinct semantic PDC hashes require the source owner's resolver contract. Numerical identity does not establish evaluation or causal-identification authority."
+migration = "Supply the complete actual source set and the matching byte-profile input provenance. Use the maintained Runtime verifier with a consumer-created fresh challenge."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/scientist/causal-selected-consumers.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "causal-input-byte-binding"
+change_class = "internal-only"
+impact = "compatible"
+surface = "internal: causal node input identity projection"
+owner = "team-policyos-scientist"
+version_owner = "team-policyos-scientist"
+deprecation_window = "not_applicable"
+release_note = "Actual source refs are resolved and reconciled before admission."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/scientist/causal-selected-consumers.md"]
+runbook_docs = []

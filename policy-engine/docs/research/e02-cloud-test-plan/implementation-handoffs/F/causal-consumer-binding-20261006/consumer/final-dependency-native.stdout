@@ -1,0 +1,21 @@
+.E                                                                       [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_actual_query_consumer_binds_complete_cas_projection_and_original_request _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f9fed34c510>
+
+    @pytest.fixture
+    def selected_worker(monkeypatch):
+        interpreter = bridge._worker_directory() / ".venv/bin/python"
+>       assert interpreter.is_file(), (
+            "Install selected genuine locked worker before running; backend absence is not PASS"
+        )
+E       AssertionError: Install selected genuine locked worker before running; backend absence is not PASS
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = PosixPath('/workspace/e02-F-closeout-20261006/policy-engine/workers/dowhy-014/.venv/bin/python').is_file
+
+tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py:119: AssertionError
+=========================== short test summary info ============================
+ERROR tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py::test_actual_query_consumer_binds_complete_cas_projection_and_original_request
+1 passed, 1 error in 5.26s

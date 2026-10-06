@@ -18,6 +18,161 @@
       "title": "CausalContrastSpec",
       "type": "object"
     },
+    "CausalEstimatorInterval": {
+      "additionalProperties": false,
+      "description": "An iid-unit bootstrap interval from refitted replicate estimators.\n\nThe record describes sampling inference under its declared iid/model scope.\nSource custody, graph identification and domain authority remain separate.",
+      "properties": {
+        "confidence_level": {
+          "default": 0.95,
+          "exclusiveMaximum": 1.0,
+          "exclusiveMinimum": 0.0,
+          "title": "Confidence Level",
+          "type": "number"
+        },
+        "coverage_profile": {
+          "const": "approximate_iid_percentile_fixed_identified_graph",
+          "default": "approximate_iid_percentile_fixed_identified_graph",
+          "title": "Coverage Profile",
+          "type": "string"
+        },
+        "data_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Data Sha256",
+          "type": "string"
+        },
+        "fit_profile": {
+          "minLength": 1,
+          "title": "Fit Profile",
+          "type": "string"
+        },
+        "fit_request_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Fit Request Sha256",
+          "type": "string"
+        },
+        "graph_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Graph Sha256",
+          "type": "string"
+        },
+        "interval": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Interval",
+          "type": "array"
+        },
+        "method": {
+          "const": "iid_unit_refit_bootstrap",
+          "default": "iid_unit_refit_bootstrap",
+          "title": "Method",
+          "type": "string"
+        },
+        "n_units": {
+          "minimum": 2,
+          "title": "N Units",
+          "type": "integer"
+        },
+        "point_estimate": {
+          "title": "Point Estimate",
+          "type": "number"
+        },
+        "refit_scope": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Refit Scope",
+          "type": "array"
+        },
+        "refit_worker_response": {
+          "additionalProperties": true,
+          "title": "Refit Worker Response",
+          "type": "object"
+        },
+        "replicate_count": {
+          "minimum": 2,
+          "title": "Replicate Count",
+          "type": "integer"
+        },
+        "replicate_estimates": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Replicate Estimates",
+          "type": "array"
+        },
+        "resample_indices_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Resample Indices Sha256",
+          "type": "string"
+        },
+        "resampling_unit": {
+          "const": "iid_observation_row",
+          "default": "iid_observation_row",
+          "title": "Resampling Unit",
+          "type": "string"
+        },
+        "result_kind": {
+          "const": "estimator_confidence_interval",
+          "default": "estimator_confidence_interval",
+          "title": "Result Kind",
+          "type": "string"
+        },
+        "row_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Row Sha256",
+          "type": "string"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        },
+        "source_artifact_id": {
+          "minLength": 1,
+          "title": "Source Artifact Id",
+          "type": "string"
+        },
+        "source_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Source Sha256",
+          "type": "string"
+        },
+        "target_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Target Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "point_estimate",
+        "interval",
+        "source_artifact_id",
+        "source_sha256",
+        "data_sha256",
+        "row_sha256",
+        "graph_sha256",
+        "resample_indices_sha256",
+        "target_sha256",
+        "n_units",
+        "replicate_count",
+        "seed",
+        "refit_scope",
+        "fit_profile",
+        "fit_request_sha256",
+        "refit_worker_response",
+        "replicate_estimates"
+      ],
+      "title": "CausalEstimatorInterval",
+      "type": "object"
+    },
     "CausalQuery": {
       "additionalProperties": false,
       "description": "Fully specified causal query contract for execution or persistence.",
@@ -118,6 +273,16 @@
       ],
       "title": "CausalRegime",
       "type": "object"
+    },
+    "CausalResultKind": {
+      "description": "Meaning of draws from a fixed SCM, distinct from estimator sampling.",
+      "enum": [
+        "outcome_distribution",
+        "ite_distribution",
+        "posterior_credible_interval"
+      ],
+      "title": "CausalResultKind",
+      "type": "string"
     },
     "InterventionSpec": {
       "additionalProperties": false,
@@ -233,6 +398,24 @@
       "title": "Computation Time Seconds",
       "type": "number"
     },
+    "estimator_interval": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CausalEstimatorInterval"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "interval_level": {
+      "default": 0.95,
+      "exclusiveMaximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Interval Level",
+      "type": "number"
+    },
     "metadata": {
       "additionalProperties": true,
       "title": "Metadata",
@@ -270,6 +453,10 @@
       "default": null,
       "title": "Result Distribution"
     },
+    "result_kind": {
+      "$ref": "#/$defs/CausalResultKind",
+      "default": "outcome_distribution"
+    },
     "result_mean": {
       "title": "Result Mean",
       "type": "number"
@@ -280,7 +467,7 @@
       "type": "number"
     },
     "schema_version": {
-      "default": "1.1",
+      "default": "1.2",
       "pattern": "^\\d+\\.\\d+$",
       "title": "Schema Version",
       "type": "string"

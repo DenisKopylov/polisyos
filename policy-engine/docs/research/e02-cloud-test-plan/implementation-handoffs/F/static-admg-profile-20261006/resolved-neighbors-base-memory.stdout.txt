@@ -1,0 +1,35 @@
+{"immutable_base": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f", "mode": "in_memory_actual_provider_bytes", "provider_bindings": [{"module": "polisyos.foundry.methods.catalog.causal.admg_ops", "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py", "source_sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f", "bytes": 40707, "sha256": "7ce7e791e0ae6390fcf2c33a09667b4d539a549b373ab7932d929b206b87e738"}, {"module": "polisyos.foundry.methods.catalog.causal.do_calculus", "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py", "source_sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f", "bytes": 15982, "sha256": "0babf1b38ae1e1146ddfc9ce5d04345601b67b1e60893d282f46fda9a6222867"}, {"module": "polisyos.foundry.methods.catalog.causal.sigma_calculus", "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/sigma_calculus.py", "source_sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f", "bytes": 14653, "sha256": "1cd0cc3aaf98d89a9ec970ec01c2473971309bbcd770be9bf7f986cb5e9c1acb"}, {"module": "polisyos.foundry.methods.catalog.causal.id_engine.core", "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/core.py", "source_sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f", "bytes": 80957, "sha256": "9c22cb11e1b562bd54d22ef2045e9b4d2196b166e5d3068611aa83dc0cf770b6"}, {"module": "polisyos.foundry.methods.catalog.causal.id_engine.transport", "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/transport.py", "source_sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f", "bytes": 61208, "sha256": "7de29a5e8382c4be70556d61e8d4c448f4fa0eed28c37779b2f6c30b11e0a163"}, {"module": "polisyos.foundry.methods.catalog.causal.id_engine.counterfactual", "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/id_engine/counterfactual.py", "source_sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f", "bytes": 48190, "sha256": "1660a60825c1578071f2eea06a888706cfdb69809957d64f36ea6f0f28ffe069"}, {"module": "polisyos.foundry.methods.catalog.causal.amn", "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/amn.py", "source_sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f", "bytes": 10905, "sha256": "b6343f3ac48f5cc57e7a12d6d7876a0fcb326cf3673098aaf17e3614c743ddf4"}, {"module": "polisyos.foundry.methods.catalog.causal.ctf_calculus", "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/ctf_calculus.py", "source_sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f", "bytes": 18947, "sha256": "5fc5c592f1424e517bb1ca06bcc1cb8241c62a4da8da442ec36ad015168515f8"}], "P41": "not_established_changed_paths_overlap_consumer_inputs"}
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_______________________ test_amn_cross_world_separation ________________________
+tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py:75: in test_amn_cross_world_separation
+    assert amn_d_separation(
+E   AssertionError: assert False
+E    +  where False = amn_d_separation(CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['U_XY', 'X__w0', 'Y__w0', 'X__w1', ...Y__w1']}, 'counterfactual_interventions': {'w0': {'X': 0.0}, 'w1': {'X': 1.0}}, 'bridge_edges': [['X__w0', 'X__w1']]}}), AMNMetadata(worlds=['w0', 'w1'], world_partition={'w0': ['X__w0', 'Y__w0'], 'w1': ['X__w1', 'Y__w1']}, counterfactual_interventions={'w0': {'X': 0.0}, 'w1': {'X': 1.0}}, bridge_edges=[('X__w0', 'X__w1')]), x_set=frozenset({'X__w0'}), y_set=frozenset({'X__w1'}), z_set=frozenset({'X__w1'}))
+E    +    where frozenset({'X__w0'}) = frozenset({'X__w0'})
+E    +    and   frozenset({'X__w1'}) = frozenset({'X__w1'})
+E    +    and   frozenset({'X__w1'}) = frozenset({'X__w1'})
+______ TestSIDAlgorithm.test_sid_non_identified_when_base_non_identified _______
+tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py:1093: in test_sid_non_identified_when_base_non_identified
+    assert result.status != IdentificationStatus.IDENTIFIED
+E   AssertionError: assert <IdentificationStatus.IDENTIFIED: 'identified'> != <IdentificationStatus.IDENTIFIED: 'identified'>
+E    +  where <IdentificationStatus.IDENTIFIED: 'identified'> = IdentificationResult(status=<IdentificationStatus.IDENTIFIED: 'identified'>, estimand_ast=EstimandAST(schema_version='...ery_str='', metadata={'policy_type': 'soft', 'policy_conditioning_vars': [], 'policy_expr': None, 'shift_delta': None}).status
+E    +  and   <IdentificationStatus.IDENTIFIED: 'identified'> = IdentificationStatus.IDENTIFIED
+_________ TestSIDAlgorithm.test_conditional_intervention_non_id_graph __________
+tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py:1166: in test_conditional_intervention_non_id_graph
+    assert result.status != IdentificationStatus.IDENTIFIED
+E   assert <IdentificationStatus.IDENTIFIED: 'identified'> != <IdentificationStatus.IDENTIFIED: 'identified'>
+E    +  where <IdentificationStatus.IDENTIFIED: 'identified'> = IdentificationResult(status=<IdentificationStatus.IDENTIFIED: 'identified'>, estimand_ast=EstimandAST(schema_version='...pplied_to_graph_state="Y in c-component Si=['Y'] of G\\X", depth=2, graph_state_before='')], query_str='', metadata={}).status
+E    +  and   <IdentificationStatus.IDENTIFIED: 'identified'> = IdentificationStatus.IDENTIFIED
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_twin_amn_graph.py::test_amn_cross_world_separation
+FAILED tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py::TestSIDAlgorithm::test_sid_non_identified_when_base_non_identified
+FAILED tests/unit/foundry/methods/catalog/causal/test_id_engine_extensions.py::TestSIDAlgorithm::test_conditional_intervention_non_id_graph
+3 failed, 1 warning in 4.86s

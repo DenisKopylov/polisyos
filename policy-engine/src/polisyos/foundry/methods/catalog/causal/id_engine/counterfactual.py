@@ -50,6 +50,7 @@ from polisyos.foundry.methods.catalog.causal._id_contracts import (
     SourceDomain,
 )
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
+    _validate_static_admg,
     ancestors,
     augment_with_s_nodes,
     c_components,
@@ -86,9 +87,9 @@ from polisyos.ir.analytics.estimand import (
 # ---------------------------------------------------------------------------
 # PAG-specific identification (Malinsky & Spirtes 2017)
 # ---------------------------------------------------------------------------
-
 from . import core as _core
 from . import transport as _transport
+from .core import id_algorithm
 
 globals().update({name: getattr(_core, name) for name in dir(_core) if not name.startswith("__")})
 globals().update({name: getattr(_transport, name) for name in dir(_transport) if not name.startswith("__")})
@@ -418,6 +419,7 @@ def _build_counterfactual_graph(
     graph: CausalGraphModel,
     normalized_query: _NormalizedCtfQuery,
 ) -> tuple[CausalGraphModel, dict[str, tuple[tuple[str, float], ...]]]:
+    _validate_static_admg(graph)
     nodes = list(graph.nodes)
     intervention_by_node: dict[str, tuple[tuple[str, float], ...]] = dict.fromkeys(graph.nodes, ())
     for world in normalized_query.worlds:
@@ -448,19 +450,19 @@ def _build_counterfactual_graph(
             )
         )
 
+    for src, dst in sorted(extract_directed_edges(graph)):
+        _add_edge(src, dst, EdgeMark.TAIL, EdgeMark.ARROW)
+        for world in normalized_query.worlds:
+            if dst in dict(world.intervention):
+                continue
+            _add_edge(
+                f"{src}__{world.key}",
+                f"{dst}__{world.key}",
+                EdgeMark.TAIL,
+                EdgeMark.ARROW,
+            )
     for edge in graph.edges:
-        if edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.ARROW:
-            _add_edge(edge.src, edge.dst, EdgeMark.TAIL, EdgeMark.ARROW)
-            for world in normalized_query.worlds:
-                if edge.dst in dict(world.intervention):
-                    continue
-                _add_edge(
-                    f"{edge.src}__{world.key}",
-                    f"{edge.dst}__{world.key}",
-                    EdgeMark.TAIL,
-                    EdgeMark.ARROW,
-                )
-        elif edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW:
+        if edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW:
             _add_edge(edge.src, edge.dst, EdgeMark.ARROW, EdgeMark.ARROW)
             for world in normalized_query.worlds:
                 if edge.src in dict(world.intervention) or edge.dst in dict(world.intervention):
@@ -891,6 +893,7 @@ def id_star_algorithm(
     _trace: list[str] | None = None,
 ) -> IdentificationResult:
     """ID* counterfactual identification via G* reduction + Layer-2 subproblems."""
+    _validate_static_admg(graph)
     trace = list(_trace or [])
     normalized_query = _normalize_counterfactual_query(counterfactual_query)
     treatment_vars = frozenset(name for name, _ in normalized_query.target_intervention)
@@ -1131,6 +1134,7 @@ def idc_star_algorithm(
     _trace: list[str] | None = None,
 ) -> IdentificationResult:
     """IDC* with counterfactual Rule-2 promotion before the ratio reduction."""
+    _validate_static_admg(graph)
     trace = list(_trace or [])
     trace.append(f"[IDC* depth={_depth}] start")
 

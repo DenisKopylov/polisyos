@@ -1,0 +1,795 @@
+{
+  "schema": "policyos.e02.c2_hyg_adjudication.v1",
+  "record_kind": "append_only_candidate_adjudication",
+  "append_only": true,
+  "created_on": "2026-10-06",
+  "status": "author_evidence_complete_pending_current_e70_sdist_audit_and_independent_review",
+  "slice": "HYG-02 / HYG-04; LA-008, LA-009, LA-011, LA-012, LA-013, LA-018",
+  "branch": "codex/e02-C-hygiene-20261006",
+  "adjudication_rule": "Each label is a decision on its own original criterion, not a target distribution. `closed` means the exact scoped acceptance has deciding evidence; `held` means a required owner-supplied contract or authority input is absent and must not be invented. This candidate record does not amend canonical closure ledgers.",
+  "source_lineage": {
+    "base_revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "implementation_freeze": {
+      "commit": "f0940f021f76264c288789e472a9d4681d7f6680",
+      "tree": "a436620d590564c2c8b81761ff4a179e6d68caab",
+      "source_scope": "The three-file installed-workspace-root fix and its semantic test were frozen here."
+    },
+    "current_pre_handoff_readback": {
+      "commit": "e70e8021aae4067aa3c647cd60bf49ff388b4d2c",
+      "tree": "798418750c93e094b64771efd2c2ed510fb96dd8",
+      "attached_branch": true,
+      "tracked_tree_clean_before_this_record": true,
+      "delta_from_f0940f": [
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/frontend_workspaces.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/docs/explanation/architecture.md"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/docs/reference/frontend/workspace-contract.md"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/docs/reference/repository-topology.md"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-root-resolution-f0940f.json"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/remediation/test_hyg_04.py"
+        }
+      ],
+      "e70_commit_exact_delta": [
+        "policy-engine/architecture/frontend_workspaces.toml",
+        "policy-engine/docs/explanation/architecture.md",
+        "policy-engine/docs/reference/frontend/workspace-contract.md",
+        "policy-engine/docs/reference/repository-topology.md",
+        "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py",
+        "policy-engine/tests/unit/remediation/test_hyg_04.py"
+      ],
+      "tracked_source_inputs_for_workspace_witness": "The fresh Corepack frozen install, workspace build/smoke, Atlas typecheck, architecture check, and Atlas tests were run against the same tracked package/lockfile inputs. e70 changes no package.json, pnpm lock/workspace configuration, apps/, or packages/ source."
+    },
+    "implementation_diff_and_full_census": {
+      "prior_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-root-resolution-f0940f.json",
+      "sha256": "898d6247e23bd90f80d7e70f1e1a685e11ea78e0815a46e2ddbaf3043a443625",
+      "source_freeze_commit": "f0940f021f76264c288789e472a9d4681d7f6680",
+      "tracked_source_delta_from_198076863": [
+        "policy-engine/tools/lib/imports.py",
+        "policy-engine/tools/devx/workspace/_common.py",
+        "policy-engine/tests/unit/remediation/test_hyg_04.py"
+      ],
+      "complete_census_reference": "The prior f0940f handoff records the 13,688 tracked-path / 448,658,436-byte census, full extension denominator, exact query groups, and changed-hunk reconciliation. Its measured census is reconciled against the f0940f implementation paths. The separate e70 six-path delta changes workspace inventory/docs/tests, not the canonical alias/import/process implementation; see the exact e70 path list and dynamic workspace tests.",
+      "f094_source_delta_from_base": [
+        "policy-engine/tools/lib/imports.py",
+        "policy-engine/tools/devx/workspace/_common.py",
+        "policy-engine/tests/unit/remediation/test_hyg_04.py"
+      ],
+      "scope_note": "This list is only the three-path f0940f implementation delta. The complete 52-row shared branch path/status delta through e70 is recorded in source_lineage.full_base_to_source_freeze_diff; e70 adds the six exact documentation/workspace-map paths, while earlier shared C/HYG commits contribute the other paths."
+    },
+    "criterion_sources": [
+      {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/HYG-02.md",
+        "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "49eda6637ce236501d3dc1d5648a25ac236be1bb",
+        "criteria": [
+          "LA-008",
+          "LA-009",
+          "LA-018"
+        ]
+      },
+      {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/HYG-04.md",
+        "revision": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "93c0ca6a3baebc0df20545be0a3e3ede08d145bf",
+        "criteria": [
+          "LA-011",
+          "LA-012",
+          "LA-013"
+        ]
+      },
+      {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+        "finding_ranges_and_sha256": {
+          "LA-008": {
+            "lines": [
+              281,
+              307
+            ],
+            "sha256": "e7780bb070e76c47270d653720b0f71cede3c1e801828130600199e95897e169"
+          },
+          "LA-009": {
+            "lines": [
+              308,
+              338
+            ],
+            "sha256": "b220c209a0b5cae46995a618d971c06ad3193f2943eb0880ea1373f52da29d09"
+          },
+          "LA-011": {
+            "lines": [
+              368,
+              396
+            ],
+            "sha256": "d7234745291e8e2306c2496505f7123214aa6b9cdb9bc4d7dbb7ad5190dd2de2"
+          },
+          "LA-012": {
+            "lines": [
+              397,
+              427
+            ],
+            "sha256": "02813c8895cfae05a30d3702cf9a7f45c4ddfff867ae16694af853ec0f51b94d"
+          },
+          "LA-013": {
+            "lines": [
+              428,
+              454
+            ],
+            "sha256": "0c3e505a88abc7cc6883ee7fe2e4056e8bd5aa2ddaeae38ce8cfde9ea710ad8f"
+          },
+          "LA-018": {
+            "lines": [
+              571,
+              597
+            ],
+            "sha256": "b28c10a9c4c31b5fad21560ddaf3888df77a534d2cb9fdb992853637ccd91421"
+          }
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "git_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+        "scope": "Planned criterion traceability only; not behavioral proof or closure."
+      }
+    ],
+    "documentation_workspace_map_freeze": {
+      "commit": "e70e8021aae4067aa3c647cd60bf49ff388b4d2c",
+      "tree": "798418750c93e094b64771efd2c2ed510fb96dd8",
+      "branch": "codex/e02-C-hygiene-20261006",
+      "exact_commit_delta": [
+        "policy-engine/architecture/frontend_workspaces.toml",
+        "policy-engine/docs/explanation/architecture.md",
+        "policy-engine/docs/reference/frontend/workspace-contract.md",
+        "policy-engine/docs/reference/repository-topology.md",
+        "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py",
+        "policy-engine/tests/unit/remediation/test_hyg_04.py"
+      ],
+      "scope": "Completes the live frontend workspace inventory and removes stale frontend-root descriptions. It adds an Atlas UI workspace row and full workspace-map tests. The source/package implementation freeze remains f0940f; e70 changes only TOML, docs, and tests."
+    },
+    "full_base_to_source_freeze_diff": {
+      "from": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "to": "e70e8021aae4067aa3c647cd60bf49ff388b4d2c",
+      "command": "git diff --name-status 198076863e143dea9f89f02734b13d50dae3eed5..e70e8021aae4067aa3c647cd60bf49ff388b4d2c",
+      "row_count": 52,
+      "status_counts": {
+        "A": 9,
+        "D": 10,
+        "M": 33
+      },
+      "path_status": [
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/frontend_workspaces.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/imports/dynamic.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/packages/layout.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/policies/directory_health.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/shims.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/tooling/mypy/generated.ini"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/tooling/mypy/overrides/30-lex-scholar-data-forge-legal.ini"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/tooling/ruff/generated.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/tooling/ruff/per-file-ignores/90-repository-tools.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/architecture/topology.toml"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/docs/explanation/architecture.md"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/docs/how-to/run-benchmarks.md"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/docs/reference/frontend/workspace-contract.md"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/docs/reference/repository-topology.md"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-root-resolution-f0940f.json"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04.json"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/benchmark.txt.gz"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/bootstrap.argv"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/bootstrap.txt"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/lex-consumer.txt"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/native-packaging-precorrection.txt.gz"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/native-packaging.txt"
+        },
+        {
+          "status": "A",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/production-invocation.stdout"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/install.sh"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/jax_bootstrap.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/ops/ci/templates/workflows/causal-phases.yml"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/src/polisyos/lex/factlog.py"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/src/polisyos/scientist/evidence/_shim.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/scientist/governance/passes/README.md"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/scientist/governance/passes/__init__.py"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/src/polisyos/scientist/governance/passes/base.py"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/src/polisyos/scientist/governance/passes/legal_pass.py"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/src/polisyos/scientist/governance/passes/safety_pass.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/repo_quality/test_chronology_terminal_state.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/repo_quality/tools/test_hatch_packaging.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/repo_quality/tools/test_phase4_consolidation.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/lex/mirror_contracts/test_factlog.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/remediation/test_hyg_04.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/scientist/governance/test_shared_shims.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tools/devx/workspace/_common.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tools/lib/imports.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tools/research/benchmarks/README.md"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/tools/research/benchmarks/harness.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tools/research/benchmarks/jax/bench_domain.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tools/research/benchmarks/jax/bench_simulation.py"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/tools/research/benchmarks/metrics.py"
+        },
+        {
+          "status": "D",
+          "path": "policy-engine/tools/research/benchmarks/suite_registry.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tools/research/demos/run_laffer_demo.py"
+        }
+      ],
+      "attribution": "This is the complete shared C/HYG branch delta from the slice base, including earlier implementation and handoff commits by the authorized slice participants. It is not attributed solely to this author. The six paths in documentation_workspace_map_freeze are this author’s e70 source/doc/test delta."
+    },
+    "wheel_input_reconciliation": {
+      "comparison": "f0940f021f76264c288789e472a9d4681d7f6680..e70e8021aae4067aa3c647cd60bf49ff388b4d2c",
+      "command": "git diff --quiet f0940f021f76264c288789e472a9d4681d7f6680 HEAD -- policy-engine/src/polisyos policy-engine/tools policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml policy-engine/pyproject.toml policy-engine/hatch.toml policy-engine/README.md policy-engine/LICENSE",
+      "exit_code": 0,
+      "wheel_input_denominator": "Both Hatch wheel package roots (src/polisyos and tools), the sole wheel force-include source, project/build metadata and entry-point declarations, and root README/license inputs.",
+      "changed_e70_paths_in_f094_wheel_archive": [],
+      "archive_receipt": "The exact f0940f wheel inventory remains transferable to e70 for wheel payload, metadata, and forced resource because the complete configured input set above is byte-identical; the e70 docs are not wheel members. No wheel rebuild is claimed.",
+      "zip_member_walk": "A read-only walk of the exact f094 wheel found none of the six e70 paths in its members."
+    }
+  },
+  "criterion_verdicts": [
+    {
+      "id": "LA-008",
+      "label": "closed",
+      "scope": "Retire only the exact Scientist evidence shim helper after full tracked source/config/runtime-address census; preserve live canonical evidence and claims owners.",
+      "positive_evidence": "The prior HYG handoff's complete tracked-tree byte scan and file-type denominator includes src, tools, tests, configs, generated documentation, and strings. It reports the exact retired helper absent, no runtime helper-install calls beyond the addressed helper, canonical public evidence/claims paths preserved, and actual workflow/config consumers still live.",
+      "negative_evidence": "The exact retired import fails; the audit did not restore evidence_sources, provenance, or claims roots. The full census and changed-hunk reconciliation are in the prior handoff at the path/SHA in source_lineage. No adjacent Scientist/evidence subtree was retired.",
+      "capability_state": "The exact legacy address is removed and the criterion is bounded to this address; this is not a claim that every external dynamic consumer is known.",
+      "residual": "Unpublished external dynamic import/config consumers remain unknown; they are outside the tracked-tree census."
+    },
+    {
+      "id": "LA-009",
+      "label": "closed",
+      "scope": "Retire only three confirmed Scientist governance re-export aliases while preserving Core class identity, the configured lazy facade, and neighboring Scientist passes.",
+      "positive_evidence": "The prior HYG implementation handoff records the configured workflow resolving canonical Core Legal/Safety pass class objects through the lazy facade and representative passes emitting real issue output. Existing lazy discovery behavior and actual workflow/config consumers were exercised; adjacent passes remain present.",
+      "negative_evidence": "The three old import paths fail, and identity checks reject a duplicate class. Full source/config/tool census and test result references are in `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04.json` (SHA-256 `d9e875bcf783f0ccb36f59797d682c7a7bae6668bcadf7541166332281590e85`) and the f0940f handoff.",
+      "capability_state": "The exact alias retirement is verified; no whole `scientist/governance/passes` deletion or new governance-authority capability is claimed.",
+      "residual": "External unpublished plugin/configuration consumers remain unknown."
+    },
+    {
+      "id": "LA-011",
+      "label": "closed",
+      "scope": "Canonical contributor-checkout workspace bootstrap and early JAX environment semantics, including installed-wheel modules invoked from an existing checkout.",
+      "positive_evidence": "The exact f0940f wheel's installed `tools.cli`, `tools.lib.imports`, and `tools.devx.workspace._common` modules ran under `-I` from site-packages. Installed bootstrap/doctor help succeeded from the actual checkout. A bounded docs-profile dispatch captured `uv sync --frozen --extra lint --extra docs` with checkout cwd. Existing tests preserve profile selection, explicit environment overrides, and defaults-before-first-JAX-import order.",
+      "negative_evidence": "Installed bootstrap from `/private/tmp` fails closed with a workspace-root message; invalid/nonexistent explicit roots raise `RepositoryRootUnavailableError`. Full commands, origins, stdout/stderr hashes, and the runtime validator are in the f0940f handoff's `installed_runtime_probe` receipt.",
+      "capability_state": "The documented contributor-checkout workflow is closed. The fake `uv` validates canonical dispatch/argv/cwd only; it does not install dependencies or prove a completed host setup.",
+      "residual": "No out-of-checkout bootstrap promise or real dependency sync is claimed."
+    },
+    {
+      "id": "LA-012",
+      "label": "closed",
+      "scope": "Retire exactly three benchmark wrappers and preserve the canonical checkout launcher, registered workload, and neighboring standalone tools.",
+      "positive_evidence": "The earlier HYG author receipt ran the canonical public CLI command `PYTHONPATH=\"$PWD:$PWD/src\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m tools.cli benchmarks run-all --circuit reproducibility_deterministic --mode smoke --profile air-m2 --json-dir .tmp/e02-C2/raw/hyg/benchmark-output --run-id hyg04-deterministic`. It exited 0: all 5 deterministic smoke cases passed, with zero errors, failures, skips, or over-budget outcomes. The exact compressed raw log is `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/benchmark.txt.gz`, SHA-256 `55e70ad24a452d53ad70e0fa829f9717de516c1e13436af995a04008d75d5efd`; its uncompressed SHA-256 is `64cf1882c105bef4273359eba0ba1410c483f4bca8f33c8dace7ebe6144af5c2`.",
+      "negative_evidence": "The retired wrapper imports/addresses fail and the full scan found no live runtime references requiring the second address. Real benchmark package and workload trees remain. The benchmark README says this is an in-checkout workflow and that the Python wheel does not promise those checkout trees.",
+      "capability_state": "The checkout workflow is closed. Installed-wheel benchmark execution is explicitly `surface_out_of_scope`; it is not inferred from an installed bootstrap result.",
+      "residual": "Unpublished external wrapper users remain unknown; no whole benchmarks tree or numerical/JAX workload was removed or newly run."
+    },
+    {
+      "id": "LA-013",
+      "label": "open",
+      "scope": "Retire the exact redirect-only frontend README (already absent before the slice base); keep contributor workspace maps current, preserve real workspaces, and verify workspace lifecycle plus exact native package boundary.",
+      "positive_evidence": {
+        "source_checkout_lifecycle": "The existing f0940f semantic test `tests/unit/remediation/test_hyg_04.py` checks the exact redirect absent, no lifecycle finding for it, and live dashboard/reference-shell/API-client/benchmark roots preserved. Its focused companion source test result was 21 passed (raw stdout SHA-256 `32faef56d0289369b1ac111e68ee0bb7b2ed1bcf92d3f33b75313bd0556c3e6f`, cited in the prior handoff). The earlier canonical benchmark receipt is cited under LA-012.",
+        "fresh_workspace": {
+          "checkout": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos",
+          "working_directory": "policy-engine",
+          "initial_state": "A fresh worktree with no `policy-engine/node_modules`; tracked app/package inputs and lockfile equal the f0940f frozen source. Node v22.22.2; Corepack pnpm v10.33.2.",
+          "install": {
+            "command": "corepack pnpm install --frozen-lockfile",
+            "exit_code": 0,
+            "log": "policy-engine/.tmp/e02-c-hyg-la013-20261006/pnpm-install.log",
+            "sha256": "f3d98ace32b92eda6d4f2a590259fd5adb4a31938e8ac7bc366c0ed4d6ef29d8",
+            "observed": "Lockfile current; 1,215 packages added, 1,213 reused, 0 downloads. pnpm noted ignored install build scripts for the listed optional/native packages."
+          },
+          "actual_workspace_denominator": {
+            "command": "corepack pnpm list -r --depth -1 --json",
+            "exit_code": 0,
+            "log": "policy-engine/.tmp/e02-c-hyg-la013-20261006/workspace-list.json",
+            "sha256": "d370cc6f839b244c6db03d3bca17787510c3d6033691fb2e8a2e7301cdebca33",
+            "projects_including_root": [
+              "@polisyos/policy-engine-workspace",
+              "@polisyos/runtime-dashboard",
+              "@polisyos/runtime-reference-shell",
+              "@polisyos/atlas-ui",
+              "@polisyos/cli",
+              "@polisyos/runtime-api-client"
+            ],
+            "workspace_package_roots": [
+              "apps/runtime-dashboard",
+              "apps/runtime-reference-shell",
+              "packages/atlas-ui",
+              "packages/cli",
+              "packages/runtime-api-client"
+            ],
+            "count_relationship": "The six listed projects include the root plus the five actual workspace package roots. This is the live pnpm set; the four-row frontend docs/TOML list is not substituted for it."
+          },
+          "workspace_build": {
+            "command": "corepack pnpm build",
+            "exit_code": 0,
+            "log": "policy-engine/.tmp/e02-c-hyg-la013-20261006/workspace-build.log",
+            "sha256": "c64a6189553683ce0c69715ca13527470691805dc27f45c6f31aaa011a00e1ff",
+            "observed": "The root command selected 5 of 6 projects and ran the four available package build scripts: runtime-reference-shell typecheck, CLI typecheck, runtime-api-client typecheck, and runtime-dashboard typecheck + production Vite/PWA build + postbuild security + Atlas Tailwind source check. Atlas UI has no build script; its explicit typecheck is recorded next. Dashboard bundle-size advisory was nonfatal."
+          },
+          "atlas_typecheck": {
+            "command": "corepack pnpm --filter @polisyos/atlas-ui run typecheck",
+            "exit_code": 0,
+            "log": "policy-engine/.tmp/e02-c-hyg-la013-20261006/atlas-ui-typecheck.log",
+            "sha256": "ec53d13f47fb37842ffee6c6bd0a14278aab4033762ccdd8c6557bc29d2610e1"
+          },
+          "workspace_smoke": {
+            "command": "corepack pnpm test:smoke",
+            "exit_code": 0,
+            "log": "policy-engine/.tmp/e02-c-hyg-la013-20261006/workspace-smoke.log",
+            "sha256": "15311ff0e65650c2d0efb826a67b77e90d81285d4fd084d404d6d8e9c73c69c6",
+            "observed": "API client 9 tests, dashboard contract 1, reference-shell 2 plus architecture check, CLI 4."
+          },
+          "output_capture": "The four full command logs are complete merged stdout/stderr (`2>&1`) and are retained under the ignored receipt directory. The workspace list is the full JSON output. Generated node_modules and dashboard `_build` output remain ignored and were not deleted."
+        },
+        "native_packaging": {
+          "candidate": "f0940f021f76264c288789e472a9d4681d7f6680",
+          "audit_basis": "The prior independent native audit built from the exact f0940f source archive; it is not described as a build from this later evidence-only commit.",
+          "source_archive_sha256": "1949af71e1b11fda60ea9c94b53f06c13cff49e8f988f63ab2c4114b54454de2",
+          "source_archive_files": 13668,
+          "apps_files": 1345,
+          "packages_files": 109,
+          "apps_and_packages_files": 1454,
+          "wheel": {
+            "sha256": "3e5200607529fcd8fd2d8d01c27e6dd2fac3f29553cf8215bc6067b489496c82",
+            "bytes": 15015408,
+            "members": 3447,
+            "payload_files": 3442,
+            "payloads_matching_source_or_declared_force_include": 3442,
+            "apps_or_packages_payload_files": 0,
+            "source_package_readmes_in_source_and_wheel": 167,
+            "source_package_readme_omissions": 0
+          },
+          "sdist": {
+            "sha256": "228cacce3002596715ee3fdae8ad5ff62dacedd30359711a5fcc2cdb74b5aeae",
+            "bytes": 65186634,
+            "members": 8463,
+            "source_byte_exact_members": 8462,
+            "generated_member": "PKG-INFO",
+            "apps_or_packages_readme_members": 24,
+            "apps_or_packages_non_readme_members": 0,
+            "non_readme_apps_or_packages_source_paths_excluded": 1430
+          },
+          "audit_receipts": {
+            "raw_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-root-followup-f0940f",
+            "package_inventory_sha256": "fe44fa5d60d880db2b394009a316020b9d202db6a2fda1b093274d07ad0c58c9",
+            "inventory_script_sha256": "46cd1f93b56ed1a9f2ef8111526307e5c0ba9366573624a605d3f2507c8f5607",
+            "backend": "Offline Hatchling 1.32.0 from local uv cache; the earlier author-reported Hatchling 1.32.4 counts are not claimed as reproduced by this independent archive receipt."
+          }
+        },
+        "e70_workspace_map_and_tests": {
+          "source_commit": "e70e8021aae4067aa3c647cd60bf49ff388b4d2c",
+          "tree": "798418750c93e094b64771efd2c2ed510fb96dd8",
+          "changed_paths": [
+            "policy-engine/architecture/frontend_workspaces.toml",
+            "policy-engine/docs/explanation/architecture.md",
+            "policy-engine/docs/reference/frontend/workspace-contract.md",
+            "policy-engine/docs/reference/repository-topology.md",
+            "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py",
+            "policy-engine/tests/unit/remediation/test_hyg_04.py"
+          ],
+          "live_workspace_set": [
+            "apps/runtime-dashboard",
+            "apps/runtime-reference-shell",
+            "packages/atlas-ui",
+            "packages/cli",
+            "packages/runtime-api-client"
+          ],
+          "project_count_including_root": 6,
+          "doc_result": "The workspace TOML and reference contract now enumerate all five current package roots, document the dashboard-to-Atlas public-export route, distinguish Atlas local token projections from runtime API outputs, and state that Atlas declares no build script. Architecture and repository topology no longer retain the removed frontend placeholder/redirect or retired install/JAX bootstrap entries.",
+          "companion_test_result": {
+            "hyg04_focused_cases": {
+              "log": "policy-engine/.tmp/e02-c-hyg-la013-20261006/hyg04-delta-tests.log",
+              "sha256": "511fb971caf59261241ec2a3919d9d10c7dcb9ec044ee07d50b2db465184f057",
+              "result": "15 focused cases passed (15 dots, exit 0); the registered deterministic benchmark workload case was excluded because its separate full receipt is cited under LA-012."
+            },
+            "phase4_workspace_contract": {
+              "log": "policy-engine/.tmp/e02-c-hyg-la013-20261006/phase4-workspace-map-test.log",
+              "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+              "result": "The dynamically derived workspace-to-contract path/manifest/script check passed."
+            },
+            "atlas_architecture": {
+              "log": "policy-engine/.tmp/e02-c-hyg-la013-20261006/atlas-ui-architecture.log",
+              "sha256": "5f6dc4e053be054289196f82ccaef4318c4fcde11ab248bc26a529f47f739bd7",
+              "result": "PASS over 36 source files."
+            },
+            "atlas_tests": {
+              "log": "policy-engine/.tmp/e02-c-hyg-la013-20261006/atlas-ui-test.log",
+              "sha256": "fd49afd4f9e228e8291a2688c11d820c703e1bbd2b3ade5b0fbd11d4f72d5d45",
+              "result": "18 test files and 85 tests passed."
+            },
+            "atlas_typecheck": {
+              "command": "corepack pnpm --filter @polisyos/atlas-ui run typecheck",
+              "log": "policy-engine/.tmp/e02-c-hyg-la013-20261006/atlas-ui-typecheck.log",
+              "sha256": "ec53d13f47fb37842ffee6c6bd0a14278aab4033762ccdd8c6557bc29d2610e1",
+              "result": "Exit 0."
+            },
+            "python_lint": {
+              "command": "python -m ruff check tests/unit/remediation/test_hyg_04.py tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py",
+              "log": "policy-engine/.tmp/e02-c-hyg-la013-20261006/python-ruff.log",
+              "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+              "result": "PASS."
+            },
+            "format_check": {
+              "command": "python -m ruff format --check tests/unit/remediation/test_hyg_04.py tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py",
+              "log": "policy-engine/.tmp/e02-c-hyg-la013-20261006/python-ruff-format.log",
+              "sha256": "d4a36ae7b15ea02251fa404e6c1259e5410e1e294f67be5f397eb7197fe2ee04",
+              "result": "Nonzero on unchanged pre-existing formatting in both files; exact f0940f base replay also returned nonzero, and diff output identified only old unchanged spans. No unrelated reformat applied."
+            }
+          },
+          "archive_membership_delta": {
+            "prior_archive": "The f0940f source archive includes all three edited docs and the exact e70 sdist-member query receipt lists those members; its exact member list/path set is still useful, but it does not establish the new e70 document bytes.",
+            "receipt": "policy-engine/.tmp/e02-c-hyg-la013-20261006/f094-sdist-workspace-delta-membership.txt",
+            "sha256": "63e31eeec0da9040dfb136b94aebc76d068f93759a6853e994b1a5f489d4b599",
+            "current_archive": "A fresh source archive/sdist build from exact e70 remains queued in the root-assigned serial artifact slot. Until its path/byte inventory arrives, do not transfer f094 exact source-byte evidence to e70 sdist members."
+          }
+        }
+      },
+      "negative_evidence": "The live lifecycle check does not report the retired redirect; current workspace build and smoke run from a fresh frozen-lockfile install; the native archive walk verifies actual member paths/bytes. This is stronger than checking manifests/markers alone.",
+      "capability_state": "The exact redirect retirement predates the slice base; the current five-root workspace map and source-checkout lifecycle are verified. Exact e70 sdist source-byte membership remains open pending the serial current-source archive audit.",
+      "residuals": [
+        {
+          "state": "open",
+          "path": "policy-engine packaging sdist at e70 source freeze",
+          "basis": "The three e70-updated workspace/architecture documents are sdist inputs. The f094 archive proves their old bytes and member pathset but not e70 bytes; root has queued an exact e70 source archive/sdist build in the serial artifact slot. This is an author-owned deciding artifact witness, not an owner-supplied policy question."
+        },
+        {
+          "state": "scoped_note",
+          "path": "policy-engine/architecture/generated_artifacts.toml",
+          "basis": "The workspace contract now identifies Atlas token projections as a separate package-local family and accurately says the central runtime API generated-artifact registry does not enumerate them. That registry was not a target of LA-013’s redirect/package boundary criterion; no registry membership or whole-frontend generated-artifact closure is claimed."
+        }
+      ]
+    },
+    {
+      "id": "LA-018",
+      "label": "held",
+      "scope": "Retire the Lex fact-reader re-export only with the full required consumer behavior: preserve the actual Fabric reader and typed provenance while refusing an untrusted/missing-authorization source after cutover.",
+      "capability_state": "bridge_missing",
+      "missing_capability_labels": [
+        "producer_missing",
+        "artifact_missing",
+        "bridge_missing",
+        "verification_missing"
+      ],
+      "source_seam_census": {
+        "fact_provenance": "`policy-engine/src/polisyos/ir/loading/fact_log.py:19-28` contains source_id, license, raw_hash, ingestion_run_id, script_hash, and notes; no authorization decision/reference/verifier field.",
+        "fact_legal": "`policy-engine/src/polisyos/ir/loading/fact_log.py:51-61` contains access_tier, basis, notes, and PII fields; these are declarative fact metadata, not an authorization artifact.",
+        "producer": "`policy-engine/src/polisyos/fabric/world/store/emit.py:198-243` accepts DocMeta, provenance, optional trust_policy_id, and optional FactLegal; no authorization resolver/artifact is accepted.",
+        "persistence_and_reader": "`policy-engine/src/polisyos/fabric/world/store/segments.py:419-444` reads requested columns from indexed Parquet segments. It does not resolve source authorization.",
+        "consumer": "`policy-engine/src/polisyos/lex/normpack/select_sources.py:27-50,61-110` requests only fact identity/selection columns and selects Lex sources from DocMeta `props.lex.corpus`; the consumer columns do not include provenance or legal. No authorization decision is consulted.",
+        "adjacent_access_control": "`policy-engine/src/polisyos/fabric/security/access_control.py:63-84` provides classification checks for callers supplying AccessScope; the audited Lex fact-selection chain does not call it and it is not a source-authorization producer/bridge.",
+        "existing_test_contract": "`policy-engine/tests/unit/lex/mirror_contracts/test_factlog.py:64-73` explicitly says the selector does not treat a license/access field as an authorization decision; current lines 133-141 prove selection of the fixture, not refusal."
+      },
+      "marker_kept_live_falsifier": {
+        "purpose": "Probe the original negative oracle against the actual producer, CAS, world segment/index, Fabric reader, and Lex selector while leaving all provenance/legal descriptive markers populated and setting the source-authorization input to null.",
+        "fixture": "Synthetic local challenge data only; the example.test URL, IDs, claimed public license/access, and hashes establish no factual source, legal permission, authority, or approval.",
+        "working_directory": "policy-engine in the attached HYG worktree",
+        "command": "PYTHONPATH=src:. PYTHONNOUSERSITE=1 POLISYOS_OTEL_ENABLED=false /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -B .tmp/e02-c-hyg-la018-authorization-falsifier/probe-v2.py .tmp/e02-c-hyg-la018-authorization-falsifier/input.json .tmp/e02-c-hyg-la018-authorization-falsifier/run-v3",
+        "expected_exit_code": 1,
+        "actual_exit_code": 1,
+        "input": {
+          "path": "policy-engine/.tmp/e02-c-hyg-la018-authorization-falsifier/input.json",
+          "sha256": "b16b3060d1a17e686382cefe99e4115dcd7592bebb66dfbc7cca12567dbc784a"
+        },
+        "driver": {
+          "path": "policy-engine/.tmp/e02-c-hyg-la018-authorization-falsifier/probe-v2.py",
+          "sha256": "e750a69484636a9144bfa710fc96604950f06324bd84b20c2d013e0fa5c3f6dd",
+          "source_of_truth_control": "The probe imports the real select_sources module and derives the checked column list from its live `_FACT_COLUMNS`; the final run does not hardcode the consumer's column names."
+        },
+        "full_output": {
+          "path": "policy-engine/.tmp/e02-c-hyg-la018-authorization-falsifier/probe-v2-output.log",
+          "sha256": "4089ebecbd0e27a493d41dbd67f3971ddfd339f1ca20b45af168a08045ab3037"
+        },
+        "private_run_artifacts": [
+          {
+            "path": "policy-engine/.tmp/e02-c-hyg-la018-authorization-falsifier/run-v3/cas/artifacts/sha256/97/ca/97ca072d5d7d4955c03136c09508471415a7b012462928518610ef9ae6a2ba69.blob",
+            "sha256": "97ca072d5d7d4955c03136c09508471415a7b012462928518610ef9ae6a2ba69"
+          },
+          {
+            "path": "policy-engine/.tmp/e02-c-hyg-la018-authorization-falsifier/run-v3/cas/artifacts/sha256/97/ca/97ca072d5d7d4955c03136c09508471415a7b012462928518610ef9ae6a2ba69.manifest.json",
+            "sha256": "11c97437103f0882fddd2d31e4be234c5b22241d90c1f9ca4e5b24471c616202"
+          },
+          {
+            "path": "policy-engine/.tmp/e02-c-hyg-la018-authorization-falsifier/run-v3/fact-log/world/_segments.jsonl",
+            "sha256": "25324ef3e0ce7fa031b8de2da8c83c7b99b3e9717698f8b7b04d9fe04875215f"
+          },
+          {
+            "path": "policy-engine/.tmp/e02-c-hyg-la018-authorization-falsifier/run-v3/fact-log/world/hyg18-missing-authorization_1791293767.parquet",
+            "sha256": "8ba12beaeee950f0f3c05a3053b3fdd161d600b7d9a30309e849d5d2468de671"
+          },
+          {
+            "path": "policy-engine/.tmp/e02-c-hyg-la018-authorization-falsifier/run-v3/fact-log/world/hyg18-missing-authorization_1791293767_manifest.json",
+            "sha256": "d33ef73f858f1cdff744efc2d201fd91cb682c4a851d6b5e94f01ebde186e02d"
+          }
+        ],
+        "observed": {
+          "actual_module_origins": "Fabric emitter, writer/reader, and Lex selector imported from the canonical first-party modules; legacy `polisyos.lex.factlog` was not loaded.",
+          "persisted_markers": [
+            "source_id",
+            "license",
+            "raw_hash",
+            "ingestion_run_id",
+            "access_tier",
+            "basis"
+          ],
+          "source_authorization_present": false,
+          "live_consumer_columns": [
+            "fact_id",
+            "subject_id",
+            "predicate_id",
+            "object_value",
+            "target_id",
+            "tx_time"
+          ],
+          "consumer_reads_provenance_or_legal": false,
+          "observed_behavior": "Lex selected `doc.source.hyg18unauth` despite `source_auth: null`.",
+          "gate": "FAIL: the criterion's missing-authorization refusal property is not implemented by the audited consumer path."
+        }
+      },
+      "decision": "Hold pending the authorized source owner supplying a typed source-authorization producer/artifact and bridge into the Fabric-to-Lex selection consumer. Do not convert license/access/basis strings into an authorization boolean, allowlist, or self-attested trust rule. The reader alias itself has been replaced, but the full LA-018 acceptance criterion is not closed.",
+      "residual": "Factual source identity and legal authorization remain institutionally supplied/not established. A synthetic consumer escape demonstrates the missing bridge but cannot name the trusted-source policy or authorize a real source."
+    }
+  ],
+  "workspace_and_archive_scope_notes": {
+    "five_roots_six_projects": "The complete `pnpm list -r --depth -1 --json` output has five package roots plus the product-root project. e70 corrects the TOML, frontend contract, architecture illustration, repository topology, and dynamic workspace tests to this live set; the former four-root docs mismatch is resolved.",
+    "workspace_architecture_and_consumer": "Atlas is independently typechecked, architecture-checked, and tested; the real dashboard root route loads `DashboardPage`, which imports six public Atlas UI exports. The contract records Atlas token source/projection inputs and its real check/regeneration commands. No Atlas build command is invented because its package has no build script.",
+    "app_and_package_boundary": "The exact f0940f archive audit found 1,454 source paths under apps/packages (1,345 apps, 109 packages); wheel payload has zero such paths; sdist has exactly 24 README exceptions and no app/package source; all 1,430 non-README paths are excluded. The complete wheel input reconciliation from f0940f to e70 is identical; the three updated docs need the fresh e70 sdist byte audit noted under LA-013.",
+    "generated_artifact_boundary": "The four central generated_artifacts.toml entries remain the runtime API client/dashboard outputs. Atlas package-local token projections are documented separately and are not claimed as centrally registered generated artifacts.",
+    "not_claimed": "This bounded finding does not claim an audit of every frontend application, an installed frontend product, or every historical app component; LA-013’s audited direct-cleanup scope is the single retired redirect README and the declared workspace/package boundary."
+  },
+  "other_owner_gaps_and_limits": [
+    {
+      "label": "held",
+      "owner": "team-architecture",
+      "path": "policy-engine/architecture/imports/dynamic.toml",
+      "condition": "The 204-row source registry's review expiry is 2026-08-04 and no current named typed-held reviewer/supplier is recorded. This path intersects the f0940f changed set; under P41 this red is not inherited.",
+      "source": "Full adjudication and exact source blob are in the prior f0940f handoff. No expiry was refreshed to make the guard green."
+    },
+    {
+      "label": "partial",
+      "path": "policy-engine/tools/quality/production_invocation.py",
+      "result": "The admitted static diagnostic remains partial: coverage partial, unresolved_by_construction 9,191, unresolved receiver calls 139,722, runtime invocation not established.",
+      "raw_local_only": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hygiene-20261006/polisyos/.tmp/e02-C2/raw/hyg/production-invocation.json",
+        "bytes": 170869234,
+        "sha256": "1a62e98b2cbacf9870ec7597356218308817cea1b5402da955da8a417a0fc790"
+      },
+      "scope": "This diagnostic is not a witness for any of the six retirement criteria and is not promoted to closure."
+    },
+    {
+      "label": "not_admitted",
+      "items": [
+        "Previously reported 36-test HYG/import suite: original terminal bytes unavailable; the report is not used as a deciding receipt.",
+        "Earlier canonical tool-config generator check/corruption negative/restore: original terminal bytes unavailable; not reconstructed or admitted."
+      ],
+      "source": "Preserve the prior handoff's explicit unreceipted run disclosure."
+    }
+  ],
+  "canonical_closure_separation": {
+    "closure_decisions_C_md": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+      "git_blob": "eb335a62bc1f8bce2cddfcf59f649980a08e88c4",
+      "historical_state": "All six original rows remain `partial`; C did not adjudicate them."
+    },
+    "coverage_json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "git_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+      "historical_state": "All six closure statuses remain `not_adjudicated`; the file is traceability, not behavioral proof."
+    },
+    "LA013_appendix_history": "The prior record's historical Appendix C `closed_bounded` field remains distinct from both all-six partial C rows and this candidate criterion verdict.",
+    "canonical_ledgers_changed": false
+  },
+  "pattern_pass": {
+    "P06": "Retired only exact aliases and verified canonical owners; neighboring real passes/tools remain.",
+    "P29": "LA-018 falsifier imports and runs the real Fabric/CAS/world/Lex consumer, derives live selector columns, and reports the actual property failure rather than checking markers only.",
+    "P35": "Set counts cite full pnpm JSON or the prior complete tracked-tree/native-archive walks with their explicit denominators.",
+    "P37": "Workspace membership and archive content are recomputed from live command/artifact outputs; LA-018 source authorization is not established and fails closed as a closure claim.",
+    "P38": "For LA-013, the guarded property is that every live pnpm package workspace has one current TOML/document contract row at its actual path. The old four-ID static set could be green while omitting the real packages/atlas-ui workspace; the new test derives package names and roots from the workspace globs and compares the complete set and each path to the contract.",
+    "P41": "Dynamic-import manifest expiry intersects f0940f's changed paths and therefore remains an own held architecture-team input, not inherited red."
+  },
+  "procedure_deviation": {
+    "occurred": true,
+    "severity": "binding preservation-procedure violation; disclosed, not repaired or recreated",
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-hyg-la013-20261006/polisyos",
+    "source_commit": "f0940f021f76264c288789e472a9d4681d7f6680",
+    "admission_or_registration": "No managed create/attach admission and no create/resume JSON receipt existed.",
+    "creation_command": "git worktree add --detach /Users/deniskopylov/.codex/worktrees/e02-c-hyg-la013-20261006/polisyos f0940f021f76264c288789e472a9d4681d7f6680",
+    "pre_removal_git_status": "## HEAD (no branch) — clean detached checkout",
+    "removal_command": "git worktree remove /Users/deniskopylov/.codex/worktrees/e02-c-hyg-la013-20261006/polisyos",
+    "preservation_rule_violated": "The detached checkout was removed with `git worktree remove`, not moved to Trash as required. It was not recreated; no further cleanup or worktree removal occurred.",
+    "unique_data_or_outputs": "No install or process ran there. The only observed pre-removal state was clean/detached `git status -sb`; no unique output was produced."
+  },
+  "author_actions_after_source_freeze": {
+    "source_change_since_f0940f": true,
+    "source_change_since_current_e70_freeze": false,
+    "e70_delta": [
+      "policy-engine/architecture/frontend_workspaces.toml",
+      "policy-engine/docs/explanation/architecture.md",
+      "policy-engine/docs/reference/frontend/workspace-contract.md",
+      "policy-engine/docs/reference/repository-topology.md",
+      "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py",
+      "policy-engine/tests/unit/remediation/test_hyg_04.py"
+    ],
+    "tracked_change_in_this_record": "Append-only handoff JSON only; it follows source freeze and is not part of the e70 artifact candidate.",
+    "ignored_local_receipts_preserved": [
+      "policy-engine/.tmp/e02-c-hyg-la013-20261006/",
+      "policy-engine/.tmp/e02-c-hyg-la018-authorization-falsifier/"
+    ],
+    "unnecessary_output_cleanup": false,
+    "push_or_merge": false
+  },
+  "review_request": "Review the complete base-to-e70 path/status delta and the exact six-path e70 workspace-map change. Recompute cited test/workspace receipts; adjudicate LA-013 only after the exact e70 sdist artifact/path/byte receipt is appended, and retain LA-018 held because the live marker-kept consumer selects a synthetic source with no source authorization. Do not carry f094 sdist source-byte claims to e70, or confuse the five actual package roots with the root-inclusive six-project count. The f094 wheel evidence is transferable because its complete configured wheel input denominator is byte-identical through e70."
+}

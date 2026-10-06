@@ -75,6 +75,12 @@ Paired axis reindexing moves policies and their definition versions together.
 Persisted coordinate IDs, values and reference keys remain bound to their full
 metric/split/direction/unit/version tuple. Labels are cosmetic; an unpaired
 definition version or stale ID refuses comparison/readback.
+Every missing/non-finite omission ID also belongs to that current schema, once
+and with its original input index. This applies to partial fronts and wholly
+unassessed inputs. Stale or duplicate omission IDs and omitted rows without a
+bound coordinate schema refuse at the canonical typed artifact reader. A paired
+coordinate rename/reindex must update omissions along with values and reference
+keys; retaining old omission IDs does not describe the new coordinate basis.
 
 ```bash
 python -m pytest -q tests/unit/scientist/methods/autotune/test_hypervolume_profile.py tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py tests/unit/scientist/methods/search/test_frontier_quantity_readback.py

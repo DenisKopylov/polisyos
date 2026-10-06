@@ -174,3 +174,80 @@ def test_paired_coordinate_reindex_preserves_persisted_quantity_and_dominance(tm
     bad_ref = _persist_front(store, malformed)
     with pytest.raises(ValueError, match="coordinate_id"):
         load_model_artifact(FileSystemCAS(tmp_path / "cas"), bad_ref, ParetoFront)
+
+
+def _omission_front(store, omission_field, schema_status):
+    """Produce a real partial or wholly unassessed typed coordinate artifact."""
+    policies = [
+        PromotionPolicy(loop_id="omissions", primary_metric=name, unit="metres")
+        for name in ("a", "b")
+    ]
+    promoter = ParetoPromoter(policies, definition_versions=["a.v1", "b.v1"])
+    rows = [
+        BenchmarkEvaluation(
+            loop_id="omissions",
+            suite_id="conditional-numeric-input",
+            candidate_ref=store.put_json(
+                {"candidate": index},
+                ArtifactWriteOptions(kind="synthetic.candidate", media_type="application/json"),
+            ),
+            holdout_metrics={"a": 1.0, "b": 1.0} if index == 0 else {"a": 2.0},
+        )
+        for index in range(2)
+    ]
+    if omission_field == "non_finite_coordinate_ids":
+        # Deliberate post-validation mutable-input stress, not successful
+        # typed producer admission of a non-finite metric.
+        rows[1].holdout_metrics["b"] = float("nan")
+    selected = rows if schema_status == "complete" else rows[1:]
+    front = promoter.compute_front(selected)
+    assert front.coordinate_schema.status == schema_status
+    assert front.input_assessment.status == (
+        "partial" if schema_status == "complete" else "no_usable_inputs"
+    )
+    stale = ParetoPromoter(
+        [policy.model_copy(update={"unit": "seconds"}) for policy in policies],
+        definition_versions=["a.v1", "b.v1"],
+    )
+    return front, stale.compute_front([]).coordinate_schema.coordinates[1].coordinate_id
+
+
+@pytest.mark.parametrize("omission_field", ["missing_coordinate_ids", "non_finite_coordinate_ids"])
+@pytest.mark.parametrize("schema_status", ["complete", "incomplete"])
+@pytest.mark.parametrize("corruption", ["stale", "duplicate"])
+def test_omission_coordinate_ids_bind_at_actual_cas_readback(
+    tmp_path, omission_field, schema_status, corruption
+):
+    store = FileSystemCAS(tmp_path / "cas")
+    front, stale_id = _omission_front(store, omission_field, schema_status)
+    ref = _persist_front(store, front)
+    restored = load_model_artifact(FileSystemCAS(tmp_path / "cas"), ref, ParetoFront)
+    assert restored == front
+    payload = restored.model_dump(mode="json")
+    omission = payload["input_assessment"]["unassessed_evaluations"][0]
+    current_ids = omission[omission_field]
+    assert len(current_ids) == 1
+    assert stale_id not in {
+        coordinate["coordinate_id"] for coordinate in payload["coordinate_schema"]["coordinates"]
+    }
+    omission[omission_field] = [stale_id] if corruption == "stale" else current_ids * 2
+    bad_ref = _persist_front(store, payload)
+    with pytest.raises(ValueError, match="omission coordinates"):
+        load_model_artifact(FileSystemCAS(tmp_path / "cas"), bad_ref, ParetoFront)
+
+
+@pytest.mark.parametrize("schema_status", ["complete", "incomplete"])
+@pytest.mark.parametrize("unbound_schema", [None, "legacy_limited"])
+def test_omission_coordinate_ids_require_a_bound_schema(tmp_path, schema_status, unbound_schema):
+    store = FileSystemCAS(tmp_path / "cas")
+    front, _ = _omission_front(store, "missing_coordinate_ids", schema_status)
+    good_ref = _persist_front(store, front)
+    restored = load_model_artifact(FileSystemCAS(tmp_path / "cas"), good_ref, ParetoFront)
+    assert restored == front
+    payload = restored.model_dump(mode="json")
+    payload["coordinate_schema"] = (
+        None if unbound_schema is None else {"status": "legacy_limited", "coordinates": []}
+    )
+    bad_ref = _persist_front(store, payload)
+    with pytest.raises(ValueError, match="omission coordinates require"):
+        load_model_artifact(FileSystemCAS(tmp_path / "cas"), bad_ref, ParetoFront)

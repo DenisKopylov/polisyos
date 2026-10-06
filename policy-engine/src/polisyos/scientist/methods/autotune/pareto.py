@@ -420,8 +420,18 @@ class ParetoFront(BaseModel):
 def _validate_coordinate_artifact(front: ParetoFront) -> None:
     """Validate the shared schema, values, and reference-point key sets."""
     schema = front.coordinate_schema
+    omissions = (
+        front.input_assessment.unassessed_evaluations if front.input_assessment is not None else ()
+    )
+    if omissions and (schema is None or schema.status == "legacy_limited"):
+        raise ValueError("omission coordinates require a bound coordinate schema")
     if schema is None or schema.status == "legacy_limited":
         return
+    coordinate_ids = {coordinate.coordinate_id for coordinate in schema.coordinates}
+    for omission in omissions:
+        omitted_ids = omission.missing_coordinate_ids + omission.non_finite_coordinate_ids
+        if len(set(omitted_ids)) != len(omitted_ids) or not set(omitted_ids) <= coordinate_ids:
+            raise ValueError("omission coordinates do not match the coordinate schema")
     if schema.status == "incomplete":
         if (
             front.members
@@ -432,7 +442,6 @@ def _validate_coordinate_artifact(front: ParetoFront) -> None:
             raise ValueError("incomplete coordinate schema cannot carry v1 values")
         return
 
-    coordinate_ids = {coordinate.coordinate_id for coordinate in schema.coordinates}
     if not coordinate_ids or not front.members:
         raise ValueError("complete coordinate schema requires members and coordinates")
     if set(front.coordinate_reference_point) != coordinate_ids:

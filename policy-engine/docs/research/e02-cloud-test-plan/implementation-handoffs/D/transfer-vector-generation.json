@@ -1,0 +1,91 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "transfer-vector-generation",
+  "closure_ids": [],
+  "finding_ids": [
+    "B129",
+    "B133",
+    "B134"
+  ],
+  "bundle_ids": [
+    "TRN-02"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "de7fce6cf5f91a63b1b573f1de72d17c792b5c34"
+  ],
+  "candidate_tree_sha": "15fc91f7708d041e5034dc4968b6ec1c35279ee7",
+  "branch": "codex/e02-D-published-transfer",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-transfer-generations.toml",
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+    "policy-engine/tests/unit/remediation/test_trn_02.py",
+    "policy-engine/tests/unit/scientist/agent/test_vector_memory.py"
+  ],
+  "environment": {
+    "python": "/workspace/e02-D-locked-env/bin/python",
+    "profile": "Python3.14.7/hnswlib0.8.0/Torch2.10.0/BoTorch0.16.1/GPyTorch1.15.1",
+    "module_origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-origins.log",
+      "sha256": "21c6a28cf0d61d9588ed93da74b99140043f3b994382cd17df712152faf42751"
+    }
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -c /dev/null --confcutdir=tests/unit -q tests/unit/scientist/agent/test_vector_memory.py tests/unit/remediation/test_trn_02.py -ra",
+      "target_sha": "de7fce6cf5f91a63b1b573f1de72d17c792b5c34",
+      "source": "immutable git archive",
+      "outcome": "PASS",
+      "result": "9 passed, 3 warnings in 9.95s",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-immutable.log",
+        "sha256": "f3a1add10be8c1d17ee014dd208c0e961100c3d5780ea9d8128ebafe053d4102"
+      }
+    },
+    {
+      "command": "same native query barrier tests on198 source",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "outcome": "FAIL",
+      "result": "3 failed, 1 passed; load/update mixed native distance with newly published key/metadata; caller mutation escaped",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-base.log",
+        "sha256": "d8b6159b02f6d756f91fdb2920799f96734489c87ebbc4a1a30af8237ecfb62b"
+      }
+    },
+    {
+      "command": "archive de7; replace query keys/metadata reads with self._generation while retaining native capture and generation markers; pytest -k captures",
+      "target_sha": "de7fce6cf5f91a63b1b573f1de72d17c792b5c34",
+      "outcome": "EXPECTED_FAIL",
+      "result": "2 failed, 2 deselected; actual native distance became mixed with new keys/metadata",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/vector-property-removal.log",
+        "sha256": "7e9bf83297f5aebbdc792ec47fdf0ee5f649d491819231132fbcf8386ebdfb14"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Each query returns a tuple wholly belonging to one captured immutable native generation; load/add failure cannot mutate the published generation.",
+    "runtime_path": [
+      "VectorMemoryStore.add/load private real HNSW index",
+      "single in-memory _generation publication",
+      "query captures once",
+      "real HNSW knn_query + decoded metadata"
+    ],
+    "proxy_divergence": "Publishing separately or rereading current metadata after old native query yields new-key/old-distance/new-metadata under unchanged CAS refs.",
+    "negative_controls": [
+      "load/update barrier",
+      "native add mutates candidate then throws",
+      "nested caller metadata mutation",
+      "same-ref changed bundle bytes rejected by guarded CAS"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded technical generation mechanism verified; finding closure not adjudicated",
+  "limitations_and_next_owner": [
+    "No distributed/latest pointer claim. Existing composite CAS ref remains persisted generation identity.",
+    "No institutional source authorization or production history/metadata validity claim.",
+    "Exact-ref bounded transfer cache follows in next checkpoint; B133 is not closed by this receipt.",
+    "G independent acceptance and combined-tree consumer rerun remain pending."
+  ]
+}

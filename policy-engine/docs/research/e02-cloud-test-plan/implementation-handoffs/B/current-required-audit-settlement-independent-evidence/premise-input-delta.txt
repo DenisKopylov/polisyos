@@ -1,0 +1,19 @@
+diff --git a/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py b/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py
+index 57e737363..14f6ad919 100644
+--- a/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py
++++ b/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py
+@@ -93,9 +93,12 @@ class _CommitFaultAuditLog(ChainedAuditLog):
+ 
+ 
+ def _call(enforcer: LLMBudgetEnforcer, route: str) -> Any:
++    # This finite accounting oracle supplies the supported admission estimate;
++    # unrelated tokenizer downloads cannot establish its provider/audit premise.
++    kwargs = {"max_tokens": 4, "_prompt_tokens_estimate": 3}
+     if route == "sync-invoke":
+-        return enforcer.invoke("nonempty physical request", max_tokens=4)
+-    return asyncio.run(enforcer.generate(user="nonempty physical request", max_tokens=4))
++        return enforcer.invoke("nonempty physical request", **kwargs)
++    return asyncio.run(enforcer.generate(user="nonempty physical request", **kwargs))
+ 
+ 
+ def _observation(path: Path, ledger_path: Path, provider_path: Path) -> dict[str, Any]:

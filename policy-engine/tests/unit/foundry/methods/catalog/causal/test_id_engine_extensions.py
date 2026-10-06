@@ -13,6 +13,7 @@ Tests cover:
 from __future__ import annotations
 
 import dataclasses
+from fractions import Fraction
 
 import pytest
 
@@ -100,6 +101,18 @@ def make_confounded_graph(
         graph_type=GraphType.PAG,
         nodes=nodes,
         edges=edge_objs,
+    )
+
+
+def _bow_graph() -> CausalGraphModel:
+    """Two observed nodes; the hidden common cause is represented by X↔Y."""
+    return CausalGraphModel(
+        graph_type=GraphType.ADMG,
+        nodes=["X", "Y"],
+        edges=[
+            CausalEdge(src="X", dst="Y"),
+            CausalEdge(src="X", dst="Y", mark_src=EdgeMark.ARROW),
+        ],
     )
 
 
@@ -1080,9 +1093,8 @@ class TestSIDAlgorithm:
         from polisyos.ir.analytics.estimand import StochasticPolicy
 
         # Bow-arc graph: X ← U → Y with X → Y, U unobserved — non-identifiable
-        edges = [("X", "Y")]
-        hidden = [("U", "X"), ("U", "Y")]
-        graph = make_confounded_graph(edges, hidden)
+        # The observed ADMG is the latent projection of U→X, U→Y, X→Y.
+        graph = _bow_graph()
         policy = StochasticPolicy(policy_type="soft")
         result = sid_algorithm(
             treatment=frozenset({"X"}),
@@ -1090,7 +1102,66 @@ class TestSIDAlgorithm:
             graph=graph,
             policy=policy,
         )
-        assert result.status != IdentificationStatus.IDENTIFIED
+        assert result.status == IdentificationStatus.HEDGE_FOUND
+        assert result.hedge_certificate is not None
+        assert [step.rule_name for step in result.proof_steps] == ["HEDGE"]
+
+    @pytest.mark.parametrize("conditional", [False, True], ids=["SID", "conditional-ID"])
+    def test_observed_u_collider_is_not_a_latent_bow(self, conditional):
+        """Old fixture: X↔U↔Y, X→Y has observed collider U, not hidden U→X,Y."""
+        from polisyos.foundry.methods.catalog.causal.admg_ops import (
+            m_separation,
+            remove_outgoing_edges,
+        )
+        from polisyos.foundry.methods.catalog.causal.id_engine import (
+            conditional_intervention_id,
+            sid_algorithm,
+        )
+        from polisyos.ir.analytics.estimand import StochasticPolicy
+
+        graph = make_confounded_graph([("X", "Y")], [("U", "X"), ("U", "Y")])
+        without_effect = remove_outgoing_edges(graph, frozenset({"X"}))
+        # Latent expansion L1→X,U; L2→Y,U: U is the collider on the backdoor path.
+        assert m_separation(without_effect, frozenset({"X"}), frozenset({"Y"}), frozenset())
+        assert not m_separation(
+            without_effect, frozenset({"X"}), frozenset({"Y"}), frozenset({"U"})
+        )
+        if conditional:
+            result = conditional_intervention_id(
+                treatment=frozenset({"X"}),
+                outcome=frozenset({"Y"}),
+                condition_vars=frozenset(),
+                graph=graph,
+            )
+        else:
+            result = sid_algorithm(
+                treatment=frozenset({"X"}),
+                outcome=frozenset({"Y"}),
+                graph=graph,
+                policy=StochasticPolicy(policy_type="soft"),
+            )
+        assert result.status == IdentificationStatus.IDENTIFIED
+        assert result.estimand_ast is not None
+        assert result.hedge_certificate is None
+
+    def test_bow_has_same_observed_law_with_distinct_do_laws(self):
+        """Independent Gaussian SCM pair disproves identification for this bow."""
+        # U,E iid N(0,1); X=U; Y=beta*X+gamma*U+E. Both structural edges
+        # have nonzero coefficients. The full-support observed law is identical;
+        # after replacing X with do(X=1), E[Y]=beta differs.
+        models = [(Fraction(1, 2), Fraction(1, 2)), (Fraction(3, 2), Fraction(-1, 2))]
+        observed_covariances = []
+        intervention_means = []
+        for beta, gamma in models:
+            assert beta != 0 and gamma != 0
+            observed_loading = beta + gamma
+            observed_covariances.append(
+                ((1, observed_loading), (observed_loading, observed_loading**2 + 1))
+            )
+            intervention_means.append(beta)
+        assert observed_covariances == [((1, 1), (1, 2)), ((1, 1), (1, 2))]
+        assert observed_covariances[0][0][0] * observed_covariances[0][1][1] - 1 == 1
+        assert intervention_means == [Fraction(1, 2), Fraction(3, 2)]
 
     def test_sid_result_has_version_tag(self):
         """sid_algorithm result metadata must include 'phase5_sid'."""
@@ -1154,16 +1225,17 @@ class TestSIDAlgorithm:
         """conditional_intervention_id with unidentifiable base → non-ID result."""
         from polisyos.foundry.methods.catalog.causal.id_engine import conditional_intervention_id
 
-        edges = [("X", "Y")]
-        hidden = [("U", "X"), ("U", "Y")]
-        graph = make_confounded_graph(edges, hidden)
+        # The observed ADMG is the latent projection of U→X, U→Y, X→Y.
+        graph = _bow_graph()
         result = conditional_intervention_id(
             treatment=frozenset({"X"}),
             outcome=frozenset({"Y"}),
             condition_vars=frozenset(),
             graph=graph,
         )
-        assert result.status != IdentificationStatus.IDENTIFIED
+        assert result.status == IdentificationStatus.HEDGE_FOUND
+        assert result.hedge_certificate is not None
+        assert [step.rule_name for step in result.proof_steps] == ["HEDGE"]
 
     def test_dynamic_intervention_two_periods(self):
         """dynamic_intervention_id on 2-period sequential DAG → IDENTIFIED."""

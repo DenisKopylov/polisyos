@@ -43,10 +43,10 @@ OUTPUT_MAP: dict[str, Path] = {
 }
 REEXPORT_STUBS: dict[str, str] = {
     "polisyos.foundry.methods.registry": (
-        "from polisyos.foundry.methods.selection.registry import *\n"
+        "from polisyos.foundry.methods.selection.registry import *  # noqa: F403\n"
     ),
     "polisyos.foundry.methods.composer": (
-        "from polisyos.foundry.methods.components.composer import *\n"
+        "from polisyos.foundry.methods.components.composer import *  # noqa: F403\n"
     ),
 }
 

@@ -79,7 +79,9 @@ breaking/non-breaking API changes.
 
 - Source of truth для base/canonical composer — соответствующие `.py`
   модули; registry/composer facade stubs производятся из заданных в
-  `REEXPORT_STUBS` re-export recipes. Воспроизводимость проверки зависит от
+  `REEXPORT_STUBS` re-export recipes. Их единственный wildcard import
+  намеренно передаёт canonical facade exports; producer добавляет локальный
+  `F403` suppression только к этой строке. Воспроизводимость проверки зависит от
   admitted Python, `mypy.stubgen`, Ruff и repository configuration; совпадение
   stubs само по себе не проверяет runtime execution или научную валидность.
 

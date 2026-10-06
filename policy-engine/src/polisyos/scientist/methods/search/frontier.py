@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Iterable
+import math
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from numbers import Real
 from typing import Any
 
 from polisyos.common.serialization import stable_json_dumps, to_python_data
-from polisyos.scientist.methods.search.objective import ObjectiveValue
+from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 
 _VOLATILE_CANDIDATE_KEYS = frozenset(
     {
@@ -92,6 +94,26 @@ def update_legacy_pareto_front(
 ) -> list[FrontierPoint]:
     """Insert one candidate into the legacy Pareto frontier payload."""
 
+    existing_points: list[FrontierPoint] = []
+    existing_basis: tuple[tuple[str, str], ...] | None = None
+    for point in frontier:
+        admitted = _objective_basis_and_values(point.objectives)
+        coordinates = _finite_coordinates(point.normalized_values)
+        if admitted is None or coordinates is None or coordinates != admitted[1]:
+            continue
+        if existing_basis is not None and admitted[0] != existing_basis:
+            raise ValueError("Legacy frontier contains inconsistent objective basis")
+        existing_basis = admitted[0]
+        existing_points.append(point)
+
+    admitted = _objective_basis_and_values(objectives)
+    if admitted is None:
+        # The caller retains unavailable objective details in search history;
+        # they cannot enter this finite-coordinate frontier export.
+        return existing_points[:cap]
+    if existing_basis is not None and admitted[0] != existing_basis:
+        raise ValueError("Legacy frontier objective basis changed")
+
     new_point = FrontierPoint(
         candidate=dict(candidate),
         objectives=[
@@ -102,15 +124,15 @@ def update_legacy_pareto_front(
             }
             for item in objectives
         ],
-        normalized_values=tuple(item.normalized_value for item in objectives),
+        normalized_values=admitted[1],
         candidate_hash=policy_candidate_hash(candidate),
     )
 
     surviving: list[FrontierPoint] = []
-    for existing in frontier:
+    for existing in existing_points:
         if existing.candidate_hash == new_point.candidate_hash:
             if dominates(existing.normalized_values, new_point.normalized_values):
-                return list(frontier)
+                return existing_points[:cap]
             continue
         if not dominates(new_point.normalized_values, existing.normalized_values):
             surviving.append(existing)
@@ -134,9 +156,9 @@ def update_legacy_pareto_front(
 def dominates(a: Iterable[float], b: Iterable[float]) -> bool:
     """Return True if *a* dominates *b* (all <= and at least one <)."""
 
-    left = tuple(a)
-    right = tuple(b)
-    if len(left) != len(right):
+    left = _finite_coordinates(a)
+    right = _finite_coordinates(b)
+    if left is None or right is None or not left or len(left) != len(right):
         return False
     at_least_one_better = False
     for left_value, right_value in zip(left, right, strict=False):
@@ -145,6 +167,54 @@ def dominates(a: Iterable[float], b: Iterable[float]) -> bool:
         if left_value < right_value:
             at_least_one_better = True
     return at_least_one_better
+
+
+def _finite_coordinates(values: Iterable[Any]) -> tuple[float, ...] | None:
+    coordinates: list[float] = []
+    for raw in values:
+        if isinstance(raw, bool) or not isinstance(raw, Real):
+            return None
+        try:
+            value = float(raw)
+        except (TypeError, ValueError, OverflowError):
+            return None
+        if not math.isfinite(value):
+            return None
+        coordinates.append(value)
+    return tuple(coordinates)
+
+
+def _objective_basis_and_values(
+    objectives: Iterable[ObjectiveValue | Mapping[str, Any]],
+) -> tuple[tuple[tuple[str, str], ...], tuple[float, ...]] | None:
+    basis: list[tuple[str, str]] = []
+    values: list[float] = []
+    names: set[str] = set()
+    for objective in objectives:
+        if isinstance(objective, ObjectiveValue):
+            name, raw, direction = objective.name, objective.raw_value, objective.direction
+            if not isinstance(direction, OptimizationDirection):
+                return None
+        elif isinstance(objective, Mapping):
+            name, raw = objective.get("name"), objective.get("raw_value")
+            try:
+                direction = OptimizationDirection(objective.get("direction"))
+            except (TypeError, ValueError):
+                return None
+        else:
+            return None
+        if not isinstance(name, str) or not name or name in names:
+            return None
+        coordinates = _finite_coordinates((raw,))
+        if coordinates is None:
+            return None
+        names.add(name)
+        basis.append((name, direction.value))
+        value = coordinates[0]
+        values.append(-value if direction == OptimizationDirection.MAXIMIZE else value)
+    if not basis:
+        return None
+    return tuple(basis), tuple(values)
 
 
 def _strip_volatile_candidate_fields(

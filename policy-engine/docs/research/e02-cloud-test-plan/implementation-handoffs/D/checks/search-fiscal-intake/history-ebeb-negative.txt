@@ -1,0 +1,101 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_unmeasured_scalar_does_not_launder_through_history_into_training[False] _
+
+malformed = False
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    @pytest.mark.parametrize("malformed", [False, True, 10**400])
+    def test_unmeasured_scalar_does_not_launder_through_history_into_training(malformed):
+        generator = BayesianCandidateGenerator(
+            SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+            primary_metric="cost",
+            direction=MetricDirection.MINIMIZE,
+        )
+        evaluations = generator._history_to_evaluations(
+            [
+                {"candidate": {"x": 2}, "stage_b_result": {"cost": 10.0}},
+                {"candidate": {"x": 4}, "stage_b_result": {"cost": malformed}},
+            ]
+        )
+>       assert [row.is_valid for row in evaluations] == [True, False]
+E       assert [True, True] == [True, False]
+E         
+E         At index 1 diff: True != False
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:120: AssertionError
+_ test_unmeasured_scalar_does_not_launder_through_history_into_training[True] __
+
+malformed = True
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    @pytest.mark.parametrize("malformed", [False, True, 10**400])
+    def test_unmeasured_scalar_does_not_launder_through_history_into_training(malformed):
+        generator = BayesianCandidateGenerator(
+            SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+            primary_metric="cost",
+            direction=MetricDirection.MINIMIZE,
+        )
+        evaluations = generator._history_to_evaluations(
+            [
+                {"candidate": {"x": 2}, "stage_b_result": {"cost": 10.0}},
+                {"candidate": {"x": 4}, "stage_b_result": {"cost": malformed}},
+            ]
+        )
+>       assert [row.is_valid for row in evaluations] == [True, False]
+E       assert [True, True] == [True, False]
+E         
+E         At index 1 diff: True != False
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:120: AssertionError
+_ test_unmeasured_scalar_does_not_launder_through_history_into_training[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000] _
+
+malformed = 100000000000000000...0000000000000000000
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    @pytest.mark.parametrize("malformed", [False, True, 10**400])
+    def test_unmeasured_scalar_does_not_launder_through_history_into_training(malformed):
+        generator = BayesianCandidateGenerator(
+            SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+            primary_metric="cost",
+            direction=MetricDirection.MINIMIZE,
+        )
+>       evaluations = generator._history_to_evaluations(
+            [
+                {"candidate": {"x": 2}, "stage_b_result": {"cost": 10.0}},
+                {"candidate": {"x": 4}, "stage_b_result": {"cost": malformed}},
+            ]
+        )
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/autotune/bayesian_generator.py:411: in _history_to_evaluations
+    score, score_is_scalar = self._history_score(
+src/polisyos/scientist/methods/autotune/bayesian_generator.py:325: in _history_score
+    value = _finite_float(source[self._primary_metric])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = 100000000000000000...0000000000000000000
+
+    def _finite_float(value: Any) -> float | object:
+        try:
+>           result = float(value)
+                     ^^^^^^^^^^^^
+E           OverflowError: int too large to convert to float
+
+src/polisyos/scientist/methods/autotune/bayesian_generator.py:76: OverflowError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_unmeasured_scalar_does_not_launder_through_history_into_training[False]
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_unmeasured_scalar_does_not_launder_through_history_into_training[True]
+FAILED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_unmeasured_scalar_does_not_launder_through_history_into_training[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+3 failed, 4 deselected, 2 warnings in 6.99s

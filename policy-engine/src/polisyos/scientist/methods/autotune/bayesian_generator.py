@@ -410,12 +410,20 @@ class BayesianCandidateGenerator:
                 logger.warning("Skipping history entry %s: conflicting identity fields", idx)
                 continue
             candidate_id = str(identity.get("candidate_id") or f"hist_{idx}")
-            score, score_is_scalar = self._history_score(
-                entry=entry,
-                candidate=candidate,
-                stage_b_result=stage_b_result,
-                entry_mapping=entry_mapping,
+            raw_stage_a = getattr(
+                entry, "stage_a_passed", entry_mapping.get("stage_a_passed", _MISSING)
             )
+            valid_stage_type = raw_stage_a is _MISSING or type(raw_stage_a) is bool
+            stage_a_passed = raw_stage_a is _MISSING or raw_stage_a is True
+            if valid_stage_type:
+                score, score_is_scalar = self._history_score(
+                    entry=entry,
+                    candidate=candidate,
+                    stage_b_result=stage_b_result,
+                    entry_mapping=entry_mapping,
+                )
+            else:
+                score, score_is_scalar = _INVALID, True
             has_score = score not in {_MISSING, _INVALID}
             if has_score:
                 score_value = float(score)
@@ -427,9 +435,6 @@ class BayesianCandidateGenerator:
             else:
                 scalar = math.inf
 
-            stage_a_passed = bool(
-                getattr(entry, "stage_a_passed", entry_mapping.get("stage_a_passed", True))
-            )
             feedback = _as_mapping(stage_b_result.get("feedback"))
             reported_status = str(
                 feedback.get("status") or stage_b_result.get("status") or ""
@@ -458,7 +463,9 @@ class BayesianCandidateGenerator:
             )
             for key, value in identity.items():
                 metadata[key] = value
-            if not has_score:
+            if not valid_stage_type:
+                metadata["invalid_reason"] = "malformed_stage_a_passed"
+            elif not has_score:
                 metadata["invalid_reason"] = "missing_or_invalid_score"
 
             timestamp = getattr(entry, "timestamp", None)

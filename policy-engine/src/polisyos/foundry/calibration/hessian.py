@@ -30,6 +30,9 @@ class HessianResult:
     derivative_dtype: str = "unknown"
     fallback_reason: str | None = None
     gradient_norm: float | None = None
+    objective_value: float | None = None
+    objective_dtype: str | None = None
+    objective_finite: bool | None = None
 
 
 def _repair_eigenvalues(
@@ -154,6 +157,20 @@ def compute_hessian(
         raise ValueError("stationarity_tol must be finite and nonnegative")
     if not np.isfinite(damping) or damping < 0:
         raise ValueError("damping must be finite and nonnegative")
+    objective_value = None
+    objective_dtype = None
+    objective_finite = None
+    try:
+        objective = np.asarray(loss_fn(jnp.asarray(flat_theta)))
+    except Exception:
+        pass
+    else:
+        if objective.shape != () or np.iscomplexobj(objective):
+            raise ValueError("Objective must return a real scalar")
+        objective_dtype = str(objective.dtype)
+        objective_finite = bool(np.isfinite(objective))
+        if objective_finite:
+            objective_value = float(objective)
     strategy = "exact"
     fallback_reason = None
     try:
@@ -186,7 +203,11 @@ def compute_hessian(
     except Exception:
         pass
     reason = None
-    if np.any(raw_eigvals < -jitter_floor):
+    if objective_finite is None:
+        reason = "objective_value_not_established"
+    elif not objective_finite:
+        reason = "nonfinite_objective"
+    elif np.any(raw_eigvals < -jitter_floor):
         reason = "negative_curvature"
     elif rank < len(param_names) or np.any(raw_eigvals <= jitter_floor):
         reason = "singular_or_flat_curvature"
@@ -225,4 +246,7 @@ def compute_hessian(
         derivative_dtype=derivative_dtype,
         fallback_reason=fallback_reason,
         gradient_norm=gradient_norm,
+        objective_value=objective_value,
+        objective_dtype=objective_dtype,
+        objective_finite=objective_finite,
     )

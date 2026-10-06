@@ -2011,6 +2011,9 @@ class Calibrator:
                     {
                         "strategy": hessian_result.strategy,
                         "derivative_dtype": hessian_result.derivative_dtype,
+                        "objective_value": hessian_result.objective_value,
+                        "objective_dtype": hessian_result.objective_dtype,
+                        "objective_finite": hessian_result.objective_finite,
                         "raw_eigenvalues": hessian_result.eigenvalues.tolist(),
                         "raw_rank": hessian_result.raw_rank,
                         "condition_number": (

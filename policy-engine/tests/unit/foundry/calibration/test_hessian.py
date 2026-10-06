@@ -6,6 +6,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
+import pytest
 
 from polisyos.foundry.calibration.hessian import (
     _finite_difference_hessian,
@@ -143,10 +144,48 @@ def test_nonstationary_likelihood_has_no_covariance() -> None:
     assert result.covariance_unavailable_reason == "nonstationary_point"
 
 
-def test_covariance_property_removal_preserves_markers_but_breaks_oracle() -> None:
-    import inspect
+@pytest.mark.parametrize("offset", [jnp.nan, jnp.inf, -jnp.inf])
+@pytest.mark.parametrize("kind", ["negative_log_likelihood", "negative_log_posterior"])
+def test_nonfinite_objective_cannot_inherit_finite_gradient_and_hessian(offset, kind) -> None:
+    def objective(x):
+        return 0.5 * jnp.sum(x * x) + offset
 
-    import pytest
+    point = jnp.zeros(2)
+    npt.assert_array_equal(jax.grad(objective)(point), [0.0, 0.0])
+    npt.assert_array_equal(jax.hessian(objective)(point), np.eye(2))
+    result = compute_hessian(objective, point, ["a", "b"], objective_kind=kind)
+    npt.assert_array_equal(result.hessian, np.eye(2))
+    assert result.covariance is None and result.std is None
+    assert result.covariance_unavailable_reason == "nonfinite_objective"
+    assert result.objective_value is None
+    assert result.objective_finite is False
+    assert result.objective_dtype == str(point.dtype)
+
+
+@pytest.mark.parametrize("shape", [(1,), (1, 1), (2,)])
+def test_non_scalar_objective_is_rejected_before_derivative_computation(shape) -> None:
+    def objective(x):
+        return jnp.broadcast_to(jnp.sum(x * x), shape)
+
+    with patch("jax.hessian") as derivative, pytest.raises(ValueError, match="real scalar"):
+        compute_hessian(
+            objective, jnp.zeros(2), ["a", "b"], objective_kind="negative_log_likelihood"
+        )
+    derivative.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "kind,offset",
+    [
+        ("generic_loss", 0.0),
+        ("negative_log_likelihood", jnp.nan),
+        ("negative_log_likelihood", jnp.inf),
+        ("negative_log_posterior", jnp.nan),
+        ("negative_log_posterior", jnp.inf),
+    ],
+)
+def test_covariance_property_removal_preserves_markers_but_breaks_oracle(kind, offset) -> None:
+    import inspect
 
     from polisyos.foundry.calibration import hessian as module
 
@@ -159,10 +198,15 @@ def test_covariance_property_removal_preserves_markers_but_breaks_oracle() -> No
     exec(compile(source, "removed_covariance_admission", "exec"), namespace)
     mutant = namespace["compute_hessian"]
 
-    def assert_generic_curvature_is_not_covariance(compute):
-        result = compute(lambda x: 0.5 * jnp.sum(x * x), jnp.zeros(2), ["a", "b"])
+    def assert_unadmitted_curvature_is_not_covariance(compute):
+        result = compute(
+            lambda x: 0.5 * jnp.sum(x * x) + offset,
+            jnp.zeros(2),
+            ["a", "b"],
+            objective_kind=kind,
+        )
         assert result.covariance is None
 
-    assert_generic_curvature_is_not_covariance(module.compute_hessian)
+    assert_unadmitted_curvature_is_not_covariance(module.compute_hessian)
     with pytest.raises(AssertionError):
-        assert_generic_curvature_is_not_covariance(mutant)
+        assert_unadmitted_curvature_is_not_covariance(mutant)

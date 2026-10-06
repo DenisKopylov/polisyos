@@ -36,6 +36,9 @@ the derivative dtype and spectrum. They do not produce inferential covariance.
 Negative, flat, singular, or ill-conditioned directions are preserved and never
 repaired into uncertainty. Damping remains a compatibility argument, without
 changing the covariance admission rule.
+The objective itself must return a finite real scalar. A nonfinite constant can
+leave exact gradients and Hessians finite; it still prevents covariance while
+the raw curvature and objective dtype remain available for diagnosis.
 
 `CalibratorInputs.batch_inputs` accepts a runtime-only `CalibrationBatchInputs`
 with ordered states, schedule times, and unique row IDs. Each cross-sectional row

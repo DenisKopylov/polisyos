@@ -68,3 +68,7 @@ evaluator or institutional authority.
 same finite law admission used by sampling producers. Positive categories must
 retain distinct representable CDF intervals, and inverse transforms use finite
 coordinates in `[0, 1)`. These functions supply no joint law or source authority.
+The common numerical inlet requires real numeric values before float64
+conversion. Complex arrays, including complex values stored in object arrays,
+refuse instead of projecting away their imaginary components. The same inlet
+protects backend range admission and independent-pilot budget calculations.

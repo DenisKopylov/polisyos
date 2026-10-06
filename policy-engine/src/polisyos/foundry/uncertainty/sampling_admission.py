@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import numbers
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Literal
@@ -47,13 +48,23 @@ def joint_carrier_digest(
     )
 
 
+def _real_float64(values: object) -> np.ndarray:
+    """Admit a real numeric domain before a potentially lossy dtype conversion."""
+    array = np.asarray(values)
+    if array.dtype.kind not in "biuf" and not (
+        array.dtype.kind == "O" and all(isinstance(value, numbers.Real) for value in array.flat)
+    ):
+        raise ValueError("sampling coordinates and masses require real numeric values")
+    return np.asarray(array, dtype=np.float64)
+
+
 def admit_float32_range(values: object) -> np.ndarray:
     """Admit zeros and normal finite float32 values before numerical execution.
 
     The CPU JAX profile flushes subnormal operands in arithmetic, even when
     storage preserves them. A nonzero covariance must not become a null law.
     """
-    array = np.asarray(values, dtype=np.float64)
+    array = _real_float64(values)
     limits = np.finfo(np.float32)
     magnitudes = np.abs(array)
     if (
@@ -104,7 +115,7 @@ def empirical_cdf(probabilities: object) -> np.ndarray:
     representable CDF boundaries; zero-mass categories have no interval. This
     is a finite-machine law, not a promise of arbitrary real-valued precision.
     """
-    probabilities = np.asarray(probabilities, dtype=np.float64)
+    probabilities = _real_float64(probabilities)
     if (
         probabilities.ndim != 1
         or probabilities.size == 0
@@ -124,7 +135,7 @@ def empirical_cdf(probabilities: object) -> np.ndarray:
 
 def admit_empirical_weights(weights: object, sample_count: int) -> np.ndarray:
     """Canonicalize weights once; aligned carriers must agree exactly afterward."""
-    weights = np.asarray(weights, dtype=np.float64)
+    weights = _real_float64(weights)
     if weights.shape != (sample_count,) or not np.all(np.isfinite(weights)) or np.any(weights < 0):
         raise ValueError("invalid empirical weights")
     total = math.fsum(weights)
@@ -139,7 +150,7 @@ def admit_empirical_weights(weights: object, sample_count: int) -> np.ndarray:
 
 def admit_unit_uniform(values: object) -> np.ndarray:
     """Admit the half-open domain used by random and QMC inverse transforms."""
-    array = np.asarray(values, dtype=np.float64)
+    array = _real_float64(values)
     if not np.all(np.isfinite(array)) or np.any(array < 0) or np.any(array >= 1):
         raise ValueError("uniform transform requires finite coordinates in [0, 1)")
     return array
@@ -316,7 +327,7 @@ def admit_bounded_mean_response(
 
 def frozen_bernstein_budget(pilot: object, plan: BoundedIIDMeanPlan) -> tuple[float, int]:
     """Derive the independent pilot variance upper bound and fixed main budget."""
-    values = np.asarray(pilot, dtype=np.float64)
+    values = _real_float64(pilot)
     if values.shape != (plan.pilot_samples,) or not np.all(np.isfinite(values)):
         raise ValueError("pilot is incomplete")
     if np.any(values < 0) or np.any(values > 1):

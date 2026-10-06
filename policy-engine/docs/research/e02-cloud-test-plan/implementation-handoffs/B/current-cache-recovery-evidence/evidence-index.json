@@ -22,7 +22,11 @@
   {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-navigation-compact.json",
     "sha256": "97d1df75377d8c90836d285ac520496bd67e5137ac5c99c5512882728a0fef71",
-    "bytes": 221968
+    "bytes": 221968,
+    "storage": "historical_git_and_ignored_raw",
+    "historical_git_ref": "30b546d22695d568b1ae5eaa4ec63c5ca78c43c5",
+    "ignored_raw_path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/retained-raw/baseline-navigation-compact.json",
+    "retention": "Original immutable Git bytes and ignored actual copy retained; no history rewrite or permanent raw deletion."
   },
   {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-recovery-full-ref-input-cohort.xml",
@@ -37,7 +41,11 @@
   {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-recovery-full-ref-input-input-closure.json",
     "sha256": "64350865b59db928991ccdc2da14aa5462301a1848f3a963e4b5f5e1cdb0c731",
-    "bytes": 519254
+    "bytes": 519254,
+    "storage": "historical_git_and_ignored_raw",
+    "historical_git_ref": "30b546d22695d568b1ae5eaa4ec63c5ca78c43c5",
+    "ignored_raw_path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/retained-raw/baseline-recovery-full-ref-input-input-closure.json",
+    "retention": "Original immutable Git bytes and ignored actual copy retained; no history rewrite or permanent raw deletion."
   },
   {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/baseline-recovery-full-ref-input-native.txt",
@@ -67,7 +75,11 @@
   {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/before-consumer-unbounded-input-closure.json",
     "sha256": "e8193a7a9d38991312c55bcdec680f6f63622c86591734eafbeab4ef555d9036",
-    "bytes": 519043
+    "bytes": 519043,
+    "storage": "historical_git_and_ignored_raw",
+    "historical_git_ref": "30b546d22695d568b1ae5eaa4ec63c5ca78c43c5",
+    "ignored_raw_path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/retained-raw/before-consumer-unbounded-input-closure.json",
+    "retention": "Original immutable Git bytes and ignored actual copy retained; no history rewrite or permanent raw deletion."
   },
   {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/before-consumer-unbounded-native.txt",
@@ -92,7 +104,11 @@
   {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/frozen-cache-consumers-input-closure.json",
     "sha256": "f0859757c66cf997cd0d44ccaa38fd4dd39381906f58afc88142c19b28bdfe6c",
-    "bytes": 522180
+    "bytes": 522180,
+    "storage": "historical_git_and_ignored_raw",
+    "historical_git_ref": "30b546d22695d568b1ae5eaa4ec63c5ca78c43c5",
+    "ignored_raw_path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/retained-raw/frozen-cache-consumers-input-closure.json",
+    "retention": "Original immutable Git bytes and ignored actual copy retained; no history rewrite or permanent raw deletion."
   },
   {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/frozen-cache-consumers-native.txt",
@@ -117,7 +133,11 @@
   {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/quality-full-tracked-input-closure.json",
     "sha256": "bbca988b5321a333a31199c59cd14d49f99502b2415f8836c5bb0a7b4bf0f364",
-    "bytes": 2754648
+    "bytes": 2754648,
+    "storage": "historical_git_and_ignored_raw",
+    "historical_git_ref": "30b546d22695d568b1ae5eaa4ec63c5ca78c43c5",
+    "ignored_raw_path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/retained-raw/quality-full-tracked-input-closure.json",
+    "retention": "Original immutable Git bytes and ignored actual copy retained; no history rewrite or permanent raw deletion."
   },
   {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/read_b73_current.json",

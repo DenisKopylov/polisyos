@@ -19,6 +19,8 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import Any, Literal
 
+from pydantic import BaseModel
+
 from polisyos.common.serialization import stable_json_dumps, to_python_data
 from polisyos.core.observability.pricing import estimate_llm_cost_usd
 
@@ -189,7 +191,15 @@ class LLMAuditObligation:
                     "payload_digest": self.charge_ack.payload_digest,
                     "status": self.charge_ack.status,
                     "durability": self.charge_ack.durability,
-                    "receipts": self.charge_ack.receipts,
+                    # The admitted ledger DTO owns its JSON encoding (including
+                    # exact Decimal strings); the request serializer deliberately
+                    # refuses arbitrary Decimal objects.
+                    "receipts": tuple(
+                        receipt.model_dump(mode="json")
+                        if isinstance(receipt, BaseModel)
+                        else receipt
+                        for receipt in self.charge_ack.receipts
+                    ),
                 }
                 if self.charge_ack is not None
                 else None,

@@ -289,7 +289,8 @@ class LLMBudgetEnforcer:
                 ) from exc
             if not admitted:
                 self._completion_records.pop(attempt_id, None)
-                reservation.reserved_amounts.clear()
+                for key in reservation.reserved_amounts:
+                    reservation.clear_key(key)
                 self._append_audit(
                     run_id=run_id,
                     actor="budget_enforcer",
@@ -637,7 +638,10 @@ class LLMBudgetEnforcer:
             reserved_amounts=(
                 existing.reserved_amounts
                 if existing is not None
-                else dict(reservation.reserved_amounts)
+                else {
+                    key: reservation.reserved_amounts.get(key, Decimal(0))
+                    for key in self._budget_keys
+                }
             ),
             phase=phase,
             owner_epoch=self._budget_middleware.completion_owner_epoch,

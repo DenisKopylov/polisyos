@@ -76,8 +76,9 @@ Boundary notes:
   source/report artifacts, independently re-runs the registered ETS method
   without a CAS writer, and reconciles held-out predictions, interval hits,
   threshold, lineage, and request/report time roles. The current C projection
-  leaves jurisdiction, unit, and source-time binding unestablished, so this
-  result is always predictive-only and limited.
+  leaves jurisdiction, unit, and source-time binding unestablished. Supplied
+  model/policy refs resolve through the strict Trinity Core loaders. The result
+  is always predictive-only and limited.
 - `acquisition_movement.py` is the internal supplier-receipt intake and native
   per-row GY movement family. `AcquisitionActionService` feeds durable terminal
   receipts to it; the existing Depth-N Cycle Board consumes its persisted,

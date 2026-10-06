@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts import FileSystemCAS, PutOptions
 from polisyos.core.contracts.fabric import DataSnapshotRef
 from polisyos.ir.analytics.backtest import BacktestReport, BacktestScenario, OutcomeComparison
 from polisyos.ir.analytics.forecasting_uncertainty import (
@@ -19,10 +21,15 @@ from polisyos.ir.analytics.forecasting_uncertainty import (
     HorizonPolicySpec,
 )
 from polisyos.ir.artifacts import ArtifactID
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.registry.refs import ArtifactRefModel
+from polisyos.ir.trinity.loaders import load_model_spec, load_policy_spec
 from polisyos.runtime.quality.design_axes.forecast_verification import (
     _manifest_input_edges,
     _reconcile_report_observations,
+    _validate_model_policy_content,
     _validate_stored_uncertainty_bundle,
     _VerificationRefusalError,
     verify_forecast_calibration,
@@ -282,3 +289,124 @@ def test_stored_uncertainty_rejects_rerun_sample_count_mismatch() -> None:
             sample_counts=(3, 4),
             nominal_coverage=0.9,
         )
+
+
+def test_supplied_model_policy_pair_resolves_under_canonical_core_loaders(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    model_ref = store.put_json(
+        ModelSpec(
+            model_id="verifier_model",
+            data_snapshot_ref="sha256:" + "7" * 64,
+        ).model_dump(mode="json"),
+        PutOptions(kind="ir.model_spec", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    policy_ref = store.put_json(
+        PolicySpec(policy_id="verifier_policy").model_dump(mode="json"),
+        PutOptions(kind="ir.policy_spec", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    request = _request().model_copy(
+        update={
+            "model_spec_ref": model_ref.artifact_id,
+            "policy_spec_ref": policy_ref.artifact_id,
+        }
+    )
+
+    _validate_model_policy_content(store, request)
+
+    assert load_model_spec(store.get_bytes(model_ref.artifact_id)).model_id == "verifier_model"
+    assert load_policy_spec(store.get_bytes(policy_ref.artifact_id)).policy_id == "verifier_policy"
+
+
+def test_model_policy_pair_refuses_content_with_unknown_core_fields(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    model_ref = store.put_json(
+        {
+            "schema_version": "1.0",
+            "model_id": "verifier_model",
+            "data_snapshot_ref": "sha256:" + "7" * 64,
+            "unexpected_authority": True,
+        },
+        PutOptions(kind="ir.model_spec", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    policy_ref = store.put_json(
+        PolicySpec(policy_id="verifier_policy").model_dump(mode="json"),
+        PutOptions(kind="ir.policy_spec", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    request = _request().model_copy(
+        update={
+            "model_spec_ref": model_ref.artifact_id,
+            "policy_spec_ref": policy_ref.artifact_id,
+        }
+    )
+
+    with pytest.raises(_VerificationRefusalError, match="model_spec_content_invalid"):
+        _validate_model_policy_content(store, request)
+
+
+def test_model_policy_pair_refuses_wrong_manifest_kind(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    model_ref = store.put_json(
+        ModelSpec(
+            model_id="verifier_model",
+            data_snapshot_ref="sha256:" + "7" * 64,
+        ).model_dump(mode="json"),
+        PutOptions(kind="test.forecast.model_spec", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    policy_ref = store.put_json(
+        PolicySpec(policy_id="verifier_policy").model_dump(mode="json"),
+        PutOptions(kind="ir.policy_spec", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    request = _request().model_copy(
+        update={
+            "model_spec_ref": model_ref.artifact_id,
+            "policy_spec_ref": policy_ref.artifact_id,
+        }
+    )
+
+    with pytest.raises(_VerificationRefusalError, match="model_spec_content_unresolved"):
+        _validate_model_policy_content(store, request)
+
+
+def test_model_policy_pair_refuses_policy_content_with_unknown_core_fields(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    model_ref = store.put_json(
+        ModelSpec(
+            model_id="verifier_model",
+            data_snapshot_ref="sha256:" + "7" * 64,
+        ).model_dump(mode="json"),
+        PutOptions(kind="ir.model_spec", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    policy_ref = store.put_json(
+        {
+            "schema_version": "1.0",
+            "policy_id": "verifier_policy",
+            "unexpected_authority": True,
+        },
+        PutOptions(kind="ir.policy_spec", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    request = _request().model_copy(
+        update={
+            "model_spec_ref": model_ref.artifact_id,
+            "policy_spec_ref": policy_ref.artifact_id,
+        }
+    )
+
+    with pytest.raises(_VerificationRefusalError, match="policy_spec_content_invalid"):
+        _validate_model_policy_content(store, request)
+
+
+def test_model_policy_pair_refuses_incomplete_pair_before_cas_resolution() -> None:
+    request = _request().model_copy(update={"model_spec_ref": ArtifactID("sha256:" + "8" * 64)})
+
+    with pytest.raises(_VerificationRefusalError, match="model_policy_spec_pair_incomplete"):
+        _validate_model_policy_content(_MissingCas(), request)  # type: ignore[arg-type]

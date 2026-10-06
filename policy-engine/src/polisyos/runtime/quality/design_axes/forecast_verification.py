@@ -38,6 +38,7 @@ from polisyos.ir.analytics.forecasting_uncertainty import (
 )
 from polisyos.ir.artifacts import ArtifactID, ArtifactStore, get_json_artifact
 from polisyos.ir.registry.refs import ArtifactRefModel, BacktestReportRef
+from polisyos.ir.trinity.loaders import load_model_spec, load_policy_spec
 from polisyos.scientist.methods.backtesting.forecast_owner import (
     METHOD_FQN,
     CalibrationRuleArtifact,
@@ -187,6 +188,7 @@ def _verify_resolved_chain(
 ) -> ForecastVerificationResult:
     if request.method_fqn != METHOD_FQN:
         raise _VerificationRefusalError("unsupported_forecast_method")
+    _validate_model_policy_content(store, request)
     if evidence.report_id != request.report_id:
         raise _VerificationRefusalError("report_request_identity_mismatch")
     if evidence.authority_scope != "predictive_only":
@@ -464,6 +466,50 @@ def _resolve_owner_derived_inputs(
         resolved_ref, payload = _resolve_json(store, ref, expected_kind=expected_kind)
         resolved[role] = (resolved_ref, payload)
     return resolved
+
+
+def _validate_model_policy_content(store: ArtifactStore, request: ForecastOwnerRequest) -> None:
+    """Resolve and validate a complete, distinct supplied Core spec pair.
+
+    Requests without a model/policy pair remain limited. When a pair is
+    supplied, matching report strings and CAS roles are insufficient: the
+    content must resolve under the canonical strict Trinity Core loaders.
+    """
+
+    model_spec_id = request.model_spec_ref
+    policy_spec_id = request.policy_spec_ref
+    if model_spec_id is None and policy_spec_id is None:
+        return
+    if model_spec_id is None or policy_spec_id is None:
+        raise _VerificationRefusalError("model_policy_spec_pair_incomplete")
+    if model_spec_id == policy_spec_id:
+        raise _VerificationRefusalError("model_policy_spec_pair_not_distinct")
+
+    model_ref = ArtifactRefModel(
+        artifact_id=model_spec_id,
+        kind="ir.model_spec",
+        media_type="application/json",
+    )
+    try:
+        _, model_payload = _resolve_json(store, model_ref, expected_kind="ir.model_spec")
+        load_model_spec(model_payload)
+    except _VerificationRefusalError as exc:
+        raise _VerificationRefusalError("model_spec_content_unresolved") from exc
+    except (TypeError, ValueError) as exc:
+        raise _VerificationRefusalError("model_spec_content_invalid") from exc
+
+    policy_ref = ArtifactRefModel(
+        artifact_id=policy_spec_id,
+        kind="ir.policy_spec",
+        media_type="application/json",
+    )
+    try:
+        _, policy_payload = _resolve_json(store, policy_ref, expected_kind="ir.policy_spec")
+        load_policy_spec(policy_payload)
+    except _VerificationRefusalError as exc:
+        raise _VerificationRefusalError("policy_spec_content_unresolved") from exc
+    except (TypeError, ValueError) as exc:
+        raise _VerificationRefusalError("policy_spec_content_invalid") from exc
 
 
 def _validate_request_report_binding(

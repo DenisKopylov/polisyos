@@ -1,0 +1,733 @@
+{
+  "schema": "policyos.e02.A.queue.v1",
+  "unit": "A",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "source_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "source_of_truth": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@198076863e143dea9f89f02734b13d50dae3eed5",
+  "denominator": {
+    "unit": "A",
+    "whole_queue_denominator": {
+      "bundle_owner_rows": {
+        "count": 127,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+        "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+        "bytes": 12413
+      },
+      "primary_finding_owner_rows": {
+        "count": 282,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+        "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+        "bytes": 9504
+      },
+      "coverage_json_bundles": 127,
+      "coverage_json_findings": 282,
+      "canonical_source_block_occurrences": 291,
+      "coverage_runtime_source": "97c85fae2d4505ec8248540d98b9556296244208"
+    },
+    "A_denominator": {
+      "owned_bundles": 13,
+      "primary_finding_rows": 34,
+      "unique_finding_ids": 34,
+      "canonical_criterion_refs": 35,
+      "criterion_ref_documents": {
+        "B_r19": 31,
+        "LA_r09": 4
+      },
+      "LA-046_refs": 2,
+      "source_status_counts": {
+        "closed": 1,
+        "held": 1,
+        "open": 1,
+        "partial": 31
+      },
+      "closure_status_counts": {
+        "not_adjudicated": 34
+      }
+    },
+    "A_bundles": [
+      {
+        "bundle_id": "ACQ-01",
+        "title": "N7: типизированное требование → acquisition → re-entry",
+        "initial_writer_family": "A-W01"
+      },
+      {
+        "bundle_id": "CYC-01",
+        "title": "Штатный вход и связанные контексты N4/N5",
+        "initial_writer_family": "A-W01"
+      },
+      {
+        "bundle_id": "CYC-02",
+        "title": "Читаемый численный результат и положительный условный N8",
+        "initial_writer_family": "A-W01"
+      },
+      {
+        "bundle_id": "CYC-03",
+        "title": "Идентичность содержательной второй итерации",
+        "initial_writer_family": "A-W01"
+      },
+      {
+        "bundle_id": "CYC-04",
+        "title": "Пригодные альтернативы и исследовательский бюджет",
+        "initial_writer_family": "A-W01"
+      },
+      {
+        "bundle_id": "CYC-05",
+        "title": "Правдивые лимиты, завершение и структурная проверка",
+        "initial_writer_family": "A-W01"
+      },
+      {
+        "bundle_id": "EMP-01",
+        "title": "Область эмпирических данных, ValueOuterSet и selection diagram",
+        "initial_writer_family": "A-W01"
+      },
+      {
+        "bundle_id": "REP-01",
+        "title": "Runtime replay: прямой Scientist owner без лишнего compatibility hop",
+        "initial_writer_family": "A-W02"
+      },
+      {
+        "bundle_id": "REQ-01",
+        "title": "DataRequirement: явный контекст и ограниченная private-очистка",
+        "initial_writer_family": "A-W03"
+      },
+      {
+        "bundle_id": "SEL-01",
+        "title": "Singleton, eligibility и неизменные требования выбора",
+        "initial_writer_family": "A-W04"
+      },
+      {
+        "bundle_id": "SIM-01",
+        "title": "Полный выбор движка и верная история fallback",
+        "initial_writer_family": "A-W01"
+      },
+      {
+        "bundle_id": "SIM-02",
+        "title": "Выходы, конфликты атомов и покрытие траекторий",
+        "initial_writer_family": "A-W01"
+      },
+      {
+        "bundle_id": "SIM-03",
+        "title": "Контрасты, реплики, SMM и экономия одинаковых расчётов",
+        "initial_writer_family": "A-W01"
+      }
+    ],
+    "implementation_edges": [
+      {
+        "from": {
+          "unit": "A",
+          "bundle": "CYC-01"
+        },
+        "to": {
+          "unit": "E",
+          "bundle": "FRC-01"
+        },
+        "labels": [
+          "implemented_but_not_orchestrated",
+          "bridge_missing",
+          "verification_missing",
+          "surface_missing",
+          "consumer_missing (S10 authority)"
+        ],
+        "state": "E producer exists; no runtime caller/current default bridge; no S10 verifier provenance; default served predictive surface absent.",
+        "source_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+          "heading_line": 30
+        }
+      },
+      {
+        "from": {
+          "unit": "A",
+          "bundle": "EMP-01"
+        },
+        "to": {
+          "unit": "E",
+          "bundle": "FRC-02"
+        },
+        "labels": [
+          "bridge_missing",
+          "verification_missing",
+          "surface_missing"
+        ],
+        "state": "A scope candidate has no demonstrated A-to-E served consumer; external publish surface remains absent.",
+        "source_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+          "heading_line": 50
+        }
+      },
+      {
+        "from": {
+          "unit": "A",
+          "bundle": "CYC-02"
+        },
+        "to": {
+          "unit": "B",
+          "bundle": "RES-03"
+        },
+        "labels": [
+          "implemented_but_not_orchestrated",
+          "verification_missing"
+        ],
+        "state": "Partial upstream artifact output does not prove the public two-node lifecycle; A-owned lifecycle needs served readback.",
+        "source_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+          "heading_line": 56
+        }
+      },
+      {
+        "from": {
+          "unit": "B",
+          "bundle": "NET-01"
+        },
+        "to": {
+          "unit": "C",
+          "bundle": "ING-02"
+        },
+        "labels": [
+          "verification_missing"
+        ],
+        "state": "Both exact owner witnesses remain HOLD; no combined pool-to-stream acceptance receipt exists.",
+        "source_ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+          "heading_line": 62
+        }
+      }
+    ],
+    "cross_owner_read_impacts": {
+      "whole_queue_declared": 12,
+      "touching_A": 4,
+      "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md#L68"
+    }
+  },
+  "finding_rows": [
+    {
+      "id": "B01",
+      "primary_bundle": "CYC-01",
+      "historical_status": "partial",
+      "appendix_c_status": "partial",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 0,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "producer_missing"
+    },
+    {
+      "id": "B02",
+      "primary_bundle": "CYC-01",
+      "historical_status": "partial",
+      "appendix_c_status": "partial",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 1,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B03",
+      "primary_bundle": "CYC-01",
+      "historical_status": "partial",
+      "appendix_c_status": "partial",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 2,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "producer_missing"
+    },
+    {
+      "id": "B04",
+      "primary_bundle": "CYC-02",
+      "historical_status": "partial",
+      "appendix_c_status": "closed_bounded",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 3,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B05",
+      "primary_bundle": "CYC-02",
+      "historical_status": "partial",
+      "appendix_c_status": "closed_bounded",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 4,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B06",
+      "primary_bundle": "SIM-01",
+      "historical_status": "partial",
+      "appendix_c_status": "closed_bounded",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 5,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B07",
+      "primary_bundle": "SIM-01",
+      "historical_status": "partial",
+      "appendix_c_status": "closed_bounded",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 6,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B08",
+      "primary_bundle": "CYC-02",
+      "historical_status": "partial",
+      "appendix_c_status": "closed_bounded",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 7,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B09",
+      "primary_bundle": "CYC-03",
+      "historical_status": "open",
+      "appendix_c_status": "no_finding_level_record",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 8,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "producer_missing"
+    },
+    {
+      "id": "B10",
+      "primary_bundle": "CYC-04",
+      "historical_status": "partial",
+      "appendix_c_status": "closed_bounded",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 9,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B11",
+      "primary_bundle": "CYC-04",
+      "historical_status": "partial",
+      "appendix_c_status": "closed_bounded",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 20,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "bridge_missing"
+    },
+    {
+      "id": "B12",
+      "primary_bundle": "ACQ-01",
+      "historical_status": "partial",
+      "appendix_c_status": "partial",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 31,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "producer_missing"
+    },
+    {
+      "id": "B15",
+      "primary_bundle": "CYC-05",
+      "historical_status": "partial",
+      "appendix_c_status": "partial",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 64,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B16",
+      "primary_bundle": "EMP-01",
+      "historical_status": "partial",
+      "appendix_c_status": "partial",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 75,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B18",
+      "primary_bundle": "SIM-02",
+      "historical_status": "partial",
+      "appendix_c_status": "partial",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 97,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "absent/unallocated"
+    },
+    {
+      "id": "B19",
+      "primary_bundle": "SIM-03",
+      "historical_status": "partial",
+      "appendix_c_status": "no_finding_level_record",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 108,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "bridge_missing"
+    },
+    {
+      "id": "B20",
+      "primary_bundle": "SIM-02",
+      "historical_status": "partial",
+      "appendix_c_status": "partial",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 119,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B21",
+      "primary_bundle": "SIM-03",
+      "historical_status": "partial",
+      "appendix_c_status": "no_finding_level_record",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 130,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "producer_missing"
+    },
+    {
+      "id": "B22",
+      "primary_bundle": "SIM-02",
+      "historical_status": "partial",
+      "appendix_c_status": "partial",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 141,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "absent/unallocated"
+    },
+    {
+      "id": "B23",
+      "primary_bundle": "SIM-03",
+      "historical_status": "partial",
+      "appendix_c_status": "no_finding_level_record",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 148,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B25",
+      "primary_bundle": "SIM-03",
+      "historical_status": "closed",
+      "appendix_c_status": "no_finding_level_record",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 150,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "surface_out_of_scope"
+    },
+    {
+      "id": "B26",
+      "primary_bundle": "SIM-03",
+      "historical_status": "partial",
+      "appendix_c_status": "no_finding_level_record",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 151,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "surface_missing"
+    },
+    {
+      "id": "B27",
+      "primary_bundle": "CYC-03",
+      "historical_status": "partial",
+      "appendix_c_status": "no_finding_level_record",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 152,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "producer_missing"
+    },
+    {
+      "id": "B28",
+      "primary_bundle": "CYC-03",
+      "historical_status": "partial",
+      "appendix_c_status": "no_finding_level_record",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 153,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B29",
+      "primary_bundle": "CYC-05",
+      "historical_status": "partial",
+      "appendix_c_status": "closed_bounded",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 154,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B30",
+      "primary_bundle": "CYC-05",
+      "historical_status": "partial",
+      "appendix_c_status": "closed_bounded",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 155,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "producer_missing"
+    },
+    {
+      "id": "B31",
+      "primary_bundle": "EMP-01",
+      "historical_status": "held",
+      "appendix_c_status": "held",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 156,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "absent/unallocated"
+    },
+    {
+      "id": "B33",
+      "primary_bundle": "EMP-01",
+      "historical_status": "partial",
+      "appendix_c_status": "partial",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 158,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "bridge_missing"
+    },
+    {
+      "id": "B34",
+      "primary_bundle": "SEL-01",
+      "historical_status": "partial",
+      "appendix_c_status": "closed_bounded",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 159,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B35",
+      "primary_bundle": "SEL-01",
+      "historical_status": "partial",
+      "appendix_c_status": "closed_bounded",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 160,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "B36",
+      "primary_bundle": "SEL-01",
+      "historical_status": "partial",
+      "appendix_c_status": "closed_bounded",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 161,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "producer_missing"
+    },
+    {
+      "id": "LA-033",
+      "primary_bundle": "REP-01",
+      "historical_status": "partial",
+      "appendix_c_status": "partial",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 257,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "LA-045",
+      "primary_bundle": "REQ-01",
+      "historical_status": "partial",
+      "appendix_c_status": "closed_bounded",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 269,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    },
+    {
+      "id": "LA-046",
+      "primary_bundle": "ACQ-01",
+      "historical_status": "partial",
+      "appendix_c_status": "partial",
+      "criterion_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "record_index_zero_based": 270,
+        "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+      },
+      "finding_outcome": null,
+      "decision": "not_adjudicated",
+      "check_refs": [],
+      "remaining_work": "verification_missing"
+    }
+  ],
+  "checks": [],
+  "code_acceptance": "not_submitted",
+  "closure_status": "in_progress",
+  "local_evidence": [
+    {
+      "path": "policy-engine/_build/e02-A-full-queue/baseline_coverage/query-audit.txt",
+      "sha256": "7d3d6c28661ba3d9029a9c192796893a6da699a707b0254693d720c4572b05d5",
+      "bytes": 1742
+    },
+    {
+      "path": "policy-engine/_build/e02-A-full-queue/baseline_coverage/import-check.txt",
+      "sha256": "f60b19ec71d1eb8dc0b48742ea40124f0b744f98748ae7812e9c11458ceccffc",
+      "bytes": 292
+    },
+    {
+      "path": "policy-engine/_build/e02-A-full-queue/baseline_coverage/coverage-validator.txt",
+      "sha256": "63dd00972e87458b6eb0af600223c9955c67df8b2d373e1262a37901e28650b2",
+      "bytes": 633
+    }
+  ]
+}

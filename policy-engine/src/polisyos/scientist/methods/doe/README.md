@@ -42,6 +42,10 @@ Passing suites also publish their typed basis for the real blueprint consumer.
 Report-level `scenario_complete` requires every declared component to be
 complete. An empty component remains partial when combined with a nonempty
 component; a finite observed subset fraction is then conditional.
+With no prior stress report, the blueprint publishes an unavailable schema1.1
+base with zero established scenario attempts. Supplied typed challenge-component
+counts and fractions survive CAS readback separately; that unknown base keeps
+the combined score unavailable and partial.
 This adapter consumes existing case outcomes; it does not authenticate or
 recompute their scientific predicate.
 

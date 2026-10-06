@@ -14,6 +14,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
+import pytest
+
 
 def _generation_cycle(name: str) -> Any:
     import polisyos.runtime.quality.generation_cycle as module
@@ -425,19 +427,51 @@ def test_calibration_time_roles_are_preserved_from_bound_evidence(
     )
 
 
+@pytest.mark.parametrize(
+    (
+        "projection_status",
+        "caller_calibration_status",
+        "floor_passed",
+        "requested_tier",
+    ),
+    [
+        ("limit", "limit", False, "blocked"),
+        ("pass", "pass", True, "observable_calibrated"),
+        ("pass", None, True, "observable_calibrated"),
+    ],
+    ids=("owner-limited", "caller-forged-pass", "omitted-status-forged-pass"),
+)
 def test_content_complete_projection_without_resolved_evidence_stays_blocked(
     tmp_path: Path,
+    projection_status: str,
+    caller_calibration_status: str | None,
+    floor_passed: bool,
+    requested_tier: str,
 ) -> None:
-    """Valid projected fields alone cannot stand in for resolver admission."""
+    """Unresolved projections stay blocked even when caller fields claim pass."""
 
     _store, evidence_ref, evidence = _persisted_bridge_fixture(tmp_path)
-    projection, error = _generation_cycle("_s10_empirical_projection")(
+    owner_projection, error = _generation_cycle("_s10_empirical_projection")(
         evidence_ref=evidence_ref,
         evidence=evidence,
     )
     assert error is None
-    assert projection is not None
-    assert projection["calibration_status"] == "limit"
+    assert owner_projection is not None
+    assert owner_projection["calibration_status"] == "limit"
+    assert evidence.usable_for_calibration is False
+    assert evidence.floor_passed is False
+    projection = dict(owner_projection)
+    # These caller-authored status fields are not recomputed evidence. In the
+    # forged-pass case, preserve every CAS reference and measurement from the
+    # limited loaded DTO while changing only the projection claim.
+    projection["calibration_status"] = projection_status
+    projection["floor_passed"] = floor_passed
+    projection["forecast_tier"] = requested_tier
+    assert projection["empirical_evidence_ref"].artifact_id == evidence_ref.artifact_id
+    status_fields = {"calibration_status", "floor_passed", "forecast_tier"}
+    assert {key: value for key, value in projection.items() if key not in status_fields} == {
+        key: value for key, value in owner_projection.items() if key not in status_fields
+    }
     candidate, problem, world_record = _frc01_subjects()
     inputs = _generation_cycle("_build_s10_forecast_inputs")(
         candidate=candidate,
@@ -445,8 +479,8 @@ def test_content_complete_projection_without_resolved_evidence_stays_blocked(
         world_record=world_record,
         method_result=SimpleNamespace(output={"report": _finite_estimator_report()}),
         selected_method_fqn="forecasting.univariate.exponential_smoothing@1.0.0",
-        forecast_tier="blocked",
-        calibration_status="limit",
+        forecast_tier=requested_tier,
+        calibration_status=caller_calibration_status,
         policy_context_ref="policy-context://world_model_record_frc01",
         expected_policy_context_ref="policy-context://world_model_record_frc01",
         false_clear_counts={},

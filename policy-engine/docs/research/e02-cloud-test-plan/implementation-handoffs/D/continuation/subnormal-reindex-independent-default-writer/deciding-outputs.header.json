@@ -1,0 +1,53 @@
+{
+  "schema": "polisyos.e02.lossless-oracle-output-header.v1",
+  "compressed_bytes": 40856,
+  "compressed_sha256": "2b6140a6a596b4209378025ecaa1fdc6d36706df6b54e10a2f7c4c2e4b5e38f2",
+  "decoded_json_bytes": 167370,
+  "decoded_json_sha256": "fad4142ed38842c40092f5793dca15a43a971e9866e45e3facb89d9c5d3061fa",
+  "member_count": 7,
+  "raw_bytes": 124247,
+  "members": [
+    {
+      "name": "complete.txt",
+      "original_path": "/dev/shm/e02-oracle-subnormal-candidate-018d95502a004d30865b330679d36ffc/complete.txt",
+      "bytes": 13845,
+      "sha256": "ae0581eb2030a332b8653e0471e755385b4a47d2083a600eda2e6fc6b9bb02d9"
+    },
+    {
+      "name": "inputs.json",
+      "original_path": "/dev/shm/e02-oracle-subnormal-candidate-018d95502a004d30865b330679d36ffc/inputs.json",
+      "bytes": 1708,
+      "sha256": "f251efb863a26e60cd9b79d4240e9b53ae94b40735ed86b04ec9bfaae07c2d82"
+    },
+    {
+      "name": "junit.xml",
+      "original_path": "/dev/shm/e02-oracle-subnormal-candidate-018d95502a004d30865b330679d36ffc/junit.xml",
+      "bytes": 15361,
+      "sha256": "fe7b7596b4b4d530e41facd5b10f2eabfc3dc9d014e35bd70dddf6a5f7422fd6"
+    },
+    {
+      "name": "native.json",
+      "original_path": "/dev/shm/e02-oracle-subnormal-candidate-018d95502a004d30865b330679d36ffc/native.json",
+      "bytes": 84560,
+      "sha256": "c4d9f292868fb3f636ffa72d56e02d5d3bd7d219af573171aec6ec77e6ac661e"
+    },
+    {
+      "name": "run.json",
+      "original_path": "/dev/shm/e02-oracle-subnormal-candidate-018d95502a004d30865b330679d36ffc/run.json",
+      "bytes": 2161,
+      "sha256": "1725da62f2b01613d5f5f993f0295aadb54e01c8f6694d98d2ee3925f618171b"
+    },
+    {
+      "name": "subnormal_observer.py",
+      "original_path": "/dev/shm/e02-oracle-subnormal-candidate-018d95502a004d30865b330679d36ffc/subnormal_observer.py",
+      "bytes": 1423,
+      "sha256": "73b5b5500df9d72c52e711dff7240874f3ccd41d46265e77fa8da8960499916a"
+    },
+    {
+      "name": "instruments/capture-candidate.py.txt",
+      "original_path": "/dev/shm/e02-oracle-subnormal-capture-candidate.py",
+      "bytes": 5189,
+      "sha256": "3261a0d7e4c7014c46d2c6682df58f1106ebcdc5150d6d93881f5a684728a4a2"
+    }
+  ]
+}

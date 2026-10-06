@@ -1,0 +1,156 @@
+{
+  "schema": "polisyos.e02.independent-subnormal-default-writer-review.v1",
+  "reviewer": "numerical_oracle",
+  "verdict": "FAIL for direct typed-model default canonical writer profile; bounded source geometry/omission/reference improved",
+  "closure_ids": [],
+  "source": {
+    "sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+    "tree": "27ce16e448d5dbca54b4b1dc7ee5dc40caf5deaa",
+    "lane": "/workspace/e02-D-published-search",
+    "before_after_clean": true
+  },
+  "proof": {
+    "test_commit": "8a57c1e9df9e586529133487c8dec9f2bdb7288e",
+    "own_runtime_head": "a9fc597378ab8bfe069cf7ddde09c2ab6e4b9980",
+    "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py",
+    "sha256": "4560cc120a34afac3818b7584c8aba013363d845fd1416bf83a705cd31aedd6f",
+    "unchanged_assertions_and_test_bytes": true,
+    "baseline_receipt_sha": "a9fc597378ab8bfe069cf7ddde09c2ab6e4b9980"
+  },
+  "deciding_output": {
+    "counts": {
+      "tests": 13,
+      "passed": 9,
+      "failed": 4,
+      "errors": 0,
+      "skipped": 0
+    },
+    "returncode": 1,
+    "wall_seconds": 11.394870026007993,
+    "pytest_seconds": 7.28,
+    "maxrss_kb": 701176,
+    "complete_sha256": "ae0581eb2030a332b8653e0471e755385b4a47d2083a600eda2e6fc6b9bb02d9",
+    "failed": [
+      "two exact positive-rational underflow quantities cannot reopen: direct value None omitted",
+      "two native full-membership fronts cannot reopen: direct hypervolume None omitted then default0 conflicts with unavailable"
+    ],
+    "passed": [
+      "two tiny representable positives",
+      "genuine computed zero",
+      "paired reindex",
+      "two stale omission identities refused",
+      "two unpaired unit/version identities refused",
+      "finite-input span overflow refused before native reference assignment"
+    ]
+  },
+  "actual_binding": {
+    "all_reported_product_origin_count": 338,
+    "all_match_exact_source_git": true,
+    "three_backend_module_file_hashes_match_locked_files": true,
+    "no_fit_model_list_or_fit_gpytorch_mll_call_observed": true,
+    "parent_stdlib_only": true,
+    "caps_added": false,
+    "test_and_source_clean_before_after": true,
+    "fresh_basetemp": "/tmp/e02-oracle-subnormal-candidate-6180a6836e564199880383c0162e18b5",
+    "retained_after": true
+  },
+  "reviewed_complete_source_delta": {
+    "from": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+    "to": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+    "production_paths": [
+      "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py"
+    ],
+    "properties": [
+      "positive-contributing boxes plus computed0 -> explicit unavailable underflow; genuine degenerate/outside-reference0 retained",
+      "native single/batch reference preflight and typed exception before model construction/fallback",
+      "all missing/nonfinite omission IDs unique/current-schema-bound including incomplete/no-usable fronts"
+    ],
+    "author_test_fixture_correction": "5e6b743c3 (full SHA recorded by source ancestry): tiny raw cost explicitly MINIMIZE; no production delta",
+    "structured_companion": "release-fragments/unreleased/2026-10-06-D-pareto-representability.toml: breaking internal persisted-artifact-format, migration/runbook, supported float64/profile boundaries"
+  },
+  "serialization_trace": {
+    "measured_helper": "CanonSpec(forbid_floats=False) defaults exclude_none=True; FileSystemCAS.put_json receives a BaseModel directly.",
+    "shared_source": "policy-engine/src/polisyos/common/canonical.py:58 and BaseModel branch151; Mapping branch92 preserves nested None.",
+    "direct_model_boundary": "Actual unavailable direct typed models lose required null. This FAIL is retained, not relabeled a mathematical PASS.",
+    "ordinary_registry": "ParetoRegistry._write_json:810 uses model_dump_json(exclude_none=True); hypervolume_by_view is a dict whose None entries remain.",
+    "ordinary_report": "PolicyArtifactBuilder._build_frontier_report metadata contains hypervolume_by_view+assessments; persist_policy_frontier_report\u2192_persist_model uses mapping values preserving nested None.",
+    "direct_front_producer": "No dedicated direct ParetoFront CAS persistence function found in scoped scientist nodes/autotune search. Generic put_json direct-model behavior remains independently exposed.",
+    "proposed_owned_fixture_change": "Explicit exclude_none=False retains the typed quantity/front null. Prepared but not executed or accepted by this receipt; expected geometry and assertion bodies remain unchanged.",
+    "exact_readonly_source_bindings": [
+      {
+        "lane": "/workspace/e02-D-published-root",
+        "sha": "e73bde06d5b796b99ad84898810b34985787be47",
+        "path": "policy-engine/src/polisyos/common/canonical.py",
+        "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+        "match_git": true,
+        "assessment_metadata_present": null
+      },
+      {
+        "lane": "/workspace/e02-D-published-root",
+        "sha": "e73bde06d5b796b99ad84898810b34985787be47",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+        "match_git": true,
+        "assessment_metadata_present": null
+      },
+      {
+        "lane": "/workspace/e02-D-published-root",
+        "sha": "e73bde06d5b796b99ad84898810b34985787be47",
+        "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+        "sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598",
+        "match_git": true,
+        "assessment_metadata_present": true
+      },
+      {
+        "lane": "/workspace/e02-D-published-search",
+        "sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+        "path": "policy-engine/src/polisyos/common/canonical.py",
+        "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+        "match_git": true,
+        "assessment_metadata_present": null
+      },
+      {
+        "lane": "/workspace/e02-D-published-search",
+        "sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+        "match_git": true,
+        "assessment_metadata_present": null
+      },
+      {
+        "lane": "/workspace/e02-D-published-search",
+        "sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+        "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+        "sha256": "7c6cc3c4c1f4e57d9c5ade7ada832d5881b88060c5cbdf8b23109de46a5542cd",
+        "match_git": true,
+        "assessment_metadata_present": false
+      }
+    ],
+    "root_composition_difference": "Root ordinary output exports the assessment metadata; reviewed search4393 inherits older output without it. Source-specific math/omission review does not assert a composed ordinary export consumer.",
+    "owned_fixture_profile_resolution": {
+      "authorized_by": "root",
+      "change_commit": "6de7eb8b183d081dbbd1cf6ddb7901e5d08ab252",
+      "change": "Only explicit exclude_none=False in direct typed-model writer; all13 expectations remain unchanged.",
+      "scope": "Declared direct typed-artifact serialization profile, never generic default writer safety.",
+      "runtime": "Not yet executed by this receipt."
+    }
+  },
+  "payload": {
+    "directory": "subnormal-reindex-independent-default-writer",
+    "bundle": "deciding-outputs.json.gz",
+    "header": "deciding-outputs.header.json",
+    "binding": "binding.json",
+    "members": 7,
+    "raw_bytes": 124247,
+    "sha256": "2b6140a6a596b4209378025ecaa1fdc6d36706df6b54e10a2f7c4c2e4b5e38f2",
+    "all_original_measurement_paths_retained": true
+  },
+  "limitations": [
+    "No finding closure or root/G admission is inferred.",
+    "The default direct typed-model profile fails; declaring an explicit null-preserving artifact profile must not imply that the default writer now preserves null.",
+    "Ordinary registry/report source inspection is separate from fresh actual execution; previous bounded export5 and registry readback proofs remain pinned elsewhere.",
+    "No GP fit, posterior expectation, full high-dimensional geometry replay, environment recensus or full quality waiver.",
+    "Default writer FAIL remains retained; parent approved an explicit null-preserving direct typed-artifact profile after tracing actual nested registry/report mapping behavior. Fresh ordinary underflow update/report consumer remains separate."
+  ]
+}

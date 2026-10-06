@@ -98,7 +98,16 @@ def test_paid_response_remains_charged_if_latency_metrics_fail(tmp_path):
 
     path = tmp_path / "paid-metric-failure.json"
     caller, transport = _caller(
-        path, [("physical-1", 1)], metrics=SimpleNamespace(llm_latency_ms=FailedLatencyMetric())
+        path,
+        [("physical-1", 1)],
+        metrics=SimpleNamespace(
+            llm_latency_ms=FailedLatencyMetric(),
+            llm_cost_usd=None,
+            llm_calls_total=None,
+            llm_tokens_total=None,
+            scientist_llm_budget_utilization=None,
+            scientist_llm_cost_anomalies_total=None,
+        ),
     )
     with pytest.raises(RuntimeError, match="latency metrics unavailable"):
         _invoke(caller)
@@ -119,6 +128,58 @@ def test_negative_reported_measurement_is_refused_without_false_zero_event(tmp_p
     assert transport.calls == 1
     assert not snapshot.resource_events
     assert snapshot.state.spent == {}
+    assert next(iter(snapshot.resource_reservations.values())).status == "reconciliation_required"
+
+
+def test_known_paid_receipt_is_not_erased_by_malformed_token_metadata(tmp_path, monkeypatch):
+    path = tmp_path / "paid-token-metadata.json"
+    caller, transport = _caller(path, [("physical-1", 1)])
+    original_invoke = transport.invoke
+
+    def deliver_report(prompt, **kwargs):
+        response = original_invoke(prompt, **kwargs)
+        response["usage"]["prompt_tokens"] = "not-a-token-count"
+        return response
+
+    monkeypatch.setattr(transport, "invoke", deliver_report)
+    try:
+        _invoke(caller)
+    except ValueError:
+        pass
+    snapshot = FileBudgetLedger(path).snapshot()
+    assert transport.calls == 1
+    assert snapshot.state.spent.get("run") == Decimal("1"), (
+        "Explicit valid amount/provider/request must not become absent because token metadata fails"
+    )
+    assert snapshot.state.reserved["run"] == 0
+
+
+@pytest.mark.parametrize("bad", [-1, float("nan"), float("inf"), True, False, "malformed"])
+@pytest.mark.parametrize("location", ["usage", "payload"])
+def test_invalid_present_cost_with_valid_alternate_remains_unresolved(
+    tmp_path, monkeypatch, bad, location
+):
+    path = tmp_path / "invalid-alternate.json"
+    caller, transport = _caller(path, [("physical-1", 1)])
+    original_invoke = transport.invoke
+
+    def deliver_report(prompt, **kwargs):
+        response = original_invoke(prompt, **kwargs)
+        if location == "usage":
+            response["usage"]["cost_usd"] = bad
+            response["cost_usd"] = 1
+        else:
+            response["total_cost_usd"] = bad
+        return response
+
+    monkeypatch.setattr(transport, "invoke", deliver_report)
+    with pytest.raises(ValueError, match="provider cost"):
+        _invoke(caller)
+    snapshot = FileBudgetLedger(path).snapshot()
+    assert transport.calls == 1
+    assert snapshot.state.spent == {}
+    assert snapshot.resource_events == {}
+    assert snapshot.state.reserved["run"] > 0
     assert next(iter(snapshot.resource_reservations.values())).status == "reconciliation_required"
 
 

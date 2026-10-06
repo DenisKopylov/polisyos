@@ -3,18 +3,23 @@
 from __future__ import annotations
 
 import logging
+from hashlib import sha256
 
 import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.foundry.methods.catalog.causal.graph_reconciliation import ReconcileCausalGraph
 from polisyos.foundry.methods.catalog.causal.protocols import GraphReconciliationData
 from polisyos.foundry.methods.registry import MethodRegistry
-from polisyos.ir.analytics.causal_graph import CausalGraphModel, load_causal_graph_model
+from polisyos.ir.analytics.causal_graph import (
+    CausalGraphModel,
+    load_causal_graph_model,
+    persist_causal_graph_model,
+)
 from polisyos.ir.analytics.literature import (
     LiteratureCausalPrior,
     LiteratureEdgePrior,
@@ -84,7 +89,31 @@ def _real_graph_job(ctx, graph):
 def _read(ctx, outcome):
     assert outcome.status == "ok", outcome.error
     ref = outcome.state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF]
-    return ref, load_causal_graph_model(FileSystemCAS(ctx.store.root), ref)
+    fresh = FileSystemCAS(ctx.store.root)
+    graph = load_causal_graph_model(fresh, ref)
+    request_ref = ArtifactRef.model_validate(graph.metadata["reconciliation_request_ref"])
+    assert fresh.verify(request_ref).ok
+    snapshot = from_canonical_bytes(fresh.get_bytes(request_ref))
+    assert snapshot["profile"] == "static_directed_candidate_v1"
+    assert (
+        sha256(to_canonical_bytes(snapshot, CanonSpec(forbid_floats=False))).hexdigest()
+        == (graph.metadata["reconciliation_request_sha256"])
+    )
+    recomputed = ReconcileCausalGraph.pure_step(
+        GraphReconciliationData.model_validate(snapshot["request"]), {"static_intake": True}
+    )["reconciled_graph"]
+    # Compare the actual numerical/structural result, not hash or label presence.
+    assert graph.edges == recomputed.edges
+    assert graph.nodes == recomputed.nodes
+    assert (
+        graph.metadata["reconciliation_diagnostics"]
+        == recomputed.metadata["reconciliation_diagnostics"]
+    )
+    assert any(
+        item.artifact_id == request_ref.artifact_id and item.role == "reconciliation_request"
+        for item in fresh.get_manifest(ref).inputs
+    )
+    return ref, graph
 
 
 def test_genuine_changed_source_job_reconciles_and_fresh_consumer_sees_current_edges(tmp_path):
@@ -114,7 +143,8 @@ def test_current_complete_request_not_old_cached_graph_controls_result_identity(
     ctx = _ctx(tmp_path)
     source = _real_graph_job(ctx, _graph())
     state = ExperimentState(
-        run_id="graph-intake", params={"random_seed": 23},
+        run_id="graph-intake",
+        params={"random_seed": 23},
         artifacts_index={ARTIFACT_CAUSAL_METHOD_RESULT_REF: source},
     )
     old = ReconcileCausalGraphNode().execute(ctx, state)
@@ -134,25 +164,30 @@ def test_current_complete_request_not_old_cached_graph_controls_result_identity(
     else:
         current.params["random_seed"] = 24
     _, graph = _read(ctx, ReconcileCausalGraphNode().execute(ctx, current))
-    assert graph.metadata["reconciliation_request_sha256"] != original.metadata[
-        "reconciliation_request_sha256"
-    ]
     if mutation == "config":
         assert not graph.edges
     elif mutation in ("prior", "hint"):
         assert any(edge.dst == "Z" for edge in graph.edges)
     else:
         assert graph.edges == original.edges  # STRICT_CPU has no numerical RNG.
+    assert (
+        graph.metadata["reconciliation_request_sha256"]
+        != original.metadata["reconciliation_request_sha256"]
+    )
 
 
 def test_missing_cached_ref_refuses_before_new_input_can_claim_success(tmp_path):
     ctx = _ctx(tmp_path)
     missing = ArtifactRef.model_validate(
-        {"artifact_id": "sha256:" + "f" * 64, "kind": "ir.causal_graph_model",
-         "media_type": "application/json"}
+        {
+            "artifact_id": "sha256:" + "f" * 64,
+            "kind": "ir.causal_graph_model",
+            "media_type": "application/json",
+        }
     )
     state = ExperimentState(
-        run_id="graph-intake", params={"data_causal_graph": _graph().model_dump(mode="json")},
+        run_id="graph-intake",
+        params={"data_causal_graph": _graph().model_dump(mode="json")},
         artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: missing},
     )
     outcome = ReconcileCausalGraphNode().execute(ctx, state)
@@ -161,9 +196,10 @@ def test_missing_cached_ref_refuses_before_new_input_can_claim_success(tmp_path)
     assert not ctx.store.has(missing.artifact_id)
 
 
-@pytest.mark.parametrize("graph_type,marks", [("pag", ("circle", "circle")),
-                                             ("cpdag", ("tail", "tail")),
-                                             ("admg", ("arrow", "arrow"))])
+@pytest.mark.parametrize(
+    "graph_type,marks",
+    [("pag", ("circle", "circle")), ("cpdag", ("tail", "tail")), ("admg", ("arrow", "arrow"))],
+)
 def test_unresolved_or_mixed_endpoints_refuse_before_node_persists_oriented_dag(
     tmp_path, graph_type, marks
 ):
@@ -194,9 +230,14 @@ def test_temporal_serialization_stays_readable_but_static_intake_refuses(tmp_pat
 
 def test_explicit_static_profile_rejects_cycle_generated_lag_without_changing_legacy_math():
     graph = CausalGraphModel.model_validate(
-        {"graph_type": "cpdag", "nodes": ["X", "Y"],
-         "edges": [{"src": "X", "dst": "Y", "combined_confidence": 0.9},
-                   {"src": "Y", "dst": "X", "combined_confidence": 0.8}]}
+        {
+            "graph_type": "cpdag",
+            "nodes": ["X", "Y"],
+            "edges": [
+                {"src": "X", "dst": "Y", "combined_confidence": 0.9},
+                {"src": "Y", "dst": "X", "combined_confidence": 0.8},
+            ],
+        }
     )
     legacy = ReconcileCausalGraph.pure_step(GraphReconciliationData(data_graph=graph), {})
     assert any(edge.lag for edge in legacy["reconciled_graph"].edges)
@@ -204,3 +245,111 @@ def test_explicit_static_profile_rejects_cycle_generated_lag_without_changing_le
         ReconcileCausalGraph.pure_step(
             GraphReconciliationData(data_graph=graph), {"static_intake": True}
         )
+
+
+def test_known_reverse_endpoints_normalize_without_inventing_partial_orientation():
+    source = _graph(graph_type="pag", marks=("arrow", "tail"))
+    result = ReconcileCausalGraph.pure_step(GraphReconciliationData(data_graph=source), {})
+    edge = result["reconciled_graph"].edges[0]
+    assert (edge.src, edge.dst) == ("Y", "X")
+    assert edge.metadata["data_endpoint_origin"] == {
+        "src": "X",
+        "dst": "Y",
+        "mark_src": "arrow",
+        "mark_dst": "tail",
+        "lag": 0,
+    }
+    assert source.edges[0].mark_src.value == "arrow"
+
+
+@pytest.mark.parametrize("fault", ["kind", "schema", "payload", "missing_current"])
+def test_cached_reference_requires_real_identity_content_and_current_sources(tmp_path, fault):
+    ctx = _ctx(tmp_path)
+    if fault == "missing_current":
+        cached = persist_causal_graph_model(ctx.store, _graph())
+    else:
+        cached = ctx.store.put_json(
+            {"unrelated": True} if fault == "payload" else _graph().model_dump(mode="json"),
+            PutOptions(
+                kind="tests.fake" if fault == "kind" else "ir.causal_graph_model",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="tests.fake" if fault == "schema" else "ir.causal_graph_model",
+                    version="1.0",
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+    state = ExperimentState(
+        run_id="graph-intake",
+        params={}
+        if fault == "missing_current"
+        else {"data_causal_graph": _graph().model_dump(mode="json")},
+        artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: cached},
+    )
+    outcome = ReconcileCausalGraphNode().execute(ctx, state)
+    if fault == "missing_current":
+        assert outcome.status == "skip" and outcome.skip_blocker is not None
+        assert outcome.skip_blocker.closeout_blocking_policy == "blocks_authority"
+    else:
+        assert outcome.status == "fail" and outcome.error is not None
+
+
+@pytest.mark.parametrize(
+    "fault", ["missing_prior", "malformed_hint", "invalid_config", "invalid_graph"]
+)
+def test_complete_current_inputs_are_never_silently_dropped(tmp_path, fault):
+    ctx = _ctx(tmp_path)
+    state = ExperimentState(
+        run_id="graph-intake", params={"data_causal_graph": _graph().model_dump(mode="json")}
+    )
+    if fault == "missing_prior":
+        state.artifacts_index[ARTIFACT_LITERATURE_PRIOR_REF] = ArtifactRef(
+            artifact_id="sha256:" + "e" * 64,
+            kind="ir.literature_causal_prior",
+            media_type="application/json",
+        )
+    elif fault == "malformed_hint":
+        state.params["llm_structural_hints"] = [
+            {"src": "X", "dst": "Z", "confidence": 0.3},
+            {"src": "Z"},
+        ]
+    elif fault == "invalid_config":
+        state.params["reconciliation_max_lag_depth"] = "invalid"
+    else:
+        state.params["data_causal_graph"] = {"graph_type": "dag", "nodes": [], "edges": "invalid"}
+    outcome = ReconcileCausalGraphNode().execute(ctx, state)
+    assert outcome.status == "fail" and outcome.error is not None
+    assert ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF not in outcome.state.artifacts_index
+
+
+@pytest.mark.parametrize("max_lag_depth", [0, 2])
+def test_static_profile_refuses_lag_generated_by_current_prior_union(tmp_path, max_lag_depth):
+    ctx = _ctx(tmp_path)
+    source = CausalGraphModel.model_validate(
+        {
+            "graph_type": "dag",
+            "nodes": ["X", "Y", "Z"],
+            "edges": [
+                {"src": "X", "dst": "Y", "data_confidence": 0.9},
+                {"src": "Y", "dst": "Z", "data_confidence": 0.9},
+            ],
+        }
+    )
+    prior = LiteratureCausalPrior(edges=[LiteratureEdgePrior(src="Z", dst="X", confidence=0.8)])
+    request = GraphReconciliationData(data_graph=source, literature_prior=prior)
+    assert any(
+        edge.lag for edge in ReconcileCausalGraph.pure_step(request, {})["reconciled_graph"].edges
+    )
+    prior_ref = persist_literature_causal_prior(ctx.store, prior)
+    state = ExperimentState(
+        run_id="graph-intake",
+        params={
+            "data_causal_graph": source.model_dump(mode="json"),
+            "reconciliation_max_lag_depth": max_lag_depth,
+        },
+        artifacts_index={ARTIFACT_LITERATURE_PRIOR_REF: prior_ref},
+    )
+    outcome = ReconcileCausalGraphNode().execute(ctx, state)
+    assert outcome.status == "fail"
+    assert "lag" in outcome.error.message

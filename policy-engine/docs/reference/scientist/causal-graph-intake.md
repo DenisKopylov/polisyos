@@ -1,0 +1,23 @@
+# Causal graph intake for reconciliation
+
+`ReconcileCausalGraphNode` resolves the current graph source and literature prior before reconciliation. An explicit `params.data_causal_graph` takes precedence over the method-result source; an invalid explicit graph refuses instead of falling back to another source. Method-result references must resolve to verified CAS bytes with their actual kind, media type and canonical MethodResult schema. Literature references require the existing literature-prior schema and verified bytes. A malformed hint or invalid supplied configuration refuses the complete request rather than silently dropping one input.
+
+A cached `reconciled_causal_graph_ref` is checked for actual CAS identity, schema, integrity and graph content. It never establishes that a new request has been computed: the node recomputes from current data, prior, hints and configuration on every invocation. Fragment composition and query-preservation requests likewise retain their current source fragments; an old graph or composition certificate cannot replace those inputs. An absent current graph retains the existing typed missing-input blocker; missing or invalid cached bytes are an invalid-state failure.
+
+The node persists a complete resolved request snapshot as a generic CAS input, then persists the reconciled graph with data/prior/request lineage. Graph metadata contains the request reference, canonical request hash and `static_directed_candidate_v1` profile. The snapshot records the resolved existing `GraphReconciliationData`, selected source/prior references and seed context. The method is STRICT_CPU and uses no numerical RNG; a changed seed changes request identity without implying a changed graph law. These fields support readback and recomputation, and do not establish authority by their presence.
+
+## Endpoint and temporal scope
+
+The canonical merge accepts only known directed endpoints. In the historical standalone candidate profile, an arrow at the stored source and tail at the stored destination is normalized by swapping the nodes; output edge metadata preserves the original endpoint coordinates and marks. Circle endpoints, undirected edges and bidirected edges refuse before materialization, so reconciliation cannot manufacture an oriented DAG by discarding their uncertainty.
+
+The Scientist node invokes `static_intake=True`: the incoming graph must be a declared DAG with zero or absent lag, and the reconciled output must also satisfy that profile. PAG, CPDAG and ADMG inputs remain outside this static route even when a particular edge is directed. A prior/data union that requires cycle resolution into a lag edge also refuses. This is a limitation of this route, not a claim that temporal or mixed graphs are invalid in their own contracts. The separate fragment-composition route retains its existing mixed-graph contract and governance checks.
+
+Standalone `ReconcileCausalGraph.pure_step(..., {})` retains the candidate temporal reconciliation profile for known directed inputs, including the existing lag-first cycle handling. Its compact lagged graph can be serialized and read, but that alone supplies no static identification law. `static_intake` defaults to false and accepts only a boolean. No arbitrary DAG extension, temporal unfolding or PAG identification algorithm is added here.
+
+## Evidence and migration
+
+The dedicated contract tests execute registered reconciliation jobs, persist their real method-result artifacts, run the Scientist node and read the output through a new FileSystemCAS reader. Current data, prior, hints, configuration and seed are varied independently; the reader validates the complete request hash and recomputes actual output edges, nodes and diagnostics. Negative cases cover nonexistent or wrongly typed cached artifacts, malformed current inputs, unresolved endpoints and temporal incompatibility.
+
+Callers that previously kept only cached output references must retain or reacquire the current source inputs. Callers of the standalone candidate method that supplied unresolved endpoints must retain that partial graph and select an appropriate downstream consumer, or carry the typed limitation. Existing graph artifacts remain readable. Reconciliation confidence and LLM hints remain candidate evidence; static structure validation does not prove identification, grounding, real-world law or policy publication authority.
+
+This slice owns only the existing reconciliation intake. Other graph writers, policy intake/emission gates, dataset admission, temporal consumers and global evidence promotion remain with their canonical owners. In particular, a successful bounded synthetic path is not an admitted real-data or protected policy-gate witness.

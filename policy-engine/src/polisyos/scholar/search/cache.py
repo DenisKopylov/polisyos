@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.scholar.search.models import FetchResult
+from polisyos.scholar.search.models import FetchFailureReason, FetchResult
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -30,7 +30,9 @@ class CachedPageRecord(BaseModel):
     content_type: str = "application/octet-stream"
     fetched_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     status: str = "ok"
+    failure_reason: FetchFailureReason | None = None
     content_sha256: str | None = None
+    headers: dict[str, str] = Field(default_factory=dict)
     etag: str | None = None
     last_modified: str | None = None
     redirect_chain: list[str] = Field(default_factory=list)
@@ -57,7 +59,9 @@ class CachedPageRecord(BaseModel):
                     "str",
                     "cached" if self.status == "ok" else self.status,
                 ),
+                "failure_reason": self.failure_reason,
                 "content_sha256": self.content_sha256,
+                "headers": dict(self.headers),
                 "etag": self.etag,
                 "last_modified": self.last_modified,
                 "redirect_chain": list(self.redirect_chain),
@@ -148,7 +152,9 @@ class UrlFetchCache:
             content_type=result.content_type,
             fetched_at=result.fetched_at,
             status="ok" if result.status == "cached" else result.status,
+            failure_reason=result.failure_reason,
             content_sha256=result.content_sha256,
+            headers=dict(result.headers),
             etag=result.etag,
             last_modified=result.last_modified,
             redirect_chain=list(result.redirect_chain),

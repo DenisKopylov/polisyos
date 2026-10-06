@@ -16,6 +16,7 @@ from polisyos.core.contracts.scholar import (
     SourceSpec,
     ThresholdsV1,
 )
+from polisyos.scholar.fetch_contracts import FetchFailureReason  # noqa: TC001 - keep runtime dataclass hints resolvable.
 
 if TYPE_CHECKING:
     from polisyos.fabric.docs import DocSourceSpec
@@ -30,6 +31,13 @@ class AcquireResult:
     raw_bytes: bytes
     mime: str
     doc_source: DocSourceSpec
+    final_url: str | None = None
+    headers: dict[str, str] = field(default_factory=dict)
+    redirect_chain: list[str] = field(default_factory=list)
+    content_sha256: str | None = None
+    byte_size: int | None = None
+    fetch_profile: dict[str, Any] = field(default_factory=dict)
+    failure_reason: FetchFailureReason | None = None
 
 
 @dataclass(frozen=True)

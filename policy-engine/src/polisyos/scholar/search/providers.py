@@ -15,7 +15,12 @@ import httpx
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.fabric.connectors import RateLimiter, RetryPolicy
-from polisyos.scholar.search.models import SearchConstraints, WebSearchHit
+from polisyos.scholar.search.models import (
+    ProviderAttemptTrace,
+    ProviderSearchResult,
+    SearchConstraints,
+    WebSearchHit,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -73,22 +78,80 @@ class ProviderFailoverPolicy:
         timeout_s: float = 10.0,
     ) -> tuple[str, list[WebSearchHit], str | None]:
         """Search with failover and return ``(provider_name, hits, error)``."""
+        result = await self.search_detailed(
+            query,
+            constraints=constraints,
+            max_results=max_results,
+            timeout_s=timeout_s,
+        )
+        return result.provider, result.hits, result.error
+
+    async def search_detailed(
+        self,
+        query: str,
+        *,
+        constraints: SearchConstraints,
+        max_results: int,
+        timeout_s: float = 10.0,
+    ) -> ProviderSearchResult:
+        """Search permitted providers in order and preserve each selection outcome."""
+        attempts: list[ProviderAttemptTrace] = []
         last_error: str | None = None
         for provider in self._providers:
             try:
-                hits = await provider.search(
+                returned_hits = await provider.search(
                     query,
                     constraints=constraints,
                     max_results=max_results,
                     timeout_s=timeout_s,
                 )
+                hits = _filter_hits(
+                    returned_hits,
+                    constraints=constraints,
+                    max_results=max_results,
+                )
                 if not hits:
+                    attempts.append(
+                        ProviderAttemptTrace(
+                            provider=provider.name,
+                            outcome="unsuitable" if returned_hits else "empty",
+                            returned_hit_count=len(returned_hits),
+                        )
+                    )
                     continue
-                return provider.name, hits, None
+                attempts.append(
+                    ProviderAttemptTrace(
+                        provider=provider.name,
+                        outcome="useful",
+                        returned_hit_count=len(returned_hits),
+                        accepted_hit_count=len(hits),
+                    )
+                )
+                return ProviderSearchResult(
+                    provider=provider.name,
+                    hits=hits,
+                    attempts=attempts,
+                    exhausted=False,
+                    stop_reason="useful",
+                )
             except Exception as exc:
                 last_error = f"{provider.name}: {exc}"
+                attempts.append(
+                    ProviderAttemptTrace(
+                        provider=provider.name,
+                        outcome="error",
+                        error_type=type(exc).__name__,
+                    )
+                )
                 continue
-        return self._providers[-1].name, [], last_error
+        return ProviderSearchResult(
+            provider=self._providers[-1].name,
+            hits=[],
+            attempts=attempts,
+            exhausted=True,
+            stop_reason="providers_exhausted",
+            error=last_error,
+        )
 
 
 class BraveSearchProvider:

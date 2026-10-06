@@ -8,7 +8,7 @@ from typing import Any
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import content_hash, from_canonical_bytes
 from polisyos.core.contracts.decision_validity import (
     DecisionBasisSection,
     DecisionDependencyKind,
@@ -385,11 +385,13 @@ def _build_web_evidence_section(
     source_title_by_id = {
         source.source_id: source.title or source.domain for source in bundle.sources
     }
+    source_snapshots, source_snapshot_by_id = _source_snapshot_bindings(ctx, bundle)
     return {
         "status": "available",
         "web_evidence_bundle_ref": str(ref.artifact_id),
         "bundle_id": bundle.bundle_id,
         "source_count": len(bundle.sources),
+        "source_snapshots": source_snapshots,
         "snippet_count": len(bundle.snippets),
         "claim_support_count": len(bundle.claim_supports),
         "fetch_safety_events": [
@@ -412,6 +414,12 @@ def _build_web_evidence_section(
                 "conflict_score": support.conflict_score,
                 "snippet_ids": list(support.snippet_ids),
                 "source_ids": list(support.source_ids),
+                "source_artifact_ids": [
+                    source_snapshot_by_id[source_id]["artifact_id"]
+                    for source_id in support.source_ids
+                    if source_id in source_snapshot_by_id
+                    and source_snapshot_by_id[source_id].get("status") == "verified"
+                ],
                 "uncertainty_note": support.uncertainty_note,
             }
             for support in bundle.claim_supports[:50]
@@ -421,6 +429,12 @@ def _build_web_evidence_section(
                 "snippet_id": snippet.snippet_id,
                 "source_id": snippet.source_id,
                 "source_title": source_title_by_id.get(snippet.source_id),
+                "raw_artifact_id": source_snapshot_by_id.get(snippet.source_id, {}).get(
+                    "artifact_id"
+                ),
+                "raw_snapshot_status": source_snapshot_by_id.get(snippet.source_id, {}).get(
+                    "status", "not_bound"
+                ),
                 "url": str(snippet.url),
                 "start_char": snippet.start_char,
                 "end_char": snippet.end_char,
@@ -433,6 +447,49 @@ def _build_web_evidence_section(
         ],
         "uncertainty_notes": list(bundle.uncertainty_notes),
     }
+
+
+def _source_snapshot_bindings(
+    ctx: ExecutionContext,
+    bundle: WebEvidenceBundle,
+) -> tuple[list[dict[str, object]], dict[str, dict[str, object]]]:
+    """Resolve each source CAS ref and verify it against its stored content identity."""
+    projections: list[dict[str, object]] = []
+    by_source_id: dict[str, dict[str, object]] = {}
+    for source in bundle.sources:
+        raw_ref = source.artifact_id
+        projection: dict[str, object] = {
+            "source_id": source.source_id,
+            "artifact_id": raw_ref,
+            "content_sha256": source.content_sha256,
+            "byte_size": source.byte_size,
+            "status": "not_bound",
+        }
+        if raw_ref is not None:
+            try:
+                artifact_id = ArtifactID.model_validate(raw_ref)
+            except Exception:
+                projection["status"] = "invalid_ref"
+            else:
+                try:
+                    raw_bytes = ctx.store.get_bytes(artifact_id)
+                except Exception:
+                    projection["status"] = "unavailable"
+                else:
+                    actual_digest = content_hash(raw_bytes)
+                    expected_digest = (source.content_sha256 or "").removeprefix("sha256:")
+                    digest_matches = not expected_digest or actual_digest == expected_digest
+                    identity_matches = artifact_id.hex == actual_digest
+                    size_matches = source.byte_size is None or source.byte_size == len(raw_bytes)
+                    projection["computed_sha256"] = actual_digest
+                    projection["status"] = (
+                        "verified"
+                        if digest_matches and identity_matches and size_matches
+                        else "mismatch"
+                    )
+        projections.append(projection)
+        by_source_id[source.source_id] = projection
+    return projections, by_source_id
 
 
 def _build_voi_section(

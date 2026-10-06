@@ -19,6 +19,7 @@ staying CAS-first and freshness-aware.
 - **Deterministic pipeline** - the bundle id is derived from intent, document versions, claims, and policy ids.
 - **Freshness** - freshness metadata and sidecar state keep bundles refresh-aware.
 - **Discovery/acquire** - seed sources are normalized, canonicalized, and fetched from local files, URLs, or bytes.
+- **Fetch outcomes** - search and seed adapters share typed refusal reasons so policy, timeout, MIME, size, and transport failures survive the raw-transport boundary.
 - **Docs/claims/reconcile** - document ingestion and claim extraction feed into conflict resolution and filtering.
 - **CAS and world events** - bundles and reports are persisted into CAS and accompanied by world events.
 - **Claim-bound Scholar requirements** - search, support links, dependence

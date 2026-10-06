@@ -11,7 +11,12 @@ from typing import TYPE_CHECKING
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.core.canon import content_hash
-from polisyos.scholar.discover.transport import RawFetchSizeError, fetch_raw
+from polisyos.scholar.discover.transport import (
+    RawFetchSizeError,
+    build_fetch_profile,
+    fetch_failure_reason,
+    fetch_raw,
+)
 from polisyos.scholar.search.models import FetchResult, SearchConstraints, SourceSnippet
 from polisyos.scholar.search.scoring import compress_page_to_snippets
 from polisyos.scholar.search.security import (
@@ -27,6 +32,15 @@ if TYPE_CHECKING:
     from polisyos.scholar.search.cache import UrlFetchCache
 
 
+def _header_value(headers: dict[str, str], name: str) -> str | None:
+    """Return one HTTP header value without assuming server header casing."""
+    normalized_name = name.casefold()
+    return next(
+        (value for key, value in headers.items() if key.casefold() == normalized_name),
+        None,
+    )
+
+
 async def fetch_open_page(
     url: str,
     *,
@@ -38,7 +52,25 @@ async def fetch_open_page(
     source_type_hint: str = "web",
 ) -> FetchResult:
     """Fetch one URL safely, reuse cache when fresh, and extract normalized page text."""
-    validate_fetch_url(url, constraints)
+    profile = build_fetch_profile(
+        constraints=constraints,
+        timeout_s=timeout_s,
+        user_agent=user_agent,
+        max_bytes=max_bytes,
+    )
+    try:
+        validate_fetch_url(url, constraints)
+    except Exception as exc:
+        reason = fetch_failure_reason(exc)
+        return FetchResult(
+            url=url,
+            final_url=url,
+            status="error",
+            failure_reason=reason,
+            error=str(exc),
+            source_type=source_type_hint,
+            fetch_profile=profile,
+        )
     cached = cache.get(url) if cache is not None else None
     if cached is not None:
         return cached.to_fetch_result()
@@ -66,6 +98,10 @@ async def fetch_open_page(
         paywalled = detect_paywall(text)
         status = "blocked" if paywalled else "ok"
         error = "paywall detected" if paywalled else None
+        failure_reason = "paywall" if paywalled else None
+        if not paywalled and not text.strip():
+            error = "no accessible text in fetched response"
+            failure_reason = "inaccessible_text"
         result = FetchResult(
             url=url,
             final_url=final_url,
@@ -73,13 +109,16 @@ async def fetch_open_page(
             text=text,
             content_type=mime,
             status=status,
+            failure_reason=failure_reason,
             content_sha256=content_hash(raw_bytes),
-            etag=response_headers.get("ETag") or response_headers.get("etag"),
-            last_modified=response_headers.get("Last-Modified")
-            or response_headers.get("last-modified"),
+            headers=response_headers,
+            etag=_header_value(response_headers, "ETag"),
+            last_modified=_header_value(response_headers, "Last-Modified"),
             redirect_chain=redirect_chain,
+            byte_size=len(raw_bytes),
             paywalled=paywalled,
             error=error,
+            fetch_profile=profile,
             source_type=_infer_source_type(
                 final_url,
                 title=title,
@@ -91,13 +130,20 @@ async def fetch_open_page(
             cache.put(result, raw_bytes=raw_bytes)
         return result
     except Exception as exc:
+        failure_reason = fetch_failure_reason(exc)
         result = FetchResult(
             url=url,
             final_url=url,
             text="",
             status="error",
-            error=str(exc),
+            failure_reason=failure_reason,
+            error=(
+                f"page exceeds max_bytes={exc.max_bytes}"
+                if isinstance(exc, RawFetchSizeError)
+                else str(exc)
+            ),
             source_type=source_type_hint,
+            fetch_profile=profile,
         )
         return result
 
@@ -171,16 +217,13 @@ def _fetch_url_bytes_sync(
     user_agent: str,
     max_bytes: int,
 ) -> tuple[bytes, str, str, dict[str, str], list[str]]:
-    try:
-        raw = fetch_raw(
-            url,
-            constraints=constraints,
-            timeout_s=timeout_s,
-            user_agent=user_agent,
-            max_bytes=max_bytes,
-        )
-    except RawFetchSizeError as exc:
-        raise ValueError(f"page exceeds max_bytes={exc.max_bytes}") from exc
+    raw = fetch_raw(
+        url,
+        constraints=constraints,
+        timeout_s=timeout_s,
+        user_agent=user_agent,
+        max_bytes=max_bytes,
+    )
     return (
         raw.raw_bytes,
         raw.final_url,

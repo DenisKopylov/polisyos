@@ -2,23 +2,41 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
+import threading
 from datetime import UTC, datetime
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent, SourceSpec
+from polisyos.fabric.claims.persist import load_doc_meta
 from polisyos.scholar.api import enrich_topic
 from polisyos.scholar.discover.http_fetch import fetch_url
 from polisyos.scholar.errors import ScholarAcquireError
 from polisyos.scholar.search.cache import UrlFetchCache
-from polisyos.scholar.search.models import FetchResult, SearchConstraints, SourceMetadata
+from polisyos.scholar.search.fetcher import fetch_open_page
+from polisyos.scholar.search.models import (
+    FetchResult,
+    SearchBudgetControls,
+    SearchConstraints,
+    SourceMetadata,
+    WebSearchHit,
+)
+from polisyos.scholar.search.providers import ProviderFailoverPolicy
+from polisyos.scholar.search.service import ScholarDeepSearchService
 from polisyos.scholar.types import EnrichmentReportV1, EnrichResultV1
+from polisyos.scientist.nodes.builtins.decide.build_decision_packet import (
+    _build_web_evidence_section,
+)
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_WEB_EVIDENCE_BUNDLE_REF
 
 SOURCE_URL = "https://agency.gov/reports/employment"
 FINAL_URL = "https://agency.gov/reports/employment-2026"
@@ -33,6 +51,8 @@ FETCH_PROFILE = {
     "allowed_content_types": "text/plain",
     "allow_private_networks": "false",
 }
+END_TO_END_V1 = b"The minimum wage policy is 100 USD per hour.\n"
+END_TO_END_V2 = b"The minimum wage policy is 999 USD per hour.\n"
 
 
 class _FixtureSearchService:
@@ -173,6 +193,98 @@ def _write_snapshot(*, cas: FileSystemCAS, index_path: Path, payload: bytes) -> 
     return record.artifact_id
 
 
+class _OneHitProvider:
+    name = "fixture"
+
+    def __init__(self, url: str) -> None:
+        self.url = url
+        self.calls = 0
+
+    async def search(
+        self,
+        query: str,
+        *,
+        constraints: SearchConstraints,
+        max_results: int,
+        timeout_s: float,
+    ) -> list[WebSearchHit]:
+        del constraints, max_results, timeout_s
+        self.calls += 1
+        return [
+            WebSearchHit(
+                url=self.url,
+                title="Minimum wage policy",
+                snippet="Minimum wage policy evidence",
+                provider=self.name,
+                query=query,
+                rank=1,
+                source_type="government",
+            )
+        ]
+
+
+class _SnapshotAdvancingSearchService(ScholarDeepSearchService):
+    """Refresh the same URL after v1 is captured but before API enrichment consumes it."""
+
+    def __init__(self, *, state: dict[str, object], constraints: SearchConstraints, **kwargs):
+        super().__init__(**kwargs)
+        self._state = state
+        self._constraints = constraints
+
+    def persist_bundle(self, bundle):
+        ref = super().persist_bundle(bundle)
+        self._state["version"] = "v2"
+        refreshed = asyncio.run(
+            fetch_open_page(
+                str(self._state["url"]),
+                constraints=self._constraints,
+                cache=None,
+                timeout_s=3,
+                user_agent="scl03-e2e",
+                max_bytes=4096,
+            )
+        )
+        assert refreshed.content_sha256 == hashlib.sha256(END_TO_END_V2).hexdigest()
+        self._cache.put(refreshed, raw_bytes=END_TO_END_V2)
+        return ref
+
+
+def _start_versioned_server() -> tuple[ThreadingHTTPServer, threading.Thread, dict[str, object]]:
+    state: dict[str, object] = {"version": "v1", "transcript": [], "url": ""}
+    bodies = {"v1": END_TO_END_V1, "v2": END_TO_END_V2}
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self) -> None:
+            transcript = state["transcript"]
+            assert isinstance(transcript, list)
+            transcript.append(self.path)
+            version = str(state["version"])
+            if self.path == "/source":
+                self.send_response(302)
+                self.send_header("Location", f"/snapshot-{version}")
+                self.end_headers()
+                return
+            body = bodies[version]
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("ETag", f'"{version}"')
+            self.send_header("X-Snapshot-Version", version)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, _format: str, *_args: object) -> None:
+            return
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    server.daemon_threads = True
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    host, port = server.server_address
+    state["url"] = f"http://{host}:{port}/source"
+    return server, thread, state
+
+
 def _bootstrap(
     monkeypatch: pytest.MonkeyPatch,
     *,
@@ -204,6 +316,7 @@ def _assert_gap_without_url_fallback(
     *,
     cas: FileSystemCAS,
     source: SimpleNamespace,
+    expected_reason: str,
 ) -> None:
     called = False
 
@@ -214,7 +327,7 @@ def _assert_gap_without_url_fallback(
 
     monkeypatch.setattr("polisyos.scholar.api._enrich_topic", _unexpected_enrich)
     service = _FixtureSearchService(_bundle(source))
-    with pytest.raises(Exception) as caught:
+    with pytest.raises(ScholarAcquireError) as caught:
         enrich_topic(
             cas=cas,
             fact_log_root=cas.root / "facts",
@@ -224,6 +337,7 @@ def _assert_gap_without_url_fallback(
 
     assert called is False
     assert not isinstance(caught.value, AssertionError)
+    assert caught.value.details["reason"] == expected_reason
     message = str(caught.value).lower()
     assert any(
         token in message
@@ -323,8 +437,29 @@ def test_missing_raw_snapshot_does_not_reconstruct_from_fragments(
 ) -> None:
     cas = FileSystemCAS(tmp_path / "cas")
     source = _source(payload=SNAPSHOT_V1, artifact_id=None)
+    source.content_sha256 = None
 
-    _assert_gap_without_url_fallback(monkeypatch, cas=cas, source=source)
+    _assert_gap_without_url_fallback(
+        monkeypatch,
+        cas=cas,
+        source=source,
+        expected_reason="missing_raw_artifact_ref",
+    )
+
+
+def test_digest_without_cas_snapshot_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    cas = FileSystemCAS(tmp_path / "cas")
+    source = _source(payload=SNAPSHOT_V1, artifact_id=None)
+
+    _assert_gap_without_url_fallback(
+        monkeypatch,
+        cas=cas,
+        source=source,
+        expected_reason="raw_snapshot_unavailable",
+    )
 
 
 def test_denied_raw_snapshot_fails_closed(
@@ -339,7 +474,12 @@ def test_denied_raw_snapshot_fails_closed(
         raise PermissionError("fixture access denied")
 
     monkeypatch.setattr(cas, "get_bytes", _deny)
-    _assert_gap_without_url_fallback(monkeypatch, cas=cas, source=source)
+    _assert_gap_without_url_fallback(
+        monkeypatch,
+        cas=cas,
+        source=source,
+        expected_reason="raw_snapshot_unavailable",
+    )
 
 
 def test_mismatched_raw_snapshot_digest_fails_closed(
@@ -354,7 +494,12 @@ def test_mismatched_raw_snapshot_digest_fails_closed(
         content_sha256=SNAPSHOT_V2_SHA256,
     )
 
-    _assert_gap_without_url_fallback(monkeypatch, cas=cas, source=source)
+    _assert_gap_without_url_fallback(
+        monkeypatch,
+        cas=cas,
+        source=source,
+        expected_reason="raw_artifact_digest_binding_mismatch",
+    )
 
 
 def test_cache_refresh_keeps_v1_and_exposes_v2_as_distinct_cas_lineage(tmp_path) -> None:
@@ -381,6 +526,110 @@ def test_cache_refresh_keeps_v1_and_exposes_v2_as_distinct_cas_lineage(tmp_path)
     assert cas.get_bytes(first.artifact_id) == SNAPSHOT_V1
     assert cas.get_bytes(second.artifact_id) == SNAPSHOT_V2
     assert cache.get(SOURCE_URL).artifact_id == second.artifact_id
+
+
+def test_real_search_enrich_and_packet_keep_v1_after_url_cache_moves_to_v2(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    server, thread, state = _start_versioned_server()
+    try:
+        source_url = str(state["url"])
+        constraints = SearchConstraints(
+            allowed_domains=["127.0.0.1"],
+            allow_private_networks=True,
+            allowed_content_types=["text/plain"],
+        )
+        cas = FileSystemCAS(tmp_path / "cas")
+        cache = UrlFetchCache(
+            index_path=tmp_path / "cache.json",
+            cas=cas,
+            ttl_seconds=3600,
+        )
+        provider = _OneHitProvider(source_url)
+        service = _SnapshotAdvancingSearchService(
+            state=state,
+            constraints=constraints,
+            provider_policy=ProviderFailoverPolicy([provider]),
+            cache=cache,
+            cas=cas,
+            fetch_timeout_s=3,
+        )
+
+        result = enrich_topic(
+            cas=cas,
+            fact_log_root=tmp_path / "facts",
+            intent=ResearchIntent(domain="labor", topic="minimum wage policy"),
+            web_search_service=service,
+            web_search_constraints=constraints,
+            web_search_budgets=SearchBudgetControls(
+                max_search_queries=1,
+                max_fetch_pages=1,
+                max_parallel_queries=1,
+                max_parallel_fetches=1,
+                max_depth=0,
+                max_wall_time_s=10,
+                per_page_max_bytes=4096,
+            ),
+        )
+
+        knowledge_payload = json.loads(cas.get_bytes(result.knowledge_bundle_ref.artifact_id))
+        source = knowledge_payload["web_evidence"]["sources"][0]
+        v1_ref = source["artifact_id"]
+        assert source["content_sha256"] == hashlib.sha256(END_TO_END_V1).hexdigest()
+        assert source["final_url"].endswith("/snapshot-v1")
+        assert source["headers"]["X-Snapshot-Version"] == "v1"
+        assert source["etag"] == '"v1"'
+        assert source["byte_size"] == len(END_TO_END_V1)
+        assert cas.get_bytes(ArtifactID.model_validate(v1_ref)) == END_TO_END_V1
+
+        current = cache.get(source_url)
+        assert current is not None
+        assert current.artifact_id != v1_ref
+        assert current.lineage_parent_artifact_id == v1_ref
+        assert cas.get_bytes(ArtifactID.model_validate(current.artifact_id)) == END_TO_END_V2
+
+        doc_meta = load_doc_meta(cas, knowledge_payload["doc_meta_artifact_ids"][0])
+        assert doc_meta.raw_ref == v1_ref
+        assert cas.get_bytes(ArtifactID.model_validate(doc_meta.raw_ref)) == END_TO_END_V1
+
+        web_bundle_id = knowledge_payload["web_evidence"]["artifact_id"]
+        web_bundle_aid = ArtifactID.model_validate(web_bundle_id)
+        web_manifest = cas.get_manifest(web_bundle_aid)
+        web_bundle_ref = ArtifactRef(
+            artifact_id=web_bundle_aid,
+            kind=web_manifest.kind,
+            media_type=web_manifest.media_type,
+        )
+        raw_reads: list[str] = []
+        get_bytes = cas.get_bytes
+
+        def _record_raw_source_read(artifact_id: object) -> bytes:
+            if str(artifact_id) == v1_ref:
+                raw_reads.append(str(artifact_id))
+            return get_bytes(artifact_id)
+
+        monkeypatch.setattr(cas, "get_bytes", _record_raw_source_read)
+        section = _build_web_evidence_section(
+            SimpleNamespace(store=cas),
+            {ARTIFACT_WEB_EVIDENCE_BUNDLE_REF: web_bundle_ref},
+        )
+        assert section is not None
+        assert section["source_snapshots"][0]["artifact_id"] == v1_ref
+        assert section["source_snapshots"][0]["status"] == "verified"
+        assert raw_reads == [v1_ref]
+
+        assert provider.calls == 1
+        assert state["transcript"] == [
+            "/source",
+            "/snapshot-v1",
+            "/source",
+            "/snapshot-v2",
+        ]
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
 
 
 def test_manual_url_seed_keeps_scl01_raw_transport_and_mime(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -319,6 +319,9 @@ async def test_deep_research_job_manager_checkpoints_and_resumes(monkeypatch, tm
     assert failed_status.status == "failed"
     assert failed_status.checkpoint_artifact_id is not None
     assert failed_status.result_bundle is not None
+    checkpoint_manifest = cas.get_manifest(failed_status.checkpoint_artifact_id)
+    assert checkpoint_manifest.artifact_schema is not None
+    assert checkpoint_manifest.artifact_schema.version == "1.1"
 
     resumed_job_id = await manager.resume(
         checkpoint_artifact_id=failed_status.checkpoint_artifact_id,

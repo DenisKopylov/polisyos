@@ -12,7 +12,7 @@ input side of the scholar pipeline deterministic before document processing and 
 ## Key Concepts
 
 - **Source normalization** - `manual.py` canonicalizes URLs, local files, and identity keys.
-- **HTTP acquire** - `http_fetch.py` fetches remote content with size/time limits.
+- **HTTP acquire** - `transport.py` owns redirect-aware bounded raw retrieval shared by seed and search adapters; `http_fetch.py` maps the retained bytes and response metadata into the seed contract.
 - **Local file acquire** - `local_files.py` reads file-based sources and resolves mime types.
 
 ## Public API

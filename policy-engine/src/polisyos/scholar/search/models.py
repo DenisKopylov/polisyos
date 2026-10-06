@@ -7,6 +7,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
+from polisyos.scholar.fetch_contracts import FetchFailureReason  # noqa: TC001 - Pydantic resolves DTO annotation aliases at runtime.
+
 
 class SearchBudgetControls(BaseModel):
     """Hard limits for one deep-search run."""
@@ -117,6 +119,31 @@ class WebSearchHit(BaseModel):
     score: float = 0.0
 
 
+class ProviderAttemptTrace(BaseModel):
+    """Record one provider response before failover selects a usable result set."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    provider: str
+    outcome: Literal["useful", "empty", "unsuitable", "error"]
+    returned_hit_count: int = Field(default=0, ge=0)
+    accepted_hit_count: int = Field(default=0, ge=0)
+    error_type: str | None = None
+
+
+class ProviderSearchResult(BaseModel):
+    """Preserve the ordered attempts and terminal result of one provider selection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    provider: str
+    hits: list[WebSearchHit] = Field(default_factory=list)
+    attempts: list[ProviderAttemptTrace] = Field(default_factory=list)
+    exhausted: bool
+    stop_reason: Literal["useful", "providers_exhausted"]
+    error: str | None = None
+
+
 class FetchResult(BaseModel):
     """Extracted page payload plus retrieval metadata."""
 
@@ -129,7 +156,9 @@ class FetchResult(BaseModel):
     content_type: str = "application/octet-stream"
     fetched_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     status: Literal["ok", "cached", "blocked", "error"] = "ok"
+    failure_reason: FetchFailureReason | None = None
     content_sha256: str | None = None
+    headers: dict[str, str] = Field(default_factory=dict)
     etag: str | None = None
     last_modified: str | None = None
     redirect_chain: list[str] = Field(default_factory=list)
@@ -163,6 +192,7 @@ class SourceMetadata(BaseModel):
     fetch_status: str = "ok"
     content_type: str = "application/octet-stream"
     content_sha256: str | None = None
+    headers: dict[str, str] = Field(default_factory=dict)
     artifact_id: str | None = None
     byte_size: int | None = Field(default=None, ge=0)
     license: str = "public-web"
@@ -173,6 +203,7 @@ class SourceMetadata(BaseModel):
     redirect_chain: list[str] = Field(default_factory=list)
     lineage_parent_artifact_id: str | None = None
     refresh_reason: str | None = None
+    fetch_failure_reason: FetchFailureReason | None = None
     publication_tier: str | None = None
     underlying_study_id: str | None = None
     dataset_ids: list[str] = Field(default_factory=list)
@@ -227,6 +258,8 @@ class SearchQueryTrace(BaseModel):
     hit_count: int = Field(default=0, ge=0)
     searched_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     error: str | None = None
+    provider_attempts: list[ProviderAttemptTrace] = Field(default_factory=list)
+    terminal_reason: Literal["useful", "providers_exhausted"] | None = None
 
 
 class NoHitFrontierRecord(BaseModel):
@@ -238,7 +271,11 @@ class NoHitFrontierRecord(BaseModel):
     query: str
     perspective: str
     provider: str
-    reason: Literal["provider_returned_no_hits", "provider_error_no_hits"]
+    reason: Literal[
+        "provider_returned_no_hits",
+        "provider_error_no_hits",
+        "providers_exhausted",
+    ]
     searched_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     error: str | None = None
 
@@ -292,6 +329,16 @@ class FetchSafetyEvent(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class SearchBudgetStop(BaseModel):
+    """Record which search budget stopped query expansion or page acquisition."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    reason: Literal["max_search_queries", "max_fetch_pages", "max_wall_time_s"]
+    observed: int = Field(ge=0)
+    limit: int = Field(ge=1)
+
+
 class SourceQualitySignal(BaseModel):
     """Deterministic heuristic source-quality signal for one source."""
 
@@ -311,7 +358,7 @@ class WebEvidenceBundle(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.1"
     bundle_id: str
     brief: ResearchBrief
     query_graph: QueryGraph
@@ -321,6 +368,7 @@ class WebEvidenceBundle(BaseModel):
     snippets: list[SourceSnippet] = Field(default_factory=list)
     claim_supports: list[ClaimSupportLink] = Field(default_factory=list)
     fetch_safety_events: list[FetchSafetyEvent] = Field(default_factory=list)
+    budget_stops: list[SearchBudgetStop] = Field(default_factory=list)
     source_quality_signals: list[SourceQualitySignal] = Field(default_factory=list)
     uncertainty_notes: list[str] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

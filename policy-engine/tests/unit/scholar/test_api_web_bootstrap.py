@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 from types import SimpleNamespace
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent
 from polisyos.scholar.api import enrich_topic
+from polisyos.scholar.search.cache import UrlFetchCache
 from polisyos.scholar.search.models import (
     FetchResult,
     SearchBudgetControls,
@@ -34,7 +36,7 @@ class _StaticProvider:
                 query=query,
                 rank=1,
                 source_type="government",
-            )
+)
         ][:max_results]
 
 
@@ -48,17 +50,21 @@ async def _fake_fetch_open_page(
     max_bytes,
     source_type_hint,
 ):
-    del constraints, cache, timeout_s, user_agent, max_bytes
-    return FetchResult(
+    del constraints, timeout_s, user_agent, max_bytes
+    raw_bytes = b"Minimum wage increased earnings for low-wage workers."
+    result = FetchResult(
         url=url,
         final_url=url,
         title="Minimum wage report",
-        text="Minimum wage increased earnings for low-wage workers.",
-        content_type="text/html",
+        text=raw_bytes.decode("utf-8"),
+        content_type="text/plain",
         status="ok",
-        content_sha256="hash-agency",
+        content_sha256=hashlib.sha256(raw_bytes).hexdigest(),
+        byte_size=len(raw_bytes),
         source_type=source_type_hint,
     )
+    cache.put(result, raw_bytes=raw_bytes)
+    return result
 
 
 def test_enrich_topic_bootstraps_seed_sources_from_web(monkeypatch, tmp_path):
@@ -102,13 +108,35 @@ def test_enrich_topic_bootstraps_seed_sources_from_web(monkeypatch, tmp_path):
 
     assert result.bundle_id == "bundle.web-bootstrap"
     assert captured["intent"].seed_sources
-    assert captured["intent"].seed_sources[0].canonical_url == "https://agency.gov/minimum-wage"
+    seeded_source = captured["intent"].seed_sources[0]
+    assert seeded_source.kind == "bytes"
+    assert seeded_source.url is None
+    assert seeded_source.props["canonical_url"] == "https://agency.gov/minimum-wage"
+    assert seeded_source.source_locator == "sha256:" + hashlib.sha256(
+        b"Minimum wage increased earnings for low-wage workers."
+    ).hexdigest()
     assert captured["web_evidence_bundle"].bundle_id.startswith("webkb.")
     assert captured["web_evidence_artifact_id"].startswith("sha256:")
 
 
 def test_enrich_topic_uses_shared_async_bridge(monkeypatch, tmp_path):
     captured = {"used_run_coro_sync": False}
+    cas = FileSystemCAS(tmp_path / "cas-shared")
+    cache = UrlFetchCache(index_path=tmp_path / "cache.json", cas=cas)
+    raw_bytes = b"Minimum wage evidence from the pinned snapshot."
+    raw_ref = cache.put(
+        FetchResult(
+            url="https://agency.gov/minimum-wage",
+            final_url="https://agency.gov/minimum-wage",
+            text=raw_bytes.decode("utf-8"),
+            content_type="text/plain",
+            content_sha256=hashlib.sha256(raw_bytes).hexdigest(),
+            byte_size=len(raw_bytes),
+            status="ok",
+            source_type="government",
+        ),
+        raw_bytes=raw_bytes,
+    )
 
     async def _fake_deep_search(**_kwargs):
         return SimpleNamespace(
@@ -121,7 +149,9 @@ def test_enrich_topic_uses_shared_async_bridge(monkeypatch, tmp_path):
                     domain="agency.gov",
                     content_type="text/html",
                     fetch_status="ok",
-                    content_sha256="hash-agency",
+                    content_sha256=hashlib.sha256(raw_bytes).hexdigest(),
+                    artifact_id=raw_ref.artifact_id,
+                    byte_size=len(raw_bytes),
                     source_type="government",
                 )
             ],
@@ -148,7 +178,8 @@ def test_enrich_topic_uses_shared_async_bridge(monkeypatch, tmp_path):
 
     service = ScholarDeepSearchService(
         provider_policy=ProviderFailoverPolicy([_StaticProvider()]),
-        cas=FileSystemCAS(tmp_path / "cas"),
+        cas=cas,
+        cache=cache,
     )
     monkeypatch.setattr(service, "deep_search", _fake_deep_search)
     monkeypatch.setattr(
@@ -160,7 +191,7 @@ def test_enrich_topic_uses_shared_async_bridge(monkeypatch, tmp_path):
     )
 
     result = enrich_topic(
-        cas=FileSystemCAS(tmp_path / "cas-shared"),
+        cas=cas,
         fact_log_root=tmp_path / "facts",
         intent=ResearchIntent(domain="labor", topic="minimum wage effects"),
         web_search_service=service,

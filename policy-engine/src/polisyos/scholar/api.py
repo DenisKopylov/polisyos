@@ -254,7 +254,6 @@ def _source_spec_from_snapshot(
     candidate_ref = (
         getattr(source, "artifact_id", None)
         or getattr(source, "raw_artifact_id", None)
-        or getattr(cached_record, "artifact_id", None)
     )
     if candidate_ref is None and expected_digest is not None:
         candidate_ref = f"sha256:{expected_digest}"
@@ -271,7 +270,10 @@ def _source_spec_from_snapshot(
         raise ScholarAcquireError(
             "web source raw snapshot reference is invalid",
             source_identity=source_identity,
-            details={"artifact_id": str(candidate_ref)},
+            details={
+                "reason": "invalid_raw_artifact_ref",
+                "artifact_id": str(candidate_ref),
+            },
         ) from exc
 
     if expected_digest is not None and artifact_id.hex != expected_digest:
@@ -279,6 +281,7 @@ def _source_spec_from_snapshot(
             "web source raw snapshot reference does not match its digest",
             source_identity=source_identity,
             details={
+                "reason": "raw_artifact_digest_binding_mismatch",
                 "artifact_id": str(artifact_id),
                 "content_sha256": expected_digest,
             },
@@ -290,7 +293,10 @@ def _source_spec_from_snapshot(
         raise ScholarAcquireError(
             "web source raw snapshot is unavailable",
             source_identity=source_identity,
-            details={"artifact_id": str(artifact_id)},
+            details={
+                "reason": "raw_snapshot_unavailable",
+                "artifact_id": str(artifact_id),
+            },
         ) from exc
 
     actual_digest = content_hash(raw_bytes)
@@ -299,6 +305,7 @@ def _source_spec_from_snapshot(
             "web source raw snapshot digest mismatch",
             source_identity=source_identity,
             details={
+                "reason": "raw_snapshot_digest_mismatch",
                 "artifact_id": str(artifact_id),
                 "expected_sha256": expected_digest,
                 "actual_sha256": actual_digest,
@@ -309,12 +316,24 @@ def _source_spec_from_snapshot(
             "web source raw snapshot artifact identity mismatch",
             source_identity=source_identity,
             details={
+                "reason": "raw_snapshot_artifact_identity_mismatch",
                 "artifact_id": str(artifact_id),
                 "actual_sha256": actual_digest,
             },
         )
 
-    declared_size = getattr(source, "byte_size", None) or getattr(cached_record, "byte_size", None)
+    if (
+        cached_record is not None
+        and getattr(cached_record, "artifact_id", None) != str(artifact_id)
+    ):
+        cached_record = None
+
+    source_size = getattr(source, "byte_size", None)
+    declared_size = (
+        source_size
+        if source_size is not None
+        else getattr(cached_record, "byte_size", None)
+    )
     if declared_size is not None:
         try:
             declared_size = int(declared_size)
@@ -322,13 +341,20 @@ def _source_spec_from_snapshot(
             raise ScholarAcquireError(
                 "web source raw snapshot byte size is invalid",
                 source_identity=source_identity,
-                details={"byte_size": str(declared_size)},
+                details={
+                    "reason": "raw_snapshot_invalid_size",
+                    "byte_size": str(declared_size),
+                },
             ) from exc
         if declared_size != len(raw_bytes):
             raise ScholarAcquireError(
                 "web source raw snapshot byte size mismatch",
                 source_identity=source_identity,
-                details={"expected": declared_size, "actual": len(raw_bytes)},
+                details={
+                    "reason": "raw_snapshot_size_mismatch",
+                    "expected": declared_size,
+                    "actual": len(raw_bytes),
+                },
             )
 
     props = {
@@ -347,6 +373,10 @@ def _source_spec_from_snapshot(
         "raw_artifact_id": str(artifact_id),
         "content_sha256": actual_digest,
         "byte_size": str(len(raw_bytes)),
+        "headers": _json_prop(
+            getattr(source, "headers", None)
+            or getattr(cached_record, "headers", {})
+        ),
         "fetch_status": str(getattr(source, "fetch_status", "ok")),
         "fetch_profile": _json_prop(
             getattr(source, "fetch_profile", None)
@@ -368,6 +398,9 @@ def _source_spec_from_snapshot(
         )
         if value is not None:
             props[metadata_field] = str(value)
+    failure_reason = getattr(source, "fetch_failure_reason", None)
+    if failure_reason is not None:
+        props["fetch_failure_reason"] = str(failure_reason)
     props = {key: value for key, value in props.items() if value != ""}
 
     source_license = getattr(source, "license", None)

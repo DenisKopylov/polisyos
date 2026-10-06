@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, cast
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scholar import (
     EnrichmentReportRef,
     FreshnessMetadata,
@@ -135,6 +136,8 @@ def persist_bundle_and_event(
             schema=_BUNDLE_SCHEMA,
             inputs=_input_refs(input_artifact_ids),
         ),
+        # The web-evidence projection retains numeric source-quality diagnostics.
+        canon_spec=CanonSpec(forbid_floats=False),
     )
     bundle_artifact_id = str(bundle_ref.artifact_id)
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import math
 import time
 from collections.abc import Awaitable, Callable, Mapping, Sequence
 from pathlib import Path
@@ -22,6 +23,7 @@ from polisyos.scholar.search.models import (
     ResearchBrief,
     ResearchProgressEvent,
     SearchBudgetControls,
+    SearchBudgetStop,
     SearchConstraints,
     SearchQueryTrace,
     SourceMetadata,
@@ -292,13 +294,34 @@ class ScholarDeepSearchService:
         while queue:
             if searched_queries >= search_budgets.max_search_queries:
                 bundle.uncertainty_notes.append("stopped:max_search_queries")
+                bundle.budget_stops.append(
+                    SearchBudgetStop(
+                        reason="max_search_queries",
+                        observed=searched_queries,
+                        limit=search_budgets.max_search_queries,
+                    )
+                )
                 break
             if len(source_by_id) >= search_budgets.max_fetch_pages:
                 bundle.uncertainty_notes.append("stopped:max_fetch_pages")
+                bundle.budget_stops.append(
+                    SearchBudgetStop(
+                        reason="max_fetch_pages",
+                        observed=len(source_by_id),
+                        limit=search_budgets.max_fetch_pages,
+                    )
+                )
                 break
             if time.monotonic() - start_time > search_budgets.max_wall_time_s:
                 bundle.partial = True
                 bundle.uncertainty_notes.append("stopped:max_wall_time_s")
+                bundle.budget_stops.append(
+                    SearchBudgetStop(
+                        reason="max_wall_time_s",
+                        observed=math.ceil(time.monotonic() - start_time),
+                        limit=math.ceil(search_budgets.max_wall_time_s),
+                    )
+                )
                 break
 
             remaining_query_budget = search_budgets.max_search_queries - searched_queries
@@ -317,7 +340,7 @@ class ScholarDeepSearchService:
 
             search_results = await asyncio.gather(
                 *[
-                    self._provider_policy.search(
+                    self._provider_policy.search_detailed(
                         node.query,
                         constraints=active_constraints,
                         max_results=max(5, min(search_budgets.max_fetch_pages, 20)),
@@ -329,9 +352,10 @@ class ScholarDeepSearchService:
 
             fetch_specs: list[tuple[WebSearchHit, QueryNode]] = []
             batch_seen_urls: set[str] = set()
-            for node, (provider_name, hits, error) in zip(
-                batch_nodes, search_results, strict=False
-            ):
+            for node, selection in zip(batch_nodes, search_results, strict=False):
+                provider_name = selection.provider
+                hits = selection.hits
+                error = selection.error
                 node.provider = provider_name
                 node.hit_count = len(hits)
                 node.status = "failed" if error and not hits else "searched"
@@ -342,6 +366,8 @@ class ScholarDeepSearchService:
                     provider=provider_name,
                     hit_count=len(hits),
                     error=error,
+                    provider_attempts=selection.attempts,
+                    terminal_reason=selection.stop_reason,
                 )
                 bundle.query_traces.append(query_trace)
                 if not hits:
@@ -351,9 +377,17 @@ class ScholarDeepSearchService:
                         perspective=node.perspective,
                         provider=provider_name,
                         reason=(
-                            "provider_error_no_hits"
-                            if error
-                            else "provider_returned_no_hits"
+                            "provider_returned_no_hits"
+                            if all(
+                                attempt.outcome == "empty"
+                                for attempt in selection.attempts
+                            )
+                            else "provider_error_no_hits"
+                            if all(
+                                attempt.outcome == "error"
+                                for attempt in selection.attempts
+                            )
+                            else "providers_exhausted"
                         ),
                         searched_at=query_trace.searched_at,
                         error=error,
@@ -486,7 +520,7 @@ class ScholarDeepSearchService:
             ArtifactWriteOptions(
                 kind="scholar.web_evidence_bundle",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scholar.web_evidence_bundle", version="1.0"),
+                schema=SchemaInfo(name="polisyos.scholar.web_evidence_bundle", version="1.1"),
                 producer=ProducerInfo(component="polisyos.scholar.search.service", version="1.0.0"),
             ),
             canon_spec=CanonSpec(forbid_floats=False),

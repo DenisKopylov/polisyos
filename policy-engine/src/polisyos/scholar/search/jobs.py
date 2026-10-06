@@ -364,7 +364,7 @@ class DeepResearchJobManager:
             ArtifactWriteOptions(
                 kind="scholar.web_research_checkpoint",
                 media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scholar.web_research_checkpoint", version="1.0"),
+                schema=SchemaInfo(name="polisyos.scholar.web_research_checkpoint", version="1.1"),
                 producer=ProducerInfo(component="polisyos.scholar.search.jobs", version="1.0.0"),
             ),
             canon_spec=CanonSpec(forbid_floats=False),

@@ -526,25 +526,10 @@ class FunnelOrchestrator:
                     )
                     self._maybe_record_correlation(resolved_ticket)
                     continue
-                rejected_result = FunnelStageResult(
-                    policy_candidate=result.policy_candidate,
-                    objective_value=result.objective_value,
+                rejected_result = replace(
+                    result,
                     is_promising=False,
-                    stage_name=result.stage_name,
-                    duration_seconds=result.duration_seconds,
-                    timestamp=result.timestamp,
-                    simulation_results=result.simulation_results,
-                    feedback=result.feedback,
-                    predicted_score=result.predicted_score,
-                    actual_score=result.actual_score,
-                    uncertainty_envelope=result.uncertainty_envelope,
-                    cheap_signal=result.cheap_signal,
-                    failure_cards=result.failure_cards,
-                    compute_actual_usd=result.compute_actual_usd,
-                    fidelity_level=result.fidelity_level,
                     audit_refs=list(result.audit_refs),
-                    actionable_side_information_ref=result.actionable_side_information_ref,
-                    terminal_action=result.terminal_action,
                 )
                 resolved_ticket.stage_results[next_level] = rejected_result
                 trace_step.is_promising = False
@@ -1196,25 +1181,12 @@ class FunnelOrchestrator:
         feedback["verdict"] = compatibility_verdict
         feedback["funnel_action"] = outcome.final_action
         feedback["funnel_evaluation_status"] = outcome.evaluation_status
-        return FunnelStageResult(
-            policy_candidate=stage_result.policy_candidate,
-            objective_value=stage_result.objective_value,
+        return replace(
+            stage_result,
             is_promising=compatibility_promising,
-            stage_name=stage_result.stage_name,
-            duration_seconds=stage_result.duration_seconds,
-            timestamp=stage_result.timestamp,
-            simulation_results=stage_result.simulation_results,
             feedback=feedback,
-            predicted_score=stage_result.predicted_score,
-            actual_score=stage_result.actual_score,
-            uncertainty_envelope=stage_result.uncertainty_envelope,
-            cheap_signal=stage_result.cheap_signal,
             failure_cards=list(stage_result.failure_cards),
-            compute_actual_usd=stage_result.compute_actual_usd,
-            fidelity_level=stage_result.fidelity_level,
             audit_refs=list(stage_result.audit_refs),
-            actionable_side_information_ref=stage_result.actionable_side_information_ref,
-            terminal_action=stage_result.terminal_action,
         )
 
     @staticmethod

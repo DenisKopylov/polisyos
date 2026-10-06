@@ -6,6 +6,7 @@ native raw-sample/estimand wiring remains an integration boundary.
 """
 
 import json
+from dataclasses import replace
 from decimal import Decimal
 from types import SimpleNamespace
 
@@ -16,6 +17,7 @@ from polisyos.foundry.methods.catalog.simulation.inference import BootstrapInfer
 from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
 from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
+from polisyos.scientist.methods.search.funnel.types import CheapSignalVector
 from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
@@ -356,3 +358,50 @@ def test_removing_signal_absent_budget_guard_fails_zero_downstream_effects(tmp_p
     assert FileBudgetLedger(path).load().spent["run"] == Decimal("2")
     with pytest.raises(AssertionError):
         assert calls == ["adversary"]
+
+
+@pytest.mark.parametrize("routing_reject", [False, True])
+@pytest.mark.parametrize("cost", [0.0, 1.0])
+def test_actual_native_cost_identity_survives_routing_and_compatibility_projections(
+    tmp_path, monkeypatch, routing_reject, cost
+):
+    path, _, funnel, calls, _, context = configured_workflow(tmp_path, monkeypatch, cost=cost)
+    if routing_reject:
+        stage = funnel._stages_by_level[3]
+        native_evaluate = stage.evaluate
+
+        def route_paid_native_result(candidate, context):
+            return replace(
+                native_evaluate(candidate, context),
+                cheap_signal=CheapSignalVector(structural_validity=0.0),
+            )
+
+        monkeypatch.setattr(stage, "evaluate", route_paid_native_result)
+
+    candidate = {"candidate_id": "candidate-1"}
+    ticket = funnel.submit(candidate, context)
+    outcome = funnel.advance(ticket, policy="full")
+    expected_calls = ["adversary"] if routing_reject else ["adversary", "translator"]
+    assert calls == expected_calls
+    snapshot = FileBudgetLedger(path).snapshot()
+    assert snapshot.state.spent["run"] == Decimal(str(cost)) * len(expected_calls)
+    assert len(snapshot.resource_events) == len(expected_calls)
+    assert outcome.final_action == ("reject" if routing_reject else "complete")
+    assert outcome.provider_spend_usd == snapshot.state.spent["run"]
+    assert set(outcome.resource_event_ids) == set(snapshot.resource_events)
+    final_stage = outcome.final_result
+    assert final_stage.provider_spend_usd == Decimal(str(cost))
+    assert final_stage.compute_cost_source == "provider_reported_only"
+    assert set(final_stage.resource_event_ids) == set(outcome.trace[-1].resource_event_ids)
+    assert final_stage.provider_spend_usd == outcome.trace[-1].provider_spend_usd
+
+    compatibility = funnel.evaluate(candidate, context)
+    assert compatibility.is_promising is (not routing_reject)
+    assert compatibility.feedback["verdict"] == ("REJECT" if routing_reject else "APPROVE")
+    assert compatibility.compute_cost_source == final_stage.compute_cost_source
+    assert compatibility.provider_spend_usd == final_stage.provider_spend_usd
+    assert compatibility.resource_event_ids == final_stage.resource_event_ids
+    native = funnel.as_stage_b_callable()(candidate, context)
+    assert native["_funnel_result"].resource_event_ids == final_stage.resource_event_ids
+    assert native["_funnel_outcome"].resource_event_ids == outcome.resource_event_ids
+    assert calls == expected_calls

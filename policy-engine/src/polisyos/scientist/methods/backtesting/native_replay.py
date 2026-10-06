@@ -37,7 +37,7 @@ from polisyos.foundry.execute.executor import (
     load_state_snapshot,
     put_state_snapshot,
 )
-from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir import TrinityBundle
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore

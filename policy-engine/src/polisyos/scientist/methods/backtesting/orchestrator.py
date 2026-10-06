@@ -602,7 +602,7 @@ class BacktestOrchestrator:
 
     def _predict_native_forecast(self, plan: HistoricalValidationPlan) -> dict[str, Any]:
         """Consume a native trajectory or preserve an explicit unavailable outcome."""
-        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.core.artifacts import ArtifactRef
         from polisyos.scientist.methods.backtesting.native_replay import (
             FORECAST_KEY,
             REQUEST_KEY,

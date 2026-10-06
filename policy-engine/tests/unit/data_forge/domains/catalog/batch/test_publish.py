@@ -1,21 +1,32 @@
 from __future__ import annotations
 
+import asyncio
 import json
+from argparse import Namespace
 from typing import TYPE_CHECKING
 
 import pytest
 
 from polisyos.data_forge.domains.catalog.batch.benchmark import READINESS_THRESHOLDS
-from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
+from polisyos.data_forge.domains.catalog.batch.cli import _build_config, _run_single_stage
+from polisyos.data_forge.domains.catalog.batch.config import DEFAULT_RUN_STAGES, DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
-from polisyos.data_forge.domains.catalog.batch.publish import run_publish
+from polisyos.data_forge.domains.catalog.batch.pipeline import current_content_stage_receipt
+from polisyos.data_forge.domains.catalog.batch.publish import (
+    _build_consumer_readiness,
+    run_publish,
+)
 from polisyos.data_forge.domains.catalog.knowledge.types import DatasetRecord, DistributionRecord
 
 if TYPE_CHECKING:
     from pathlib import Path
 
 
-def _write_test_registry(path: Path) -> None:
+def _write_test_registry(
+    path: Path,
+    *,
+    endpoint: str = "https://example.test/worldbank",
+) -> None:
     path.write_text(
         "\n".join(
             [
@@ -24,7 +35,8 @@ def _write_test_registry(path: Path) -> None:
                 "  - name: worldbank",
                 "    family: worldbank",
                 "    wave: A",
-                "    endpoint: https://example.test/worldbank",
+                f"    endpoint: {endpoint}",
+                "    connector_id: worldbank.wdi",
                 "    enabled: true",
                 "    execution_tier: transport_ready",
                 "    run_lane: empirical",
@@ -139,7 +151,7 @@ def _write_qc_and_benchmark(
         )
 
 
-def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
+def test_consumer_readiness_builder_reports_ready_fixture(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
@@ -150,36 +162,27 @@ def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
     config.duplicates_report_path.write_text("dataset_id,duplicate_id\n", encoding="utf-8")
     _write_qc_and_benchmark(config)
 
-    manifest_path = run_publish(config)
+    readiness_payload, readiness, _blocking_source_statuses = _build_consumer_readiness(config)
 
-    assert manifest_path.exists()
-    assert config.consumer_readiness_path.exists()
-
-    with open(config.consumer_readiness_path, encoding="utf-8") as fh:
-        readiness_payload = json.load(fh)
-    with open(manifest_path, encoding="utf-8") as fh:
-        manifest_payload = json.load(fh)
-
+    assert readiness["consumer_ready"] is True
     assert readiness_payload["readiness"]["consumer_ready"] is True
-    assert manifest_payload["extra"]["consumer_ready"] is True
+    assert readiness_payload["publish_mode"] == "full-ready"
+    assert not config.consumer_readiness_path.exists()
 
 
-def test_run_publish_blocks_when_consumer_readiness_fails(tmp_path) -> None:
+def test_consumer_readiness_reports_when_thresholds_fail(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
     _build_publish_fixture(config)
     _write_qc_and_benchmark(config, search=50.0)
 
-    try:
-        run_publish(config)
-    except RuntimeError as exc:
-        assert "consumer readiness failed" in str(exc)
-    else:
-        raise AssertionError("Expected publish readiness gate to block")
+    readiness_payload, readiness, _blocking_source_statuses = _build_consumer_readiness(config)
+    assert readiness["consumer_ready"] is False
+    assert readiness_payload["readiness"]["search_ready"] is False
 
 
-def test_run_publish_blocks_when_blocking_source_status_is_missing(tmp_path) -> None:
+def test_consumer_readiness_requires_blocking_source_status(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
@@ -210,15 +213,11 @@ def test_run_publish_blocks_when_blocking_source_status_is_missing(tmp_path) -> 
             indent=2,
         )
 
-    try:
-        run_publish(config)
-    except RuntimeError as exc:
-        assert "missing blocking source statuses" in str(exc)
-    else:
-        raise AssertionError("Expected missing source status gate to block")
+    with pytest.raises(RuntimeError, match="missing blocking source statuses"):
+        _build_consumer_readiness(config)
 
 
-def test_run_publish_blocks_unready_blocking_source_below_percentage_gate(tmp_path) -> None:
+def test_consumer_readiness_rejects_unready_blocking_source(tmp_path) -> None:
     source_names = tuple(f"blocking_{index:02d}" for index in range(12))
     registry_path = tmp_path / "registry.yaml"
     registry_path.write_text(
@@ -253,15 +252,8 @@ def test_run_publish_blocks_unready_blocking_source_below_percentage_gate(tmp_pa
         ],
     )
 
-    try:
-        run_publish(config)
-    except RuntimeError as exc:
-        assert "consumer readiness failed" in str(exc)
-    else:
-        raise AssertionError("Expected one unready blocking source to prevent publish")
-
-    with open(config.consumer_readiness_path, encoding="utf-8") as fh:
-        readiness_payload = json.load(fh)
+    readiness_payload, readiness, _blocking_source_statuses = _build_consumer_readiness(config)
+    assert readiness["consumer_ready"] is False
     assert readiness_payload["readiness"]["source_preflight_ready"] is True
     assert readiness_payload["readiness"]["blocking_sources_ready"] is False
     assert readiness_payload["readiness"]["consumer_ready"] is False
@@ -271,7 +263,7 @@ def test_run_publish_blocks_unready_blocking_source_below_percentage_gate(tmp_pa
     ("qc_passed", "source_ready"),
     [("false", True), (True, "false")],
 )
-def test_run_publish_requires_boolean_admission_values(
+def test_consumer_readiness_requires_boolean_admission_values(
     tmp_path,
     qc_passed: object,
     source_ready: object,
@@ -293,12 +285,8 @@ def test_run_publish_requires_boolean_admission_values(
         ],
     )
 
-    try:
-        run_publish(config)
-    except RuntimeError as exc:
-        assert "consumer readiness failed" in str(exc)
-    else:
-        raise AssertionError("Expected malformed boolean admission to prevent publish")
+    _readiness_payload, readiness, _blocking_source_statuses = _build_consumer_readiness(config)
+    assert readiness["consumer_ready"] is False
 
 
 @pytest.mark.parametrize(
@@ -320,7 +308,7 @@ def test_run_publish_requires_boolean_admission_values(
         ),
     ],
 )
-def test_run_publish_requires_exact_blocking_source_membership(
+def test_consumer_readiness_requires_exact_blocking_source_membership(
     tmp_path,
     source_cases: list[dict[str, object]],
     expected_reason: str,
@@ -332,39 +320,107 @@ def test_run_publish_requires_exact_blocking_source_membership(
     _write_qc_and_benchmark(config, source_cases=source_cases)
 
     with pytest.raises(RuntimeError, match=expected_reason):
-        run_publish(config)
+        _build_consumer_readiness(config)
 
 
-def test_run_publish_allows_core_ready_snapshot(tmp_path) -> None:
+def test_consumer_readiness_allows_core_ready_snapshot(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
     _build_publish_fixture(config)
     _write_qc_and_benchmark(config, evaluation_mode="core-ready")
 
-    manifest_path = run_publish(config)
+    readiness_payload, readiness, _blocking_source_statuses = _build_consumer_readiness(config)
 
-    with open(config.consumer_readiness_path, encoding="utf-8") as fh:
-        readiness_payload = json.load(fh)
-    with open(manifest_path, encoding="utf-8") as fh:
-        manifest_payload = json.load(fh)
-
+    assert readiness["consumer_ready"] is True
+    assert readiness["full_publish_ready"] is False
     assert readiness_payload["readiness"]["consumer_ready"] is True
     assert readiness_payload["readiness"]["full_publish_ready"] is False
     assert readiness_payload["publish_mode"] == "core-ready"
-    assert manifest_payload["extra"]["evaluation_mode"] == "core-ready"
 
 
-def test_run_publish_blocks_partial_eval_even_if_thresholds_pass(tmp_path) -> None:
+def test_consumer_readiness_blocks_partial_eval_even_if_thresholds_pass(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
     config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
     _build_publish_fixture(config)
     _write_qc_and_benchmark(config, evaluation_mode="partial-eval")
 
-    try:
+    _readiness_payload, readiness, _blocking_source_statuses = _build_consumer_readiness(config)
+    assert readiness["consumer_ready"] is False
+
+
+def test_run_publish_rejects_ready_json_without_current_producer_receipts(tmp_path: Path) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    _write_test_registry(registry_path)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
+    _build_publish_fixture(config)
+    _write_qc_and_benchmark(config)
+
+    with pytest.raises(RuntimeError, match="no current benchmark content-bound receipt"):
         run_publish(config)
-    except RuntimeError as exc:
-        assert "consumer readiness failed" in str(exc)
+
+    assert not config.consumer_readiness_path.exists()
+    assert not config.publish_manifest_path.exists()
+
+
+def test_standalone_cli_publish_consumes_current_producer_receipts(tmp_path: Path) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    _write_test_registry(registry_path)
+    args = Namespace(
+        snapshot_root=str(tmp_path / "snap"),
+        registry_path=str(registry_path),
+        fail_fast=False,
+    )
+    config = _build_config(args, stages=DEFAULT_RUN_STAGES)
+    _build_publish_fixture(config)
+
+    asyncio.run(_run_single_stage(args, "benchmark"))
+    asyncio.run(_run_single_stage(args, "qc"))
+    benchmark_receipt = current_content_stage_receipt(config, "benchmark")
+    qc_receipt = current_content_stage_receipt(config, "qc")
+    assert benchmark_receipt is not None
+    assert qc_receipt is not None
+
+    with pytest.raises(RuntimeError, match="consumer readiness failed"):
+        asyncio.run(_run_single_stage(args, "publish"))
+
+    readiness_payload = json.loads(config.consumer_readiness_path.read_text(encoding="utf-8"))
+    assert readiness_payload["content_stage_receipts"] == {
+        "benchmark": benchmark_receipt,
+        "qc": qc_receipt,
+    }
+    assert not config.publish_manifest_path.exists()
+
+
+@pytest.mark.parametrize("changed_basis", ["registry", "profile", "benchmark_report"])
+def test_standalone_cli_rejects_publish_after_content_basis_changes(
+    tmp_path: Path, changed_basis: str
+) -> None:
+    registry_path = tmp_path / "registry.yaml"
+    _write_test_registry(registry_path)
+    args = Namespace(
+        snapshot_root=str(tmp_path / "snap"),
+        registry_path=str(registry_path),
+        fail_fast=False,
+    )
+    config = _build_config(args, stages=DEFAULT_RUN_STAGES)
+    _build_publish_fixture(config)
+
+    asyncio.run(_run_single_stage(args, "benchmark"))
+    assert current_content_stage_receipt(config, "benchmark") is not None
+    asyncio.run(_run_single_stage(args, "qc"))
+    assert current_content_stage_receipt(config, "qc") is not None
+
+    if changed_basis == "registry":
+        _write_test_registry(registry_path, endpoint="https://example.test/changed")
+    elif changed_basis == "profile":
+        args.run_profile = "prod_core_blocking"
     else:
-        raise AssertionError("Expected partial-eval publish to stay blocked")
+        config.benchmark_report_path.write_text("{}\n", encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match="current benchmark content-bound receipt"):
+        asyncio.run(_run_single_stage(args, "publish"))
+
+    assert not config.publish_manifest_path.exists()
+    assert not config.consumer_readiness_path.exists()

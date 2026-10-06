@@ -77,7 +77,6 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Datase
 
 
 async def _run_single_stage(args: argparse.Namespace, stage: str) -> None:
-    from polisyos.data_forge.domains.catalog.batch.benchmark import run_benchmark
     from polisyos.data_forge.domains.catalog.batch.core_sources_ingest import (
         run_core_sources_ingest_async,
     )
@@ -89,9 +88,10 @@ async def _run_single_stage(args: argparse.Namespace, stage: str) -> None:
     )
     from polisyos.data_forge.domains.catalog.batch.harvester import harvest_sources
     from polisyos.data_forge.domains.catalog.batch.normalizer import normalize_raw_sources
-    from polisyos.data_forge.domains.catalog.batch.pipeline import run_dataset_pipeline
-    from polisyos.data_forge.domains.catalog.batch.publish import run_publish
-    from polisyos.data_forge.domains.catalog.batch.qc import run_qc
+    from polisyos.data_forge.domains.catalog.batch.pipeline import (
+        run_content_stage_with_receipt,
+        run_dataset_pipeline,
+    )
 
     stage_name = _normalize_stage_name(stage)
     if stage_name == "run":
@@ -101,7 +101,10 @@ async def _run_single_stage(args: argparse.Namespace, stage: str) -> None:
             pass
         return
 
-    cfg = _build_config(args, stages=frozenset({stage_name}))
+    content_stages = {"benchmark", "qc", "publish"}
+    # Separate CLI invocations must share one signature for their content receipts.
+    cfg_stages = DEFAULT_RUN_STAGES if stage_name in content_stages else frozenset({stage_name})
+    cfg = _build_config(args, stages=cfg_stages)
     if stage_name == "harvest":
         await harvest_sources(cfg)
     elif stage_name == "normalize":
@@ -116,12 +119,8 @@ async def _run_single_stage(args: argparse.Namespace, stage: str) -> None:
         stats = await run_core_sources_ingest_async(cfg)
     elif stage_name == "embed":
         run_embed(cfg, thermal=bool(getattr(args, "thermal", False)))
-    elif stage_name == "benchmark":
-        run_benchmark(cfg)
-    elif stage_name == "qc":
-        run_qc(cfg, fail_fast=bool(getattr(args, "fail_fast", True)))
-    elif stage_name == "publish":
-        run_publish(cfg)
+    elif stage_name in {"benchmark", "qc", "publish"}:
+        run_content_stage_with_receipt(cfg, stage_name)
     else:
         raise ValueError(f"Unsupported stage command: {stage}")
 

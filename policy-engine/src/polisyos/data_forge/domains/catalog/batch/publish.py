@@ -42,9 +42,9 @@ def _load_json(path: Path) -> dict[str, object]:
     return payload if isinstance(payload, dict) else {}
 
 
-def _write_consumer_readiness_manifest(
+def _build_consumer_readiness(
     config: DatasetBatchConfig,
-) -> tuple[Path, dict[str, bool], dict[str, str]]:
+) -> tuple[dict[str, object], dict[str, bool], dict[str, str]]:
     qc_payload = _load_json(config.qc_report_path)
     benchmark_payload = _load_json(config.benchmark_report_path)
     benchmark_metrics = (
@@ -180,6 +180,26 @@ def _write_consumer_readiness_manifest(
         "bulk_equivalence_mismatch_rate": bulk_equivalence_mismatch_rate,
         "bulk_equivalence_blocking_sources_total": bulk_equivalence_blocking_sources_total,
     }
+
+    return payload, readiness, blocking_source_statuses
+
+
+def _write_consumer_readiness_manifest(
+    config: DatasetBatchConfig,
+) -> tuple[Path, dict[str, bool], dict[str, str]]:
+    from polisyos.data_forge.domains.catalog.batch.pipeline import (
+        current_content_stage_receipt,
+    )
+
+    content_stage_receipts: dict[str, dict[str, object]] = {}
+    for stage in ("benchmark", "qc"):
+        receipt = current_content_stage_receipt(config, stage)
+        if receipt is None:
+            raise RuntimeError(f"Dataset publish blocked: no current {stage} content-bound receipt")
+        content_stage_receipts[stage] = receipt
+
+    payload, readiness, blocking_source_statuses = _build_consumer_readiness(config)
+    payload["content_stage_receipts"] = content_stage_receipts
     config.consumer_readiness_path.parent.mkdir(parents=True, exist_ok=True)
     with open(config.consumer_readiness_path, "w", encoding="utf-8") as fh:
         json.dump(payload, fh, ensure_ascii=False, indent=2)

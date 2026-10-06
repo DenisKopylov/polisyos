@@ -1,0 +1,102 @@
+{
+  "schema": "policyos.e02.rep_01.cli_command_record.v1",
+  "candidate": {
+    "branch": "codex/e02-A-replay-full",
+    "commit": "3334775bcad7045361c3c7e3395674b49fcebaab",
+    "tree": "14c4be8109a1a7c1e635fd8be3355f2b04437619",
+    "source_fixture": "policy-engine/tests/unit/remediation/test_rep_01_execution.py@adcfcf23cdc25eff583ac4777928bf39e0903067:_build_income_tax_packet"
+  },
+  "execution_environment": {
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine",
+    "executable": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "python": "CPython 3.14.0; root policy-engine/.venv; no leaf virtual environment",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/src",
+    "JAX_PLATFORM_NAME": "cpu",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1"
+  },
+  "fixture": {
+    "receipt": "policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/cli-acceptance/fixture.json@sha256:c4f01cc19e7138034fe6041743773d307585686ef4fb8e6bb9b4dab573f10037",
+    "packet_ref": "sha256:1ef8b28cb6aca3d8ac7043066c6270e2badd7862a1ddaa19dfabd03b94d20d21",
+    "source_cas": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/cli-acceptance/source-cas",
+    "bundle": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/cli-acceptance/income-tax-replay.tar.gz",
+    "bundle_sha256": "9f9c4ad8524ef6b448e3dd748c328a873a5574462046382fca9f59d39673a502",
+    "resume_cas": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/cli-acceptance/resume-cas",
+    "resume_run_id": "R_rep_01_cli_resume_complete"
+  },
+  "commands": [
+    {
+      "id": "cli-export",
+      "outcome": "PASS",
+      "argv": [
+        "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.ops_runners.runtime_cli",
+        "replay",
+        "sha256:1ef8b28cb6aca3d8ac7043066c6270e2badd7862a1ddaa19dfabd03b94d20d21",
+        "--cas-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/cli-acceptance/source-cas",
+        "--export",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/cli-acceptance/income-tax-replay.tar.gz",
+        "--json"
+      ],
+      "result": "19 artifacts exported; 61016 bytes; no missing artifacts or manifests",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-cli-export.stdout.log@sha256:06294f255d53628aa9d8ee28951331a417cd6182002f49787e99a66c7d28d4da"
+    },
+    {
+      "id": "cli-bundle-check-only",
+      "outcome": "PASS",
+      "argv": [
+        "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.ops_runners.runtime_cli",
+        "replay",
+        "sha256:1ef8b28cb6aca3d8ac7043066c6270e2badd7862a1ddaa19dfabd03b94d20d21",
+        "--bundle",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/cli-acceptance/income-tax-replay.tar.gz",
+        "--check-only",
+        "--json"
+      ],
+      "result": "complete; 19/19 present; 19 artifacts / 38 files imported; no missing or corrupted artifacts",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-cli-check-only.stdout.log@sha256:ad48a7a7eb71d8d66d7634a5fb5782207793f523a37fd033705270f7ce05265f"
+    },
+    {
+      "id": "cli-bundle-foundry-replay",
+      "outcome": "PASS",
+      "argv": [
+        "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.ops_runners.runtime_cli",
+        "replay",
+        "sha256:1ef8b28cb6aca3d8ac7043066c6270e2badd7862a1ddaa19dfabd03b94d20d21",
+        "--bundle",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/cli-acceptance/income-tax-replay.tar.gz",
+        "--strategy",
+        "foundry",
+        "--no-verify",
+        "--json"
+      ],
+      "result": "success=true; strategy=foundry; 19 artifacts imported; result sha256:048e7f55489a04d7f27216f2e0d5ce0b8b9fca4ee8f0afd0699b85f1b3560a2e; --no-verify means this CLI command is not the semantic equivalence check",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-cli-replay.stdout.log@sha256:c63508b1e9321efe803da0d67ee21ebb17d3de95eaa7183b53fcb953d0384dd1"
+    },
+    {
+      "id": "cli-resume-dispatch",
+      "outcome": "PASS",
+      "argv": [
+        "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.ops_runners.runtime_cli",
+        "resume",
+        "R_rep_01_cli_resume_complete",
+        "--cas-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/cli-acceptance/resume-cas",
+        "--json"
+      ],
+      "result": "status=ok; scientist_default checkpoint has 23/23 completed nodes; no residual node executed",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-cli-resume.stdout.log@sha256:9865cc636f80606f963f6350ac3aff5dca2ff55143cdd02971289bf276a16ad5"
+    }
+  ],
+  "capture_note": "The original stdout files preserve each command result but do not echo process argv. This receipt pins the executed packet, CAS/bundle paths, output archive, resume run, executable, and environment from the adjacent fixture and CLI records; the commands above are the exact normalized absolute argv for those recorded invocations. No command was rerun to produce this receipt."
+}

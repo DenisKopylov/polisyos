@@ -253,7 +253,7 @@ class _RequiredAuditResolver:
         if (
             entry.compute_hash() != entry.entry_hash
             or entry.chain_id != "B65:retained-owner"
-            or entry.actor.id != obligation.actor
+            or entry.actor.identity != obligation.actor
             or entry.resource.id != obligation.run_id
             or entry.correlation.run_id != obligation.run_id
             or json.dumps(actual_payload, sort_keys=True)

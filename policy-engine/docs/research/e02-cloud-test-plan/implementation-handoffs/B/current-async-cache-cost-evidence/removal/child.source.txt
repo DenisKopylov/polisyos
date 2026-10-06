@@ -1,0 +1,92 @@
+"""Run the frozen new native file and retain actual imported-source identities."""
+import hashlib
+import importlib.metadata
+import json
+import os
+import pathlib
+import subprocess
+import sys
+
+OUT = pathlib.Path('/tmp/e02-B52-cache-cost-c043/removal')
+REPO = pathlib.Path(os.environ['E02_PRODUCT_ROOT'])
+SHA = os.environ['E02_EXPECTED_SOURCE']
+SRC = REPO / 'policy-engine/src'
+PROJECT = REPO / 'policy-engine'
+sys.path[:0] = [str(SRC), str(PROJECT)]
+TEST = 'tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py'
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=REPO)
+def inventory():
+    paths = git('ls-files', '--', 'policy-engine/src', 'policy-engine/pytest.ini',
+                'policy-engine/pyproject.toml', 'policy-engine/uv.lock', 'policy-engine/'+TEST).decode().splitlines()
+    rows = []
+    for name in paths:
+        actual = (REPO/name).read_bytes()
+        expected = git('show', SHA+':'+name)
+        assert actual == expected, name
+        rows.append({'path': name, 'sha256': hashlib.sha256(actual).hexdigest(), 'bytes': len(actual)})
+    return rows
+assert git('rev-parse', 'HEAD').decode().strip() == SHA
+before = inventory()
+context = {'target_sha': SHA, 'target_tree': git('rev-parse', SHA+'^{tree}').decode().strip(),
+           'python': sys.version, 'python_executable_lexical': sys.executable,
+           'distributions': {x: importlib.metadata.version(x) for x in ['pytest','pytest-asyncio','pydantic','numpy']},
+           'input_inventory': before, 'no_live_profile_sync': True}
+(OUT/'source-context.json').write_text(json.dumps(context,indent=2)+'\n')
+
+import ast
+import polisyos.scientist.orchestration.engine.async_executor as executor_module
+original_source = git('show', SHA+':policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py')
+tree = ast.parse(original_source)
+changes = []
+class RemoveCacheOffLoop(ast.NodeTransformer):
+    def __init__(self):
+        self.parents = []
+    def visit_AsyncFunctionDef(self, node):
+        self.parents.append(node.name)
+        result = self.generic_visit(node)
+        self.parents.pop()
+        return result
+    def visit_Call(self, node):
+        if isinstance(node.func, ast.Name) and node.func.id == 'run_blocking_async' and any(x in {'_recover_cache','_put_cache_entry','_execute_node'} for x in self.parents):
+            changes.append({'line':node.lineno,'function':self.parents[-1],'before':node.func.id,'after':'_e02_onloop_cache_io'})
+            node.func.id = '_e02_onloop_cache_io'
+        return self.generic_visit(node)
+RemoveCacheOffLoop().visit(tree)
+assert len(changes) == 4, changes
+async def _e02_onloop_cache_io(func, *args, **kwargs):
+    kwargs.pop('timeout_seconds', None)
+    kwargs.pop('unbounded', None)
+    return func(*args, **kwargs)
+executor_module.__dict__['_e02_onloop_cache_io'] = _e02_onloop_cache_io
+exec(compile(ast.fix_missing_locations(tree),executor_module.__file__,'exec'),executor_module.__dict__)
+print('B52_LITERAL_REMOVAL '+json.dumps({'source_sha256':hashlib.sha256(original_source).hexdigest(),'changes':changes,'replacement':'async bridge runs unchanged real cache function on caller loop; only helper timeout/unbounded transport options omitted','source_files_unchanged':True}),flush=True)
+
+import pytest
+args = ['--noconftest','-p','no:cacheprovider','-s','-ra',TEST,
+        '--basetemp=/tmp/e02-B52-cache-cost-c043/fixtures', '--junitxml='+str(OUT/'native.xml')]
+print('B52_PYTEST_ARGV '+json.dumps(args), flush=True)
+args[args.index(TEST)] = TEST+'::test_real_async_cache_costs_and_neighbour_waits[1024]'
+args[args.index('--basetemp=/tmp/e02-B52-cache-cost-c043/fixtures')] = '--basetemp=/tmp/e02-B52-cache-cost-c043/removal-fixtures'
+print('B52_REMOVAL_PYTEST_ARGV '+json.dumps(args),flush=True)
+code = pytest.main(args)
+after = inventory()
+assert before == after
+origins = []
+for name, module in sorted(sys.modules.items()):
+    if not name.startswith('polisyos'):
+        continue
+    filename = getattr(module,'__file__',None)
+    if filename is None:
+        continue
+    path = pathlib.Path(filename).resolve()
+    rel = path.relative_to(REPO.resolve()).as_posix()
+    data = path.read_bytes()
+    assert data == git('show', SHA+':'+rel), name
+    origins.append({'module':name,'path':str(path),'source_path':rel,'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)})
+(OUT/'module-origins.json').write_text(json.dumps(origins,indent=2)+'\n')
+context.update({'source_equal_after':True,'all_loaded_canonical_modules_git_equal':True,
+                'loaded_canonical_count':len(origins),'source_head_after':git('rev-parse','HEAD').decode().strip(),
+                'pytest_argv':args,'pytest_return_code':code})
+(OUT/'source-context.json').write_text(json.dumps(context,indent=2)+'\n')
+sys.exit(code)

@@ -1,0 +1,27 @@
+{
+  "source_sha": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+  "source_head_after": "c0431c5b0e8dd71f758ec956b4de271910cef19a",
+  "loaded_module_identity_count": 96,
+  "loaded_module_git_equal": true,
+  "actual_marker_count": 1,
+  "actual_provider_lines": 1,
+  "cache_ref": {
+    "artifact_id": "sha256:20c4ad82e9fdf0777dbe90462e5a58c1f8681f72b8886e24fe5eecc60e63dec3",
+    "kind": "scientist.node_cache_entry",
+    "media_type": "application/json"
+  },
+  "native_cas_verify": {
+    "ok": true
+  },
+  "cache_bytes_sha256": "20c4ad82e9fdf0777dbe90462e5a58c1f8681f72b8886e24fe5eecc60e63dec3",
+  "cache_bytes": 5545,
+  "native_reopened_load_entry": true,
+  "native_get_state_result": {
+    "bytes": 1024,
+    "digest": "49abd65bbf7f7e40c7055093ed2e3fd75f2f602f2c5fcf955c213e3135eb03f7"
+  },
+  "native_get_state_expanded_length": 1024,
+  "actual_cache_io_thread_equals_loop": true,
+  "actual_ticks_inside_cache_io": 0,
+  "cheap_store_marker_passes_while_offloop_neighbour_property_fails": true
+}

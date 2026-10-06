@@ -1,0 +1,76 @@
+{
+  "schema": "policyos.e02.evidence_index.v1",
+  "target_sha": "9f2a31c8869525ecf55fa55d0f5b08027c09a988",
+  "entries": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/ack-removal/native.txt",
+      "sha256": "1a8b2c254eff9aebc969f996a74cbc0652b38f9ebe28c5c8c2674d0d90e4f6e1",
+      "bytes": 9609
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/ack-removal/native.xml",
+      "sha256": "89a26b0ffc6b7f703edf5664e18eb5b83461937e11ec4b89e3dc9f6c09e3f7a0",
+      "bytes": 7539
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/ack-removal/wrapper.json",
+      "sha256": "af6506831a7663409a80cf62c88c16ca404fb936de99f3cc7dbef7a88a425276",
+      "bytes": 4115
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/admission-removal/native.txt",
+      "sha256": "733edb85fd70186f124309932576af3711527c2971a7ec5ad237cb980b7c6fef",
+      "bytes": 23284
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/admission-removal/native.xml",
+      "sha256": "ec2831085dd8fdfb8503588de7e819da0c6dc6d8056391fb7934a52eb8fa99a8",
+      "bytes": 20720
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/admission-removal/wrapper.json",
+      "sha256": "7ec8889eded157605224fccdc15a431f7d7ca5b3756174641b2900114a23f634",
+      "bytes": 4139
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/native/native.txt",
+      "sha256": "7a019cfd68d40aed4dc601072a514b8a17437d10cb21e471b6b1d470a6fd2888",
+      "bytes": 39280
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/native/native.xml",
+      "sha256": "aa7d7b31dc77d74791c1f539bdab65961bae8828f4e09c6a63f521e0be2ab304",
+      "bytes": 20555
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/native/wrapper.json",
+      "sha256": "99d25505f1306cb622f4d14151c9b396a83ec9fd5781df7d934c7087a79655e0",
+      "bytes": 4030
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/check-0.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/check-1.txt",
+      "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de",
+      "bytes": 26
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/check-2.txt",
+      "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
+      "bytes": 43
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/quality/wrapper.json",
+      "sha256": "1081a4deb0540a623789cba0b82fd24c803496b06195f94a7de2449c15de2e97",
+      "bytes": 5574
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durable-completion-evidence/run-checks.source.txt",
+      "sha256": "872bfba5749b5f6e9f9a147a670675536eedc5b6c346b00ba30da1d101ecf0eb",
+      "bytes": 5262
+    }
+  ]
+}

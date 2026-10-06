@@ -1,0 +1,812 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-wire-envelope-consumer",
+  "closure_ids": [],
+  "finding_ids": [
+    "B94"
+  ],
+  "bundle_ids": [
+    "WIRE-01"
+  ],
+  "slice_base_sha": "562ca2c25ca68fd90c4d5225b1b33fdd5b161940",
+  "slice_base_tree_sha": "022a92aacb708e0aa4e54c71f089212f6e16f4c5",
+  "implementation_commits": [
+    "a4dd3b25c369be19c80727395c689a121950fc64"
+  ],
+  "candidate_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+  "candidate_tree_sha": "b45fe8b1b19001b3250bca171abc5fdc86a74106",
+  "branch": "codex/e02-B-current-adapters",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/64",
+  "changed_paths": [
+    "policy-engine/tests/unit/remediation/test_wire_01.py"
+  ],
+  "production_changed_paths": [],
+  "admission": {
+    "existing_writer_lane": "/workspace/e02-B-current-adapters",
+    "fresh_slice_base": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/slice-base.json",
+      "sha256": "fa1f8fa3f5bdabca867480cc735bb444218cc5f5d8f94d057419404732086ca5",
+      "bytes": 744
+    },
+    "new_worktree_created": false,
+    "original_root_admission_receipts": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/adapters-create.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/adapters-resume.json"
+    ]
+  },
+  "baseline_cells": [
+    {
+      "id": "F03-P023",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "source_line": 153,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F03-P023",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F03-P074",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+      "source_line": 204,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F03-P074",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F06-P041",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+      "source_line": 225,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F06-P041",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F07-P023",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "source_line": 29,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F07-P023",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F07-P067",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+      "source_line": 73,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F07-P067",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F10-P027",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+      "source_line": 147,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F10-P027",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F13-P027",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt",
+      "source_line": 154,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F13-P027",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    },
+    {
+      "id": "F15-P087",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+      "source_file": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+      "source_line": 242,
+      "source_state": "PASS",
+      "related_findings": [
+        "B94"
+      ],
+      "canonical_cell_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/cells.tsv@198076863e143dea9f89f02734b13d50dae3eed5#F15-P087",
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "grade": "source_reported_compact_text_only; navigation, never new-candidate proof"
+    }
+  ],
+  "baseline_job_context": [
+    {
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_ref": "research_main",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+        "sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+        "bytes": 75761
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          6
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@sha256:1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B94 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "source_ref": "e02_execution_base",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+        "sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+        "bytes": 99912
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          3
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@sha256:b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "source_ref": "e02_head",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt",
+        "sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+        "bytes": 74977
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          5
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt@sha256:eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "source_ref": "main",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+        "sha256": "c45428c7e6574666b0a5ef98ba0427e3137c7008046fad65d4ed4dc55620fe36",
+        "bytes": 71852
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          5
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt@sha256:c45428c7e6574666b0a5ef98ba0427e3137c7008046fad65d4ed4dc55620fe36",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B91 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt",
+        "sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+        "bytes": 87536
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          5
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@sha256:7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    },
+    {
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "source_ref": "integration_head",
+      "transferred_source": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+        "sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+        "bytes": 85661
+      },
+      "environment_identity": {
+        "grade": "source_reported",
+        "metadata_json_root_lines": [
+          5
+        ],
+        "source_locator": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@sha256:efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+        "instruction": "Read the full metadata JSON object(s) and exact cell/job context; F12 has two metadata roots. Python/tool/segment distinctions are retained in canonical bytes, not flattened to current environment."
+      },
+      "input_closure": {
+        "source": "Source-reported Git source point and transferred compact cell/job context only",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "raw_archive_transfer": "missing",
+        "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
+      }
+    }
+  ],
+  "baseline_grade": "compact source-reported navigation only; no new-candidate proof and no raw/archive runtime closure",
+  "checks": [
+    {
+      "id": "original-root4e-wire-two-failures",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-p",
+        "current_cohort_inventory",
+        "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.args",
+        "--continue-on-collection-errors",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort.xml"
+      ],
+      "target_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": {
+        "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_COHORT_INVENTORY_PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/final-B-cohort-inventory.json"
+      },
+      "input_closure": {
+        "root_complete_command_profile": "root full110 whole-file cohort, source4e, literal observer; six full-source input refs in separate completed partition handoff562",
+        "test_source_sha256": "0d465e83ba5fe77e37be0d8ceacda1a5c5fc2ad15ec1b1878d748641a6a07421",
+        "scope": "complete original native2failure records extracted without native invocation; full raw root XML/stdout remain separate exact refs",
+        "case_inputs": "ExperimentState(run_id=wire-01-artifact-tags, inputs[input]=actualArtifactRef(ArtifactID sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,kind=test.wire_01,media_type=application/json))"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/original-root4e-two-failures.json",
+        "sha256": "cba6b9ba77be50ded5cce7ec5b30fb03bcff824e5ebdf94ade29897b38d184cb",
+        "bytes": 6269
+      },
+      "deciding_output": "native/stdlib callFAIL KeyError inputs at old test line259 before tag or reader assertions; setup/teardown PASS; original2FAIL retained"
+    },
+    {
+      "id": "native-whole-wire-and-serialization",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+        "--repo",
+        "/workspace/e02-B-current-adapters",
+        "--output",
+        "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4",
+        "--mode",
+        "native",
+        "--child"
+      ],
+      "target_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2",
+        "pytest_version": "9.0.2",
+        "dependencies": "root-provided isolated 194-distribution environment, no sync/install by this slice",
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "quota_profile": "no worker/process/thread quota argument introduced; actual ambient named numeric caps observation after both native children: empty",
+        "source_and_consumer_custody": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/source-context.json",
+          "sha256": "cdfe5798f6d7f8f77647fd5d6326b6ac9980671dd00c2184bd0488c35e0d0d6d",
+          "bytes": 13866
+        },
+        "backend_profile": "native import-selected orjson and explicit stdlib fallback; actual -vv cases retained",
+        "module_observation": "canonical serialization __file__ and backing SHA printed in actual native process, before/after unchanged; not full import/resource/child readset"
+      },
+      "input_closure": {
+        "execution_driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+          "sha256": "a509ad30dcd32ec2e095f806424214bb3aac93fe555198fe4ff3816a5d57a14f",
+          "bytes": 6669
+        },
+        "driver_custody": "exact execution bytes were an untracked new probe at a4; committed unchanged with this deciding-evidence handoff, not claimed in candidate tree",
+        "native_pytest_argv": "full argv printed in complete deciding stdout",
+        "test_profiles": "both backends x current-v2, independently constructed legacy-v0, legacy JSON plus independently composed byte01/body/SHA256 frame",
+        "source_context": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/source-context.json",
+          "sha256": "cdfe5798f6d7f8f77647fd5d6326b6ac9980671dd00c2184bd0488c35e0d0d6d",
+          "bytes": 13866
+        },
+        "execution_overlay": "none",
+        "source_production_changes": "none; all serialization file bytes remain root4e/a4 exact32e552...; removal compiles only one canonical AST branch deletion in an isolated interpreter",
+        "worker_context": "own genuine-worker2 source_context qualified; root4e retry/worker bytes differ and root4e nativeworker PASS remains separately pinned"
+      },
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "actual_child_exit": 0,
+      "actual_case_counts": {
+        "PASS": 119
+      },
+      "wall_s": 16.57170449401019,
+      "maxrss_kib": 655920,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/native.txt",
+        "sha256": "1dabd8011436c8dce2b59168be502b34b806b28e294e89d77cac6243979df15c",
+        "bytes": 18996
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/native.xml",
+        "sha256": "8e5621923e0526a34bd3f56ff65bccd837443bda3ae0495939bff5003891aec6",
+        "bytes": 19801
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/native.json",
+        "sha256": "07f5d8959cda2be985680ed64f5b8daadb7026d5038e2c8f2a1b212824e5307c",
+        "bytes": 1549
+      },
+      "deciding_output": "119PASS/0FAIL/0ERROR/0SKIP including6 corrected current/legacy consumers and2 genuine-worker controls"
+    },
+    {
+      "id": "model-tag-reader-removal",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-adapters/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+        "--repo",
+        "/workspace/e02-B-current-adapters",
+        "--output",
+        "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4",
+        "--mode",
+        "remove",
+        "--child"
+      ],
+      "target_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "3.14.2",
+        "pytest_version": "9.0.2",
+        "dependencies": "root-provided isolated 194-distribution environment, no sync/install by this slice",
+        "PYTHONPATH": "/workspace/e02-B-current-adapters/policy-engine/src:/workspace/e02-B-current-adapters/policy-engine",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "quota_profile": "no worker/process/thread quota argument introduced; actual ambient named numeric caps observation after both native children: empty",
+        "source_and_consumer_custody": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/source-context.json",
+          "sha256": "cdfe5798f6d7f8f77647fd5d6326b6ac9980671dd00c2184bd0488c35e0d0d6d",
+          "bytes": 13866
+        },
+        "backend_profile": "native import-selected orjson and explicit stdlib fallback; actual -vv cases retained",
+        "module_observation": "canonical serialization __file__ and backing SHA printed in actual native process, before/after unchanged; not full import/resource/child readset"
+      },
+      "input_closure": {
+        "execution_driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+          "sha256": "a509ad30dcd32ec2e095f806424214bb3aac93fe555198fe4ff3816a5d57a14f",
+          "bytes": 6669
+        },
+        "driver_custody": "exact execution bytes were an untracked new probe at a4; committed unchanged with this deciding-evidence handoff, not claimed in candidate tree",
+        "native_pytest_argv": "full argv printed in complete deciding stdout",
+        "test_profiles": "both backends x current-v2, independently constructed legacy-v0, legacy JSON plus independently composed byte01/body/SHA256 frame",
+        "source_context": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/source-context.json",
+          "sha256": "cdfe5798f6d7f8f77647fd5d6326b6ac9980671dd00c2184bd0488c35e0d0d6d",
+          "bytes": 13866
+        },
+        "execution_overlay": "isolated interpreter removes exactly _decode_wire_tag model branch; module file bytes stay frozen",
+        "source_production_changes": "none; all serialization file bytes remain root4e/a4 exact32e552...; removal compiles only one canonical AST branch deletion in an isolated interpreter",
+        "worker_context": "own genuine-worker2 source_context qualified; root4e retry/worker bytes differ and root4e nativeworker PASS remains separately pinned"
+      },
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "actual_child_exit": 1,
+      "actual_case_counts": {
+        "FAIL": 6
+      },
+      "wall_s": 1.7285352799954126,
+      "maxrss_kib": 105404,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/remove.txt",
+        "sha256": "b18d7b7538fb06636eb917223c5155e245bfae6055b75dcc6306b963e67ac5ae",
+        "bytes": 28865
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/remove.xml",
+        "sha256": "d2d6a834de9b1eb5433f2862a9f8019d5921fc08f94c093204f60daa29cbe84e",
+        "bytes": 26086
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/remove.json",
+        "sha256": "63c96b9f9b5e8867dda04c3912211d72b716d39af37a45dcde751e47ba76eaa2",
+        "bytes": 1643
+      },
+      "deciding_output": "6 actualcallFAIL/0ERROR/0SKIP, Unsupported runner wire type tag:model at reader; current writer schema+tag assertions reached and passed on every profile; source file unchanged; no marker proxy"
+    },
+    {
+      "id": "static-ruff",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "tests/unit/remediation/test_wire_01.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py"
+      ],
+      "target_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "grade": "static only"
+      },
+      "input_closure": {
+        "test_path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+        "execution_driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+          "sha256": "a509ad30dcd32ec2e095f806424214bb3aac93fe555198fe4ff3816a5d57a14f",
+          "bytes": 6669
+        },
+        "syntax_runtime_grade": "no new native execution from static checks"
+      },
+      "outcome": "PASS",
+      "returncode": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/ruff.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/ruff.json",
+        "sha256": "cfdb4efc179f9737ce519b4f4902a0946d91b0f438217966ef2a82d8b1a59041",
+        "bytes": 899
+      }
+    },
+    {
+      "id": "static-format",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tests/unit/remediation/test_wire_01.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py"
+      ],
+      "target_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "grade": "static only"
+      },
+      "input_closure": {
+        "test_path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+        "execution_driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+          "sha256": "a509ad30dcd32ec2e095f806424214bb3aac93fe555198fe4ff3816a5d57a14f",
+          "bytes": 6669
+        },
+        "syntax_runtime_grade": "no new native execution from static checks"
+      },
+      "outcome": "PASS",
+      "returncode": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/format.txt",
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "bytes": 26
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/format.json",
+        "sha256": "00317eed0681ff258176c9086047ce7996593cd854ca801bcd428e0fbbc88135",
+        "bytes": 899
+      }
+    },
+    {
+      "id": "static-diff",
+      "command": [
+        "/usr/bin/git",
+        "diff",
+        "--check"
+      ],
+      "target_sha": "a4dd3b25c369be19c80727395c689a121950fc64",
+      "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "grade": "static only"
+      },
+      "input_closure": {
+        "test_path": "policy-engine/tests/unit/remediation/test_wire_01.py",
+        "execution_driver": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+          "sha256": "a509ad30dcd32ec2e095f806424214bb3aac93fe555198fe4ff3816a5d57a14f",
+          "bytes": 6669
+        },
+        "syntax_runtime_grade": "no new native execution from static checks"
+      },
+      "outcome": "PASS",
+      "returncode": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/diff.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/diff.json",
+        "sha256": "00b9160c0a9e26e69246d4eabf33f4edf6153426c7bde98e8c053b01a22147b9",
+        "bytes": 627
+      }
+    }
+  ],
+  "property": {
+    "statement": "Current ArtifactRef/ArtifactID consumer admits exact state_wire.v2 envelope and retains exact model identity/value; explicitly independently supplied legacy model tags retain identity through bare and integrity-framed actual readers under both JSON backends.",
+    "runtime_path": [
+      "actual ExperimentState+ArtifactRef+ArtifactID producer",
+      "canonical serialize_state actual v2 JSON bytes",
+      "explicit v2 envelope inspection or independently constructed legacy bare/header+digest artifact",
+      "deserialize_state and framed deserialize_state_safe canonical model-tag reader",
+      "exact current/legacy native type and equality assertions"
+    ],
+    "proxy_divergence": "An old bare top-level inputs lookup fails before the tag/reader contract is tested. The corrected profile checks v2 schema/value explicitly and independently supplies legacy inputs. Native full4e2FAIL are kept, not erased or relabelled.",
+    "negative_controls": [
+      "existing Decimal/nonfinite/unsupported/corrupt integrity guards unchanged",
+      "isolated canonical model-tag reader branch deletion makes all6 actual consumers FAIL at decoding while producer current schema/tag assertions remain successful"
+    ],
+    "wire_versions": {
+      "current_payload": "polisyos.scientist.state_wire.v2",
+      "legacy_payload": "unversioned raw JSON typed-model tag contract",
+      "safe_frame": "literal byte01 + exact JSON body + SHA256 raw digest; independent of typed JSON schema"
+    },
+    "authority_purpose": "bounded operational transport type/value preservation only; no serialized institutional/tenant authority",
+    "profile_delta": "one existing test uses exact v2 producer envelope and3 explicit payload profiles; original8assertions allretained plus7 meaningful assertions; four unrelated long-expression wraps are formatter-only, AST unchanged outside target test"
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded test-consumer premise correction with actual canonical-reader/legacy discrimination; separate G finding closure not asserted",
+  "finding_dispositions": [
+    {
+      "finding_id": "B94",
+      "bundle_id": "WIRE-01",
+      "state": "verified_bounded_consumer_companion_pending_independent_root_acceptance",
+      "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5:2477",
+      "canonical_bundle_ref": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/WIRE-01.md",
+        "source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b"
+      },
+      "baseline_cell_ids": [
+        "F03-P023",
+        "F03-P074",
+        "F06-P041",
+        "F07-P023",
+        "F07-P067",
+        "F10-P027",
+        "F13-P027",
+        "F15-P087"
+      ],
+      "source_point": "a4dd3b25c369be19c80727395c689a121950fc64",
+      "checks": [
+        "original-root4e-wire-two-failures",
+        "native-whole-wire-and-serialization",
+        "model-tag-reader-removal"
+      ],
+      "original_4e_result": "two callFAIL retained",
+      "statement": "Finite actual typed transport controls pass after test-only envelope-premise repair; current v2 and explicit legacy tags both exercise realreader. Strict v2 Decimal/outcome/worker guards remain actualPASS in exact defining files.",
+      "limitations_and_next_owner": [
+        "Original root4e complete cohort2FAIL remain immutable; this companion changes only one test premise plus explicit measured legacy controls and does not reinterpret original results.",
+        "New actual119PASS is scoped to this exact own checkout. Serialization/e02/normalcodec bytes equal root4e, but retry/activity_worker bytes differ. No source-equivalence or new root4e worker assertion from own replay.",
+        "Root owns independent review/merged final source freeze, supported required gates and G finding closure. No package PASS or summary alone establishes B94 closure.",
+        "Legacy unversioned input and integrity framev1 remain explicit compatibility, distinct from strict v2 Decimal payload admission. Wire integrity/type identity does not establish tenant permission, institutional authority or service adoption.",
+        "Live Ray/Temporal deployment services and full production dataset were not inputs; no deployment/state-history law claim. Existing nativeOS process fixture uses actualfork/FileSystemCAS and live PPid ancestry, not marker tests.",
+        "Output origin/hash observation is actual file-backed serialization module only, not complete transitive/import/resource/child execution readset.",
+        "Full rootwave large deciding files stay exact ignored raw refs plus root-owned Git transfer; independent receiver lacking required bytes must not use our extracted2case records as complete rootwave proof."
+      ],
+      "finding_closure": "not asserted; G separately accepts exact candidate/integration/source closure"
+    }
+  ],
+  "source_and_consumer_context": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/source-context.json",
+    "sha256": "cdfe5798f6d7f8f77647fd5d6326b6ac9980671dd00c2184bd0488c35e0d0d6d",
+    "bytes": 13866
+  },
+  "independent_review": {
+    "owner": "RUN writer",
+    "status": "requested on exacta4 diff and fullnew deciding evidence; author does not self-certify",
+    "root_contract_adjudication": "root explicitly authorized this finite test-only batch after actual4e source/trace assessment; no production decoder changes"
+  },
+  "limitations_and_next_owner": [
+    "Original root4e complete cohort2FAIL remain immutable; this companion changes only one test premise plus explicit measured legacy controls and does not reinterpret original results.",
+    "New actual119PASS is scoped to this exact own checkout. Serialization/e02/normalcodec bytes equal root4e, but retry/activity_worker bytes differ. No source-equivalence or new root4e worker assertion from own replay.",
+    "Root owns independent review/merged final source freeze, supported required gates and G finding closure. No package PASS or summary alone establishes B94 closure.",
+    "Legacy unversioned input and integrity framev1 remain explicit compatibility, distinct from strict v2 Decimal payload admission. Wire integrity/type identity does not establish tenant permission, institutional authority or service adoption.",
+    "Live Ray/Temporal deployment services and full production dataset were not inputs; no deployment/state-history law claim. Existing nativeOS process fixture uses actualfork/FileSystemCAS and live PPid ancestry, not marker tests.",
+    "Output origin/hash observation is actual file-backed serialization module only, not complete transitive/import/resource/child execution readset.",
+    "Full rootwave large deciding files stay exact ignored raw refs plus root-owned Git transfer; independent receiver lacking required bytes must not use our extracted2case records as complete rootwave proof."
+  ],
+  "cleanup_candidates": [
+    {
+      "path": "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/wire-envelope-a4",
+      "state": "retained ignored actualraw/fixtures/cache; nativeTrash unavailable; not deleted",
+      "deciding_bytes": "complete moderate native/removal copies committed below"
+    }
+  ],
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/actual-profiles.json",
+      "sha256": "d169a195af4ff3838d89588227b5053f25defc499e1a8f106789c5b54f43fe13",
+      "bytes": 37760
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/diff.json",
+      "sha256": "00b9160c0a9e26e69246d4eabf33f4edf6153426c7bde98e8c053b01a22147b9",
+      "bytes": 627
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/diff.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/format.json",
+      "sha256": "00317eed0681ff258176c9086047ce7996593cd854ca801bcd428e0fbbc88135",
+      "bytes": 899
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/format.txt",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "bytes": 26
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/native.json",
+      "sha256": "07f5d8959cda2be985680ed64f5b8daadb7026d5038e2c8f2a1b212824e5307c",
+      "bytes": 1549
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/native.txt",
+      "sha256": "1dabd8011436c8dce2b59168be502b34b806b28e294e89d77cac6243979df15c",
+      "bytes": 18996
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/native.xml",
+      "sha256": "8e5621923e0526a34bd3f56ff65bccd837443bda3ae0495939bff5003891aec6",
+      "bytes": 19801
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/original-root4e-two-failures.json",
+      "sha256": "cba6b9ba77be50ded5cce7ec5b30fb03bcff824e5ebdf94ade29897b38d184cb",
+      "bytes": 6269
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/remove.json",
+      "sha256": "63c96b9f9b5e8867dda04c3912211d72b716d39af37a45dcde751e47ba76eaa2",
+      "bytes": 1643
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/remove.txt",
+      "sha256": "b18d7b7538fb06636eb917223c5155e245bfae6055b75dcc6306b963e67ac5ae",
+      "bytes": 28865
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/remove.xml",
+      "sha256": "d2d6a834de9b1eb5433f2862a9f8019d5921fc08f94c093204f60daa29cbe84e",
+      "bytes": 26086
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/ruff.json",
+      "sha256": "cfdb4efc179f9737ce519b4f4902a0946d91b0f438217966ef2a82d8b1a59041",
+      "bytes": 899
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/ruff.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/run_wire_profile.py",
+      "sha256": "a509ad30dcd32ec2e095f806424214bb3aac93fe555198fe4ff3816a5d57a14f",
+      "bytes": 6669
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/slice-base.json",
+      "sha256": "fa1f8fa3f5bdabca867480cc735bb444218cc5f5d8f94d057419404732086ca5",
+      "bytes": 744
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/source-context.json",
+      "sha256": "cdfe5798f6d7f8f77647fd5d6326b6ac9980671dd00c2184bd0488c35e0d0d6d",
+      "bytes": 13866
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-wire-envelope-consumer-evidence/syntax.json",
+      "sha256": "9d2397d3e30d718779b663f4206d908d636e978592ab34492997674be329b8cf",
+      "bytes": 611
+    }
+  ]
+}

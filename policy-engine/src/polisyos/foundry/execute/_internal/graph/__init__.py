@@ -248,9 +248,7 @@ def execute_program_graph(
             artifact_input_ref(exec_plan_ref, role="exec_plan"),
         ]
         if base_ref is not None:
-            report_inputs.append(
-                input_ref_from_artifact_ref(base_ref, role="base_state_snapshot")
-            )
+            report_inputs.append(input_ref_from_artifact_ref(base_ref, role="base_state_snapshot"))
         if node.params_ref is not None:
             report_inputs.append(
                 input_ref_from_artifact_ref(node.params_ref, role="mechanism_params")
@@ -420,13 +418,24 @@ def execute_program_graph(
                 signature = method_class.signature
                 dispatcher = MethodDispatcher.get_instance()
                 key, step_key = jax.random.split(key)
+                method_params = dict(node.method_params)
+                if getattr(getattr(signature, "backend", None), "value", None) == "numpy":
+                    # Runtime service: the configured execution CAS wins over
+                    # client metadata and never enters the persisted graph/state.
+                    method_params["artifact_store"] = store
                 method_result = dispatcher.dispatch(
                     method_class=method_class,
                     signature=signature,
                     state=visible_state,
-                    params=node.method_params,
+                    params=method_params,
                     seed=_seed_from_key(step_key),
                 )
+                for role, raw_ref in method_result.artifacts.get("artifact_refs", {}).items():
+                    method_artifact_ref = ArtifactRef.model_validate(raw_ref)
+                    store.get_manifest(method_artifact_ref)
+                    if not store.verify(method_artifact_ref).ok:
+                        raise ValueError("Method sidecar artifact integrity failed")
+                    derived_artifacts.append((f"{node_id}:{role}", method_artifact_ref))
                 _append_method_patch_records(
                     patch_records,
                     provenance,
@@ -478,9 +487,7 @@ def execute_program_graph(
         artifact_input_ref(exec_plan_ref, role="exec_plan"),
     ]
     if program_graph.lowered_ir_ref is not None:
-        inputs.append(
-            input_ref_from_artifact_ref(program_graph.lowered_ir_ref, role="lowered_ir")
-        )
+        inputs.append(input_ref_from_artifact_ref(program_graph.lowered_ir_ref, role="lowered_ir"))
     if parameter_override_bundle_ref is not None:
         inputs.append(
             input_ref_from_artifact_ref(

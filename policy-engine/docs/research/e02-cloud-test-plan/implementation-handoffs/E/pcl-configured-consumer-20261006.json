@@ -1,0 +1,979 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "pcl-configured-consumer-20261006",
+  "closure_ids": [
+    "LA-052",
+    "LA-053"
+  ],
+  "bundle_ids": [
+    "PCL-01"
+  ],
+  "slice_base_sha": "028829629a9c30454e44d25e7bea7be3ea05b561",
+  "candidate_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+  "candidate_tree_sha": "bc60af14857dc90ce9317f3cd826a3455a9eb691",
+  "implementation_commits": [
+    "67de07c17174fa81d8aef937d4b19446ebe2cb4c",
+    "8f988cf83459e11701ce4eab9572494c8c04e436",
+    "74b26eb067dea76d90b134641e66537759e4dc0f",
+    "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9"
+  ],
+  "branch": "codex/e02-E-pcl-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/52",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-pcl-configured-consumer.toml",
+    "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/README.md",
+    "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py"
+  ],
+  "complete_base_candidate_diff_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/all-54-closeout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/closeout-artifact-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/closure-frozen/local-G-closeout-recipes.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/final-closeout-review/copy-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/final-closeout-review/review-58e2d97965c0.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/final-handoff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/evidence-correction.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/evidence-validation.json",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-pcl-configured-consumer.toml",
+    "policy-engine/src/polisyos/calibration/README.md",
+    "policy-engine/src/polisyos/calibration/__init__.py",
+    "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/README.md",
+    "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py"
+  ],
+  "companions": {
+    "merge_commit": "bc4868f1eaa3aa59952137fd731ca3731a1fa798",
+    "merged_parent_source": "22998874b5f32434c462065baaca44a78e967f91",
+    "canonical_calibration_exports_owner": "E root; existing typed reader/writer exported additively",
+    "parent_evidence_correction_commit": "8aaffa4b568d81b8e6889ea493e2afb86f195ed8",
+    "attribution": "Inherited root facade/evidence/source deltas are included in full footprint; they are not PCL-owned runtime edits",
+    "foreign_shared_files": "No A generation_cycle/run_lifecycle, C streaming, B ledger, D search, or shared registry/protocol changes"
+  },
+  "workspace_admission": {
+    "mode": "resume",
+    "branch": "codex/e02-E-pcl-20261006",
+    "absolute_worktree_root": "/workspace/e02-E-pcl-20261006",
+    "full_json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-resume.json",
+      "bytes": 123184,
+      "sha256": "db7387fe25189d708356dfecfd46b5914da791064de589e212d9b7d88de7fb77"
+    },
+    "creation": "Previously admitted matching lane; no new checkout/worktree/environment created in this continuation",
+    "untracked_preexisting_preserved": [
+      "node_modules/",
+      "package.json",
+      "pnpm-lock.yaml"
+    ]
+  },
+  "baseline_cells": [
+    {
+      "id": "F01-P087",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "calls": "9",
+      "source_file": "received/F01.txt",
+      "source_line": "204",
+      "receipt_status": "valid_bound",
+      "source_ref": "research_main",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "e1191be4f258f170c59328626be638d8d3a81399",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt@sha256:5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F03-P040",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "calls": "8",
+      "source_file": "received/F03.txt",
+      "source_line": "170",
+      "receipt_status": "valid_bound",
+      "source_ref": "research_main",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "88cf8a89e9b27fd5f34bc48ba3d069abcd1f7fc7",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@sha256:1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F04-P123",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/ir/analytics/test_calibration_diagnostics_report.py",
+      "state": "PASS",
+      "calls": "3",
+      "source_file": "received/F04.txt",
+      "source_line": "333",
+      "receipt_status": "valid_reconciled_parent",
+      "source_ref": "research_main",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "ebb574a17c29f6d3e8004dc984d2a86a7e5d0462",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt@sha256:17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F05-P060",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "calls": "2",
+      "source_file": "received/F05.txt",
+      "source_line": "470",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "e02_execution_base",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "1363ee91aad9e5157ae340577212cde79dc83bb7",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt@sha256:2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F06-P108",
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "calls": "4",
+      "source_file": "received/F06.txt",
+      "source_line": "292",
+      "receipt_status": "valid",
+      "source_ref": "e02_execution_base",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "9a6260328fa743eed7822af3a471117c6029c34f",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@sha256:b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F07-P037",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "calls": "8",
+      "source_file": "received/F07.txt",
+      "source_line": "43",
+      "receipt_status": "valid",
+      "source_ref": "e02_head",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "88cf8a89e9b27fd5f34bc48ba3d069abcd1f7fc7",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt@sha256:eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F09-P090",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "calls": "9",
+      "source_file": "received/F09.txt",
+      "source_line": "206",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "e02_head",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "e1191be4f258f170c59328626be638d8d3a81399",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@sha256:0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F12-P048",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "calls": "2",
+      "source_file": "received/F12.txt",
+      "source_line": "633",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "main",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "1363ee91aad9e5157ae340577212cde79dc83bb7",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt@sha256:03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F12-P086",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "calls": "4",
+      "source_file": "received/F12.txt",
+      "source_line": "671",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "main",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "9a6260328fa743eed7822af3a471117c6029c34f",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F12.txt@sha256:03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F13-P048",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/calibration/test_continuous.py",
+      "state": "PASS",
+      "calls": "8",
+      "source_file": "received/F13.txt",
+      "source_line": "175",
+      "receipt_status": "valid_reconciled",
+      "source_ref": "integration_head",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "88cf8a89e9b27fd5f34bc48ba3d069abcd1f7fc7",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F13.txt@sha256:7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    },
+    {
+      "id": "F15-P102",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "state": "PASS",
+      "calls": "9",
+      "source_file": "received/F15.txt",
+      "source_line": "257",
+      "receipt_status": "valid",
+      "source_ref": "integration_head",
+      "data_identity": {
+        "kind": "analytic fixture; test module identity is binding",
+        "git_blob_sha": "e1191be4f258f170c59328626be638d8d3a81399",
+        "external_production_input": "not_used_in_these_generic_fixture_tests"
+      },
+      "source_receipt_sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+      "environment_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt@sha256:efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169 (job metadata/toolchain/profile at start)",
+      "backend": "native NumPy coverage/bootstrap; per-call loaded runtime version not_established without missing raw archive",
+      "evidence_grade": "source_reported_compact_text_only; raw_archive_missing; candidate route does not close finding"
+    }
+  ],
+  "baseline_use": "All listed old cells are navigation from source-reported compact text; no baseline PASS is treated as new candidate PASS. Exact ID queries resolve same 11 cells for both LA-052/053; importer passed before access and again on 74b26eb. Missing old raw VM archives remain not_established.",
+  "source_environment_input_identity": {
+    "source_inputs": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-pcl-configured-consumer.toml",
+        "source_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+        "git_blob_sha": "36d32874fc68496d690c110ad6411e47a5ed6977",
+        "sha256": "ef2c4f2d03b4bd2dcdf983739f1ae8d60ef890ad4218e0b310cce8dbb17501c9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+        "source_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+        "git_blob_sha": "8d22828e23a0a26817be0943022b5b99e7bf03a4",
+        "sha256": "93f563291d569fbb22c36ca47cf9abb2b6478565bd81b390cb9c44d6521a76b8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/README.md",
+        "source_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+        "git_blob_sha": "9801f945bb9cf91d39f1766bb77ba6bc8597b3ec",
+        "sha256": "fb0d14b9c3908fb37094f60d5de38399628d2674bd4b0aac6d45fba3d302aa50"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+        "source_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+        "git_blob_sha": "dc9c56e70e15b8c3b09329c0df23059a4b6501ab",
+        "sha256": "e7fdf9ed774330ab9d89290370d1bb93ab604eeec3d69592c9906f1ac78f7e8e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+        "source_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+        "git_blob_sha": "7ca3d5b6637a7677fc54a4e178262dd0fcf0e081",
+        "sha256": "66fc76228ba02f1469cae40b33f64ac504845d72451ad6d0668c27a3cdadf9c3"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py",
+        "source_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+        "git_blob_sha": "81c11583e308041d9e026db275a0436a7a521eec",
+        "sha256": "ad4c0101b0529b05011cde97a7b23d8d40ee2ffe443aa991556357ced0d4d3ea"
+      },
+      {
+        "path": "policy-engine/tests/unit/calibration/test_continuous_persistence.py",
+        "source_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+        "git_blob_sha": "8e8c4a7a284c88c0075314575f8a443f9b8bb711",
+        "sha256": "c70bc8c90bb3eea5dc91a990634b300f2957d6f1a6995118e313df3c8c8aa908"
+      },
+      {
+        "path": "policy-engine/tests/unit/calibration/test_curve.py",
+        "source_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+        "git_blob_sha": "877bacada961c98322e7fb962f29d6ce0e1ecec6",
+        "sha256": "8c88103c98e64048086852d962bd10a91c4fad64cfb70aa2313b47b3b504595f"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "source_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+        "git_blob_sha": "065506a99a5929f9c3d10e3b5228d151af0a230f",
+        "sha256": "a024673903c01bdf0dfb9ef461132581653265cab8135e3e7799788526bf0a17"
+      },
+      {
+        "path": "policy-engine/src/polisyos/calibration/continuous.py",
+        "source_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+        "git_blob_sha": "53008144d8bc4c903392cdd80db14f734496208e",
+        "sha256": "309608a01361ece0894c8981b40144a18258b858fdb21033f23156d6673bc032"
+      }
+    ],
+    "environment": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/environment.json",
+      "bytes": 870,
+      "sha256": "cd7670c11b9497a32536a8276e54071c3c5e4c59a57cd2e8f8eb3b957670baa7"
+    },
+    "fixture": {
+      "test_path": "/workspace/e02-E-pcl-20261006/policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py",
+      "test_sha256": "621d7aeced8c7efaf3ec078d8b30549f372601a78eed28618a4b63d0ad9ba1f8",
+      "distribution": "NumPy default_rng(20261006).normal(scale=0.25, size=140)",
+      "rows": 140,
+      "entities": 2,
+      "time_steps_per_entity": 70,
+      "holdout_steps_per_entity": 50,
+      "target_id": "synthetic-return",
+      "unit": "return",
+      "production_history": false
+    },
+    "authority": "Synthetic fixture only; no production data exported; target/unit supplied by typed PanelData metadata; source authority not_established",
+    "admitted_cas_artifacts": "Exact synthetic deciding payload/manifests committed in native-deciding-cas.json; same ref identities as native-witness-output.json."
+  },
+  "checks": [
+    {
+      "name": "native",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/unit/calibration",
+        "tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+        "tests/unit/foundry/methods/catalog/econometrics/test_advanced.py",
+        "tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py",
+        "tests/unit/foundry/runtime/test_executor_runtime_semantics.py",
+        "tests/unit/foundry/runtime/test_executor_fail_semantics.py",
+        "tests/unit/foundry/methods/test_dispatch_runtime_selection.py",
+        "tests/unit/foundry/methods/test_dispatch_fallback.py"
+      ],
+      "target_sha": "74b26eb067dea76d90b134641e66537759e4dc0f",
+      "target_tree": "dfd78fc6417f8659c8a981a82712bb0e07fcc940",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "control_result": null,
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "selected_variables": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "UV_NO_SYNC": "1",
+          "PYTHONPATH": "/workspace/e02-E-pcl-20261006/policy-engine/src",
+          "TMPDIR": null
+        }
+      },
+      "input_closure": "Exact tracked source/tests framed hash in frozen check receipt; analytic fixture and real arch/NumPy native backend; no production input",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/native.stdout.txt",
+        "bytes": 261,
+        "sha256": "3b30dac21d993cd7abe9b0de1eb5a629c8f5ec9f86431a28fad865534f7fbec8"
+      },
+      "execution_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/native.json",
+        "bytes": 2215,
+        "sha256": "f0a4b3c5a17e7b36aee173a3904608d6c74d329324caf17ee926c37837d0aec7"
+      },
+      "wall_seconds": 41.23164486885071,
+      "max_rss_kib": 810300
+    },
+    {
+      "name": "removal-focused",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/pcl-removal-probe.py",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py",
+        "-k",
+        "real_dispatch or native_graph"
+      ],
+      "target_sha": "74b26eb067dea76d90b134641e66537759e4dc0f",
+      "target_tree": "dfd78fc6417f8659c8a981a82712bb0e07fcc940",
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "control_result": "PASS",
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "selected_variables": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "UV_NO_SYNC": "1",
+          "PYTHONPATH": "/workspace/e02-E-pcl-20261006/policy-engine/src",
+          "TMPDIR": null
+        }
+      },
+      "input_closure": "Exact tracked source/tests framed hash in frozen check receipt; analytic fixture and real arch/NumPy native backend; no production input",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/removal-focused.stdout.txt",
+        "bytes": 6222,
+        "sha256": "93544c907d061b9cc888769883df673c08b64638180b0caa147d320b2cdb34bc"
+      },
+      "execution_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/removal-focused.json",
+        "bytes": 1872,
+        "sha256": "03b51ad26ab05dfbddb4ead5268d7d9f03d967716b85aab940b4867b01885c60"
+      },
+      "wall_seconds": 15.001707315444946,
+      "max_rss_kib": 739004
+    },
+    {
+      "name": "native-witness",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/pcl-capture-native-witness.py",
+        "/workspace/e02-E-pcl-20261006/policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py",
+        "/workspace/e02-E-pr38-r2-receipts/pcl-74b26eb067de/native-witness-output.json",
+        "/workspace/e02-E-pr38-r2-receipts/pcl-native-witness-cas-74b26eb067de"
+      ],
+      "target_sha": "74b26eb067dea76d90b134641e66537759e4dc0f",
+      "target_tree": "dfd78fc6417f8659c8a981a82712bb0e07fcc940",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "control_result": null,
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "selected_variables": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "UV_NO_SYNC": "1",
+          "PYTHONPATH": "/workspace/e02-E-pcl-20261006/policy-engine/src",
+          "TMPDIR": null
+        }
+      },
+      "input_closure": "Exact tracked source/tests framed hash in frozen check receipt; analytic fixture and real arch/NumPy native backend; no production input",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/native-witness.stdout.txt",
+        "bytes": 1753,
+        "sha256": "b5f8d4aa2369e5391b914d6d4552170f6cf53af8d0c9c019fa689a60d93fb8f9"
+      },
+      "execution_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/native-witness.json",
+        "bytes": 2002,
+        "sha256": "9128990b156f5289cddf652e1f7071351930343ad13843081355dab189303f69"
+      },
+      "wall_seconds": 17.770126581192017,
+      "max_rss_kib": 715504
+    },
+    {
+      "name": "importer",
+      "command": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--check"
+      ],
+      "target_sha": "74b26eb067dea76d90b134641e66537759e4dc0f",
+      "target_tree": "dfd78fc6417f8659c8a981a82712bb0e07fcc940",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "control_result": null,
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "selected_variables": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "UV_NO_SYNC": "1",
+          "PYTHONPATH": "/workspace/e02-E-pcl-20261006/policy-engine/src",
+          "TMPDIR": null
+        }
+      },
+      "input_closure": "Exact tracked source/tests framed hash in frozen check receipt; analytic fixture and real arch/NumPy native backend; no production input",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/importer.stdout.txt",
+        "bytes": 112,
+        "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+      },
+      "execution_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/importer.json",
+        "bytes": 1651,
+        "sha256": "2832a6a342b9c60ab043aea2c4cdb1f1f70db71ea76002474736f5f91f927acf"
+      },
+      "wall_seconds": 0.6951904296875,
+      "max_rss_kib": 23064
+    },
+    {
+      "name": "native-focused",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py"
+      ],
+      "target_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+      "target_tree": "bc60af14857dc90ce9317f3cd826a3455a9eb691",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "control_result": null,
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "selected_variables": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "UV_NO_SYNC": "1",
+          "PYTHONPATH": "/workspace/e02-E-pcl-20261006/policy-engine/src",
+          "TMPDIR": null
+        }
+      },
+      "input_closure": "Exact tracked source/tests framed hash in frozen check receipt; analytic fixture and real arch/NumPy native backend; no production input",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-ffd23ae3a3e7/native-focused.stdout.txt",
+        "bytes": 99,
+        "sha256": "1447b4d844d4299d7582c18eb04561b1bd846415b9a89f2249eb6a71e9d36dc0"
+      },
+      "execution_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-ffd23ae3a3e7/native-focused.json",
+        "bytes": 1784,
+        "sha256": "54d7d4ceff34e5f7b17065f71c22c303b838139ba475514f911d1ee8420d3f5d"
+      },
+      "wall_seconds": 26.604605674743652,
+      "max_rss_kib": 740436
+    },
+    {
+      "name": "ruff",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+        "src/polisyos/foundry/methods/backends/numpy_runner.py",
+        "src/polisyos/foundry/execute/_internal/graph/__init__.py",
+        "tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py"
+      ],
+      "target_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+      "target_tree": "bc60af14857dc90ce9317f3cd826a3455a9eb691",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "control_result": null,
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "selected_variables": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "UV_NO_SYNC": "1",
+          "PYTHONPATH": "/workspace/e02-E-pcl-20261006/policy-engine/src",
+          "TMPDIR": null
+        }
+      },
+      "input_closure": "Exact tracked source/tests framed hash in frozen check receipt; analytic fixture and real arch/NumPy native backend; no production input",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-ffd23ae3a3e7/ruff.stdout.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "execution_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-ffd23ae3a3e7/ruff.json",
+        "bytes": 1941,
+        "sha256": "76fec6ebc8b936341d55079f6c59459c2c4d389fad124ae7574ba40bd9125b42"
+      },
+      "wall_seconds": 0.490797758102417,
+      "max_rss_kib": 31600
+    },
+    {
+      "name": "format",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+        "src/polisyos/foundry/methods/backends/numpy_runner.py",
+        "src/polisyos/foundry/execute/_internal/graph/__init__.py",
+        "tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py"
+      ],
+      "target_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+      "target_tree": "bc60af14857dc90ce9317f3cd826a3455a9eb691",
+      "outcome": "PASS",
+      "expected_outcome": "PASS",
+      "control_result": null,
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "selected_variables": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "XLA_FLAGS": null,
+          "JAX_PLATFORMS": null,
+          "JAX_ENABLE_X64": null,
+          "POLISYOS_PYTEST_WORKERS": null,
+          "UV_NO_SYNC": "1",
+          "PYTHONPATH": "/workspace/e02-E-pcl-20261006/policy-engine/src",
+          "TMPDIR": null
+        }
+      },
+      "input_closure": "Exact tracked source/tests framed hash in frozen check receipt; analytic fixture and real arch/NumPy native backend; no production input",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-ffd23ae3a3e7/format.stdout.txt",
+        "bytes": 26,
+        "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+      },
+      "execution_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-ffd23ae3a3e7/format.json",
+        "bytes": 1960,
+        "sha256": "577b86d125834b8b62ed005ea37a3bf4e3477f65ea6aa3784d0d0b721926147f"
+      },
+      "wall_seconds": 0.4922363758087158,
+      "max_rss_kib": 27820
+    },
+    {
+      "name": "architecture-interrupted",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "target_sha": "8f988cf83459e11701ce4eab9572494c8c04e436",
+      "outcome": "UNRUN",
+      "observed_runner_outcome": "FAIL",
+      "observed_exit_code": -15,
+      "reason": "Root-directed interruption of obsolete pre-test-fix candidate; global architecture check owned by root after final source freeze",
+      "execution_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-8f988cf83459/architecture.json",
+        "bytes": 1697,
+        "sha256": "661e251889fa01cc653686d6615bccc68bd44bc7f06698d86247a16ebda8da4d"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-8f988cf83459/architecture.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_failure_attribution": "not_established"
+    },
+    {
+      "name": "invocation-interrupted",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--repo-root",
+        "/workspace/e02-E-pcl-20261006/policy-engine",
+        "--base",
+        "028829629a9c30454e44d25e7bea7be3ea05b561",
+        "--receipt",
+        "/workspace/e02-E-pr38-r2-receipts/pcl-8f988cf83459/raw/production-invocation.json"
+      ],
+      "target_sha": "8f988cf83459e11701ce4eab9572494c8c04e436",
+      "outcome": "UNRUN",
+      "observed_runner_outcome": "FAIL",
+      "observed_exit_code": -15,
+      "reason": "Root-directed interruption of duplicate aggregate static invocation; no raw JSON emitted; root owns exact full-candidate denominator",
+      "execution_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-8f988cf83459/invocation.json",
+        "bytes": 1940,
+        "sha256": "3a2d3fc461693b217f3d17d5de46cd171873afc5f93b30f4844d0012f237dabd"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-8f988cf83459/invocation.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_failure_attribution": "not_established"
+    },
+    {
+      "name": "removal-interrupted",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r2-receipts/pcl-removal-probe.py"
+      ],
+      "target_sha": "74b26eb067dea76d90b134641e66537759e4dc0f",
+      "outcome": "UNRUN",
+      "observed_runner_outcome": "FAIL",
+      "observed_exit_code": -15,
+      "reason": "Operator omitted selector arguments; interrupted broad pytest collection, then ran exact two selected controls as removal-focused",
+      "execution_receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/removal.json",
+        "bytes": 1696,
+        "sha256": "c6ca3c9968d74ffb6a45a66f5a95c49402779096f47a1e7a2dd05738a619738c"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/removal.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "product_failure_attribution": "not_established"
+    }
+  ],
+  "property": {
+    "statement": "Configured Foundry graph CAS reaches actual NumPy MethodRunner execution and every existing nonstationary interval summary call site. Actual diagnostics refs resolve in that same store; a fresh reader reconciles report and receipt against persisted ordered pairs. Client params/state remain unchanged and store objects never enter persisted scientific/state data. Missing-store execution stays descriptive and nongating.",
+    "runtime_path": [
+      "execute_program_graph(store) NumPy method branch injects configured service into local params copy",
+      "MethodDispatcher -> NumpyRunner._resolve_params preserves artifact_store outside scientific signature",
+      "NonstationaryGARCHEstimator pure_step materializes strict typed panel excluding runtime service",
+      "segment/overall/scenario _summarize_interval_diagnostics(calibration_store=...)",
+      "persist_continuous_evaluation -> ordered continuous_calibration_pairs + continuous_calibration_diagnostics CAS",
+      "load_continuous_evaluation(FileSystemCAS(root)) independently recomputes pairs/report/receipt",
+      "existing NumPy __numpy_artifacts__ -> method_result.artifacts -> verified graph derived_artifacts",
+      "existing execute.api _build_standard_derived_refs retains actual role/ref identities",
+      "result diagnostics expose persisted refs and receipts with gate_eligible=false"
+    ],
+    "source_artifact_kind": "foundry.econometric_panel_data",
+    "source_schema": "PanelData.contract_id 1.0, actual original row index/entity/time/target/unit preserved",
+    "consumer_surface": "Native execute_program_graph artifacts and existing ExecuteResult derived-ref builder; no HTTP/default workflow/production-history claim",
+    "oracle": "Fresh source dependent[source_row_index] vs persisted interval endpoints; all 100 exact ordered entity/time joins per artifact, independent direct comparisons rather than producer covered array or results accumulation loop. Existing 95/100 and 0/100 analytic tests, empty/incomplete pairs and forged counts cover report/receipt math.",
+    "proxy_divergence": "Native analytic fixture nominal level=.95, actual reopened coverage=.82 and ECE=.13. Fields and live report remain when persistence is removed, but actual-ref/fresh-consumer tests fail. Historical pure helper already persisted with an explicit store while native graph/runner rejected artifact_store, so helper success did not establish default execution bridge.",
+    "negative_controls": [
+      "Exact historical 58e NumPy/Advanced/graph Git blob overlay: both native configured-CAS controls fail with Unknown parameters artifact_store before method execution. Complete source bytes SHA/size emitted in log.",
+      "Shared summary removal: replace calibration_store with None while retaining real fit/results/projection fields; both actual native result-ref assertions fail as expected.",
+      "Fresh store valid-hash forged metadata count, coverage, receipt, altered outcome, reordered interval pairs reject in existing continuous persistence suite.",
+      "Configured graph overrides serializable fake client store untrusted-client-store; persisted graph/client params remain unchanged; service absent from state snapshot and state_delta ops.",
+      "No configured store: real MethodDispatcher/arch fit exposes store_missing, no actual ref, and gate_eligible=false.",
+      "Wrong CAS kind/schema, live self-receipt mutation/model-copy, empty/incomplete comparisons, seedless/present-fake bootstrap seeds remain independently tested."
+    ],
+    "deciding_native_artifacts": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/native-witness-output.json",
+      "bytes": 26049,
+      "sha256": "174f4de5063abe0f4bac58862a8833bc8658d4ec5cede427e4a3eb9e593518dd"
+    },
+    "historical_red": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-exact58e-red3.stdout.txt",
+      "bytes": 10450,
+      "sha256": "f743c37364533daec74828936b6764daad89a5a2d00bcf1d6c36bcc3f31cace9"
+    },
+    "historical_source_identity": "58e2d97965c0826c44843a78dcb2f8698d9950a3; exact three module Git blobs overlay on current supporting source, not a full historical environment replay",
+    "replay_scripts": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-exact-source-replay.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-removal-probe.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-capture-native-witness.py"
+    ],
+    "portable_deciding_cas": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/native-deciding-cas.json",
+      "bytes": 383951,
+      "sha256": "b8672a9937436290df17bcb8b62e3cc6f9568eb6022029ec394b3f2650530ba6",
+      "restore": "Decode each relative file path into a fresh isolated directory for each archive_root_key; FileSystemCAS(new_root) can resolve the original diagnostics/pairs/source refs. Verify every archived file bytes/hash before decoding; never overlay an existing CAS."
+    }
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_basis_by_claim": {
+    "coverage_and_requested_eligible_observed_pairs": "recomputed by fresh persisted-pair consumer, independently checked against original source rows",
+    "row_time_entity_source_join": "constructed from actual native typed panel rows; synthetic fixture independently reconciled",
+    "production_source_authority": "not_established",
+    "gate_eligibility": "always false; descriptive predictive diagnostics only",
+    "institutional_or_publication_authority": "not_established; not inferred from receipt/hash/tier"
+  },
+  "P37_frozen_basis": "Report/receipt completeness and count predicates remain fresh-pair recomputation. Producer source_binding_basis remains consumer_asserted; this slice does not ratify institutional source law or authority.",
+  "P40_class_repair": "All segment/overall/scenario call sites, common NumPy service inlet, and native graph carrier fixed together, without three backend-local bypasses.",
+  "P41": "Exact historical module red is narrowly attributed to unsupported artifact_store inlet. Global architecture/static invocation interrupted with no output; no inherited red/green or causal attribution claim.",
+  "capability_state_or_finding_state": "Real configured native producer->CAS->fresh consumer implemented and tested. Descriptive gate remains false. Code acceptance and finding closure are pending independent/accountable-owner decisions.",
+  "finding_decisions": [
+    {
+      "finding_id": "LA-052",
+      "ledger_status_preserved": "partial",
+      "finding_verdict": "limited",
+      "proposed_verdict": "closed",
+      "criterion_complete_owner_adjudication_candidate": true,
+      "code_defect_remaining_in_this_scoped_bridge": false,
+      "proposal_scope": "Original generic denominator/report->receipt scope and actual configured native diagnostics consumption; no production/institutional authority claim",
+      "remaining_owner_decision": "Independent review plus accountable PCL-01 owner individual adjudication of this bounded criterion proposal; update canonical closeout only after decision",
+      "next_owner": "E root independent reviewer / accountable PCL-01 owner; G code integration separately"
+    },
+    {
+      "finding_id": "LA-053",
+      "ledger_status_preserved": "partial",
+      "finding_verdict": "limited",
+      "proposed_verdict": "limited",
+      "criterion_complete_owner_adjudication_candidate": false,
+      "retained_property": "Canonical calibration classes/function identity through supported Scientist alias and exceptions remain exercised in the 151-case family; ordinary new imports use Calibration root",
+      "remaining_owner_input": "Both canonical Calibration API owner and Scientist backtesting alias migration/test owner must declare real compatibility/deprecation window and supported external consumers",
+      "minimal_input": [
+        "Supported public/distribution/import consumer inventory",
+        "Owner-approved compatibility/deprecation window and retirement event",
+        "Joint compatibility and exception/value corpus to retain through that window"
+      ],
+      "next_checkable_result": "Committed owner decision, inventory, and consumer tests; only after window ends remove alias and assert retired surface absent",
+      "next_owner": "polisyos.calibration owner and Scientist backtesting alias migration/test owner"
+    }
+  ],
+  "cosmetic_and_historical_iterations": {
+    "final_test_cosmetic_delta": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-ffd23ae3a3e7/cosmetic-delta.json",
+      "bytes": 947,
+      "sha256": "4944df6a6d58a35c93daa9e3d2ea5db31c7dbca7f361d4a15753d26e05546c47"
+    },
+    "151_case_result": "PASS on 74b26eb067dea76d90b134641e66537759e4dc0f. Final ffd changes only formatting of test comprehension, identical AST and no runtime product delta; final 3 native checks separately PASS on ffd.",
+    "graph_formatter_companion": "Two existing append calls were collapsed to one line each (6 deleted/2 added lines); separately leased cosmetic delta, no runtime claim.",
+    "old_harness_failures": "Initial exact58e script syntax error and invalid one-entity/canonical-float fixture errors are preserved in first two historical stdout files; these are not product failure evidence. red3 is the deciding exact-module unsupported-inlet witness.",
+    "intermediate_code_regression": "First affected family 148 PASS/1 FAIL: own direct signature.backend access broke fake-signature expected failure semantics; fixed with safe getattr before implementation commit. Complete stdout preserved.",
+    "intermediate_test_regression": "8f affected family 150 PASS/1 FAIL: own test used unhashable ArtifactID set; fixed in 74b. Current 151-case PASS retained without rewriting earlier stdout.",
+    "format_regression": "74b format check found only native test comprehension; formatter-only ffd commit and final Ruff/format checks recorded.",
+    "no_author_self_review": "These receipts are author execution evidence, not independent code approval."
+  },
+  "limitations_and_next_owner": [
+    "G fetches source and receipt, independently reviews this complete native scoped bridge and accepts code separately from LA-052/053 closure.",
+    "Root runs exact full-candidate architecture, production-invocation denominator and final common numeric/gate wave after all independent reviews. Interrupted author aggregate stages remain UNRUN.",
+    "Core/IR facade admission/architecture governance remains canonical owner work; no baseline/exceptions were broadened or copied CAS/codec introduced. Existing Calibration root reader/writer exports are root-owned companion 229988.",
+    "No production history or forecast-source authority in cloud. If a real production calibration claim is later sought, G resolves actual issued intervals/outcomes read-only with immutable source/model/fit/rule refs, same target/unit/entity/time/split/horizon, preserves requested/eligible/observed/missing and independently recomputes hits after fresh CAS reopen on exact candidate. Missing refs/law/time deny authority; this is not required to accept generic bridge property.",
+    "Existing Scientist calibration_curve alias remains until both API owners explicitly select the real compatibility window. No arbitrary sunset or duplicate periodic service added.",
+    "Graph fixture supplies typed PanelData-shaped synthetic state to native execute_program_graph; it proves method execution/CAS wiring, not a production compiler/input-binding or HTTP lifecycle path."
+  ],
+  "cleanup": {
+    "policy": "No native cloud Trash confirmed; no permanent deletions or Trash clearing performed. Preserve code/docs/unique data and all deciding outputs. Move repeatable fixtures only after downstream independent users are finished, through native Trash if later available.",
+    "candidates": [
+      "/workspace/e02-E-pr38-r2-receipts/pcl-native-witness-cas-74b26eb067de",
+      "/tmp/pytest-of-agent/pytest-155/test_real_dispatch_reopens_all0",
+      "/tmp/pytest-of-agent/pytest-155/test_native_graph_returns_refs0",
+      "/workspace/e02-E-pr38-r2-receipts/pcl-archive-readback-ffd23ae3a3e7",
+      "/workspace/e02-E-pr38-r2-receipts/pcl-archive-readback-validator-final"
+    ],
+    "active_shared_environment": "Root .venv remains in use by E siblings/root and is not eligible for cleanup now; pre-existing untracked files are preserved."
+  },
+  "supplemental_verifications": {
+    "archive_readback": {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/verify_native_archive.py",
+        "/workspace/e02-E-pcl-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/pcl-archive-readback-validator-final"
+      ],
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/archive-readback.json",
+        "bytes": 406,
+        "sha256": "96ed32a912dc3445f85b185013d632326bb98b8b69aba7e9b2593f81c2912b4f"
+      },
+      "outcome": "PASS",
+      "target_runtime_source_sha": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+      "target_source_test": "Formatter-only equal AST to original archived capture; current oracle source executes all 12 fresh restored refs independently"
+    },
+    "receipt_validator": {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pcl-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/verify_receipt.py",
+        "/workspace/e02-E-pcl-20261006"
+      ],
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/receipt-validation.json",
+      "predicate": "Git ancestry/tree/full footprint + framed source inputs + all moderate bytes/hash refs; corrupt-digest negative must reject"
+    },
+    "verifier_lint": "Ruff check and format applied to two new portable verifier scripts; no rule/baseline widening"
+  }
+}

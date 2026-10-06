@@ -1,0 +1,83 @@
+"""Capture an independent callback witness against immutable Git source bytes."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+from pathlib import Path
+import resource
+import shutil
+import subprocess
+import sys
+import tarfile
+import time
+
+
+repo = Path('/workspace/e02-D-published-stress')
+scratch = Path('/workspace/e02-D2-receipts/q3-independent')
+source_sha = sys.argv[1]
+label = sys.argv[2]
+test_relative = Path(sys.argv[3]) if len(sys.argv) > 3 else Path('policy-engine/tests/unit/scientist/methods/autotune/test_q3_independent_callback.py')
+proof = repo / test_relative
+source_sha = subprocess.check_output(['git', 'rev-parse', source_sha + '^{commit}'], cwd=repo, text=True).strip()
+tree = subprocess.check_output(['git', 'rev-parse', source_sha + '^{tree}'], cwd=repo, text=True).strip()
+archive_storage = Path(os.environ.get('Q3_IMMUTABLE_STORAGE', str(scratch)))
+archive_root = archive_storage / ('immutable-' + source_sha[:12] + '-' + label)
+archive_root.mkdir()
+archive_path = archive_storage / (label + '.tar')
+archive_paths = [
+    'policy-engine/src',
+    'policy-engine/architecture',
+    'policy-engine/pyproject.toml',
+    'policy-engine/pytest.ini',
+    'policy-engine/tests/conftest.py',
+    'policy-engine/tests/quarantine.toml',
+    'policy-engine/tests/_helpers',
+    'policy-engine/tests/unit/scientist/conftest.py',
+] if os.environ.get('Q3_MINIMAL_ARCHIVE') == '1' else []
+with archive_path.open('wb') as archive_file:
+    subprocess.run(['git', 'archive', source_sha, *archive_paths], cwd=repo, stdout=archive_file, check=True)
+with tarfile.open(archive_path) as archive:
+    archive.extractall(archive_root, filter='data')
+target = archive_root / test_relative
+target.parent.mkdir(parents=True, exist_ok=True)
+shutil.copyfile(proof, target)
+working = archive_root / 'policy-engine'
+interpreter = '/workspace/e02-D-locked-env/bin/python'
+env = {**os.environ, 'PYTHONDONTWRITEBYTECODE': '1', 'PYTHONPATH': 'src:.'}
+origin_command = [interpreter, '-B', '-c', 'import json,sys; import polisyos.scientist.methods.autotune.models as m; import polisyos.scientist.methods.autotune.runtime as r; import polisyos.scientist.methods.autotune.calibration as c; import polisyos.scientist.methods.autotune.registry as g; print(json.dumps({"python":sys.version,"executable":sys.executable,"origins":{"models":m.__file__,"runtime":r.__file__,"calibration":c.__file__,"registry":g.__file__}},sort_keys=True))']
+origin = subprocess.run(origin_command, cwd=working, env=env, text=True, capture_output=True)
+(scratch / (label + '-environment.txt')).write_text(origin.stdout + origin.stderr)
+if origin.returncode:
+    raise SystemExit(origin.returncode)
+argv = [interpreter, '-B', '-m', 'pytest', '-o', 'addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks', '-q', '-s', str(test_relative.relative_to('policy-engine'))]
+started = time.monotonic()
+with (scratch / (label + '-pytest.txt')).open('wb') as output:
+    result = subprocess.run(argv, cwd=working, env=env, stdout=output, stderr=subprocess.STDOUT)
+elapsed = time.monotonic() - started
+source_paths = [f'policy-engine/src/polisyos/scientist/methods/autotune/{name}.py' for name in ['models', 'runtime', 'registry', 'calibration']]
+manifest = {
+    'source_sha': source_sha,
+    'tree': tree,
+    'source_role': 'immutable_production_source_with_independent_review_test_only',
+    'archive_git_pathspecs': archive_paths or ['entire_tracked_tree'],
+    'archive_sha256': hashlib.sha256(archive_path.read_bytes()).hexdigest(),
+    'test_source_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=repo, text=True).strip(),
+    'test_input_role': 'uncommitted_independent_review_proof_exact_bytes',
+    'test_path': str(test_relative),
+    'test_sha256': hashlib.sha256(proof.read_bytes()).hexdigest(),
+    'production_hashes': {path: hashlib.sha256((archive_root / path).read_bytes()).hexdigest() for path in source_paths},
+    'environment': json.loads(origin.stdout),
+    'argv': argv,
+    'cwd': str(working),
+    'env': {'PYTHONDONTWRITEBYTECODE': '1', 'PYTHONPATH': 'src:.'},
+    'exit_code': result.returncode,
+    'wall_seconds': elapsed,
+    'max_rss_kib': resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss,
+    'max_rss_scope': 'cumulative_high_water_of_completed_children_in_this_capture_process',
+    'log_sha256': hashlib.sha256((scratch / (label + '-pytest.txt')).read_bytes()).hexdigest(),
+}
+(scratch / (label + '-capture.json')).write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
+print(json.dumps(manifest, sort_keys=True))
+raise SystemExit(result.returncode)

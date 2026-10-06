@@ -1,0 +1,74 @@
+BASE 198076863e143dea9f89f02734b13d50dae3eed5
+ORIGIN /workspace/e02-D2-receipts/funnel/base-worker-check/policy-engine/src/polisyos/scientist/policy_design/adversary.py
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-D-locked-env/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-D2-receipts/funnel/base-worker-check/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-D2-receipts/funnel/base-worker-check/policy-engine
+configfile: pytest.ini
+plugins: jaxtyping-0.3.4, benchmark-5.2.3, hypothesis-6.151.2, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 1 item
+
+tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution FAILED [100%]
+
+=================================== FAILURES ===================================
+________________ test_scenario_adversary_fallback_and_execution ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-202/test_scenario_adversary_fallba0')
+
+    def test_scenario_adversary_fallback_and_execution(tmp_path) -> None:
+        worker = ScenarioAdversaryWorker(ScenarioAdversaryConfig(max_scenarios=3, collect_top_k=2))
+        surface = ScenarioAttackSurface(
+            candidate_id="candidate_policy",
+            parameter_specs=[
+                DOEParameterSpec(name="shock", lower_bound=0.0, upper_bound=1.0),
+                DOEParameterSpec(name="noise", lower_bound=0.0, upper_bound=1.0),
+            ],
+            base_metrics={"gdp_change": [0.1, 0.2, 0.3]},
+            benchmark_split_manifest=BenchmarkSplitManifest(
+                suite_id="suite",
+                selection_ids=["a"],
+                holdout_ids=["b"],
+            ),
+            vulnerability_threshold=0.5,
+        )
+        bundle = worker.propose(surface, run_id="adv_test", budget_state=BudgetState())
+    
+        assert bundle.fallback_used is True
+        assert bundle.scenarios
+        assert any(item.target_split == "hidden_holdout_only" for item in bundle.scenarios)
+    
+        result = worker.execute(
+            surface=surface,
+            base_objective=CompositeObjective([GDPGrowthObjective()]),
+            stage_b_evaluator=lambda candidate, context: {
+                "simulation_results": {
+                    "gdp_change": float(candidate.get("shock", 0.0))
+                    + float(candidate.get("noise", 0.0))
+                }
+            },
+            cas=None,
+            run_id="adv_test",
+        )
+    
+        assert result.compiled_plan.parameter_specs
+        assert result.stress_test_report.total_scenarios_evaluated >= 1
+>       assert result.stress_test_report.vulnerabilities
+E       assert []
+E        +  where [] = StressTestReport(schema_version='1.0', report_id='stress.report.sha256_c88cb75ccdc45c5572df3094146f91f87208460de58413d5bafd258942cc9158', total_scenarios_evaluated=16, adversarial_plan_ref=None, fidelity_mode='stress_preset', worst_case_parameters={'shock': 0.24377045385719337, 'noise': 0.09101275948411035}, worst_case_objective=-0.33478321334130373, vulnerabilities=[], critical_count=0, high_count=0, medium_count=0, robustness_score=1.0, set_adequacy_status=None, coverage_empirical=None, coverage_target=None, inflation_mean=None, inflation_budget=None, frontier_knee_rho=None, undercoverage_vulnerability=None, overconservatism_vulnerability=None, decision_packet_ref=None, cas_artifact_id=None, metadata={'strategy': 'search_loop', 'stop_on_first_vulnerability': True, 'objective_direction': 'minimize', 'source_objective_direction': 'minimize', 'evaluation_status': 'verified', 'invalid_evaluation_count': 0, 'valid_evaluation_count': 16, 'observed_vulnerability_count': 0, 'unique_vulnerability_count': 0, 'presented_vulnerability_count': 0}).vulnerabilities
+E        +    where StressTestReport(schema_version='1.0', report_id='stress.report.sha256_c88cb75ccdc45c5572df3094146f91f87208460de58413d5bafd258942cc9158', total_scenarios_evaluated=16, adversarial_plan_ref=None, fidelity_mode='stress_preset', worst_case_parameters={'shock': 0.24377045385719337, 'noise': 0.09101275948411035}, worst_case_objective=-0.33478321334130373, vulnerabilities=[], critical_count=0, high_count=0, medium_count=0, robustness_score=1.0, set_adequacy_status=None, coverage_empirical=None, coverage_target=None, inflation_mean=None, inflation_budget=None, frontier_knee_rho=None, undercoverage_vulnerability=None, overconservatism_vulnerability=None, decision_packet_ref=None, cas_artifact_id=None, metadata={'strategy': 'search_loop', 'stop_on_first_vulnerability': True, 'objective_direction': 'minimize', 'source_objective_direction': 'minimize', 'evaluation_status': 'verified', 'invalid_evaluation_count': 0, 'valid_evaluation_count': 16, 'observed_vulnerability_count': 0, 'unique_vulnerability_count': 0, 'presented_vulnerability_count': 0}) = AdversaryExecutionResult(scenario_bundle=AdversarialScenarioBundle(schema_version='1.0', candidate_id='candidate_policy', scenarios=[AdversarialScenarioProposal(scenario_id='adv_shift_1', scenario_type='shift', target_split='both', parameter_name='shock', intensity=0.2, rationale="Fallback shift stress on parameter 'shock'."), AdversarialScenarioProposal(scenario_id='adv_noise_2', scenario_type='noise', target_split='hidden_holdout_only', parameter_name='noise', intensity=0.30000000000000004, rationale="Fallback noise stress on parameter 'noise'.")], fallback_used=True, scenario_sweep=ScenarioSweep(scenarios=[{'scenario_id': 'adv_shift_1', 'scenario_type': 'shift', 'target_split': 'both', 'parameter_name': 'shock', 'intensity': 0.2}, {'scenario_id': 'adv_noise_2', 'scenario_type': 'noise', 'target_split': 'hidden_holdout_only', 'parameter_name': 'noise', 'intensity': 0.30000000000000004}]), metadata={'preview_scenarios': [{'scenario_id': 'adv_adv_shift_1_shift', 'perturbation_type': 'level_shift', 'perturbation_magnitude': 0.2}, {'scenario_id': 'adv_adv_noise_2_noise', 'perturbation_type': 'gaussian_noise', 'perturbation_magnitude': 0.30000000000000004}]}), compiled_plan=Adversar...e=0.05, seed=None, stop_on_first_vulnerability=True, collect_top_k=2), stress_test_report=StressTestReport(schema_version='1.0', report_id='stress.report.sha256_c88cb75ccdc45c5572df3094146f91f87208460de58413d5bafd258942cc9158', total_scenarios_evaluated=16, adversarial_plan_ref=None, fidelity_mode='stress_preset', worst_case_parameters={'shock': 0.24377045385719337, 'noise': 0.09101275948411035}, worst_case_objective=-0.33478321334130373, vulnerabilities=[], critical_count=0, high_count=0, medium_count=0, robustness_score=1.0, set_adequacy_status=None, coverage_empirical=None, coverage_target=None, inflation_mean=None, inflation_budget=None, frontier_knee_rho=None, undercoverage_vulnerability=None, overconservatism_vulnerability=None, decision_packet_ref=None, cas_artifact_id=None, metadata={'strategy': 'search_loop', 'stop_on_first_vulnerability': True, 'objective_direction': 'minimize', 'source_objective_direction': 'minimize', 'evaluation_status': 'verified', 'invalid_evaluation_count': 0, 'valid_evaluation_count': 16, 'observed_vulnerability_count': 0, 'unique_vulnerability_count': 0, 'presented_vulnerability_count': 0}), stress_test_report_ref=None, adversary_bundle_ref=None).stress_test_report
+
+tests/unit/scientist/policy_design/test_phase_b_policy_workers.py:269: AssertionError
+=============================== warnings summary ===============================
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution
+======================== 1 failed, 2 warnings in 12.15s ========================

@@ -199,13 +199,32 @@ def _extract_cost_usd(*, usage: Any, payload: Any) -> float | None:
 
     original_totals = declared_totals(raw_sources)
     normalized_totals = declared_totals(sources)
-    # The Gateway's retained original declaration governs its lossy normalized
-    # envelope. SDK responses without a raw cost basis use their actual fields.
+    # The original report establishes the total; its envelope must agree with
+    # that total or the Gateway's explicit float component-addition relation.
     totals = original_totals or normalized_totals
     if not totals:
         return None
     if any(total != totals[0] for total in totals[1:]):
         raise _InvalidLLMCostError("conflicting provider cost declarations in USD")
+    if original_totals:
+        allowed_normalized = {totals[0], Decimal(str(_as_float(totals[0])))}
+        if not any(
+            field(source, name) is not None
+            for source in raw_sources
+            for name in ("total_cost_usd", "cost_usd", "cost")
+        ):
+            raw_usage = field(raw, "usage")
+            components = [
+                _as_float(field(raw_usage, name)) for name in ("base_cost_usd", "platform_fee_usd")
+            ]
+            if any(value is not None for value in components):
+                # Native Gateway performs binary float addition for these two
+                # components. Admit that exact relation, not arbitrary rounding.
+                allowed_normalized.add(Decimal(str(sum(value or 0.0 for value in components))))
+        if any(total not in allowed_normalized for total in normalized_totals):
+            raise _InvalidLLMCostError(
+                "conflicting provider cost across original and normalized USD declarations"
+            )
     return _as_float(totals[0])
 
 

@@ -107,3 +107,43 @@ async def test_sdk_declared_magicmock_cost_is_invalid_present_not_absent(tmp_pat
     with pytest.raises(ValueError, match="provider cost must be numeric"):
         await invoke(enforcer)
     assert FileBudgetLedger(path).snapshot().spend_receipts == {}
+
+
+@pytest.mark.parametrize("reported", [0, 1])
+@pytest.mark.asyncio
+async def test_actual_gateway_altered_normalized_cost_refuses_matching_original_marker(
+    tmp_path, monkeypatch, reported
+):
+    gateway = TextGateway(response_text({"cost_usd": reported}))
+    native = gateway.generate
+
+    async def alter(**kwargs):
+        response = await native(**kwargs)
+        response.usage.cost_usd = reported + 1
+        return response
+
+    monkeypatch.setattr(gateway, "generate", alter)
+    path, enforcer = build_owned_enforcer(tmp_path, gateway)
+    with pytest.raises(ValueError, match="conflicting provider cost"):
+        await invoke(enforcer)
+    assert gateway.transport.calls == 1
+    assert FileBudgetLedger(path).snapshot().spend_receipts == {}
+
+
+@pytest.mark.asyncio
+async def test_sdk_raw_and_envelope_conflict_is_not_resolved_by_first_present(tmp_path):
+    class SDK:
+        async def generate(self, **kwargs):
+            return SimpleNamespace(
+                content="observed response",
+                model="test-model",
+                provider="provider-a",
+                request_id="request-1",
+                usage=SimpleNamespace(prompt_tokens=1, completion_tokens=1, cost_usd=2),
+                raw={"cost_usd": 1},
+            )
+
+    path, enforcer = build_owned_enforcer(tmp_path, SDK())
+    with pytest.raises(ValueError, match="conflicting provider cost"):
+        await invoke(enforcer)
+    assert FileBudgetLedger(path).snapshot().spend_receipts == {}

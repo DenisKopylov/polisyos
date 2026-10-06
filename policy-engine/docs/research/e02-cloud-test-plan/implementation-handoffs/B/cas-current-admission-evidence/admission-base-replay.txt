@@ -1,0 +1,221 @@
+FFFFFFFFFFFFFFFFFFFFFFFF....FFFFFFFFFF                                   [100%]
+=================================== FAILURES ===================================
+_ test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-directory] _
+tests/unit/core/artifacts/test_import_admission_noop.py:82: in test_scoped_import_refuses_before_any_stage_or_claim
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-archive] _
+tests/unit/core/artifacts/test_import_admission_noop.py:82: in test_scoped_import_refuses_before_any_stage_or_claim
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-exact] _
+tests/unit/core/artifacts/test_import_admission_noop.py:82: in test_scoped_import_refuses_before_any_stage_or_claim
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-directory] _
+tests/unit/core/artifacts/test_import_admission_noop.py:82: in test_scoped_import_refuses_before_any_stage_or_claim
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-archive] _
+tests/unit/core/artifacts/test_import_admission_noop.py:82: in test_scoped_import_refuses_before_any_stage_or_claim
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-exact] __
+tests/unit/core/artifacts/test_import_admission_noop.py:82: in test_scoped_import_refuses_before_any_stage_or_claim
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+___ test_scoped_import_refuses_before_any_stage_or_claim[foreign-directory] ____
+tests/unit/core/artifacts/test_import_admission_noop.py:82: in test_scoped_import_refuses_before_any_stage_or_claim
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+____ test_scoped_import_refuses_before_any_stage_or_claim[foreign-archive] _____
+tests/unit/core/artifacts/test_import_admission_noop.py:82: in test_scoped_import_refuses_before_any_stage_or_claim
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_____ test_scoped_import_refuses_before_any_stage_or_claim[foreign-exact] ______
+tests/unit/core/artifacts/test_import_admission_noop.py:82: in test_scoped_import_refuses_before_any_stage_or_claim
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_____ test_scoped_import_refuses_before_any_stage_or_claim[cell-directory] _____
+tests/unit/core/artifacts/test_import_admission_noop.py:82: in test_scoped_import_refuses_before_any_stage_or_claim
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+______ test_scoped_import_refuses_before_any_stage_or_claim[cell-archive] ______
+tests/unit/core/artifacts/test_import_admission_noop.py:82: in test_scoped_import_refuses_before_any_stage_or_claim
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_______ test_scoped_import_refuses_before_any_stage_or_claim[cell-exact] _______
+tests/unit/core/artifacts/test_import_admission_noop.py:82: in test_scoped_import_refuses_before_any_stage_or_claim
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_________ test_exact_same_owner_import_is_a_real_noop[None-directory] __________
+tests/unit/core/artifacts/test_import_admission_noop.py:120: in test_exact_same_owner_import_is_a_real_noop
+    assert report.imported_files == 0
+E   AssertionError: assert 2 == 0
+E    +  where 2 = ImportReport(imported_files=2, imported_artifacts=1, total_bytes=424, source=PosixPath('/workspace/e02-B-current-cas-g...ion/octet-stream', manifest_profile_sha256='sha256:88551e06d01885d1ba6b37a37ff2571f651fd2b474518cb76b99c2de4d20cfb7'))).imported_files
+__________ test_exact_same_owner_import_is_a_real_noop[None-archive] ___________
+tests/unit/core/artifacts/test_import_admission_noop.py:120: in test_exact_same_owner_import_is_a_real_noop
+    assert report.imported_files == 0
+E   AssertionError: assert 2 == 0
+E    +  where 2 = ImportReport(imported_files=2, imported_artifacts=1, total_bytes=424, source=PosixPath('/workspace/e02-B-current-cas-g...ion/octet-stream', manifest_profile_sha256='sha256:88551e06d01885d1ba6b37a37ff2571f651fd2b474518cb76b99c2de4d20cfb7'))).imported_files
+___________ test_exact_same_owner_import_is_a_real_noop[None-exact] ____________
+tests/unit/core/artifacts/test_import_admission_noop.py:122: in test_exact_same_owner_import_is_a_real_noop
+    assert staged == []
+E   AssertionError: assert [PosixPath('/...ct-01m_dag7')] == []
+E     
+E     Left contains one more item: PosixPath('/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/admission-base-replay-tmp/test_exact_same_owner_import_i2/target/.cas-import-exact-01m_dag7')
+E     Use -v to get more diff
+________ test_exact_same_owner_import_is_a_real_noop[cell-a-directory] _________
+tests/unit/core/artifacts/test_import_admission_noop.py:120: in test_exact_same_owner_import_is_a_real_noop
+    assert report.imported_files == 0
+E   AssertionError: assert 2 == 0
+E    +  where 2 = ImportReport(imported_files=2, imported_artifacts=1, total_bytes=443, source=PosixPath('/workspace/e02-B-current-cas-g...ion/octet-stream', manifest_profile_sha256='sha256:15fa0ac64fc47336470f548bb90b6f9c240d5137e6274caea6ef78dcc00ba83f'))).imported_files
+_________ test_exact_same_owner_import_is_a_real_noop[cell-a-archive] __________
+tests/unit/core/artifacts/test_import_admission_noop.py:120: in test_exact_same_owner_import_is_a_real_noop
+    assert report.imported_files == 0
+E   AssertionError: assert 2 == 0
+E    +  where 2 = ImportReport(imported_files=2, imported_artifacts=1, total_bytes=443, source=PosixPath('/workspace/e02-B-current-cas-g...ion/octet-stream', manifest_profile_sha256='sha256:15fa0ac64fc47336470f548bb90b6f9c240d5137e6274caea6ef78dcc00ba83f'))).imported_files
+__________ test_exact_same_owner_import_is_a_real_noop[cell-a-exact] ___________
+tests/unit/core/artifacts/test_import_admission_noop.py:122: in test_exact_same_owner_import_is_a_real_noop
+    assert staged == []
+E   AssertionError: assert [PosixPath('/...ct-lr3_rl47')] == []
+E     
+E     Left contains one more item: PosixPath('/workspace/e02-B-current-cas-generation/policy-engine/_build/e02-B-current-cas-generation/admission-base-replay-tmp/test_exact_same_owner_import_i5/target/.cas-import-exact-lr3_rl47')
+E     Use -v to get more diff
+_ test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-directory] _
+tests/unit/core/artifacts/test_import_admission_noop.py:156: in test_claimed_view_requires_exact_metadata_and_signature
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-archive] _
+tests/unit/core/artifacts/test_import_admission_noop.py:156: in test_claimed_view_requires_exact_metadata_and_signature
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-exact] _
+tests/unit/core/artifacts/test_import_admission_noop.py:156: in test_claimed_view_requires_exact_metadata_and_signature
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-directory] _
+tests/unit/core/artifacts/test_import_admission_noop.py:156: in test_claimed_view_requires_exact_metadata_and_signature
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-archive] _
+tests/unit/core/artifacts/test_import_admission_noop.py:156: in test_claimed_view_requires_exact_metadata_and_signature
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-exact] _
+tests/unit/core/artifacts/test_import_admission_noop.py:156: in test_claimed_view_requires_exact_metadata_and_signature
+    with pytest.raises(ArtifactOwnershipError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+______ test_cell_none_is_exact_identity_not_a_query_wildcard[None-cell-a] ______
+tests/unit/core/artifacts/test_import_admission_noop.py:225: in test_cell_none_is_exact_identity_not_a_query_wildcard
+    with pytest.raises(ArtifactOwnershipError, match="different cell"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+______ test_cell_none_is_exact_identity_not_a_query_wildcard[cell-a-None] ______
+tests/unit/core/artifacts/test_import_admission_noop.py:225: in test_cell_none_is_exact_identity_not_a_query_wildcard
+    with pytest.raises(ArtifactOwnershipError, match="different cell"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_generic_put_refuses_explicit_bound_identity_mismatch_before_intent[context0] _
+tests/unit/core/artifacts/test_import_admission_noop.py:236: in test_generic_put_refuses_explicit_bound_identity_mismatch_before_intent
+    with pytest.raises(ArtifactOwnershipError, match="bound to a different"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_generic_put_refuses_explicit_bound_identity_mismatch_before_intent[context1] _
+tests/unit/core/artifacts/test_import_admission_noop.py:236: in test_generic_put_refuses_explicit_bound_identity_mismatch_before_intent
+    with pytest.raises(ArtifactOwnershipError, match="bound to a different"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'polisyos.core.artifacts.ownership.ArtifactOwnershipError'>
+_ test_import_keeps_its_actual_artifact_lease_through_staging_and_publication __
+tests/unit/core/artifacts/test_import_admission_noop.py:278: in test_import_keeps_its_actual_artifact_lease_through_staging_and_publication
+    assert not completed.wait(0.1), "competing writer escaped the admitted artifact lease"
+E   AssertionError: competing writer escaped the admitted artifact lease
+E   assert not True
+E    +  where True = wait(0.1)
+E    +    where wait = <threading.Event at 0x7fea48fa8830: set>.wait
+__________ test_mixed_package_stages_only_unclaimed_artifact_members ___________
+tests/unit/core/artifacts/test_import_admission_noop.py:305: in test_mixed_package_stages_only_unclaimed_artifact_members
+    assert report.imported_files == 2
+E   AssertionError: assert 4 == 2
+E    +  where 4 = ImportReport(imported_files=4, imported_artifacts=2, total_bytes=842, source=PosixPath('/workspace/e02-B-current-cas-g...ion/octet-stream', manifest_profile_sha256='sha256:88551e06d01885d1ba6b37a37ff2571f651fd2b474518cb76b99c2de4d20cfb7'))).imported_files
+_ test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[False-put_bytes] _
+tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py:56: in test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times
+    assert local.get_manifest_bytes(exact) == remote.get_manifest_bytes(selected)
+E   assert b'{"artifact_...warnings":[]}' == b'{"artifact_...warnings":[]}'
+E     
+E     At index 136 diff: b'1' != b'2'
+E     Use -v to get more diff
+_ test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[False-put_json] _
+tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py:56: in test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times
+    assert local.get_manifest_bytes(exact) == remote.get_manifest_bytes(selected)
+E   assert b'{"artifact_...warnings":[]}' == b'{"artifact_...warnings":[]}'
+E     
+E     At index 333 diff: b'1' != b'2'
+E     Use -v to get more diff
+_ test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[True-put_bytes] _
+tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py:56: in test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times
+    assert local.get_manifest_bytes(exact) == remote.get_manifest_bytes(selected)
+E   assert b'{"artifact_...warnings":[]}' == b'{"artifact_...warnings":[]}'
+E     
+E     At index 136 diff: b'1' != b'2'
+E     Use -v to get more diff
+_ test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[True-put_json] _
+tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py:56: in test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times
+    assert local.get_manifest_bytes(exact) == remote.get_manifest_bytes(selected)
+E   assert b'{"artifact_...warnings":[]}' == b'{"artifact_...warnings":[]}'
+E     
+E     At index 333 diff: b'1' != b'2'
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-directory]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-archive]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-exact]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-directory]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-archive]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-exact]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim[foreign-directory]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim[foreign-archive]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim[foreign-exact]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim[cell-directory]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim[cell-archive]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_scoped_import_refuses_before_any_stage_or_claim[cell-exact]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_exact_same_owner_import_is_a_real_noop[None-directory]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_exact_same_owner_import_is_a_real_noop[None-archive]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_exact_same_owner_import_is_a_real_noop[None-exact]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_exact_same_owner_import_is_a_real_noop[cell-a-directory]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_exact_same_owner_import_is_a_real_noop[cell-a-archive]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_exact_same_owner_import_is_a_real_noop[cell-a-exact]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-directory]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-archive]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-exact]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-directory]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-archive]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-exact]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_cell_none_is_exact_identity_not_a_query_wildcard[None-cell-a]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_cell_none_is_exact_identity_not_a_query_wildcard[cell-a-None]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_generic_put_refuses_explicit_bound_identity_mismatch_before_intent[context0]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_generic_put_refuses_explicit_bound_identity_mismatch_before_intent[context1]
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_import_keeps_its_actual_artifact_lease_through_staging_and_publication
+FAILED tests/unit/core/artifacts/test_import_admission_noop.py::test_mixed_package_stages_only_unclaimed_artifact_members
+FAILED tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py::test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[False-put_bytes]
+FAILED tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py::test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[False-put_json]
+FAILED tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py::test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[True-put_bytes]
+FAILED tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py::test_write_through_transfers_exact_owner_bytes_across_distinct_creation_times[True-put_json]

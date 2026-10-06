@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -15,7 +16,13 @@ from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     CanonicalAcquisitionObservation,
 )
 from polisyos.data_forge.read_api import catalog as catalog_read_api
-from polisyos.runtime.quality import data_state_substrate, substrate_registry
+from polisyos.runtime.quality import (
+    data_state_substrate,
+    substrate_registry,
+)
+from polisyos.runtime.quality import (
+    generation_cycle as generation_cycle_module,
+)
 from polisyos.runtime.quality.generation_cycle import (
     FoundryValuePort,
     RealValueOwnerGateway,
@@ -80,21 +87,80 @@ def _activate_four_row_scenario(
     return scenario, projection
 
 
-def _append_overlay_observations(
-    scenario: Any,
-    rows: list[tuple[object, ...]],
+def _seed_baseline_nonmembers_before_authority_freeze(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    row_count: int,
 ) -> None:
-    con = duckdb.connect(str(scenario.overlay.overlay_path))
-    try:
-        con.executemany(
-            "INSERT INTO ds_observations "
-            "(observation_id, dataset_id, raw_variable, canonical_var, country_code, "
-            "year, survey_year, wave, value, condition_json) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            rows,
+    """Seed visible epoch-zero rows before the fixture hashes its baseline."""
+    builder = catalog_read_api.build_slice0_fixture_catalog_graph
+    rows = [
+        (
+            f"baseline-nonmember-{index:05d}",
+            "acquisition.local.corrected_firm_panels",
+            "distress_score",
+            "cells.distress_score",
+            "UA",
+            2024,
+            None,
+            None,
+            0.99,
+            json.dumps({"unit": "ratio"}),
         )
-    finally:
-        con.close()
+        for index in range(row_count)
+    ]
+
+    def build_fixture_with_baseline_nonmembers(graph_root: str | Path | None = None) -> object:
+        if graph_root is None:
+            raise AssertionError("this fixture path requires an isolated catalog root")
+        root = Path(graph_root)
+        graph = builder(graph_root)
+        graph.close()
+        baseline_path = root / "catalog.duckdb"
+        con = duckdb.connect(str(baseline_path))
+        try:
+            con.executemany(
+                "INSERT INTO ds_observations "
+                "(observation_id, dataset_id, raw_variable, canonical_var, country_code, "
+                "year, survey_year, wave, value, condition_json) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                rows,
+            )
+        finally:
+            con.close()
+        # _authority closes the returned graph after this hook. Reopen it only after
+        # seeding so that its single close releases the live post-seed catalog handle.
+        return type(graph)(db_path=baseline_path, index_dir=root)
+
+    monkeypatch.setattr(
+        catalog_read_api,
+        "build_slice0_fixture_catalog_graph",
+        build_fixture_with_baseline_nonmembers,
+    )
+
+
+def _disable_exact_projection_member_query_filter(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Run the real owner function with only its exact-ID SQL gate disabled."""
+    function_name = "_load_value_data_profile_from_l1_dcat"
+    original = getattr(generation_cycle_module, function_name)
+    source = inspect.getsource(original)
+    needle = "observation_projection is not None,\n            list(selected_projection_ids),"
+    replacement = "False,\n            list(selected_projection_ids),"
+    assert source.count(needle) == 1
+    counterfactual_source = source.replace(needle, replacement, 1)
+    counterfactual_module = "from __future__ import annotations\n" + counterfactual_source
+    namespace = generation_cycle_module.__dict__.copy()
+    exec(  # noqa: S102 - controlled source mutation probes the live SQL gate in memory.
+        compile(
+            counterfactual_module,
+            inspect.getsourcefile(original) or "<generation_cycle>",
+            "exec",
+        ),
+        namespace,
+    )
+    counterfactual = namespace[function_name]
+    assert inspect.signature(counterfactual) == inspect.signature(original)
+    monkeypatch.setattr(generation_cycle_module, function_name, counterfactual)
 
 
 def _load_through_default_root_gateway(
@@ -178,63 +244,39 @@ def test_default_root_gateway_uses_exact_c_members_before_cap_and_grouping(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Same-country nonmembers cannot alter the four admitted profile members."""
+    """Visible baseline nonmembers cannot displace the four admitted C members."""
+    _seed_baseline_nonmembers_before_authority_freeze(monkeypatch, row_count=20_001)
     scenario, projection = _activate_four_row_scenario(tmp_path, monkeypatch)
     outcome = scenario.passport.variable_id
-    selected = projection.observations[0].observation
 
-    # A same-source/unit row at a nonprojected old period would expand the current
-    # country-scoped panel. A foreign source/unit row makes the leak observable
-    # even if a later source/unit check refuses the profile.
-    same_source_old_period = (
-        "same-source-old-period",
-        selected.dataset_id,
-        "distress_score",
-        outcome,
-        "UA",
-        1899,
-        None,
-        None,
-        0.31,
-        json.dumps({"unit": "ratio"}),
+    con = catalog_read_api.open_catalog_read_session(
+        scenario.authority.baseline_path,
+        overlay_path=scenario.overlay.overlay_path,
     )
-    foreign_source_unit = (
-        "foreign-source-period",
-        "foreign-dataset",
-        "distress_score",
-        outcome,
-        "UA",
-        1900,
-        None,
-        None,
-        0.88,
-        json.dumps({"unit": "usd"}),
-    )
-    # More same-country rows than the whole profile cap distinguish exact member
-    # selection before LIMIT from a country predicate followed by post-filtering.
-    cap_fillers = [
-        (
-            f"unprojected-{index:05d}",
-            "foreign-dataset",
-            "distress_score",
-            outcome,
-            "UA",
-            20_000 + index,
-            None,
-            None,
-            0.99,
-            json.dumps({"unit": "ratio"}),
-        )
-        for index in range(20_001)
-    ]
-    _append_overlay_observations(
-        scenario,
-        [same_source_old_period, foreign_source_unit, *cap_fillers],
-    )
+    try:
+        visible_scoped_rows = con.execute(
+            "SELECT count(*) FROM ds_observations WHERE canonical_var = ? "
+            "AND country_code = 'UA' AND value IS NOT NULL "
+            "AND COALESCE(year, survey_year, wave) IS NOT NULL",
+            [outcome],
+        ).fetchone()[0]
+    finally:
+        con.close()
+    assert len(projection.observations) == 4
+    assert visible_scoped_rows == 20_005
 
     profile = _load_through_default_root_gateway(scenario, projection)
 
     _assert_exact_four_member_profile(profile, scenario, projection)
+
+    # R1: retain the real function, query, markers, and parameter arity while
+    # removing only the query's exact-ID enabler. The same positive must then fail
+    # at the real row cap because the unprojected epoch-zero rows remain visible.
+    with monkeypatch.context() as counterfactual:
+        _disable_exact_projection_member_query_filter(counterfactual)
+        with pytest.raises(ValueOwnerAccessError) as raised:
+            _load_through_default_root_gateway(scenario, projection)
+    assert raised.value.code == "acquire_data:value_owner_rows_truncated"
 
 
 def test_same_country_nonmember_cannot_replace_a_missing_c_member_in_denominator(

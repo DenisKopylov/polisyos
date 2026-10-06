@@ -1,0 +1,3 @@
+Docs drift gate
+- changed files: 0
+- no docs-sensitive D6 rules were triggered

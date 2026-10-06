@@ -58,6 +58,7 @@ from ._integrity_ops import (
 )
 from ._layout import CASPathLayout as _CASPathLayout
 from ._manifest_lifecycle import ManifestLifecycle as _ManifestLifecycle
+from ._signature_ops import check_batch_admission
 from ._signature_ops import (
     sign_all_artifacts as _sign_all_artifacts,
 )
@@ -214,6 +215,19 @@ def _iter_canonical_artifact_ids(
             continue
         seen.add(identity)
         yield artifact_id
+
+
+def _iter_canonical_artifact_references(
+    requests: Iterable[ArtifactID | ArtifactRef],
+) -> Iterator[ArtifactID | ArtifactRef]:
+    """Preserve each full selected-view identity in a lazy verification inventory."""
+    seen: set[tuple[str, str, str, str | None] | tuple[str]] = set()
+    for request in requests:
+        aid, _profile, ref = _artifact_reference(request)
+        identity = artifact_ref_identity_key(ref) if ref is not None else (str(aid),)
+        if identity not in seen:
+            seen.add(identity)
+            yield ref or aid
 
 
 _TRANSACTION_INTENT_SCHEMA = "policyos.artifact_ownership_transaction_intent.v2"
@@ -1813,7 +1827,7 @@ class FileSystemCAS:
                 raise ArtifactIntegrityError("signature_snapshot_not_loaded")
             return self._load_signature_for_snapshot(selected, loaded_snapshot)
 
-        return _verify_signature(
+        result = _verify_signature(
             artifact_id=aid,
             verifier=verifier,
             strict_identity=strict_identity,
@@ -1823,6 +1837,14 @@ class FileSystemCAS:
             read_manifest_bytes=lambda selected_id: self.get_manifest_bytes(selected),
             load_snapshot=load_snapshot,
         )
+
+        result_ref = ref
+        if result_ref is None and loaded_snapshot is not None:
+            manifest = loaded_snapshot.manifest
+            result_ref = ArtifactRef(
+                artifact_id=aid, kind=manifest.kind, media_type=manifest.media_type
+            )
+        return result.model_copy(update={"artifact_ref": result_ref})
 
     def sign_all_artifacts(
         self,
@@ -1834,10 +1856,11 @@ class FileSystemCAS:
         max_workers: int = 8,
         pending_window: int | None = None,
         cancel_event: threading.Event | None = None,
+        deadline: float | None = None,
     ) -> BulkSigningReport:
         """Sign many artifacts concurrently and summarize signed/skipped/error counts."""
         ids = (
-            self._iter_artifact_ids_lazy()
+            self._iter_artifact_ids_lazy(cancel_event=cancel_event, deadline=deadline)
             if artifact_ids is None
             else _iter_canonical_artifact_ids(artifact_ids)
         )
@@ -1853,6 +1876,7 @@ class FileSystemCAS:
             write_signature=self.put_signature,
             pending_window=pending_window,
             cancel_event=cancel_event,
+            deadline=deadline,
             load_snapshot=self._load_verified_snapshot,
         )
 
@@ -1860,17 +1884,18 @@ class FileSystemCAS:
         self,
         verifier: Ed25519Verifier,
         *,
-        artifact_ids: Iterable[ArtifactID] | None = None,
+        artifact_ids: Iterable[ArtifactID | ArtifactRef] | None = None,
         max_workers: int = 8,
         strict_identity: bool | None = None,
         pending_window: int | None = None,
         cancel_event: threading.Event | None = None,
+        deadline: float | None = None,
     ) -> BulkVerificationReport:
         """Verify many artifact signatures concurrently and summarize verifier outcomes."""
         ids = (
-            self._iter_artifact_ids_lazy()
+            self._iter_artifact_ids_lazy(cancel_event=cancel_event, deadline=deadline)
             if artifact_ids is None
-            else _iter_canonical_artifact_ids(artifact_ids)
+            else _iter_canonical_artifact_references(artifact_ids)
         )
         return _verify_all_signatures(
             verifier=verifier,
@@ -1884,6 +1909,7 @@ class FileSystemCAS:
             ),
             pending_window=pending_window,
             cancel_event=cancel_event,
+            deadline=deadline,
         )
 
     def _transaction_stage_relative(self, operation_id: str, name: str) -> str:
@@ -3713,6 +3739,9 @@ class FileSystemCAS:
 
     def _capture_inventory_member_paths(
         self,
+        *,
+        cancel_event: threading.Event | None = None,
+        deadline: float | None = None,
     ) -> tuple[tuple[str, ...], dict[tuple[str, str], Path]]:
         """Parse the complete canonical member-name set without reading contents."""
         names: set[str] = set()
@@ -3721,16 +3750,19 @@ class FileSystemCAS:
         def onerror(error: OSError) -> None:
             walk_errors.append(error)
 
+        check_batch_admission(cancel_event, deadline)
         for directory, children, files in os.walk(
             self.base,
             topdown=True,
             followlinks=False,
             onerror=onerror,
         ):
+            check_batch_admission(cancel_event, deadline)
             parent = Path(directory)
             if any((parent / child).is_symlink() for child in children):
                 raise ArtifactIntegrityError("cas_inventory_symlink_directory")
             for filename in files:
+                check_batch_admission(cancel_event, deadline)
                 path = parent / filename
                 if path.is_symlink() or not path.is_file():
                     raise ArtifactIntegrityError("cas_inventory_nonregular_member")
@@ -3744,6 +3776,7 @@ class FileSystemCAS:
             r"\.(?P<kind>blob|manifest\.json|sig)$"
         )
         for name in names:
+            check_batch_admission(cancel_event, deadline)
             relative = Path(name)
             if len(relative.parts) != 3:
                 raise ArtifactIntegrityError("cas_inventory_member_path_invalid")
@@ -3783,9 +3816,13 @@ class FileSystemCAS:
         self,
         *,
         owner_scope: tuple[str | None, str | None],
+        cancel_event: threading.Event | None = None,
+        deadline: float | None = None,
     ) -> tuple[tuple[str, ...], tuple[ArtifactID, ...], str]:
         """Capture visible default-view identities without reading manifests or blobs."""
-        _all_names, members = self._capture_inventory_member_paths()
+        _all_names, members = self._capture_inventory_member_paths(
+            cancel_event=cancel_event, deadline=deadline
+        )
         default_ids = {
             artifact_hex
             for artifact_hex, selector_kind in members
@@ -3795,6 +3832,7 @@ class FileSystemCAS:
         tenant_id, cell_id = owner_scope
         visible_ids: list[ArtifactID] = []
         for artifact_hex in sorted(default_ids):
+            check_batch_admission(cancel_event, deadline)
             artifact_id = ArtifactID.from_sha256_hex(artifact_hex)
             if self._ownership_enforced:
                 if tenant_id is None:
@@ -3818,13 +3856,17 @@ class FileSystemCAS:
         )
         return default_names, tuple(visible_ids), self._owner_generation_token()
 
-    def _authenticated_default_inventory_cursor(self) -> Iterator[ArtifactID]:
+    def _authenticated_default_inventory_cursor(
+        self, *, cancel_event: threading.Event | None = None, deadline: float | None = None
+    ) -> Iterator[ArtifactID]:
         """Yield default IDs from the active-scope membership projection.
 
         The first iteration walks the complete CAS name tree and materializes
         its member map and visible default IDs before yielding. It does not read
-        every manifest or blob during that census. Cancellation stops later
-        item admission, but cannot interrupt the initial filesystem walk. On
+        every manifest or blob during that census. Cancellation/deadline checkpoints
+        interrupt this initial name census
+        between filesystem operations as well as later item admission. The name
+        map and complete result still require O(N) memory; one syscall can block. On
         successful exhaustion, the owner recomputes the active-scope default
         IDs and their blob/manifest member names. The shared owner-generation
         token is sampled but is not itself the completion predicate: unrelated
@@ -3839,20 +3881,25 @@ class FileSystemCAS:
         try:
             with self._coordinator.root_exclusive():
                 names_before, ids_before, generation_before = self._capture_default_inventory_state(
-                    owner_scope=owner_scope
+                    owner_scope=owner_scope,
+                    cancel_event=cancel_event,
+                    deadline=deadline,
                 )
         except (ArtifactIntegrityError, OSError, ValueError, TypeError) as exc:
             raise ArtifactIntegrityError("cas_batch_inventory_capture_failed") from exc
 
         processed: set[str] = set()
         for artifact_id in ids_before:
+            check_batch_admission(cancel_event, deadline)
             processed.add(artifact_id.hex)
             yield artifact_id
 
         try:
             with self._coordinator.root_exclusive():
                 names_after, ids_after, generation_after = self._capture_default_inventory_state(
-                    owner_scope=owner_scope
+                    owner_scope=owner_scope,
+                    cancel_event=cancel_event,
+                    deadline=deadline,
                 )
         except (ArtifactIntegrityError, OSError, ValueError, TypeError) as exc:
             raise ArtifactIntegrityError("cas_batch_inventory_recheck_failed") from exc
@@ -4049,9 +4096,13 @@ class FileSystemCAS:
             entries=tuple(entries),
         )
 
-    def _iter_artifact_ids_lazy(self) -> Iterator[ArtifactID]:
+    def _iter_artifact_ids_lazy(
+        self, *, cancel_event: threading.Event | None = None, deadline: float | None = None
+    ) -> Iterator[ArtifactID]:
         """Yield authenticated default IDs through the bounded batch cursor."""
-        yield from self._authenticated_default_inventory_cursor()
+        yield from self._authenticated_default_inventory_cursor(
+            cancel_event=cancel_event, deadline=deadline
+        )
 
     def export_subgraph(
         self,

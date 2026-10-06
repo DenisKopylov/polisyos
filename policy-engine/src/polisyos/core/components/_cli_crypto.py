@@ -180,6 +180,8 @@ def _cmd_sign(args: Any) -> int:
                 f"signed={report.signed} skipped={report.skipped} "
                 f"errors={report.errors} total={report.total}"
             )
+        if report.state != "complete" or not report.inventory_exhausted:
+            return 1
         return 0 if report.errors == 0 else 1
 
     try:
@@ -249,6 +251,8 @@ def _cmd_verify(args: Any) -> int:
                     f"untrusted={report.untrusted} revoked={report.revoked} "
                     f"errors={report.errors} total={report.total}"
                 )
+        if report.state != "complete" or not report.inventory_exhausted:
+            return 1
         if report.invalid or report.untrusted or report.revoked or report.errors:
             return 1
         if args.fail_unsigned and report.unsigned:

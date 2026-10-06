@@ -123,3 +123,42 @@ def test_unmeasured_scalar_does_not_launder_through_history_into_training(malfor
     train_x, train_y = generator._optimizer._prepare_training_data(evaluations)
     assert train_x.tolist() == [[0.2]]
     assert train_y.tolist() == [[-10.0]]
+
+
+@pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+@pytest.mark.parametrize("malformed", ["false", "true", 0, 1, None, [], {}])
+def test_present_untyped_stage_admission_is_rejected_without_scalar_fallback(malformed):
+    generator = BayesianCandidateGenerator(
+        SearchSpace([{"name": "x", "lower": 0, "upper": 10}]),
+        primary_metric="cost",
+        direction=MetricDirection.MINIMIZE,
+    )
+    with patch.object(generator, "_history_score", side_effect=AssertionError("scalar fallback")):
+        evaluations = generator._history_to_evaluations(
+            [
+                {
+                    "candidate": {"x": 4},
+                    "stage_a_passed": malformed,
+                    "stage_b_result": {"cost": 0.0},
+                    "objective_value": 0.0,
+                }
+            ]
+        )
+    assert len(evaluations) == 1
+    assert evaluations[0].is_valid is False
+    assert evaluations[0].metadata["invalid_reason"] == "malformed_stage_a_passed"
+    assert generator._optimizer._effective_training_corpus(evaluations) == []
+
+
+@pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+@pytest.mark.parametrize(
+    ("present", "value", "valid"), [(False, None, True), (True, True, True), (True, False, False)]
+)
+def test_absent_and_declared_boolean_stage_contract_is_preserved(present, value, valid):
+    generator = BayesianCandidateGenerator(
+        SearchSpace([{"name": "x", "lower": 0, "upper": 10}]), primary_metric="cost"
+    )
+    entry = {"candidate": {"x": 4}, "stage_b_result": {"cost": 2.0}}
+    if present:
+        entry["stage_a_passed"] = value
+    assert generator._history_to_evaluations([entry])[0].is_valid is valid

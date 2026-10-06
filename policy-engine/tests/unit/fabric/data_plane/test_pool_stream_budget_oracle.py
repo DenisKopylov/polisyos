@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -102,6 +103,8 @@ async def test_restored_frontier_above_new_cap_refuses_before_consumer_effects(
 ) -> None:
     registry, store, checkpoint = await _pending_checkpoint(tmp_path, monkeypatch)
     events: list[str] = []
+    acquisitions: list[tuple[int, str]] = []
+    releases: list[tuple[int, str]] = []
     acquire = ConnectionPool.acquire_with_connector
     release = ConnectionPool.release
     poll = streaming.StreamingSourceSession.poll
@@ -111,11 +114,14 @@ async def test_restored_frontier_above_new_cap_refuses_before_consumer_effects(
     async def observed_acquire(pool):
         result = await acquire(pool)
         events.append("acquire")
+        acquisitions.append((id(pool), result[1].session_id))
         return result
 
     async def observed_release(pool, handle):
+        result = await release(pool, handle)
+        releases.append((id(pool), handle.session_id))
         events.append("release")
-        return await release(pool, handle)
+        return result
 
     async def observed_poll(session):
         events.append("poll")
@@ -148,9 +154,11 @@ async def test_restored_frontier_above_new_cap_refuses_before_consumer_effects(
         )
     except (RuntimeError, ValueError) as exc:
         failure = exc
-    assert not {"poll", "flush", "commit"}.intersection(events), events
+    assert not {"poll", "flush", "commit"}.intersection(events), json.dumps(events)
     assert failure is not None, "over-cap restored frontier was accepted"
-    assert events.count("acquire") == events.count("release") == 1, events
+    # Schema discovery may own an additional session. Reconcile the real leases
+    # instead of assuming a constant count of acquisitions for this consumer.
+    assert acquisitions and Counter(acquisitions) == Counter(releases)
     current = CursorStore(reopened).find_latest_stream_checkpoint("stream.jsonl", "budget-oracle")
     assert current is not None
     assert current.model_dump(mode="json") == checkpoint.model_dump(mode="json")

@@ -9,6 +9,7 @@ framework: the controller remains the owner of evaluation semantics and
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import inspect
 import json
@@ -575,7 +576,7 @@ class NativeSearchService:
         ref_before = self.checkpoint_ref
         try:
             return self._ask_proposals(goal, search_space, context)
-        except Exception:
+        except (Exception, asyncio.CancelledError):
             self.controller._run_state = ledger_before
             self.controller._config.stopping = stopping_before
             self._pending_candidates = pending_before
@@ -587,7 +588,7 @@ class NativeSearchService:
             if generator_before is not None:
                 try:
                     restore(generator_before)
-                except Exception:
+                except (Exception, asyncio.CancelledError):
                     self._publication_blocked = True
             elif self._store is not None:
                 self._publication_blocked = True
@@ -864,10 +865,16 @@ class NativeSearchService:
                 start_time=start_time,
                 resume=resume,
             )
-        except Exception as exc:
+        except (Exception, asyncio.CancelledError) as exc:
             self.controller._status = SearchStatus.FAILED
             self._failure = f"{type(exc).__name__}: {exc}"
-            self._persist()
+            try:
+                self._persist()
+            except (Exception, asyncio.CancelledError):
+                self._publication_blocked = True
+                logger.warning(
+                    "Search failure checkpoint unavailable; reopen last acknowledged ref"
+                )
             raise
 
     def _drive_locked(

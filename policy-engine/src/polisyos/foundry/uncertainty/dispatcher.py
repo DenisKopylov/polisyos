@@ -24,6 +24,7 @@ from .covariance import build_covariance_matrix, has_unknown_dependency
 from .delta import DeltaMethodPropagator
 from .monte_carlo import MonteCarloPropagator
 from .protocol import PropagationResult
+from .sampling_admission import admit_sampling_support
 
 logger = get_logger(__name__)
 
@@ -51,11 +52,27 @@ class PropagationDispatcher:
             return []
 
         param_names = sorted(input_envelopes)
+        try:
+            admit_sampling_support(input_envelopes)
+        except (TypeError, ValueError, OverflowError):
+            return _blocked_dependency_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure="unsupported_sampling_range_or_covariance",
+            )
         if has_unknown_dependency(input_envelopes):
             return _blocked_dependency_results(
                 output_metric_ids,
                 input_param_names=param_names,
                 failure="unknown_dependency",
+            )
+
+        if self._config.bounded_iid_mean is not None:
+            return self._mc.propagate(
+                simulation_fn,
+                nominal_params,
+                input_envelopes,
+                output_metric_ids,
             )
 
         if _requires_monte_carlo_sampling(input_envelopes):
@@ -68,7 +85,10 @@ class PropagationDispatcher:
 
         if (
             self._config.delta_use_full_covariance
-            and all(env.distribution_family == DistributionFamily.NORMAL for env in input_envelopes.values())
+            and all(
+                env.distribution_family == DistributionFamily.NORMAL
+                for env in input_envelopes.values()
+            )
             and any(
                 "covariance_row" in env.metadata or "covariance_params" in env.metadata
                 for env in input_envelopes.values()

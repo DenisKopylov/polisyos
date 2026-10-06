@@ -74,8 +74,7 @@ def _is_established_independence_value(value: object) -> bool:
         return True
     return (
         isinstance(value, str)
-        and value.strip().lower().replace("-", "_")
-        in _ESTABLISHED_INDEPENDENCE_VALUES
+        and value.strip().lower().replace("-", "_") in _ESTABLISHED_INDEPENDENCE_VALUES
     )
 
 
@@ -120,16 +119,12 @@ def _prepare_inputs(
             unique.append(envelope)
             continue
         if previous != envelope:
-            raise UncertaintyCompatibilityError(
-                f"conflicting envelopes for origin {origin!r}"
-            )
+            raise UncertaintyCompatibilityError(f"conflicting envelopes for origin {origin!r}")
 
     normalized = tuple(unique)
     dependency_unknown = _has_unknown_dependency(normalized)
     effective_information_count = (
-        len(normalized)
-        if all_origins_bound and not dependency_unknown
-        else None
+        len(normalized) if all_origins_bound and not dependency_unknown else None
     )
     context = _AggregationContext(
         source_count=len(envelopes),
@@ -155,8 +150,18 @@ def _aggregation_metadata(
         "aggregation_method": method,
         "n_sources": context.source_count,
         "source_count": context.source_count,
-        "effective_information_count": context.effective_information_count,
-        "effective_information_count_status": context.effective_information_count_status,
+        "effective_information_count": (
+            None if len(envelopes) > 1 else context.effective_information_count
+        ),
+        "assumed_independent_unit_count": context.effective_information_count,
+        "effective_information_count_status": (
+            "consumer_asserted"
+            if len(envelopes) > 1 and context.effective_information_count is not None
+            else context.effective_information_count_status
+        ),
+        "independence_basis": "consumer_asserted"
+        if not context.dependency_unknown
+        else "not_established",
         "duplicate_source_count": context.duplicate_source_count,
         "sources": [env.source.value for env in envelopes],
     }
@@ -176,7 +181,7 @@ def _passthrough_with_context(
     return envelope.model_copy(
         update={
             "metadata": metadata,
-            "sample_size": context.effective_information_count or envelope.sample_size,
+            "sample_size": envelope.sample_size,
             "gate_eligible": envelope.gate_eligible and not context.dependency_unknown,
         }
     )
@@ -259,7 +264,7 @@ def _widest(
     elif len(semantics) == 1 and len(levels) == 1 and not force_fail_closed:
         semantics = next(iter(semantics))
         level = next(iter(levels))
-        gate_eligible = all(env.gate_eligible for env in envelopes)
+        gate_eligible = False
     elif (
         len(semantics) == 1
         and next(iter(semantics))
@@ -268,7 +273,7 @@ def _widest(
     ):
         semantics = next(iter(semantics))
         level = None
-        gate_eligible = all(env.gate_eligible for env in envelopes)
+        gate_eligible = False
     else:
         semantics = IntervalSemantics.DETERMINISTIC_BOUNDS
         level = None
@@ -297,7 +302,7 @@ def _widest(
         source=UncertaintySource.ENSEMBLE,
         propagation_method=PropagationMethod.NONE,
         interval_semantics=semantics,
-        sample_size=context.effective_information_count,
+        sample_size=None,
         is_heuristic_ci=any_heuristic,
         gate_eligible=gate_eligible,
         composition_provenance=build_composition_provenance(
@@ -331,10 +336,14 @@ def _precision_weighted(
     *,
     context: _AggregationContext,
 ) -> UncertaintyEnvelope:
-    if context.effective_information_count is None or context.dependency_unknown or any(
-        env.interval_semantics is not IntervalSemantics.CONFIDENCE_INTERVAL
-        or env.is_heuristic_ci
-        for env in envelopes
+    if (
+        context.effective_information_count is None
+        or context.dependency_unknown
+        or any(
+            env.interval_semantics is not IntervalSemantics.CONFIDENCE_INTERVAL
+            or env.is_heuristic_ci
+            for env in envelopes
+        )
     ):
         return _widest(
             envelopes,
@@ -370,12 +379,9 @@ def _precision_weighted(
         source=UncertaintySource.ENSEMBLE,
         propagation_method=PropagationMethod.NONE,
         interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
-        sample_size=context.effective_information_count,
+        sample_size=None,
         is_heuristic_ci=False,
-        gate_eligible=(
-            all(env.gate_eligible for env in envelopes)
-            and context.effective_information_count is not None
-        ),
+        gate_eligible=(False),
         composition_provenance=build_composition_provenance(
             input_envelopes=tuple(envelopes),
             op="compress",
@@ -408,10 +414,14 @@ def _bayesian_combination(
     *,
     context: _AggregationContext,
 ) -> UncertaintyEnvelope:
-    if context.effective_information_count is None or context.dependency_unknown or any(
-        env.interval_semantics is not IntervalSemantics.CONFIDENCE_INTERVAL
-        or env.is_heuristic_ci
-        for env in envelopes
+    if (
+        context.effective_information_count is None
+        or context.dependency_unknown
+        or any(
+            env.interval_semantics is not IntervalSemantics.CONFIDENCE_INTERVAL
+            or env.is_heuristic_ci
+            for env in envelopes
+        )
     ):
         return _widest(
             envelopes,
@@ -447,12 +457,9 @@ def _bayesian_combination(
         source=UncertaintySource.ENSEMBLE,
         propagation_method=PropagationMethod.NONE,
         interval_semantics=IntervalSemantics.CREDIBLE_INTERVAL,
-        sample_size=context.effective_information_count,
+        sample_size=None,
         is_heuristic_ci=False,
-        gate_eligible=(
-            all(env.gate_eligible for env in envelopes)
-            and context.effective_information_count is not None
-        ),
+        gate_eligible=(False),
         composition_provenance=build_composition_provenance(
             input_envelopes=tuple(envelopes),
             op="compress",

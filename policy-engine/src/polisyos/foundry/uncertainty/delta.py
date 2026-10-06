@@ -24,6 +24,7 @@ from polisyos.ir.analytics.uncertainty import (
 from .config import PropagationConfig
 from .covariance import build_covariance_matrix, has_unknown_dependency
 from .protocol import PropagationResult
+from .sampling_admission import admit_sampling_support
 
 
 class DeltaMethodPropagator:
@@ -57,6 +58,25 @@ class DeltaMethodPropagator:
 
         effective_nominal = dict(nominal_params)
         param_names = sorted(input_envelopes.keys())
+        used_full_covariance = self._config.delta_use_full_covariance or any(
+            "covariance_row" in env.metadata or "covariance_params" in env.metadata
+            for env in input_envelopes.values()
+        )
+        try:
+            admit_sampling_support(input_envelopes)
+            cov = build_covariance_matrix(
+                param_names,
+                input_envelopes,
+                use_full_covariance=self._config.delta_use_full_covariance,
+                jitter=self._config.delta_covariance_jitter,
+                preserve_singular=True,
+            )
+        except (TypeError, ValueError, OverflowError):
+            return _unknown_dependency_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure="unsupported_sampling_range_or_covariance",
+            )
         if has_unknown_dependency(input_envelopes):
             return _unknown_dependency_results(
                 output_metric_ids,
@@ -141,14 +161,12 @@ class DeltaMethodPropagator:
                 interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
                 is_heuristic_ci=False,
                 # Preserve the weakest input authority through push-forward.
-                gate_eligible=all(
-                    envelope.gate_eligible for envelope in input_envelopes.values()
-                ),
+                gate_eligible=False,
                 metadata={
                     "n_input_params": n_params,
                     "input_param_names": param_names,
                     "jacobian_row_norm": float(jnp.linalg.norm(jacobian[idx])),
-                    "used_full_covariance": bool(self._config.delta_use_full_covariance),
+                    "used_full_covariance": used_full_covariance,
                     "output_std": std,
                 },
                 composition_provenance=build_composition_provenance(
@@ -165,7 +183,7 @@ class DeltaMethodPropagator:
                     variance_bound=float(output_var[idx]),
                     assumptions=("jax_jacobian_linearization",),
                     notes={
-                        "used_full_covariance": bool(self._config.delta_use_full_covariance),
+                        "used_full_covariance": used_full_covariance,
                     },
                 ),
             )

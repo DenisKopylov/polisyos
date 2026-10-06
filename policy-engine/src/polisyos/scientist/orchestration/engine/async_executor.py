@@ -150,6 +150,7 @@ class AsyncWorkflowExecutor:
         self._async_store = ensure_async_artifact_store(ctx.store)
         self._registry = registry
         self._cache: NodeResultCache | None = None
+        self._cache_seed_owner: object | None = None
         self._checkpoint_hook = checkpoint_hook
         self._checkpoint_cache_seed_refs = list(checkpoint_cache_seed_refs or [])
         self._max_parallelism = max(1, max_parallelism)
@@ -178,6 +179,9 @@ class AsyncWorkflowExecutor:
 
         tiers = topo_sort_tiers(invocations)
         self._require_atomic_tier_checkpoint(tiers)
+        seed_owner = object()
+        self._cache_seed_owner = seed_owner
+        self._cache = None
         workflow_started = time.perf_counter()
         self._workflow_deadline = (
             workflow_started + self._workflow_timeout_s
@@ -198,13 +202,21 @@ class AsyncWorkflowExecutor:
         state_input_ref = await self._persist_state(initial_state)
         self._ctx.run.add_input(state_input_ref)
 
-        self._cache = NodeResultCache(
-            self._ctx.store,
-            run_id=state.run_id,
-            tenant_context=self._run_tenant_context(),
-        )
-        restored = self._cache.seed_from_trace(self._ctx.run.trace_path)
-        restored_cp = self._cache.seed_from_entry_refs(self._checkpoint_cache_seed_refs)
+        try:
+            cache, restored, restored_cp = await self._recover_cache(
+                run_id=state.run_id, deadline_monotonic=self._workflow_deadline
+            )
+            NodeResultCache._check_deadline(self._workflow_deadline)
+        except TimeoutError as exc:
+            raise WorkflowTimeoutError(
+                f"Workflow {workflow.workflow_id} exceeded timeout during cache recovery"
+            ) from exc
+        # The worker owns its cache until this uncancelled await accepts it.
+        # Cancellation cannot stop already-entered backend I/O; that worker's
+        # eventual private index must never become the current executor cache.
+        if self._cache_seed_owner is not seed_owner:
+            raise asyncio.CancelledError("cache recovery superseded")
+        self._cache = cache
         if restored:
             self._ctx.logger.info("Recovered %s cached node outcomes", restored)
         if restored_cp:
@@ -454,9 +466,7 @@ class AsyncWorkflowExecutor:
             launch_baselines: dict[str, ExperimentState] = {}
             records_by_alias: dict[str, NodeRunRecord] = {}
             tier_by_alias = {
-                alias: tier_index
-                for tier_index, tier in enumerate(tiers)
-                for alias in tier
+                alias: tier_index for tier_index, tier in enumerate(tiers) for alias in tier
             }
             tier_members = {tier_index: set(tier) for tier_index, tier in enumerate(tiers)}
             tier_started_at: dict[int, float] = {}
@@ -491,8 +501,7 @@ class AsyncWorkflowExecutor:
                         if alias not in pending:
                             continue
                         if any(
-                            dep in failed or dep in blocked
-                            for dep in invocations[alias].depends_on
+                            dep in failed or dep in blocked for dep in invocations[alias].depends_on
                         ):
                             pending.remove(alias)
                             blocked.add(alias)
@@ -511,8 +520,7 @@ class AsyncWorkflowExecutor:
                         if alias in pending
                         and all(dep in settled for dep in invocations[alias].depends_on)
                         and not any(
-                            dep in failed or dep in blocked
-                            for dep in invocations[alias].depends_on
+                            dep in failed or dep in blocked for dep in invocations[alias].depends_on
                         )
                     ]
                     for alias in ready:
@@ -570,12 +578,10 @@ class AsyncWorkflowExecutor:
                                 node = self._registry.get(invocations[alias].node_id)
                                 write_specs = list(node.spec.state_writes)
                                 try:
-                                    merge_outcome, merge_journal = (
-                                        self._prepare_readiness_outcome(
-                                            outcome,
-                                            launch_baseline,
-                                            write_specs,
-                                        )
+                                    merge_outcome, merge_journal = self._prepare_readiness_outcome(
+                                        outcome,
+                                        launch_baseline,
+                                        write_specs,
                                     )
                                 except StateReplayIncompatible as exc:
                                     record.status = "fail"
@@ -669,9 +675,7 @@ class AsyncWorkflowExecutor:
                         task.cancel()
                     await asyncio.gather(*tasks, return_exceptions=True)
 
-            records.extend(
-                records_by_alias[alias] for alias in order if alias in records_by_alias
-            )
+            records.extend(records_by_alias[alias] for alias in order if alias in records_by_alias)
 
         # Execute tiers with optional workflow-level timeout
         execution_body = (
@@ -679,12 +683,12 @@ class AsyncWorkflowExecutor:
             if self._can_use_readiness_schedule(workflow, invocations)
             else _execute_tiers
         )
-        if self._workflow_timeout_s is not None:
+        if self._workflow_deadline is not None:
             try:
-                await asyncio.wait_for(
-                    execution_body(),
-                    timeout=self._workflow_timeout_s,
-                )
+                remaining = self._workflow_deadline - time.perf_counter()
+                if remaining <= 0:
+                    raise TimeoutError("workflow deadline exceeded before execution")
+                await asyncio.wait_for(execution_body(), timeout=remaining)
             except TimeoutError as exc:
                 raise WorkflowTimeoutError(
                     f"Workflow {workflow.workflow_id} exceeded "
@@ -794,21 +798,13 @@ class AsyncWorkflowExecutor:
                 return False
             reads = getattr(spec, "state_reads", None)
             writes = getattr(spec, "state_writes", None)
-            if not isinstance(reads, (list, tuple)) or not isinstance(
-                writes, (list, tuple)
-            ):
+            if not isinstance(reads, (list, tuple)) or not isinstance(writes, (list, tuple)):
                 return False
-            if any(
-                not isinstance(path, str) or not path for path in (*reads, *writes)
-            ):
+            if any(not isinstance(path, str) or not path for path in (*reads, *writes)):
                 return False
             state_access[alias] = (
-                tuple(
-                    tuple(part for part in path.split(".") if part) for path in reads
-                ),
-                tuple(
-                    tuple(part for part in path.split(".") if part) for path in writes
-                ),
+                tuple(tuple(part for part in path.split(".") if part) for path in reads),
+                tuple(tuple(part for part in path.split(".") if part) for path in writes),
             )
 
         ancestors = self._readiness_ancestors(invocations)
@@ -819,10 +815,7 @@ class AsyncWorkflowExecutor:
                 # An explicit transitive dependency gives the scheduler an
                 # ordering edge.  All unordered state access must be proven
                 # disjoint before early release is allowed.
-                if (
-                    right_alias in ancestors[left_alias]
-                    or left_alias in ancestors[right_alias]
-                ):
+                if right_alias in ancestors[left_alias] or left_alias in ancestors[right_alias]:
                     continue
                 right_reads, right_writes = state_access[right_alias]
                 if any(
@@ -929,9 +922,7 @@ class AsyncWorkflowExecutor:
         # branch may therefore compare unequal solely because it carries a
         # different mutation journal, even when every public state field is
         # identical.  Ownership checks must compare the semantic state only.
-        if cls._readiness_public_state(rebased.state) != cls._readiness_public_state(
-            outcome.state
-        ):
+        if cls._readiness_public_state(rebased.state) != cls._readiness_public_state(outcome.state):
             difference = cls._readiness_first_difference(rebased.state, outcome.state)
             raise StateReplayIncompatible(
                 difference or "state",
@@ -962,9 +953,7 @@ class AsyncWorkflowExecutor:
 
         owned_operations = []
         for operation in journal.operations:
-            operation_parts = tuple(
-                part for part in operation.path.split(".") if part
-            )
+            operation_parts = tuple(part for part in operation.path.split(".") if part)
             if any(
                 len(write_path) <= len(operation_parts)
                 and write_path == operation_parts[: len(write_path)]
@@ -973,9 +962,7 @@ class AsyncWorkflowExecutor:
                 owned_operations.append(operation)
         if len(owned_operations) != len(journal.operations):
             undeclared = next(
-                operation
-                for operation in journal.operations
-                if operation not in owned_operations
+                operation for operation in journal.operations if operation not in owned_operations
             )
             raise StateReplayIncompatible(
                 undeclared.path,
@@ -1020,9 +1007,7 @@ class AsyncWorkflowExecutor:
                     operation="set",
                     value=deepcopy(outcome_value),
                     target_presence=(
-                        "missing"
-                        if baseline_value is _READINESS_MISSING
-                        else "present"
+                        "missing" if baseline_value is _READINESS_MISSING else "present"
                     ),
                     target_kind=cls._readiness_target_kind(baseline_value),
                 )
@@ -1091,10 +1076,13 @@ class AsyncWorkflowExecutor:
         right_public = AsyncWorkflowExecutor._readiness_public_state(right)
         if left_public == right_public:
             return None
-        return AsyncWorkflowExecutor._readiness_difference_path(
-            left_public,
-            right_public,
-        ) or "state"
+        return (
+            AsyncWorkflowExecutor._readiness_difference_path(
+                left_public,
+                right_public,
+            )
+            or "state"
+        )
 
     @staticmethod
     def _readiness_public_state(state: ExperimentState) -> dict[str, Any]:
@@ -1127,8 +1115,10 @@ class AsyncWorkflowExecutor:
                 if difference is not None:
                     return difference
             if len(left) != len(right):
-                return f"{path}.{min(len(left), len(right))}" if path else str(
-                    min(len(left), len(right))
+                return (
+                    f"{path}.{min(len(left), len(right))}"
+                    if path
+                    else str(min(len(left), len(right)))
                 )
             return None
         if left != right:
@@ -1428,6 +1418,46 @@ class AsyncWorkflowExecutor:
                 )
         return records, state, tier_failed, cache_entry_refs
 
+    async def _recover_cache(
+        self,
+        *,
+        run_id: str,
+        deadline_monotonic: float | None,
+    ) -> tuple[NodeResultCache, int, int]:
+        """Build a private recovery index off-loop before caller admission.
+
+        The synchronous store must support use from the shared executor, as
+        required for the existing async artifact-store adapter. A backend read
+        already entered cannot be preempted; deadline checks stop subsequent
+        reads and index admission, while cancellation discards worker ownership.
+        """
+        tenant_context = self._run_tenant_context()
+        trace_path = self._ctx.run.trace_path
+        refs = tuple(self._checkpoint_cache_seed_refs)
+        try:
+            self._check_budget("cache_recovery", budget_key="read")
+        except BudgetExhaustedError:
+            # Preserve the native per-node budget failure path. A denied read
+            # must not first consume persisted recovery bytes to build its cache.
+            return (
+                NodeResultCache(self._ctx.store, run_id=run_id, tenant_context=tenant_context),
+                0,
+                0,
+            )
+
+        def recover() -> tuple[NodeResultCache, int, int]:
+            NodeResultCache._check_deadline(deadline_monotonic)
+            cache = NodeResultCache(self._ctx.store, run_id=run_id, tenant_context=tenant_context)
+            restored = cache.seed_from_trace(trace_path, deadline_monotonic=deadline_monotonic)
+            restored_cp = cache.seed_from_entry_refs(refs, deadline_monotonic=deadline_monotonic)
+            NodeResultCache._check_deadline(deadline_monotonic)
+            return cache, restored, restored_cp
+
+        return await run_blocking_async(
+            recover,
+            timeout_seconds=self._remaining_deadline_seconds(deadline_monotonic),
+        )
+
     def _run_tenant_context(self) -> ArtifactTenantContextInfo | None:
         """Capture tenant/cell ownership from the existing run context."""
         run = self._ctx.run
@@ -1483,9 +1513,7 @@ class AsyncWorkflowExecutor:
         deadline is represented by its smallest bounded slice and reported as
         the normal timeout/degraded path.
         """
-        return self._remaining_deadline_seconds(
-            self._cache_deadline(inv, started_at=started_at)
-        )
+        return self._remaining_deadline_seconds(self._cache_deadline(inv, started_at=started_at))
 
     def _check_budget(self, alias: str, *, budget_key: str) -> None:
         """Check one action-specific budget and emit its threshold alerts."""
@@ -1709,9 +1737,7 @@ class AsyncWorkflowExecutor:
                     alias,
                     exc,
                 )
-                span_attrs["polisyos.node.cache.bypass_reason"] = (
-                    _CACHE_BYPASS_REPLAY_INCOMPATIBLE
-                )
+                span_attrs["polisyos.node.cache.bypass_reason"] = _CACHE_BYPASS_REPLAY_INCOMPATIBLE
             else:
                 cache_hit = True
                 self._ctx.run.emit(
@@ -1722,9 +1748,7 @@ class AsyncWorkflowExecutor:
                         "cache_hit": 1,
                     },
                 )
-                outcome = cached_outcome.model_copy(
-                    update={"state": merged_cached_state}
-                )
+                outcome = cached_outcome.model_copy(update={"state": merged_cached_state})
 
         if cached_outcome is None:
             try:
@@ -1811,6 +1835,12 @@ class AsyncWorkflowExecutor:
                         outcome=outcome,
                         timeout_seconds=self._remaining_deadline_seconds(cache_deadline),
                         deadline_monotonic=cache_deadline,
+                    )
+                    self._ctx.run.emit(
+                        f"scientist.node.{alias}",
+                        "NODE_CACHE_STORE",
+                        outputs=[cache_entry_ref],
+                        metrics={"cache_hit": 0},
                     )
                 except _EXECUTOR_DEGRADED_ERRORS as exc:
                     self._cache.discard(cache_key)

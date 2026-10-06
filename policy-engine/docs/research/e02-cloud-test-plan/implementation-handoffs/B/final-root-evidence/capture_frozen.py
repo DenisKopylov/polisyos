@@ -9,6 +9,7 @@ import os
 import subprocess
 import sys
 import time
+import traceback
 from pathlib import Path
 
 
@@ -33,16 +34,29 @@ def main() -> None:
     tree = git("rev-parse", "HEAD^{tree}")
     started = time.monotonic()
     log = out / (args.tag + ".txt")
+    wrapper = out / (args.tag + ".json")
+    if wrapper.exists():
+        raise FileExistsError("Refuse to overwrite a prior deciding wrapper")
+    fd = os.open(log, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+    setup_read, setup_write = os.pipe2(os.O_CLOEXEC)
     pid = os.fork()
     if pid == 0:
-        fd = os.open(log, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
-        os.dup2(fd, 1)
-        os.dup2(fd, 2)
-        os.close(fd)
-        os.chdir(repo / "policy-engine")
-        os.execvpe(argv[0], argv, dict(os.environ))  # noqa: S606 - reviewed argv-only gate launcher
-        os._exit(127)
+        os.close(setup_read)
+        try:
+            os.dup2(fd, 1)
+            os.dup2(fd, 2)
+            os.close(fd)
+            os.chdir(repo / "policy-engine")
+            os.execvpe(argv[0], argv, dict(os.environ))  # noqa: S606 - reviewed argv-only launcher
+        except BaseException as exc:
+            os.write(setup_write, (type(exc).__name__ + ": " + str(exc)).encode()[:2048])
+            traceback.print_exc()
+            os._exit(127)
+    os.close(fd)
+    os.close(setup_write)
     _, status, usage = os.wait4(pid, 0)
+    setup_error = os.read(setup_read, 2048).decode(errors="replace") or None
+    os.close(setup_read)
     code = os.waitstatus_to_exitcode(status)
     record = {
         "command": argv,
@@ -53,6 +67,8 @@ def main() -> None:
         "wall_s": time.monotonic() - started,
         "process_rusage_maxrss_kib": usage.ru_maxrss,
         "exit_code": code,
+        "exec_setup_error": setup_error,
+        "harness_state": "UNRUN" if setup_error else "EXECUTED",
         "output_path": str(log),
         "output_sha256": hashlib.sha256(log.read_bytes()).hexdigest(),
         "source_environment": {
@@ -77,7 +93,7 @@ def main() -> None:
     }
     if record["head_after"] != head:
         raise RuntimeError("Candidate changed during deciding check")
-    with (out / (args.tag + ".json")).open("x") as stream:
+    with wrapper.open("x") as stream:
         json.dump(record, stream, indent=2)
         stream.write("\n")
     sys.stdout.write(json.dumps(record, indent=2) + "\n")

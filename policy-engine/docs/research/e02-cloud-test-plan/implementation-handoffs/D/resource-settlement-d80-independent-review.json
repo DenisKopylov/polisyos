@@ -1,0 +1,170 @@
+{
+  "schema_version": "e02.D.independent-resource-review.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commit": "643114faf12b71d1154f0c62d68f5265ea72ba88",
+  "implementation_tree": "86dd875649545b494e642079efb5b131e8f00a3f",
+  "source_target": {
+    "commit": "d80bfc2bb6775ddad69ecdcc1271528db182af21",
+    "tree": "8522cf848bef68e009f802a0740e535b365352c3",
+    "archive": "/workspace/e02-D2-receipts/oracle-resource-d80/archive",
+    "full_tracked_git_archive": true,
+    "changed_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-resource-settlement.toml",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "policy-engine/tests/integration/scientist/orchestration/llm/test_budget_enforcer.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py"
+    ],
+    "source_cells": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-resource-settlement.toml",
+        "git_blob": "78ad5b5243e71960facd6f1f7098c12f09cb0981",
+        "sha256": "6ac0f874e875be48a12bd6c63764500fe92178e8aa6df7cecbfaf525d55dc476"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "git_blob": "78fd387e825ed4f6c18f572bfd33166a4ec8ebbc",
+        "sha256": "80f68d9574cdf0c8fa51543b21c72e5aa48ab1b12c52c62d42221f7646b06fe2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "git_blob": "68f9297576f0973af8b1a3bf2736289c15030576",
+        "sha256": "11041edf20629c00efb3c1bfc16d920061fe2d469e8f30fe12c95f7e3cf0a9a5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "git_blob": "6cf59818f5c4b915a9ac1a7033367dde47a847db",
+        "sha256": "c576cbf5e4cbe1e03158f03b974645036ab10d302f05d61e1bd102d56c381fb2"
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/orchestration/llm/test_budget_enforcer.py",
+        "git_blob": "981a06b18957a7d1513eb5072bffddd77520b789",
+        "sha256": "0e6c50ac666f1b5e7f1d6001e55486c8327ea2e2d453b0acc748150f04a5329b"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+        "git_blob": "724db0c69ebd6b6db315ea9f8d55fcb4c2f453b0",
+        "sha256": "bace2c7ad3bdda33856bb07b2a456e8e882fba388e9d39f0fd12c406b86b4654"
+      }
+    ]
+  },
+  "own_test": "policy-engine/tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py",
+  "production_writes": false,
+  "source_contract_reviewed": "Full six-path diff plus budget state/middleware/enforcer/ledger and canonical response normalization. Existing stable lock/flock + atomic replace retained; physical provider request IDs dedupe; owned attempt UUID reservations; scope conflicts reject; durable events survive journal eviction; measurement absence retains reconciliation state.",
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "source_sha": "d80bfc2bb6775ddad69ecdcc1271528db182af21",
+    "source_tree": "8522cf848bef68e009f802a0740e535b365352c3",
+    "modules": [
+      {
+        "name": "polisyos.scientist.orchestration.engine.budget_ledger",
+        "origin": "/workspace/e02-D2-receipts/oracle-resource-d80/archive/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "sha256": "80f68d9574cdf0c8fa51543b21c72e5aa48ab1b12c52c62d42221f7646b06fe2"
+      },
+      {
+        "name": "polisyos.scientist.orchestration.engine.budget_middleware",
+        "origin": "/workspace/e02-D2-receipts/oracle-resource-d80/archive/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "sha256": "11041edf20629c00efb3c1bfc16d920061fe2d469e8f30fe12c95f7e3cf0a9a5"
+      },
+      {
+        "name": "polisyos.scientist.orchestration.llm.budget_enforcer",
+        "origin": "/workspace/e02-D2-receipts/oracle-resource-d80/archive/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "sha256": "c576cbf5e4cbe1e03158f03b974645036ab10d302f05d61e1bd102d56c381fb2"
+      },
+      {
+        "name": "polisyos.core.llm.response",
+        "origin": "/workspace/e02-D2-receipts/oracle-resource-d80/archive/policy-engine/src/polisyos/core/llm/response.py",
+        "sha256": "e1eb1142786bee44c0400547ac020bb45ca0df5037f995a593f7f0c6c8245627"
+      }
+    ]
+  },
+  "inputs": {
+    "kind": "Local deterministic provider transport reports, not authenticated external billing",
+    "run": "independent-run",
+    "candidates": ["candidate-1", "candidate-2"],
+    "physical_request_ids": ["physical-1", "physical-2"],
+    "amounts_usd": [1.1, 2.2],
+    "budget_keys": ["run", "unlimited"],
+    "run_limit_usd": "5",
+    "expected_sum_usd": "3.3",
+    "expected_remaining_usd": "1.7",
+    "failure_controls": [
+      "Known reported amount1 with raising latency metric",
+      "Malformed raw reported amount-1",
+      "Same physical request ID with differing amount1 then2"
+    ]
+  },
+  "consumer": "Actual LLMBudgetEnforcer.invoke/generate -> BudgetMiddleware -> FileBudgetLedger reserve/settle -> independent fresh snapshot/read; actual CachingLLMClient in native companion tests.",
+  "independent_oracle": "Exact Decimal event sum and persisted before/after/reopen/full-split event map; measured report/delivery identity distinct from attempt reservation; no tariff/duration-derived expected charge.",
+  "negative_removal": "Keep actual response cost1 and BUDGET_COMMITTED displayed reported/new charge1; replace settlement in memory with no persisted accounting effect. Persisted-spend assertion becomes red as required.",
+  "deciding_cell": {
+    "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/orchestration/engine/test_budget_ledger.py tests/integration/scientist/orchestration/llm/test_budget_enforcer.py tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py -o addopts='' -q -s -rA",
+    "cwd": "/workspace/e02-D2-receipts/oracle-resource-d80/archive/policy-engine",
+    "complete_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-d80-independent-review.txt",
+      "sha256": "1985c87a396f583e32f8d68813ccb029c3ef3e9ffc98512a7f6b6d88077be6d7",
+      "bytes": 4419
+    },
+    "exit_code": 1,
+    "summary": "2 failed, 14 passed in 0.29s",
+    "passed": 14,
+    "failed": 2,
+    "owner_cases": 11,
+    "independent_cases": 5,
+    "result": "FAIL",
+    "failure_names": [
+      "tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py::test_paid_response_remains_charged_if_latency_metrics_fail",
+      "tests/unit/scientist/methods/search/strategies/test_resource_settlement_independent_oracle.py::test_negative_reported_measurement_is_refused_without_false_zero_event"
+    ]
+  },
+  "findings": [
+    {
+      "classification": "Existing measured-accounting invariant, P40 same class",
+      "severity": "P1",
+      "confidence": "confirmed",
+      "location": "budget_enforcer.py invoke/generate: _record_latency precedes _post_record",
+      "trigger": "Actual provider response contains definite request/provider/cost1, latency recorder raises",
+      "observed": "Transport executed once; persisted spent empty; reservation reconciliation_required",
+      "required": "Settle known paid receipt despite later observational failure; keep unknown billing distinct."
+    },
+    {
+      "classification": "Existing measured-accounting input normalization invariant, P40 same class",
+      "severity": "P1",
+      "confidence": "confirmed",
+      "location": "core/llm/response.py _as_float negative clamp promoted by measured _post_record",
+      "trigger": "Actual raw reported cost-1",
+      "observed": "Call succeeds with a settled zero event",
+      "required": "Refuse malformed negative reported measurement and retain visible reconciliation, without manufacturing zero."
+    }
+  ],
+  "passing_scope": [
+    "Owner reservation/actual/unlimited accounting",
+    "Native retry/cache reuse",
+    "Missing cost/provider/request pending",
+    "Paid downstream consumer failure after successful return",
+    "Reopen and duplicate survives journal eviction",
+    "Actual full/split event parity",
+    "Different-content duplicate refusal",
+    "Tracecost1/no-settlement falsifier"
+  ],
+  "nondeciding_initial_attempt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-d80-initial-collection.txt",
+    "status": "ERROR",
+    "reason": "Mixed two repository conftest roots duplicate --run-quarantine registration; corrected by placing only own unique test overlay inside exact archive. No source verdict from this attempt."
+  },
+  "predicate_basis": "independently_reconciled bounded runtime; overall mechanism FAIL on two confirmed controls",
+  "external_billing_authority": "not_established; fixture reports are not a billing-service attestation",
+  "candidate_acceptance": "held by root pending correction and fresh delta review",
+  "closure_ids": [],
+  "limitations": [
+    "This review covers d80 resource slice only; forthcoming controller/FUN consumer and owner-permission slices remain UNRUN.",
+    "No deployed resource-provider authority, production invoice reconciliation, distributed filesystem guarantee, or finding closure claimed."
+  ],
+  "cleanup_candidates": [
+    "/workspace/e02-D2-receipts/oracle-resource-d80/archive",
+    "Fresh resource pytest temporary directories; cloud Trash unavailable, do not permanently delete."
+  ]
+}

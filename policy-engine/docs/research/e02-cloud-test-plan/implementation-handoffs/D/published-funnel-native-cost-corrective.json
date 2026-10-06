@@ -1,0 +1,369 @@
+{
+  "schema": "e02-D-native-cost-corrective/v1",
+  "unit": "D",
+  "slice": "Queue4 native measured cost admission",
+  "closure_ids": [],
+  "finding_ids": [
+    "B120",
+    "B158",
+    "B159"
+  ],
+  "covered_finding_ids": [
+    "B120",
+    "B158",
+    "B159"
+  ],
+  "finding_state": "partial",
+  "capability_state": "reported_receipt_admission_verified_bounded",
+  "source_binding": {
+    "canonical_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "precursor_receipt": {
+      "sha": "510507325975f137d3fe9cc5a76aca1cedc303d4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+      "pointer": "/findings",
+      "interpretation": "Historical pre-native-raw-boundary receipt. Its16-row residual map remains the pinned supplier/owner accounting; corrected cost premise is scoped below. No final broad PASS or finding closure follows."
+    },
+    "negative_proof_sha": "678a8bdb06103009d0547e55e00022061dfca4c3",
+    "negative_proof_tree": "a177ec559dfdc749830c52d6e655d88308664be9",
+    "candidate_sha": "9798170a329fd31441ec3e6afdba7a409a1bdfc4",
+    "candidate_tree": "23b8421a276ca45ad80df29568afc2596c585e37",
+    "production_delta": "Only policy-engine/src/polisyos/core/llm/response.py; original known raw cost admission and nonzero-to-zero range guard. No Gateway/cache/ledger permission redesign.",
+    "blob_refs": {
+      "src/polisyos/core/llm/response.py": {
+        "git_blob": "e6a71a76afaab0baf1915a252c4d301c6574442d",
+        "sha256": "619b1932b93254b0c3853f479d0892caf982f39ceb68bc0d9cfa74f2b8ccbcbc"
+      },
+      "src/polisyos/scientist/orchestration/llm/gateway_client.py": {
+        "git_blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+        "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7"
+      },
+      "src/polisyos/scientist/orchestration/llm/budget_enforcer.py": {
+        "git_blob": "918e2a7a8f4fa6f833f34836e81ab894ea259c07",
+        "sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b"
+      },
+      "src/polisyos/scientist/orchestration/engine/budget_ledger.py": {
+        "git_blob": "14235963d9cf58232d762b8cf6d4317a14a26ee7",
+        "sha256": "2249df49d8fe86c96a9d1bcec8336c7f62294573a70160ff4513ea9360ff3773"
+      },
+      "src/polisyos/scientist/orchestration/engine/budget_middleware.py": {
+        "git_blob": "42e0153104c00c238debbb2c0ce5848978e9d2b6",
+        "sha256": "9f35f68061d1a6a38d3d8725866fd0c4df9581f361f23d88fa8d6d5e0dc27ac7"
+      }
+    }
+  },
+  "environment": {
+    "python_executable": "/workspace/e02-D-locked-env/bin/python",
+    "python_version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "cwd": "/workspace/e02-D-published-funnel/policy-engine",
+    "PYTHONPATH": "src:.",
+    "module_origins": {
+      "polisyos.core.llm.response": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/core/llm/response.py",
+      "polisyos.scientist.orchestration.llm.gateway_client": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "polisyos.scientist.orchestration.llm.budget_enforcer": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "polisyos.scientist.orchestration.engine.budget_ledger": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "polisyos.scientist.orchestration.engine.budget_middleware": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+    },
+    "shared_environment_writes": false,
+    "ordinary_test_caps": null,
+    "tokenizer_cache_ref": {
+      "sha": "510507325975f137d3fe9cc5a76aca1cedc303d4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+      "pointer": "/environment/tokenizer_cache"
+    }
+  },
+  "proof_inputs": {
+    "native98": {
+      "sha": "678a8bdb06103009d0547e55e00022061dfca4c3",
+      "path": "policy-engine/tests/integration/core/llm/test_native_gateway_cost_intake.py",
+      "sha256": "d57855d3a36c972400e879cd48debedc653cee3dea8d376a0f0e24e29e3e29e6",
+      "unchanged_in_candidate": true
+    },
+    "range4": {
+      "sha": "9798170a329fd31441ec3e6afdba7a409a1bdfc4",
+      "path": "policy-engine/tests/integration/core/llm/test_native_gateway_cost_range.py",
+      "sha256": "7071b401d3c4bca91da5e7fe1f02a23f1de0d8c8cce2411cb60ed429b404726c"
+    },
+    "fixture_authority": "Only native _post_json transport bytes are supplied. Actual Gateway.generate/parser, response intake, LLMBudgetEnforcer, BudgetMiddleware and persisted FileBudgetLedger/reopen execute. SDK raw=None controls use native Gateway DTOs; no provider billing authority is established."
+  },
+  "mechanism": {
+    "producer": "GatewayLLMClient.generate -> _parse_completion_payload retains original payload as GatewayLLMResponse.raw while its normalized usage can clamp negative amounts, omit falsy zero or erase malformed alternatives.",
+    "consumer": "extract_llm_response_data -> _extract_cost_usd/_as_float -> actual LLMBudgetEnforcer -> existing BudgetMiddleware/FileBudgetLedger.",
+    "correction": "Validate every known original raw usage/root cost field as well as normalized fields, then preserve original first-present cost precedence. Reject bool, malformed, signed/nonfinite invalid values, component overflow, and nonzero amounts that cannot be represented without float underflow. A real reported zero remains zero.",
+    "failure_effect": "Invalid-present receipt raises ValueError; measured caller leaves no zero/tariff event and retains reconciliation-required reservation in freshly reopened ledger. Absence remains distinct; valid normalized SDK receipt without raw remains accepted.",
+    "cache_boundary": "Raw payload is cost data, never cache authority. Existing cache-owned provenance and zero-new-charge reuse behavior remain unchanged; actual cache/retry consumers are in the13-case native enforcer gate."
+  },
+  "deciding_outputs": {
+    "original_native_red": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-raw-cost-red.txt",
+      "sha256": "e3f28c1a17b36a697a59acaf713bee93604085ce9fbbbc68fa7f74b04255383b",
+      "bytes": 147176
+    },
+    "range_collection_error": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-cost-range-red.txt",
+      "sha256": "5d332e1e09878712caa721952aff5bf13f488138a6c143d256c3ffd301c115ac",
+      "bytes": 1857
+    },
+    "range_deciding_red": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-cost-range-red-deciding.txt",
+      "sha256": "7bbeeee5bb1bc5d676e05aa1e2387629803e661bb272755d9b2926c049c3e9ea",
+      "bytes": 5676
+    },
+    "mixed_consumer_execution_error": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-raw-cost-green.txt",
+      "sha256": "f0e3a9bfc191b75f2c910854c3b258e288e97df4585385cd8ffb8a1d0a2a8c47",
+      "bytes": 51115
+    },
+    "focused_corrective_green": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-native-gateway-cost-green-focused.txt",
+      "sha256": "2dacefef6c183817110193a15a06cf4dca66e1e485203f7b9a550b28cf8dc526",
+      "bytes": 51492
+    }
+  },
+  "denominator": {
+    "original_native_red": {
+      "source_sha": "678a8bdb06103009d0547e55e00022061dfca4c3",
+      "executed": 98,
+      "passed": 8,
+      "failed": 90,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 0.83,
+      "wall_seconds": 2.017261476998101,
+      "peak_rss_kib": 116220,
+      "status": "FAIL expected before correction",
+      "selector": "tests/integration/core/llm/test_native_gateway_cost_intake.py (entire frozen98 file)",
+      "basetemp": "/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e"
+    },
+    "range_red": {
+      "executed": 4,
+      "passed": 0,
+      "failed": 4,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 0.17,
+      "wall_seconds": 1.3407683940022253,
+      "status": "FAIL expected before numeric range guard",
+      "source_basis": {
+        "candidate_sha": "9798170a329fd31441ec3e6afdba7a409a1bdfc4",
+        "transform": "Omit exactly the parsed==0 guard in _as_float and remove InvalidOperation from decimal import; retain raw-first sources addition. This reconstructs the uncommitted intermediate source used in the deciding red run.",
+        "reconstructed_response_sha256": "2e407c9c7a34c66105705dd91732b5ad67d3bb29502fb94f466d6bf917b29538",
+        "provenance_limitation": "Intermediate source was not committed before the run; reconstruction is explicit and independently reproducible. Frozen98 negative source is immutable678."
+      },
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "--basetemp",
+        "/dev/shm/e02-D-native-cost-range-red-63f3a6cdb011446a9c179d0726fc67a7",
+        "tests/integration/core/llm/test_native_gateway_cost_range.py"
+      ]
+    },
+    "range_collection_error": {
+      "executed": 0,
+      "errors": 1,
+      "status": "ERROR non-deciding",
+      "cause": "Sibling test helper absolute import was unavailable under pytest import mode; corrected to run_path of the pinned sibling source before the deciding4FAIL run.",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "--basetemp",
+        "/dev/shm/e02-D-native-cost-range-red-48f1e9848f5a43488b45fd9d6ac8e872",
+        "tests/integration/core/llm/test_native_gateway_cost_range.py"
+      ]
+    },
+    "mixed_consumer_attempt": {
+      "status": "ERROR interrupted",
+      "exit_code": -9,
+      "wall_seconds": 196.99027463499806,
+      "peak_rss_kib": 1221236,
+      "pytest_progress_percent": 57,
+      "last_nodeid": "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py::TestLLMBudgetEnforcer::test_post_record_falls_back_to_reserved_cost_when_accounting_breaks",
+      "source_basis": "Raw-first intermediate before the range guard; same reconstruction as range_red.",
+      "interpretation": "No final executed denominator or broad PASS is claimed; full output retained. No retry of the broad consumer wave after interruption.",
+      "input_paths": [
+        "tests/integration/core/llm/test_native_gateway_cost_intake.py",
+        "tests/unit/core/llm/test_response.py",
+        "tests/unit/core/test_llm_core.py",
+        "tests/unit/scientist/orchestration/llm",
+        "tests/integration/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/engine/test_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/integration/scientist/methods/search/funnel/test_orchestrator.py"
+      ],
+      "command_capture_limitation": "Complete pytest output/last-node/exit/wall/RSS retained; the wrapper argv was not separately retained. Input path list records the declared selected consumer scope. No complete gate claim depends on this interrupted attempt."
+    },
+    "focused_corrective_green": {
+      "source_sha": "9798170a329fd31441ec3e6afdba7a409a1bdfc4",
+      "executed": 323,
+      "passed": 323,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 0.69,
+      "wall_seconds": 1.9000132669898449,
+      "peak_rss_kib": 115496,
+      "per_file": {
+        "tests/integration/core/llm/test_native_gateway_cost_intake.py": 98,
+        "tests/integration/core/llm/test_native_gateway_cost_range.py": 4,
+        "tests/unit/core/llm/test_response.py": 208,
+        "tests/integration/scientist/orchestration/llm/test_budget_enforcer.py": 13
+      },
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "--basetemp",
+        "/dev/shm/e02-D-native-cost-green-focused-ad4dee4a2a8b42fb8646689d6dfbb75c",
+        "tests/integration/core/llm/test_native_gateway_cost_intake.py",
+        "tests/integration/core/llm/test_native_gateway_cost_range.py",
+        "tests/unit/core/llm/test_response.py",
+        "tests/integration/scientist/orchestration/llm/test_budget_enforcer.py"
+      ],
+      "basetemp": "/dev/shm/e02-D-native-cost-green-focused-ad4dee4a2a8b42fb8646689d6dfbb75c",
+      "basetemp_nonexistent_before_run": true
+    }
+  },
+  "actual_controls": {
+    "native_raw_negative": "Actual Gateway usage.cost_usd=-1 is normalized0 by existing parser; consumer now refuses and reopened ledger has noevent/spend, one unresolved reservation.",
+    "all_known_fields": "Five raw cost fields x two scopes x nine invalid classes=90 controls retain valid normalized alternate markers where available but cannot settle.",
+    "overflow": "Raw component sums beyond finite float range are refused even with normalized valid1 retained.",
+    "range": "String/Decimal signed nonzero values ±1e-1000 cannot become settled zero. This is representability admission, not a minimum charge or numerical billing rate.",
+    "positive_and_absent": "Original finite0 and1 settle exact amount and identity; original total_cost_usd0 precedes alternate cost4 despite normalized4; raw=None missing cost remains pending while raw=None valid1 settles.",
+    "removal_equivalence": "Original immutable678 actual controls retain normalized provider/model/request/fidelity markers yet fail the ledger assertion. The native underflow4 additionally fail with raw-first validation present but the numeric range guard absent. No marker-only authority claim."
+  },
+  "finding_overrides": {
+    "B120": {
+      "bundle": "CTL-03",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B120"
+      },
+      "prior_row_ref": {
+        "sha": "510507325975f137d3fe9cc5a76aca1cedc303d4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+        "pointer": "/findings/B120"
+      },
+      "candidate_sha": "9798170a329fd31441ec3e6afdba7a409a1bdfc4",
+      "candidate_tree": "23b8421a276ca45ad80df29568afc2596c585e37",
+      "engineering_verified_bounded": "Actual native raw provider receipt is admitted before it can become a normalized zero/alternate or measured ledger premise; valid zero/paid/absent controls remain distinct. This extends the existing full/split, stopping, continuation and event-projection accounting premise.",
+      "actual_consumer": "Native Gateway -> response cost intake -> actual enforcer -> persisted middleware/ledger reopen; existing downstream full/split/stopping/continuation routes remain pinned to prior source receipt.",
+      "oracle_ref": "#/denominator/focused_corrective_green",
+      "negative_or_removal_ref": "#/actual_controls",
+      "missing_input_or_capability": "Independent billing attestation/provider reconciliation and measured numerical-resource producer input are missing. Unleased native factories must pass the available owner/evaluation-ID ports.",
+      "semantic_held": "Provider-reported-only spend is bounded evidence, not authoritative external billing or duration/tariff cost.",
+      "next_owner": "A/G provider accounting; B factory deployment; D numerical-resource consumer",
+      "residual_classification": "bridge_missing"
+    },
+    "B158": {
+      "bundle": "FUN-01",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B158"
+      },
+      "prior_row_ref": {
+        "sha": "510507325975f137d3fe9cc5a76aca1cedc303d4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+        "pointer": "/findings/B158"
+      },
+      "candidate_sha": "9798170a329fd31441ec3e6afdba7a409a1bdfc4",
+      "candidate_tree": "23b8421a276ca45ad80df29568afc2596c585e37",
+      "engineering_verified_bounded": "Actual native raw provider receipt is admitted before it can become a normalized zero/alternate or measured ledger premise; valid zero/paid/absent controls remain distinct. This extends the existing full/split, stopping, continuation and event-projection accounting premise.",
+      "actual_consumer": "Native Gateway -> response cost intake -> actual enforcer -> persisted middleware/ledger reopen; existing downstream full/split/stopping/continuation routes remain pinned to prior source receipt.",
+      "oracle_ref": "#/denominator/focused_corrective_green",
+      "negative_or_removal_ref": "#/actual_controls",
+      "missing_input_or_capability": "Default deployment factory injection and native policy numerical measured-resource inputs remain missing. Declared split boundary here is L3/4; native L2 scheduling controls are separately exercised.",
+      "semantic_held": "Provider-only stage scope is explicit; no total numerical billing is claimed.",
+      "next_owner": "B/A native factory owners; D numerical resource bridge; G",
+      "residual_classification": "bridge_missing"
+    },
+    "B159": {
+      "bundle": "FUN-01",
+      "finding_state": "partial",
+      "canonical_baseline_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "pointer": "/findings/B159"
+      },
+      "prior_row_ref": {
+        "sha": "510507325975f137d3fe9cc5a76aca1cedc303d4",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+        "pointer": "/findings/B159"
+      },
+      "candidate_sha": "9798170a329fd31441ec3e6afdba7a409a1bdfc4",
+      "candidate_tree": "23b8421a276ca45ad80df29568afc2596c585e37",
+      "engineering_verified_bounded": "Actual native raw provider receipt is admitted before it can become a normalized zero/alternate or measured ledger premise; valid zero/paid/absent controls remain distinct. This extends the existing full/split, stopping, continuation and event-projection accounting premise.",
+      "actual_consumer": "Native Gateway -> response cost intake -> actual enforcer -> persisted middleware/ledger reopen; existing downstream full/split/stopping/continuation routes remain pinned to prior source receipt.",
+      "oracle_ref": "#/denominator/focused_corrective_green",
+      "negative_or_removal_ref": "#/actual_controls",
+      "missing_input_or_capability": "Stage-owned blockers/timeout retry with no existing reevaluable discriminator remain bounded owner decisions; no resume authorization event is invented.",
+      "semantic_held": "Existing budget/routing prerequisite is reused; unrelated spent-state hash is not permission.",
+      "next_owner": "D stage/guard owners; B deployment; G",
+      "residual_classification": "bounded_owner_decision"
+    }
+  },
+  "integrate_contract": {
+    "owners": "A/G core/provider accounting; B runtime factory deployment; D numerical resource producer/consumer",
+    "available_api": "Existing response intake raises on invalid-present known original or normalized costs before measured settlement. Existing enforcer/middleware/ledger consume valid reported receipt with run/evaluation/provider/request identities.",
+    "required_supplier_behavior": "Retain original known reported cost fields through any upstream normalization; propagate invalid-present failure instead of converting it to absence/zero/tariff. Preserve finite first-present zero and raw-unavailable distinction.",
+    "missing_input_or_capability": "Independent provider billing attestation/reconciliation, factory owner/evaluation-ID deployment, and real measured numerical resource inputs remain missing; this correction appoints no billing rate, registry, issuer or verifier.",
+    "consumer_falsifier": "Native parser retains paid/identity markers while invalid original cost becomes normalized0 or alternate1; accepting that normalized envelope writes a false receipt. The frozen98 controls falsify that escape directly.",
+    "semantic_held": "Reported provider-only receipt evidence is bounded. No total numerical cost, external billing authority, promotion authority or finding acceptance is established."
+  },
+  "unchanged_residuals": {
+    "receipt_ref": {
+      "sha": "510507325975f137d3fe9cc5a76aca1cedc303d4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json"
+    },
+    "finding_ids": [
+      "B118",
+      "B119",
+      "LA-015",
+      "B120",
+      "B121",
+      "B123",
+      "B156",
+      "B157",
+      "B158",
+      "B159",
+      "B160",
+      "B161",
+      "B162",
+      "B163",
+      "B164",
+      "B165"
+    ],
+    "B164": "Valid owner-issued typed permit/current independent verifier/revoke-serialized commit positive remains UNRUN/bridge_missing. Legacy bool-marker revocation control only proves zero effects.",
+    "B157": "Actual native raw sample/draw estimator execution still requires upstream input/API integration; existing Foundry effectiveconfig evidence is bounded.",
+    "LA-015": "CTL-01 supplier companion only; canonical closure owner remains SRV-03; no service predecessor retirement or finding closure is claimed."
+  },
+  "cleanup": {
+    "policy": "Retain outputs/unique fresh pytest basetemps. No explicit cleanup, deletion, pruning or Trash emptying in this corrective wave.",
+    "earlier_deviation_ref": {
+      "sha": "510507325975f137d3fe9cc5a76aca1cedc303d4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+      "pointer": "/cleanup_deviation"
+    },
+    "historical_l6_basetemp_note": "Previous canonical9-test L6 run did not create its supplied dirname because no temp fixture ran; absence does not establish deletion.",
+    "corrective_basetemps": [
+      "/dev/shm/e02-D-native-cost-range-red-48f1e9848f5a43488b45fd9d6ac8e872",
+      "/dev/shm/e02-D-native-cost-range-red-63f3a6cdb011446a9c179d0726fc67a7",
+      "/dev/shm/e02-D-native-cost-green-focused-ad4dee4a2a8b42fb8646689d6dfbb75c"
+    ],
+    "retention_limitation": "Collection-error dirname may remain absent because no fixture created it. No assertion is made that every historic pytest default-retention fixture was preserved."
+  },
+  "publication": {
+    "implementation_remote_readback": "9798170a329fd31441ec3e6afdba7a409a1bdfc4",
+    "branch": "codex/e02-D-published-funnel",
+    "receipt_commit": "This separate docs commit; exact SHA is supplied after normal commit/push/readback.",
+    "release_companion": "This docs commit also corrects required release-fragment metadata keys; no production behavior change."
+  }
+}

@@ -1,0 +1,2533 @@
+SOURCE 678a8bdb06103009d0547e55e00022061dfca4c3
+COMMAND ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "-vv", "--basetemp", "/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e", "tests/integration/core/llm/test_native_gateway_cost_intake.py"]
+SCRATCH_INITIAL_EXISTS False SCRATCH_RETENTION retained; no cleanup
+TEST_INPUT_SHA256 d57855d3a36c972400e879cd48debedc653cee3dea8d376a0f0e24e29e3e29e6
+PYTHONPATH src:. TIKTOKEN_CACHE_DIR /workspace/e02-D2-receipts/tokenizer
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-D-locked-env/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-D-published-funnel/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-D-published-funnel/policy-engine
+configfile: pytest.ini
+plugins: jaxtyping-0.3.4, benchmark-5.2.3, hypothesis-6.151.2, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 98 items
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_negative_cannot_settle_a_normalized_zero FAILED [  1%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-total_cost_usd-usage] FAILED [  2%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-total_cost_usd-payload] FAILED [  3%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-cost_usd-usage] FAILED [  4%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-cost_usd-payload] FAILED [  5%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-cost-usage] FAILED [  6%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-cost-payload] FAILED [  7%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-base_cost_usd-usage] FAILED [  8%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-base_cost_usd-payload] FAILED [  9%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-platform_fee_usd-usage] FAILED [ 10%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-platform_fee_usd-payload] FAILED [ 11%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-total_cost_usd-usage] PASSED [ 12%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-total_cost_usd-payload] FAILED [ 13%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-cost_usd-usage] FAILED [ 14%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-cost_usd-payload] FAILED [ 15%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-cost-usage] FAILED [ 16%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-cost-payload] FAILED [ 17%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-base_cost_usd-usage] FAILED [ 18%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-base_cost_usd-payload] FAILED [ 19%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-platform_fee_usd-usage] FAILED [ 20%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-platform_fee_usd-payload] FAILED [ 21%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-total_cost_usd-usage] PASSED [ 22%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-total_cost_usd-payload] FAILED [ 23%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-cost_usd-usage] FAILED [ 24%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-cost_usd-payload] FAILED [ 25%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-cost-usage] FAILED [ 26%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-cost-payload] FAILED [ 27%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-base_cost_usd-usage] FAILED [ 28%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-base_cost_usd-payload] FAILED [ 29%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-platform_fee_usd-usage] FAILED [ 30%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-platform_fee_usd-payload] FAILED [ 31%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-total_cost_usd-usage] FAILED [ 32%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-total_cost_usd-payload] FAILED [ 33%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-cost_usd-usage] FAILED [ 34%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-cost_usd-payload] FAILED [ 35%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-cost-usage] FAILED [ 36%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-cost-payload] FAILED [ 37%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-base_cost_usd-usage] FAILED [ 38%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-base_cost_usd-payload] FAILED [ 39%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-platform_fee_usd-usage] FAILED [ 40%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-platform_fee_usd-payload] FAILED [ 41%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-total_cost_usd-usage] PASSED [ 42%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-total_cost_usd-payload] FAILED [ 43%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-cost_usd-usage] FAILED [ 44%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-cost_usd-payload] FAILED [ 45%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-cost-usage] FAILED [ 46%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-cost-payload] FAILED [ 47%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-base_cost_usd-usage] FAILED [ 48%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-base_cost_usd-payload] FAILED [ 50%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-platform_fee_usd-usage] FAILED [ 51%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-platform_fee_usd-payload] FAILED [ 52%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-total_cost_usd-usage] FAILED [ 53%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-total_cost_usd-payload] FAILED [ 54%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-cost_usd-usage] FAILED [ 55%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-cost_usd-payload] FAILED [ 56%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-cost-usage] FAILED [ 57%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-cost-payload] FAILED [ 58%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-base_cost_usd-usage] FAILED [ 59%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-base_cost_usd-payload] FAILED [ 60%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-platform_fee_usd-usage] FAILED [ 61%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-platform_fee_usd-payload] FAILED [ 62%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-total_cost_usd-usage] PASSED [ 63%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-total_cost_usd-payload] FAILED [ 64%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-cost_usd-usage] FAILED [ 65%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-cost_usd-payload] FAILED [ 66%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-cost-usage] FAILED [ 67%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-cost-payload] FAILED [ 68%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-base_cost_usd-usage] FAILED [ 69%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-base_cost_usd-payload] FAILED [ 70%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-platform_fee_usd-usage] FAILED [ 71%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-platform_fee_usd-payload] FAILED [ 72%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-total_cost_usd-usage] FAILED [ 73%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-total_cost_usd-payload] FAILED [ 74%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-cost_usd-usage] FAILED [ 75%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-cost_usd-payload] FAILED [ 76%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-cost-usage] FAILED [ 77%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-cost-payload] FAILED [ 78%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-base_cost_usd-usage] FAILED [ 79%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-base_cost_usd-payload] FAILED [ 80%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-platform_fee_usd-usage] FAILED [ 81%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-platform_fee_usd-payload] FAILED [ 82%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-total_cost_usd-usage] PASSED [ 83%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-total_cost_usd-payload] FAILED [ 84%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-cost_usd-usage] FAILED [ 85%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-cost_usd-payload] FAILED [ 86%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-cost-usage] FAILED [ 87%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-cost-payload] FAILED [ 88%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-base_cost_usd-usage] FAILED [ 89%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-base_cost_usd-payload] FAILED [ 90%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-platform_fee_usd-usage] FAILED [ 91%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-platform_fee_usd-payload] FAILED [ 92%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_component_overflow_refused_with_normalized_marker_retained[usage] FAILED [ 93%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_component_overflow_refused_with_normalized_marker_retained[payload] FAILED [ 94%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_finite_zero_and_paid_receipt_settle_exact_amount[0] FAILED [ 95%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_finite_zero_and_paid_receipt_settle_exact_amount[1] PASSED [ 96%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_zero_priority_survives_falsy_normalization FAILED [ 97%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_raw_unavailable_is_distinct_from_invalid_raw_receipt[None] PASSED [ 98%]
+tests/integration/core/llm/test_native_gateway_cost_intake.py::test_raw_unavailable_is_distinct_from_invalid_raw_receipt[1] PASSED [100%]
+
+=================================== FAILURES ===================================
+___________ test_native_raw_negative_cannot_settle_a_normalized_zero ___________
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_negative_canno0')
+
+    @pytest.mark.asyncio
+    async def test_native_raw_negative_cannot_settle_a_normalized_zero(tmp_path):
+        gateway = RawGateway(raw_payload({"cost_usd": -1}))
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:87: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-total_cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern0')
+source = 'usage', field = 'total_cost_usd', invalid = -1
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-total_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern1')
+source = 'payload', field = 'total_cost_usd', invalid = -1
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern2')
+source = 'usage', field = 'cost_usd', invalid = -1
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern3')
+source = 'payload', field = 'cost_usd', invalid = -1
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-cost-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern4')
+source = 'usage', field = 'cost', invalid = -1
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-cost-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern5')
+source = 'payload', field = 'cost', invalid = -1
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-base_cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern6')
+source = 'usage', field = 'base_cost_usd', invalid = -1
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-base_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern7')
+source = 'payload', field = 'base_cost_usd', invalid = -1
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-platform_fee_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern8')
+source = 'usage', field = 'platform_fee_usd', invalid = -1
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-platform_fee_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern9')
+source = 'payload', field = 'platform_fee_usd', invalid = -1
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-total_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern11')
+source = 'payload', field = 'total_cost_usd', invalid = nan
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern12')
+source = 'usage', field = 'cost_usd', invalid = nan
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern13')
+source = 'payload', field = 'cost_usd', invalid = nan
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-cost-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern14')
+source = 'usage', field = 'cost', invalid = nan
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-cost-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern15')
+source = 'payload', field = 'cost', invalid = nan
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-base_cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern16')
+source = 'usage', field = 'base_cost_usd', invalid = nan
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-base_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern17')
+source = 'payload', field = 'base_cost_usd', invalid = nan
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-platform_fee_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern18')
+source = 'usage', field = 'platform_fee_usd', invalid = nan
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-platform_fee_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern19')
+source = 'payload', field = 'platform_fee_usd', invalid = nan
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-total_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern21')
+source = 'payload', field = 'total_cost_usd', invalid = inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern22')
+source = 'usage', field = 'cost_usd', invalid = inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern23')
+source = 'payload', field = 'cost_usd', invalid = inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-cost-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern24')
+source = 'usage', field = 'cost', invalid = inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-cost-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern25')
+source = 'payload', field = 'cost', invalid = inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-base_cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern26')
+source = 'usage', field = 'base_cost_usd', invalid = inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-base_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern27')
+source = 'payload', field = 'base_cost_usd', invalid = inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-platform_fee_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern28')
+source = 'usage', field = 'platform_fee_usd', invalid = inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-platform_fee_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern29')
+source = 'payload', field = 'platform_fee_usd', invalid = inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-total_cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern30')
+source = 'usage', field = 'total_cost_usd', invalid = -inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-total_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern31')
+source = 'payload', field = 'total_cost_usd', invalid = -inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern32')
+source = 'usage', field = 'cost_usd', invalid = -inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern33')
+source = 'payload', field = 'cost_usd', invalid = -inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-cost-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern34')
+source = 'usage', field = 'cost', invalid = -inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-cost-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern35')
+source = 'payload', field = 'cost', invalid = -inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-base_cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern36')
+source = 'usage', field = 'base_cost_usd', invalid = -inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-base_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern37')
+source = 'payload', field = 'base_cost_usd', invalid = -inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-platform_fee_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern38')
+source = 'usage', field = 'platform_fee_usd', invalid = -inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-platform_fee_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern39')
+source = 'payload', field = 'platform_fee_usd', invalid = -inf
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-total_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern41')
+source = 'payload', field = 'total_cost_usd', invalid = True
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern42')
+source = 'usage', field = 'cost_usd', invalid = True
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern43')
+source = 'payload', field = 'cost_usd', invalid = True
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-cost-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern44')
+source = 'usage', field = 'cost', invalid = True
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-cost-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern45')
+source = 'payload', field = 'cost', invalid = True
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-base_cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern46')
+source = 'usage', field = 'base_cost_usd', invalid = True
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-base_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern47')
+source = 'payload', field = 'base_cost_usd', invalid = True
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-platform_fee_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern48')
+source = 'usage', field = 'platform_fee_usd', invalid = True
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-platform_fee_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern49')
+source = 'payload', field = 'platform_fee_usd', invalid = True
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-total_cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern50')
+source = 'usage', field = 'total_cost_usd', invalid = False
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-total_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern51')
+source = 'payload', field = 'total_cost_usd', invalid = False
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern52')
+source = 'usage', field = 'cost_usd', invalid = False
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern53')
+source = 'payload', field = 'cost_usd', invalid = False
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-cost-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern54')
+source = 'usage', field = 'cost', invalid = False
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-cost-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern55')
+source = 'payload', field = 'cost', invalid = False
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-base_cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern56')
+source = 'usage', field = 'base_cost_usd', invalid = False
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-base_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern57')
+source = 'payload', field = 'base_cost_usd', invalid = False
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-platform_fee_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern58')
+source = 'usage', field = 'platform_fee_usd', invalid = False
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-platform_fee_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern59')
+source = 'payload', field = 'platform_fee_usd', invalid = False
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-total_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern61')
+source = 'payload', field = 'total_cost_usd', invalid = 'bad'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern62')
+source = 'usage', field = 'cost_usd', invalid = 'bad'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern63')
+source = 'payload', field = 'cost_usd', invalid = 'bad'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-cost-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern64')
+source = 'usage', field = 'cost', invalid = 'bad'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-cost-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern65')
+source = 'payload', field = 'cost', invalid = 'bad'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-base_cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern66')
+source = 'usage', field = 'base_cost_usd', invalid = 'bad'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-base_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern67')
+source = 'payload', field = 'base_cost_usd', invalid = 'bad'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-platform_fee_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern68')
+source = 'usage', field = 'platform_fee_usd', invalid = 'bad'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-platform_fee_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern69')
+source = 'payload', field = 'platform_fee_usd', invalid = 'bad'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-total_cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern70')
+source = 'usage', field = 'total_cost_usd', invalid = {}
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-total_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern71')
+source = 'payload', field = 'total_cost_usd', invalid = {}
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern72')
+source = 'usage', field = 'cost_usd', invalid = {}
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern73')
+source = 'payload', field = 'cost_usd', invalid = {}
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-cost-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern74')
+source = 'usage', field = 'cost', invalid = {}
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-cost-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern75')
+source = 'payload', field = 'cost', invalid = {}
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-base_cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern76')
+source = 'usage', field = 'base_cost_usd', invalid = {}
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-base_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern77')
+source = 'payload', field = 'base_cost_usd', invalid = {}
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-platform_fee_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern78')
+source = 'usage', field = 'platform_fee_usd', invalid = {}
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-platform_fee_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern79')
+source = 'payload', field = 'platform_fee_usd', invalid = {}
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-total_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern81')
+source = 'payload', field = 'total_cost_usd', invalid = [1]
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern82')
+source = 'usage', field = 'cost_usd', invalid = [1]
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern83')
+source = 'payload', field = 'cost_usd', invalid = [1]
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-cost-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern84')
+source = 'usage', field = 'cost', invalid = [1]
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-cost-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern85')
+source = 'payload', field = 'cost', invalid = [1]
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-base_cost_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern86')
+source = 'usage', field = 'base_cost_usd', invalid = [1]
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-base_cost_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern87')
+source = 'payload', field = 'base_cost_usd', invalid = [1]
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-platform_fee_usd-usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern88')
+source = 'usage', field = 'platform_fee_usd', invalid = [1]
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-platform_fee_usd-payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_invalid_altern89')
+source = 'payload', field = 'platform_fee_usd', invalid = [1]
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize(
+        "invalid", [-1, float("nan"), float("inf"), float("-inf"), True, False, "bad", {}, [1]]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker(
+        tmp_path, source, field, invalid
+    ):
+        payload = raw_payload({"total_cost_usd": 1, "cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target[field] = invalid
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:111: Failed
+_ test_native_raw_component_overflow_refused_with_normalized_marker_retained[usage] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_component_over0')
+source = 'usage'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.asyncio
+    async def test_native_raw_component_overflow_refused_with_normalized_marker_retained(
+        tmp_path, source
+    ):
+        payload = raw_payload({"total_cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target.update(base_cost_usd="1e308", platform_fee_usd="1e308")
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:129: Failed
+_ test_native_raw_component_overflow_refused_with_normalized_marker_retained[payload] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_component_over1')
+source = 'payload'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.asyncio
+    async def test_native_raw_component_overflow_refused_with_normalized_marker_retained(
+        tmp_path, source
+    ):
+        payload = raw_payload({"total_cost_usd": 1})
+        target = payload["usage"] if source == "usage" else payload
+        target.update(base_cost_usd="1e308", platform_fee_usd="1e308")
+        gateway = RawGateway(payload)
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:129: Failed
+_____ test_native_raw_finite_zero_and_paid_receipt_settle_exact_amount[0] ______
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_finite_zero_an0')
+amount = 0
+
+    @pytest.mark.parametrize("amount", [0, 1])
+    @pytest.mark.asyncio
+    async def test_native_raw_finite_zero_and_paid_receipt_settle_exact_amount(tmp_path, amount):
+        gateway = RawGateway(raw_payload({"cost_usd": amount}))
+        path, enforcer = build(tmp_path, gateway)
+>       response = await invoke(enforcer)
+                   ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/core/llm/test_native_gateway_cost_intake.py:67: in invoke
+    return await enforcer.generate(
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:489: in generate
+    self._post_record(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.scientist.orchestration.llm.budget_enforcer.LLMBudgetEnforcer object at 0x7f29d127cc00>
+response = GatewayLLMResponse(content='observed response', usage=GatewayUsage(prompt_tokens=1, completion_tokens=1, total_tokens=...teway_request_id': 'request-1', 'usage': {'prompt_tokens': 1, 'completion_tokens': 1, 'cost_usd': 0}}, tool_calls=None)
+
+    def _post_record(
+        self,
+        response: Any,
+        *,
+        reservation: _BudgetReservation | None = None,
+        run_id: str | None = None,
+    ) -> Decimal:
+        """Extract actual cost from response and commit the reservation."""
+        reservation = reservation or _BudgetReservation(estimated_cost=Decimal(0))
+        resolved_run_id = self._run_id if run_id is None else run_id
+        data = extract_llm_response_data(response)
+        if self._budget_middleware is not None:
+            if reservation.resource_reservation_id is None:
+                raise ValueError("measured provider settlement requires its owned reservation")
+            if data.cost_usd is None or not data.provider or not data.request_id:
+>               raise ValueError(
+                    "measured provider cost, provider identity and request ID are required"
+                )
+E               ValueError: measured provider cost, provider identity and request ID are required
+
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:290: ValueError
+__________ test_native_raw_zero_priority_survives_falsy_normalization __________
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-gateway-red-a356e34d31a94759811f3a60d642c39e/test_native_raw_zero_priority_0')
+
+    @pytest.mark.asyncio
+    async def test_native_raw_zero_priority_survives_falsy_normalization(tmp_path):
+        gateway = RawGateway(raw_payload({"total_cost_usd": 0, "cost_usd": 4}))
+        path, enforcer = build(tmp_path, gateway)
+        await invoke(enforcer)
+        assert gateway.normalized_response.usage.cost_usd == 4
+        snapshot = FileBudgetLedger(path).snapshot()
+>       assert snapshot.state.spent["run"] == 0
+E       AssertionError: assert Decimal('4.0') == 0
+
+tests/integration/core/llm/test_native_gateway_cost_intake.py:158: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_negative_cannot_settle_a_normalized_zero
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-total_cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-total_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-cost-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-cost-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-base_cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-base_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-platform_fee_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-1-platform_fee_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-total_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-cost-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-cost-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-base_cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-base_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-platform_fee_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[nan-platform_fee_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-total_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-cost-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-cost-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-base_cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-base_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-platform_fee_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[inf-platform_fee_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-total_cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-total_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-cost-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-cost-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-base_cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-base_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-platform_fee_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[-inf-platform_fee_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-total_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-cost-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-cost-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-base_cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-base_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-platform_fee_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[True-platform_fee_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-total_cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-total_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-cost-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-cost-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-base_cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-base_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-platform_fee_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[False-platform_fee_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-total_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-cost-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-cost-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-base_cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-base_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-platform_fee_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[bad-platform_fee_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-total_cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-total_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-cost-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-cost-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-base_cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-base_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-platform_fee_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid7-platform_fee_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-total_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-cost-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-cost-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-base_cost_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-base_cost_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-platform_fee_usd-usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_invalid_alternate_never_uses_a_valid_normalized_marker[invalid8-platform_fee_usd-payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_component_overflow_refused_with_normalized_marker_retained[usage]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_component_overflow_refused_with_normalized_marker_retained[payload]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_finite_zero_and_paid_receipt_settle_exact_amount[0]
+FAILED tests/integration/core/llm/test_native_gateway_cost_intake.py::test_native_raw_zero_priority_survives_falsy_normalization
+========================= 90 failed, 8 passed in 0.83s =========================
+EXIT 1 WALL_SECONDS 2.017261476998101 MAXRSS_KIB 116220

@@ -1,0 +1,3 @@
+type = "changed"
+scope = "policy-engine"
+message = "Multi-objective search admits only complete finite declared objective vectors with matching ordered directions before frontier, hypervolume and GP training. Missing coordinates are no longer imputed as zero. Rejected original rows retain their index, identity and reason in mo_objective_admission.v1 input coverage; suggestions carry that assessment. Training uses canonical executed coordinates. Existing ModelListGP and EHVI algorithms are preserved; the assessment does not establish an independent production source denominator."

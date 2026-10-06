@@ -36,7 +36,7 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
 - Last updated: 2026-04-03
 - The package still centers around `protocols.py`, `traced_client.py`, `response.py`, `cost.py`, and `retry.py`.
 - Cost telemetry falls back to shared pricing defaults when provider responses omit pricing data.
-- Asynchronous generate completion remains owned after initiating caller cancellation. Optional
+- Asynchronous generate/ainvoke completion remains owned after initiating caller cancellation. Optional
   telemetry is isolated from required accounting. An absent durable acknowledgement is unknown,
   and cannot publish a reusable provider result. Durable budget composition is supplied by the
   Scientist budget owner; a plain traced client only records an unmanaged operational event.

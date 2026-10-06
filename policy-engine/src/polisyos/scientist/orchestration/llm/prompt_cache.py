@@ -754,9 +754,9 @@ def _cache_reuse_context(metadata: Any) -> dict[str, Any] | None:
     """Recompute and return a bounded immutable-snapshot reuse identity.
 
     The cache admission contract deliberately requires the actual snapshot
-    bytes, their declared digest, and an explicit permission context.  A
-    provider-supplied ``cacheable`` flag or a URI alone cannot establish this
-    identity.  The returned value excludes bytes so it is safe for cache keys
+    bytes and their declared digest. Permission is independently decided by the
+    injected operational owner, never the caller's permission declaration. The
+    returned value excludes bytes so it is safe for cache keys
     and provider payloads while retaining every substantive identity field.
     """
 
@@ -766,8 +766,7 @@ def _cache_reuse_context(metadata: Any) -> dict[str, Any] | None:
     if not isinstance(raw_context, Mapping):
         return None
     snapshot = raw_context.get("snapshot")
-    permission = raw_context.get("permission")
-    if not isinstance(snapshot, Mapping) or not isinstance(permission, Mapping):
+    if not isinstance(snapshot, Mapping):
         return None
 
     content = snapshot.get("content")
@@ -792,27 +791,18 @@ def _cache_reuse_context(metadata: Any) -> dict[str, Any] | None:
         return None
     if not all(isinstance(value, str) and value for value in (ref, version, tenant, scope)):
         return None
-    if permission.get("allowed") is not True:
-        return None
-    if permission.get("tenant") != tenant or permission.get("scope") != scope:
-        return None
-
     normalized_snapshot = {
         str(key): _normalize_cache_identity_value(value)
         for key, value in snapshot.items()
         if key != "content"
     }
     normalized_snapshot["content_hash"] = expected_hash
-    normalized_permission = {
-        str(key): _normalize_cache_identity_value(value) for key, value in permission.items()
-    }
     normalized_context = {
         str(key): _normalize_cache_identity_value(value)
         for key, value in raw_context.items()
         if key not in {"snapshot", "permission"}
     }
     normalized_context["snapshot"] = normalized_snapshot
-    normalized_context["permission"] = normalized_permission
     return normalized_context
 
 

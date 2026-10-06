@@ -20,7 +20,6 @@ from decimal import Decimal
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
-from polisyos.common.serialization import stable_json_dumps, to_python_data
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.observability.pricing import estimate_llm_cost_usd
 
@@ -34,6 +33,7 @@ from .settlement import (
     _current_settlement_owner,
     _new_producer_id,
     _producer_completion_context,
+    _request_digest,
     producer_settlement,
 )
 
@@ -326,6 +326,9 @@ class TracedLLMClient:
     def _restore_response(self, response: Any) -> Any:
         if self._prompt_sanitizer is None:
             return response
+        if isinstance(response, LLMSettledResponse):
+            restored = self._prompt_sanitizer.restore_response(response.response)
+            return LLMSettledResponse(restored, response._polisyos_settlement)
         return self._prompt_sanitizer.restore_response(response)
 
     def _build_span_attributes(
@@ -532,7 +535,7 @@ class TracedLLMClient:
                 parsed = extract_llm_response_data(response)
                 provider = self._detect_provider(parsed.provider)
                 latency_ms = max(0, int((time.perf_counter() - start) * 1000))
-                self._record_tokens(
+                settled = self._record_tokens(
                     span,
                     self._metrics,
                     parsed,
@@ -540,8 +543,11 @@ class TracedLLMClient:
                     "success",
                     provider,
                     response,
+                    self._completion_event(parsed, (prompt,), kwargs),
                 )
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
+                if _current_settlement_owner() is not None and settled is not None:
+                    response = LLMSettledResponse(response, settled)
                 return self._restore_response(response)
             except LLMAccountingError as exc:
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
@@ -557,6 +563,9 @@ class TracedLLMClient:
                 raise
 
     async def ainvoke(self, prompt: str, **kwargs: Any) -> Any:
+        return await self._await_owned_call(self._ainvoke_owned(prompt, kwargs))
+
+    async def _ainvoke_owned(self, prompt: str, kwargs: dict[str, Any]) -> Any:
         prompt_text = self._build_prompt_text(prompt)
         provider = self._detect_provider()
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
@@ -573,7 +582,7 @@ class TracedLLMClient:
                 parsed = extract_llm_response_data(response)
                 provider = self._detect_provider(parsed.provider)
                 latency_ms = max(0, int((time.perf_counter() - start) * 1000))
-                self._record_tokens(
+                settled = self._record_tokens(
                     span,
                     self._metrics,
                     parsed,
@@ -581,8 +590,11 @@ class TracedLLMClient:
                     "success",
                     provider,
                     response,
+                    self._completion_event(parsed, (prompt,), kwargs),
                 )
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.OK))
+                if _current_settlement_owner() is not None and settled is not None:
+                    response = LLMSettledResponse(response, settled)
                 return self._restore_response(response)
             except LLMAccountingError as exc:
                 span.set_status(_RuntimeStatus(_RuntimeStatusCode.ERROR, str(exc)))
@@ -597,6 +609,33 @@ class TracedLLMClient:
                 )
                 raise
 
+    def _completion_event(
+        self, parsed: LLMResponseData, args: tuple[Any, ...], kwargs: dict[str, Any]
+    ) -> LLMProducerEvent:
+        return LLMProducerEvent(
+            event_id=parsed.reuse_event_id or _new_producer_id(),
+            request_digest=_request_digest({"args": args, "kwargs": kwargs}),
+            response_digest="sha256:" + hashlib.sha256(str(parsed.content).encode()).hexdigest(),
+            model=parsed.model or self._model_name,
+            provider=self._detect_provider(parsed.provider),
+            amount=Decimal(0)
+            if parsed.cache_hit
+            else Decimal(
+                str(
+                    parsed.cost_usd
+                    if parsed.cost_usd is not None
+                    else self._estimate_cost_usd(
+                        prompt_tokens=parsed.prompt_tokens,
+                        completion_tokens=parsed.completion_tokens,
+                    )
+                )
+            ),
+            cost_origin="reuse"
+            if parsed.cache_hit
+            else ("reported" if parsed.cost_usd is not None else "estimated"),
+            kind="reuse" if parsed.cache_hit else "provider",
+        )
+
     async def generate(self, *args: Any, **kwargs: Any) -> Any:
         call_args, call_kwargs = self._normalize_generate_call(args, kwargs)
         return await self._await_owned_call(self._generate_owned(call_args, call_kwargs))
@@ -609,14 +648,7 @@ class TracedLLMClient:
         provider = self._detect_provider()
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
-        request_digest = (
-            "sha256:"
-            + hashlib.sha256(
-                stable_json_dumps(
-                    to_python_data({"args": call_args, "kwargs": call_kwargs}), sort_keys=True
-                ).encode()
-            ).hexdigest()
-        )
+        request_digest = _request_digest({"args": call_args, "kwargs": call_kwargs})
         provider_id = _new_producer_id()
         completion_recorded = False
         accounting_owner = _current_settlement_owner()

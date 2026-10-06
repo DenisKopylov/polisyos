@@ -11,11 +11,35 @@ import contextvars
 import hashlib
 import json
 import uuid
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any, Literal
+
+from polisyos.common.serialization import stable_json_dumps, to_python_data
+
+
+def _request_digest(value: Any) -> str:
+    """Bind actual request bytes without retaining them in an accounting record."""
+
+    def bind(item: Any) -> Any:
+        if isinstance(item, (bytes, bytearray, memoryview)):
+            content = bytes(item)
+            return {
+                "llm_bytes_sha256": hashlib.sha256(content).hexdigest(),
+                "byte_length": len(content),
+            }
+        if isinstance(item, Mapping):
+            return {str(key): bind(child) for key, child in item.items()}
+        if isinstance(item, (list, tuple)):
+            return [bind(child) for child in item]
+        return to_python_data(item)
+
+    return (
+        "sha256:"
+        + hashlib.sha256(stable_json_dumps(bind(value), sort_keys=True).encode()).hexdigest()
+    )
 
 
 @dataclass(frozen=True, slots=True)

@@ -78,6 +78,7 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-ruff-check.stdout.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-ruff-format.stdout.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/dfi-resource-review.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/final-handoff-precommit.stderr.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/base-env-run.py",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/base-sync-command.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/base-sync.stderr.txt",
@@ -223,8 +224,8 @@
     "policy-engine/tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py",
     "policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py"
   ],
-  "changed_path_count": 154,
-  "changed_path_stat": "154 files changed, 41229 insertions(+), 1375 deletions(-) from the slice base to the attached receipt tree; complete path list is derived directly from git diff --name-only 198076863e143dea9f89f02734b13d50dae3eed5...HEAD.",
+  "changed_path_count": 155,
+  "changed_path_stat": "155 files changed, 41244 insertions(+), 1375 deletions(-) from the slice base to the attached receipt tree; complete path list is derived directly from git diff --name-only 198076863e143dea9f89f02734b13d50dae3eed5...HEAD.",
   "path_ownership": {
     "catalog_owner": "C catalog author owns the canonical catalog registry/selection, batch configuration/source projection, standalone publish path, RetrievalService path, and mirrored catalog tests. The batch/source_registry.yaml duplicate remains untouched and is not the default owner.",
     "provider_dependency": "DFI/EMB provider commits f5d66898566cc472a5a3a7309ecb76f0cdb12c45, 4a9350bf3e43d1785ab7ff51b37da442e84aca8e, 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63, 6cfd7ffca15f586840d1aaf42b436fe1685be9fa, d747ada477f3de1a369a2e29a547b9f66e77822b, and ab44166335130463178e65dfc29a252c96afe479 were consumed by append-only Git merges. Pipeline, harvest, core-source producer/checkpoint, benchmark current-core-receipt consumer, embedding, knowledge-store, generation-basis, and quality-input paths remain provider-owned; C did not edit the DFI pipeline or generation-basis implementation.",

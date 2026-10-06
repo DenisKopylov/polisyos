@@ -269,10 +269,15 @@ async def test_deep_search_consumes_next_permitted_provider_after_empty_result(t
     ]
     assert not uncalled.calls
     assert len(bundle.sources) == 1
-    assert bundle.sources[0].final_url.endswith("/final-v1")
-    assert bundle.sources[0].artifact_id == "sha256:" + hashlib.sha256(
-        b"raw scholar response v1\n"
-    ).hexdigest()
+    expected_bytes = b"raw scholar response v1\n"
+    expected_final_url = f"{url.rsplit('/', 1)[0]}/final-v1"
+    expected_hash = hashlib.sha256(expected_bytes).hexdigest()
+    expected_source_id = "src." + hashlib.sha256(
+        f"{expected_final_url}|{expected_hash}".encode()
+    ).hexdigest()[:24]
+    assert bundle.sources[0].final_url == expected_final_url
+    assert bundle.sources[0].source_id == expected_source_id
+    assert bundle.sources[0].artifact_id == f"sha256:{expected_hash}"
     assert transcript == ["/entry", "/final-v1"]
 
 

@@ -10,6 +10,7 @@ from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
 
 class _HTTPResponse:
     status = 200
+
     def __init__(self, text):
         self.headers = {"x-request-id": "response-text-request"}
         self._text = text
@@ -40,11 +41,11 @@ class _HTTPSession:
 
 
 class TextGateway(GatewayLLMClient):
-    def __init__(self, text):
+    def __init__(self, text, *, model="test-model"):
         super().__init__(
             base_url="https://fixture.invalid",
             api_key="",
-            model="test-model",
+            model=model,
             provider_hint="provider-a",
             max_retries=0,
         )

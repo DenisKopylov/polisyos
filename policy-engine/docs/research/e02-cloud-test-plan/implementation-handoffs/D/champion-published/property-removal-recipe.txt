@@ -1,0 +1,95 @@
+"""Replay narrowly exported Git sources with explicit property-removal controls."""
+from pathlib import Path
+import ast
+import hashlib
+import io
+import json
+import os
+import subprocess
+import sys
+import tarfile
+import time
+
+REPO = Path('/workspace/e02-D-published-champion')
+PRODUCT = REPO / 'policy-engine'
+EXPORT = Path('/dev/shm/e02-D2-champion-base-export')
+OUT = Path('/workspace/e02-D2-receipts/champion')
+BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+FINAL = 'b328bb9abee30cb556ba7af4cf15dd5388386f12'
+PYTHON = '/workspace/e02-D-locked-env/bin/python'
+
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=REPO)
+
+
+def materialize(sha):
+    changed = git('diff', '--name-only', BASE, FINAL, '--', 'policy-engine/src').decode().splitlines()
+    for rel in changed:
+        path = EXPORT / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(git('show', f'{sha}:{rel}'))
+
+
+def run(label, sha, test, *, mode, mutation=None):
+    env = dict(os.environ, PYTHONPATH=str(EXPORT / 'policy-engine/src') + ':' + str(PRODUCT), PYTHONDONTWRITEBYTECODE='1')
+    argv = [PYTHON, '-m', 'pytest', '-c', str(PRODUCT / 'pytest.ini'), '-o', 'addopts=', '--import-mode=importlib', '--confcutdir=' + str(Path(test.split('::')[0]).parent), '-q', '-rA', test]
+    files = ['models','registry','runtime','calibration']
+    metadata = {'source_sha':sha, 'source_tree':git('rev-parse', f'{sha}^{{tree}}').decode().strip(), 'command':argv, 'cwd':str(PRODUCT), 'export':str(EXPORT), 'mode':mode, 'mutation':mutation, 'source_file_sha256':{name:hashlib.sha256((EXPORT / f'policy-engine/src/polisyos/scientist/methods/autotune/{name}.py').read_bytes()).hexdigest() for name in files}, 'test_path':test.split('::')[0], 'test_sha256':hashlib.sha256(Path(test.split('::')[0]).read_bytes()).hexdigest()}
+    start=time.monotonic()
+    path=OUT / (label+'.txt')
+    with path.open('w') as output:
+        output.write(json.dumps(metadata,sort_keys=True)+'\n');output.flush()
+        result=subprocess.run(argv,cwd=PRODUCT,env=env,stdout=output,stderr=subprocess.STDOUT)
+        metadata.update(exit_code=result.returncode,wall_seconds=time.monotonic()-start)
+        output.write('\nMEASUREMENT='+json.dumps({'exit_code':result.returncode,'wall_seconds':metadata['wall_seconds']})+'\n')
+    metadata.update(log=str(path),log_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+    (OUT/(label+'.json')).write_text(json.dumps(metadata,indent=2)+'\n')
+    print(json.dumps({'probe':label,'exit_code':result.returncode,'log':str(path)}),flush=True)
+    return result.returncode
+
+
+# Exact baseline production, five semantic witnesses derived from tracked63 test.
+materialize(BASE)
+template = git('show','63b22c4d4ee3b1856325f62984cceb354b41afe2:policy-engine/tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py').decode()
+tree=ast.parse(template)
+class Legacy(ast.NodeTransformer):
+    def visit_ImportFrom(self,node):
+        node.names=[n for n in node.names if n.name!='benchmark_comparison_basis']
+        return node
+    def visit_Call(self,node):
+        self.generic_visit(node)
+        if isinstance(node.func,ast.Name) and node.func.id=='BenchmarkSuite':
+            node.keywords=[k for k in node.keywords if k.arg!='data_basis']
+        if isinstance(node.func,ast.Name) and node.func.id=='BenchmarkEvaluation':
+            node.keywords=[k for k in node.keywords if k.arg!='comparison_basis']
+        return node
+path=EXPORT/'test_five_baseline.py'
+path.write_text(ast.unparse(ast.fix_missing_locations(Legacy().visit(tree)))+'\n')
+assert run('baseline-five-rebound',BASE,str(path),mode='baseline',mutation='AST adapter of tracked63 witness removes comparison builder import, BenchmarkSuite.data_basis and BenchmarkEvaluation.comparison_basis only') == 1
+
+# One canonical incumbent identity property: remove every equivalent guard on
+# fresh incumbent identity/predecessor lineage, preserving corpus and metric checks.
+materialize(FINAL)
+path=EXPORT/'policy-engine/src/polisyos/scientist/methods/autotune/registry.py'
+s=path.read_text();start=s.index('        if artifact_ref_identity_key(fresh.candidate_ref)');end=s.index('        if (\n            fresh.loop_id',start);s=s[:start]+s[end:]
+s=s.replace('        require_benchmark_input(self._store, ref, current.candidate_ref, role="candidate")\n','')
+path.write_text(s)
+case=str(PRODUCT/'tests/unit/scientist/methods/autotune/test_calibration_autotune.py')+'::test_native_challenger_guard_and_primary_pair_share_captured_predecessor'
+assert run('remove-canonical-incumbent',FINAL,case,mode='property_removal',mutation='Delete fresh candidate identity comparison, both records predecessor-ref+lineage reconciliation loop, and fresh candidate lineage guard from _incumbent_comparison; retain all remaining comparison validations and real evaluators') == 1
+
+# Actual native numerical owner remains; remove only public tell mediation.
+materialize(FINAL)
+path=EXPORT/'policy-engine/src/polisyos/scientist/methods/search/service.py'
+s=path.read_text().replace('            self.tell(proposal.candidate_id, evaluation)','''            self.controller._accept_tell(
+                candidate=proposal.payload, objective_value=evaluation.objective_value,
+                objective_details=evaluation.objective_details, is_promising=evaluation.is_promising,
+                stage_a_passed=evaluation.stage_a_passed,
+                stage_b_result=self._stage_b_result(evaluation), duration_seconds=evaluation.duration_seconds,
+            )''')
+path.write_text(s)
+case=str(PRODUCT/'tests/unit/scientist/methods/search/test_native_ask_tell_witness.py')+'::test_public_call_removal_trap_is_reached_before_history_acceptance[tell]'
+assert run('remove-public-tell',FINAL,case,mode='property_removal',mutation='Replace public driver.tell call with direct existing controller._accept_tell using same real detached evaluation and same state acceptance owner') == 1
+materialize(FINAL)
+# Restore service too, since materialize updates tracked delta files.
+print('All three expected negative decisions observed; export restored to immutable final source.',flush=True)

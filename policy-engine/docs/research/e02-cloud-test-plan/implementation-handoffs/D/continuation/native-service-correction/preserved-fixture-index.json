@@ -1,0 +1,2586 @@
+{
+  "schema": "preserved-file-index.v1",
+  "scope": "All currently present regular fixture files in the two explicit fresh basetemp roots; content preserved at original absolute paths. Index is not an archived remote copy.",
+  "files": [
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor0/cas/artifacts/ownership/transactions/locks/stripe-39.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor0/cas/artifacts/ownership/transactions/locks/stripe-60.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor0/cas/artifacts/sha256/2d/8f/2d8fb660df35a4c97739ed4c40b8467baf30ef953552478e58864a5214942d7c.blob",
+      "bytes": 2285,
+      "sha256": "2d8fb660df35a4c97739ed4c40b8467baf30ef953552478e58864a5214942d7c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor0/cas/artifacts/sha256/2d/8f/2d8fb660df35a4c97739ed4c40b8467baf30ef953552478e58864a5214942d7c.manifest.json",
+      "bytes": 651,
+      "sha256": "047cf1bb31535f976d95e72cfea9492eca2d8f5f24f35391cda93dd77e0a1994"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor0/cas/artifacts/sha256/2d/8f/2d8fb660df35a4c97739ed4c40b8467baf30ef953552478e58864a5214942d7c.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "047cf1bb31535f976d95e72cfea9492eca2d8f5f24f35391cda93dd77e0a1994"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor0/cas/artifacts/sha256/7d/47/7d4722033de1bb75e19a4ebc679f1bc962e4385762b88d2bd8ca388a9f38a1a7.blob",
+      "bytes": 2286,
+      "sha256": "7d4722033de1bb75e19a4ebc679f1bc962e4385762b88d2bd8ca388a9f38a1a7"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor0/cas/artifacts/sha256/7d/47/7d4722033de1bb75e19a4ebc679f1bc962e4385762b88d2bd8ca388a9f38a1a7.manifest.json",
+      "bytes": 651,
+      "sha256": "be3a619e7676c661046a90f6e7e8bf0d4c063486558436452835fd8883b35f5e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor0/cas/artifacts/sha256/7d/47/7d4722033de1bb75e19a4ebc679f1bc962e4385762b88d2bd8ca388a9f38a1a7.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "be3a619e7676c661046a90f6e7e8bf0d4c063486558436452835fd8883b35f5e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor1/cas/artifacts/ownership/transactions/locks/stripe-04.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor1/cas/artifacts/ownership/transactions/locks/stripe-37.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor1/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor1/cas/artifacts/sha256/44/5b/445bb8095b99b5ae803700fe87ff192dffea5e04bb08ff405b2cc7d871d7cde5.blob",
+      "bytes": 2288,
+      "sha256": "445bb8095b99b5ae803700fe87ff192dffea5e04bb08ff405b2cc7d871d7cde5"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor1/cas/artifacts/sha256/44/5b/445bb8095b99b5ae803700fe87ff192dffea5e04bb08ff405b2cc7d871d7cde5.manifest.json",
+      "bytes": 651,
+      "sha256": "1ea7d52fdd255b61639c2b9ae9b57dfd0b122920cd94639bcab55d1241dac586"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor1/cas/artifacts/sha256/44/5b/445bb8095b99b5ae803700fe87ff192dffea5e04bb08ff405b2cc7d871d7cde5.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "1ea7d52fdd255b61639c2b9ae9b57dfd0b122920cd94639bcab55d1241dac586"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor1/cas/artifacts/sha256/ec/cc/eccc037267716e17480f2a0de2dd302d7f3936b00d1b93325651cf8ab0f4c744.blob",
+      "bytes": 2285,
+      "sha256": "eccc037267716e17480f2a0de2dd302d7f3936b00d1b93325651cf8ab0f4c744"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor1/cas/artifacts/sha256/ec/cc/eccc037267716e17480f2a0de2dd302d7f3936b00d1b93325651cf8ab0f4c744.manifest.json",
+      "bytes": 651,
+      "sha256": "42a25cd0637242fdee8135e28d815b6214e8671d756db409ea8ad4ff45c2ab2d"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor1/cas/artifacts/sha256/ec/cc/eccc037267716e17480f2a0de2dd302d7f3936b00d1b93325651cf8ab0f4c744.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "42a25cd0637242fdee8135e28d815b6214e8671d756db409ea8ad4ff45c2ab2d"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor2/cas/artifacts/ownership/transactions/locks/stripe-11.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor2/cas/artifacts/ownership/transactions/locks/stripe-62.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor2/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor2/cas/artifacts/sha256/27/ce/27ce56a28638bf02ddcd13fe3aad8cd6ef7002a9c59b144c97ff318dde1e5f7e.blob",
+      "bytes": 2285,
+      "sha256": "27ce56a28638bf02ddcd13fe3aad8cd6ef7002a9c59b144c97ff318dde1e5f7e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor2/cas/artifacts/sha256/27/ce/27ce56a28638bf02ddcd13fe3aad8cd6ef7002a9c59b144c97ff318dde1e5f7e.manifest.json",
+      "bytes": 651,
+      "sha256": "079c7c003dbbcde8be08150aa1e3c815abccda9fb9446787fbbb796ddfcd53e1"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor2/cas/artifacts/sha256/27/ce/27ce56a28638bf02ddcd13fe3aad8cd6ef7002a9c59b144c97ff318dde1e5f7e.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "079c7c003dbbcde8be08150aa1e3c815abccda9fb9446787fbbb796ddfcd53e1"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor2/cas/artifacts/sha256/fb/c2/fbc2cc8ba165f73be5de2c8bc22a0ef771553f7f6ddf4f26c51193d4b6dd164b.blob",
+      "bytes": 2285,
+      "sha256": "fbc2cc8ba165f73be5de2c8bc22a0ef771553f7f6ddf4f26c51193d4b6dd164b"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor2/cas/artifacts/sha256/fb/c2/fbc2cc8ba165f73be5de2c8bc22a0ef771553f7f6ddf4f26c51193d4b6dd164b.manifest.json",
+      "bytes": 651,
+      "sha256": "01d1037c5faa95dd15157f40c618bb28dfcbb2b12183d043cd278764c48478ed"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor2/cas/artifacts/sha256/fb/c2/fbc2cc8ba165f73be5de2c8bc22a0ef771553f7f6ddf4f26c51193d4b6dd164b.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "01d1037c5faa95dd15157f40c618bb28dfcbb2b12183d043cd278764c48478ed"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor3/cas/artifacts/ownership/transactions/locks/stripe-54.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor3/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor3/cas/artifacts/sha256/0a/ac/0aacc923cf877cbdea941db361fca6839ffaf33dc7520ce014fd23dcecce58b6.blob",
+      "bytes": 2285,
+      "sha256": "0aacc923cf877cbdea941db361fca6839ffaf33dc7520ce014fd23dcecce58b6"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor3/cas/artifacts/sha256/0a/ac/0aacc923cf877cbdea941db361fca6839ffaf33dc7520ce014fd23dcecce58b6.manifest.json",
+      "bytes": 651,
+      "sha256": "ac03d2bade09e8edb2507405360890a4e069a87e376ecd3ab1cd820458a3e1bb"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor3/cas/artifacts/sha256/0a/ac/0aacc923cf877cbdea941db361fca6839ffaf33dc7520ce014fd23dcecce58b6.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "ac03d2bade09e8edb2507405360890a4e069a87e376ecd3ab1cd820458a3e1bb"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor3/cas/artifacts/sha256/18/aa/18aafec9bdf033f27bb44ab36aae9daf4a1aaa5047f03b3bc17f530fa08614b6.blob",
+      "bytes": 2286,
+      "sha256": "18aafec9bdf033f27bb44ab36aae9daf4a1aaa5047f03b3bc17f530fa08614b6"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor3/cas/artifacts/sha256/18/aa/18aafec9bdf033f27bb44ab36aae9daf4a1aaa5047f03b3bc17f530fa08614b6.manifest.json",
+      "bytes": 651,
+      "sha256": "d1a8e04b416bd153cea98a5447451cf7f8f09c825afa960a2f55dcbfb9383255"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor3/cas/artifacts/sha256/18/aa/18aafec9bdf033f27bb44ab36aae9daf4a1aaa5047f03b3bc17f530fa08614b6.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "d1a8e04b416bd153cea98a5447451cf7f8f09c825afa960a2f55dcbfb9383255"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor4/cas/artifacts/ownership/transactions/locks/stripe-08.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor4/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor4/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor4/cas/artifacts/sha256/10/5e/105e5ecdc09b11fec7261d9e87fd07ef2aec26665b2181d616b2a2e244075da0.blob",
+      "bytes": 2285,
+      "sha256": "105e5ecdc09b11fec7261d9e87fd07ef2aec26665b2181d616b2a2e244075da0"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor4/cas/artifacts/sha256/10/5e/105e5ecdc09b11fec7261d9e87fd07ef2aec26665b2181d616b2a2e244075da0.manifest.json",
+      "bytes": 651,
+      "sha256": "bac0a5742ba2c898a9f69d8137ff3d816f8b1cc62ad644c8eb5343de799ca19b"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor4/cas/artifacts/sha256/10/5e/105e5ecdc09b11fec7261d9e87fd07ef2aec26665b2181d616b2a2e244075da0.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "bac0a5742ba2c898a9f69d8137ff3d816f8b1cc62ad644c8eb5343de799ca19b"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor4/cas/artifacts/sha256/17/f1/17f1d998e2b29cf81b59ac2686af832abdffcfa6d86c69595e94678f94dc9748.blob",
+      "bytes": 2270,
+      "sha256": "17f1d998e2b29cf81b59ac2686af832abdffcfa6d86c69595e94678f94dc9748"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor4/cas/artifacts/sha256/17/f1/17f1d998e2b29cf81b59ac2686af832abdffcfa6d86c69595e94678f94dc9748.manifest.json",
+      "bytes": 651,
+      "sha256": "9df9c9f3b5ae407a8e2193419293090560e1b72fd2b72e18e05d63837b8d2869"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor4/cas/artifacts/sha256/17/f1/17f1d998e2b29cf81b59ac2686af832abdffcfa6d86c69595e94678f94dc9748.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "9df9c9f3b5ae407a8e2193419293090560e1b72fd2b72e18e05d63837b8d2869"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor5/cas/artifacts/ownership/transactions/locks/stripe-39.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor5/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor5/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor5/cas/artifacts/sha256/4c/b0/4cb0cdcff5d4d6db7ad83bb10b9d53df0b3689ea5cd5a7d8c94d103dfa13d9a7.blob",
+      "bytes": 2708,
+      "sha256": "4cb0cdcff5d4d6db7ad83bb10b9d53df0b3689ea5cd5a7d8c94d103dfa13d9a7"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor5/cas/artifacts/sha256/4c/b0/4cb0cdcff5d4d6db7ad83bb10b9d53df0b3689ea5cd5a7d8c94d103dfa13d9a7.manifest.json",
+      "bytes": 651,
+      "sha256": "babc1195dfa7e3ae4947650a5be9d5f334166623ccbb5c34ab1dd16e36a8a1fa"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor5/cas/artifacts/sha256/4c/b0/4cb0cdcff5d4d6db7ad83bb10b9d53df0b3689ea5cd5a7d8c94d103dfa13d9a7.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "babc1195dfa7e3ae4947650a5be9d5f334166623ccbb5c34ab1dd16e36a8a1fa"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor5/cas/artifacts/sha256/7e/4e/7e4e8059e1198d6b0cabb216f411888448357e4368c9868999b5c7d3973acb69.blob",
+      "bytes": 2285,
+      "sha256": "7e4e8059e1198d6b0cabb216f411888448357e4368c9868999b5c7d3973acb69"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor5/cas/artifacts/sha256/7e/4e/7e4e8059e1198d6b0cabb216f411888448357e4368c9868999b5c7d3973acb69.manifest.json",
+      "bytes": 651,
+      "sha256": "17278ace14474c29dd0ad2b88aa4b828d0407d586861fae30faff17bea14c3c2"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor5/cas/artifacts/sha256/7e/4e/7e4e8059e1198d6b0cabb216f411888448357e4368c9868999b5c7d3973acb69.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "17278ace14474c29dd0ad2b88aa4b828d0407d586861fae30faff17bea14c3c2"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor6/cas/artifacts/ownership/transactions/locks/stripe-54.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor6/cas/artifacts/ownership/transactions/locks/stripe-57.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor6/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor6/cas/artifacts/sha256/0d/37/0d372e4e29710e49145f9db2131dbc87e9f40d7f9fce03abf07fcd2cd26437b9.blob",
+      "bytes": 2452,
+      "sha256": "0d372e4e29710e49145f9db2131dbc87e9f40d7f9fce03abf07fcd2cd26437b9"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor6/cas/artifacts/sha256/0d/37/0d372e4e29710e49145f9db2131dbc87e9f40d7f9fce03abf07fcd2cd26437b9.manifest.json",
+      "bytes": 651,
+      "sha256": "ee8a998da66f6d620e2881935f859c1469706bd031d7776efb8319bfe07e2229"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor6/cas/artifacts/sha256/0d/37/0d372e4e29710e49145f9db2131dbc87e9f40d7f9fce03abf07fcd2cd26437b9.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "ee8a998da66f6d620e2881935f859c1469706bd031d7776efb8319bfe07e2229"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor6/cas/artifacts/sha256/67/e5/67e5af51b0195d0d3f38fd06e305c7951d4597538956c6cdb949af6a2d355776.blob",
+      "bytes": 2285,
+      "sha256": "67e5af51b0195d0d3f38fd06e305c7951d4597538956c6cdb949af6a2d355776"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor6/cas/artifacts/sha256/67/e5/67e5af51b0195d0d3f38fd06e305c7951d4597538956c6cdb949af6a2d355776.manifest.json",
+      "bytes": 651,
+      "sha256": "4b25fac2cc447817569e509d8c4a635b465f27f7b940b53241cb6a6dbc30ab38"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_cas_checkpoint_cor6/cas/artifacts/sha256/67/e5/67e5af51b0195d0d3f38fd06e305c7951d4597538956c6cdb949af6a2d355776.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "4b25fac2cc447817569e509d8c4a635b465f27f7b940b53241cb6a6dbc30ab38"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_checkpoint_consume0/cas/artifacts/ownership/transactions/locks/stripe-56.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_checkpoint_consume0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_checkpoint_consume0/cas/artifacts/sha256/c8/2b/c82bb14ca1a1ffa5c4f5eb159dceec9e6aa083f283c35e0e76aa938151bb3db8.blob",
+      "bytes": 2285,
+      "sha256": "c82bb14ca1a1ffa5c4f5eb159dceec9e6aa083f283c35e0e76aa938151bb3db8"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_checkpoint_consume0/cas/artifacts/sha256/c8/2b/c82bb14ca1a1ffa5c4f5eb159dceec9e6aa083f283c35e0e76aa938151bb3db8.manifest.json",
+      "bytes": 651,
+      "sha256": "b452fc32a533626085f2610bcbec1fd2c5c4ed7653608cd898182041baf3d9a7"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_checkpoint_consume0/cas/artifacts/sha256/c8/2b/c82bb14ca1a1ffa5c4f5eb159dceec9e6aa083f283c35e0e76aa938151bb3db8.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "b452fc32a533626085f2610bcbec1fd2c5c4ed7653608cd898182041baf3d9a7"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/locks/stripe-08.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/locks/stripe-16.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/locks/stripe-18.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/locks/stripe-21.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/locks/stripe-22.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/locks/stripe-25.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/locks/stripe-29.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/locks/stripe-37.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/locks/stripe-40.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/locks/stripe-53.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/locks/stripe-57.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/locks/stripe-58.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/locks/stripe-60.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/2f/02/2f02a2a7eb95bee2fafc242aec6dd36d47485226a5068c6f1fe0a604877cecbc.blob",
+      "bytes": 8149,
+      "sha256": "2f02a2a7eb95bee2fafc242aec6dd36d47485226a5068c6f1fe0a604877cecbc"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/2f/02/2f02a2a7eb95bee2fafc242aec6dd36d47485226a5068c6f1fe0a604877cecbc.manifest.json",
+      "bytes": 651,
+      "sha256": "952332a41caff83371fbb3e8206d5d2fc0e888350df8dcd112ac7eb71fc7bbdd"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/2f/02/2f02a2a7eb95bee2fafc242aec6dd36d47485226a5068c6f1fe0a604877cecbc.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "952332a41caff83371fbb3e8206d5d2fc0e888350df8dcd112ac7eb71fc7bbdd"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/32/33/323309a9e261b5975c9a7e3879fbe382ddba2196e5926b189c2e76c2b2e58139.blob",
+      "bytes": 11114,
+      "sha256": "323309a9e261b5975c9a7e3879fbe382ddba2196e5926b189c2e76c2b2e58139"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/32/33/323309a9e261b5975c9a7e3879fbe382ddba2196e5926b189c2e76c2b2e58139.manifest.json",
+      "bytes": 652,
+      "sha256": "22f221943fbbe665886017d26c5232173dd1fc0b463b11034e3d6e7371afe797"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/32/33/323309a9e261b5975c9a7e3879fbe382ddba2196e5926b189c2e76c2b2e58139.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 652,
+      "sha256": "22f221943fbbe665886017d26c5232173dd1fc0b463b11034e3d6e7371afe797"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/3f/e6/3fe6d8ff5de4f0bba668cf26adef2687d0f64169d7b9e0141cb002c67ff0b050.blob",
+      "bytes": 5803,
+      "sha256": "3fe6d8ff5de4f0bba668cf26adef2687d0f64169d7b9e0141cb002c67ff0b050"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/3f/e6/3fe6d8ff5de4f0bba668cf26adef2687d0f64169d7b9e0141cb002c67ff0b050.manifest.json",
+      "bytes": 651,
+      "sha256": "cc25960b7ca69ee5af4873f90a15be856b4e5fd59c88d3f5d1deff3f188484ea"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/3f/e6/3fe6d8ff5de4f0bba668cf26adef2687d0f64169d7b9e0141cb002c67ff0b050.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "cc25960b7ca69ee5af4873f90a15be856b4e5fd59c88d3f5d1deff3f188484ea"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/50/a1/50a1a6ecd98330f15104c352bf05d28b1188a0eb188f53b69d346e1e19357416.blob",
+      "bytes": 4658,
+      "sha256": "50a1a6ecd98330f15104c352bf05d28b1188a0eb188f53b69d346e1e19357416"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/50/a1/50a1a6ecd98330f15104c352bf05d28b1188a0eb188f53b69d346e1e19357416.manifest.json",
+      "bytes": 651,
+      "sha256": "9017cac5dc9f8ab56e307eb682462d78273ada575e8033805ec765256c7cb4f1"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/50/a1/50a1a6ecd98330f15104c352bf05d28b1188a0eb188f53b69d346e1e19357416.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "9017cac5dc9f8ab56e307eb682462d78273ada575e8033805ec765256c7cb4f1"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/6b/5f/6b5f903005660957d7aaf6fc5376045154060378282424f09ae7277f8bcbffa8.blob",
+      "bytes": 9337,
+      "sha256": "6b5f903005660957d7aaf6fc5376045154060378282424f09ae7277f8bcbffa8"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/6b/5f/6b5f903005660957d7aaf6fc5376045154060378282424f09ae7277f8bcbffa8.manifest.json",
+      "bytes": 651,
+      "sha256": "3e43766d02e14a6c21686df274610cb7ad96d42071c6ebae9673058c3bcfa074"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/6b/5f/6b5f903005660957d7aaf6fc5376045154060378282424f09ae7277f8bcbffa8.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "3e43766d02e14a6c21686df274610cb7ad96d42071c6ebae9673058c3bcfa074"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/85/be/85be4525661487ff64b14958c228dc1b6975e280098828a458c514f7bfac721d.blob",
+      "bytes": 8743,
+      "sha256": "85be4525661487ff64b14958c228dc1b6975e280098828a458c514f7bfac721d"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/85/be/85be4525661487ff64b14958c228dc1b6975e280098828a458c514f7bfac721d.manifest.json",
+      "bytes": 651,
+      "sha256": "a6dcbff85a08af1fe230f5266b502b2f2564f84111c422c95d9c25e492761150"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/85/be/85be4525661487ff64b14958c228dc1b6975e280098828a458c514f7bfac721d.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "a6dcbff85a08af1fe230f5266b502b2f2564f84111c422c95d9c25e492761150"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/8d/f0/8df0a62b786e82923cf20e6283bfa045fec15a14cdd17d4e20b40b05270e20a5.blob",
+      "bytes": 6976,
+      "sha256": "8df0a62b786e82923cf20e6283bfa045fec15a14cdd17d4e20b40b05270e20a5"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/8d/f0/8df0a62b786e82923cf20e6283bfa045fec15a14cdd17d4e20b40b05270e20a5.manifest.json",
+      "bytes": 651,
+      "sha256": "f95d0773d1d97dcbbcdd5f432ab4a5d6ef0c507473b455ef65447c382b394b60"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/8d/f0/8df0a62b786e82923cf20e6283bfa045fec15a14cdd17d4e20b40b05270e20a5.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "f95d0773d1d97dcbbcdd5f432ab4a5d6ef0c507473b455ef65447c382b394b60"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/8e/2c/8e2c37bb4d90f0cdb28395a4b0c95bf12be7fd5fbec5aaa9f003ade7be88cb55.blob",
+      "bytes": 6397,
+      "sha256": "8e2c37bb4d90f0cdb28395a4b0c95bf12be7fd5fbec5aaa9f003ade7be88cb55"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/8e/2c/8e2c37bb4d90f0cdb28395a4b0c95bf12be7fd5fbec5aaa9f003ade7be88cb55.manifest.json",
+      "bytes": 651,
+      "sha256": "ff12525c07673cdeed0896ecefa8b348017ea781cf102117c0632f9a703c10e6"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/8e/2c/8e2c37bb4d90f0cdb28395a4b0c95bf12be7fd5fbec5aaa9f003ade7be88cb55.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "ff12525c07673cdeed0896ecefa8b348017ea781cf102117c0632f9a703c10e6"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/9e/37/9e376ced2c6eb5bde64fc16c9397128a523a42252ada98baadc47d9e7b128e75.blob",
+      "bytes": 11736,
+      "sha256": "9e376ced2c6eb5bde64fc16c9397128a523a42252ada98baadc47d9e7b128e75"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/9e/37/9e376ced2c6eb5bde64fc16c9397128a523a42252ada98baadc47d9e7b128e75.manifest.json",
+      "bytes": 652,
+      "sha256": "153d334e258fb7eefee1db3729e2e4ab9d78b02ca056ddbc88732a65d1e9d605"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/9e/37/9e376ced2c6eb5bde64fc16c9397128a523a42252ada98baadc47d9e7b128e75.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 652,
+      "sha256": "153d334e258fb7eefee1db3729e2e4ab9d78b02ca056ddbc88732a65d1e9d605"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/a9/f3/a9f336671a3acdafbb3eee896be894961457d23b5ebb2ceefbd9f977039c713a.blob",
+      "bytes": 7570,
+      "sha256": "a9f336671a3acdafbb3eee896be894961457d23b5ebb2ceefbd9f977039c713a"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/a9/f3/a9f336671a3acdafbb3eee896be894961457d23b5ebb2ceefbd9f977039c713a.manifest.json",
+      "bytes": 651,
+      "sha256": "9ea2d121ede3ff4b56fc1b0fae4e99632fe5e2b87fcb5c655ee06ae10e2d8fb8"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/a9/f3/a9f336671a3acdafbb3eee896be894961457d23b5ebb2ceefbd9f977039c713a.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "9ea2d121ede3ff4b56fc1b0fae4e99632fe5e2b87fcb5c655ee06ae10e2d8fb8"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/b4/03/b40331522d05808bd7b463366ac102941c3932e6f0eb8d7299905961c03da599.blob",
+      "bytes": 9933,
+      "sha256": "b40331522d05808bd7b463366ac102941c3932e6f0eb8d7299905961c03da599"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/b4/03/b40331522d05808bd7b463366ac102941c3932e6f0eb8d7299905961c03da599.manifest.json",
+      "bytes": 651,
+      "sha256": "199d1d51a94198a3b4ae157c3ed5f3dca86f25541d4ac520d27fa36d417cf4e6"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/b4/03/b40331522d05808bd7b463366ac102941c3932e6f0eb8d7299905961c03da599.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "199d1d51a94198a3b4ae157c3ed5f3dca86f25541d4ac520d27fa36d417cf4e6"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/b5/a5/b5a5d6305e4532c37703a09962060a5fc398a4cbe413ed5e0b7eefb2dfa6ebba.blob",
+      "bytes": 3503,
+      "sha256": "b5a5d6305e4532c37703a09962060a5fc398a4cbe413ed5e0b7eefb2dfa6ebba"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/b5/a5/b5a5d6305e4532c37703a09962060a5fc398a4cbe413ed5e0b7eefb2dfa6ebba.manifest.json",
+      "bytes": 651,
+      "sha256": "a3a521050469b7fc5ab7f00e93c9d7846fd125aad83be938c83d9a30c708c509"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/b5/a5/b5a5d6305e4532c37703a09962060a5fc398a4cbe413ed5e0b7eefb2dfa6ebba.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "a3a521050469b7fc5ab7f00e93c9d7846fd125aad83be938c83d9a30c708c509"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/c0/55/c05539fc58425a75befce24510248821655b14d233e6d106dbb6b2a56f1e6216.blob",
+      "bytes": 5209,
+      "sha256": "c05539fc58425a75befce24510248821655b14d233e6d106dbb6b2a56f1e6216"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/c0/55/c05539fc58425a75befce24510248821655b14d233e6d106dbb6b2a56f1e6216.manifest.json",
+      "bytes": 651,
+      "sha256": "0ad6e64516fa1a65b2e89beb3dc664812daee55ae30b065de36a05c8361985fc"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/c0/55/c05539fc58425a75befce24510248821655b14d233e6d106dbb6b2a56f1e6216.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "0ad6e64516fa1a65b2e89beb3dc664812daee55ae30b065de36a05c8361985fc"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/d1/1c/d11cfcf6bc331d266250da50f815e79c8b870dbbe238534bec5a36d2655e3b92.blob",
+      "bytes": 4630,
+      "sha256": "d11cfcf6bc331d266250da50f815e79c8b870dbbe238534bec5a36d2655e3b92"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/d1/1c/d11cfcf6bc331d266250da50f815e79c8b870dbbe238534bec5a36d2655e3b92.manifest.json",
+      "bytes": 651,
+      "sha256": "c363cc55f8507a5e469ed1190a98a4e1bfaf6d9b12d6d9094b2417ee09cb3ff9"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/d1/1c/d11cfcf6bc331d266250da50f815e79c8b870dbbe238534bec5a36d2655e3b92.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "c363cc55f8507a5e469ed1190a98a4e1bfaf6d9b12d6d9094b2417ee09cb3ff9"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/d6/31/d631861ae1edec86354838143332364ef5b4a6b8caeae81ab5915fcf4dc277c8.blob",
+      "bytes": 10530,
+      "sha256": "d631861ae1edec86354838143332364ef5b4a6b8caeae81ab5915fcf4dc277c8"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/d6/31/d631861ae1edec86354838143332364ef5b4a6b8caeae81ab5915fcf4dc277c8.manifest.json",
+      "bytes": 652,
+      "sha256": "38208ec25938b29ee39783ac195f104ef19ee04695025f2278e0ec89124472f0"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/d6/31/d631861ae1edec86354838143332364ef5b4a6b8caeae81ab5915fcf4dc277c8.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 652,
+      "sha256": "38208ec25938b29ee39783ac195f104ef19ee04695025f2278e0ec89124472f0"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/e2/84/e2840cf449a887370fe8e339a75814e5e5309dfe6fe59c2d255d52c7fdd5b9bd.blob",
+      "bytes": 11707,
+      "sha256": "e2840cf449a887370fe8e339a75814e5e5309dfe6fe59c2d255d52c7fdd5b9bd"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/e2/84/e2840cf449a887370fe8e339a75814e5e5309dfe6fe59c2d255d52c7fdd5b9bd.manifest.json",
+      "bytes": 652,
+      "sha256": "16547e1e98de8ca3a91aacddd55c28426c7fcd3a5d1cc0b2e890547c860cf2d0"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_pending_batch_orde0/cas/artifacts/sha256/e2/84/e2840cf449a887370fe8e339a75814e5e5309dfe6fe59c2d255d52c7fdd5b9bd.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 652,
+      "sha256": "16547e1e98de8ca3a91aacddd55c28426c7fcd3a5d1cc0b2e890547c860cf2d0"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_stateless_evaluato0/cas/artifacts/ownership/transactions/locks/stripe-01.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_stateless_evaluato0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_stateless_evaluato0/cas/artifacts/sha256/66/7b/667b75b859a6751f6cb5e5b73e1c92f5717e12e5e4a75e9d04d4de55d38c15c1.blob",
+      "bytes": 2281,
+      "sha256": "667b75b859a6751f6cb5e5b73e1c92f5717e12e5e4a75e9d04d4de55d38c15c1"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_stateless_evaluato0/cas/artifacts/sha256/66/7b/667b75b859a6751f6cb5e5b73e1c92f5717e12e5e4a75e9d04d4de55d38c15c1.manifest.json",
+      "bytes": 651,
+      "sha256": "47b30490b55b934cbca0e9ced46ba65769dd2441285c46563bbb4812036e5d18"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_actual_stateless_evaluato0/cas/artifacts/sha256/66/7b/667b75b859a6751f6cb5e5b73e1c92f5717e12e5e4a75e9d04d4de55d38c15c1.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "47b30490b55b934cbca0e9ced46ba65769dd2441285c46563bbb4812036e5d18"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_checkpoint_requires_exact0/cas/artifacts/ownership/transactions/locks/stripe-27.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_checkpoint_requires_exact0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_checkpoint_requires_exact0/cas/artifacts/sha256/5f/98/5f98edd01fb2b799dd66915488094a5f35018af1690ff40d83123d54486f221b.blob",
+      "bytes": 2285,
+      "sha256": "5f98edd01fb2b799dd66915488094a5f35018af1690ff40d83123d54486f221b"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_checkpoint_requires_exact0/cas/artifacts/sha256/5f/98/5f98edd01fb2b799dd66915488094a5f35018af1690ff40d83123d54486f221b.manifest.json",
+      "bytes": 651,
+      "sha256": "d244f20c84460a36fdbebcd5e0c9364609cb940eff596f64d29a1eb1d25b394e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_checkpoint_requires_exact0/cas/artifacts/sha256/5f/98/5f98edd01fb2b799dd66915488094a5f35018af1690ff40d83123d54486f221b.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "d244f20c84460a36fdbebcd5e0c9364609cb940eff596f64d29a1eb1d25b394e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu0/cas/artifacts/ownership/transactions/locks/stripe-28.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu0/cas/artifacts/sha256/72/b7/72b78158bc8983efe41f2b40836639aa54d408015ce8b81867a554c237f88a1c.blob",
+      "bytes": 2642,
+      "sha256": "72b78158bc8983efe41f2b40836639aa54d408015ce8b81867a554c237f88a1c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu0/cas/artifacts/sha256/72/b7/72b78158bc8983efe41f2b40836639aa54d408015ce8b81867a554c237f88a1c.manifest.json",
+      "bytes": 651,
+      "sha256": "f647ff92b4b26e6ef2c7f081c5e1691d12c3059545ef039bdbb69cb18cc62d0e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu0/cas/artifacts/sha256/72/b7/72b78158bc8983efe41f2b40836639aa54d408015ce8b81867a554c237f88a1c.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "f647ff92b4b26e6ef2c7f081c5e1691d12c3059545ef039bdbb69cb18cc62d0e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu1/cas/artifacts/ownership/transactions/locks/stripe-14.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu1/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu1/cas/artifacts/sha256/59/82/598296e0736fc6d7674d3998ab531179814494bd912092079dda45fd75a4a58e.blob",
+      "bytes": 2642,
+      "sha256": "598296e0736fc6d7674d3998ab531179814494bd912092079dda45fd75a4a58e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu1/cas/artifacts/sha256/59/82/598296e0736fc6d7674d3998ab531179814494bd912092079dda45fd75a4a58e.manifest.json",
+      "bytes": 651,
+      "sha256": "3c78520bdab394fac727a78d9fbaaa4890b1dee44a81b87ecbca5cf2aa1173ed"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu1/cas/artifacts/sha256/59/82/598296e0736fc6d7674d3998ab531179814494bd912092079dda45fd75a4a58e.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "3c78520bdab394fac727a78d9fbaaa4890b1dee44a81b87ecbca5cf2aa1173ed"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu2/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu2/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu2/cas/artifacts/sha256/2b/03/2b032bca807c31e809a3f4117f6c0e094363936d79c466fc053aa5947f29b0a0.blob",
+      "bytes": 2642,
+      "sha256": "2b032bca807c31e809a3f4117f6c0e094363936d79c466fc053aa5947f29b0a0"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu2/cas/artifacts/sha256/2b/03/2b032bca807c31e809a3f4117f6c0e094363936d79c466fc053aa5947f29b0a0.manifest.json",
+      "bytes": 651,
+      "sha256": "2cc22c339e67c023a0cf6c2452e4fda4cdda991451fb73003dd5e38d5cd0b7ca"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu2/cas/artifacts/sha256/2b/03/2b032bca807c31e809a3f4117f6c0e094363936d79c466fc053aa5947f29b0a0.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "2cc22c339e67c023a0cf6c2452e4fda4cdda991451fb73003dd5e38d5cd0b7ca"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu3/cas/artifacts/ownership/transactions/locks/stripe-16.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu3/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu3/cas/artifacts/sha256/c5/d7/c5d7bfdda2bda6f8ea6c1af94b648e73f2793089470fcaf141715811ed694790.blob",
+      "bytes": 2642,
+      "sha256": "c5d7bfdda2bda6f8ea6c1af94b648e73f2793089470fcaf141715811ed694790"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu3/cas/artifacts/sha256/c5/d7/c5d7bfdda2bda6f8ea6c1af94b648e73f2793089470fcaf141715811ed694790.manifest.json",
+      "bytes": 651,
+      "sha256": "5c5242743444e5ab0d8139527774f45a6c61d127bf61e66461144fd00b0a9558"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu3/cas/artifacts/sha256/c5/d7/c5d7bfdda2bda6f8ea6c1af94b648e73f2793089470fcaf141715811ed694790.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "5c5242743444e5ab0d8139527774f45a6c61d127bf61e66461144fd00b0a9558"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu4/cas/artifacts/ownership/transactions/locks/stripe-16.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu4/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu4/cas/artifacts/sha256/e9/d7/e9d79d7ce4a90e581de5b29aab376dbc367c0e215be9c713b85cd5c9858fc610.blob",
+      "bytes": 2642,
+      "sha256": "e9d79d7ce4a90e581de5b29aab376dbc367c0e215be9c713b85cd5c9858fc610"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu4/cas/artifacts/sha256/e9/d7/e9d79d7ce4a90e581de5b29aab376dbc367c0e215be9c713b85cd5c9858fc610.manifest.json",
+      "bytes": 651,
+      "sha256": "36e940559e2d4f88ffd11f9aa0da03e8b621b762df9ae460eeacae7ea3895ffc"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu4/cas/artifacts/sha256/e9/d7/e9d79d7ce4a90e581de5b29aab376dbc367c0e215be9c713b85cd5c9858fc610.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "36e940559e2d4f88ffd11f9aa0da03e8b621b762df9ae460eeacae7ea3895ffc"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu5/cas/artifacts/ownership/transactions/locks/stripe-56.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu5/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu5/cas/artifacts/sha256/30/e8/30e8e8e550efd67cd0f0db5c0ebcd2391bcd62bcd42398e07543b6a943205b78.blob",
+      "bytes": 2642,
+      "sha256": "30e8e8e550efd67cd0f0db5c0ebcd2391bcd62bcd42398e07543b6a943205b78"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu5/cas/artifacts/sha256/30/e8/30e8e8e550efd67cd0f0db5c0ebcd2391bcd62bcd42398e07543b6a943205b78.manifest.json",
+      "bytes": 651,
+      "sha256": "b45f0a9f57c15863b14df5f7e439e661eb8e206d5f892abc1f4a29280a58dfa6"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_cost_observation_and_actu5/cas/artifacts/sha256/30/e8/30e8e8e550efd67cd0f0db5c0ebcd2391bcd62bcd42398e07543b6a943205b78.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "b45f0a9f57c15863b14df5f7e439e661eb8e206d5f892abc1f4a29280a58dfa6"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/locks/stripe-13.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/locks/stripe-15.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/locks/stripe-21.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/locks/stripe-22.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/locks/stripe-26.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/locks/stripe-38.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/locks/stripe-45.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/locks/stripe-51.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/locks/stripe-54.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/locks/stripe-59.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/locks/stripe-60.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/06/de/06de0ffb768125f3b0f0e073fae9e03092ec4059d0a499a3783987af5efcd5ed.blob",
+      "bytes": 99,
+      "sha256": "06de0ffb768125f3b0f0e073fae9e03092ec4059d0a499a3783987af5efcd5ed"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/06/de/06de0ffb768125f3b0f0e073fae9e03092ec4059d0a499a3783987af5efcd5ed.manifest.json",
+      "bytes": 768,
+      "sha256": "765ac11aab28c30daafdd68ca2ec43f1fc2f330c4ebd37c316986724767fe1c4"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/06/de/06de0ffb768125f3b0f0e073fae9e03092ec4059d0a499a3783987af5efcd5ed.view.cf80016955d79837fef203c7ab3853b59bfcd7491f53d9291ec9c1108787c624.manifest.json",
+      "bytes": 768,
+      "sha256": "765ac11aab28c30daafdd68ca2ec43f1fc2f330c4ebd37c316986724767fe1c4"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/1a/33/1a3302c9972c65448068dc0578b22562ebbb3bf3a948d817f27ec7ef39fd4ac7.blob",
+      "bytes": 1055,
+      "sha256": "1a3302c9972c65448068dc0578b22562ebbb3bf3a948d817f27ec7ef39fd4ac7"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/1a/33/1a3302c9972c65448068dc0578b22562ebbb3bf3a948d817f27ec7ef39fd4ac7.manifest.json",
+      "bytes": 1098,
+      "sha256": "6ae86317f505814e7ba4ced2a191697f1f5268f0c29c0c4d3e9d195a5cae5777"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/1a/33/1a3302c9972c65448068dc0578b22562ebbb3bf3a948d817f27ec7ef39fd4ac7.view.11a979ddaca63dd9c580fdca5af00188ef91f14b0847f18c3d090afcc17691b8.manifest.json",
+      "bytes": 1098,
+      "sha256": "6ae86317f505814e7ba4ced2a191697f1f5268f0c29c0c4d3e9d195a5cae5777"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/37/0f/370f536b2215575b8f9b31d3edbec9e76e7ef5a79a92033fa463c94455f851a6.blob",
+      "bytes": 9733,
+      "sha256": "370f536b2215575b8f9b31d3edbec9e76e7ef5a79a92033fa463c94455f851a6"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/37/0f/370f536b2215575b8f9b31d3edbec9e76e7ef5a79a92033fa463c94455f851a6.manifest.json",
+      "bytes": 651,
+      "sha256": "b8a3b3a21cb898889a84a82cf03394a76dc83b33ea5af85903b22c84e2ccdc67"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/37/0f/370f536b2215575b8f9b31d3edbec9e76e7ef5a79a92033fa463c94455f851a6.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "b8a3b3a21cb898889a84a82cf03394a76dc83b33ea5af85903b22c84e2ccdc67"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/3e/fe/3efe3285e703581912f14afa2cb5e3cc59b4c48e3641de2f98536ba0173f7d60.blob",
+      "bytes": 6811,
+      "sha256": "3efe3285e703581912f14afa2cb5e3cc59b4c48e3641de2f98536ba0173f7d60"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/3e/fe/3efe3285e703581912f14afa2cb5e3cc59b4c48e3641de2f98536ba0173f7d60.manifest.json",
+      "bytes": 651,
+      "sha256": "631a0b1f98bb083bacf11fc73f3f473c53e7581acfde6f65abecbb92401605a6"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/3e/fe/3efe3285e703581912f14afa2cb5e3cc59b4c48e3641de2f98536ba0173f7d60.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "631a0b1f98bb083bacf11fc73f3f473c53e7581acfde6f65abecbb92401605a6"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/41/67/4167f93be3de5a716252e4461ee789ae2d366e7140f52d8ea4f8b9be845cfcb6.blob",
+      "bytes": 99,
+      "sha256": "4167f93be3de5a716252e4461ee789ae2d366e7140f52d8ea4f8b9be845cfcb6"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/41/67/4167f93be3de5a716252e4461ee789ae2d366e7140f52d8ea4f8b9be845cfcb6.manifest.json",
+      "bytes": 768,
+      "sha256": "74d238c46eb92a1fb1a854abfc94e4bba47c3c8f8f62be6bd26edbd6a556a0e9"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/41/67/4167f93be3de5a716252e4461ee789ae2d366e7140f52d8ea4f8b9be845cfcb6.view.cf80016955d79837fef203c7ab3853b59bfcd7491f53d9291ec9c1108787c624.manifest.json",
+      "bytes": 768,
+      "sha256": "74d238c46eb92a1fb1a854abfc94e4bba47c3c8f8f62be6bd26edbd6a556a0e9"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/51/bd/51bd7a9438c217cd0d814fa8341933d617f27b8f71957b58aa5f3791c9b2400f.blob",
+      "bytes": 1477,
+      "sha256": "51bd7a9438c217cd0d814fa8341933d617f27b8f71957b58aa5f3791c9b2400f"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/51/bd/51bd7a9438c217cd0d814fa8341933d617f27b8f71957b58aa5f3791c9b2400f.manifest.json",
+      "bytes": 1248,
+      "sha256": "56fd6bbc8222e6f44fbd399cf43379a498b37ab45c4a52427b2b3c46aa0de81b"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/51/bd/51bd7a9438c217cd0d814fa8341933d617f27b8f71957b58aa5f3791c9b2400f.view.ceb665e47fe1f82df83331e4ae29b67fe97a1c43b7b9bf90ac30fd0a0899fa4d.manifest.json",
+      "bytes": 1248,
+      "sha256": "56fd6bbc8222e6f44fbd399cf43379a498b37ab45c4a52427b2b3c46aa0de81b"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/6b/2c/6b2c1eb26933fad3c9e405d597097f1f6f233ec14593d2a32aa6015bdb8b5b43.blob",
+      "bytes": 12683,
+      "sha256": "6b2c1eb26933fad3c9e405d597097f1f6f233ec14593d2a32aa6015bdb8b5b43"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/6b/2c/6b2c1eb26933fad3c9e405d597097f1f6f233ec14593d2a32aa6015bdb8b5b43.manifest.json",
+      "bytes": 652,
+      "sha256": "2a226a1fe5e1374f2671643b90215a9d8570fd38425a58e6d26e3ed357fb8b87"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/6b/2c/6b2c1eb26933fad3c9e405d597097f1f6f233ec14593d2a32aa6015bdb8b5b43.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 652,
+      "sha256": "2a226a1fe5e1374f2671643b90215a9d8570fd38425a58e6d26e3ed357fb8b87"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/7d/d8/7dd8f4b89242c30ec2bf29a436004ca5ba35f34f8e3f7e4329e22f071894614d.blob",
+      "bytes": 6941,
+      "sha256": "7dd8f4b89242c30ec2bf29a436004ca5ba35f34f8e3f7e4329e22f071894614d"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/7d/d8/7dd8f4b89242c30ec2bf29a436004ca5ba35f34f8e3f7e4329e22f071894614d.manifest.json",
+      "bytes": 651,
+      "sha256": "3e5c74a0bdc977612b690e50d8ea155a9a770ad238e53d0ceeb09d5bf3269aaa"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/7d/d8/7dd8f4b89242c30ec2bf29a436004ca5ba35f34f8e3f7e4329e22f071894614d.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "3e5c74a0bdc977612b690e50d8ea155a9a770ad238e53d0ceeb09d5bf3269aaa"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/a9/7d/a97d3e0c5cb1a0bd26f23b8869c8871dfd96ce18dd3ed730caae58be04f44216.blob",
+      "bytes": 1676,
+      "sha256": "a97d3e0c5cb1a0bd26f23b8869c8871dfd96ce18dd3ed730caae58be04f44216"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/a9/7d/a97d3e0c5cb1a0bd26f23b8869c8871dfd96ce18dd3ed730caae58be04f44216.manifest.json",
+      "bytes": 1494,
+      "sha256": "65f3f1a95057e0a791a1bf2ca674587b1b2abc13982e6c6d6fa37e76da8fc85f"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/a9/7d/a97d3e0c5cb1a0bd26f23b8869c8871dfd96ce18dd3ed730caae58be04f44216.view.c5eaa560db984417149ce1c0ffb2e88b33ea77e3fc225b7de29f7f933c371843.manifest.json",
+      "bytes": 1494,
+      "sha256": "65f3f1a95057e0a791a1bf2ca674587b1b2abc13982e6c6d6fa37e76da8fc85f"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/b1/ab/b1aba19d459faa11b7fc9aec90b1abd830c8cfc45a636d9e9615c829b6a8b7b3.blob",
+      "bytes": 12655,
+      "sha256": "b1aba19d459faa11b7fc9aec90b1abd830c8cfc45a636d9e9615c829b6a8b7b3"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/b1/ab/b1aba19d459faa11b7fc9aec90b1abd830c8cfc45a636d9e9615c829b6a8b7b3.manifest.json",
+      "bytes": 652,
+      "sha256": "7c9dadefddded6006688517ead81e3a36e6c1f1ab68b3f4c8575fbc88fdad2d1"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/b1/ab/b1aba19d459faa11b7fc9aec90b1abd830c8cfc45a636d9e9615c829b6a8b7b3.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 652,
+      "sha256": "7c9dadefddded6006688517ead81e3a36e6c1f1ab68b3f4c8575fbc88fdad2d1"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/b3/1a/b31aa31a1777c4f012c17f0d668233b858c4854cf2e14a260df9cd68e63bc0d5.blob",
+      "bytes": 9863,
+      "sha256": "b31aa31a1777c4f012c17f0d668233b858c4854cf2e14a260df9cd68e63bc0d5"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/b3/1a/b31aa31a1777c4f012c17f0d668233b858c4854cf2e14a260df9cd68e63bc0d5.manifest.json",
+      "bytes": 651,
+      "sha256": "149c4fbf9fa7ef698dcd174a8d5ec51a201da26260486c55c2dd4b2dc4fb5b12"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/b3/1a/b31aa31a1777c4f012c17f0d668233b858c4854cf2e14a260df9cd68e63bc0d5.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "149c4fbf9fa7ef698dcd174a8d5ec51a201da26260486c55c2dd4b2dc4fb5b12"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/c8/d2/c8d2783d8ce457fce177b60325969ed4f2b9ca4f4d12b4647688a837693c66da.blob",
+      "bytes": 109,
+      "sha256": "c8d2783d8ce457fce177b60325969ed4f2b9ca4f4d12b4647688a837693c66da"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/c8/d2/c8d2783d8ce457fce177b60325969ed4f2b9ca4f4d12b4647688a837693c66da.manifest.json",
+      "bytes": 647,
+      "sha256": "21070160d5abf0bb8f37b98bcd46b2c65910787caee598a9e9c9ee8b0e7a170a"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/c8/d2/c8d2783d8ce457fce177b60325969ed4f2b9ca4f4d12b4647688a837693c66da.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json",
+      "bytes": 647,
+      "sha256": "21070160d5abf0bb8f37b98bcd46b2c65910787caee598a9e9c9ee8b0e7a170a"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/d8/e0/d8e0666271f1017f3794e074e2f824012e6f7c1eac093df477a261c601d76815.blob",
+      "bytes": 4212,
+      "sha256": "d8e0666271f1017f3794e074e2f824012e6f7c1eac093df477a261c601d76815"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/d8/e0/d8e0666271f1017f3794e074e2f824012e6f7c1eac093df477a261c601d76815.manifest.json",
+      "bytes": 651,
+      "sha256": "0c20994571c733d3f3d36e8c1c61fa52baeefadad2e8110a894733469d1ea382"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/d8/e0/d8e0666271f1017f3794e074e2f824012e6f7c1eac093df477a261c601d76815.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "0c20994571c733d3f3d36e8c1c61fa52baeefadad2e8110a894733469d1ea382"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/e2/34/e23434d4a9fc22ace4aaf40d9f17cade6e7f07c5b9d7b018699ee486eb8c57fb.blob",
+      "bytes": 1477,
+      "sha256": "e23434d4a9fc22ace4aaf40d9f17cade6e7f07c5b9d7b018699ee486eb8c57fb"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/e2/34/e23434d4a9fc22ace4aaf40d9f17cade6e7f07c5b9d7b018699ee486eb8c57fb.manifest.json",
+      "bytes": 1248,
+      "sha256": "133c82c63bc9af969a2ca8660b67a72390074503171cfd3c01207be8a2606ea3"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/e2/34/e23434d4a9fc22ace4aaf40d9f17cade6e7f07c5b9d7b018699ee486eb8c57fb.view.3b9c7ba4ad83876a48cfe5cfe2eeec6e8bec7b89c56c35c0d0185c5bce982e4b.manifest.json",
+      "bytes": 1248,
+      "sha256": "133c82c63bc9af969a2ca8660b67a72390074503171cfd3c01207be8a2606ea3"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/f5/a4/f5a44b5d352dd0f44dd44f2a856fb041ffacc496a85a8ecdaa51ee6c3beb0247.blob",
+      "bytes": 99,
+      "sha256": "f5a44b5d352dd0f44dd44f2a856fb041ffacc496a85a8ecdaa51ee6c3beb0247"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/f5/a4/f5a44b5d352dd0f44dd44f2a856fb041ffacc496a85a8ecdaa51ee6c3beb0247.manifest.json",
+      "bytes": 768,
+      "sha256": "e841775bf085aa5c8614080f56d3f9d34dc1f8e40a1dbe33360df4b51ee8b8b9"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/f5/a4/f5a44b5d352dd0f44dd44f2a856fb041ffacc496a85a8ecdaa51ee6c3beb0247.view.cf80016955d79837fef203c7ab3853b59bfcd7491f53d9291ec9c1108787c624.manifest.json",
+      "bytes": 768,
+      "sha256": "e841775bf085aa5c8614080f56d3f9d34dc1f8e40a1dbe33360df4b51ee8b8b9"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/fe/a8/fea8cb1ac3de721da7304153ae9a4568e1707b5e29830c894136880bc52e723c.blob",
+      "bytes": 1676,
+      "sha256": "fea8cb1ac3de721da7304153ae9a4568e1707b5e29830c894136880bc52e723c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/fe/a8/fea8cb1ac3de721da7304153ae9a4568e1707b5e29830c894136880bc52e723c.manifest.json",
+      "bytes": 1494,
+      "sha256": "a78e8d375f9e26a9adb0397daff69060f3c9bf5338471a4beb67f0c5097e40e5"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/cas/artifacts/sha256/fe/a8/fea8cb1ac3de721da7304153ae9a4568e1707b5e29830c894136880bc52e723c.view.59194181a6c637dbe028cc32b48a5305e092a910ea355e22e9af54e58d8c97d4.manifest.json",
+      "bytes": 1494,
+      "sha256": "a78e8d375f9e26a9adb0397daff69060f3c9bf5338471a4beb67f0c5097e40e5"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/registry/srv03-loop/champion.json",
+      "bytes": 1060,
+      "sha256": "481aae4abd15c7125ffc6831241b822a167e33f01e51a3531df15c3a64a6832d"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_current_autotune_runner_c0/registry/srv03-loop/champion.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_custom_parameterized_obje0/cas/artifacts/ownership/transactions/locks/stripe-12.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_custom_parameterized_obje0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_custom_parameterized_obje0/cas/artifacts/sha256/94/7d/947d1fbfbc6110db17f2a7fb85a52b05f7bdb6f9c9fd3062934fc42d937cf34c.blob",
+      "bytes": 1942,
+      "sha256": "947d1fbfbc6110db17f2a7fb85a52b05f7bdb6f9c9fd3062934fc42d937cf34c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_custom_parameterized_obje0/cas/artifacts/sha256/94/7d/947d1fbfbc6110db17f2a7fb85a52b05f7bdb6f9c9fd3062934fc42d937cf34c.manifest.json",
+      "bytes": 651,
+      "sha256": "96dd260221435098dce788280ede65ff35f497033d7a6e212294a523157d4f00"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_custom_parameterized_obje0/cas/artifacts/sha256/94/7d/947d1fbfbc6110db17f2a7fb85a52b05f7bdb6f9c9fd3062934fc42d937cf34c.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "96dd260221435098dce788280ede65ff35f497033d7a6e212294a523157d4f00"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r0/cas/artifacts/ownership/transactions/locks/stripe-14.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r0/cas/artifacts/ownership/transactions/locks/stripe-53.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r0/cas/artifacts/sha256/2d/4a/2d4a7313251425608b83f4b7338de7332b01ae2bba85a785ad21f9b9523de64e.blob",
+      "bytes": 3350,
+      "sha256": "2d4a7313251425608b83f4b7338de7332b01ae2bba85a785ad21f9b9523de64e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r0/cas/artifacts/sha256/2d/4a/2d4a7313251425608b83f4b7338de7332b01ae2bba85a785ad21f9b9523de64e.manifest.json",
+      "bytes": 651,
+      "sha256": "c609dda91d56ce949e3c0ecd86fea8ef9e045a56706f1bee6ec3ecc4bf1d3a7c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r0/cas/artifacts/sha256/2d/4a/2d4a7313251425608b83f4b7338de7332b01ae2bba85a785ad21f9b9523de64e.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "c609dda91d56ce949e3c0ecd86fea8ef9e045a56706f1bee6ec3ecc4bf1d3a7c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r0/cas/artifacts/sha256/f5/94/f59487448a3f873ba48b89c5bd99b096632cb8af031e8b109584951bf285ffb5.blob",
+      "bytes": 2285,
+      "sha256": "f59487448a3f873ba48b89c5bd99b096632cb8af031e8b109584951bf285ffb5"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r0/cas/artifacts/sha256/f5/94/f59487448a3f873ba48b89c5bd99b096632cb8af031e8b109584951bf285ffb5.manifest.json",
+      "bytes": 651,
+      "sha256": "f8e6288476385ca1e0bbe1696faf1f0c9f60685ab1d1c6e67d00626b632a4ae7"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r0/cas/artifacts/sha256/f5/94/f59487448a3f873ba48b89c5bd99b096632cb8af031e8b109584951bf285ffb5.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "f8e6288476385ca1e0bbe1696faf1f0c9f60685ab1d1c6e67d00626b632a4ae7"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r1/cas/artifacts/ownership/transactions/locks/stripe-36.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r1/cas/artifacts/ownership/transactions/locks/stripe-51.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r1/cas/artifacts/ownership/transactions/locks/stripe-62.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r1/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r1/cas/artifacts/sha256/60/d3/60d32c74cd9c466ccc38ba4e1fe21e72febaf7f10bf591940692dfc8fbe960a4.blob",
+      "bytes": 2285,
+      "sha256": "60d32c74cd9c466ccc38ba4e1fe21e72febaf7f10bf591940692dfc8fbe960a4"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r1/cas/artifacts/sha256/60/d3/60d32c74cd9c466ccc38ba4e1fe21e72febaf7f10bf591940692dfc8fbe960a4.manifest.json",
+      "bytes": 651,
+      "sha256": "d4408ee7c803cce47c5cb7c09482401616ce721e8a3525c0ec5f4661729384fe"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r1/cas/artifacts/sha256/60/d3/60d32c74cd9c466ccc38ba4e1fe21e72febaf7f10bf591940692dfc8fbe960a4.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "d4408ee7c803cce47c5cb7c09482401616ce721e8a3525c0ec5f4661729384fe"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r1/cas/artifacts/sha256/a8/0d/a80d93c554a90e044243538c553b9590900458c7681689cc656eb22ca124f53e.blob",
+      "bytes": 3365,
+      "sha256": "a80d93c554a90e044243538c553b9590900458c7681689cc656eb22ca124f53e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r1/cas/artifacts/sha256/a8/0d/a80d93c554a90e044243538c553b9590900458c7681689cc656eb22ca124f53e.manifest.json",
+      "bytes": 651,
+      "sha256": "a8c70fdddc1912ac1b4da391608c76a8d9852ba506efdada912e4473b659133a"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r1/cas/artifacts/sha256/a8/0d/a80d93c554a90e044243538c553b9590900458c7681689cc656eb22ca124f53e.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "a8c70fdddc1912ac1b4da391608c76a8d9852ba506efdada912e4473b659133a"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r1/cas/artifacts/sha256/a9/7e/a97e6eb98015db3cab8e494158a2aee5c6dafd08085c81891891db62e35c17f3.blob",
+      "bytes": 3365,
+      "sha256": "a97e6eb98015db3cab8e494158a2aee5c6dafd08085c81891891db62e35c17f3"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r1/cas/artifacts/sha256/a9/7e/a97e6eb98015db3cab8e494158a2aee5c6dafd08085c81891891db62e35c17f3.manifest.json",
+      "bytes": 651,
+      "sha256": "4ff766361930ade39b67f2af31b911d2766fe02c2f5bb822e66cfeb4fd81f0cc"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_failed_tell_publication_r1/cas/artifacts/sha256/a9/7e/a97e6eb98015db3cab8e494158a2aee5c6dafd08085c81891891db62e35c17f3.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "4ff766361930ade39b67f2af31b911d2766fe02c2f5bb822e66cfeb4fd81f0cc"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_generator_without_checkpo0/cas/artifacts/ownership/transactions/locks/stripe-25.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_generator_without_checkpo0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_generator_without_checkpo0/cas/artifacts/sha256/93/c9/93c922cfb8380e37ba83fd3daec76164c7f63a7141a8a941a8d6262cbf1fc919.blob",
+      "bytes": 2287,
+      "sha256": "93c922cfb8380e37ba83fd3daec76164c7f63a7141a8a941a8d6262cbf1fc919"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_generator_without_checkpo0/cas/artifacts/sha256/93/c9/93c922cfb8380e37ba83fd3daec76164c7f63a7141a8a941a8d6262cbf1fc919.manifest.json",
+      "bytes": 651,
+      "sha256": "f98031ae4bb95fc91bc0fcb9fa0a5640bdcc3b1d3def330dbb298458084de145"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_generator_without_checkpo0/cas/artifacts/sha256/93/c9/93c922cfb8380e37ba83fd3daec76164c7f63a7141a8a941a8d6262cbf1fc919.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "f98031ae4bb95fc91bc0fcb9fa0a5640bdcc3b1d3def330dbb298458084de145"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/ownership/transactions/locks/stripe-02.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/ownership/transactions/locks/stripe-10.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/ownership/transactions/locks/stripe-42.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/ownership/transactions/locks/stripe-47.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/sha256/62/bc/62bc55dfeb830590ad15acd7bdb2213ea1a00468c9e1f57bb88ba15462aa320a.blob",
+      "bytes": 2546,
+      "sha256": "62bc55dfeb830590ad15acd7bdb2213ea1a00468c9e1f57bb88ba15462aa320a"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/sha256/62/bc/62bc55dfeb830590ad15acd7bdb2213ea1a00468c9e1f57bb88ba15462aa320a.manifest.json",
+      "bytes": 651,
+      "sha256": "8179bab3a6bb057fbcd9161a82ca8772ee0820f24011a680de1394cf0f2d074e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/sha256/62/bc/62bc55dfeb830590ad15acd7bdb2213ea1a00468c9e1f57bb88ba15462aa320a.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "8179bab3a6bb057fbcd9161a82ca8772ee0820f24011a680de1394cf0f2d074e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/sha256/7f/34/7f34dea8bb9ed3f26a0cb6c28ea9237949f63a397b9a8b032276af53984dfcc2.blob",
+      "bytes": 2457,
+      "sha256": "7f34dea8bb9ed3f26a0cb6c28ea9237949f63a397b9a8b032276af53984dfcc2"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/sha256/7f/34/7f34dea8bb9ed3f26a0cb6c28ea9237949f63a397b9a8b032276af53984dfcc2.manifest.json",
+      "bytes": 651,
+      "sha256": "b4073c8882dbc8265b42c29d2d31b23e056dd20c38699f7a50c087f63b161a21"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/sha256/7f/34/7f34dea8bb9ed3f26a0cb6c28ea9237949f63a397b9a8b032276af53984dfcc2.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "b4073c8882dbc8265b42c29d2d31b23e056dd20c38699f7a50c087f63b161a21"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/sha256/83/a5/83a547921bee2a8eff523d919484ad3100d5a362336079451a779825188e302f.blob",
+      "bytes": 2481,
+      "sha256": "83a547921bee2a8eff523d919484ad3100d5a362336079451a779825188e302f"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/sha256/83/a5/83a547921bee2a8eff523d919484ad3100d5a362336079451a779825188e302f.manifest.json",
+      "bytes": 651,
+      "sha256": "134f2bd830eefe2bd9dbb4b3e822bcebca9e79a7ec4c6f4bcc15146e3881961e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/sha256/83/a5/83a547921bee2a8eff523d919484ad3100d5a362336079451a779825188e302f.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "134f2bd830eefe2bd9dbb4b3e822bcebca9e79a7ec4c6f4bcc15146e3881961e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/sha256/8e/28/8e2822b7d130f98f237c6d441391e0035af32cb9d9ab9f5e920c52290087c9ea.blob",
+      "bytes": 2585,
+      "sha256": "8e2822b7d130f98f237c6d441391e0035af32cb9d9ab9f5e920c52290087c9ea"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/sha256/8e/28/8e2822b7d130f98f237c6d441391e0035af32cb9d9ab9f5e920c52290087c9ea.manifest.json",
+      "bytes": 651,
+      "sha256": "7a631b0836422e594ecd4ac431f23deb303f1f631afa4c9675c74696443c775f"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_initial_sentinel_failure_0/cas/artifacts/sha256/8e/28/8e2822b7d130f98f237c6d441391e0035af32cb9d9ab9f5e920c52290087c9ea.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "7a631b0836422e594ecd4ac431f23deb303f1f631afa4c9675c74696443c775f"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-01.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-04.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-05.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-12.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-21.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-23.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-24.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-30.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-39.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-51.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-57.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/02/8f/028f11d6f41a7f880f24df37c9da2ade8624e4c91fe8d924d08bdc3ce18a7c01.blob",
+      "bytes": 1406,
+      "sha256": "028f11d6f41a7f880f24df37c9da2ade8624e4c91fe8d924d08bdc3ce18a7c01"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/02/8f/028f11d6f41a7f880f24df37c9da2ade8624e4c91fe8d924d08bdc3ce18a7c01.manifest.json",
+      "bytes": 1244,
+      "sha256": "53ba7e58782e6f379969282fea2a2a22d202e2b04bfa0cb494e078518d27cb06"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/02/8f/028f11d6f41a7f880f24df37c9da2ade8624e4c91fe8d924d08bdc3ce18a7c01.view.66964cc522274a8846e6da9e0aef373da13058382f2a71d3c23e1c0255a95339.manifest.json",
+      "bytes": 1244,
+      "sha256": "53ba7e58782e6f379969282fea2a2a22d202e2b04bfa0cb494e078518d27cb06"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/02/f8/02f84bb1112dbb7d71336c03017bf0128ea71a6e64e85f512245fa5d24b9d8a7.blob",
+      "bytes": 12548,
+      "sha256": "02f84bb1112dbb7d71336c03017bf0128ea71a6e64e85f512245fa5d24b9d8a7"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/02/f8/02f84bb1112dbb7d71336c03017bf0128ea71a6e64e85f512245fa5d24b9d8a7.manifest.json",
+      "bytes": 652,
+      "sha256": "8e8c5399b971263b1178dcaad51791a82ba0c11cecd08cfaeba336d7f0529580"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/02/f8/02f84bb1112dbb7d71336c03017bf0128ea71a6e64e85f512245fa5d24b9d8a7.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 652,
+      "sha256": "8e8c5399b971263b1178dcaad51791a82ba0c11cecd08cfaeba336d7f0529580"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/17/c5/17c5b01ef125aaebdf9bd88383e55a1c3d0a51ec5dae3ae81a6f940850f33a95.blob",
+      "bytes": 95,
+      "sha256": "17c5b01ef125aaebdf9bd88383e55a1c3d0a51ec5dae3ae81a6f940850f33a95"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/17/c5/17c5b01ef125aaebdf9bd88383e55a1c3d0a51ec5dae3ae81a6f940850f33a95.manifest.json",
+      "bytes": 758,
+      "sha256": "8e806e9b7e77008ce333535b4131a5d6142c4f476f742ee799442156b05f6a73"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/17/c5/17c5b01ef125aaebdf9bd88383e55a1c3d0a51ec5dae3ae81a6f940850f33a95.view.efb96f3b86c2961e134497ec9963935b793946bb91936e397f6b24fcd6408576.manifest.json",
+      "bytes": 758,
+      "sha256": "8e806e9b7e77008ce333535b4131a5d6142c4f476f742ee799442156b05f6a73"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/1e/a2/1ea22919360ab0914b29645d6ee18cec46bbc633378e5298891af87238520083.blob",
+      "bytes": 6840,
+      "sha256": "1ea22919360ab0914b29645d6ee18cec46bbc633378e5298891af87238520083"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/1e/a2/1ea22919360ab0914b29645d6ee18cec46bbc633378e5298891af87238520083.manifest.json",
+      "bytes": 651,
+      "sha256": "032f36b578dd1a2488a95df5f2ca30fc4f2dcdfabb7bbac5f659e23c7f8d0b56"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/1e/a2/1ea22919360ab0914b29645d6ee18cec46bbc633378e5298891af87238520083.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "032f36b578dd1a2488a95df5f2ca30fc4f2dcdfabb7bbac5f659e23c7f8d0b56"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/28/22/2822616a7724a00f26f41ec66a404b4402459fc49caa5132748483eeeec64e84.blob",
+      "bytes": 7006,
+      "sha256": "2822616a7724a00f26f41ec66a404b4402459fc49caa5132748483eeeec64e84"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/28/22/2822616a7724a00f26f41ec66a404b4402459fc49caa5132748483eeeec64e84.manifest.json",
+      "bytes": 651,
+      "sha256": "b951da20506ae228b08b15f9d1638166b46f2c7bc6b235da3d4668c9793130c3"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/28/22/2822616a7724a00f26f41ec66a404b4402459fc49caa5132748483eeeec64e84.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "b951da20506ae228b08b15f9d1638166b46f2c7bc6b235da3d4668c9793130c3"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/2a/8d/2a8d7eda75a6b16dbe6f9a7ac13b3bcba3e257abe67543ee8d2b3c158441e947.blob",
+      "bytes": 4282,
+      "sha256": "2a8d7eda75a6b16dbe6f9a7ac13b3bcba3e257abe67543ee8d2b3c158441e947"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/2a/8d/2a8d7eda75a6b16dbe6f9a7ac13b3bcba3e257abe67543ee8d2b3c158441e947.manifest.json",
+      "bytes": 651,
+      "sha256": "41add767f3a428a6b91538ae7fc62862ab40860611d658b0500324d1947f707e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/2a/8d/2a8d7eda75a6b16dbe6f9a7ac13b3bcba3e257abe67543ee8d2b3c158441e947.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "41add767f3a428a6b91538ae7fc62862ab40860611d658b0500324d1947f707e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/2c/90/2c90bf9cb4955a73079d227b06cb720a6d0fdf6dd5ee7b09798709b21adce70c.blob",
+      "bytes": 6966,
+      "sha256": "2c90bf9cb4955a73079d227b06cb720a6d0fdf6dd5ee7b09798709b21adce70c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/2c/90/2c90bf9cb4955a73079d227b06cb720a6d0fdf6dd5ee7b09798709b21adce70c.manifest.json",
+      "bytes": 651,
+      "sha256": "694847fa393fa8a0b3a408952097f5d71ed86a59a8487ca63536b05a4c8b30ab"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/2c/90/2c90bf9cb4955a73079d227b06cb720a6d0fdf6dd5ee7b09798709b21adce70c.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "694847fa393fa8a0b3a408952097f5d71ed86a59a8487ca63536b05a4c8b30ab"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/30/f9/30f98d18d51706bc57f5669f918b01674da142c28a74a72731bc667f0529759e.blob",
+      "bytes": 95,
+      "sha256": "30f98d18d51706bc57f5669f918b01674da142c28a74a72731bc667f0529759e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/30/f9/30f98d18d51706bc57f5669f918b01674da142c28a74a72731bc667f0529759e.manifest.json",
+      "bytes": 758,
+      "sha256": "044cffdb2e752c3ffad1ed7baa3925f2020f8e062c71bcbf4b65bfba5ab748c1"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/30/f9/30f98d18d51706bc57f5669f918b01674da142c28a74a72731bc667f0529759e.view.efb96f3b86c2961e134497ec9963935b793946bb91936e397f6b24fcd6408576.manifest.json",
+      "bytes": 758,
+      "sha256": "044cffdb2e752c3ffad1ed7baa3925f2020f8e062c71bcbf4b65bfba5ab748c1"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/5b/8d/5b8dc771764221f233e56d060939f3aecde0143a490893993ba92031bf5aa8d7.blob",
+      "bytes": 1601,
+      "sha256": "5b8dc771764221f233e56d060939f3aecde0143a490893993ba92031bf5aa8d7"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/5b/8d/5b8dc771764221f233e56d060939f3aecde0143a490893993ba92031bf5aa8d7.manifest.json",
+      "bytes": 1490,
+      "sha256": "b3e1a66001f8a88d040fbf1ca59a40103cb4d117b07b002e35bfb93b1ae60340"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/5b/8d/5b8dc771764221f233e56d060939f3aecde0143a490893993ba92031bf5aa8d7.view.d97f20e59cf3fc4b690f666fc475ab2b781e25efb54482fb53ea1a834658be2b.manifest.json",
+      "bytes": 1490,
+      "sha256": "b3e1a66001f8a88d040fbf1ca59a40103cb4d117b07b002e35bfb93b1ae60340"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/6c/08/6c08f76828b673bef3bbf16cc76fae9d0e23a4cffcaea87ec07176beff5e60f0.blob",
+      "bytes": 12576,
+      "sha256": "6c08f76828b673bef3bbf16cc76fae9d0e23a4cffcaea87ec07176beff5e60f0"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/6c/08/6c08f76828b673bef3bbf16cc76fae9d0e23a4cffcaea87ec07176beff5e60f0.manifest.json",
+      "bytes": 652,
+      "sha256": "8dce65bf022799a62d9c0821a6cd0563f566997c196d76e9837a1d5cb031eac3"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/6c/08/6c08f76828b673bef3bbf16cc76fae9d0e23a4cffcaea87ec07176beff5e60f0.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 652,
+      "sha256": "8dce65bf022799a62d9c0821a6cd0563f566997c196d76e9837a1d5cb031eac3"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/82/54/8254cb0adf077d32f5a47abd3c6c19d89933aaba0cc9eb98012d4e43a6d3b543.blob",
+      "bytes": 95,
+      "sha256": "8254cb0adf077d32f5a47abd3c6c19d89933aaba0cc9eb98012d4e43a6d3b543"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/82/54/8254cb0adf077d32f5a47abd3c6c19d89933aaba0cc9eb98012d4e43a6d3b543.manifest.json",
+      "bytes": 758,
+      "sha256": "601867092904272057060d4b29d1d3ea85debd95cf69f1915dfe4d3fbaf85b4f"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/82/54/8254cb0adf077d32f5a47abd3c6c19d89933aaba0cc9eb98012d4e43a6d3b543.view.efb96f3b86c2961e134497ec9963935b793946bb91936e397f6b24fcd6408576.manifest.json",
+      "bytes": 758,
+      "sha256": "601867092904272057060d4b29d1d3ea85debd95cf69f1915dfe4d3fbaf85b4f"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/86/35/863579e7de35587fcc97f22ef1c062eff0543ee92b16765dff4ecd45ffde0bbd.blob",
+      "bytes": 104,
+      "sha256": "863579e7de35587fcc97f22ef1c062eff0543ee92b16765dff4ecd45ffde0bbd"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/86/35/863579e7de35587fcc97f22ef1c062eff0543ee92b16765dff4ecd45ffde0bbd.manifest.json",
+      "bytes": 647,
+      "sha256": "ee0339e793067c356b2658b180eab87175ec991d0482a77cf519e52cff9883cb"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/86/35/863579e7de35587fcc97f22ef1c062eff0543ee92b16765dff4ecd45ffde0bbd.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json",
+      "bytes": 647,
+      "sha256": "ee0339e793067c356b2658b180eab87175ec991d0482a77cf519e52cff9883cb"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/b2/6e/b26ef5f11a532841558de74f93cffce6c0c1546fe04c2170ba92e690d13ca279.blob",
+      "bytes": 9694,
+      "sha256": "b26ef5f11a532841558de74f93cffce6c0c1546fe04c2170ba92e690d13ca279"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/b2/6e/b26ef5f11a532841558de74f93cffce6c0c1546fe04c2170ba92e690d13ca279.manifest.json",
+      "bytes": 651,
+      "sha256": "b33b20971d6c90825dcf26483352802dab2e36ce9a17e253c45dea02fcbcafcd"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/b2/6e/b26ef5f11a532841558de74f93cffce6c0c1546fe04c2170ba92e690d13ca279.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "b33b20971d6c90825dcf26483352802dab2e36ce9a17e253c45dea02fcbcafcd"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/c6/c6/c6c632fec50af22c59077a255f09c948d5cff4dd95c3ad7075463b6931b64269.blob",
+      "bytes": 1406,
+      "sha256": "c6c632fec50af22c59077a255f09c948d5cff4dd95c3ad7075463b6931b64269"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/c6/c6/c6c632fec50af22c59077a255f09c948d5cff4dd95c3ad7075463b6931b64269.manifest.json",
+      "bytes": 1244,
+      "sha256": "ef62e299a96b2c5e0260afd0688aea2ce64031800e2aeab846bc7bbf9bcce420"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/c6/c6/c6c632fec50af22c59077a255f09c948d5cff4dd95c3ad7075463b6931b64269.view.7a30e0b978ed2c099a9ff73d009c453793dfc3957a0d56efc09de73e1db84891.manifest.json",
+      "bytes": 1244,
+      "sha256": "ef62e299a96b2c5e0260afd0688aea2ce64031800e2aeab846bc7bbf9bcce420"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/d8/05/d80545cd4e7b4d2a568aff0335469dbff85028865c4b93a122ef28b4b25b43c5.blob",
+      "bytes": 9820,
+      "sha256": "d80545cd4e7b4d2a568aff0335469dbff85028865c4b93a122ef28b4b25b43c5"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/d8/05/d80545cd4e7b4d2a568aff0335469dbff85028865c4b93a122ef28b4b25b43c5.manifest.json",
+      "bytes": 651,
+      "sha256": "cc9c558c7a339db049424c24fce486d3ce0adcf094a23cb131035a4b418a815d"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/d8/05/d80545cd4e7b4d2a568aff0335469dbff85028865c4b93a122ef28b4b25b43c5.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "cc9c558c7a339db049424c24fce486d3ce0adcf094a23cb131035a4b418a815d"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/dc/96/dc96c7e182157db01a53b1cbd9abe4b298425c4563796773e4ed78628cb85158.blob",
+      "bytes": 992,
+      "sha256": "dc96c7e182157db01a53b1cbd9abe4b298425c4563796773e4ed78628cb85158"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/dc/96/dc96c7e182157db01a53b1cbd9abe4b298425c4563796773e4ed78628cb85158.manifest.json",
+      "bytes": 1093,
+      "sha256": "818113fac2f1f3075252a514eb2f3c24ef6d046efa503a0669528b5b73112ccf"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/dc/96/dc96c7e182157db01a53b1cbd9abe4b298425c4563796773e4ed78628cb85158.view.ee9dbd671dce36c76d1f7d4d4e2a0c4bb4c64671633c37c3e409576a03398cc2.manifest.json",
+      "bytes": 1093,
+      "sha256": "818113fac2f1f3075252a514eb2f3c24ef6d046efa503a0669528b5b73112ccf"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/f5/4c/f54c48dbc178da2c89b5b4143a30390a1d549b5b5fda9e8d1bc3d986b88594f3.blob",
+      "bytes": 1601,
+      "sha256": "f54c48dbc178da2c89b5b4143a30390a1d549b5b5fda9e8d1bc3d986b88594f3"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/f5/4c/f54c48dbc178da2c89b5b4143a30390a1d549b5b5fda9e8d1bc3d986b88594f3.manifest.json",
+      "bytes": 1490,
+      "sha256": "312b5245c5bc81bced1e81c57e44eba8d51f899d084a9f17995fd219fbd88955"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/cas/artifacts/sha256/f5/4c/f54c48dbc178da2c89b5b4143a30390a1d549b5b5fda9e8d1bc3d986b88594f3.view.3d43c30e8f0a51b24b2c574e73286695496cd2dd6f0484d1c57a1f89e84fb206.manifest.json",
+      "bytes": 1490,
+      "sha256": "312b5245c5bc81bced1e81c57e44eba8d51f899d084a9f17995fd219fbd88955"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/champions/resume/champion.json",
+      "bytes": 1032,
+      "sha256": "34664cd176699b34b35115e18d28dc5a7d8f879f9c1d664e72e12a66c93353d1"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_native_factory_failure_ch0/champions/resume/champion.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_original_v1_checkpoint_ma0/cas/artifacts/ownership/transactions/locks/stripe-20.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_original_v1_checkpoint_ma0/cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_original_v1_checkpoint_ma0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_original_v1_checkpoint_ma0/cas/artifacts/sha256/14/b6/14b6d4e1680e727d0dacdc6a57bd22c9058441cdcfcff4ec826b3c5ec9939d14.blob",
+      "bytes": 2264,
+      "sha256": "14b6d4e1680e727d0dacdc6a57bd22c9058441cdcfcff4ec826b3c5ec9939d14"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_original_v1_checkpoint_ma0/cas/artifacts/sha256/14/b6/14b6d4e1680e727d0dacdc6a57bd22c9058441cdcfcff4ec826b3c5ec9939d14.manifest.json",
+      "bytes": 651,
+      "sha256": "176f3174dd2184ed769661303ebd8ac12706e38d7f7bda986bc583577abae7ac"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_original_v1_checkpoint_ma0/cas/artifacts/sha256/14/b6/14b6d4e1680e727d0dacdc6a57bd22c9058441cdcfcff4ec826b3c5ec9939d14.view.1a49253437279bcc153928c6e1ef32afc9f446618a770b4f4a4cecf042a16ea3.manifest.json",
+      "bytes": 651,
+      "sha256": "176f3174dd2184ed769661303ebd8ac12706e38d7f7bda986bc583577abae7ac"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_original_v1_checkpoint_ma0/cas/artifacts/sha256/56/d7/56d7a4e67293ff1fdbecb6d283fada807287d03037296790076e1433d675efb0.blob",
+      "bytes": 2285,
+      "sha256": "56d7a4e67293ff1fdbecb6d283fada807287d03037296790076e1433d675efb0"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_original_v1_checkpoint_ma0/cas/artifacts/sha256/56/d7/56d7a4e67293ff1fdbecb6d283fada807287d03037296790076e1433d675efb0.manifest.json",
+      "bytes": 651,
+      "sha256": "255090a0767abd108301ddd76d19c8f27e23953641eb5a4b413441cea4e275b1"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_original_v1_checkpoint_ma0/cas/artifacts/sha256/56/d7/56d7a4e67293ff1fdbecb6d283fada807287d03037296790076e1433d675efb0.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "255090a0767abd108301ddd76d19c8f27e23953641eb5a4b413441cea4e275b1"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/ownership/transactions/locks/stripe-21.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/ownership/transactions/locks/stripe-24.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/ownership/transactions/locks/stripe-35.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/ownership/transactions/locks/stripe-54.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/ownership/transactions/locks/stripe-58.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/17/c5/17c5b01ef125aaebdf9bd88383e55a1c3d0a51ec5dae3ae81a6f940850f33a95.blob",
+      "bytes": 95,
+      "sha256": "17c5b01ef125aaebdf9bd88383e55a1c3d0a51ec5dae3ae81a6f940850f33a95"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/17/c5/17c5b01ef125aaebdf9bd88383e55a1c3d0a51ec5dae3ae81a6f940850f33a95.manifest.json",
+      "bytes": 758,
+      "sha256": "76b79317d1f889781744544edeee930a0e4f4fee9aa02180fcbe24ba41b33385"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/17/c5/17c5b01ef125aaebdf9bd88383e55a1c3d0a51ec5dae3ae81a6f940850f33a95.view.efb96f3b86c2961e134497ec9963935b793946bb91936e397f6b24fcd6408576.manifest.json",
+      "bytes": 758,
+      "sha256": "76b79317d1f889781744544edeee930a0e4f4fee9aa02180fcbe24ba41b33385"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/6c/dd/6cddaa7804140b092c2b3275f13f8ef870e6043c411e05311dca670b88584dba.blob",
+      "bytes": 6642,
+      "sha256": "6cddaa7804140b092c2b3275f13f8ef870e6043c411e05311dca670b88584dba"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/6c/dd/6cddaa7804140b092c2b3275f13f8ef870e6043c411e05311dca670b88584dba.manifest.json",
+      "bytes": 651,
+      "sha256": "71df79cf6f8ac4bd7ed67ad68627554240e84cffcf4aa9bed720085e413b8346"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/6c/dd/6cddaa7804140b092c2b3275f13f8ef870e6043c411e05311dca670b88584dba.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "71df79cf6f8ac4bd7ed67ad68627554240e84cffcf4aa9bed720085e413b8346"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/75/74/757406daa28cb64df69ed7ac54256c67ca6afbab99ba718c3aa7d6537c217ae3.blob",
+      "bytes": 6768,
+      "sha256": "757406daa28cb64df69ed7ac54256c67ca6afbab99ba718c3aa7d6537c217ae3"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/75/74/757406daa28cb64df69ed7ac54256c67ca6afbab99ba718c3aa7d6537c217ae3.manifest.json",
+      "bytes": 651,
+      "sha256": "032e1a13cba31818453f4907bbe8898d24c9a189535e8eae6658bc814d2fa50b"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/75/74/757406daa28cb64df69ed7ac54256c67ca6afbab99ba718c3aa7d6537c217ae3.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "032e1a13cba31818453f4907bbe8898d24c9a189535e8eae6658bc814d2fa50b"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/86/35/863579e7de35587fcc97f22ef1c062eff0543ee92b16765dff4ecd45ffde0bbd.blob",
+      "bytes": 104,
+      "sha256": "863579e7de35587fcc97f22ef1c062eff0543ee92b16765dff4ecd45ffde0bbd"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/86/35/863579e7de35587fcc97f22ef1c062eff0543ee92b16765dff4ecd45ffde0bbd.manifest.json",
+      "bytes": 647,
+      "sha256": "7059b3ddfe32aa1a4676532e745b7f9090fb5bb99aeb2c0be07e31bae474737c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/86/35/863579e7de35587fcc97f22ef1c062eff0543ee92b16765dff4ecd45ffde0bbd.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json",
+      "bytes": 647,
+      "sha256": "7059b3ddfe32aa1a4676532e745b7f9090fb5bb99aeb2c0be07e31bae474737c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/dc/96/dc96c7e182157db01a53b1cbd9abe4b298425c4563796773e4ed78628cb85158.blob",
+      "bytes": 992,
+      "sha256": "dc96c7e182157db01a53b1cbd9abe4b298425c4563796773e4ed78628cb85158"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/dc/96/dc96c7e182157db01a53b1cbd9abe4b298425c4563796773e4ed78628cb85158.manifest.json",
+      "bytes": 1093,
+      "sha256": "89c932a6fc33591ee3eceaba72180656732c6465a94f6599cd153260c4589a42"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/dc/96/dc96c7e182157db01a53b1cbd9abe4b298425c4563796773e4ed78628cb85158.view.ee9dbd671dce36c76d1f7d4d4e2a0c4bb4c64671633c37c3e409576a03398cc2.manifest.json",
+      "bytes": 1093,
+      "sha256": "89c932a6fc33591ee3eceaba72180656732c6465a94f6599cd153260c4589a42"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/f2/d1/f2d1471d26678e311ff4792aa32932527f74e7cb28de1974903bf1a60f4350f6.blob",
+      "bytes": 4084,
+      "sha256": "f2d1471d26678e311ff4792aa32932527f74e7cb28de1974903bf1a60f4350f6"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/f2/d1/f2d1471d26678e311ff4792aa32932527f74e7cb28de1974903bf1a60f4350f6.manifest.json",
+      "bytes": 651,
+      "sha256": "86f8e93a4ab64444af9ae0038d06034ebe74f0d41ac64da8430c90d388c82ca9"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/cas/artifacts/sha256/f2/d1/f2d1471d26678e311ff4792aa32932527f74e7cb28de1974903bf1a60f4350f6.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "86f8e93a4ab64444af9ae0038d06034ebe74f0d41ac64da8430c90d388c82ca9"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/champions/resume/champion.json",
+      "bytes": 1032,
+      "sha256": "9c59f34b8a3c42c5a9ace6a58e29637d501aa7607ef57580e617725b9c582ed0"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_pending_and_completed_ids0/champions/resume/champion.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_refuses_zer0/cas/artifacts/ownership/transactions/locks/stripe-39.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_refuses_zer0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_refuses_zer0/cas/artifacts/sha256/99/75/9975843c0809b4b168ce3f4bb3bf9de47c3c374193b6c293fd1b0cf0946b7627.blob",
+      "bytes": 114,
+      "sha256": "9975843c0809b4b168ce3f4bb3bf9de47c3c374193b6c293fd1b0cf0946b7627"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_refuses_zer0/cas/artifacts/sha256/99/75/9975843c0809b4b168ce3f4bb3bf9de47c3c374193b6c293fd1b0cf0946b7627.manifest.json",
+      "bytes": 647,
+      "sha256": "2cdbab2248d9c53ad49bef5aa3c986379f823c8122dd173097a87fec7554f36c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_refuses_zer0/cas/artifacts/sha256/99/75/9975843c0809b4b168ce3f4bb3bf9de47c3c374193b6c293fd1b0cf0946b7627.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json",
+      "bytes": 647,
+      "sha256": "2cdbab2248d9c53ad49bef5aa3c986379f823c8122dd173097a87fec7554f36c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/ownership/transactions/locks/stripe-12.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/ownership/transactions/locks/stripe-15.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/ownership/transactions/locks/stripe-24.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/ownership/transactions/locks/stripe-26.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/ownership/transactions/locks/stripe-33.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/ownership/transactions/locks/stripe-39.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/ownership/transactions/locks/stripe-46.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/ownership/transactions/locks/stripe-53.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/ownership/transactions/locks/stripe-58.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/ownership/transactions/locks/stripe-59.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/15/32/15322aac000cc5d1159954ce7b17d70e9502c32c33072e766ba95e3c6b38e5f5.blob",
+      "bytes": 7895,
+      "sha256": "15322aac000cc5d1159954ce7b17d70e9502c32c33072e766ba95e3c6b38e5f5"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/15/32/15322aac000cc5d1159954ce7b17d70e9502c32c33072e766ba95e3c6b38e5f5.manifest.json",
+      "bytes": 651,
+      "sha256": "37b86bf6c50cf6635eff1b56941cbf812f26f4a5297d35ef7a91f40cdbf59f2e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/15/32/15322aac000cc5d1159954ce7b17d70e9502c32c33072e766ba95e3c6b38e5f5.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "37b86bf6c50cf6635eff1b56941cbf812f26f4a5297d35ef7a91f40cdbf59f2e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/1a/a0/1aa00a0f76ce747390dedc2b8c4d8228b80166304948066e04eb8e86de989f4f.blob",
+      "bytes": 7867,
+      "sha256": "1aa00a0f76ce747390dedc2b8c4d8228b80166304948066e04eb8e86de989f4f"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/1a/a0/1aa00a0f76ce747390dedc2b8c4d8228b80166304948066e04eb8e86de989f4f.manifest.json",
+      "bytes": 651,
+      "sha256": "bc189add194654cadc69abf0ea2c81a81d734dce6b6b7955a9955fc5bab200bc"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/1a/a0/1aa00a0f76ce747390dedc2b8c4d8228b80166304948066e04eb8e86de989f4f.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "bc189add194654cadc69abf0ea2c81a81d734dce6b6b7955a9955fc5bab200bc"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/2c/91/2c91db3c224260daf0eadb6a02a9070b9c049b6d6aebda972f9bbfd8897da28c.blob",
+      "bytes": 4271,
+      "sha256": "2c91db3c224260daf0eadb6a02a9070b9c049b6d6aebda972f9bbfd8897da28c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/2c/91/2c91db3c224260daf0eadb6a02a9070b9c049b6d6aebda972f9bbfd8897da28c.manifest.json",
+      "bytes": 651,
+      "sha256": "d1445c83c81ba9480b77d2ccbd0e4bef02a1cbf3a652a06878bb4b939f15928c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/2c/91/2c91db3c224260daf0eadb6a02a9070b9c049b6d6aebda972f9bbfd8897da28c.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "d1445c83c81ba9480b77d2ccbd0e4bef02a1cbf3a652a06878bb4b939f15928c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/42/2e/422e3bf74421f5c20e26e82e3a100de38e63cb2388f64954f09948e1177145fa.blob",
+      "bytes": 1676,
+      "sha256": "422e3bf74421f5c20e26e82e3a100de38e63cb2388f64954f09948e1177145fa"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/42/2e/422e3bf74421f5c20e26e82e3a100de38e63cb2388f64954f09948e1177145fa.manifest.json",
+      "bytes": 1500,
+      "sha256": "ddb207852e930cd7a920857958faace43542ee2039b366854187e675217839ff"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/42/2e/422e3bf74421f5c20e26e82e3a100de38e63cb2388f64954f09948e1177145fa.view.64f62a024ec1a90c72d0976d059f92de02402220f8257d0cea054b3e081458a1.manifest.json",
+      "bytes": 1500,
+      "sha256": "ddb207852e930cd7a920857958faace43542ee2039b366854187e675217839ff"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/58/4d/584de4be2ac134bb83d9c45f3d4d47cebfc7c3a12a53f207a1f88cd9d5063761.blob",
+      "bytes": 6919,
+      "sha256": "584de4be2ac134bb83d9c45f3d4d47cebfc7c3a12a53f207a1f88cd9d5063761"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/58/4d/584de4be2ac134bb83d9c45f3d4d47cebfc7c3a12a53f207a1f88cd9d5063761.manifest.json",
+      "bytes": 651,
+      "sha256": "15d1ed84a12731ac0108e45175f874cefd4a65dceacc84ed0cb8e666cfec69c9"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/58/4d/584de4be2ac134bb83d9c45f3d4d47cebfc7c3a12a53f207a1f88cd9d5063761.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "15d1ed84a12731ac0108e45175f874cefd4a65dceacc84ed0cb8e666cfec69c9"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/68/50/6850896996d7ca312f6f9f9e10b94f72caaa264d855d7395146fe4e2d4810f1a.blob",
+      "bytes": 105,
+      "sha256": "6850896996d7ca312f6f9f9e10b94f72caaa264d855d7395146fe4e2d4810f1a"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/68/50/6850896996d7ca312f6f9f9e10b94f72caaa264d855d7395146fe4e2d4810f1a.manifest.json",
+      "bytes": 769,
+      "sha256": "83d779246dc96f7cdd190db52c1fb0f7b4074bdf2437c4c87ca0aa9ebec75973"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/68/50/6850896996d7ca312f6f9f9e10b94f72caaa264d855d7395146fe4e2d4810f1a.view.ac6a1c0c40cde05deecc5c51d25ceee58280f846dff8b4980c843615df7b6ed5.manifest.json",
+      "bytes": 769,
+      "sha256": "83d779246dc96f7cdd190db52c1fb0f7b4074bdf2437c4c87ca0aa9ebec75973"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/6f/72/6f72b3b5546c90d4281876772813d1f117ad43bd73d9c9e8336590bc86d335cc.blob",
+      "bytes": 6947,
+      "sha256": "6f72b3b5546c90d4281876772813d1f117ad43bd73d9c9e8336590bc86d335cc"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/6f/72/6f72b3b5546c90d4281876772813d1f117ad43bd73d9c9e8336590bc86d335cc.manifest.json",
+      "bytes": 651,
+      "sha256": "670c9baec4813a0c79e06663e3692ec7e3ec5902d59e04d3568b3a8243483ced"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/6f/72/6f72b3b5546c90d4281876772813d1f117ad43bd73d9c9e8336590bc86d335cc.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "670c9baec4813a0c79e06663e3692ec7e3ec5902d59e04d3568b3a8243483ced"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/99/75/9975843c0809b4b168ce3f4bb3bf9de47c3c374193b6c293fd1b0cf0946b7627.blob",
+      "bytes": 114,
+      "sha256": "9975843c0809b4b168ce3f4bb3bf9de47c3c374193b6c293fd1b0cf0946b7627"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/99/75/9975843c0809b4b168ce3f4bb3bf9de47c3c374193b6c293fd1b0cf0946b7627.manifest.json",
+      "bytes": 647,
+      "sha256": "2cdbab2248d9c53ad49bef5aa3c986379f823c8122dd173097a87fec7554f36c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/99/75/9975843c0809b4b168ce3f4bb3bf9de47c3c374193b6c293fd1b0cf0946b7627.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json",
+      "bytes": 647,
+      "sha256": "2cdbab2248d9c53ad49bef5aa3c986379f823c8122dd173097a87fec7554f36c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/a3/74/a37496500bf63c28a45964dc1184251c21c591af8e59d928017801296d9f9b8f.blob",
+      "bytes": 1471,
+      "sha256": "a37496500bf63c28a45964dc1184251c21c591af8e59d928017801296d9f9b8f"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/a3/74/a37496500bf63c28a45964dc1184251c21c591af8e59d928017801296d9f9b8f.manifest.json",
+      "bytes": 1254,
+      "sha256": "7b22af0771d6a74846537e8f1e1741334751a186890401f056d92fc275f272fd"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/a3/74/a37496500bf63c28a45964dc1184251c21c591af8e59d928017801296d9f9b8f.view.a73aac1a9eadd51bf031a02c8ea2a6bd0eb6db34a317e7570c296cca65a7f009.manifest.json",
+      "bytes": 1254,
+      "sha256": "7b22af0771d6a74846537e8f1e1741334751a186890401f056d92fc275f272fd"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/be/25/be257a1b1b67931a6e73d2b0846347857e07331a4b31a243d092250e6e59a398.blob",
+      "bytes": 4271,
+      "sha256": "be257a1b1b67931a6e73d2b0846347857e07331a4b31a243d092250e6e59a398"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/be/25/be257a1b1b67931a6e73d2b0846347857e07331a4b31a243d092250e6e59a398.manifest.json",
+      "bytes": 651,
+      "sha256": "a0b775a98cfc2e51b262a9338d855e07470940186b90e039660309ac9581757d"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/be/25/be257a1b1b67931a6e73d2b0846347857e07331a4b31a243d092250e6e59a398.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "a0b775a98cfc2e51b262a9338d855e07470940186b90e039660309ac9581757d"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/cf/f3/cff3c8cbbfd5851e4db911c78b6d9da6821eb47e85d172e83b9c8cc3e66bd3fb.blob",
+      "bytes": 1037,
+      "sha256": "cff3c8cbbfd5851e4db911c78b6d9da6821eb47e85d172e83b9c8cc3e66bd3fb"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/cf/f3/cff3c8cbbfd5851e4db911c78b6d9da6821eb47e85d172e83b9c8cc3e66bd3fb.manifest.json",
+      "bytes": 1104,
+      "sha256": "0a96de6ef02d553d8c82ad8d3d4b073872893663c43dc119d22d6bae469a345e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/cf/f3/cff3c8cbbfd5851e4db911c78b6d9da6821eb47e85d172e83b9c8cc3e66bd3fb.view.5000dbf691ca5cae4c85a77196b90f92dc1186845cd52add25b62e287228cfc9.manifest.json",
+      "bytes": 1104,
+      "sha256": "0a96de6ef02d553d8c82ad8d3d4b073872893663c43dc119d22d6bae469a345e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/f8/e2/f8e24240e67aa76916b1d73db0a2d5a883fa79d459ba70bb1b1a6e4f1d4d926e.blob",
+      "bytes": 105,
+      "sha256": "f8e24240e67aa76916b1d73db0a2d5a883fa79d459ba70bb1b1a6e4f1d4d926e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/f8/e2/f8e24240e67aa76916b1d73db0a2d5a883fa79d459ba70bb1b1a6e4f1d4d926e.manifest.json",
+      "bytes": 769,
+      "sha256": "2ee9908944592b2c7b27dca637bca4d6c2ad00a2b696e21d191dde9c2e47648e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/cas/artifacts/sha256/f8/e2/f8e24240e67aa76916b1d73db0a2d5a883fa79d459ba70bb1b1a6e4f1d4d926e.view.ac6a1c0c40cde05deecc5c51d25ceee58280f846dff8b4980c843615df7b6ed5.manifest.json",
+      "bytes": 769,
+      "sha256": "2ee9908944592b2c7b27dca637bca4d6c2ad00a2b696e21d191dde9c2e47648e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/registry/native-lifecycle/champion.json",
+      "bytes": 1082,
+      "sha256": "e5717aec6d7ed6d5a558b63a4cc4fb14ed0b92c0522826db6de7c1e4cf523e23"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_public_runner_two_runs_de0/registry/native-lifecycle/champion.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_recorded_cost_public_owne0/budget.json",
+      "bytes": 1568,
+      "sha256": "64ef86684dcbbd4f669179d7209a6e9b2d0c2455fb3fbb6bed1714f45923d342"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_recorded_cost_public_owne0/budget.json.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_recorded_cost_public_owne0/cas/artifacts/ownership/transactions/locks/stripe-21.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_recorded_cost_public_owne0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_recorded_cost_public_owne0/cas/artifacts/sha256/2a/1c/2a1c60b1da22fd7d3f7657f8fb915908a4258dc370dac192466e476cfdd0de95.blob",
+      "bytes": 2965,
+      "sha256": "2a1c60b1da22fd7d3f7657f8fb915908a4258dc370dac192466e476cfdd0de95"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_recorded_cost_public_owne0/cas/artifacts/sha256/2a/1c/2a1c60b1da22fd7d3f7657f8fb915908a4258dc370dac192466e476cfdd0de95.manifest.json",
+      "bytes": 651,
+      "sha256": "11b3e9c6485d3764515173068d2354a89462b104b7edc493d61a346e45ddc82d"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_recorded_cost_public_owne0/cas/artifacts/sha256/2a/1c/2a1c60b1da22fd7d3f7657f8fb915908a4258dc370dac192466e476cfdd0de95.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "11b3e9c6485d3764515173068d2354a89462b104b7edc493d61a346e45ddc82d"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_recorded_memory_zero_is_a0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/ownership/transactions/locks/stripe-21.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/ownership/transactions/locks/stripe-22.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/ownership/transactions/locks/stripe-24.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/ownership/transactions/locks/stripe-47.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/17/c5/17c5b01ef125aaebdf9bd88383e55a1c3d0a51ec5dae3ae81a6f940850f33a95.blob",
+      "bytes": 95,
+      "sha256": "17c5b01ef125aaebdf9bd88383e55a1c3d0a51ec5dae3ae81a6f940850f33a95"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/17/c5/17c5b01ef125aaebdf9bd88383e55a1c3d0a51ec5dae3ae81a6f940850f33a95.manifest.json",
+      "bytes": 758,
+      "sha256": "76b79317d1f889781744544edeee930a0e4f4fee9aa02180fcbe24ba41b33385"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/17/c5/17c5b01ef125aaebdf9bd88383e55a1c3d0a51ec5dae3ae81a6f940850f33a95.view.efb96f3b86c2961e134497ec9963935b793946bb91936e397f6b24fcd6408576.manifest.json",
+      "bytes": 758,
+      "sha256": "76b79317d1f889781744544edeee930a0e4f4fee9aa02180fcbe24ba41b33385"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/19/bf/19bf48e6c603d8ed937e68f2f28cf08a7212a1b51cb83af4ab21ace484100520.blob",
+      "bytes": 6840,
+      "sha256": "19bf48e6c603d8ed937e68f2f28cf08a7212a1b51cb83af4ab21ace484100520"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/19/bf/19bf48e6c603d8ed937e68f2f28cf08a7212a1b51cb83af4ab21ace484100520.manifest.json",
+      "bytes": 651,
+      "sha256": "1c9bf94ae85c9fdab79a4f92d833162f52aa5d8966c89f3741d8a22e91622399"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/19/bf/19bf48e6c603d8ed937e68f2f28cf08a7212a1b51cb83af4ab21ace484100520.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "1c9bf94ae85c9fdab79a4f92d833162f52aa5d8966c89f3741d8a22e91622399"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/86/35/863579e7de35587fcc97f22ef1c062eff0543ee92b16765dff4ecd45ffde0bbd.blob",
+      "bytes": 104,
+      "sha256": "863579e7de35587fcc97f22ef1c062eff0543ee92b16765dff4ecd45ffde0bbd"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/86/35/863579e7de35587fcc97f22ef1c062eff0543ee92b16765dff4ecd45ffde0bbd.manifest.json",
+      "bytes": 647,
+      "sha256": "7059b3ddfe32aa1a4676532e745b7f9090fb5bb99aeb2c0be07e31bae474737c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/86/35/863579e7de35587fcc97f22ef1c062eff0543ee92b16765dff4ecd45ffde0bbd.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json",
+      "bytes": 647,
+      "sha256": "7059b3ddfe32aa1a4676532e745b7f9090fb5bb99aeb2c0be07e31bae474737c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/b8/60/b860d320239960debbb668ecb1cbe89dff4127a4d2b180c165b7f5c3490c0c16.blob",
+      "bytes": 103,
+      "sha256": "b860d320239960debbb668ecb1cbe89dff4127a4d2b180c165b7f5c3490c0c16"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/b8/60/b860d320239960debbb668ecb1cbe89dff4127a4d2b180c165b7f5c3490c0c16.manifest.json",
+      "bytes": 647,
+      "sha256": "c487acdbf286b0c09f396f667b8f2f994db3367ed0fd82501754fabe0ed6bb47"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/b8/60/b860d320239960debbb668ecb1cbe89dff4127a4d2b180c165b7f5c3490c0c16.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json",
+      "bytes": 647,
+      "sha256": "c487acdbf286b0c09f396f667b8f2f994db3367ed0fd82501754fabe0ed6bb47"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/bf/cd/bfcd496ede61d23789a59ca81366d2fa98aa15134be2efa553cef4a2371e5a2f.blob",
+      "bytes": 6868,
+      "sha256": "bfcd496ede61d23789a59ca81366d2fa98aa15134be2efa553cef4a2371e5a2f"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/bf/cd/bfcd496ede61d23789a59ca81366d2fa98aa15134be2efa553cef4a2371e5a2f.manifest.json",
+      "bytes": 651,
+      "sha256": "639d33db030724d6f242211017a501cd74748ed88f3426365fe9f176bb14528c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/bf/cd/bfcd496ede61d23789a59ca81366d2fa98aa15134be2efa553cef4a2371e5a2f.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "639d33db030724d6f242211017a501cd74748ed88f3426365fe9f176bb14528c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/ca/07/ca07358d8fa88dd81e5da2c7f43d35c88a0bcd30cc242857137426991e3dee3d.blob",
+      "bytes": 4282,
+      "sha256": "ca07358d8fa88dd81e5da2c7f43d35c88a0bcd30cc242857137426991e3dee3d"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/ca/07/ca07358d8fa88dd81e5da2c7f43d35c88a0bcd30cc242857137426991e3dee3d.manifest.json",
+      "bytes": 651,
+      "sha256": "5843b6b612f85404f44e1e765875d4577c5c3e9339fdcca35b5a7b0d21613e9b"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/ca/07/ca07358d8fa88dd81e5da2c7f43d35c88a0bcd30cc242857137426991e3dee3d.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "5843b6b612f85404f44e1e765875d4577c5c3e9339fdcca35b5a7b0d21613e9b"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/dc/96/dc96c7e182157db01a53b1cbd9abe4b298425c4563796773e4ed78628cb85158.blob",
+      "bytes": 992,
+      "sha256": "dc96c7e182157db01a53b1cbd9abe4b298425c4563796773e4ed78628cb85158"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/dc/96/dc96c7e182157db01a53b1cbd9abe4b298425c4563796773e4ed78628cb85158.manifest.json",
+      "bytes": 1093,
+      "sha256": "89c932a6fc33591ee3eceaba72180656732c6465a94f6599cd153260c4589a42"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/cas/artifacts/sha256/dc/96/dc96c7e182157db01a53b1cbd9abe4b298425c4563796773e4ed78628cb85158.view.ee9dbd671dce36c76d1f7d4d4e2a0c4bb4c64671633c37c3e409576a03398cc2.manifest.json",
+      "bytes": 1093,
+      "sha256": "89c932a6fc33591ee3eceaba72180656732c6465a94f6599cd153260c4589a42"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/champions/resume/champion.json",
+      "bytes": 1032,
+      "sha256": "a933112e83a67b4ae1fa33cbb15dd06a74888331edf07425c5d528a03633b3dc"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_stopped_checkpoint_is_ter0/champions/resume/champion.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/ownership/transactions/locks/stripe-10.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/ownership/transactions/locks/stripe-19.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/ownership/transactions/locks/stripe-28.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/ownership/transactions/locks/stripe-35.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/ownership/transactions/locks/stripe-46.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/ownership/transactions/locks/stripe-55.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/21/ae/21aecf804310f0b5c23319c80218d85ce1f8914827b54db1b5db9623a3ff6e9c.blob",
+      "bytes": 2545,
+      "sha256": "21aecf804310f0b5c23319c80218d85ce1f8914827b54db1b5db9623a3ff6e9c"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/21/ae/21aecf804310f0b5c23319c80218d85ce1f8914827b54db1b5db9623a3ff6e9c.manifest.json",
+      "bytes": 651,
+      "sha256": "d650d16728706178e3e91448a63bd8067ff8ef616e734eeb2c71468aff8643cd"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/21/ae/21aecf804310f0b5c23319c80218d85ce1f8914827b54db1b5db9623a3ff6e9c.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "d650d16728706178e3e91448a63bd8067ff8ef616e734eeb2c71468aff8643cd"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/2f/c5/2fc5038bb2e2b559a20f4f002714cd532735945a41b9412ac792e6c854d41193.blob",
+      "bytes": 2483,
+      "sha256": "2fc5038bb2e2b559a20f4f002714cd532735945a41b9412ac792e6c854d41193"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/2f/c5/2fc5038bb2e2b559a20f4f002714cd532735945a41b9412ac792e6c854d41193.manifest.json",
+      "bytes": 651,
+      "sha256": "8886d41a85c8534ffde34831d45bfec333a257bd5f59fe975ceaa16aae137513"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/2f/c5/2fc5038bb2e2b559a20f4f002714cd532735945a41b9412ac792e6c854d41193.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "8886d41a85c8534ffde34831d45bfec333a257bd5f59fe975ceaa16aae137513"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/3a/95/3a9575bbfe36b691b7f497a2c9a5263771f1e2aad28451f7f206f27665a955e9.blob",
+      "bytes": 2458,
+      "sha256": "3a9575bbfe36b691b7f497a2c9a5263771f1e2aad28451f7f206f27665a955e9"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/3a/95/3a9575bbfe36b691b7f497a2c9a5263771f1e2aad28451f7f206f27665a955e9.manifest.json",
+      "bytes": 651,
+      "sha256": "89fd0e80b0d48a6cfb8c3c3abc7f35dfc5a57325210feec67a942f81953a9a5b"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/3a/95/3a9575bbfe36b691b7f497a2c9a5263771f1e2aad28451f7f206f27665a955e9.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "89fd0e80b0d48a6cfb8c3c3abc7f35dfc5a57325210feec67a942f81953a9a5b"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/43/2b/432be065877a19bdde7a3f58aa5f148aec97839c49f97831ebb997d972a5c28a.blob",
+      "bytes": 2458,
+      "sha256": "432be065877a19bdde7a3f58aa5f148aec97839c49f97831ebb997d972a5c28a"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/43/2b/432be065877a19bdde7a3f58aa5f148aec97839c49f97831ebb997d972a5c28a.manifest.json",
+      "bytes": 651,
+      "sha256": "a5725b7d3660627b21c35ca291c57a0b4a0be52d0844064bc6963125de2b5d19"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/43/2b/432be065877a19bdde7a3f58aa5f148aec97839c49f97831ebb997d972a5c28a.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "a5725b7d3660627b21c35ca291c57a0b4a0be52d0844064bc6963125de2b5d19"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/85/ae/85ae265c683b51f13e8cf2074706d810acab92e3cccf9b1d0fec32c089326d37.blob",
+      "bytes": 2319,
+      "sha256": "85ae265c683b51f13e8cf2074706d810acab92e3cccf9b1d0fec32c089326d37"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/85/ae/85ae265c683b51f13e8cf2074706d810acab92e3cccf9b1d0fec32c089326d37.manifest.json",
+      "bytes": 651,
+      "sha256": "a49c94304d66d05bf5926c25882be171bd274765e1e290417d0e244f8a736770"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/85/ae/85ae265c683b51f13e8cf2074706d810acab92e3cccf9b1d0fec32c089326d37.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "a49c94304d66d05bf5926c25882be171bd274765e1e290417d0e244f8a736770"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/87/13/87136b9f90e08628b8fd3df26db188d649d8aa277c44dec19d8bdec076c16563.blob",
+      "bytes": 2319,
+      "sha256": "87136b9f90e08628b8fd3df26db188d649d8aa277c44dec19d8bdec076c16563"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/87/13/87136b9f90e08628b8fd3df26db188d649d8aa277c44dec19d8bdec076c16563.manifest.json",
+      "bytes": 651,
+      "sha256": "1df072962a3f2ad09bb7e3e569d859db10fed91d5d475e5eaaffd5f99ec99d0a"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/87/13/87136b9f90e08628b8fd3df26db188d649d8aa277c44dec19d8bdec076c16563.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "1df072962a3f2ad09bb7e3e569d859db10fed91d5d475e5eaaffd5f99ec99d0a"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/cb/a0/cba04848a85f896c866fe6742ea9f81344e3e0df28d632c01630e08caded4c2e.blob",
+      "bytes": 2458,
+      "sha256": "cba04848a85f896c866fe6742ea9f81344e3e0df28d632c01630e08caded4c2e"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/cb/a0/cba04848a85f896c866fe6742ea9f81344e3e0df28d632c01630e08caded4c2e.manifest.json",
+      "bytes": 651,
+      "sha256": "d6d0920345fa1e4f44747f6d458df174867fd11f2192cf8fdfc7cb4de19bc841"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8/test_wall_clock_origin_survive0/cas/artifacts/sha256/cb/a0/cba04848a85f896c866fe6742ea9f81344e3e0df28d632c01630e08caded4c2e.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "d6d0920345fa1e4f44747f6d458df174867fd11f2192cf8fdfc7cb4de19bc841"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-tell-negative-e30b930a655e4ae28c368297b330e88c2/test_failed_tell_publication_r0/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-tell-negative-e30b930a655e4ae28c368297b330e88c2/test_failed_tell_publication_r0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-tell-negative-e30b930a655e4ae28c368297b330e88c2/test_failed_tell_publication_r0/cas/artifacts/sha256/fb/7f/fb7fa078d38cd77377a4ef4f88c9d07b2596ce969fa51b9c9e1a163d3de3ab20.blob",
+      "bytes": 2285,
+      "sha256": "fb7fa078d38cd77377a4ef4f88c9d07b2596ce969fa51b9c9e1a163d3de3ab20"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-tell-negative-e30b930a655e4ae28c368297b330e88c2/test_failed_tell_publication_r0/cas/artifacts/sha256/fb/7f/fb7fa078d38cd77377a4ef4f88c9d07b2596ce969fa51b9c9e1a163d3de3ab20.manifest.json",
+      "bytes": 651,
+      "sha256": "935c52d5a2966f5316efc98d4756fc2bc8bc9dede0ecbe96ceac05362bb38585"
+    },
+    {
+      "path": "/workspace/e02-D-continuation-receipts/champion-tell-negative-e30b930a655e4ae28c368297b330e88c2/test_failed_tell_publication_r0/cas/artifacts/sha256/fb/7f/fb7fa078d38cd77377a4ef4f88c9d07b2596ce969fa51b9c9e1a163d3de3ab20.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "935c52d5a2966f5316efc98d4756fc2bc8bc9dede0ecbe96ceac05362bb38585"
+    }
+  ]
+}

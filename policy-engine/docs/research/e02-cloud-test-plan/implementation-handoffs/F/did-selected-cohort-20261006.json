@@ -3585,14 +3585,16 @@
   ],
   "narrow_graph_intake_read_only_audit": {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006.json",
-    "bytes": 34553,
-    "sha256": "eea70a5e18fb463309efb98d531f2d911e2eaf1090c81119a2f25035a1f94a82",
+    "bytes": 47474,
+    "sha256": "a1fe644a1ba0f8f54897c626bd86a76062a3ddfca8e55cb5fa03e326f230499d",
     "source_sha": "0c2086d6a31dcef1b5b201861b11639a226c2a70",
     "production_changes": false,
     "native_check": "PASS10",
     "consumer_semantic_check": "FAIL_CACHE_CUSTODY_AND_ENDPOINT_LOSS",
     "outcome": "limited",
-    "success_is_not_protected_policy_authority": true
+    "success_is_not_protected_policy_authority": true,
+    "artifact_git_ref": "fe7a8354bab24678fa9c8361fe80acb8cddae2fe",
+    "source_sha_provenance": "Scientific/runtime source evaluated by this historical read-only review; artifact_git_ref separately binds the corrected receipt bytes."
   },
   "prior_publication_closure_ids": [
     "B204",

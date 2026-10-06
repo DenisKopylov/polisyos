@@ -198,14 +198,42 @@ def test_required_only_occurrence_selects_nearest_earlier_instance():
     ).final_state == {"value": 40}
 
 
-def test_required_only_ambiguous_future_instances_are_typed_refused():
+@pytest.mark.parametrize("level", list(SemanticValidationLevel))
+def test_required_only_ambiguous_future_instances_are_typed_refused(level):
     registry = _registry(_Estimate, _Sensitivity)
     composer = MethodComposer(registry=registry)
     composer.add(_Sensitivity.signature.fqn)
     composer.add(_Estimate.signature.fqn)
     composer.add(_Estimate.signature.fqn)
     with pytest.raises(MissingRequirementError, match="ambiguous"):
+        composer.build(validate_semantics=level)
+
+
+def test_strict_root_input_remains_actual_caller_context():
+    registry = _registry(_Estimate)
+    composer = MethodComposer(registry=registry, linker=SlotLinker(LinkerConfig.strict()))
+    composer.add(_Estimate.signature.fqn)
+    chain = composer.build(validate_semantics=SemanticValidationLevel.STRICT)
+    assert not chain.bindings
+    assert execute_heterogeneous_chain(
+        chain, state={"value": 21}, registry=registry
+    ).final_state == {"value": 22}
+
+
+def test_two_explicit_required_occurrences_are_refused_with_exact_typed_context():
+    registry = _registry(_Estimate, _Sensitivity)
+    composer = MethodComposer(registry=registry)
+    first = composer.add(_Estimate.signature.fqn)
+    second = composer.add(_Estimate.signature.fqn)
+    target = composer.add(_Sensitivity.signature.fqn)
+    composer.connect(first, target, {"value": "value"})
+    composer.connect(second, target, {"value": "value"})
+    with pytest.raises(MissingRequirementError, match="ambiguous explicit") as error:
         composer.build(validate_semantics=SemanticValidationLevel.STRICT)
+    assert error.value.method_fqn == _Sensitivity.signature.fqn
+    assert error.value.required_fqn == _Estimate.signature.fqn
+    assert str(first.id) in error.value.reason
+    assert str(second.id) in error.value.reason
 
 
 @pytest.mark.parametrize("gate", ["unit", "shape"])

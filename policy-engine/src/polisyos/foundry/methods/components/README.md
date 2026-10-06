@@ -14,6 +14,38 @@ method promotion, and input/output materialization helpers.
 - `semantic_validator.py` validates cross-method chain semantics.
 - `slot_schema.py` owns semantic slot labels and compatibility registration.
 
+## Concrete DAG admission
+
+Slot admission uses one structural/unit/shape/contract and named-semantic
+predicate in manual and automatic linking. Automatic matching only chooses
+admissible edges. Its bounded augmenting paths preserve complete assignments
+when neutral slot names change. Unknown names remain unconstrained by the
+named-semantic registry; this is an explicit operational premise, not a
+grounding or policy-authority claim. Ambiguous automatic choices remain visible
+in diagnostics and callers must supply explicit mappings when their meaning
+differs; these diagnostics establish no semantic equivalence of alternatives.
+
+Standalone strict `SlotLinker.link()` checks the whole two-method input set.
+The composer's internal assembly defers only completeness, while retaining
+every pair compatibility check. Automatic assembly fills residual concrete
+target inputs. Explicit duplicate producers remain visible and STRICT semantic
+validation refuses them. At build, a strict linker recomputes the complete union
+of incoming required slots per target occurrence, including multi-source DAGs.
+WARN/OFF semantic validation does not disable that completeness check.
+Roots and nodes with only dependency edges consume caller context rather than
+declaring those caller inputs to be produced by an absent data-flow edge.
+
+`requires` resolves a concrete method occurrence: an unambiguous matching direct
+data-flow predecessor, otherwise an unambiguous matching actual ancestor,
+otherwise the nearest earlier inserted occurrence. A sole future occurrence
+supports adding a consumer before its producer. Multiple explicit or future
+candidates raise `MissingRequirementError` with the original FQNs and exact
+occurrence IDs before a chain is frozen. A later same-FQN occurrence does not
+become a prerequisite of an earlier bound consumer. Explicit cycles and the
+existing occurrence-based family ordering negatives remain errors. The same
+effective dependency graph determines execution order, parallel levels and the
+frozen chain; this does not replace declared inputs with invented semantic tags.
+
 ## Registration Boundary
 
 `bridge.py` may call `selection.registry.MethodRegistry.register_lazy()` for

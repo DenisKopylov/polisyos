@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import graphlib
 from collections.abc import Iterator, Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import Enum
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
@@ -22,7 +22,11 @@ from uuid import UUID, uuid4
 
 from polisyos.foundry.methods.base import MethodSignature, _stable_digest
 from polisyos.foundry.methods.components.linker import LinkResult, SlotBinding, SlotLinker
-from polisyos.foundry.methods.exceptions import CyclicDependencyError, MissingRequirementError
+from polisyos.foundry.methods.exceptions import (
+    CyclicDependencyError,
+    MissingRequirementError,
+    SlotConnectionError,
+)
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 
 if TYPE_CHECKING:
@@ -425,8 +429,7 @@ class FrozenCompositionDAG:
     def compute_parallel_levels(self) -> list[list[UUID]]:
         """Partition the frozen effective DAG into executable levels."""
         in_degree = {
-            node_id: len(self.predecessors.get(node_id, frozenset()))
-            for node_id in self.nodes
+            node_id: len(self.predecessors.get(node_id, frozenset())) for node_id in self.nodes
         }
         levels: list[list[UUID]] = []
         ready: list[UUID] = [node_id for node_id, degree in in_degree.items() if degree == 0]
@@ -547,7 +550,7 @@ class MethodComposer:
         target: MethodNode,
         slot_mapping: Mapping[str, str] | None = None,
     ) -> LinkResult:
-        """Connect source outputs to target inputs (data flow)."""
+        """Assemble compatible data flow; completeness belongs to the full DAG."""
         if source.id not in self._dag.nodes:
             raise KeyError(f"Source node {source.id} not in composition")
         if target.id not in self._dag.nodes:
@@ -555,11 +558,27 @@ class MethodComposer:
 
         source_sig = self._signatures[source.id]
         target_sig = self._signatures[target.id]
+        if slot_mapping is None:
+            # Automatic assembly fills only residual concrete target slots.
+            # Explicit duplicate producers still reach whole-chain validation.
+            connected = {
+                binding.target_slot
+                for link in self._dag.edges.values()
+                if link.target_id == target.id
+                for binding in link.bindings
+            }
+            target_sig = replace(
+                target_sig,
+                input_slots=frozenset(
+                    slot for slot in target_sig.input_slots if slot.name not in connected
+                ),
+            )
 
         link_result = self._linker.link(
             source_sig,
             target_sig,
             explicit_mapping=slot_mapping,
+            defer_completeness=True,
         )
 
         link_result = link_result.with_node_ids(source.id, target.id)
@@ -592,7 +611,54 @@ class MethodComposer:
                         )
                     # OFF → silent continue
                     continue
-                required_ids.update(ids)
+
+                def matching_ancestors() -> set[UUID]:
+                    pending = list(self._dag.predecessors.get(node_id, set()))
+                    seen: set[UUID] = set()
+                    while pending:
+                        ancestor = pending.pop()
+                        if ancestor in seen:
+                            continue
+                        seen.add(ancestor)
+                        pending.extend(self._dag.predecessors.get(ancestor, set()))
+                    return seen.intersection(ids) - {node_id}
+
+                explicit = set(ids).intersection(self._dag.predecessors.get(node_id, set()))
+                explicit.discard(node_id)
+                if not explicit:
+                    explicit = matching_ancestors()
+                if len(explicit) > 1:
+                    raise MissingRequirementError(
+                        sig.fqn,
+                        required_fqn,
+                        reason="ambiguous explicit predecessor occurrences: "
+                        + ", ".join(sorted(str(uid) for uid in explicit)),
+                    )
+                if explicit:
+                    required_ids.update(explicit)
+                    continue
+                earlier = [
+                    uid
+                    for uid in ids
+                    if self._dag.nodes[uid]._insertion_order
+                    < self._dag.nodes[node_id]._insertion_order
+                ]
+                if earlier:
+                    required_ids.add(
+                        max(earlier, key=lambda uid: self._dag.nodes[uid]._insertion_order)
+                    )
+                    continue
+                future = [uid for uid in ids if uid != node_id]
+                if len(future) > 1:
+                    raise MissingRequirementError(
+                        sig.fqn,
+                        required_fqn,
+                        reason="ambiguous future occurrences: "
+                        + ", ".join(sorted(str(uid) for uid in future)),
+                    )
+                # A self-requirement remains an actual cycle, not a missing
+                # dependency or an implicit exemption.
+                required_ids.update(future or [node_id])
 
             if required_ids:
                 predecessors[node_id] = required_ids
@@ -608,6 +674,24 @@ class MethodComposer:
 
         req_predecessors, req_warnings = self._requirement_edges(level=level)
         warnings.extend(req_warnings)
+
+        incoming: dict[UUID, set[str]] = {}
+        for link in self._dag.edges.values():
+            if link.target_id is not None:
+                connected = incoming.setdefault(link.target_id, set())
+                connected.update(binding.target_slot for binding in link.bindings)
+        for target_id, connected in incoming.items():
+            target_sig = self._signatures[target_id]
+            unconnected = sorted(
+                slot.name for slot in target_sig.input_slots if slot.name not in connected
+            )
+            if unconnected:
+                message = (
+                    f"Unconnected required inputs in {target_sig.fqn} ({target_id}): {unconnected}"
+                )
+                if not self._linker.config.allow_partial_links:
+                    raise SlotConnectionError(message)
+                warnings.append(message)
 
         # Validate concrete target occurrences at the composition boundary.  The
         # linker already owns this predicate; keeping the call here means both
@@ -638,13 +722,6 @@ class MethodComposer:
 
         for link_result in self._dag.edges.values():
             warnings.extend(link_result.warnings)
-            if link_result.unconnected_inputs:
-                target_label = link_result.target_fqn
-                if link_result.target_id is not None:
-                    target_label = f"{target_label} ({str(link_result.target_id)[:8]})"
-                warnings.append(
-                    f"Unconnected inputs in {target_label}: {list(link_result.unconnected_inputs)}"
-                )
 
         return warnings
 

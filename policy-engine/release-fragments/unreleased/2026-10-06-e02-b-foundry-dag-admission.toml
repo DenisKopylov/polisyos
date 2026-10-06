@@ -1,0 +1,16 @@
+id = "2026-10-06-e02-b-foundry-dag-admission"
+title = "Validate complete incoming DAG inputs and resolve concrete requirements"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-foundry"
+summary = "Share manual/automatic pair compatibility, defer completeness only during composer edge assembly, reconcile the whole incoming required set at build, and resolve FQN requirements to explicit or preceding concrete occurrences instead of every same-FQN node."
+evidence = ["tests/unit/foundry/methods/components/test_composition_e02.py", "tests/unit/remediation/test_cmp_01.py", "tests/unit/remediation/test_cmp_02.py", "tests/unit/remediation/test_cmp_03.py", "tests/unit/foundry/methods/test_composer.py", "tests/unit/foundry/methods/test_linker.py"]
+compatibility = "Standalone strict links retain full-pair completeness. Composer strict completeness moves to build and remains mandatory under WARN/OFF; compatible partial edge assembly now supports complete multi-source DAGs. MissingRequirementError retains its two-argument constructor and FQN fields, adding optional occurrence diagnostics."
+change_class = "behavior-change"
+surface_classification = "internal: Foundry composer/linker and occurrence diagnostics"
+migration = "Finish assembling incoming bindings before build; treat build SlotConnectionError and unresolved occurrence MissingRequirementError as refusal before dispatch. Use explicit mappings when automatic alternatives have different meanings."
+limitations = "Root and dependency-only inputs are supplied by actual caller context. Unknown slot semantics and automatic-choice diagnostics establish no policy authority or semantic equivalence. Multiple unresolved explicit/future prerequisite occurrences require a less ambiguous composition. Scientific ordering tags and external effects are not invented by this change."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/foundry/methods/components/README.md"]
+runbook_docs = []

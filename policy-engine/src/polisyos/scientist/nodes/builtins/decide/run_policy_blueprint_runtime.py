@@ -1643,8 +1643,9 @@ def _merge_stress_test_reports(
         return base_report
     components = dict(base_report.scenario_evidence_components)
     component_hashes = dict(base_report.metadata.get("scenario_component_payload_sha256") or {})
+    base_suite_id = str(base_report.metadata.get("challenge_suite_id") or "").strip()
     if not components:
-        key = f"report:{base_report.report_id}"
+        key = f"suite:{base_suite_id}" if base_suite_id else f"report:{base_report.report_id}"
         components[key] = base_report.scenario_evidence
         component_hashes[key] = _stress_report_payload_sha256(base_report)
     accepted_reports = []
@@ -1684,8 +1685,8 @@ def _merge_stress_test_reports(
         ).items()
         if str(key).strip()
     }
-    for suite_id in replacement_suite_ids_set:
-        suite_scenario_counts.pop(suite_id, None)
+    if base_suite_id and not base_report.scenario_evidence_components:
+        suite_scenario_counts.setdefault(base_suite_id, base_report.total_scenarios_evaluated)
     base_total_scenarios = int(
         base_report.metadata.get(
             "base_total_scenarios_evaluated",
@@ -1694,6 +1695,8 @@ def _merge_stress_test_reports(
             ),
         )
     )
+    for suite_id in replacement_suite_ids_set:
+        suite_scenario_counts.pop(suite_id, None)
     for supplemental in supplemental_reports:
         vulnerabilities.extend(supplemental.vulnerabilities)
         suite_id = supplemental.metadata.get("challenge_suite_id")

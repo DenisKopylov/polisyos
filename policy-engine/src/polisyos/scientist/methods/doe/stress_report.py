@@ -37,7 +37,9 @@ class StressScenarioEvidence(BaseModel):
     critical_occurrences: StrictInt = Field(default=0, ge=0)
     high_occurrences: StrictInt = Field(default=0, ge=0)
     medium_occurrences: StrictInt = Field(default=0, ge=0)
-    assessment_rule: Literal["objective_threshold", "component_assessments", "unavailable"]
+    assessment_rule: Literal[
+        "objective_threshold", "challenge_case_pass", "component_assessments", "unavailable"
+    ]
     objective_direction: Literal["maximize", "minimize"] | None = None
     vulnerability_threshold: float | None = None
 
@@ -60,6 +62,12 @@ class StressScenarioEvidence(BaseModel):
             raise ValueError("objective assessment requires its threshold and direction")
         if self.assessment_rule == "unavailable" and self.violated_scenarios:
             raise ValueError("unavailable assessment cannot establish violated scenarios")
+        if self.assessment_rule == "challenge_case_pass" and (
+            self.objective_direction is not None or self.vulnerability_threshold is not None
+        ):
+            raise ValueError(
+                "challenge case pass assessment uses case outcomes, not objective units"
+            )
         return self
 
     @property

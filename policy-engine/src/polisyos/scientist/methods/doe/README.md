@@ -32,7 +32,15 @@ component bases yield an unavailable score. Unknown or unfinished runs remain
 partial. Complete means the declared observed stream, not the whole parameter
 space or a population probability. These fractions do not establish model
 uncertainty. The blueprint carries and replaces complete component count bases
-without deriving them from issue lists.
+without deriving them from issue lists. The D challenge adapter declares
+`challenge_case_pass@1.0`: one uniquely named case with an explicit expected
+outcome and consistent strict boolean passed/failed result is one finite
+observed case. Skipped cases stay outside attempts, while unknown or
+inconsistent attempted outcomes remain separate; both prevent completeness.
+Empty/zero-finite suites publish unavailable scores and cannot be promoted.
+Passing suites also publish their typed basis for the real blueprint consumer.
+This adapter consumes existing case outcomes; it does not authenticate or
+recompute their scientific predicate.
 
 New readers accept legacy 1.0 reports without inventing scenario evidence;
 `is_robust` requires complete, available evidence with no observed violation.

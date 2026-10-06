@@ -283,6 +283,15 @@ def _child(path: Path, effects: Path, action: str, mode: str, syscall: str = "")
         timeout=60,
         check=False,
     )
+    observation = {
+        "argv": command,
+        "source_environment": {"PYTHONPATH": str(source_root), "POLISYOS_METRICS_PORT": "0"},
+        "returncode": result.returncode,
+        "stdout": result.stdout,
+        "stderr": result.stderr,
+    }
+    with (path.parent / "child-observations.jsonl").open("a", encoding="utf-8") as retained:
+        retained.write(json.dumps(observation, sort_keys=True) + "\n")
     assert result.returncode == 0, result.stdout + result.stderr
     return json.loads(result.stdout.splitlines()[-1])
 

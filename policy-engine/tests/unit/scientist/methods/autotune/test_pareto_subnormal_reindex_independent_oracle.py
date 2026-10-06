@@ -62,7 +62,7 @@ def _persist_and_reopen(tmp_path: Path, value: Any, model: type[Any], *, suffix:
             media_type="application/json",
             schema=SchemaInfo(name="independent-pareto-quantity-fixture", version="2.0"),
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
     )
     return load_model_artifact(FileSystemCAS(root), ref, model)
 

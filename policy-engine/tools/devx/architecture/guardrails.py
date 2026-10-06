@@ -40,7 +40,9 @@ DEFAULT_PUBLIC_JSON = REPO_ROOT / "architecture" / "public_surface" / "inventory
 DEFAULT_PUBLIC_MD = REPO_ROOT / "docs" / "reference" / "public-surface.md"
 DEFAULT_GENERATED_MANIFEST = REPO_ROOT / "architecture" / "generated_artifacts.toml"
 DEFAULT_GENERATED_MD = REPO_ROOT / "docs" / "reference" / "generated-artifacts.md"
-DEFAULT_DEEP_IMPORT_BASELINE = REPO_ROOT / "architecture" / "baselines" / "imports" / "deep_import.json"
+DEFAULT_DEEP_IMPORT_BASELINE = (
+    REPO_ROOT / "architecture" / "baselines" / "imports" / "deep_import.json"
+)
 DEFAULT_EXCEPTION_FILE = REPO_ROOT / "architecture" / "exceptions" / "guardrails.toml"
 DEFAULT_EXCEPTION_REGISTRY = REPO_ROOT / "architecture" / "guardrail_exceptions_registry.md"
 DEFAULT_MODULE_SIZE_BUDGET = REPO_ROOT / "architecture" / "module_size_budget.toml"
@@ -418,11 +420,7 @@ def _parse_public_generated_artifact_families(path: Path) -> list[PublicGenerate
 
 def _parse_generated_artifacts(path: Path | bytes) -> list[GeneratedArtifactFamily]:
     """Parse generated-family records from an owner path or already-admitted bytes."""
-    data = (
-        tomllib.loads(path.decode("utf-8"))
-        if isinstance(path, bytes)
-        else _read_toml(path)
-    )
+    data = tomllib.loads(path.decode("utf-8")) if isinstance(path, bytes) else _read_toml(path)
     families = data.get("family", [])
     results: list[GeneratedArtifactFamily] = []
     for item in families:
@@ -567,13 +565,17 @@ def _symbol_binding_nodes(tree: ast.Module, symbol: str) -> Iterator[ast.AST]:
             targets = [item.optional_vars for item in node.items if item.optional_vars is not None]
         if any(
             isinstance(child, ast.Name) and child.id == symbol
-            for target in targets for child in ast.walk(target)
+            for target in targets
+            for child in ast.walk(target)
         ):
             yield node
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             if node.name == symbol:
                 yield node
-        elif isinstance(node, (ast.ExceptHandler, ast.MatchAs, ast.MatchStar)) and node.name == symbol:
+        elif (
+            isinstance(node, (ast.ExceptHandler, ast.MatchAs, ast.MatchStar))
+            and node.name == symbol
+        ):
             yield node
         elif isinstance(node, (ast.Import, ast.ImportFrom)):
             if any(
@@ -625,24 +627,25 @@ class _StaticExportResolver:
     def resolve(self, source: Path, symbol: str) -> object:
         key = (source, symbol)
         if key in self._active:
-            raise _UnresolvedExportDeclarationError(f"Unresolved export declaration cycle: {_export_source_locator(source)}:{symbol}")
+            raise _UnresolvedExportDeclarationError(
+                f"Unresolved export declaration cycle: {_export_source_locator(source)}:{symbol}"
+            )
         self._active.add(key)
         try:
             tree = self._tree(source)
             direct_nodes = {id(node) for node in tree.body}
             for node in _symbol_binding_nodes(tree, symbol):
-                supported_assignment = (
-                    isinstance(node, (ast.Assign, ast.AnnAssign))
-                    and any(
-                        isinstance(target, ast.Name) and target.id == symbol
-                        for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
-                    )
+                supported_assignment = isinstance(node, (ast.Assign, ast.AnnAssign)) and any(
+                    isinstance(target, ast.Name) and target.id == symbol
+                    for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
                 )
                 supported_import = isinstance(node, ast.ImportFrom) and all(
                     alias.name != "*" for alias in node.names
                 )
                 if id(node) not in direct_nodes or not (supported_assignment or supported_import):
-                    raise _UnresolvedExportDeclarationError(f"Unresolved conditional/mutated exports: {_export_source_locator(source)}:{symbol}")
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved conditional/mutated exports: {_export_source_locator(source)}:{symbol}"
+                    )
             declarations: list[ast.AST] = []
             imported: list[tuple[ast.ImportFrom, str]] = []
             for node in tree.body:
@@ -688,14 +691,20 @@ class _StaticExportResolver:
                 node, imported_name = imported[0]
                 info = _module_name_for_path(source)
                 if info is None:
-                    raise _UnresolvedExportDeclarationError(f"Unresolved export import source: {_export_source_locator(source)}")
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved export import source: {_export_source_locator(source)}"
+                    )
                 module = _resolve_import_module(*info, node)
                 if module is None or not module.startswith("polisyos."):
-                    raise _UnresolvedExportDeclarationError(f"Unresolved export import: {_export_source_locator(source)}:{symbol}")
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved export import: {_export_source_locator(source)}:{symbol}"
+                    )
                 value = self.resolve(_facade_source_for(module), imported_name)
                 self._resolved[key] = node.end_lineno
                 return value
-            raise _UnresolvedExportDeclarationError(f"Unresolved or ambiguous export declaration: {_export_source_locator(source)}:{symbol}")
+            raise _UnresolvedExportDeclarationError(
+                f"Unresolved or ambiguous export declaration: {_export_source_locator(source)}:{symbol}"
+            )
         finally:
             self._active.remove(key)
 
@@ -711,12 +720,16 @@ class _StaticExportResolver:
                 if key is None:
                     mapping = self._value(source, value)
                     if not isinstance(mapping, dict):
-                        raise _UnresolvedExportDeclarationError(f"Unresolved export mapping expansion: {_export_source_locator(source)}")
+                        raise _UnresolvedExportDeclarationError(
+                            f"Unresolved export mapping expansion: {_export_source_locator(source)}"
+                        )
                     keys.update(mapping)
                 elif isinstance(key, ast.Constant) and isinstance(key.value, str):
                     keys[key.value] = None
                 else:
-                    raise _UnresolvedExportDeclarationError(f"Unresolved export mapping key: {_export_source_locator(source)}")
+                    raise _UnresolvedExportDeclarationError(
+                        f"Unresolved export mapping key: {_export_source_locator(source)}"
+                    )
             return keys
         if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
             left, right = self._value(source, node.left), self._value(source, node.right)
@@ -731,7 +744,9 @@ class _StaticExportResolver:
             and not node.keywords
         ):
             if any(_symbol_binding_nodes(self._tree(source), node.func.id)):
-                raise _UnresolvedExportDeclarationError(f"Unresolved shadowed export builtin: {_export_source_locator(source)}:{node.func.id}")
+                raise _UnresolvedExportDeclarationError(
+                    f"Unresolved shadowed export builtin: {_export_source_locator(source)}:{node.func.id}"
+                )
             value = self._value(source, node.args[0])
             if isinstance(value, (dict, list, tuple)) and all(
                 isinstance(item, str) for item in value
@@ -741,7 +756,9 @@ class _StaticExportResolver:
         strings = _string_list_value(node)
         if strings is not None:
             return strings
-        raise _UnresolvedExportDeclarationError(f"Unresolved export expression: {_export_source_locator(source)}:{ast.unparse(node)}")
+        raise _UnresolvedExportDeclarationError(
+            f"Unresolved export expression: {_export_source_locator(source)}:{ast.unparse(node)}"
+        )
 
     @staticmethod
     def _passive_container(node: ast.AST) -> bool:
@@ -764,7 +781,9 @@ class _StaticExportResolver:
             value = declaration.value
             if value is None or not any(node is read for node in ast.walk(value)):
                 continue
-            targets = declaration.targets if isinstance(declaration, ast.Assign) else [declaration.target]
+            targets = (
+                declaration.targets if isinstance(declaration, ast.Assign) else [declaration.target]
+            )
             if not all(isinstance(target, ast.Name) for target in targets):
                 return False
             if not self._passive_container(value):
@@ -789,11 +808,15 @@ class _StaticExportResolver:
                 changed = False
                 for node in _module_level_nodes(self._tree(source)):
                     if (
-                        isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)
-                        and node.id in symbols and (source, id(node)) not in self._allowed_reads
+                        isinstance(node, ast.Name)
+                        and isinstance(node.ctx, ast.Load)
+                        and node.id in symbols
+                        and (source, id(node)) not in self._allowed_reads
                     ):
                         if not self._admit_passive_alias(source, node):
-                            raise _UnresolvedExportDeclarationError(f"Unresolved export binding consumer: {_export_source_locator(source)}:{node.id}")
+                            raise _UnresolvedExportDeclarationError(
+                                f"Unresolved export binding consumer: {_export_source_locator(source)}:{node.id}"
+                            )
                         changed = True
                 if not changed:
                     break
@@ -839,12 +862,16 @@ class _StaticExportResolver:
     def _passive_binding(self, source: Path, name: str, *, module_binding: bool = False) -> None:
         key = (source, name)
         if key in self._passive_active:
-            raise _UnresolvedExportDeclarationError(f"Unresolved passive binding cycle: {_export_source_locator(source)}:{name}")
+            raise _UnresolvedExportDeclarationError(
+                f"Unresolved passive binding cycle: {_export_source_locator(source)}:{name}"
+            )
         bindings = list(_symbol_binding_nodes(self._tree(source), name))
         if not bindings and name in vars(builtins) and not module_binding:
             return
         if len(bindings) != 1 or bindings[0] not in self._tree(source).body:
-            raise _UnresolvedExportDeclarationError(f"Unresolved passive binding: {_export_source_locator(source)}:{name}")
+            raise _UnresolvedExportDeclarationError(
+                f"Unresolved passive binding: {_export_source_locator(source)}:{name}"
+            )
         self._passive_active.add(key)
         try:
             node = bindings[0]
@@ -876,9 +903,15 @@ class _StaticExportResolver:
             return isinstance(binding.value, ast.Dict)
         if isinstance(binding, ast.ImportFrom):
             imported = self._import_source(source, binding, "")
-            alias = next(alias for alias in binding.names if (alias.asname or alias.name) == node.id)
+            alias = next(
+                alias for alias in binding.names if (alias.asname or alias.name) == node.id
+            )
             imported_bindings = list(_symbol_binding_nodes(self._tree(imported), alias.name))
-            return len(imported_bindings) == 1 and isinstance(imported_bindings[0], (ast.Assign, ast.AnnAssign)) and isinstance(imported_bindings[0].value, ast.Dict)
+            return (
+                len(imported_bindings) == 1
+                and isinstance(imported_bindings[0], (ast.Assign, ast.AnnAssign))
+                and isinstance(imported_bindings[0].value, ast.Dict)
+            )
         return False
 
     def _audit_expression(self, source: Path, node: ast.AST, *, allow_calls: bool = True) -> None:
@@ -913,13 +946,19 @@ class _StaticExportResolver:
             for value in node.args:
                 self._audit_expression(source, value, allow_calls=allow_calls)
             return
-        if allow_calls and isinstance(node, ast.BinOp) and (source, id(node)) in self._allowed_operations:
+        if (
+            allow_calls
+            and isinstance(node, ast.BinOp)
+            and (source, id(node)) in self._allowed_operations
+        ):
             self._audit_expression(source, node.left, allow_calls=allow_calls)
             self._audit_expression(source, node.right, allow_calls=allow_calls)
             return
         self._refuse_effect(source, node)
 
-    def _audit_function_header(self, source: Path, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
+    def _audit_function_header(
+        self, source: Path, node: ast.FunctionDef | ast.AsyncFunctionDef
+    ) -> None:
         if node.decorator_list or node.type_params:
             self._refuse_effect(source, node)
         expressions = [*node.args.defaults, *node.args.kw_defaults, node.returns]
@@ -934,7 +973,8 @@ class _StaticExportResolver:
     def _audit_statement(self, source: Path, node: ast.stmt) -> None:
         if source in self._passive_modules:
             bound_names = {
-                child.id for child in _module_level_nodes(node)
+                child.id
+                for child in _module_level_nodes(node)
                 if isinstance(child, ast.Name) and isinstance(child.ctx, ast.Store)
             }
             if isinstance(node, (ast.Import, ast.ImportFrom)):
@@ -942,7 +982,10 @@ class _StaticExportResolver:
             # A passive value can still be bound to a module protocol name.
             # Imported owners/initializers cannot declare dunder bindings; the
             # explicit export declaration is the sole data-metadata exception.
-            if any(name.startswith("__") and name.endswith("__") and name != "__all__" for name in bound_names):
+            if any(
+                name.startswith("__") and name.endswith("__") and name != "__all__"
+                for name in bound_names
+            ):
                 self._refuse_effect(source, node)
         if isinstance(node, (ast.Assign, ast.AnnAssign)):
             targets = node.targets if isinstance(node, ast.Assign) else [node.target]
@@ -1000,7 +1043,8 @@ def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | Non
     if prefix is None or not isinstance(declaration.value, ast.List):
         return None
     standalone_calls = {
-        id(node.value) for node in _module_level_nodes(tree)
+        id(node.value)
+        for node in _module_level_nodes(tree)
         if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call)
     }
     allowed_names = {id(targets[0])}
@@ -1031,13 +1075,11 @@ def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | Non
     ):
         return None
     if any(
-        isinstance(node, ast.Call) and id(node) not in allowed_calls for node in _module_level_nodes(tree)
-    ):
-        return None
-    if any(
-        isinstance(node, ast.ClassDef)
+        isinstance(node, ast.Call) and id(node) not in allowed_calls
         for node in _module_level_nodes(tree)
     ):
+        return None
+    if any(isinstance(node, ast.ClassDef) for node in _module_level_nodes(tree)):
         return None
     return prefix
 
@@ -1056,8 +1098,7 @@ def _extract_exports(tree: ast.Module, source_file: Path | None = None) -> tuple
     prefix = _literal_prefix_before_extensions(tree)
     if prefix is not None:
         resolver._allowed_calls.update(
-            (source, id(node)) for node in _module_level_nodes(tree)
-            if isinstance(node, ast.Call)
+            (source, id(node)) for node in _module_level_nodes(tree) if isinstance(node, ast.Call)
         )
         try:
             resolver.audit_consumers()
@@ -1070,7 +1111,8 @@ def _extract_exports(tree: ast.Module, source_file: Path | None = None) -> tuple
         # These are source declarations only: mutations or extension can change
         # the native namespace. They never supply a complete export verdict.
         literals = [
-            _string_list_value(node.value) for node in tree.body
+            _string_list_value(node.value)
+            for node in tree.body
             if isinstance(node, (ast.Assign, ast.AnnAssign))
             and any(
                 isinstance(target, ast.Name) and target.id == "__all__"
@@ -1080,7 +1122,9 @@ def _extract_exports(tree: ast.Module, source_file: Path | None = None) -> tuple
         candidates = literals[0] if len(literals) == 1 and literals[0] is not None else ()
         raise _UnresolvedExportDeclarationError(str(exc), candidates) from exc
     if not isinstance(exports, (tuple, list)) or not all(isinstance(item, str) for item in exports):
-        raise _UnresolvedExportDeclarationError(f"Export declaration must resolve to string sequence: {_export_source_locator(source)}")
+        raise _UnresolvedExportDeclarationError(
+            f"Export declaration must resolve to string sequence: {_export_source_locator(source)}"
+        )
     try:
         resolver.audit_consumers()
     except _UnresolvedExportDeclarationError as exc:
@@ -1131,7 +1175,9 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
                 exports = ()
                 declared_candidates = exc.declared_candidates
                 incomplete_reason = str(exc)
-                exports_scope = "no names proven by the bounded parser; not an empty runtime namespace"
+                exports_scope = (
+                    "no names proven by the bounded parser; not an empty runtime namespace"
+                )
         except (OSError, ValueError, SyntaxError, TypeError) as exc:
             exc.add_note(json.dumps(reads.snapshot(complete_verdict=False), sort_keys=True))
             raise
@@ -1162,7 +1208,8 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
     return SupportedEntrypointInventory(
         module=module,
         facade_mode_observed=(
-            "unresolved_exports" if incomplete_reason is not None and not exports
+            "unresolved_exports"
+            if incomplete_reason is not None and not exports
             else _observed_facade_mode(exports=exports, has_getattr="__getattr__" in function_names)
         ),
         export_count=len(exports) if incomplete_reason is None else None,
@@ -1511,23 +1558,28 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
             if entrypoint.summary:
                 lines.append(f"- Summary: {entrypoint.summary}")
             if entrypoint.export_count is None:
-                lines.append(f"- Export resolution incomplete: {entrypoint.export_resolution['reason']}.")
+                lines.append(
+                    f"- Export resolution incomplete: {entrypoint.export_resolution['reason']}."
+                )
                 candidates = entrypoint.export_resolution["declared_export_candidates"]
                 if candidates:
-                    lines.extend([
-                        "",
-                        f"<details><summary>Source-declared candidates ({len(candidates)}; native exports unproved)</summary>",
-                        "",
-                        "```text",
-                        *candidates,
-                        "```",
-                        "",
-                        "</details>",
-                    ])
+                    lines.extend(
+                        [
+                            "",
+                            f"<details><summary>Source-declared candidates ({len(candidates)}; native exports unproved)</summary>",
+                            "",
+                            "```text",
+                            *candidates,
+                            "```",
+                            "",
+                            "</details>",
+                        ]
+                    )
             if entrypoint.known_export_count:
                 label = (
                     f"Known literal prefix ({entrypoint.known_export_count}; total unknown)"
-                    if entrypoint.export_count is None else f"Entrypoint exports ({entrypoint.export_count})"
+                    if entrypoint.export_count is None
+                    else f"Entrypoint exports ({entrypoint.export_count})"
                 )
                 lines.extend(
                     [
@@ -1544,7 +1596,8 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
         if item.known_export_count:
             label = (
                 f"Known literal prefix ({item.known_export_count}; total unknown)"
-                if item.export_count is None else f"Supported exports ({item.export_count})"
+                if item.export_count is None
+                else f"Supported exports ({item.export_count})"
             )
             lines.extend(
                 [
@@ -1726,8 +1779,7 @@ def _check_readmes(inventory: list[PackageInventory]) -> list[GuardrailViolation
                     subject=item.readme,
                     detail=item.reason,
                     message=(
-                        f"Missing package README for {item.module}: {item.readme} "
-                        f"({item.reason})"
+                        f"Missing package README for {item.module}: {item.readme} ({item.reason})"
                     ),
                 )
             )
@@ -1933,9 +1985,7 @@ def _check_generated_artifact_manifest(
                     message=f"{family.family_id} must declare at least one regeneration command.",
                 )
             )
-        is_runtime_openapi_client = (
-            family.source_of_truth == RUNTIME_OPENAPI_CLIENT_SOURCE
-        )
+        is_runtime_openapi_client = family.source_of_truth == RUNTIME_OPENAPI_CLIENT_SOURCE
         if is_runtime_openapi_client and not family.default_freshness_check:
             violations.append(
                 GuardrailViolation(
@@ -1973,9 +2023,7 @@ def _check_generated_artifact_manifest(
                         ),
                     )
                 )
-            elif sum(
-                part.count("{output_root}") for part in family.output_probe_command
-            ) != 1:
+            elif sum(part.count("{output_root}") for part in family.output_probe_command) != 1:
                 violations.append(
                     GuardrailViolation(
                         check="generated_artifact",
@@ -2065,10 +2113,7 @@ def _relative_generated_output(output: Path) -> str | None:
 
 
 def _requires_default_generated_freshness(family: GeneratedArtifactFamily) -> bool:
-    return (
-        family.default_freshness_check
-        or family.source_of_truth == RUNTIME_OPENAPI_CLIENT_SOURCE
-    )
+    return family.default_freshness_check or family.source_of_truth == RUNTIME_OPENAPI_CLIENT_SOURCE
 
 
 def _path_content_state(path: Path, *, admitted_root: Path | None = None) -> str:
@@ -2224,8 +2269,7 @@ def _create_retained_generated_freshness_workspace(workspace_root: Path) -> Path
     retained_root = requested_root.resolve()
     if retained_root.exists() or retained_root.is_symlink():
         raise FileExistsError(
-            f"Retained generated-freshness workspace resolves to an existing path: "
-            f"{retained_root}"
+            f"Retained generated-freshness workspace resolves to an existing path: {retained_root}"
         )
 
     repository_root = REPO_ROOT.resolve()
@@ -2235,9 +2279,7 @@ def _create_retained_generated_freshness_workspace(workspace_root: Path) -> Path
         )
     production_data = REPO_ROOT / "production_data"
     if production_data.exists() and retained_root.is_relative_to(production_data.resolve()):
-        raise ValueError(
-            "Retained generated-freshness workspace must be outside production_data."
-        )
+        raise ValueError("Retained generated-freshness workspace must be outside production_data.")
     retained_root.mkdir(parents=True, exist_ok=False)
     print(f"Generated-artifact measurement workspace retained at {retained_root}.")
     return retained_root
@@ -2527,9 +2569,7 @@ def _measure_required_generated_artifact_family(
             check=False,
         )
     except OSError as error:
-        cursor.unrun_checks.append(
-            UnrunGeneratedCheck(family.family_id, "generator", str(error))
-        )
+        cursor.unrun_checks.append(UnrunGeneratedCheck(family.family_id, "generator", str(error)))
         cursor.complete_family(family_index)
         return
 
@@ -2636,8 +2676,7 @@ def _measure_required_generated_artifact_family(
                     subject=family.family_id,
                     detail=relative,
                     message=(
-                        f"{family.family_id} expected output is missing: "
-                        f"{expected.as_posix()}."
+                        f"{family.family_id} expected output is missing: {expected.as_posix()}."
                     ),
                 )
             )
@@ -2744,8 +2783,7 @@ def _measure_required_generated_artifacts_in_workspace(
         if (REPO_ROOT / "src/polisyos").is_dir():
             _verify_isolated_python_import_origins(
                 isolated_repo_root,
-                python_executable=Path(environment["UV_PROJECT_ENVIRONMENT"])
-                / "bin/python",
+                python_executable=Path(environment["UV_PROJECT_ENVIRONMENT"]) / "bin/python",
                 environment=environment,
             )
     except (OSError, subprocess.CalledProcessError) as error:
@@ -2817,9 +2855,8 @@ def _measure_required_generated_artifacts(
             if resolved_cache_dir.is_relative_to(REPO_ROOT.resolve()):
                 raise ValueError("The uv cache used by this gate must be outside the repository.")
             production_data = REPO_ROOT / "production_data"
-            if (
-                production_data.exists()
-                and resolved_cache_dir.is_relative_to(production_data.resolve())
+            if production_data.exists() and resolved_cache_dir.is_relative_to(
+                production_data.resolve()
             ):
                 raise ValueError("The uv cache must be outside production_data.")
         resolved_workspace_root = (
@@ -2828,13 +2865,10 @@ def _measure_required_generated_artifacts(
             else None
         )
         if resolved_workspace_root is not None and resolved_cache_dir is not None:
-            if (
-                resolved_workspace_root.is_relative_to(resolved_cache_dir)
-                or resolved_cache_dir.is_relative_to(resolved_workspace_root)
-            ):
-                raise ValueError(
-                    "Retained workspace and existing uv cache must be separate paths."
-                )
+            if resolved_workspace_root.is_relative_to(
+                resolved_cache_dir
+            ) or resolved_cache_dir.is_relative_to(resolved_workspace_root):
+                raise ValueError("Retained workspace and existing uv cache must be separate paths.")
     except (OSError, ValueError) as error:
         detail = str(error)
         cursor.unrun_checks.extend(
@@ -2859,9 +2893,7 @@ def _measure_required_generated_artifacts(
                 offline=retained_workspace_root is not None,
             )
             cursor.run_phase = (
-                "scratch_cleanup"
-                if retained_workspace_root is None
-                else "aggregate_verdict"
+                "scratch_cleanup" if retained_workspace_root is None else "aggregate_verdict"
             )
     except _RetainedFreshnessWorkspaceError as error:
         cursor.unrun_checks.extend(
@@ -2899,9 +2931,7 @@ def _check_workflow_toolchain_guardrails() -> list[GuardrailViolation]:
             )
             continue
         text = workflow_path.read_text(encoding="utf-8")
-        for detail, snippet, message in WORKFLOW_BASELINE_REQUIREMENTS.get(
-            workflow_rel, ()
-        ):
+        for detail, snippet, message in WORKFLOW_BASELINE_REQUIREMENTS.get(workflow_rel, ()):
             if snippet not in text:
                 violations.append(
                     GuardrailViolation(
@@ -2953,9 +2983,7 @@ def _check_workflow_toolchain_guardrails() -> list[GuardrailViolation]:
                             ),
                         )
                     )
-        for detail, snippet, message in WORKFLOW_BASELINE_FORBIDDEN.get(
-            workflow_rel, ()
-        ):
+        for detail, snippet, message in WORKFLOW_BASELINE_FORBIDDEN.get(workflow_rel, ()):
             if snippet in text:
                 violations.append(
                     GuardrailViolation(

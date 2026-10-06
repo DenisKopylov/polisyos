@@ -92,7 +92,9 @@ from . import transport as _transport
 from .core import id_algorithm
 
 globals().update({name: getattr(_core, name) for name in dir(_core) if not name.startswith("__")})
-globals().update({name: getattr(_transport, name) for name in dir(_transport) if not name.startswith("__")})
+globals().update(
+    {name: getattr(_transport, name) for name in dir(_transport) if not name.startswith("__")}
+)
 
 
 def _has_bidirected_edge(graph: CausalGraphModel, left: str, right: str) -> bool:

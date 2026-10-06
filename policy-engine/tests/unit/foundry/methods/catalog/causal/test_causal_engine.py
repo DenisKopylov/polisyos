@@ -4,6 +4,7 @@ import dataclasses
 
 import numpy as np
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.causal_engine import (
     CausalEngine,

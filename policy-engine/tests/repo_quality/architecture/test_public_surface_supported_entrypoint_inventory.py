@@ -117,9 +117,19 @@ def test_runtime_quality_inventory_contains_human_decision_record() -> None:
     assert entrypoint.export_count is None and entrypoint.known_export_count == 0
     assert entrypoint.export_resolution["complete"] is False
     assert "HumanDecisionRecord" in entrypoint.export_resolution["declared_export_candidates"]
-    source_read = next(row for row in entrypoint.export_resolution["inputs"] if row["path"] == entrypoint.source_file and row["operation"] == "read_bytes")
-    assert source_read["sha256"] == hashlib.sha256((REPO_ROOT / entrypoint.source_file).read_bytes()).hexdigest()
-    assert any(row.subject == entrypoint.module and row.detail == "incomplete_exports" for row in guardrails._check_public_surface_contracts(inventory))
+    source_read = next(
+        row
+        for row in entrypoint.export_resolution["inputs"]
+        if row["path"] == entrypoint.source_file and row["operation"] == "read_bytes"
+    )
+    assert (
+        source_read["sha256"]
+        == hashlib.sha256((REPO_ROOT / entrypoint.source_file).read_bytes()).hexdigest()
+    )
+    assert any(
+        row.subject == entrypoint.module and row.detail == "incomplete_exports"
+        for row in guardrails._check_public_surface_contracts(inventory)
+    )
     # Native object identity is an independent consumer observation, not proof
     # that arbitrary import-time declarations fall within the static grammar.
     assert "HumanDecisionRecord" in native.__all__
@@ -275,9 +285,19 @@ def test_ddm_facade_policy_matches_observed_lazy_boundary() -> None:
     entrypoint = ddm.entrypoints[0]
     assert entrypoint.export_resolution["complete"] is False
     assert entrypoint.export_resolution["declared_export_candidates"] == native.__all__
-    source_read = next(row for row in entrypoint.export_resolution["inputs"] if row["path"] == entrypoint.source_file and row["operation"] == "read_bytes")
-    assert source_read["sha256"] == hashlib.sha256((REPO_ROOT / entrypoint.source_file).read_bytes()).hexdigest()
-    assert any(row.subject == ddm.module and row.detail == "incomplete_exports" for row in guardrails._check_public_surface_contracts(inventory))
+    source_read = next(
+        row
+        for row in entrypoint.export_resolution["inputs"]
+        if row["path"] == entrypoint.source_file and row["operation"] == "read_bytes"
+    )
+    assert (
+        source_read["sha256"]
+        == hashlib.sha256((REPO_ROOT / entrypoint.source_file).read_bytes()).hexdigest()
+    )
+    assert any(
+        row.subject == ddm.module and row.detail == "incomplete_exports"
+        for row in guardrails._check_public_surface_contracts(inventory)
+    )
     assert callable(native.__getattr__)
     assert native.__getattr__("DDMWindowResult") is DDMWindowResult
     with pytest.raises(AttributeError):

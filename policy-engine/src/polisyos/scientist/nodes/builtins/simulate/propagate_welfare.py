@@ -28,6 +28,7 @@ from polisyos.core.contracts.foundry import (
 from polisyos.foundry.calibration.report import (
     CalibrationCoordinateProjection,
     CalibrationReport,
+    load_calibration_report,
 )
 from polisyos.foundry.uncertainty import extract_std as _extract_typed_std
 from polisyos.foundry.uncertainty.config import PropagationConfig
@@ -790,11 +791,9 @@ def _collect_input_envelopes(
 
     calibration_ref = state.inputs.get(INPUT_CALIBRATION_REPORT_REF)
     if calibration_ref is not None:
-        report = _load_model(ctx, calibration_ref, CalibrationReport)
+        report = load_calibration_report(ctx.store, calibration_ref)
         calibration_projection_present = report.coordinate_projection is not None
-        calibration_projection_status = (
-            report.coordinate_projection_status or "not_established"
-        )
+        calibration_projection_status = report.coordinate_projection_status or "not_established"
         if calibration_projection_status == "incomplete":
             calibration_issues.add("calibration_projection_incomplete")
         elif calibration_projection_status == "unsupported":
@@ -879,17 +878,16 @@ def _collect_input_envelopes(
                     calibration_issues.add("calibration_envelope_conflict")
 
     calibration_source = None
-    if calibration_ref is not None and report is not None and (calibration_fields or calibration_issues):
+    if (
+        calibration_ref is not None
+        and report is not None
+        and (calibration_fields or calibration_issues)
+    ):
         coordinate_order = (
-            tuple(report.uncertainties.params)
-            if report.uncertainties is not None
-            else ()
+            tuple(report.uncertainties.params) if report.uncertainties is not None else ()
         )
         coordinate_covariance = (
-            tuple(
-                tuple(float(value) for value in row)
-                for row in report.uncertainties.covariance
-            )
+            tuple(tuple(float(value) for value in row) for row in report.uncertainties.covariance)
             if report.uncertainties is not None
             else ()
         )
@@ -1921,8 +1919,7 @@ def _propagate_credible_interval(
                     "covariance_order": list(param_names),
                     "covariance_matrix": calibration_resolution.matrix.tolist(),
                 }
-                if calibration_resolution is not None
-                and calibration_resolution.matrix is not None
+                if calibration_resolution is not None and calibration_resolution.matrix is not None
                 else {}
             ),
             **_calibration_projection_report_metadata(
@@ -2113,9 +2110,7 @@ def _resolve_calibration_covariance(
             limitation_code=code,
         )
 
-    calibration_fields = [
-        name for name in calibration_source.field_order if name in param_names
-    ]
+    calibration_fields = [name for name in calibration_source.field_order if name in param_names]
     if not calibration_fields:
         code = "calibration_projection_missing"
         return _CovarianceResolution(
@@ -2185,7 +2180,10 @@ def _resolve_calibration_covariance(
             )
         full_projection = np.asarray(
             [
-                [1.0 if field_name == coordinate_name else 0.0 for coordinate_name in coordinate_order]
+                [
+                    1.0 if field_name == coordinate_name else 0.0
+                    for coordinate_name in coordinate_order
+                ]
                 for field_name in calibration_source.field_order
             ],
             dtype=np.float64,
@@ -2280,9 +2278,7 @@ def _resolve_calibration_covariance(
     def mixed_marginal_limitation(covariance: np.ndarray) -> _CovarianceResolution | None:
         """Withhold joint intervals when a non-Normal marginal carries Pearson covariance."""
         matrix = np.asarray(covariance, dtype=np.float64)
-        if matrix.shape != (len(param_names), len(param_names)) or not np.all(
-            np.isfinite(matrix)
-        ):
+        if matrix.shape != (len(param_names), len(param_names)) or not np.all(np.isfinite(matrix)):
             code = "calibration_covariance_invalid"
             return _CovarianceResolution(
                 matrix=None,
@@ -2312,8 +2308,7 @@ def _resolve_calibration_covariance(
                     continue
                 right_name = param_names[right_index]
                 right_is_non_normal = (
-                    input_envelopes[right_name].distribution_family
-                    is not DistributionFamily.NORMAL
+                    input_envelopes[right_name].distribution_family is not DistributionFamily.NORMAL
                 )
                 if not left_is_non_normal and not right_is_non_normal:
                     continue
@@ -2360,9 +2355,7 @@ def _resolve_calibration_covariance(
             "unsupported_marginal_fields": [
                 name for name in param_names if name in unsupported_fields
             ],
-            "correlated_fields": [
-                name for name in param_names if name in correlated_fields
-            ],
+            "correlated_fields": [name for name in param_names if name in correlated_fields],
             "nonzero_covariance_pairs": pairs,
             "covariance_predicate": "exact_nonzero_in_admitted_finite_matrix",
             "decision": "retain_candidate_point_withhold_interval_and_samples",
@@ -2397,9 +2390,7 @@ def _resolve_calibration_covariance(
                     np.ix_(overlap_indices, overlap_indices)
                 ] * np.outer(overlap_stds, overlap_stds)
                 report_indices = [calibration_fields.index(name) for name in overlap_fields]
-                report_overlap = calibration_covariance[
-                    np.ix_(report_indices, report_indices)
-                ]
+                report_overlap = calibration_covariance[np.ix_(report_indices, report_indices)]
             except (KeyError, TypeError, ValueError, FloatingPointError) as exc:
                 code = "calibration_covariance_invalid"
                 return _CovarianceResolution(
@@ -2473,7 +2464,9 @@ def _resolve_calibration_covariance(
             note={
                 "strategy": "calibration_report_plus_disjoint_sources",
                 "calibration_fields": calibration_fields,
-                "uncovered_fields": [name for name in param_names if name not in calibration_fields],
+                "uncovered_fields": [
+                    name for name in param_names if name not in calibration_fields
+                ],
                 "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
                 "reason": "no_complete_calibrated_joint_covariance",
                 "independence_source_validated": False,
@@ -2556,7 +2549,9 @@ def _resolve_calibration_covariance(
             "calibration_fields": calibration_fields,
             "calibration_report_ref": str(calibration_source.report_ref.artifact_id),
             "dependence_structure_ref": (
-                str(dependence_context.ref.artifact_id) if dependence_context.ref is not None else None
+                str(dependence_context.ref.artifact_id)
+                if dependence_context.ref is not None
+                else None
             ),
             "reconciliation_tolerance": {
                 "version": 1,
@@ -2668,9 +2663,7 @@ def _calibration_dependence_sampler(
         except np.linalg.LinAlgError:
             return limited("calibration_cross_source_dependence_unknown")
         cross_block = resolved_covariance[np.ix_(calibration_indices, extra_indices)]
-        represented_cross_block = (
-            projection_matrix @ projection_pseudoinverse @ cross_block
-        )
+        represented_cross_block = projection_matrix @ projection_pseudoinverse @ cross_block
         if not np.allclose(
             represented_cross_block,
             cross_block,
@@ -2881,9 +2874,7 @@ def _sample_param_draw(
             for index, name in enumerate(sampler.extra_fields):
                 envelope = input_envelopes[name]
                 if envelope.distribution_family == DistributionFamily.NORMAL:
-                    draw_params[name] = float(
-                        envelope.point_estimate + extra_delta[index]
-                    )
+                    draw_params[name] = float(envelope.point_estimate + extra_delta[index])
                 else:
                     standard_deviation = sampler.extra_stds[index]
                     standardized = (

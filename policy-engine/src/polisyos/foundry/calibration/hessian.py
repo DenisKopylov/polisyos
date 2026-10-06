@@ -1,9 +1,10 @@
-"""Hessian computation with eigenvalue repair and finite-difference fallback."""
+"""Compute raw objective curvature and admit explicitly scoped inverse information."""
 
 from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Literal
 
 import jax
 import jax.numpy as jnp
@@ -14,14 +15,21 @@ import numpy as np
 class HessianResult:
     """Result of Hessian computation at an optimum."""
 
-    hessian: np.ndarray  # (n, n) repaired Hessian
-    covariance: np.ndarray  # (n, n) H^{-1}
-    std: np.ndarray  # (n,) sqrt(diag(cov))
+    hessian: np.ndarray  # (n, n) raw symmetric objective Hessian
+    covariance: np.ndarray | None  # admitted inverse information, never repaired
+    std: np.ndarray | None
     eigenvalues: np.ndarray  # (n,) sorted eigenvalues from eigh
     condition_number: float
-    n_repaired: int  # number of eigenvalues clipped to eps
+    n_repaired: int  # compatibility field; compute_hessian never repairs eigenvalues
     param_names: list[str]
     strategy: str  # "exact" or "finite_diff"
+    objective_kind: str = "generic_loss"
+    covariance_kind: str | None = None
+    covariance_unavailable_reason: str | None = None
+    raw_rank: int = 0
+    derivative_dtype: str = "unknown"
+    fallback_reason: str | None = None
+    gradient_norm: float | None = None
 
 
 def _repair_eigenvalues(
@@ -119,47 +127,102 @@ def compute_hessian(
     *,
     damping: float = 1e-6,
     jitter_floor: float = 1e-8,
+    objective_kind: Literal[
+        "generic_loss", "negative_log_likelihood", "negative_log_posterior"
+    ] = "generic_loss",
+    condition_limit: float = 1e8,
+    stationarity_tol: float = 1e-5,
 ) -> HessianResult:
-    """Compute Hessian of *loss_fn* at *flat_theta* with eigenvalue repair.
+    """Compute raw curvature, without turning repaired curvature into covariance.
 
-    Strategy:
-    1. Try ``jax.hessian`` (exact, requires 2nd-order differentiability).
-    2. Fallback: finite-difference Hessian.
-    3. Eigenvalue repair: clip negative eigenvalues to *jitter_floor*.
+    Generic objectives and finite differences are diagnostics. Inverse observed
+    information or a local Laplace approximation is returned only for an explicit
+    objective kind at a stationary, finite, positive, well-conditioned point.
+    This numerical admission does not establish the declared probability model
+    or its sampling assumptions. ``damping`` is retained for API compatibility;
+    it cannot change the raw spectrum or an inferential covariance.
     """
+    if not param_names or len(param_names) != len(set(param_names)):
+        raise ValueError("ordered parameter names must be nonempty and unique")
+    if objective_kind not in {"generic_loss", "negative_log_likelihood", "negative_log_posterior"}:
+        raise ValueError("unsupported objective_kind")
+    if not np.isfinite(jitter_floor) or jitter_floor < 0:
+        raise ValueError("jitter_floor must be finite and nonnegative")
+    if not np.isfinite(condition_limit) or condition_limit <= 1:
+        raise ValueError("condition_limit must be finite and greater than one")
+    if not np.isfinite(stationarity_tol) or stationarity_tol < 0:
+        raise ValueError("stationarity_tol must be finite and nonnegative")
+    if not np.isfinite(damping) or damping < 0:
+        raise ValueError("damping must be finite and nonnegative")
     strategy = "exact"
+    fallback_reason = None
     try:
         H_raw = jax.hessian(loss_fn)(jnp.asarray(flat_theta))
         if not bool(jnp.all(jnp.isfinite(H_raw))):
             raise ValueError("Hessian contains non-finite values")
     except Exception as exc:
+        fallback_reason = f"{type(exc).__name__}: {exc}"
         H_raw = _finite_difference_hessian(loss_fn, jnp.asarray(flat_theta))
         strategy = "finite_diff"
         if not bool(jnp.all(jnp.isfinite(H_raw))):
             raise ValueError("Finite-difference Hessian contains non-finite values") from exc
 
-    raw_eigvals = jnp.linalg.eigvalsh(0.5 * (H_raw + H_raw.T))
-    H_repaired, eigvals, n_repaired = _repair_eigenvalues(
-        H_raw,
-        eps=jitter_floor,
-        damping=damping,
-    )
-
-    cov = jnp.linalg.inv(H_repaired)
-
-    std = jnp.sqrt(jnp.maximum(jnp.diag(cov), 0.0))
-    if not bool(jnp.all(jnp.isfinite(raw_eigvals))) or bool(jnp.any(raw_eigvals <= jitter_floor)):
+    derivative_dtype = str(H_raw.dtype)
+    hessian = np.asarray(H_raw, dtype=np.float64)
+    hessian = 0.5 * (hessian + hessian.T)
+    if hessian.shape != (len(param_names), len(param_names)):
+        raise ValueError("Hessian axes must match ordered parameter names")
+    raw_eigvals = np.linalg.eigvalsh(hessian)
+    rank = int(np.sum(np.abs(raw_eigvals) > jitter_floor))
+    if not np.all(np.isfinite(raw_eigvals)) or np.any(raw_eigvals <= jitter_floor):
         condition_number = float("inf")
     else:
         condition_number = float(raw_eigvals[-1] / raw_eigvals[0])
 
+    gradient_norm = None
+    try:
+        gradient = np.asarray(jax.grad(loss_fn)(jnp.asarray(flat_theta)), dtype=float)
+        gradient_norm = float(np.linalg.norm(gradient))
+    except Exception:
+        pass
+    reason = None
+    if np.any(raw_eigvals < -jitter_floor):
+        reason = "negative_curvature"
+    elif rank < len(param_names) or np.any(raw_eigvals <= jitter_floor):
+        reason = "singular_or_flat_curvature"
+    elif condition_number > condition_limit:
+        reason = "ill_conditioned_curvature"
+    elif objective_kind == "generic_loss":
+        reason = "generic_objective_curvature_only"
+    elif strategy != "exact":
+        reason = "finite_difference_diagnostic_only"
+    elif gradient_norm is None or not np.isfinite(gradient_norm):
+        reason = "stationarity_not_established"
+    elif gradient_norm > stationarity_tol:
+        reason = "nonstationary_point"
+    covariance = None if reason is not None else np.linalg.inv(hessian)
+    std = None if covariance is None else np.sqrt(np.diag(covariance))
+    covariance_kind = None
+    if covariance is not None:
+        covariance_kind = (
+            "inverse_observed_information"
+            if objective_kind == "negative_log_likelihood"
+            else "local_laplace_approximation"
+        )
     return HessianResult(
-        hessian=np.asarray(H_repaired, dtype=float),
-        covariance=np.asarray(cov, dtype=float),
-        std=np.asarray(std, dtype=float),
-        eigenvalues=np.asarray(eigvals, dtype=float),
+        hessian=hessian,
+        covariance=covariance,
+        std=std,
+        eigenvalues=raw_eigvals,
         condition_number=condition_number,
-        n_repaired=n_repaired,
+        n_repaired=0,
         param_names=list(param_names),
         strategy=strategy,
+        objective_kind=objective_kind,
+        covariance_kind=covariance_kind,
+        covariance_unavailable_reason=reason,
+        raw_rank=rank,
+        derivative_dtype=derivative_dtype,
+        fallback_reason=fallback_reason,
+        gradient_norm=gradient_norm,
     )

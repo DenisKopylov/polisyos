@@ -14,6 +14,7 @@ from collections.abc import Callable, Mapping, Sequence
 from contextlib import AbstractContextManager, nullcontext
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from hashlib import sha256
 from typing import Any, Literal
 
 import jax
@@ -104,6 +105,9 @@ class CalibratorInputs:
             `DefaultMeasurementAwareLossAdapter`.
         aux_loss_components: Optional extra penalties computed from synthetic
             traces, such as interference losses.
+        gaussian_observation_std: Optional known observation-noise scales keyed
+            by target ID. Selects the narrow independent Gaussian NLL profile;
+            its declared row-law assumptions remain non-gating.
     """
 
     config: CalibrationConfig
@@ -125,6 +129,7 @@ class CalibratorInputs:
     measurement_loss_config: MeasurementAwareLossConfig | None = None
     measurement_loss_adapter: MeasurementAwareLossAdapter | None = None
     aux_loss_components: Sequence[AuxLossComponent] | None = None
+    gaussian_observation_std: Mapping[str, float] | None = None
 
 
 @dataclass
@@ -172,6 +177,7 @@ class _HessianReuseKey:
     fidelity_mode: str
     fidelity_temperature: float
     fidelity_force_override: bool
+    objective_identity: str = ""
 
 
 def _select_lower_loss_state(
@@ -223,6 +229,7 @@ def _make_hessian_reuse_key(
     config: CalibrationConfig,
     *,
     steps: int,
+    objective_identity: str = "",
 ) -> _HessianReuseKey:
     """Build a complete local identity for a Hessian diagnostic."""
     return _HessianReuseKey(
@@ -239,6 +246,7 @@ def _make_hessian_reuse_key(
         fidelity_mode=config.fidelity.mode,
         fidelity_temperature=float(config.fidelity.temperature),
         fidelity_force_override=bool(config.fidelity.force_override),
+        objective_identity=objective_identity,
     )
 
 
@@ -707,6 +715,38 @@ class Calibrator:
         diagnostics: list[str] = []
         bundle = self._build_bundle()
         targets, metric_paths, path_by_target = self._target_meta()
+        gaussian_std = self.inputs.gaussian_observation_std
+        objective_kind = "generic_loss"
+        objective_profile = None
+        if gaussian_std is not None:
+            if set(gaussian_std) != {target.target_id for target in targets}:
+                raise ValueError("Gaussian noise scales must cover exactly the target IDs")
+            if any(not np.isfinite(value) or value <= 0 for value in gaussian_std.values()):
+                raise ValueError(
+                    "Gaussian observation standard deviations must be finite and positive"
+                )
+            if (
+                self.inputs.measurement_bundle is not None
+                or self.inputs.aux_loss_components
+                or cfg.prior_loss.enabled
+                or cfg.constraint_loss.enabled
+                or cfg.grad_norm.enabled
+                or cfg.seed_strategy != "fixed"
+                or any(target.loss.weight != 1.0 for target in targets)
+                or any(target.loss.kind != "mse" or target.loss.relative for target in targets)
+            ):
+                raise ValueError(
+                    "Gaussian NLL profile does not support weighted/penalized objectives"
+                )
+            objective_kind = "negative_log_likelihood"
+            objective_profile = {
+                "profile": "gaussian_observation_nll.v1",
+                "observation_std": dict(gaussian_std),
+                "row_law_basis": "consumer_asserted",
+                "row_law_assumption": "independent Gaussian observations with known noise scales",
+                "covariance_scope": "local inverse observed information under declared assumptions",
+                "gate_eligible": False,
+            }
         if cfg.fidelity.mode == "discrete":
             diagnostics.append(
                 "Calibration running in 'discrete' mode. Gradient-based optimization (Adam) "
@@ -795,9 +835,7 @@ class Calibrator:
                         "Coverage mask must match target shape: "
                         f"target={aligned_targets[target_id].shape}, coverage={coverage.shape}"
                     )
-                observed_mask = (coverage > 0.0) & jnp.isfinite(
-                    aligned_targets[target_id]
-                )
+                observed_mask = (coverage > 0.0) & jnp.isfinite(aligned_targets[target_id])
                 labels = measurement_bundle.split_label.get(target_id)
                 if labels is None:
                     training_mask = jnp.ones_like(observed_mask, dtype=bool)
@@ -860,9 +898,7 @@ class Calibrator:
                 if not measurement_support[target_id]:
                     diagnostics.append(f"no_effective_support:{target_id}")
             if not any(measurement_support.values()):
-                raise ValueError(
-                    "Calibration blocked: no_effective_support for any target"
-                )
+                raise ValueError("Calibration blocked: no_effective_support for any target")
 
         loss_configs = {t.target_id: t.loss for t in targets}
         target_ids = [t.target_id for t in targets]
@@ -977,6 +1013,22 @@ class Calibrator:
             return total
 
         measurement_enabled = measurement_bundle is not None
+        identity_hash = sha256(cfg.model_dump_json().encode())
+        identity_hash.update(self.inputs.program_graph.model_dump_json().encode())
+        identity_hash.update(self.inputs.exec_plan.model_dump_json().encode())
+        identity_hash.update(str(sorted((gaussian_std or {}).items())).encode())
+        for target_id, values in sorted(aligned_targets.items()):
+            identity_hash.update(target_id.encode())
+            array = np.asarray(values)
+            identity_hash.update(str((array.shape, array.dtype)).encode())
+            identity_hash.update(array.tobytes())
+        for leaf in jax.tree_util.tree_leaves(self.inputs.base_state):
+            array = np.asarray(leaf)
+            identity_hash.update(str((array.shape, array.dtype)).encode())
+            identity_hash.update(array.tobytes())
+        if self.inputs.controls_seq is not None:
+            identity_hash.update(np.asarray(self.inputs.controls_seq).tobytes())
+        objective_identity = identity_hash.hexdigest()
 
         def _target_loss_vec(
             u: Sequence[jnp.ndarray],
@@ -1004,6 +1056,13 @@ class Calibrator:
                 predicted = _apply_aggregation(trace, target.aggregation)
                 cfg_loss = loss_configs[target.target_id]
                 scale = scales.get(target.target_id, 1.0) if cfg_loss.relative else 1.0
+                if gaussian_std is not None:
+                    observed = aligned_targets[target.target_id]
+                    if predicted.shape != observed.shape:
+                        raise ValueError("Gaussian NLL operands must have identical shapes")
+                    residual = (predicted - observed) / gaussian_std[target.target_id]
+                    losses.append(0.5 * jnp.sum(jnp.square(residual)))
+                    continue
                 if not measurement_enabled:
                     losses.append(
                         compute_base_loss(
@@ -1035,9 +1094,7 @@ class Calibrator:
                     ),
                     config=measurement_config,
                 )
-                sample_quality = adapted.get(
-                    "sample_quality_weight", adapted["effective_weight"]
-                )
+                sample_quality = adapted.get("sample_quality_weight", adapted["effective_weight"])
                 losses.append(
                     reduce_weighted_loss(
                         pointwise,
@@ -1084,12 +1141,7 @@ class Calibrator:
             constraint_penalty = _constraint_penalty(traces)
             prior_penalty = _prior_penalty(theta_groups)
             aux_penalty = _aux_penalty(traces)
-            total = (
-                total
-                + constraint_penalty
-                + prior_penalty
-                + aux_penalty
-            )
+            total = total + constraint_penalty + prior_penalty + aux_penalty
             return total, base_vec, traces, constraint_penalty, prior_penalty, aux_penalty
 
         def _tree_is_finite(tree: Any) -> jnp.ndarray:
@@ -1209,6 +1261,7 @@ class Calibrator:
                 weights_vec,
                 cfg,
                 steps=steps,
+                objective_identity=objective_identity,
             )
 
             def _loss_from_flat(flat_params: jnp.ndarray) -> jnp.ndarray:
@@ -1226,11 +1279,7 @@ class Calibrator:
                 base_vec = _base_vec_from_traces(
                     traces_local,
                 )
-                total = (
-                    jnp.sum(base_vec * weights_vec)
-                    if base_vec.size
-                    else jnp.array(0.0)
-                )
+                total = jnp.sum(base_vec * weights_vec) if base_vec.size else jnp.array(0.0)
                 total = (
                     total
                     + _constraint_penalty(traces_local)
@@ -1247,6 +1296,8 @@ class Calibrator:
                     param_names,
                     damping=cfg.hessian.damping,
                     jitter_floor=cfg.hessian.rank_tol,
+                    objective_kind=objective_kind,
+                    condition_limit=cfg.hessian.condition_warn,
                 )
             except (FloatingPointError, RuntimeError, TypeError, ValueError) as exc:
                 return None, None, [f"Hessian computation failed: {exc}"], reuse_key
@@ -1381,14 +1432,17 @@ class Calibrator:
             # the historical state with those same final weights so the two
             # objectives remain comparable.
             final_step_idx = jnp.array(0, dtype=jnp.int32)
-            candidate_forward: tuple[
-                jnp.ndarray,
-                jnp.ndarray,
-                Mapping[str, jnp.ndarray],
-                jnp.ndarray,
-                jnp.ndarray,
-                jnp.ndarray,
-            ] | None = None
+            candidate_forward: (
+                tuple[
+                    jnp.ndarray,
+                    jnp.ndarray,
+                    Mapping[str, jnp.ndarray],
+                    jnp.ndarray,
+                    jnp.ndarray,
+                    jnp.ndarray,
+                ]
+                | None
+            ) = None
             candidate_loss = float("inf")
             try:
                 candidate_forward = _forward_evaluation(
@@ -1406,14 +1460,17 @@ class Calibrator:
                 equal_nan=True,
             )
             baseline_loss = best_eval_loss
-            baseline_forward: tuple[
-                jnp.ndarray,
-                jnp.ndarray,
-                Mapping[str, jnp.ndarray],
-                jnp.ndarray,
-                jnp.ndarray,
-                jnp.ndarray,
-            ] | None = None
+            baseline_forward: (
+                tuple[
+                    jnp.ndarray,
+                    jnp.ndarray,
+                    Mapping[str, jnp.ndarray],
+                    jnp.ndarray,
+                    jnp.ndarray,
+                    jnp.ndarray,
+                ]
+                | None
+            ) = None
             if np.isfinite(best_eval_loss) and (
                 not weights_comparable or cfg.seed_strategy == "step"
             ):
@@ -1434,12 +1491,8 @@ class Calibrator:
                 candidate_loss=candidate_loss,
                 candidate_state=u_state,
             )
-            candidate_selected = (
-                np.isfinite(candidate_loss)
-                and (
-                    not np.isfinite(baseline_loss)
-                    or candidate_loss < baseline_loss
-                )
+            candidate_selected = np.isfinite(candidate_loss) and (
+                not np.isfinite(baseline_loss) or candidate_loss < baseline_loss
             )
             run_u_state = selected_state
             run_weights_state = weights_state
@@ -1457,11 +1510,9 @@ class Calibrator:
                     run_identifiability,
                     hessian_diags,
                     run_hessian_key,
-                ) = (
-                    _compute_run_hessian_summary(
-                        theta_groups_run,
-                        run_weights_state,
-                    )
+                ) = _compute_run_hessian_summary(
+                    theta_groups_run,
+                    run_weights_state,
                 )
                 _ms_diagnostics.extend(hessian_diags)
             multi_start_runs.append(
@@ -1607,6 +1658,7 @@ class Calibrator:
                     weights_state,
                     cfg,
                     steps=steps,
+                    objective_identity=objective_identity,
                 )
                 cached_hessian = selected_run.get("hessian_result")
                 cached_hessian_key = selected_run.get("hessian_reuse_key")
@@ -1619,6 +1671,7 @@ class Calibrator:
                     identifiability_report = selected_run.get("identifiability")
                     diagnostics.append("Hessian reused from selected start")
                 else:
+
                     def _loss_from_flat(flat_params: jnp.ndarray) -> jnp.ndarray:
                         theta_groups = unravel_theta(flat_params)
                         theta = _expand_group_values(theta_groups)
@@ -1635,9 +1688,7 @@ class Calibrator:
                             traces_local,
                         )
                         total = (
-                            jnp.sum(base_vec * weights_state)
-                            if base_vec.size
-                            else jnp.array(0.0)
+                            jnp.sum(base_vec * weights_state) if base_vec.size else jnp.array(0.0)
                         )
                         total = (
                             total
@@ -1654,6 +1705,8 @@ class Calibrator:
                             param_names,
                             damping=cfg.hessian.damping,
                             jitter_floor=cfg.hessian.rank_tol,
+                            objective_kind=objective_kind,
+                            condition_limit=cfg.hessian.condition_warn,
                         )
                     except (
                         FloatingPointError,
@@ -1663,7 +1716,7 @@ class Calibrator:
                     ) as exc:  # pragma: no cover - defensive
                         diagnostics.append(f"Hessian computation failed: {exc}")
 
-                if hessian_result is not None:
+                if hessian_result is not None and hessian_result.covariance is not None:
                     hr = hessian_result
                     n_p = len(hr.param_names)
 
@@ -1695,6 +1748,7 @@ class Calibrator:
                         )
 
                     uncertainties = CalibrationUncertainty(
+                        method=hr.covariance_kind or "curvature_diagnostic",
                         params=list(hr.param_names),
                         covariance=_as_float_matrix(cov_jnp),
                         correlation=_as_float_matrix(corr),
@@ -1721,8 +1775,8 @@ class Calibrator:
         coordinate_projection_status: Literal[
             "complete", "incomplete", "unsupported", "not_established"
         ] = "not_established"
-        if uncertainties is not None:
-            coordinate_names = tuple(uncertainties.params)
+        if hessian_result is not None:
+            coordinate_names = tuple(hessian_result.param_names)
             scalar_group_names = tuple(group.group_id for group in groups)
             if (
                 len(coordinate_names) == len(groups)
@@ -1734,11 +1788,9 @@ class Calibrator:
                     for group_idx, group in enumerate(groups)
                     for handle_idx in group.handle_indices
                 }
-                complete_handle_map = (
-                    set(group_by_handle) == set(range(len(final_bundle.trainables)))
-                    and len(group_by_handle)
-                    == sum(len(group.handle_indices) for group in groups)
-                )
+                complete_handle_map = set(group_by_handle) == set(
+                    range(len(final_bundle.trainables))
+                ) and len(group_by_handle) == sum(len(group.handle_indices) for group in groups)
                 if not complete_handle_map:
                     diagnostics.append("coordinate_projection_incomplete_unassigned_fields")
                     coordinate_projection_status = "incomplete"
@@ -1808,6 +1860,29 @@ class Calibrator:
                     )
                     for target_id in target_ids
                 },
+                "objective_kind": objective_kind,
+                "objective_identity": objective_identity,
+                "objective_profile": objective_profile,
+                "covariance_authority_basis": "not_established",
+                "curvature_diagnostic": (
+                    {
+                        "strategy": hessian_result.strategy,
+                        "derivative_dtype": hessian_result.derivative_dtype,
+                        "raw_eigenvalues": hessian_result.eigenvalues.tolist(),
+                        "raw_rank": hessian_result.raw_rank,
+                        "condition_number": (
+                            hessian_result.condition_number
+                            if np.isfinite(hessian_result.condition_number)
+                            else None
+                        ),
+                        "covariance_unavailable_reason": (
+                            hessian_result.covariance_unavailable_reason
+                        ),
+                        "fallback_reason": hessian_result.fallback_reason,
+                    }
+                    if hessian_result is not None
+                    else None
+                ),
             },
         )
         if report.uncertainties is not None:

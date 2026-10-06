@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import suppress
 from dataclasses import replace
 from types import SimpleNamespace
 
@@ -10,15 +11,19 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph, ProgramGraphRef
 from polisyos.foundry.calibration import calibrator as calibrator_module
 from polisyos.foundry.calibration.calibrator import (
     Calibrator,
     CalibratorInputs,
-    _HessianReuseKey,
     _hessian_reuse_key_matches,
+    _HessianReuseKey,
     _select_lower_loss_state,
 )
 from polisyos.foundry.calibration.pure_executor import TrainableHandle
+from polisyos.foundry.contracts.state import GlobalState
 from polisyos.ir.analytics.calibration import CalibrationConfig, CalibrationTarget
 
 pytestmark = pytest.mark.unit
@@ -104,11 +109,20 @@ def _make_fake_calibrator(
     monkeypatch.setattr(calibrator_module, "apply_trainable_values", apply_values)
     monkeypatch.setattr(calibrator_module, "run_pure_scan", scan)
 
+    dummy_id = ArtifactID.from_sha256_hex("0" * 64)
+    graph = ProgramGraph(
+        ir_ref=ArtifactRef(
+            artifact_id=dummy_id, kind="ir.trinity_bundle", media_type="application/json"
+        ),
+        nodes=[],
+        edges=[],
+        entrypoints=[],
+    )
     inputs = CalibratorInputs(
         config=config,
-        program_graph=SimpleNamespace(),
-        exec_plan=SimpleNamespace(),
-        base_state=SimpleNamespace(),
+        program_graph=graph,
+        exec_plan=ExecPlan(program_ref=ProgramGraphRef(artifact_id=dummy_id), order=[]),
+        base_state=GlobalState.empty(n_agents=1, n_firms=1),
         mechanism_registry=SimpleNamespace(),
         slot_registry=SimpleNamespace(slots={}),
         merge_registry=SimpleNamespace(),
@@ -166,6 +180,9 @@ def test_hessian_reuse_requires_point_coordinates_weights_seed_and_numeric_polic
     )
 
     assert _hessian_reuse_key_matches(base, base)
+    assert not _hessian_reuse_key_matches(
+        base, replace(base, objective_identity="changed-input-or-model-law")
+    )
     assert not _hessian_reuse_key_matches(
         base,
         base.__class__(**{**base.__dict__, "flat_theta": (0.5,)}),
@@ -281,7 +298,10 @@ def test_real_jax_nonfinite_update_keeps_last_checked_state() -> None:
     # avoiding a resource-bearing run: sqrt(0) is finite but its derivative is
     # non-finite, so the produced optimizer state must remain unselected.
     value = jnp.asarray(0.0, dtype=jnp.float32)
-    objective = lambda x: jnp.square(jnp.sqrt(x))
+
+    def objective(x):
+        return jnp.square(jnp.sqrt(x))
+
     value_at_zero, gradient_at_zero = jax.value_and_grad(objective)(value)
 
     assert float(value_at_zero) == pytest.approx(0.0)
@@ -326,12 +346,9 @@ def test_step_seeded_finalist_comparison_uses_one_final_replica(
     concrete_keys: list[tuple[int, ...]] = []
 
     def seeded_scan(base_state, *, steps, root_key, bundle, metric_paths, controls_seq):
-        try:
+        # Differentiated scans have abstract keys; only concrete finalists are recorded.
+        with suppress(Exception):
             concrete_keys.append(tuple(int(value) for value in np.asarray(root_key).reshape(-1)))
-        except Exception:
-            # The optimizer's value/grad trace may carry an abstract key.  The
-            # final candidate/baseline evaluations are concrete and recordable.
-            pass
         noise = jax.random.normal(root_key, shape=())
         return base_state, {"objective": jnp.reshape(bundle.theta + noise, (1,))}
 
@@ -354,10 +371,8 @@ def test_fixed_seed_keeps_final_candidate_on_the_same_replica(
     concrete_keys: list[tuple[int, ...]] = []
 
     def seeded_scan(base_state, *, steps, root_key, bundle, metric_paths, controls_seq):
-        try:
+        with suppress(Exception):
             concrete_keys.append(tuple(int(value) for value in np.asarray(root_key).reshape(-1)))
-        except Exception:
-            pass
         noise = jax.random.normal(root_key, shape=())
         return base_state, {"objective": jnp.reshape(bundle.theta + noise, (1,))}
 
@@ -400,7 +415,8 @@ def test_multi_start_reuses_selected_hessian_without_n_plus_one(
 
     assert len(hessian_calls) == 2
     assert all(parameter_connected)
-    assert report.uncertainties is not None
+    assert report.uncertainties is None
+    assert report.execution_context["curvature_diagnostic"]["raw_rank"] == 1
     assert "Hessian reused from selected start" in report.diagnostics
 
 
@@ -439,5 +455,6 @@ def test_multi_start_recomputes_hessian_after_identity_mismatch(
 
     assert key_calls == 3
     assert hessian_calls == 3
-    assert report.uncertainties is not None
+    assert report.uncertainties is None
+    assert report.execution_context["curvature_diagnostic"]["raw_rank"] == 1
     assert "Hessian reused from selected start" not in report.diagnostics

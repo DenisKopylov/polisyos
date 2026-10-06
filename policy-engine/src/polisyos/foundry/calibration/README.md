@@ -31,6 +31,29 @@ diagnostics into uncertainty envelopes or post-fit evidence.
 - [identifiability.py](identifiability.py) and [hessian.py](hessian.py) for
   identifiability and second-order diagnostics.
 
+Generic squared/Huber objectives produce raw curvature diagnostics, including
+the derivative dtype and spectrum. They do not produce inferential covariance.
+Negative, flat, singular, or ill-conditioned directions are preserved and never
+repaired into uncertainty. Damping remains a compatibility argument, without
+changing the covariance admission rule.
+
+`CalibratorInputs.gaussian_observation_std` selects a narrow Gaussian NLL
+profile with known noise scales for every target. It requires fixed seeds,
+unweighted absolute MSE target configuration, and no measurement discount,
+GradNorm, prior, constraint, or auxiliary penalty. The actual objective is the
+sum of `0.5 * ((prediction - observation) / sigma)**2`, conditional on the
+configured fixed-seed response. A stationary positive well-conditioned Hessian
+may provide local inverse observed information. Independent Gaussian observation
+assumptions remain `consumer_asserted`; the emitted parameter envelopes are
+heuristic and cannot pass an authority gate.
+
+V2 reports bind their configuration and, for this profile, a separate immutable
+objective-profile artifact. The internal `report.load_calibration_report` reader
+checks the exact CAS profile, kind, schema/version, payload and configuration
+edge. The welfare consumer uses this reader; a byte-identical Funnel artifact
+cannot substitute for a Foundry calibration report. Historical v1 serialization
+keeps its original projection.
+
 - [../uncertainty/README.md](../uncertainty/README.md) for downstream
   uncertainty propagation.
 

@@ -1,0 +1,226 @@
+{
+  "source_sha": "35b1808c63fa84dd0555ff9043e0aaffe9831e7b",
+  "source_tree": "0002a76b106d74a3bc5fb341b578c1093e6c193c",
+  "check": "FAIL",
+  "decision": "BLOCK",
+  "unique_full_files": 36,
+  "items": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/review.json",
+      "bytes": 66397,
+      "sha256": "1aa165509c5309f0d23ed91f447223bdbbcd647107f7a20a9a439706a3b6b6f2",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/finish_review.py",
+      "bytes": 10833,
+      "sha256": "406459e973c90679d99fbfdd9d36d3946eceaae206a32510bc87f0f2b8864164",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/run_check.py",
+      "bytes": 2223,
+      "sha256": "fa4d8701ebd6ddefce602f7250a3de061028464cc300397d96186ab2d55c09b4",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/root-probe-current.py",
+      "bytes": 1746,
+      "sha256": "5dc86def3e204703b148fc4afbc1fd12843e97288db2f56f7a8dfeff5784ba3c",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/root-probe-results.json",
+      "bytes": 1735,
+      "sha256": "c367bc0628fb9cd414928ae98b394dc16aa90fcf2244aa47b1493c664775183f",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/test_implicit_function_effect.py",
+      "bytes": 4470,
+      "sha256": "e5dbff6e91b75812bc83a1e8e51f71453a77ed22265b3096a2fb62c75c6e1c5f",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/test_import_profile.py",
+      "bytes": 3703,
+      "sha256": "318cc2b6eaac129b4120e83cce5480e71d6752c629ed9929421ca0071a84a34e",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/test_import_profile_corrected.py",
+      "bytes": 3812,
+      "sha256": "c19edaaa48b786e1bf98e2177030ddf19f1e0ef6819032edaaef9ce7c9de234c",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/measure_namespace_gate.py",
+      "bytes": 3479,
+      "sha256": "192345b5663c3c5545005c7f68f5086f6ecc303ec365d7a1ab928aab362ec16d",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/generation_portability_probe.py",
+      "bytes": 2104,
+      "sha256": "7c6d83d35914ed578757223263f0fec6e591aa86035e8e6532e4a1ea4355919c",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/generation-portability-probe.json",
+      "bytes": 10784,
+      "sha256": "4726f7510c8bb0b69862fa0576ba3831822f7c15f5012ed3208177c613965f88",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/native95.json",
+      "bytes": 6851,
+      "sha256": "4501bda5ada72d2644c847ef8029f7504384162f9f985c077146fbc2ebdc78f3",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/native95.stdout.txt",
+      "bytes": 2346,
+      "sha256": "18928f5cdd435cc6ab53f315ff41c7e247ff54164601fd9c6eb58af30272b876",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/native95.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/effect-boundary.json",
+      "bytes": 6809,
+      "sha256": "a8638d6501914c332fecb81901dd7604ef426927c773d81d3d96378dd8769457",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/effect-boundary.stdout.txt",
+      "bytes": 17977,
+      "sha256": "f54061afaef28355839d018f345e4e5615610bebca5cd28733e8efa070fe577b",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/effect-boundary.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/root-probe.json",
+      "bytes": 6550,
+      "sha256": "919f49f4e0b978d5464325659b7aa3dbf19f1b22cf2d27025a2ed11709befcbd",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/root-probe.stdout.txt",
+      "bytes": 1735,
+      "sha256": "c367bc0628fb9cd414928ae98b394dc16aa90fcf2244aa47b1493c664775183f",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/root-probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/namespace-gate.json",
+      "bytes": 6568,
+      "sha256": "80ab65c609d0bd5046b689502ca7cf75afe2e07d51f9d351c8fb0b05b5852697",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/namespace-gate.stdout.txt",
+      "bytes": 273464,
+      "sha256": "1b0b51178a247a3b04178bed10264b9b558244349184849f564d475ce45b4553",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/namespace-gate.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile.json",
+      "bytes": 6795,
+      "sha256": "d7f60a89c32c873b8d42c25552f6b1b915188b02c486921b6de3c54d9ef35efa",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile.stdout.txt",
+      "bytes": 10931,
+      "sha256": "d720f24ac242f46a8103bbab806d00c3bb3bd1a7d719782d152c8c24f3bb8f4e",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile-corrected.json",
+      "bytes": 6845,
+      "sha256": "9fa10177c9439658ccb8960b49e3f7d8881c946c4288c98c85f6c73e3201f340",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile-corrected.stdout.txt",
+      "bytes": 19053,
+      "sha256": "b898c0887796a750cc10668f0a07439346f754fe7b6f2b02efd2ba5bc39f93bd",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/import-profile-corrected.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/determinism.json",
+      "bytes": 6561,
+      "sha256": "864276206764f9a55781ebf936439e7f8378e9b36705d5b8104bdf59676e8fce",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/determinism.stdout.txt",
+      "bytes": 150,
+      "sha256": "5c3dddde51b38ddb32ac0fa87c4eb222ab49c0a18b8d49a6a42d8679df817c00",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/determinism.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/generation-portability-seed1.stdout",
+      "bytes": 293714,
+      "sha256": "40285fa3ed9426bf91798b84c83b2827af3817c5166616770273520f1a702dec",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/generation-portability-seed1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/generation-portability-seed2.stdout",
+      "bytes": 302146,
+      "sha256": "09802e29f470a10cabc4aa4154ac5f92eee56d4130a9070b3f8481a7fccfa92e",
+      "full": true
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-35/generation-portability-seed2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full": true
+    }
+  ],
+  "full_bytes": 1079781
+}

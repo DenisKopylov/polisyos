@@ -1,0 +1,126 @@
+{
+  "case": "implicit_function_decorator",
+  "source": "\ndef poison(function):\n    global sorted\n    sorted = lambda values: [\"RuntimeShadow\"]\n    return function\n@poison\ndef harmless():\n    pass\nM = {\"StaticName\": None}\n__all__ = sorted(M)\n",
+  "controlled_runtime_all": [
+    "RuntimeShadow"
+  ],
+  "actual_static_inventory": {
+    "module": "polisyos.fixture",
+    "classification": "public_experimental",
+    "facade_mode_expected": "eager_exports",
+    "facade_mode_observed": "eager_exports",
+    "owner": "independent-review",
+    "readme": "src/polisyos/fixture/__init__.py",
+    "reference_doc": "src/polisyos/fixture/__init__.py",
+    "supported_entrypoints": [
+      "polisyos.fixture"
+    ],
+    "major_subsystem": false,
+    "export_count": 1,
+    "known_export_count": 1,
+    "exports": [
+      "StaticName"
+    ],
+    "has___getattr__": false,
+    "has___dir__": false,
+    "source_file": "src/polisyos/fixture/__init__.py",
+    "summary": "",
+    "notes": "Closed adversarial fixture",
+    "entrypoints": [
+      {
+        "module": "polisyos.fixture",
+        "facade_mode_observed": "eager_exports",
+        "export_count": 1,
+        "known_export_count": 1,
+        "exports": [
+          "StaticName"
+        ],
+        "has___getattr__": false,
+        "has___dir__": false,
+        "source_file": "src/polisyos/fixture/__init__.py",
+        "summary": "",
+        "export_resolution": {
+          "complete_verdict": true,
+          "finding_coverage": "explicit file-reader operations only",
+          "inputs": [
+            {
+              "path": "src/polisyos/fixture.py",
+              "operation": "is_file",
+              "status": "absent",
+              "result": false
+            },
+            {
+              "path": "src/polisyos/fixture/__init__.py",
+              "operation": "is_file",
+              "status": "present",
+              "result": true
+            },
+            {
+              "path": "src/polisyos/fixture/__init__.py",
+              "operation": "read_bytes",
+              "status": "read",
+              "bytes": 185,
+              "sha256": "78c00176ab51def5fb05ba9e3412318381130021f012e8c9d38fdbce0c122662"
+            }
+          ],
+          "unresolved_by_construction": [
+            "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+          ],
+          "complete": true,
+          "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. No module execution or runtime dispatch."
+        }
+      }
+    ]
+  },
+  "actual_canonical_contract_violations": [],
+  "property": "Unknown import-time effects must refuse a complete selected namespace when they change the invoked export builtin identity."
+}
+F{"error_type": "OSError", "same_exception_propagated": true, "not_typed_unknown": true}
+.{"error_type": "SyntaxError", "same_exception_propagated": true, "not_typed_unknown": true}
+.{"error_type": "ValueError", "same_exception_propagated": true, "not_typed_unknown": true}
+.{"error_type": "TypeError", "same_exception_propagated": true, "not_typed_unknown": true}
+.
+=================================== FAILURES ===================================
+_ test_unknown_executable_effect_cannot_admit_a_wrong_complete_namespace[implicit_function_decorator] _
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/graph/api-review-fd36/decorator-and-errors-tmp/test_unknown_executable_effect0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fbec8575cd0>
+name = 'implicit_function_decorator'
+
+    @pytest.mark.parametrize('name', CASES)
+    def test_unknown_executable_effect_cannot_admit_a_wrong_complete_namespace(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, name: str,
+    ) -> None:
+        source = CASES[name]
+        package = tmp_path / 'src/polisyos/fixture'
+        package.mkdir(parents=True)
+        facade = package / '__init__.py'
+        facade.write_text(source)
+        monkeypatch.setattr(guardrails, 'SRC_ROOT', tmp_path / 'src')
+        monkeypatch.setattr(guardrails, 'REPO_ROOT', tmp_path)
+        # Runtime execution is solely of this wholly authored, closed fixture.
+        # The product static reader does not execute any source or runtime import.
+        namespace = {}
+        exec(compile(source, str(facade), 'exec'), namespace)
+        policy = guardrails.PackagePolicy(
+            module='polisyos.fixture', classification='public_experimental',
+            facade_mode='eager_exports', owner='independent-review', readme=facade,
+            reference_doc=facade, supported_entrypoints=('polisyos.fixture',),
+            major_subsystem=False, notes='Closed adversarial fixture',
+        )
+        inventory = guardrails.build_public_surface_inventory([policy])
+        output = json.loads(guardrails.render_public_surface_json(inventory))['packages'][0]
+        violations = guardrails._check_public_surface_contracts(inventory)
+        record = {'case': name, 'source': source, 'controlled_runtime_all': namespace['__all__'],
+                  'actual_static_inventory': output,
+                  'actual_canonical_contract_violations': [asdict(v) for v in violations],
+                  'property': 'Unknown import-time effects must refuse a complete selected namespace when they change the invoked export builtin identity.'}
+        print(json.dumps(record, indent=2))
+>       assert output['export_count'] is None, 'False complete namespace is emitted despite the controlled actual namespace differing'
+E       AssertionError: False complete namespace is emitted despite the controlled actual namespace differing
+E       assert 1 is None
+
+/tmp/e02-F-continuation-20261006/graph/api-review-fd36/test_implicit_function_effect.py:78: AssertionError
+=========================== short test summary info ============================
+FAILED ../../../tmp/e02-F-continuation-20261006/graph/api-review-fd36/test_implicit_function_effect.py::test_unknown_executable_effect_cannot_admit_a_wrong_complete_namespace[implicit_function_decorator]
+1 failed, 4 passed, 4 deselected in 0.19s

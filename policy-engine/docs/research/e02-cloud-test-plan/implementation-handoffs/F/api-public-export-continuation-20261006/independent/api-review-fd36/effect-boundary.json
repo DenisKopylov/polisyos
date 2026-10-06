@@ -1,0 +1,157 @@
+{
+  "name": "effect-boundary",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/test_effect_boundary_extended.py",
+    "-q",
+    "-s",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/effect-boundary-tmp"
+  ],
+  "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+  "source_tree": "c441031428cc5039f84eef188936a6a904c21f71",
+  "slice_base_sha": "449d32909928caf39382f4ff02ac74b0adf277eb",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-F-api-20261006/policy-engine/src:/workspace/e02-F-api-20261006/policy-engine/tools:/workspace/e02-F-api-20261006/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "shared_environment_readonly": true,
+    "cloud_quota_introduced": false
+  },
+  "exit_code": 0,
+  "check": "PASS",
+  "wall_seconds": 1.1140328570036218,
+  "rss_kib": 90888,
+  "source_begin": [
+    {
+      "source_path": "policy-engine/docs/reference/foundry/causal-engine-architecture.md",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 34130,
+      "sha256": "9c53991623e83ee40bac954477027998fca453f53eefb1ade51e2689a4f01e1f"
+    },
+    {
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 20731,
+      "sha256": "4a50d07c34921b487a9c21a9c383a52fe72d32c0f9e982b24300369b13c3b2bc"
+    },
+    {
+      "source_path": "policy-engine/release-fragments/unreleased/2026-10-06-public-export-resolution.toml",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 3643,
+      "sha256": "b1b55c2e3825457b8032e00fe0462b17ea1243e7c891b8438bad89eeeedba973"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 11176,
+      "sha256": "38e785a644456c097fc4ee1a9fc6fd497cd0cbde673c63f3ee1bfb3d7b4f8696"
+    },
+    {
+      "source_path": "policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 18437,
+      "sha256": "bd8e7ff767da0e30265a5342d76376ca67eaabadb28db3cb3607eea4a953f6c2"
+    },
+    {
+      "source_path": "policy-engine/tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 10411,
+      "sha256": "3839d118e1159932866c4662b97f3f2f8f7c8b21129551632b7e73c46ae109f7"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_causal_engine.py",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 109248,
+      "sha256": "6ab5e81bef1addfccd8a1d2c5ab931c086c4262096df77060e6852630faf8713"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 4578,
+      "sha256": "e6331f14c891cd8ac6b20d0e61f075edb02132428f13c375019e385622fb875e"
+    },
+    {
+      "source_path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 124912,
+      "sha256": "3d3a28a9b1816a12d232c9dc3c62830d7191609a59d3256e6f547de9dbf9cf06"
+    }
+  ],
+  "source_end": [
+    {
+      "source_path": "policy-engine/docs/reference/foundry/causal-engine-architecture.md",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 34130,
+      "sha256": "9c53991623e83ee40bac954477027998fca453f53eefb1ade51e2689a4f01e1f"
+    },
+    {
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 20731,
+      "sha256": "4a50d07c34921b487a9c21a9c383a52fe72d32c0f9e982b24300369b13c3b2bc"
+    },
+    {
+      "source_path": "policy-engine/release-fragments/unreleased/2026-10-06-public-export-resolution.toml",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 3643,
+      "sha256": "b1b55c2e3825457b8032e00fe0462b17ea1243e7c891b8438bad89eeeedba973"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 11176,
+      "sha256": "38e785a644456c097fc4ee1a9fc6fd497cd0cbde673c63f3ee1bfb3d7b4f8696"
+    },
+    {
+      "source_path": "policy-engine/tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 18437,
+      "sha256": "bd8e7ff767da0e30265a5342d76376ca67eaabadb28db3cb3607eea4a953f6c2"
+    },
+    {
+      "source_path": "policy-engine/tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 10411,
+      "sha256": "3839d118e1159932866c4662b97f3f2f8f7c8b21129551632b7e73c46ae109f7"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_causal_engine.py",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 109248,
+      "sha256": "6ab5e81bef1addfccd8a1d2c5ab931c086c4262096df77060e6852630faf8713"
+    },
+    {
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 4578,
+      "sha256": "e6331f14c891cd8ac6b20d0e61f075edb02132428f13c375019e385622fb875e"
+    },
+    {
+      "source_path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "source_sha": "fd36b2f66d7226e001b4e96bf78f019841da6541",
+      "bytes": 124912,
+      "sha256": "3d3a28a9b1816a12d232c9dc3c62830d7191609a59d3256e6f547de9dbf9cf06"
+    }
+  ],
+  "output_refs": [
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/effect-boundary.stdout.txt",
+      "bytes": 11448,
+      "sha256": "90cbc07ff669a2bfe06d526e41ee3e04224ac1a47aae4816add5b4fb05f36741"
+    },
+    {
+      "path": "/tmp/e02-F-continuation-20261006/graph/api-review-fd36/effect-boundary.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

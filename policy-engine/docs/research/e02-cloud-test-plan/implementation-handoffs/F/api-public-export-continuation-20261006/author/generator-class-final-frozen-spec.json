@@ -1,0 +1,22 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "2458891c9714404982110ee4c513a8d0142b34c3",
+  "cwd": "/workspace/e02-F-api-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/generator-class-final-frozen"
+}

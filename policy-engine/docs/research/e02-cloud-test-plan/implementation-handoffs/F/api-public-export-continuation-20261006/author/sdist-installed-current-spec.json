@@ -1,0 +1,18 @@
+{
+  "source_root": "/workspace/e02-F-api-20261006",
+  "target_sha": "5484db7a25014953bdab7cb2418df735f972ff93",
+  "cwd": "/tmp/e02-F-continuation-20261006/api/sdist-consumer-5484",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/tmp/e02-F-continuation-20261006/api/sdist-env-retry-5484/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261006/api/installed_launch_current.py",
+    "sdist"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/sdist-installed-current",
+  "artifact_paths": [
+    "/tmp/e02-F-continuation-20261006/api/sdist-installed-current-proof.json"
+  ]
+}

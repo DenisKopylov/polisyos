@@ -1,0 +1,240 @@
+{
+  "case": "prebinding_builtin_rebind",
+  "source": "\nglobals()[\"sorted\"] = lambda values: [\"RuntimeShadow\"]\nM = {\"StaticName\": None}\n__all__ = sorted(M)\n",
+  "controlled_runtime_all": [
+    "RuntimeShadow"
+  ],
+  "actual_static_inventory": {
+    "module": "polisyos.fixture",
+    "classification": "public_experimental",
+    "facade_mode_expected": "eager_exports",
+    "facade_mode_observed": "eager_exports",
+    "owner": "independent-review",
+    "readme": "src/polisyos/fixture/__init__.py",
+    "reference_doc": "src/polisyos/fixture/__init__.py",
+    "supported_entrypoints": [
+      "polisyos.fixture"
+    ],
+    "major_subsystem": false,
+    "export_count": 1,
+    "known_export_count": 1,
+    "exports": [
+      "StaticName"
+    ],
+    "has___getattr__": false,
+    "has___dir__": false,
+    "source_file": "src/polisyos/fixture/__init__.py",
+    "summary": "",
+    "notes": "Closed adversarial fixture",
+    "entrypoints": [
+      {
+        "module": "polisyos.fixture",
+        "facade_mode_observed": "eager_exports",
+        "export_count": 1,
+        "known_export_count": 1,
+        "exports": [
+          "StaticName"
+        ],
+        "has___getattr__": false,
+        "has___dir__": false,
+        "source_file": "src/polisyos/fixture/__init__.py",
+        "summary": "",
+        "export_resolution": {
+          "complete_verdict": true,
+          "finding_coverage": "explicit file-reader operations only",
+          "inputs": [
+            {
+              "path": "src/polisyos/fixture.py",
+              "operation": "is_file",
+              "status": "absent",
+              "result": false
+            },
+            {
+              "path": "src/polisyos/fixture/__init__.py",
+              "operation": "is_file",
+              "status": "present",
+              "result": true
+            },
+            {
+              "path": "src/polisyos/fixture/__init__.py",
+              "operation": "read_bytes",
+              "status": "read",
+              "bytes": 101,
+              "sha256": "a2fe530a4c23234c7911b751335dcc55ce97cc8dcc96ffd23d9e0c3e646e20b1"
+            }
+          ],
+          "unresolved_by_construction": [
+            "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+          ],
+          "complete": true,
+          "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. No module execution or runtime dispatch."
+        }
+      }
+    ]
+  },
+  "actual_canonical_contract_violations": [],
+  "property": "Unknown import-time effects must refuse a complete selected namespace when they change the invoked export builtin identity."
+}
+F{
+  "case": "multiline_selected_mapping_value_call",
+  "source": "\ndef poison():\n    globals()[\"sorted\"] = lambda values: [\"RuntimeShadow\"]\n    return None\nM = {\n    \"StaticName\": poison(),\n}\n__all__ = sorted(M)\n",
+  "controlled_runtime_all": [
+    "RuntimeShadow"
+  ],
+  "actual_static_inventory": {
+    "module": "polisyos.fixture",
+    "classification": "public_experimental",
+    "facade_mode_expected": "eager_exports",
+    "facade_mode_observed": "eager_exports",
+    "owner": "independent-review",
+    "readme": "src/polisyos/fixture/__init__.py",
+    "reference_doc": "src/polisyos/fixture/__init__.py",
+    "supported_entrypoints": [
+      "polisyos.fixture"
+    ],
+    "major_subsystem": false,
+    "export_count": 1,
+    "known_export_count": 1,
+    "exports": [
+      "StaticName"
+    ],
+    "has___getattr__": false,
+    "has___dir__": false,
+    "source_file": "src/polisyos/fixture/__init__.py",
+    "summary": "",
+    "notes": "Closed adversarial fixture",
+    "entrypoints": [
+      {
+        "module": "polisyos.fixture",
+        "facade_mode_observed": "eager_exports",
+        "export_count": 1,
+        "known_export_count": 1,
+        "exports": [
+          "StaticName"
+        ],
+        "has___getattr__": false,
+        "has___dir__": false,
+        "source_file": "src/polisyos/fixture/__init__.py",
+        "summary": "",
+        "export_resolution": {
+          "complete_verdict": true,
+          "finding_coverage": "explicit file-reader operations only",
+          "inputs": [
+            {
+              "path": "src/polisyos/fixture.py",
+              "operation": "is_file",
+              "status": "absent",
+              "result": false
+            },
+            {
+              "path": "src/polisyos/fixture/__init__.py",
+              "operation": "is_file",
+              "status": "present",
+              "result": true
+            },
+            {
+              "path": "src/polisyos/fixture/__init__.py",
+              "operation": "read_bytes",
+              "status": "read",
+              "bytes": 146,
+              "sha256": "9acac91092077009fc695efa88cc9d953af942cbc56de4e4ae15f1e147e31bbb"
+            }
+          ],
+          "unresolved_by_construction": [
+            "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt."
+          ],
+          "complete": true,
+          "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. No module execution or runtime dispatch."
+        }
+      }
+    ]
+  },
+  "actual_canonical_contract_violations": [],
+  "property": "Unknown import-time effects must refuse a complete selected namespace when they change the invoked export builtin identity."
+}
+F.
+=================================== FAILURES ===================================
+_ test_unknown_executable_effect_cannot_admit_a_wrong_complete_namespace[prebinding_builtin_rebind] _
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/graph/api-review/effect-boundary-tmp/test_unknown_executable_effect0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f5aee0b5350>
+name = 'prebinding_builtin_rebind'
+
+    @pytest.mark.parametrize('name', CASES)
+    def test_unknown_executable_effect_cannot_admit_a_wrong_complete_namespace(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, name: str,
+    ) -> None:
+        source = CASES[name]
+        package = tmp_path / 'src/polisyos/fixture'
+        package.mkdir(parents=True)
+        facade = package / '__init__.py'
+        facade.write_text(source)
+        monkeypatch.setattr(guardrails, 'SRC_ROOT', tmp_path / 'src')
+        monkeypatch.setattr(guardrails, 'REPO_ROOT', tmp_path)
+        # Runtime execution is solely of this wholly authored, closed fixture.
+        # The product static reader does not execute any source or runtime import.
+        namespace = {}
+        exec(compile(source, str(facade), 'exec'), namespace)
+        policy = guardrails.PackagePolicy(
+            module='polisyos.fixture', classification='public_experimental',
+            facade_mode='eager_exports', owner='independent-review', readme=facade,
+            reference_doc=facade, supported_entrypoints=('polisyos.fixture',),
+            major_subsystem=False, notes='Closed adversarial fixture',
+        )
+        inventory = guardrails.build_public_surface_inventory([policy])
+        output = json.loads(guardrails.render_public_surface_json(inventory))['packages'][0]
+        violations = guardrails._check_public_surface_contracts(inventory)
+        record = {'case': name, 'source': source, 'controlled_runtime_all': namespace['__all__'],
+                  'actual_static_inventory': output,
+                  'actual_canonical_contract_violations': [v.as_dict() for v in violations],
+                  'property': 'Unknown import-time effects must refuse a complete selected namespace when they change the invoked export builtin identity.'}
+        print(json.dumps(record, indent=2))
+>       assert output['export_count'] is None, 'False complete namespace is emitted despite the controlled actual namespace differing'
+E       AssertionError: False complete namespace is emitted despite the controlled actual namespace differing
+E       assert 1 is None
+
+/tmp/e02-F-continuation-20261006/graph/api-review/test_effect_boundary.py:56: AssertionError
+_ test_unknown_executable_effect_cannot_admit_a_wrong_complete_namespace[multiline_selected_mapping_value_call] _
+
+tmp_path = PosixPath('/tmp/e02-F-continuation-20261006/graph/api-review/effect-boundary-tmp/test_unknown_executable_effect1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f5aee0b50f0>
+name = 'multiline_selected_mapping_value_call'
+
+    @pytest.mark.parametrize('name', CASES)
+    def test_unknown_executable_effect_cannot_admit_a_wrong_complete_namespace(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, name: str,
+    ) -> None:
+        source = CASES[name]
+        package = tmp_path / 'src/polisyos/fixture'
+        package.mkdir(parents=True)
+        facade = package / '__init__.py'
+        facade.write_text(source)
+        monkeypatch.setattr(guardrails, 'SRC_ROOT', tmp_path / 'src')
+        monkeypatch.setattr(guardrails, 'REPO_ROOT', tmp_path)
+        # Runtime execution is solely of this wholly authored, closed fixture.
+        # The product static reader does not execute any source or runtime import.
+        namespace = {}
+        exec(compile(source, str(facade), 'exec'), namespace)
+        policy = guardrails.PackagePolicy(
+            module='polisyos.fixture', classification='public_experimental',
+            facade_mode='eager_exports', owner='independent-review', readme=facade,
+            reference_doc=facade, supported_entrypoints=('polisyos.fixture',),
+            major_subsystem=False, notes='Closed adversarial fixture',
+        )
+        inventory = guardrails.build_public_surface_inventory([policy])
+        output = json.loads(guardrails.render_public_surface_json(inventory))['packages'][0]
+        violations = guardrails._check_public_surface_contracts(inventory)
+        record = {'case': name, 'source': source, 'controlled_runtime_all': namespace['__all__'],
+                  'actual_static_inventory': output,
+                  'actual_canonical_contract_violations': [v.as_dict() for v in violations],
+                  'property': 'Unknown import-time effects must refuse a complete selected namespace when they change the invoked export builtin identity.'}
+        print(json.dumps(record, indent=2))
+>       assert output['export_count'] is None, 'False complete namespace is emitted despite the controlled actual namespace differing'
+E       AssertionError: False complete namespace is emitted despite the controlled actual namespace differing
+E       assert 1 is None
+
+/tmp/e02-F-continuation-20261006/graph/api-review/test_effect_boundary.py:56: AssertionError
+=========================== short test summary info ============================
+FAILED ../../../tmp/e02-F-continuation-20261006/graph/api-review/test_effect_boundary.py::test_unknown_executable_effect_cannot_admit_a_wrong_complete_namespace[prebinding_builtin_rebind]
+FAILED ../../../tmp/e02-F-continuation-20261006/graph/api-review/test_effect_boundary.py::test_unknown_executable_effect_cannot_admit_a_wrong_complete_namespace[multiline_selected_mapping_value_call]
+2 failed, 1 passed in 0.17s

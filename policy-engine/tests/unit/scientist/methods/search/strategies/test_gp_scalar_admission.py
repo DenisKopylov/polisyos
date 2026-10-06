@@ -1,5 +1,7 @@
 """Actual batch intake refuses unrepresentable scalars without losing valid rows."""
 
+from fractions import Fraction
+
 import pytest
 
 from polisyos.scientist.methods.search.strategies.bayesian import BayesianConfig, BayesianOptimizer
@@ -7,7 +9,9 @@ from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import Evaluation, ParameterBounds
 
 
-@pytest.mark.parametrize("scalar", [10**400, True, False, "broken", float("inf"), float("nan")])
+@pytest.mark.parametrize(
+    "scalar", [10**400, True, False, "broken", float("inf"), float("nan"), Fraction(1, 2)]
+)
 def test_native_batch_refuses_invalid_scalar_and_keeps_measured_rows(scalar):
     strategy = BayesianOptimizer(
         SearchSpace([ParameterBounds("x")]), BayesianConfig(n_initial=6, seed=19)

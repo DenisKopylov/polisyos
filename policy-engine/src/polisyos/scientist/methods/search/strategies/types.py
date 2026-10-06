@@ -128,6 +128,7 @@ class Evaluation:
         return (
             self.status == EvaluationStatus.SUCCESS
             and self.stage_a_passed is True
+            and isinstance(self.scalar_score, (int, float))
             and finite_real_scalar(self.scalar_score) is not None
         )
 

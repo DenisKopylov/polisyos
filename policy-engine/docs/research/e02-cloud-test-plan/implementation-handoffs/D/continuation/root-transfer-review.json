@@ -1,0 +1,573 @@
+{
+  "schema": "policyos.e02.independent-review.v1",
+  "unit": "D",
+  "reviewer": "root (not transfer implementation author)",
+  "review_kind": "full source/test/receipt review, not new independent numerical execution",
+  "original_slice_base": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "implementation_source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+  "implementation_tree": "bd080793d0a544b251112a41572c4673015a3172",
+  "receipt_commit": "82c3194d3ac106d225ad5b7a88fdfc85ae7f7d1f",
+  "root_composition": "ce9e7b4ff78f011cd6fc9207d42c4266e1fea1cd",
+  "reviewed_deltas": [
+    "6a3de3c643f1dac4d3121f74d4169ecde00c8e24",
+    "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+    "cba802e22e1f1198aa971f529228ab2c1fd35cf7"
+  ],
+  "result": "code-ready for bounded supported profiles; final combined-source review/wave remains pending",
+  "reviewed_properties": [
+    "Fresh NN checkpoint restores complete content-bound warm corpus, basis, configuration and Python/RNG/Sobol state; actual supported CPU SingleTaskGP refit_each_ask profile disclosed.",
+    "Real B immutable CAS snapshot port precedes transfer admission; ANN discovery followed by exact full ArtifactRef reads. Native generation reads one immutable pointer; failed load/add and same-ref byte tamper retain coherent old generation.",
+    "Local, aggregate and transferred lesson as-of admission rejects future creation/evidence; access clock affects retention only.",
+    "Overflow/type rejection occurs before numerical fitting; unsupported optional backend is unavailable, not numerical PASS."
+  ],
+  "actual_author_checks": [
+    {
+      "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+      "outcome": "PASS",
+      "passed": 68,
+      "skipped": 0,
+      "scope": "NN24, existing NN5 and transfer39; three actual CPU SingleTaskGP fits"
+    },
+    {
+      "source": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+      "outcome": "PASS",
+      "passed": 2,
+      "skipped": 0,
+      "scope": "Native HNSW1002-row producer then distinct OS receiving process with exact B CAS snapshot resolution"
+    },
+    {
+      "source": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+      "outcome": "PASS",
+      "passed": 60,
+      "skipped": 0,
+      "scope": "Vector/transfer/warm-start affected consumers"
+    },
+    {
+      "source": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+      "outcome": "EXPECTED_PROPERTY_FAILURE",
+      "failed": 1,
+      "scope": "Warm restore assignment removed while checkpoint markers retained"
+    }
+  ],
+  "count_basis": "Execution occurrences, not unique additive tests. Earlier d9 runs retain exact source attribution.",
+  "archive_validation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-native-continuation-output.json.gz",
+    "sha256": "8049ec22e3634cc7d565124c78e2649a9a4aef85438a04046451b1161f59bf8b",
+    "uncompressed_sha256": "5d8babf52a3aec8475e6a843ead91328ccead3524307a68c4dfb133259b3220a",
+    "members": 84,
+    "author_member_hashes_verified": 82,
+    "independently_computed_manifest": [
+      {
+        "name": "B-minimum-source-identity.json",
+        "bytes": 7315,
+        "raw_file_sha256": "c31028216d55506a8c5ce9b6f03215e79ebf7b8e649a8f1956947e336aa1ff4a",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "cas-transfer-native-frozen.json",
+        "bytes": 1506,
+        "raw_file_sha256": "8b3f3a9fd9f26cad638b30ba961510b5ee61c2df15cbc94610b4beecb7f43b88",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "cas-transfer-native-frozen.txt",
+        "bytes": 2953,
+        "raw_file_sha256": "bdb455c030ee54af841011a02ff4b231a29404ee32f4ebaa16def6f0a75b7d40",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "cas-transfer-native-frozen.xml",
+        "bytes": 10590,
+        "raw_file_sha256": "9578877950e5b12f36572a93e5ea69474cd34658a8a658b8ab3cbe773e12085e",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "e02_remove_neural_restore.py",
+        "bytes": 372,
+        "raw_file_sha256": "fe99413782166a88173afc93b1370a5402ceb24aa396d0ec4f13c60c1b019c3b",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "e02_transfer_observer.py",
+        "bytes": 997,
+        "raw_file_sha256": "27e86430bd594d7d9a61cb0afacb53e103f36eb3d93ec17f99ad22c232cb72e3",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-additional-negative-base.json",
+        "bytes": 1611,
+        "raw_file_sha256": "9efcccac96a7ec3b4e1a88678aee5d5e75a890da55b9aa39a22bcae919b47a46",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-additional-negative-base.txt",
+        "bytes": 12547,
+        "raw_file_sha256": "ea4225cf75f75058cc9dbf2d45dcc03bf11e4e7229b328f29a9fcabb8916b578",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-additional-negative-base.xml",
+        "bytes": 10649,
+        "raw_file_sha256": "97292bb756069e67e2272247c5648ad6812d4ac11f01dc1a91c12b3884dcd3cf",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-lessons-frozen.json",
+        "bytes": 1602,
+        "raw_file_sha256": "de52e9432dffab83d7206a896031b9b64a8fcbbfbf004a3de1aac85f859339d2",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-lessons-frozen.txt",
+        "bytes": 4117,
+        "raw_file_sha256": "b5b8b1f95b2669c649df8fe294a6eabe73bc22833f3e1f7eb004997cdb59cbad",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-lessons-frozen.xml",
+        "bytes": 7631,
+        "raw_file_sha256": "e90c6dc9904a25fdb0de50e5a2f14c85416e5e98451d1d11c94b34a6e9a3c92b",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-restore-removal-input.json",
+        "bytes": 825,
+        "raw_file_sha256": "decbd2ff45249d289bdf2effe371843713587f12d5e1adc45d466ead9716e432",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-restore-removal.json",
+        "bytes": 1490,
+        "raw_file_sha256": "0e89d97571bb950a70d5e29a29259cc851f00a337127ae379be6904be0c5fc8f",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-restore-removal.txt",
+        "bytes": 3964,
+        "raw_file_sha256": "74081d9e5cbc4ca0ca2ba51c1cf533d8c80a589dcfe14defb9588ee702c77c15",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-restore-removal.xml",
+        "bytes": 1968,
+        "raw_file_sha256": "107441810d6b5ae4afae895cd1dc66311df69f038d4c6b4840c2c35d464e070b",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-transfer-corrected.json",
+        "bytes": 1517,
+        "raw_file_sha256": "26fde01a15cec391e689d506a5f0d9f01378f6084ac87ceee7db8dd96ab98eca",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-transfer-corrected.txt",
+        "bytes": 4139,
+        "raw_file_sha256": "453148eea1fdcd6a2dd758cc99eea82e3b0a2b54d88f083f212c07748e90556c",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-transfer-corrected.xml",
+        "bytes": 12133,
+        "raw_file_sha256": "9a2a8d6f29e06e08d2e658ac9139e1cd314b4d97e1ef3ebcf0739b6b923979e0",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-warm-base-corrected.json",
+        "bytes": 1397,
+        "raw_file_sha256": "23f2a094f28e41900c2faf743199460e90a2af926eb2e2995821ff3451d57a09",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-warm-base-corrected.txt",
+        "bytes": 4854,
+        "raw_file_sha256": "de0e8e2cc4c50a9e1b982d07585dd5b62108037ead6764e6a34e067bdad4e65e",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-warm-base-corrected.xml",
+        "bytes": 2233,
+        "raw_file_sha256": "6227afc1c58a583378a000b214c176c35e9163d56fa1ab64c400aaec9c364fe7",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-warm-base.json",
+        "bytes": 1260,
+        "raw_file_sha256": "ccc53027b136119a9652062cca80aae81acd77f20c2bb97c6dd695444a975b69",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-warm-base.txt",
+        "bytes": 2621,
+        "raw_file_sha256": "e3b9d2ddf1bf364cd526a39aa80d223f42003935e889974ea42d648118ce18bf",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "neural-warm-base.xml",
+        "bytes": 1375,
+        "raw_file_sha256": "502ef7c3685536c96eeff534b05279176c489ecc7ee94a56f72a31e182aff137",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input-inventory.json",
+        "bytes": 19723,
+        "raw_file_sha256": "51ea1074756aa2fd77c5019147981b40674d93eae41b07d606b9ac3133fdee8a",
+        "author_member_digest_present": false
+      },
+      {
+        "name": "nn-native-input/098838924b421575100523720a15b2c227d54bceead3479774114c02b23b5706.blob",
+        "bytes": 51,
+        "raw_file_sha256": "098838924b421575100523720a15b2c227d54bceead3479774114c02b23b5706",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/098838924b421575100523720a15b2c227d54bceead3479774114c02b23b5706.manifest.json",
+        "bytes": 543,
+        "raw_file_sha256": "17ce1b596bc653e0fd35b664f1f23d2b48ffdbbd1ac08f7f68f46be30f5d61cb",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/0eeee26cd1dfc77577bde70d014d7102e366cfc93f6391837d5889ebb6af2268.blob",
+        "bytes": 52,
+        "raw_file_sha256": "0eeee26cd1dfc77577bde70d014d7102e366cfc93f6391837d5889ebb6af2268",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/0eeee26cd1dfc77577bde70d014d7102e366cfc93f6391837d5889ebb6af2268.manifest.json",
+        "bytes": 543,
+        "raw_file_sha256": "12d06f8e89385c7c9af194425df74ca64258acc1386b376518a29aff012e673f",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a.blob",
+        "bytes": 52,
+        "raw_file_sha256": "39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a.manifest.json",
+        "bytes": 543,
+        "raw_file_sha256": "c81e06549bc9f1bf95d3b462b9a5248f0cbd87ac8aea0661eec2e615311c8f4e",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b.blob",
+        "bytes": 62,
+        "raw_file_sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b.manifest.json",
+        "bytes": 552,
+        "raw_file_sha256": "7522c0f0066a13efb0398a1c755bb5c6c71cfc24a6938ca56cb7523af42e8fb1",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85.blob",
+        "bytes": 56,
+        "raw_file_sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85.manifest.json",
+        "bytes": 546,
+        "raw_file_sha256": "a0b72d714e01243baaa26d667160ffdcdb94975cad4b40b67946598f8855277e",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/4b1758d82fbbae1a92d10a5a68f61f695b493b36a3fb1115d0057fc35f538b4f.blob",
+        "bytes": 2230,
+        "raw_file_sha256": "4b1758d82fbbae1a92d10a5a68f61f695b493b36a3fb1115d0057fc35f538b4f",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/4b1758d82fbbae1a92d10a5a68f61f695b493b36a3fb1115d0057fc35f538b4f.manifest.json",
+        "bytes": 866,
+        "raw_file_sha256": "28b9a0d21790e43a684f72264d342788db517590406a326646831b99aa2aa2f3",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/4ecd99a86ac086e9f9c472ebdfb20679f7b42601df66eed999ab18bbcf240e02.blob",
+        "bytes": 52,
+        "raw_file_sha256": "4ecd99a86ac086e9f9c472ebdfb20679f7b42601df66eed999ab18bbcf240e02",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/4ecd99a86ac086e9f9c472ebdfb20679f7b42601df66eed999ab18bbcf240e02.manifest.json",
+        "bytes": 543,
+        "raw_file_sha256": "4a900593bab68529589c1ead98b0ed569babceb72eb992fb6f67b8093e4341f7",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/520d7da80cf0de796e0693dfe4582c7ffc16fd7f049326ac60d17a229d8fa903.blob",
+        "bytes": 52,
+        "raw_file_sha256": "520d7da80cf0de796e0693dfe4582c7ffc16fd7f049326ac60d17a229d8fa903",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/520d7da80cf0de796e0693dfe4582c7ffc16fd7f049326ac60d17a229d8fa903.manifest.json",
+        "bytes": 543,
+        "raw_file_sha256": "4cd3bf1d3fb8409d16a37fd33516796dbf63140caa2e3ad2de489bb0f582b38d",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b.blob",
+        "bytes": 24733,
+        "raw_file_sha256": "5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/5b564a3b4ef78efed8143d89bf68c456a2b5f81a4a6f566546a76fa97e239f2b.manifest.json",
+        "bytes": 553,
+        "raw_file_sha256": "bdecc99e2f74459365806b0a1eefca841d2cd1148da610d854c011a286bc9097",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/60d22d7e092296081da49d20f9f4723665a1e45fbf3391c09f8cc1d65dd25650.blob",
+        "bytes": 2231,
+        "raw_file_sha256": "60d22d7e092296081da49d20f9f4723665a1e45fbf3391c09f8cc1d65dd25650",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/60d22d7e092296081da49d20f9f4723665a1e45fbf3391c09f8cc1d65dd25650.manifest.json",
+        "bytes": 866,
+        "raw_file_sha256": "dc73cd89204d855eedbe6b6d2cac036468b9afc9eb66ccf56e555ce275610c3d",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789.blob",
+        "bytes": 57,
+        "raw_file_sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789.manifest.json",
+        "bytes": 547,
+        "raw_file_sha256": "be9c0c906dc481f834bfc2c375d783033c4f32d720181298df2d2cfd774bd573",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f.blob",
+        "bytes": 2231,
+        "raw_file_sha256": "64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f.manifest.json",
+        "bytes": 866,
+        "raw_file_sha256": "86542c533d3e47694edda61a2356291ccc05c9000c10e681a120552613bb04a3",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/6795c7b1491e87628377c1dccf3ed2aaf96f0d7ff40ba6ebd5b49edb4006570a.blob",
+        "bytes": 2231,
+        "raw_file_sha256": "6795c7b1491e87628377c1dccf3ed2aaf96f0d7ff40ba6ebd5b49edb4006570a",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/6795c7b1491e87628377c1dccf3ed2aaf96f0d7ff40ba6ebd5b49edb4006570a.manifest.json",
+        "bytes": 866,
+        "raw_file_sha256": "b15f705993d3f30897b5f4a6b885b1c77c513269c8ac1913b4e10b44bfbeefca",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/918cfc15be2b13cf3de5aaa0ffed14d90c1adb4138b8887f5612dad317566dad.blob",
+        "bytes": 52,
+        "raw_file_sha256": "918cfc15be2b13cf3de5aaa0ffed14d90c1adb4138b8887f5612dad317566dad",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/918cfc15be2b13cf3de5aaa0ffed14d90c1adb4138b8887f5612dad317566dad.manifest.json",
+        "bytes": 543,
+        "raw_file_sha256": "721ac2421dbdc20716f47d4224c0f1346e4832a00abf46531e59a4bc32815a42",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c.blob",
+        "bytes": 61,
+        "raw_file_sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c.manifest.json",
+        "bytes": 551,
+        "raw_file_sha256": "11bd49f01b0626aefdfcf5990cbeb8c1e9c4f26efa2bc6445684d792d017a9a1",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0.blob",
+        "bytes": 52,
+        "raw_file_sha256": "a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0.manifest.json",
+        "bytes": 543,
+        "raw_file_sha256": "5c492ad0ae8bd6750a8b17ae707bc4fc44b59c5dc5c6a243bdd93cb8cef4e770",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/b0cfbe74292c3a42266b45c7878a6a89336dad4c3f81257b8052d2a1170563fc.blob",
+        "bytes": 2230,
+        "raw_file_sha256": "b0cfbe74292c3a42266b45c7878a6a89336dad4c3f81257b8052d2a1170563fc",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/b0cfbe74292c3a42266b45c7878a6a89336dad4c3f81257b8052d2a1170563fc.manifest.json",
+        "bytes": 866,
+        "raw_file_sha256": "9021d9a988d4aa6934bcb37c43764ed203e0dc2cee03bc57c9f5e732a9b57cd7",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4.blob",
+        "bytes": 57,
+        "raw_file_sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4.manifest.json",
+        "bytes": 547,
+        "raw_file_sha256": "966cb96ee93e4cb58c33299f19ac7507b5bdbc0e2ea78370e38656c38e49b4ed",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/b857b764268c30994099dcc400a83f74a6688cb03dd7db8c09dc8a214bb99fe2.blob",
+        "bytes": 2230,
+        "raw_file_sha256": "b857b764268c30994099dcc400a83f74a6688cb03dd7db8c09dc8a214bb99fe2",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/b857b764268c30994099dcc400a83f74a6688cb03dd7db8c09dc8a214bb99fe2.manifest.json",
+        "bytes": 866,
+        "raw_file_sha256": "b6e2c826a048a21d6353ae3772ff8ab51967115828a72fb904ae00b09f0f0d3c",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1.blob",
+        "bytes": 57,
+        "raw_file_sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1.manifest.json",
+        "bytes": 547,
+        "raw_file_sha256": "1450855733a4e78929c4ee90b1dcf37bd5a7405847efea65eea27223a17c1e8f",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/d66a11467f9135c5a8f9281319ca7fba6f3c13be86b9186a47ee1aa081804951.blob",
+        "bytes": 2231,
+        "raw_file_sha256": "d66a11467f9135c5a8f9281319ca7fba6f3c13be86b9186a47ee1aa081804951",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/d66a11467f9135c5a8f9281319ca7fba6f3c13be86b9186a47ee1aa081804951.manifest.json",
+        "bytes": 866,
+        "raw_file_sha256": "12c2ac3d3684abe25d7f7870d4c28cad46d10795fb314893b994b0238654b1be",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/dcb8ddc64f5162fc5814702bc978e16e00ad0e2a5efe5aa248c9072b3b175ec5.blob",
+        "bytes": 2231,
+        "raw_file_sha256": "dcb8ddc64f5162fc5814702bc978e16e00ad0e2a5efe5aa248c9072b3b175ec5",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/dcb8ddc64f5162fc5814702bc978e16e00ad0e2a5efe5aa248c9072b3b175ec5.manifest.json",
+        "bytes": 866,
+        "raw_file_sha256": "71e4cfebc3dca4402a99d064785ede27cb42ec5dec8b118dc816e28a0f22d67c",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/f65d847cb10285d0d7fba4b0eced251202a11801a76723c9f94971d313acf723.blob",
+        "bytes": 37022,
+        "raw_file_sha256": "f65d847cb10285d0d7fba4b0eced251202a11801a76723c9f94971d313acf723",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/f65d847cb10285d0d7fba4b0eced251202a11801a76723c9f94971d313acf723.manifest.json",
+        "bytes": 361,
+        "raw_file_sha256": "78a45dede8318386d4dc302fcaf53668aa95e126c69c1c57c4bd328daac2c17c",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/fb6ed24731e4eb0b008285490f67e64a354c67fc5b40655d4adfe948549df18e.blob",
+        "bytes": 52,
+        "raw_file_sha256": "fb6ed24731e4eb0b008285490f67e64a354c67fc5b40655d4adfe948549df18e",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "nn-native-input/fb6ed24731e4eb0b008285490f67e64a354c67fc5b40655d4adfe948549df18e.manifest.json",
+        "bytes": 543,
+        "raw_file_sha256": "29bb4147b31e3351ee59c0e13904480fe9404e4cc13f2342909e5e102f03be31",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "removed_neural_warm_restore.py",
+        "bytes": 16520,
+        "raw_file_sha256": "4cb8be557a09c2f2f59ad19b9fd2e2893acfcc1d3f494e2eb599f94fef29b7e2",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "resource-observation.json",
+        "bytes": 318,
+        "raw_file_sha256": "50d14e75777c5bac100a482849dc5007520df557c0060df7d0437503c65dac33",
+        "author_member_digest_present": false
+      },
+      {
+        "name": "run_gate.py",
+        "bytes": 1419,
+        "raw_file_sha256": "5af4f258a1096a323a4a10eceee4a1b917e381dc3c4900e4f06eba78181c65a6",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "run_gate_initial.py",
+        "bytes": 1391,
+        "raw_file_sha256": "4f3d222f4dc4171c700dee22e1bca57b9ed4d448631d061b63c0cb7262f13cfe",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "test_neural_base_probe.py",
+        "bytes": 1099,
+        "raw_file_sha256": "60666a1807bcb8c3fd7d68374aef10586994cecae165f8810a8f1da44f73244b",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "vector-process-input/test_second_process_consumes_e0/input.json",
+        "bytes": 4967,
+        "raw_file_sha256": "eb13d6b291cd8e22245896dababf41187a1eb3fa1a6d7278022eb4c41b46ac00",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "vector-process-input/test_second_process_consumes_e0/native-before-tamper.bin",
+        "bytes": 152400,
+        "raw_file_sha256": "975c38db4f801df284002bc84d361181a79837684b9eb2a3184ce5bc2965b164",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "vector-transfer-process-frozen.json",
+        "bytes": 1387,
+        "raw_file_sha256": "293475d1f2a5f468e87754d42405557de8c2edd9e0718b8495001ddba96f9612",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "vector-transfer-process-frozen.txt",
+        "bytes": 14622,
+        "raw_file_sha256": "c51d81af13819f63c6c0728b909d88f8b95efeb588674ebbcb64130fa3b6cf9c",
+        "author_member_digest_present": true
+      },
+      {
+        "name": "vector-transfer-process-frozen.xml",
+        "bytes": 591,
+        "raw_file_sha256": "66519d01616aa6e5e3bd2ebbd7dff925794b381870ea678ffbe88248f5e2ee46",
+        "author_member_digest_present": true
+      }
+    ]
+  },
+  "limitations": [
+    "No independent fresh runtime is claimed by this review. Numerical reviewer supplies a separate read-only NN review.",
+    "No distributed atomicity, power-loss, tenant/split authorization, measurement history or revalidation issuer is established by these local fixtures.",
+    "Final integration source is not accepted by G; production remains local read-only.",
+    "Two appended archive members lacked author per-member byte/hash fields; root computed both here and archive hash binds all84 members."
+  ],
+  "external_owner_packet": "transfer-production-input-request.json"
+}

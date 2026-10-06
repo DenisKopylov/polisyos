@@ -1,0 +1,22 @@
+command: /opt/homebrew/opt/python@3.14/bin/python3.14 policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py --self-check
+exit_code: 0
+--- stdout ---
+{
+  "scope": "planning bookkeeping only; not semantic proof",
+  "bundles": 127,
+  "findings": 282,
+  "canonical_source_block_occurrences": 291,
+  "task_files": 6,
+  "dependencies": {
+    "implementation": 95,
+    "cross_unit_implementation": 4,
+    "same_unit_implementation": 91,
+    "mutex": 151,
+    "cross_unit_mutex": 28,
+    "read_impacts": 171,
+    "cross_unit_read_impacts": 12
+  },
+  "count_preserving_controls_rejected": 4
+}
+
+--- stderr ---

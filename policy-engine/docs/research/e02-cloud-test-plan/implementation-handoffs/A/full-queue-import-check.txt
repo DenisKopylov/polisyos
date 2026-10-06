@@ -1,0 +1,6 @@
+command: /opt/homebrew/opt/python@3.14/bin/python3.14 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check
+exit_code: 0
+--- stdout ---
+{"ok":true,"files":["cells.tsv","properties.tsv","events.jsonl","gates.json","routes.tsv","verification.json"]}
+
+--- stderr ---

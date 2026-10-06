@@ -1,0 +1,443 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "full-queue-start",
+  "closure_ids": [
+    "B01",
+    "B02",
+    "B03",
+    "B04",
+    "B05",
+    "B06",
+    "B07",
+    "B08",
+    "B09",
+    "B10",
+    "B11",
+    "B12",
+    "B15",
+    "B16",
+    "B18",
+    "B19",
+    "B20",
+    "B21",
+    "B22",
+    "B23",
+    "B25",
+    "B26",
+    "B27",
+    "B28",
+    "B29",
+    "B30",
+    "B31",
+    "B33",
+    "B34",
+    "B35",
+    "B36",
+    "LA-033",
+    "LA-045",
+    "LA-046"
+  ],
+  "bundle_ids": [
+    "ACQ-01",
+    "CYC-01",
+    "CYC-02",
+    "CYC-03",
+    "CYC-04",
+    "CYC-05",
+    "EMP-01",
+    "REP-01",
+    "REQ-01",
+    "SEL-01",
+    "SIM-01",
+    "SIM-02",
+    "SIM-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "205b8ab49c713dcb024b7fa8962a2fdf7bf94d6e"
+  ],
+  "candidate_tree_sha": "d288ba84a86431851cd6eb2ca332f13dd798db43",
+  "branch": "codex/e02-A-full-queue",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-plan.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json"
+  ],
+  "checks": [
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "outcome": "PASS",
+      "scope": "source/index integrity only",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-import-check.txt"
+    },
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py --self-check",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "outcome": "PASS",
+      "scope": "source/index integrity only",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-coverage-validator.txt"
+    }
+  ],
+  "property": {
+    "statement": "Complete A queue pinned to original source criteria, preserving historical status; actual checkout admission uses exact branch/path. No runtime capability closure is asserted.",
+    "runtime_path": [],
+    "proxy_divergence": "Historical index PASS is transfer/navigation and cannot decide current candidate behavior.",
+    "negative_controls": [
+      "Coverage validator rejects four count-preserving corruptions; recorded complete output."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "code_acceptance": "not_submitted",
+  "finding_outcomes": {
+    "B01": null,
+    "B02": null,
+    "B03": null,
+    "B04": null,
+    "B05": null,
+    "B06": null,
+    "B07": null,
+    "B08": null,
+    "B09": null,
+    "B10": null,
+    "B11": null,
+    "B12": null,
+    "B15": null,
+    "B16": null,
+    "B18": null,
+    "B19": null,
+    "B20": null,
+    "B21": null,
+    "B22": null,
+    "B23": null,
+    "B25": null,
+    "B26": null,
+    "B27": null,
+    "B28": null,
+    "B29": null,
+    "B30": null,
+    "B31": null,
+    "B33": null,
+    "B34": null,
+    "B35": null,
+    "B36": null,
+    "LA-033": null,
+    "LA-045": null,
+    "LA-046": null
+  },
+  "admission_receipts": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/compiler-full/create-immediate.json",
+      "sha256": "ab9a40bb8d7a083018c91957aab59594e325655106f215fea48880b8f1a65c80",
+      "bytes": 127572,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-compiler-full",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/compiler-full/create.json",
+      "sha256": "33bf6ddd7b086f0c5523efb9f2ef844c849d29f06101f2daf2bd2826ae917495",
+      "bytes": 114452,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-compiler-full",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/compiler-full/resume.json",
+      "sha256": "2c3751a3efdc5af1e6741c5df9d0f47d48fbdc83a3e71183d84e7233a83a226b",
+      "bytes": 134252,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-compiler-full",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-tests-full/create-immediate.json",
+      "sha256": "8f44ebf111307828be7ff165ac6d17d384489f1c2614a7f179865049858443c5",
+      "bytes": 147317,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-n5-tests-full",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-tests-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-tests-full/create.json",
+      "sha256": "09affc4513fad1cc720b3cd21ba5dc3ec551d9b887b05fa78978af2c6522a13c",
+      "bytes": 114452,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-n5-tests-full",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-tests-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/n5-tests-full/resume.json",
+      "sha256": "3203fc584c8183dd7c0f2e8085017cecc04b2fd4148da63204f18c67d44dd381",
+      "bytes": 153997,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-n5-tests-full",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-tests-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/replay-full/create-immediate.json",
+      "sha256": "95f2f34cfbcfd39c4c4290499d336f550fcb2cb9d8ac5b083f091b4926834885",
+      "bytes": 121033,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-replay-full",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/replay-full/create.json",
+      "sha256": "2850d6ec55935fb1d5f8bf0ebab8158832871d89f674566bd00d0f88bd985e74",
+      "bytes": 114434,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-replay-full",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/replay-full/resume.json",
+      "sha256": "439a2a332a9aab5f3712557e4295f1a9ec3e0451770a215187d2293662f2d30c",
+      "bytes": 127661,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-replay-full",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/s10-verifier/create-immediate.json",
+      "sha256": "94e5b7355b43f67edfcb916df3587f1aa96442e0301011c62c673e7433dc9568",
+      "bytes": 134136,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-s10-verifier",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-s10-verifier/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/s10-verifier/create.json",
+      "sha256": "491f928a8c59afc087b6edc3dad7c2cd3f8e67fd908b736161dba48ec2532280",
+      "bytes": 114443,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-s10-verifier",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-s10-verifier/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/s10-verifier/resume-retry.json",
+      "sha256": "2de083ca96f2da17fe7d2c8021804f0bd0effc318f3c01e874ee72ed3fbf056a",
+      "bytes": 160665,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-s10-verifier",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-s10-verifier/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/s10-verifier/resume.json",
+      "sha256": "0c4d4d8253882fcaff186a8c21fcb01cd858e2a65929cd8006cd618c56b00b2a",
+      "bytes": 98050,
+      "status": "unrun",
+      "requested": {
+        "branch": "codex/e02-A-s10-verifier",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-s10-verifier/polisyos"
+      },
+      "unresolved_inputs": [
+        {
+          "code": "observation_incomplete",
+          "detail": "live_registration_mismatch: /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+        }
+      ]
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/selection-full/create-immediate.json",
+      "sha256": "ce2e70d874c819605e4544914ead5b3b8fd9f2be04f9c1a9dbd5a742a47bccdd",
+      "bytes": 114461,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-selection-full",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-selection-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/selection-full/create.json",
+      "sha256": "3b9ccf0c7afdab06f675833b15d29a9054987241e744dc65bc1fff08c6bbe876",
+      "bytes": 114461,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-selection-full",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-selection-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/selection-full/resume.json",
+      "sha256": "4a6e4ded0386a9dca6d8ee3654015a9fbd86b1dde41abd05efb2bec4e2d13c01",
+      "bytes": 121167,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-selection-full",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-selection-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/served-tests-full/create-immediate.json",
+      "sha256": "033b3253dc2dcc311f3e5972bebafa5c91a10080484c7ed4e48f1d0ee7efa376",
+      "bytes": 153926,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-served-tests-full",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-served-tests-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/served-tests-full/create.json",
+      "sha256": "7c39f19519ab3db27c7039e614ad0fa94861008cf1886851b0241b4ad1697c93",
+      "bytes": 114488,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-served-tests-full",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-served-tests-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/served-tests-full/resume.json",
+      "sha256": "a1b76fe37d38080850d9c8fbf3b19723d3d52fcda7c6ee6d776fc62cfcaccd9b",
+      "bytes": 160710,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-served-tests-full",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-served-tests-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/simulation-full/create-immediate.json",
+      "sha256": "19ecca82044b3d679682e3f634544c70e42b0aa5e7cc36f3e9cfd27123f72549",
+      "bytes": 140710,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-simulation-full",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/simulation-full/create.json",
+      "sha256": "6eca13b3641f284ed9edac58777775aacdc9c08989555027118cdac19bc5f28c",
+      "bytes": 114470,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-simulation-full",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/admission/simulation-full/resume.json",
+      "sha256": "c414a7e9e434b16e5ab20c469e7867610411a7583f3c4cd237a5094da30786ef",
+      "bytes": 147442,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-simulation-full",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-simulation-full/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/_build/e02-A-full-queue/admission/create-immediate.json",
+      "sha256": "c37a11f3ad1bbe6c5359cd4f2868dead324281128ffcea9b2ba2d38a81bee00e",
+      "bytes": 14801,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-full-queue",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/_build/e02-A-full-queue/admission/create.json",
+      "sha256": "80990ffbb6b238cc58fb85c247bbfefff97e76e18ca74fa0613bc266a8ac7298",
+      "bytes": 14801,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-full-queue",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos"
+      },
+      "unresolved_inputs": []
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/_build/e02-A-full-queue/admission/resume.json",
+      "sha256": "29d0cef5a197e11b28ea7e0846b1c39b9496634d9f5c62573e1b7a618931d6c8",
+      "bytes": 21377,
+      "status": "admitted",
+      "requested": {
+        "branch": "codex/e02-A-full-queue",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos"
+      },
+      "unresolved_inputs": []
+    }
+  ],
+  "limitations_and_next_owner": [
+    "All34 row decisions remain pending; this is a startup checkpoint, not closeout.",
+    "Raw admission JSON is preserved locally, not an input substituted for tracked cloud contracts.",
+    "S10 E configured-producer contract exists on E topic 5bd27323; A dependent consumer waits for exact G integration checkpoint.",
+    "B09 requires C/F owner ratification; B31 requires appointed semantic owner four ratifications.",
+    "Root runtime edits in progress are outside this docs-only immutable candidate."
+  ]
+}

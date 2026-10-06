@@ -1,0 +1,20 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_native_ge_preserves_empirical_atoms_failed_support_and_conditional_values _
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-206/test_native_ge_preserves_empir0')
+
+    def test_native_ge_preserves_empirical_atoms_failed_support_and_conditional_values(tmp_path):
+        _, bundle, receipt, samples, _ = _run_native(tmp_path)
+        uniforms = np.random.default_rng(31415).random(128)
+        expected_rows = (uniforms >= 0.75).astype(int).tolist()
+        values = [row["sampled_input"]["A"] for row in receipt["sampled_inputs"]]
+>       assert values == [float(row) for row in expected_rows]
+E       assert [0.0394134494...96473678, ...] == [0.0, 0.0, 1....0.0, 1.0, ...]
+E         
+E         At index 0 diff: 0.03941344949768805 != 0.0
+E         Use -v to get more diff
+
+tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py:121: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py::test_native_ge_preserves_empirical_atoms_failed_support_and_conditional_values

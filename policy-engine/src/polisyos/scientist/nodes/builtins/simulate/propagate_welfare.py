@@ -30,11 +30,14 @@ from polisyos.foundry.calibration.report import (
     CalibrationReport,
     load_calibration_report,
 )
-from polisyos.foundry.uncertainty import extract_std as _extract_typed_std
 from polisyos.foundry.uncertainty import (
+    admit_empirical_weights,
+    admit_unit_uniform,
+    empirical_cdf,
     reconcile_draw_outcomes,
     sampling_content_digest,
 )
+from polisyos.foundry.uncertainty import extract_std as _extract_typed_std
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.covariance import (
     CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
@@ -50,6 +53,8 @@ from polisyos.ir.analytics.dependence_structure import (
 from polisyos.ir.analytics.phase4_dynamics import EquilibriumMultiplicityWelfareAnnotation
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
+    ParametricFitCarrier,
+    PosteriorSamplesCarrier,
     UncertaintyEnvelope,
     load_uncertainty_envelope,
     persist_uncertainty_envelope,
@@ -187,7 +192,75 @@ def _load_welfare_draw_outcomes(store: Any, ref: ArtifactRef | ArtifactRefModel)
             raise ValueError("welfare support claims do not reconcile")
     except (KeyError, TypeError) as exc:
         raise ValueError("welfare draw-outcome receipt is incomplete") from exc
+    _reconcile_welfare_empirical_rows(store, manifest, receipt)
     return receipt
+
+
+def _reconcile_welfare_empirical_rows(
+    store: Any, manifest: Any, receipt: Mapping[str, Any]
+) -> None:
+    """Resolve original carriers and recompute the admitted row/value joins."""
+    declarations = receipt.get("empirical_input_laws", {})
+    rows = receipt.get("empirical_rows", [])
+    source_edges = {
+        edge.role.removeprefix("empirical_law:"): edge
+        for edge in manifest.inputs
+        if edge.role.startswith("empirical_law:")
+    }
+    if not isinstance(declarations, Mapping) or not isinstance(rows, list):
+        raise ValueError("welfare empirical law/row declarations are malformed")
+    if set(declarations) != set(source_edges):
+        raise ValueError("welfare empirical carrier source edges do not reconcile")
+    if not declarations:
+        if rows:
+            raise ValueError("welfare empirical rows have no source law")
+        return
+    if len(declarations) != 1 or set(declarations) != set(receipt["parameter_order"]):
+        raise ValueError("welfare empirical joint law is not admitted")
+    name = next(iter(declarations))
+    declaration = declarations[name]
+    try:
+        ref = UncertaintyEnvelopeRef.model_validate(declaration["envelope_ref"])
+        source_manifest = store.get_manifest(ref.artifact_id)
+        edge = source_edges[name]
+        if (
+            str(edge.artifact_id) != str(ref.artifact_id)
+            or edge.manifest_profile_sha256 != getattr(ref, "manifest_profile_sha256", None)
+            or source_manifest.kind != "ir.uncertainty_envelope"
+            or source_manifest.artifact_schema is None
+            or source_manifest.artifact_schema.name != "ir.uncertainty_envelope"
+            or source_manifest.artifact_schema.version != "1.1"
+            or not store.verify(ArtifactRef.model_validate(ref.model_dump())).ok
+        ):
+            raise ValueError("welfare empirical source manifest is not admitted")
+        envelope = load_uncertainty_envelope(store, ref)
+        law = _admit_welfare_sampling_laws({name: envelope}).get(name)
+        if law is None or (
+            declaration["carrier_sha256"] != law.carrier_sha256
+            or declaration["sample_axis"] != law.sample_axis
+            or declaration["probabilities"] != law.probabilities.tolist()
+            or declaration["row_identity_basis"] != "content_bound_carrier_position"
+        ):
+            raise ValueError("welfare empirical law content does not reconcile")
+        attempted = receipt["attempted_draw_count"]
+        if len(rows) != attempted:
+            raise ValueError("welfare empirical row denominator is incomplete")
+        inputs = {item["draw_index"]: item["sampled_input"] for item in receipt["sampled_inputs"]}
+        for draw_index, row in enumerate(rows):
+            index = row["row_index"]
+            if (
+                type(row["draw_index"]) is not int
+                or row["draw_index"] != draw_index
+                or row["parameter"] != name
+                or type(index) is not int
+                or not 0 <= index < len(law.samples)
+                or law.probabilities[index] <= 0.0
+                or row["row_id"] != f"{law.carrier_sha256}:{index}"
+                or inputs[draw_index] != {name: float(law.samples[index])}
+            ):
+                raise ValueError("welfare empirical row/value identity does not reconcile")
+    except (KeyError, TypeError, ValidationError, _WelfareNodeFailure) as exc:
+        raise ValueError("welfare empirical law receipt is incomplete or unsupported") from exc
 
 
 def _load_verified_welfare_samples(store: Any, ref: WelfareSampleBundleRef) -> WelfareSampleBundle:
@@ -246,6 +319,7 @@ def _persist_welfare_draw_outcomes(
     config_ref: ArtifactRefModel,
     calibration_source: _CalibrationCovarianceSource | None,
     dependence_ref: DependenceStructureRef | None,
+    empirical_refs: Mapping[str, UncertaintyEnvelopeRef] | None = None,
 ) -> ArtifactRef:
     return ctx.store.put_json(
         dict(receipt),
@@ -258,6 +332,14 @@ def _persist_welfare_draw_outcomes(
                 dependence_ref=dependence_ref,
                 additional_refs=(
                     InputRef(artifact_id=config_ref.artifact_id, role="method_config"),
+                    *(
+                        InputRef(
+                            artifact_id=ref.artifact_id,
+                            role=f"empirical_law:{name}",
+                            manifest_profile_sha256=getattr(ref, "manifest_profile_sha256", None),
+                        )
+                        for name, ref in (empirical_refs or {}).items()
+                    ),
                 ),
             ),
         ),
@@ -277,6 +359,7 @@ _ERROR_INTERVAL_SEMANTICS_INVALID = "ERROR_INTERVAL_SEMANTICS_INVALID"
 _ERROR_MONTE_CARLO_NOT_CONVERGED = "ERROR_MONTE_CARLO_NOT_CONVERGED"
 _ERROR_WELFARE_OUTPUT_NONFINITE = "ERROR_WELFARE_OUTPUT_NONFINITE"
 _ERROR_WELFARE_UNCERTAINTY_SCALE_INVALID = "ERROR_WELFARE_UNCERTAINTY_SCALE_INVALID"
+_ERROR_WELFARE_INPUT_LAW_UNSUPPORTED = "ERROR_WELFARE_INPUT_LAW_UNSUPPORTED"
 _ERROR_CHANNEL_DECOMPOSITION_CONFIG_INVALID = "ERROR_CHANNEL_DECOMPOSITION_CONFIG_INVALID"
 _ERROR_CHANNEL_DECOMPOSITION_BUILD_FAILED = "ERROR_CHANNEL_DECOMPOSITION_BUILD_FAILED"
 
@@ -470,6 +553,15 @@ class _PropagationOutcome:
     diagnostics: dict[str, Any]
 
 
+@dataclass(frozen=True)
+class _FiniteEmpiricalLaw:
+    samples: np.ndarray
+    probabilities: np.ndarray
+    cumulative: np.ndarray
+    sample_axis: str
+    carrier_sha256: str
+
+
 class _WelfareNodeFailure(Exception):
     def __init__(self, error: NodeError) -> None:
         super().__init__(error.message)
@@ -555,6 +647,13 @@ class PropagateWelfareNode:
                     available_envelopes=collection,
                 )
             )
+            _admit_welfare_sampling_laws(
+                used_input_envelopes,
+                calibration_source=collection.calibration_source,
+                requested_method=_resolve_requested_welfare_method(
+                    _load_propagation_config(state), welfare_params
+                ),
+            )
             if (
                 not used_input_envelopes
                 and context.ge_context.ge_uncertainty_ref is None
@@ -597,7 +696,9 @@ class PropagateWelfareNode:
                 nominal_params=nominal_params,
                 input_envelopes=used_input_envelopes,
             )
-            if not math.isfinite(robust_interval[0]) or not math.isfinite(robust_interval[1]):
+            if robust_interval is not None and (
+                not math.isfinite(robust_interval[0]) or not math.isfinite(robust_interval[1])
+            ):
                 raise _fail_error(
                     _ERROR_WELFARE_OUTPUT_NONFINITE,
                     "Robust welfare interval contains non-finite values",
@@ -613,6 +714,8 @@ class PropagateWelfareNode:
                 else ()
             )
             limitation_codes.extend(propagation.diagnostics.get("limitation_codes", ()))
+            if robust_diagnostics.get("limitation_code"):
+                limitation_codes.append(robust_diagnostics["limitation_code"])
             limitation_codes = list(dict.fromkeys(limitation_codes))
             for code in limitation_codes:
                 if code not in warnings:
@@ -1957,6 +2060,11 @@ def _propagate_credible_interval(
     draws_pe: list[float] = []
     draws_ge: list[float] = []
     param_names = sorted(input_envelopes)
+    empirical_laws = _admit_welfare_sampling_laws(
+        input_envelopes,
+        calibration_source=calibration_source,
+        requested_method=requested_method,
+    )
     if calibration_source is None and len(param_names) > 1:
         requested = int(config.mc_n_samples)
         receipt = {
@@ -2068,10 +2176,16 @@ def _propagate_credible_interval(
     sampled_inputs = []
     output_records = []
     successful_indices = []
+    empirical_rows = []
+    empirical_refs = {
+        name: persist_uncertainty_envelope(ctx.store, input_envelopes[name])
+        for name in empirical_laws
+    }
     for draw_index in range(int(config.mc_n_samples)):
         draw_params = None
         values = {}
         failures = []
+        sampled_rows: dict[str, int] = {}
         try:
             draw_params = _sample_param_draw(
                 rng,
@@ -2079,6 +2193,8 @@ def _propagate_credible_interval(
                 input_envelopes=input_envelopes,
                 dependence_sampler=dependence_sampler,
                 calibration_coordinate_sampler=calibration_coordinate_sampler,
+                empirical_laws=empirical_laws,
+                sampled_rows=sampled_rows,
             )
             if any(not math.isfinite(value) for value in draw_params.values()):
                 raise ValueError("sampled welfare input is nonfinite")
@@ -2128,6 +2244,15 @@ def _propagate_credible_interval(
             draw_params = None
         input_digest = sampling_content_digest(draw_params)
         sampled_inputs.append({"draw_index": draw_index, "sampled_input": draw_params})
+        for name, row_index in sampled_rows.items():
+            empirical_rows.append(
+                {
+                    "draw_index": draw_index,
+                    "parameter": name,
+                    "row_index": row_index,
+                    "row_id": f"{empirical_laws[name].carrier_sha256}:{row_index}",
+                }
+            )
         output_records.append({"draw_index": draw_index, "successful_values": values})
         draw_records.append(
             {
@@ -2167,6 +2292,17 @@ def _propagate_credible_interval(
         "unattempted_draw_indices": list(range(len(draw_records), int(config.mc_n_samples))),
         "support_complete": not failure_records and len(draw_records) == int(config.mc_n_samples),
         "gate_eligible": False,
+        "empirical_input_laws": {
+            name: {
+                "envelope_ref": empirical_refs[name].model_dump(mode="json"),
+                "sample_axis": law.sample_axis,
+                "carrier_sha256": law.carrier_sha256,
+                "probabilities": law.probabilities.tolist(),
+                "row_identity_basis": "content_bound_carrier_position",
+            }
+            for name, law in empirical_laws.items()
+        },
+        "empirical_rows": empirical_rows,
     }
     outcomes_ref = _persist_welfare_draw_outcomes(
         ctx,
@@ -2174,6 +2310,7 @@ def _propagate_credible_interval(
         config_ref=config_ref,
         calibration_source=calibration_source,
         dependence_ref=context.dependence_structure_ref,
+        empirical_refs=empirical_refs,
     )
     receipt = _load_welfare_draw_outcomes(ctx.store, outcomes_ref)
     incomplete_support = not receipt["support_complete"]
@@ -3308,6 +3445,8 @@ def _sample_param_draw(
     input_envelopes: Mapping[str, UncertaintyEnvelope],
     dependence_sampler: Mapping[str, Any],
     calibration_coordinate_sampler: _CalibrationCoordinateSampler | None = None,
+    empirical_laws: Mapping[str, _FiniteEmpiricalLaw] | None = None,
+    sampled_rows: dict[str, int] | None = None,
 ) -> dict[str, float]:
     if len(param_names) > 1 and calibration_coordinate_sampler is None:
         raise ValueError("welfare joint law is not admitted before drawing")
@@ -3357,21 +3496,32 @@ def _sample_param_draw(
         return draw_params
 
     for name in param_names:
-        draw_params[name] = _sample_from_envelope(rng, input_envelopes[name])
+        law = (empirical_laws or {}).get(name)
+        if law is not None:
+            index, value = _draw_finite_empirical_law(rng, law)
+            draw_params[name] = value
+            if sampled_rows is not None:
+                sampled_rows[name] = index
+        else:
+            draw_params[name] = _sample_from_envelope(rng, input_envelopes[name])
     return draw_params
 
 
 def _quantile_from_envelope(u: float, env: UncertaintyEnvelope) -> float:
+    law = _admit_welfare_sampling_laws({"input": env}).get("input")
+    if law is not None:
+        coordinate = float(admit_unit_uniform(u))
+        return float(law.samples[np.searchsorted(law.cumulative, coordinate, side="right")])
     bounded_u = min(max(float(u), 1e-9), 1.0 - 1e-9)
-    point = float(env.point_estimate)
-    lower = float(env.confidence_interval[0])
-    upper = float(env.confidence_interval[1])
+    point, lower, upper = _welfare_parametric_coordinates(env)
     if env.distribution_family == DistributionFamily.NORMAL:
         std = _extract_std(env)
         z_value = NormalDist().inv_cdf(bounded_u)
         return float(point + std * z_value)
     if env.distribution_family == DistributionFamily.UNIFORM:
         return float(lower + bounded_u * (upper - lower))
+    if env.distribution_family != DistributionFamily.TRIANGULAR:
+        raise _unsupported_welfare_law("input", "unsupported inverse transform")
     mode = min(max(point, lower), upper)
     if upper <= lower:
         return point
@@ -3478,7 +3628,22 @@ def _build_robust_interval(
     context: _ResolvedWelfareContext,
     nominal_params: Mapping[str, float],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
-) -> tuple[tuple[float, float], dict[str, Any]]:
+) -> tuple[tuple[float, float] | None, dict[str, Any]]:
+    if (
+        context.ge_context.source_kind == "technical_coefficients"
+        and set(context.ge_context.ge_entry_map).intersection(input_envelopes)
+        and (
+            context.ge_context.lower_multiplier is None
+            or context.ge_context.upper_multiplier is None
+        )
+    ):
+        # A point inverse is not an outer bound for a varying, possibly singular
+        # operator. Bounds require the existing separate multiplier-bound input.
+        return None, {
+            "limitation_code": "welfare_ge_outer_bound_not_established",
+            "gate_eligible": False,
+            "owner": "Welfare GE bound producer",
+        }
     response_lower = np.array(context.base_response, copy=True)
     response_upper = np.array(context.base_response, copy=True)
     for idx, label in enumerate(context.labels):
@@ -3669,7 +3834,7 @@ def _persist_sensitivity_diagnostics(
     simulation_fn: Any,
     nominal_params: Mapping[str, float],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
-    robust_interval: tuple[float, float],
+    robust_interval: tuple[float, float] | None,
 ) -> ArtifactRefModel | None:
     if not input_envelopes:
         return None
@@ -3702,7 +3867,11 @@ def _persist_sensitivity_diagnostics(
         payload={
             "schema_version": "1.0",
             "sensitivity_rows": rows,
-            "robust_interval": [float(robust_interval[0]), float(robust_interval[1])],
+            "robust_interval": (
+                [float(robust_interval[0]), float(robust_interval[1])]
+                if robust_interval is not None
+                else None
+            ),
         },
         kind="foundry.welfare_sensitivity_diagnostics",
         schema_name="polisyos.foundry.WelfareSensitivityDiagnostics",
@@ -4352,8 +4521,10 @@ def _calibration_lineage_inputs(
 
 
 def _sample_from_envelope(rng: np.random.Generator, env: UncertaintyEnvelope) -> float:
-    point = float(env.point_estimate)
-    lower, upper = float(env.confidence_interval[0]), float(env.confidence_interval[1])
+    law = _admit_welfare_sampling_laws({"input": env}).get("input")
+    if law is not None:
+        return _draw_finite_empirical_law(rng, law)[1]
+    point, lower, upper = _welfare_parametric_coordinates(env)
     if env.distribution_family == DistributionFamily.NORMAL:
         std = _extract_std(env)
         return float(rng.normal(loc=point, scale=std))
@@ -4364,7 +4535,102 @@ def _sample_from_envelope(rng: np.random.Generator, env: UncertaintyEnvelope) ->
             return point
         mode = min(max(point, lower), upper)
         return float(rng.triangular(lower, mode, upper))
-    return float(rng.normal(loc=point, scale=max((upper - lower) / 4.0, 1e-12)))
+    raise _unsupported_welfare_law("input", "unsupported random transform")
+
+
+def _unsupported_welfare_law(name: str, reason: str) -> _WelfareNodeFailure:
+    return _fail_error(
+        _ERROR_WELFARE_INPUT_LAW_UNSUPPORTED,
+        "Welfare input law cannot be preserved by the configured transform",
+        details={
+            "param_name": name,
+            "reason": reason,
+            "law_status": "unknown",
+            "gate_eligible": False,
+            "owner": "Welfare input-law owner",
+        },
+    )
+
+
+def _admit_welfare_sampling_laws(
+    input_envelopes: Mapping[str, UncertaintyEnvelope],
+    *,
+    calibration_source: _CalibrationCovarianceSource | None = None,
+    requested_method: str = "monte_carlo",
+) -> dict[str, _FiniteEmpiricalLaw]:
+    """Resolve supported laws before any nominal/stochastic evaluator callback."""
+    if requested_method in {"interval_outer", "robust_set", "none", "deterministic"}:
+        return {}
+    laws = {}
+    for name, envelope in input_envelopes.items():
+        payload = envelope.distribution_payload
+        if isinstance(payload, PosteriorSamplesCarrier):
+            if calibration_source is not None or requested_method in {"delta", "delta_method"}:
+                raise _unsupported_welfare_law(
+                    name, "empirical law has no admitted covariance projection"
+                )
+            try:
+                if not payload.sample_axis.strip():
+                    raise ValueError("empirical sample axis is empty")
+                samples = np.asarray(payload.samples, dtype=np.float64)
+                if not np.all(np.isfinite(samples)):
+                    raise ValueError("empirical samples are not finite float64 values")
+                weights = np.ones(len(samples)) if payload.weights is None else payload.weights
+                probabilities = admit_empirical_weights(weights, len(samples))
+                laws[name] = _FiniteEmpiricalLaw(
+                    samples=samples,
+                    probabilities=probabilities,
+                    cumulative=empirical_cdf(probabilities),
+                    sample_axis=payload.sample_axis,
+                    carrier_sha256=sampling_content_digest(payload.model_dump(mode="json")),
+                )
+            except (ValueError, TypeError, OverflowError) as exc:
+                raise _unsupported_welfare_law(name, str(exc)) from exc
+            continue
+        if isinstance(payload, ParametricFitCarrier):
+            if envelope.distribution_family is not payload.family or payload.family not in {
+                DistributionFamily.NORMAL,
+                DistributionFamily.UNIFORM,
+            }:
+                raise _unsupported_welfare_law(name, "unsupported or mismatched parametric fit")
+            _extract_std(envelope)
+            _welfare_parametric_coordinates(envelope)
+        elif payload is not None:
+            raise _unsupported_welfare_law(name, "unsupported distribution carrier")
+        if envelope.distribution_family not in {
+            DistributionFamily.NORMAL,
+            DistributionFamily.UNIFORM,
+            DistributionFamily.TRIANGULAR,
+        }:
+            raise _unsupported_welfare_law(
+                name, "unsupported distribution family without an admitted carrier"
+            )
+    return laws
+
+
+def _welfare_parametric_coordinates(env: UncertaintyEnvelope) -> tuple[float, float, float]:
+    point = float(env.point_estimate)
+    lower, upper = (float(value) for value in env.confidence_interval)
+    payload = env.distribution_payload
+    if isinstance(payload, ParametricFitCarrier):
+        if payload.family is DistributionFamily.NORMAL:
+            point = float(payload.parameters.get("mean", payload.parameters.get("mu", point)))
+            if not math.isfinite(point):
+                raise _unsupported_welfare_law("input", "normal fit location is nonfinite")
+        elif payload.family is DistributionFamily.UNIFORM:
+            if payload.support is not None:
+                lower, upper = (float(value) for value in payload.support)
+            else:
+                lower, upper = float(payload.parameters["low"]), float(payload.parameters["high"])
+    return point, lower, upper
+
+
+def _draw_finite_empirical_law(
+    rng: np.random.Generator, law: _FiniteEmpiricalLaw
+) -> tuple[int, float]:
+    coordinate = float(admit_unit_uniform(rng.random()))
+    index = int(np.searchsorted(law.cumulative, coordinate, side="right"))
+    return index, float(law.samples[index])
 
 
 def _extract_std(env: UncertaintyEnvelope) -> float:

@@ -124,3 +124,16 @@ def test_bridge_source_limit_follows_content_admission_and_replay_has_no_ann(tmp
     assert len(calls) == 1
     monkeypatch.setattr(index, "query", lambda *a, **k: pytest.fail("replay performed ANN"))
     assert bridge.admit_warm_start(rows, basis) == rows
+
+
+def test_bridge_preserves_the_declared_limit_on_nonempty_admitted_sources(tmp_path):
+    store, _, _, source, target, originals, _ = measured_history(tmp_path, count=4)
+    index = VectorMemoryStore(dim=2, max_elements=10)
+    manager = TransferLearningManager(store, index)
+    first = _registered(manager, source, originals[:1], run_id="first", embedding=[1, 0])
+    _registered(manager, source, originals[1:], run_id="second", embedding=[0, 1])
+    bridge = WarmStartBridge(manager, top_k_runs=1, max_evals=4)
+    rows = bridge.load_warm_start(target)
+    assert len(rows) == 1
+    assert rows[0].metadata["transfer_history_ref"] == first.history_ref.model_dump(mode="json")
+    assert bridge.last_load_report["loaded"] == bridge.last_load_report["accepted"] == 1

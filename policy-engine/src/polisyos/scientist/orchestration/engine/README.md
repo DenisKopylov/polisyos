@@ -86,6 +86,29 @@ Run the real storage consumer checks from the repository root:
 uv run pytest tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py
 ```
 
+## Resume Required Artifact Admission
+
+Before executing a remaining node, resume checks its existing declared reads
+that overlap writes of a completed producer. A present typed `ArtifactRef` in
+that state path must verify and permit reading through the current store using
+its complete selected manifest identity. Missing or corrupt external bytes do
+not become available merely because their reference is in a valid checkpoint.
+The default strategy refuses before dependent node effects. Explicit
+`allow_replay` restores the original execution plan so a producer can repair its
+required result; its existing cache-hit validator still decides whether a cached
+result is admissible. Replaying cannot guarantee repair of an arbitrary backend.
+
+This extends the established completed-writer/remaining-reader guard. It does
+not infer artifacts from arbitrary JSON objects or make every optional read a
+required input. Reads without a completed writer retain their current behavior.
+Availability is checked at resume admission; it is not a filesystem reservation
+or a guarantee against a later external deletion. Source snapshot ownership and
+the held B61 read-handle contract are unchanged.
+
+```bash
+uv run pytest tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py tests/unit/remediation/test_res_01.py
+```
+
 ## Last Updated
 
 - Last updated: 2026-10-06

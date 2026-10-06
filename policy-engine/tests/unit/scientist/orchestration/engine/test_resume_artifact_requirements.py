@@ -191,11 +191,38 @@ def test_native_resume_reads_available_required_artifact_without_producer_reexec
     )
 
 
-def test_missing_required_blob_refuses_resume_before_dependent_cas_effect(tmp_path):
+@pytest.mark.parametrize("fault", ["missing", "corrupt", "foreign_selected_profile"])
+def test_unavailable_required_ref_refuses_resume_before_dependent_cas_effect(tmp_path, fault):
     store, run_id, bundle, required = _native_checkpoint(tmp_path)
-    store._paths(required.artifact_id)[0].unlink()
+    if fault == "missing":
+        store._paths(required.artifact_id)[0].unlink()
+    elif fault == "corrupt":
+        store._paths(required.artifact_id)[0].write_bytes(b"corrupt required blob")
+    else:
+        alternate = store.put_bytes(
+            b"B71 required producer bytes",
+            PutOptions(
+                kind=required.kind,
+                media_type=required.media_type,
+                producer=ProducerInfo(component="foreign.producer", version="1.0.0"),
+            ),
+        )
+        assert alternate.artifact_id == required.artifact_id
+        assert alternate.manifest_profile_sha256 != required.manifest_profile_sha256
+        assert store.verify(alternate).ok
+        # The other view remains valid. Replacing the selected view with its
+        # bytes cannot authorize the producer's original complete reference.
+        original_path = store._manifest_path_for_ref(
+            required.artifact_id, required.manifest_profile_sha256
+        )
+        alternate_path = store._manifest_path_for_ref(
+            alternate.artifact_id, alternate.manifest_profile_sha256
+        )
+        original_path.write_bytes(alternate_path.read_bytes())
     reopened = FileSystemCAS(store.root)
     assert not reopened.verify(required).ok
+    if fault == "foreign_selected_profile":
+        assert reopened.verify(alternate).ok
     registry, producer, reader = _registry()
     with pytest.raises(CheckpointCorruptedError, match=r"inputs\.required_ref"):
         resume_from_checkpoint(
@@ -203,6 +230,22 @@ def test_missing_required_blob_refuses_resume_before_dependent_cas_effect(tmp_pa
         )
     assert producer.calls == reader.calls == 0
     assert reader.effect_refs == reader.read_refs == []
+
+
+def test_optional_absent_read_without_completed_writer_does_not_block_resume(tmp_path):
+    store, run_id, bundle, required = _native_checkpoint(tmp_path)
+    registry, producer, reader = _registry()
+    reader.spec = reader.spec.model_copy(
+        update={"state_reads": ["inputs.required_ref", "inputs.optional_absent"]}
+    )
+    reopened = FileSystemCAS(store.root)
+    result = resume_from_checkpoint(
+        reopened, run_id, workflow=_workflow(), registry=registry, registry_bundle_ref=bundle
+    )
+    assert result.report.status == "ok"
+    assert producer.calls == 0
+    assert reader.read_refs == [required]
+    assert reopened.verify(result.state.reports_index["consumed"]).ok
 
 
 def test_allow_replay_repairs_required_blob_before_real_consumer_read(tmp_path):

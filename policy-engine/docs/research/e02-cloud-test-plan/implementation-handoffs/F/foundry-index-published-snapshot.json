@@ -1,0 +1,526 @@
+{
+  "schema": "policyos.e02.F.index-review-published-snapshot.v1",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "scope": "Remote/PR-bound preflight; final INDEX review pending",
+  "records": [
+    {
+      "name": "cau",
+      "branch": "codex/e02-F-cau",
+      "remote_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "pr": {
+        "baseRefName": "main",
+        "headRefName": "codex/e02-F-cau",
+        "headRefOid": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+        "isDraft": true,
+        "number": 18,
+        "state": "OPEN",
+        "url": "https://github.com/DenisKopylov/polisyos/pull/18"
+      },
+      "published": true,
+      "final_changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal-probe.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+        "policy-engine/tests/unit/remediation/test_cau_02.py"
+      ],
+      "receipts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+          "sha256": "6b920930afda41a260c0c4a106279bbd1e6d054225c137af13a3531a96ba8b30",
+          "implementation_commits": [
+            "c8e16d0abb7d10605475862ede8c6f327ff7cce9"
+          ],
+          "candidate_tree_sha": "a7b2625d8dc41f7ae364a5d98ebf6f3c4f60a2cf",
+          "tree_bound": true,
+          "implementation_paths_bound": true,
+          "code_changed_after_last_implementation": [],
+          "closure_ids": [
+            "B207",
+            "B209"
+          ],
+          "bundle_ids": [
+            "CAU-02"
+          ],
+          "capability_state": "implemented bounded cohort-admission mechanism; all11 CAU findings remain limited/partial, no closure/status ledger mutation"
+        }
+      ],
+      "review_json_companions": []
+    },
+    {
+      "name": "causal-api",
+      "branch": "codex/e02-F-causal-api",
+      "remote_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "pr": {
+        "baseRefName": "main",
+        "headRefName": "codex/e02-F-causal-api",
+        "headRefOid": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+        "isDraft": true,
+        "number": 19,
+        "state": "OPEN",
+        "url": "https://github.com/DenisKopylov/polisyos/pull/19"
+      },
+      "published": true,
+      "final_changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+      ],
+      "receipts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+          "sha256": "6b1d887fe80163ddc0f5c0d23c9ee8925def223501eaf85797211944be6f85ff",
+          "implementation_commits": [
+            "0c709ea924d2b868eacf1016f5c70ff749e287a8"
+          ],
+          "candidate_tree_sha": "42c3b569fdff79a03148ecb6a150904ac69019df",
+          "tree_bound": true,
+          "implementation_paths_bound": true,
+          "code_changed_after_last_implementation": [],
+          "closure_ids": [
+            "LA-020"
+          ],
+          "bundle_ids": [
+            "API-01"
+          ],
+          "capability_state": "limited: bounded supported-facade ABI witness and canonical documentation migration complete; LA-020 blanket closure not claimed"
+        }
+      ],
+      "review_json_companions": []
+    },
+    {
+      "name": "economics",
+      "branch": "codex/e02-F-economics",
+      "remote_head": "e642bb9025a67739c201393acca5712603cb064d",
+      "pr": {
+        "baseRefName": "main",
+        "headRefName": "codex/e02-F-economics",
+        "headRefOid": "e642bb9025a67739c201393acca5712603cb064d",
+        "isDraft": true,
+        "number": 15,
+        "state": "OPEN",
+        "url": "https://github.com/DenisKopylov/polisyos/pull/15"
+      },
+      "published": true,
+      "final_changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-profile-consumers.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-candidate-deciding.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-mask-removal.txt",
+        "policy-engine/src/polisyos/foundry/plugins/README.md",
+        "policy-engine/tests/unit/remediation/test_eco_01.py",
+        "policy-engine/tests/unit/remediation/test_fry_03.py"
+      ],
+      "receipts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-profile-consumers.json",
+          "sha256": "adc53d604a8c5faae4942c4c24ab83fd1c59e41403a661aefdb044985e828841",
+          "implementation_commits": [
+            "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6"
+          ],
+          "candidate_tree_sha": "7b7822e23901d9574b53ed97d410a1392763c484",
+          "tree_bound": true,
+          "implementation_paths_bound": true,
+          "code_changed_after_last_implementation": [],
+          "closure_ids": [],
+          "bundle_ids": [
+            "FRY-03",
+            "ECO-01"
+          ],
+          "capability_state": "bounded_default_profile_verification; mixed_profile_FAIL; adapter_native_bridge_missing; LA-004/LA-035 held_semantic_owner; no finding closed"
+        }
+      ],
+      "review_json_companions": []
+    },
+    {
+      "name": "fit-tmle",
+      "branch": "codex/e02-F-fit-tmle",
+      "remote_head": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+      "pr": {
+        "baseRefName": "main",
+        "headRefName": "codex/e02-F-fit-tmle",
+        "headRefOid": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+        "isDraft": true,
+        "number": 26,
+        "state": "OPEN",
+        "url": "https://github.com/DenisKopylov/polisyos/pull/26"
+      },
+      "published": true,
+      "final_changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/.gitignore",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/architecture.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/base-probes.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/consumer-regression.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-adversarial.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-native.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/native-frozen.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/removal-controls.txt",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py"
+      ],
+      "receipts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle.json",
+          "sha256": "2e6e0c9997dc8f9ee80c3cc273ea84572b78189c3dfcf17c88a9d1db1aee9fc3",
+          "implementation_commits": [
+            "b57708fcc95a778d7ff88c4001e4ac8ca74b7889"
+          ],
+          "candidate_tree_sha": "77c3700a32743793ad8349bec1a3ca6a4908e4d6",
+          "tree_bound": true,
+          "implementation_paths_bound": true,
+          "code_changed_after_last_implementation": [],
+          "closure_ids": [
+            "B54",
+            "B56"
+          ],
+          "bundle_ids": [
+            "FIT-01"
+          ],
+          "capability_state": {
+            "B54": "implemented_bounded and finding-specific native verification established for auto/explicit cache; precomputed-bundle admission excluded and not_established",
+            "B56": "partial; bounded external-cap/native parallelism metamorphism established, real production aggregate study admission/producer not established"
+          }
+        }
+      ],
+      "review_json_companions": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-adversarial.json",
+          "schema": "policyos.e02.independent_review.v1",
+          "sha256": "e731f4035cdcb05fec01d2021318ed9845d24da6fb91e733a4e7f62f3f5a1f53"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-native.json",
+          "schema": "policyos.e02.independent_review.v1",
+          "sha256": "1c75a7438d6799484f76bdaea3a43af677b69f7a339b72c494baf6e20b260c01"
+        }
+      ]
+    },
+    {
+      "name": "foundry",
+      "branch": "codex/e02-F-foundry",
+      "remote_head": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "pr": {
+        "baseRefName": "main",
+        "headRefName": "codex/e02-F-foundry",
+        "headRefOid": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+        "isDraft": true,
+        "number": 20,
+        "state": "OPEN",
+        "url": "https://github.com/DenisKopylov/polisyos/pull/20"
+      },
+      "published": true,
+      "final_changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts.json",
+        "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+        "policy-engine/tests/unit/foundry/compile/test_randomization.py",
+        "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py"
+      ],
+      "receipts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts.json",
+          "sha256": "34c41ca91eab404b3fbdfdba376108f1205ed47010d1e540b7f7b6f960f3e3ca",
+          "implementation_commits": [
+            "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2"
+          ],
+          "candidate_tree_sha": "465c255a4022c2506fb21d41c0bc0fc10ed774b6",
+          "tree_bound": true,
+          "implementation_paths_bound": true,
+          "code_changed_after_last_implementation": [],
+          "closure_ids": [
+            "LA-001",
+            "LA-002",
+            "LA-037"
+          ],
+          "bundle_ids": [
+            "FRY-01"
+          ],
+          "capability_state": "bounded verification slice; no full finding closure promotion. LA-001 full execution salt binding remains bridge_missing; LA-002 native synthetic IC/catalog witness established; LA-037 native ABI/layout/compiler witness established with distribution/docs limitations."
+        }
+      ],
+      "review_json_companions": []
+    },
+    {
+      "name": "graph-scm",
+      "branch": "codex/e02-F-graph-scm",
+      "remote_head": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+      "pr": {
+        "baseRefName": "main",
+        "headRefName": "codex/e02-F-graph-scm",
+        "headRefOid": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+        "isDraft": true,
+        "number": 23,
+        "state": "OPEN",
+        "url": "https://github.com/DenisKopylov/polisyos/pull/23"
+      },
+      "published": true,
+      "final_changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-contract-targeted.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-networkx-oracle.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-networkx-targeted.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-architecture.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-independent-review.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-targeted.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm.json",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+        "policy-engine/tests/unit/remediation/test_scm_02.py"
+      ],
+      "receipts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm.json",
+          "sha256": "4c4bd3eb636a9e460c2fd239adbdc1a238463315d4c0899ba0bc8e6d4e4f3050",
+          "implementation_commits": [
+            "672f541313c550e96544728ed397daf330c04442"
+          ],
+          "candidate_tree_sha": "f6bf9b9467d56e86408693982c8f68ea381b1e4c",
+          "tree_bound": true,
+          "implementation_paths_bound": true,
+          "code_changed_after_last_implementation": [],
+          "closure_ids": [
+            "B215",
+            "B216",
+            "B217",
+            "B223"
+          ],
+          "bundle_ids": [
+            "GRF-01",
+            "GRF-02",
+            "GRF-03",
+            "SCM-01",
+            "SCM-02",
+            "SCM-03"
+          ],
+          "capability_state": "bounded native bridge mechanism repaired and finite synthetic verification extended; full findings remain partial/held until independent admission and missing historical/real-data/owner-specific criteria. No status ledger rewritten."
+        }
+      ],
+      "review_json_companions": []
+    },
+    {
+      "name": "lex",
+      "branch": "codex/e02-F-lex",
+      "remote_head": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+      "pr": {
+        "baseRefName": "main",
+        "headRefName": "codex/e02-F-lex",
+        "headRefOid": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+        "isDraft": true,
+        "number": 21,
+        "state": "OPEN",
+        "url": "https://github.com/DenisKopylov/polisyos/pull/21"
+      },
+      "published": true,
+      "final_changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-architecture.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-frozen-tests.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-green.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-native.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-removed-controls.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-input-binding.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-invocation.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-green.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-red.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-selector-error.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-red.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-removal.txt",
+        "policy-engine/release-fragments/unreleased/2026-10-05-lex-impact-input-binding.toml",
+        "policy-engine/src/polisyos/core/components/_cli_lex.py",
+        "policy-engine/src/polisyos/lex/legal_evaluation/README.md",
+        "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+        "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py"
+      ],
+      "receipts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-input-binding.json",
+          "sha256": "4f0623168329cfc5c4006c5beb79dc205704beb1dc8b537e47b5d2c09e519c20",
+          "implementation_commits": [
+            "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+            "56aa7d47876b29956676ef8dc9f04b64c865948f"
+          ],
+          "candidate_tree_sha": "ed6b298e5069bd32102ab9d733be77e3a1937083",
+          "tree_bound": true,
+          "implementation_paths_bound": true,
+          "code_changed_after_last_implementation": [],
+          "closure_ids": [],
+          "bundle_ids": [
+            "LEX-01"
+          ],
+          "capability_state": "bounded_mechanism_and_native_consumer_verified; LA-017 remains limited pending G acceptance and actual corpus/caller custody"
+        }
+      ],
+      "review_json_companions": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.json",
+          "schema": null,
+          "sha256": "bb87e2b57aff1cc2fb5a1bd894a9244d77ac3f02aec358b0beaaa109e9532635"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-native.json",
+          "schema": null,
+          "sha256": "2e4e60a20ec74c02616113b9766880abf7b3d25e4133ac1f02e6ac034afb9181"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-removed-controls.json",
+          "schema": null,
+          "sha256": "a8f4a0f9779fd21003532616d2a128dfa1d3878b7e5a6b1cd3f8b925273312ab"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-review.json",
+          "schema": null,
+          "sha256": "791ae07979f693eb2fd01b38590f70bf391f3d0fc24a5bcc6af2dc7ee337e7a7"
+        }
+      ]
+    },
+    {
+      "name": "causal-output",
+      "branch": "codex/e02-F-causal-output",
+      "remote_head": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+      "pr": {
+        "baseRefName": "main",
+        "headRefName": "codex/e02-F-causal-output",
+        "headRefOid": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+        "isDraft": true,
+        "number": 31,
+        "state": "OPEN",
+        "url": "https://github.com/DenisKopylov/polisyos/pull/31"
+      },
+      "published": true,
+      "final_changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-architecture.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-census.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-environment.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-fragment-check.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-independent-removal.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-independent.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-invocation-summary.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-invocation.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-native-command.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-native.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-red.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-removal-aliases.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-removal-authority.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-removal-probe.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output.json",
+        "policy-engine/release-fragments/unreleased/2026-10-05-e02-causal-output-abi.toml",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_output_contract.py"
+      ],
+      "receipts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output.json",
+          "sha256": "16cb806f594c45b31de3337a7fdf82954a633fe12d53359422da2a4800467115",
+          "implementation_commits": [
+            "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415"
+          ],
+          "candidate_tree_sha": "e577d7403d00db9ea4d8bc8a28ad5b6b46a84d66",
+          "tree_bound": true,
+          "implementation_paths_bound": true,
+          "code_changed_after_last_implementation": [],
+          "closure_ids": [],
+          "bundle_ids": [
+            "CAU-01",
+            "CAU-02",
+            "CAU-03",
+            "CAU-04",
+            "CAU-05"
+          ],
+          "capability_state": "implemented_fixture_verified; limited draft slice; mandatory broad acceptance and production invocation held"
+        }
+      ],
+      "review_json_companions": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-census.json",
+          "schema": null,
+          "sha256": "97f68460d9f3be9586627b1c0b2b384ea3134a3b988c4d292d4e081745deef00"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-environment.json",
+          "schema": null,
+          "sha256": "9dd9d7698d0b378056412c643748729e03df2f4a5d53749b029a7d2733da3d10"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-fragment-check.json",
+          "schema": null,
+          "sha256": "3bb85d9ec0848510b94c4a9629c3d954aa8987b37696edf7458d47788c5b5ed6"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-independent-removal.json",
+          "schema": "policyos.e02.independent_review.v1",
+          "sha256": "c0cc12520f7852d79b8f84d1bbb45a505a05350e04e83a28b6f2232ceb4f5623"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-independent.json",
+          "schema": "policyos.e02.independent_review.v1",
+          "sha256": "cf51d259dd1ba05ea102eceb68406bbab5ac1fbc4daf781fbdcaae53d23618a7"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-invocation-summary.json",
+          "schema": null,
+          "sha256": "8f3a0b4f6ba003489e936d186078ad7470b3c0a476fc4e274085569638ce5dde"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output-native-command.json",
+          "schema": null,
+          "sha256": "c074399c0a5948f2abd04466b1e6b4afaf551799b81a76b8e0efebb323da803c"
+        }
+      ]
+    },
+    {
+      "name": "economic-dtype",
+      "branch": "codex/e02-F-economic-dtype",
+      "remote_head": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "pr": {
+        "baseRefName": "main",
+        "headRefName": "codex/e02-F-economic-dtype",
+        "headRefOid": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+        "isDraft": true,
+        "number": 29,
+        "state": "OPEN",
+        "url": "https://github.com/DenisKopylov/polisyos/pull/29"
+      },
+      "published": true,
+      "final_changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-architecture.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-removal.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype.json",
+        "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+        "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+        "policy-engine/tests/unit/foundry/plugins/test_economics_dtype.py"
+      ],
+      "receipts": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype.json",
+          "sha256": "c7c0f21acfb3537c9c0a53ef39a36a762193a4b0bb3d0da07bd5c0653f173979",
+          "implementation_commits": [
+            "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0"
+          ],
+          "candidate_tree_sha": "9dcc163a864635004408ddd449bab105762e1726",
+          "tree_bound": true,
+          "implementation_paths_bound": true,
+          "code_changed_after_last_implementation": [],
+          "closure_ids": [],
+          "bundle_ids": [
+            "ECO-01",
+            "FRY-03"
+          ],
+          "capability_state": "bounded_native_scalar_dtype_repair; architecture_UNRUN_with_partial_FAIL_findings; economic authority/production applicability held; no finding closed"
+        }
+      ],
+      "review_json_companions": []
+    }
+  ],
+  "published_count": 9,
+  "pairwise_path_overlaps": []
+}

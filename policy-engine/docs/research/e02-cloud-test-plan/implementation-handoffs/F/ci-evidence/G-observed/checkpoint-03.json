@@ -1,0 +1,67 @@
+{
+  "schema": "policyos.e02.integration_decisions.v1",
+  "date": "2026-10-05",
+  "publisher": "G",
+  "integration_sha": "540ffe8c2625c572548056a9897935b0cc2bf5f7",
+  "integration_tree": "7ebc01b07f7818c6ed0962a018b38d765543474e",
+  "previous_checkpoint": "checkpoint-02.json",
+  "accepted_slices": [
+    {
+      "unit": "E",
+      "slice": "bootstrap-statistic-identity",
+      "accepted_head": "0af63b563c9dc5d7ceab99bee3f2f94ed58b16aa",
+      "candidate_sha": "dafe95e15cff5992b5b9133a35e1e1297de03e87",
+      "candidate_tree": "bc5294207fc8e9d87a1ed54eb6d88de9d7e9770d",
+      "merge_sha": "a41d13ed51c12a6afc585b5717d61327dfcb6616",
+      "merge_parents": [
+        "d5ced7616041d0fc3c802c1394a1d28c4839d5b4",
+        "0af63b563c9dc5d7ceab99bee3f2f94ed58b16aa"
+      ],
+      "code_acceptance": "Executed builtin selector/consumer-asserted custom statistic identity survives numeric JSON readback",
+      "reviewers": [
+        "consumer_e",
+        "G"
+      ],
+      "deciding_receipt": "checks/e-bootstrap.json",
+      "full_diff_paths_from_base": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bootstrap-statistic-identity.checks.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bootstrap-statistic-identity.json",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py"
+      ],
+      "readback": "All complete topic diff paths are byte-identical Git blobs on integration HEAD; topic ancestry true",
+      "finding_closure": false
+    },
+    {
+      "unit": "F",
+      "slice": "api-consumer-abi",
+      "accepted_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "candidate_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+      "candidate_tree": "42c3b569fdff79a03148ecb6a150904ac69019df",
+      "merge_sha": "540ffe8c2625c572548056a9897935b0cc2bf5f7",
+      "merge_parents": [
+        "a41d13ed51c12a6afc585b5717d61327dfcb6616",
+        "baada065af0aaa4edafb8d53abce5fd797de2c6c"
+      ],
+      "code_acceptance": "Retained supported symbolic facade ABI and native documentation witness",
+      "reviewers": [
+        "consumer_c",
+        "G"
+      ],
+      "deciding_receipt": "checks/f-api.json",
+      "full_diff_paths_from_base": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+      ],
+      "readback": "All complete topic diff paths are byte-identical Git blobs on integration HEAD; topic ancestry true",
+      "finding_closure": false
+    }
+  ],
+  "finding_closures": [],
+  "freeze": "not_frozen",
+  "broad_replay": "UNRUN pending freeze; affected contract checks queued separately",
+  "main_publication": "not_authorized"
+}

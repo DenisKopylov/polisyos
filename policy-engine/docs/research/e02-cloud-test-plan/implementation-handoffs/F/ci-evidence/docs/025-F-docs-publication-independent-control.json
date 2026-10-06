@@ -1,0 +1,225 @@
+{
+  "schema": "e02.F.docs-companion-publication-predicate.v1",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "rows": [
+    {
+      "family": "CAU",
+      "frozen_doc_sha": "d27227d03a7c78b90c442e6f258c45987104f8a1",
+      "latest_publication_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+      "worktree_clean": true,
+      "doc_bytes_identical_frozen_to_publication": true,
+      "publication_delta_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-after-gate.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-after-gate.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-before-gate.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-before-gate.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-gate-plan.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-independent-after-native.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-independent-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-pr18-python-before-full.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-pr18-python-before-triage.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-resume.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-runtime-identity.json"
+      ],
+      "full_final_changed_paths": [
+        "policy-engine/docs/reference/foundry/causal-statistical-validity.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal-probe.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-after-gate.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-after-gate.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-before-gate.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-before-gate.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-gate-plan.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-independent-after-native.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-independent-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-pr18-python-before-full.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-pr18-python-before-triage.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-resume.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-docs-runtime-identity.json",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+        "policy-engine/tests/unit/remediation/test_cau_02.py"
+      ],
+      "changed_path_count": 21,
+      "actual_final_plan": {
+        "commands": [
+          {
+            "key": "docs_accuracy",
+            "label": "verify docs freshness baseline",
+            "argv": [
+              "uv",
+              "run",
+              "polisyos-tools",
+              "validation",
+              "check-docs-freshness-baseline"
+            ]
+          },
+          {
+            "key": "strict_docs_build",
+            "label": "build documentation site in strict mode",
+            "argv": [
+              "uv",
+              "run",
+              "--extra",
+              "docs",
+              "python",
+              "-m",
+              "mkdocs",
+              "build",
+              "--strict"
+            ]
+          }
+        ],
+        "findings": []
+      },
+      "remove_actual_doc_negative": {
+        "commands": [
+          {
+            "key": "docs_accuracy",
+            "label": "verify docs freshness baseline",
+            "argv": [
+              "uv",
+              "run",
+              "polisyos-tools",
+              "validation",
+              "check-docs-freshness-baseline"
+            ]
+          },
+          {
+            "key": "strict_docs_build",
+            "label": "build documentation site in strict mode",
+            "argv": [
+              "uv",
+              "run",
+              "--extra",
+              "docs",
+              "python",
+              "-m",
+              "mkdocs",
+              "build",
+              "--strict"
+            ]
+          }
+        ],
+        "findings": [
+          {
+            "rule_id": "foundry_docs",
+            "message": "Foundry compile/execute/method/calibration changes require Foundry reference, benchmark docs, or an impact note. Touched: `src/polisyos/foundry/methods/catalog/causal/did.py`. Expected one of: `docs/reference/foundry/**`, `docs/benchmarks/**`, `docs/explanation/causal-engine.md`, `docs/reference/documentation-inventory.md`."
+          }
+        ]
+      },
+      "independent_frozen_review": {
+        "path": "/workspace/e02-F-receipts/F-docs-cau-independent-review.json",
+        "sha256": "1dd10e413808c8e3e972f18861d4455b96384fe1c592b549cae20efef2f7cb21"
+      },
+      "bounded_verdict": "GO companion coverage on actual final full pathset; preserved native full gate FAIL at immutable doc implementation; publication adds only handoff companions."
+    },
+    {
+      "family": "API",
+      "frozen_doc_sha": "4b8cdf8ab88006c572c2b2d0039053d5a0138f14",
+      "latest_publication_sha": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+      "worktree_clean": true,
+      "doc_bytes_identical_frozen_to_publication": true,
+      "publication_delta_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-gate.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-gate.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-independent-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-independent.txt"
+      ],
+      "full_final_changed_paths": [
+        "policy-engine/docs/reference/foundry/causal-engine-architecture.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-gate.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-gate.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-independent-review.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-independent.txt",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+      ],
+      "changed_path_count": 10,
+      "actual_final_plan": {
+        "commands": [
+          {
+            "key": "docs_accuracy",
+            "label": "verify docs freshness baseline",
+            "argv": [
+              "uv",
+              "run",
+              "polisyos-tools",
+              "validation",
+              "check-docs-freshness-baseline"
+            ]
+          },
+          {
+            "key": "strict_docs_build",
+            "label": "build documentation site in strict mode",
+            "argv": [
+              "uv",
+              "run",
+              "--extra",
+              "docs",
+              "python",
+              "-m",
+              "mkdocs",
+              "build",
+              "--strict"
+            ]
+          }
+        ],
+        "findings": []
+      },
+      "remove_actual_doc_negative": {
+        "commands": [
+          {
+            "key": "docs_accuracy",
+            "label": "verify docs freshness baseline",
+            "argv": [
+              "uv",
+              "run",
+              "polisyos-tools",
+              "validation",
+              "check-docs-freshness-baseline"
+            ]
+          },
+          {
+            "key": "strict_docs_build",
+            "label": "build documentation site in strict mode",
+            "argv": [
+              "uv",
+              "run",
+              "--extra",
+              "docs",
+              "python",
+              "-m",
+              "mkdocs",
+              "build",
+              "--strict"
+            ]
+          }
+        ],
+        "findings": [
+          {
+            "rule_id": "foundry_docs",
+            "message": "Foundry compile/execute/method/calibration changes require Foundry reference, benchmark docs, or an impact note. Touched: `src/polisyos/foundry/methods/catalog/causal/README.md`. Expected one of: `docs/reference/foundry/**`, `docs/benchmarks/**`, `docs/explanation/causal-engine.md`, `docs/reference/documentation-inventory.md`."
+          }
+        ]
+      },
+      "independent_frozen_review": {
+        "path": "/workspace/e02-F-receipts/F-docs-api-independent-review.json",
+        "sha256": "95680d0c33dbd009914dd4ff60b32e798b1afbf7f9b4bead7cd6322ec0f2d491"
+      },
+      "bounded_verdict": "GO companion coverage on actual final full pathset; preserved native full gate FAIL at immutable doc implementation; publication adds only handoff companions."
+    }
+  ],
+  "no_exception_changes": true,
+  "whole_docs_quality_verdict": "FAILED",
+  "strict_mkdocs": "UNRUN after native freshness-child failure"
+}

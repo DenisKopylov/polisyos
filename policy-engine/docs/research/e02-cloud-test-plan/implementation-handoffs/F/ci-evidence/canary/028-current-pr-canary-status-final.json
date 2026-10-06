@@ -1,0 +1,1599 @@
+{
+  "observed_utc": "2026-10-05T15:22:32.422906+00:00",
+  "prs": [
+    {
+      "headRefOid": "e642bb9025a67739c201393acca5712603cb064d",
+      "number": 15,
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:01:53Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206367/job/111800438545",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T14:00:30Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:01:02Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321036478/job/111799868493",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T13:59:26Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:29:08Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800442591",
+          "name": "Standard PR / Runtime HTTP",
+          "startedAt": "2026-10-05T14:08:50Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:19:52Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440576",
+          "name": "Fast PR / Workflow governance",
+          "startedAt": "2026-10-05T14:19:31Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:19:15Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800441948",
+          "name": "Standard PR / Frontend quality",
+          "startedAt": "2026-10-05T14:01:05Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:00:17Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206367/job/111800440459",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:00:18Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T13:59:01Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321036478/job/111799870176",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T13:59:01Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:14:11Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440696",
+          "name": "Fast PR / Dependency review",
+          "startedAt": "2026-10-05T14:13:56Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:24:43Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440922",
+          "name": "Fast PR / Schema snapshots",
+          "startedAt": "2026-10-05T14:23:54Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:09:41Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800442494",
+          "name": "Standard PR / Frontend component smoke",
+          "startedAt": "2026-10-05T14:07:57Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:08:18Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440568",
+          "name": "Fast PR / Python quality and unit",
+          "startedAt": "2026-10-05T14:07:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:09:23Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800442457",
+          "name": "Standard PR / Frontend contract drift",
+          "startedAt": "2026-10-05T14:07:14Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:01:31Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440136",
+          "name": "Fast PR / Docs quality",
+          "startedAt": "2026-10-05T14:00:55Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:14:24Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800442523",
+          "name": "Standard PR / Performance",
+          "startedAt": "2026-10-05T14:08:34Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:20:34Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440690",
+          "name": "Fast PR / ABI drift",
+          "startedAt": "2026-10-05T14:19:38Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:27:36Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111800442368",
+          "name": "Standard PR / Frontend unit coverage",
+          "startedAt": "2026-10-05T14:04:36Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:36:38Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111811578482",
+          "name": "Fast PR / Gate",
+          "startedAt": "2026-10-05T14:36:35Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:29:08Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111813623462",
+          "name": "Standard PR / Frontend smoke",
+          "startedAt": "2026-10-05T14:29:09Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:29:09Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111813624353",
+          "name": "Standard PR / Integration",
+          "startedAt": "2026-10-05T14:29:09Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:56:01Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111813624249",
+          "name": "Standard PR / Test economics",
+          "startedAt": "2026-10-05T14:54:41Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206372/job/111826016522",
+          "name": "Standard PR / Gate",
+          "startedAt": "2026-10-05T14:56:01Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        }
+      ]
+    },
+    {
+      "headRefOid": "08aaccebfce37aa652ff243fce8037ff48020807",
+      "number": 18,
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331707222/job/111836158644",
+          "name": "Core Runtime / Typing and Ratchets",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331706787/job/111836157320",
+          "name": "Fast PR / Workflow governance",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331707113/job/111836157403",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331707222/job/111836158429",
+          "name": "Core Runtime / Contracts",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331706787/job/111836156923",
+          "name": "Fast PR / Dependency review",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:18:09Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331707113/job/111836205770",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T15:18:15Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331707222/job/111836158530",
+          "name": "Core Runtime / Docs Contract",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331706787/job/111836157594",
+          "name": "Fast PR / Schema snapshots",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331707222/job/111836158593",
+          "name": "Core Runtime / Link Check",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331706787/job/111836157286",
+          "name": "Fast PR / Python quality and unit",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331707222/job/111836158758",
+          "name": "Core Runtime / Mutation Subset",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331706787/job/111836157329",
+          "name": "Fast PR / Docs quality",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331707222/job/111836158165",
+          "name": "Core Runtime / Performance Smoke",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331706787/job/111836157389",
+          "name": "Fast PR / ABI drift",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331707222/job/111836158728",
+          "name": "Scientist / Phase 0 Gate",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37331707222/job/111836158694",
+          "name": "Scientist / Phase 1 Gate",
+          "startedAt": "2026-10-05T15:18:09Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        }
+      ]
+    },
+    {
+      "headRefOid": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+      "number": 19,
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332017980/job/111837222979",
+          "name": "Core Runtime / Typing and Ratchets",
+          "startedAt": "2026-10-05T15:20:26Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332018512/job/111837380221",
+          "name": "Fast PR / Workflow governance",
+          "startedAt": "2026-10-05T15:20:46Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332018165/job/111837222771",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T15:20:26Z",
+          "status": "QUEUED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332017980/job/111837223496",
+          "name": "Core Runtime / Contracts",
+          "startedAt": "2026-10-05T15:20:26Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332018512/job/111837380966",
+          "name": "Fast PR / Dependency review",
+          "startedAt": "2026-10-05T15:20:46Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:20:25Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332018165/job/111837284390",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T15:20:33Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332017980/job/111837223587",
+          "name": "Core Runtime / Docs Contract",
+          "startedAt": "2026-10-05T15:20:26Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332018512/job/111837380584",
+          "name": "Fast PR / Schema snapshots",
+          "startedAt": "2026-10-05T15:20:46Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332017980/job/111837223414",
+          "name": "Core Runtime / Link Check",
+          "startedAt": "2026-10-05T15:20:26Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332018512/job/111837380551",
+          "name": "Fast PR / Python quality and unit",
+          "startedAt": "2026-10-05T15:20:46Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332017980/job/111837235610",
+          "name": "Core Runtime / Mutation Subset",
+          "startedAt": "2026-10-05T15:20:27Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332018512/job/111837380571",
+          "name": "Fast PR / Docs quality",
+          "startedAt": "2026-10-05T15:20:46Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332017980/job/111837223098",
+          "name": "Core Runtime / Performance Smoke",
+          "startedAt": "2026-10-05T15:20:26Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332018512/job/111837380515",
+          "name": "Fast PR / ABI drift",
+          "startedAt": "2026-10-05T15:20:46Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332017980/job/111837223625",
+          "name": "Scientist / Phase 0 Gate",
+          "startedAt": "2026-10-05T15:20:26Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37332017980/job/111837223523",
+          "name": "Scientist / Phase 1 Gate",
+          "startedAt": "2026-10-05T15:20:26Z",
+          "status": "QUEUED",
+          "workflowName": "Core Runtime Release Gate"
+        }
+      ]
+    },
+    {
+      "headRefOid": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "number": 20,
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540857/job/111824949057",
+          "name": "Standard PR / Runtime HTTP",
+          "startedAt": "2026-10-05T14:53:42Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:05:18Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811931188",
+          "name": "Fast PR / Workflow governance",
+          "startedAt": "2026-10-05T15:04:52Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540857/job/111824948550",
+          "name": "Standard PR / Frontend quality",
+          "startedAt": "2026-10-05T15:19:02Z",
+          "status": "IN_PROGRESS",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:53:40Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811931418",
+          "name": "Fast PR / Dependency review",
+          "startedAt": "2026-10-05T14:53:25Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:53:27Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811931253",
+          "name": "Fast PR / Schema snapshots",
+          "startedAt": "2026-10-05T14:52:47Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540857/job/111824948655",
+          "name": "Standard PR / Frontend component smoke",
+          "startedAt": "2026-10-05T14:53:42Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:43:12Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811930909",
+          "name": "Fast PR / Python quality and unit",
+          "startedAt": "2026-10-05T14:42:11Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540857/job/111824948737",
+          "name": "Standard PR / Frontend contract drift",
+          "startedAt": "2026-10-05T14:53:42Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:48:34Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811930974",
+          "name": "Fast PR / Docs quality",
+          "startedAt": "2026-10-05T14:47:58Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540857/job/111824948465",
+          "name": "Standard PR / Performance",
+          "startedAt": "2026-10-05T15:21:57Z",
+          "status": "IN_PROGRESS",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:07:35Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811931534",
+          "name": "Fast PR / ABI drift",
+          "startedAt": "2026-10-05T15:06:31Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540857/job/111824948836",
+          "name": "Standard PR / Frontend unit coverage",
+          "startedAt": "2026-10-05T14:53:42Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111831171241",
+          "name": "Fast PR / Gate",
+          "startedAt": "2026-10-05T15:07:36Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        }
+      ]
+    },
+    {
+      "headRefOid": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+      "number": 21,
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:53:04Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034517/job/111813480049",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T14:51:20Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:55:57Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325029585/job/111813461947",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T14:54:20Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034509/job/111813480298",
+          "name": "Core Runtime / Typing and Ratchets",
+          "startedAt": "2026-10-05T14:57:03Z",
+          "status": "IN_PROGRESS",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:14:57Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034607/job/111823101824",
+          "name": "Fast PR / Workflow governance",
+          "startedAt": "2026-10-05T15:14:33Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:21:13Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034509/job/111813480634",
+          "name": "Core Runtime / Contracts",
+          "startedAt": "2026-10-05T15:09:45Z",
+          "status": "COMPLETED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034607/job/111823102109",
+          "name": "Fast PR / Dependency review",
+          "startedAt": "2026-10-05T14:49:42Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:28:50Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034517/job/111813481877",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:28:50Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:28:48Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325029585/job/111813464183",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:28:48Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:11:17Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034509/job/111813480911",
+          "name": "Core Runtime / Docs Contract",
+          "startedAt": "2026-10-05T15:10:09Z",
+          "status": "COMPLETED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034607/job/111823102195",
+          "name": "Fast PR / Schema snapshots",
+          "startedAt": "2026-10-05T14:49:42Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:18:07Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034509/job/111813480735",
+          "name": "Core Runtime / Link Check",
+          "startedAt": "2026-10-05T15:17:54Z",
+          "status": "COMPLETED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034607/job/111823102013",
+          "name": "Fast PR / Python quality and unit",
+          "startedAt": "2026-10-05T14:49:42Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:10:30Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034509/job/111813480670",
+          "name": "Core Runtime / Mutation Subset",
+          "startedAt": "2026-10-05T15:09:17Z",
+          "status": "COMPLETED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034607/job/111823101510",
+          "name": "Fast PR / Docs quality",
+          "startedAt": "2026-10-05T15:21:20Z",
+          "status": "IN_PROGRESS",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:00:51Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034509/job/111813480610",
+          "name": "Core Runtime / Performance Smoke",
+          "startedAt": "2026-10-05T14:58:31Z",
+          "status": "COMPLETED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034607/job/111823101947",
+          "name": "Fast PR / ABI drift",
+          "startedAt": "2026-10-05T15:22:05Z",
+          "status": "IN_PROGRESS",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:12:28Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034509/job/111813480687",
+          "name": "Scientist / Phase 0 Gate",
+          "startedAt": "2026-10-05T15:11:21Z",
+          "status": "COMPLETED",
+          "workflowName": "Core Runtime Release Gate"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37325034509/job/111813480853",
+          "name": "Scientist / Phase 1 Gate",
+          "startedAt": "2026-10-05T15:21:04Z",
+          "status": "IN_PROGRESS",
+          "workflowName": "Core Runtime Release Gate"
+        }
+      ]
+    },
+    {
+      "headRefOid": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+      "number": 23,
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:33:06Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047501/job/111806705313",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T14:31:31Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047524/job/111833970167",
+          "name": "Standard PR / Runtime HTTP",
+          "startedAt": "2026-10-05T15:13:28Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:53:54Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047535/job/111812225783",
+          "name": "Fast PR / Workflow governance",
+          "startedAt": "2026-10-05T14:53:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047524/job/111833970209",
+          "name": "Standard PR / Frontend quality",
+          "startedAt": "2026-10-05T15:13:28Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:14:02Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047501/job/111806706825",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:14:03Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:00:25Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047535/job/111812226474",
+          "name": "Fast PR / Dependency review",
+          "startedAt": "2026-10-05T15:00:09Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:10:14Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047535/job/111812226440",
+          "name": "Fast PR / Schema snapshots",
+          "startedAt": "2026-10-05T15:09:31Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047524/job/111833969912",
+          "name": "Standard PR / Frontend component smoke",
+          "startedAt": "2026-10-05T15:13:28Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:12:21Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047535/job/111812226693",
+          "name": "Fast PR / Python quality and unit",
+          "startedAt": "2026-10-05T15:11:13Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047524/job/111833970302",
+          "name": "Standard PR / Frontend contract drift",
+          "startedAt": "2026-10-05T15:13:28Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:09:12Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047535/job/111812226377",
+          "name": "Fast PR / Docs quality",
+          "startedAt": "2026-10-05T15:08:39Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047524/job/111833970306",
+          "name": "Standard PR / Performance",
+          "startedAt": "2026-10-05T15:13:28Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:12:34Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047535/job/111812226307",
+          "name": "Fast PR / ABI drift",
+          "startedAt": "2026-10-05T15:11:30Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047524/job/111833970309",
+          "name": "Standard PR / Frontend unit coverage",
+          "startedAt": "2026-10-05T15:13:28Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37323047535/job/111833549666",
+          "name": "Fast PR / Gate",
+          "startedAt": "2026-10-05T15:12:34Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        }
+      ]
+    },
+    {
+      "headRefOid": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+      "number": 26,
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:50:43Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324919982/job/111813090804",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T14:48:56Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324919936/job/111822282879",
+          "name": "Fast PR / Workflow governance",
+          "startedAt": "2026-10-05T14:47:56Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324920020/job/111837635091",
+          "name": "Standard PR / Runtime HTTP",
+          "startedAt": "2026-10-05T15:21:19Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324919936/job/111822284382",
+          "name": "Fast PR / Dependency review",
+          "startedAt": "2026-10-05T14:47:56Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324920020/job/111837635207",
+          "name": "Standard PR / Frontend quality",
+          "startedAt": "2026-10-05T15:21:19Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:27:58Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324919982/job/111813093594",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:27:59Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:15:15Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324919936/job/111822282722",
+          "name": "Fast PR / Schema snapshots",
+          "startedAt": "2026-10-05T15:14:32Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324920020/job/111837635255",
+          "name": "Standard PR / Frontend component smoke",
+          "startedAt": "2026-10-05T15:21:19Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324919936/job/111822284081",
+          "name": "Fast PR / Python quality and unit",
+          "startedAt": "2026-10-05T14:47:56Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324920020/job/111837635458",
+          "name": "Standard PR / Frontend contract drift",
+          "startedAt": "2026-10-05T15:21:19Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324920020/job/111837635134",
+          "name": "Standard PR / Performance",
+          "startedAt": "2026-10-05T15:21:19Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324919936/job/111822282506",
+          "name": "Fast PR / Docs quality",
+          "startedAt": "2026-10-05T15:22:24Z",
+          "status": "IN_PROGRESS",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:20:31Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324919936/job/111822282742",
+          "name": "Fast PR / ABI drift",
+          "startedAt": "2026-10-05T15:19:24Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324920020/job/111837635110",
+          "name": "Standard PR / Frontend unit coverage",
+          "startedAt": "2026-10-05T15:21:19Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        }
+      ]
+    },
+    {
+      "headRefOid": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "number": 29,
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:54:16Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581530/job/111811923370",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T14:52:22Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:55:40Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592560/job/111811960391",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T14:54:06Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:33Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581446/job/111811925091",
+          "name": "Fast PR / Workflow governance",
+          "startedAt": "2026-10-05T14:25:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:33Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581716/job/111811923648",
+          "name": "Standard PR / Runtime HTTP",
+          "startedAt": "2026-10-05T14:25:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592706/job/111822628725",
+          "name": "Fast PR / Workflow governance",
+          "startedAt": "2026-10-05T14:48:41Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592699/job/111833221153",
+          "name": "Standard PR / Runtime HTTP",
+          "startedAt": "2026-10-05T15:11:52Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:33Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581446/job/111811925223",
+          "name": "Fast PR / Dependency review",
+          "startedAt": "2026-10-05T14:25:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:33Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581716/job/111811923870",
+          "name": "Standard PR / Frontend quality",
+          "startedAt": "2026-10-05T14:25:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592699/job/111833221142",
+          "name": "Standard PR / Frontend quality",
+          "startedAt": "2026-10-05T15:11:52Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:28Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581530/job/111811924995",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:25:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:32Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592560/job/111811962086",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:25:33Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:18:41Z",
+          "conclusion": "SUCCESS",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592706/job/111822628675",
+          "name": "Fast PR / Dependency review",
+          "startedAt": "2026-10-05T15:18:26Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:33Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581446/job/111811925650",
+          "name": "Fast PR / Schema snapshots",
+          "startedAt": "2026-10-05T14:25:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:33Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581716/job/111811923829",
+          "name": "Standard PR / Frontend component smoke",
+          "startedAt": "2026-10-05T14:25:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592706/job/111822628864",
+          "name": "Fast PR / Schema snapshots",
+          "startedAt": "2026-10-05T14:48:41Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592699/job/111833220663",
+          "name": "Standard PR / Frontend component smoke",
+          "startedAt": "2026-10-05T15:11:52Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:21:03Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592706/job/111822628801",
+          "name": "Fast PR / Python quality and unit",
+          "startedAt": "2026-10-05T15:20:08Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:33Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581446/job/111811925698",
+          "name": "Fast PR / Python quality and unit",
+          "startedAt": "2026-10-05T14:25:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:33Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581716/job/111811923343",
+          "name": "Standard PR / Frontend contract drift",
+          "startedAt": "2026-10-05T14:25:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592699/job/111833220976",
+          "name": "Standard PR / Frontend contract drift",
+          "startedAt": "2026-10-05T15:11:52Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:18:47Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592706/job/111822628312",
+          "name": "Fast PR / Docs quality",
+          "startedAt": "2026-10-05T15:18:08Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:33Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581446/job/111811926168",
+          "name": "Fast PR / Docs quality",
+          "startedAt": "2026-10-05T14:25:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:33Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581716/job/111811923614",
+          "name": "Standard PR / Performance",
+          "startedAt": "2026-10-05T14:25:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592699/job/111833220971",
+          "name": "Standard PR / Performance",
+          "startedAt": "2026-10-05T15:11:52Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:33Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581446/job/111811925348",
+          "name": "Fast PR / ABI drift",
+          "startedAt": "2026-10-05T14:25:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:33Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581716/job/111811923547",
+          "name": "Standard PR / Frontend unit coverage",
+          "startedAt": "2026-10-05T14:25:28Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592706/job/111822628705",
+          "name": "Fast PR / ABI drift",
+          "startedAt": "2026-10-05T14:48:41Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324592699/job/111833221013",
+          "name": "Standard PR / Frontend unit coverage",
+          "startedAt": "2026-10-05T15:11:52Z",
+          "status": "QUEUED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:48:40Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581446/job/111811971315",
+          "name": "Fast PR / Gate",
+          "startedAt": "2026-10-05T14:48:36Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:33Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581716/job/111811969077",
+          "name": "Standard PR / Frontend smoke",
+          "startedAt": "2026-10-05T14:25:34Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:25:33Z",
+          "conclusion": "CANCELLED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581716/job/111811970122",
+          "name": "Standard PR / Integration",
+          "startedAt": "2026-10-05T14:25:34Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:41:02Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581716/job/111811969133",
+          "name": "Standard PR / Test economics",
+          "startedAt": "2026-10-05T14:40:01Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:11:51Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37324581716/job/111819094132",
+          "name": "Standard PR / Gate",
+          "startedAt": "2026-10-05T15:11:47Z",
+          "status": "COMPLETED",
+          "workflowName": "PR Standard"
+        }
+      ]
+    },
+    {
+      "headRefOid": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+      "number": 31,
+      "statusCheckRollup": [
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T15:14:18Z",
+          "conclusion": "FAILURE",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37326442567/job/111818298240",
+          "name": "Deterministic Canary Matrix",
+          "startedAt": "2026-10-05T15:12:38Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37326442561/job/111837994934",
+          "name": "Fast PR / Workflow governance",
+          "startedAt": "2026-10-05T15:22:05Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37326442561/job/111837994936",
+          "name": "Fast PR / Dependency review",
+          "startedAt": "2026-10-05T15:22:05Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "2026-10-05T14:39:19Z",
+          "conclusion": "SKIPPED",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37326442567/job/111818301000",
+          "name": "Quarantined Live-Provider Canary",
+          "startedAt": "2026-10-05T14:39:19Z",
+          "status": "COMPLETED",
+          "workflowName": "PolicyOS Canary Matrix"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37326442561/job/111837994957",
+          "name": "Fast PR / Schema snapshots",
+          "startedAt": "2026-10-05T15:22:05Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37326442561/job/111837994899",
+          "name": "Fast PR / Python quality and unit",
+          "startedAt": "2026-10-05T15:22:05Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37326442561/job/111837994660",
+          "name": "Fast PR / Docs quality",
+          "startedAt": "2026-10-05T15:22:05Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        },
+        {
+          "__typename": "CheckRun",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "detailsUrl": "https://github.com/DenisKopylov/polisyos/actions/runs/37326442561/job/111837995081",
+          "name": "Fast PR / ABI drift",
+          "startedAt": "2026-10-05T15:22:05Z",
+          "status": "QUEUED",
+          "workflowName": "PR Fast"
+        }
+      ]
+    }
+  ]
+}

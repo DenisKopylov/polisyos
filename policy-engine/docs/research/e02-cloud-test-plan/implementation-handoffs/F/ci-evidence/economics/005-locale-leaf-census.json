@@ -1,0 +1,23 @@
+{
+  "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+  "canonical_test_constant": 2879,
+  "independently_recomputed_counts": [
+    {
+      "locale": "en",
+      "leaf_count": 2907,
+      "paths_sha256": "3645e6e757ec5726e0eda3880193e38e2ac4c7b075d1951255a3a156e2f908eb",
+      "all_values_string": true,
+      "source": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json"
+    },
+    {
+      "locale": "uk",
+      "leaf_count": 2907,
+      "paths_sha256": "3645e6e757ec5726e0eda3880193e38e2ac4c7b075d1951255a3a156e2f908eb",
+      "all_values_string": true,
+      "source": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json"
+    }
+  ],
+  "original_test_command_replayed": false,
+  "complete_locale_leaf_denominator": true,
+  "attribution": "not_established_no_base_replay"
+}

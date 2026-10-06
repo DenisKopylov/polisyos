@@ -1,0 +1,182 @@
+[
+  {
+    "pr": 20,
+    "target_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+    "target_tree": "4a2af977af9f7ccde8add988dbdd61e740d19e77",
+    "cwd": "/workspace/e02-F-foundry/policy-engine",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "tools/quality/diagnostics/gen_schema.py",
+      "--check",
+      "--cache-dir",
+      "/workspace/e02-F-receipts/fit-ci-schema-abi/pr20-schema-cache"
+    ],
+    "PYTHONPATH": "src:.",
+    "exit_code": 1,
+    "wall_s": 14.198684482000317,
+    "stdout": {
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr20-gen-schema-stdout.txt",
+      "bytes": 251,
+      "sha256": "8461859cb30e4c1597a83baa529a283878ba86faa9b06e767caf96ee9e3717ae",
+      "full_text": "ABI schema snapshot check failed:\n- snapshot out of date: /workspace/e02-F-foundry/policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json\n- snapshot out of date: /workspace/e02-F-foundry/policy-engine/schemas/snapshots/ir/_manifest.json\n"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr20-gen-schema-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full_text": ""
+    },
+    "environment": "Python3.14.2 Pydantic2.12.5 native shared ML env read-only; no uv sync; CI interpreterpatch differs",
+    "source_read_only": true
+  },
+  {
+    "pr": 21,
+    "target_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+    "target_tree": "860a236668b7194212980271ffafa66677434517",
+    "cwd": "/workspace/e02-F-lex/policy-engine",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "tools/quality/diagnostics/gen_schema.py",
+      "--check",
+      "--cache-dir",
+      "/workspace/e02-F-receipts/fit-ci-schema-abi/pr21-schema-cache"
+    ],
+    "PYTHONPATH": "src:.",
+    "exit_code": 1,
+    "wall_s": 12.351507361000586,
+    "stdout": {
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr21-gen-schema-stdout.txt",
+      "bytes": 243,
+      "sha256": "b3b4ceb0fdc89d770a4a709393acd29de0f23c0675daa6df061ba61dd6ff7f0d",
+      "full_text": "ABI schema snapshot check failed:\n- snapshot out of date: /workspace/e02-F-lex/policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json\n- snapshot out of date: /workspace/e02-F-lex/policy-engine/schemas/snapshots/ir/_manifest.json\n"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr21-gen-schema-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full_text": ""
+    },
+    "environment": "Python3.14.2 Pydantic2.12.5 native shared ML env read-only; no uv sync; CI interpreterpatch differs",
+    "source_read_only": true
+  },
+  {
+    "pr": 23,
+    "target_sha": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+    "target_tree": "802062f5e1a96b5682ecd3c109606d208ae51378",
+    "cwd": "/workspace/e02-F-graph-scm/policy-engine",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "tools/quality/diagnostics/gen_schema.py",
+      "--check",
+      "--cache-dir",
+      "/workspace/e02-F-receipts/fit-ci-schema-abi/pr23-schema-cache"
+    ],
+    "PYTHONPATH": "src:.",
+    "exit_code": 1,
+    "wall_s": 11.457796744999541,
+    "stdout": {
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr23-gen-schema-stdout.txt",
+      "bytes": 255,
+      "sha256": "afa9eae9901b22bf72e67d18e2f88e9719b05f751aa35f820c68b461ae6d022d",
+      "full_text": "ABI schema snapshot check failed:\n- snapshot out of date: /workspace/e02-F-graph-scm/policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json\n- snapshot out of date: /workspace/e02-F-graph-scm/policy-engine/schemas/snapshots/ir/_manifest.json\n"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr23-gen-schema-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full_text": ""
+    },
+    "environment": "Python3.14.2 Pydantic2.12.5 native shared ML env read-only; no uv sync; CI interpreterpatch differs",
+    "source_read_only": true
+  },
+  {
+    "pr": 26,
+    "target_sha": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+    "target_tree": "871ac9a5576ea591c52db2bc1ec07614bca3d34e",
+    "cwd": "/workspace/e02-F-fit-tmle/policy-engine",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "tools/quality/diagnostics/gen_schema.py",
+      "--check",
+      "--cache-dir",
+      "/workspace/e02-F-receipts/fit-ci-schema-abi/pr26-schema-cache"
+    ],
+    "PYTHONPATH": "src:.",
+    "exit_code": 1,
+    "wall_s": 14.29325880899978,
+    "stdout": {
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr26-gen-schema-stdout.txt",
+      "bytes": 253,
+      "sha256": "77425578b8debff19540a2598f3ba9896876bfd4b715a3b83c88b37a84e03399",
+      "full_text": "ABI schema snapshot check failed:\n- snapshot out of date: /workspace/e02-F-fit-tmle/policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json\n- snapshot out of date: /workspace/e02-F-fit-tmle/policy-engine/schemas/snapshots/ir/_manifest.json\n"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr26-gen-schema-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full_text": ""
+    },
+    "environment": "Python3.14.2 Pydantic2.12.5 native shared ML env read-only; no uv sync; CI interpreterpatch differs",
+    "source_read_only": true
+  },
+  {
+    "pr": 29,
+    "target_sha": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+    "target_tree": "f80d2aabdadb85c2a8c44e13205811f217be8ae5",
+    "cwd": "/workspace/e02-F-economic-dtype/policy-engine",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "tools/quality/diagnostics/gen_schema.py",
+      "--check",
+      "--cache-dir",
+      "/workspace/e02-F-receipts/fit-ci-schema-abi/pr29-schema-cache"
+    ],
+    "PYTHONPATH": "src:.",
+    "exit_code": 1,
+    "wall_s": 14.499746806000076,
+    "stdout": {
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr29-gen-schema-stdout.txt",
+      "bytes": 265,
+      "sha256": "f3ece822dc780494fe6eb0215bfd9be7903cb0125a56ea638b849e704090ff90",
+      "full_text": "ABI schema snapshot check failed:\n- snapshot out of date: /workspace/e02-F-economic-dtype/policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json\n- snapshot out of date: /workspace/e02-F-economic-dtype/policy-engine/schemas/snapshots/ir/_manifest.json\n"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr29-gen-schema-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full_text": ""
+    },
+    "environment": "Python3.14.2 Pydantic2.12.5 native shared ML env read-only; no uv sync; CI interpreterpatch differs",
+    "source_read_only": true
+  },
+  {
+    "pr": 31,
+    "target_sha": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+    "target_tree": "8ca6c8ad5925f8b5fc8b31e4c78644ef4a3804d2",
+    "cwd": "/workspace/e02-F-causal-output/policy-engine",
+    "argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "tools/quality/diagnostics/gen_schema.py",
+      "--check",
+      "--cache-dir",
+      "/workspace/e02-F-receipts/fit-ci-schema-abi/pr31-schema-cache"
+    ],
+    "PYTHONPATH": "src:.",
+    "exit_code": 1,
+    "wall_s": 11.348195347999535,
+    "stdout": {
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr31-gen-schema-stdout.txt",
+      "bytes": 263,
+      "sha256": "a60e7bd408d8edc6cae052afb7dec7eda018563846ee7fd966f5c51446013561",
+      "full_text": "ABI schema snapshot check failed:\n- snapshot out of date: /workspace/e02-F-causal-output/policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json\n- snapshot out of date: /workspace/e02-F-causal-output/policy-engine/schemas/snapshots/ir/_manifest.json\n"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr31-gen-schema-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "full_text": ""
+    },
+    "environment": "Python3.14.2 Pydantic2.12.5 native shared ML env read-only; no uv sync; CI interpreterpatch differs",
+    "source_read_only": true
+  }
+]

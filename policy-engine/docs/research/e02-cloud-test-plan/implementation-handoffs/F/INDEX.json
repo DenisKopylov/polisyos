@@ -1,0 +1,2955 @@
+{
+  "schema": "policyos.e02.unit_delivery.v1",
+  "unit": "F",
+  "source_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "original_checkout_observation": {
+    "branch": "work",
+    "sha": "0a4b9cd48068454bb8ce95b5ae69bf5c323ee924",
+    "status": "clean at independent preflight; final check in closeout receipt"
+  },
+  "bundle_ids": [
+    "API-01",
+    "CAU-01",
+    "CAU-02",
+    "CAU-03",
+    "CAU-04",
+    "CAU-05",
+    "ECO-01",
+    "FIT-01",
+    "FRY-01",
+    "FRY-03",
+    "GRF-01",
+    "GRF-02",
+    "GRF-03",
+    "LEX-01",
+    "SCM-01",
+    "SCM-02",
+    "SCM-03"
+  ],
+  "finding_residuals": [
+    {
+      "finding_id": "B54",
+      "closure_owner": "FIT-01",
+      "bundle_ids": [
+        "FIT-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1379",
+      "receipt_source": "FIT",
+      "primary_residual_class": "bounded_mechanism_with_unadmitted_input_path",
+      "current_bounded_evidence": "Auto/explicit namespace cache binds full X/T/Y and fit settings; immutable fit bytes and isolated current diagnostics reach native AIPW/TMLE consumers.",
+      "mechanism_or_oracle_residual": "Precomputed __shared_nuisance_bundle and advanced_designs direct admission remain outside the repaired cache boundary.",
+      "missing_input": "Actual precomputed producer, source snapshot and current-contract provenance; full production data is unnecessary for generic cache correctness.",
+      "semantic_owner_boundary": "F causal owner must define and trace precomputed admission; do not promote supplied bundles by label.",
+      "next_owner": "F causal TMLE owner; G integration; actual precomputed caller owner",
+      "next_action": "Accept bounded cache code/controls separately; trace and content-bind a real precomputed producer before widening scope.",
+      "authority_limit": "Numerical/cache correctness only; no real-data causal validity or nominal coverage.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B56",
+      "closure_owner": "FIT-01",
+      "bundle_ids": [
+        "FIT-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1409",
+      "receipt_source": "FIT",
+      "primary_residual_class": "missing_outer_resource_carrier",
+      "current_bounded_evidence": "Serial/internal-cap2/external-cap1 native fits preserve every fold/repeat/seed, predictions and nonzero measured EIF uncertainty.",
+      "mechanism_or_oracle_residual": "No admitted production study executor/resource carrier binds aggregate work across studies.",
+      "missing_input": "Actual outer caller, aggregate resource budget and admission lifecycle.",
+      "semantic_owner_boundary": "F owns scientific plan; B consults resource capability. Monetary BudgetMiddleware is not a CPU/fold API.",
+      "next_owner": "F TMLE owner with B resource/caller owner; G",
+      "next_action": "Appoint/trace outer resource carrier and compose existing max_parallel_folds; retain all scientific repeats and test no deadlock.",
+      "authority_limit": "Explicit synthetic cap composition does not establish production aggregate admission.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B204",
+      "closure_owner": "CAU-01",
+      "bundle_ids": [
+        "CAU-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5094",
+      "receipt_source": "CAU",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Known ATT3 and invalid pre/post-design controls pass on synthetic panels.",
+      "mechanism_or_oracle_residual": "Finding-level historical selector/four-base replay and empirical parallel-trend validity remain unestablished.",
+      "missing_input": "No production inputs needed for the generic algebra/design witness; any empirical assumption claim needs admitted local panel input.",
+      "semantic_owner_boundary": "No principal authority supplied by this test.",
+      "next_owner": "F CAU-01 verification owner/E02 baseline broker; G",
+      "next_action": "Reconcile card-specific positive/refusal selector and replay; assess admitted panel design locally only for a real-data claim.",
+      "authority_limit": "A pre period or non-rejection does not prove parallel trends.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B205",
+      "closure_owner": "CAU-01",
+      "bundle_ids": [
+        "CAU-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5106",
+      "receipt_source": "CAU",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Real statsmodels0.14.6 CR0 reference and technical-period-duplication controls pass.",
+      "mechanism_or_oracle_residual": "Historical replay, small-cluster inference and nominal coverage remain unestablished.",
+      "missing_input": "No production inputs needed for the generic algebra/design witness; any empirical assumption claim needs admitted local panel input.",
+      "semantic_owner_boundary": "No principal authority supplied by this test.",
+      "next_owner": "F CAU-01 verification owner/E02 baseline broker; G",
+      "next_action": "Reconcile card selector; independently assess covariance unit/cluster assumptions on any admitted panel.",
+      "authority_limit": "Cluster/HC1 arithmetic parity is not population interval coverage.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B206",
+      "closure_owner": "CAU-01",
+      "bundle_ids": [
+        "CAU-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5120",
+      "receipt_source": "CAU",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Confidence-level widening, unchanged95% and invalid-level controls pass.",
+      "mechanism_or_oracle_residual": "Historical replay and procedure-specific coverage remain unestablished; this cannot repair wrong SE or RBC.",
+      "missing_input": "No production inputs needed for the generic algebra/design witness; any empirical assumption claim needs admitted local panel input.",
+      "semantic_owner_boundary": "No principal authority supplied by this test.",
+      "next_owner": "F CAU-01 verification owner/E02 baseline broker; G",
+      "next_action": "Reconcile shared DiD/RDD critical-value selectors and actual consumer projection.",
+      "authority_limit": "Correct quantiles do not validate covariance, bias correction or coverage.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B207",
+      "closure_owner": "CAU-02",
+      "bundle_ids": [
+        "CAU-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5132",
+      "receipt_source": "CAU",
+      "primary_residual_class": "missing_case_record_and_calibrated_oracle",
+      "current_bounded_evidence": "Known single-cell DGP has descriptive unit variation; requested unsupported g0 cohort is refused rather than silently omitted.",
+      "mechanism_or_oracle_residual": "Serial-correlated/multi-cohort coverage and joint influence/aggregate estimand validation remain unestablished.",
+      "missing_input": "Complete provenance-bearing staggered panel with independent-unit/cohort/timing identities.",
+      "semantic_owner_boundary": "Causal-analysis data owner supplies case; methodology owner admits inference procedure, not a bootstrap label.",
+      "next_owner": "Causal-analysis data owner + F staggered methodology owner; G local runner",
+      "next_action": "Run receipt command at exact candidate on admitted local case; independently test serial correlation/multiple cohorts before inferential admission.",
+      "authority_limit": "Descriptive variability and cohort refusal are not calibrated CI or effect authority on real data.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B208",
+      "closure_owner": "CAU-02",
+      "bundle_ids": [
+        "CAU-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5146",
+      "receipt_source": "CAU",
+      "primary_residual_class": "missing_null_calibration_oracle",
+      "current_bounded_evidence": "p-value and inferential CI remain absent; descriptive multiplier interval is explicitly non-gate-eligible.",
+      "mechanism_or_oracle_residual": "H0/statistic/null distribution, calibration, power and interval-test agreement not established.",
+      "missing_input": "Admitted cohort/unit record when an empirical claim is sought; independent null/coverage DGP can be built without production data.",
+      "semantic_owner_boundary": "Methodology owner must choose justified null procedure; do not manufacture a centered p-value for closure.",
+      "next_owner": "F staggered methodology owner + causal-analysis data owner; G",
+      "next_action": "Define H0 and shared unit-level resampling/influence procedure, falsify it on known null/effect DGP, then validate admitted record locally.",
+      "authority_limit": "Absence of invented inference is honest limitation, not implementation of calibrated inference.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B209",
+      "closure_owner": "CAU-02",
+      "bundle_ids": [
+        "CAU-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5158",
+      "receipt_source": "CAU",
+      "primary_residual_class": "missing_case_record",
+      "current_bounded_evidence": "Strict nonnegative integer anticipation, timing eligibility and unsupported requested cohort refusal pass known synthetic controls.",
+      "mechanism_or_oracle_residual": "Real anticipation/no-anticipation validity and full cohort scope not established.",
+      "missing_input": "Provenance-bearing cohort timing, independent units and defensible anticipation window.",
+      "semantic_owner_boundary": "Data/method owner supplies empirical timing assumption; implementation does not infer it.",
+      "next_owner": "Causal-analysis data owner + F staggered owner; G",
+      "next_action": "Run candidate locally with admitted timing/cohort record; verify g=t+a, never-treated, baseline support and explicit aggregate scope.",
+      "authority_limit": "Integer admission and synthetic timing property do not validate an empirical anticipation assumption.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B210",
+      "closure_owner": "CAU-03",
+      "bundle_ids": [
+        "CAU-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5170",
+      "receipt_source": "CAU",
+      "primary_residual_class": "principal_decision",
+      "current_bounded_evidence": "Unsupported requested RBC returns point-free refusal; explicitly uncorrected profile remains supported.",
+      "mechanism_or_oracle_residual": "Real curvature correction/variance adaptation and RBC coverage remain absent.",
+      "missing_input": "Approved RBC profile/version/bandwidth/order/variance basis if a broader procedure is selected.",
+      "semantic_owner_boundary": "Principal(Denis) scope/cost decision pending; do not call quadratic fit RBC or change corrected label.",
+      "next_owner": "Principal(Denis) then F RDD methodology owner; G",
+      "next_action": "Resolve RBC scope/cost/falsifier; implement or keep declared unsupported profile, separately validate curvature/coverage.",
+      "authority_limit": "Fail-closed refusal repairs a false promise but does not implement RBC.",
+      "candidate_semantic_state": "limited_principal_decision_pending"
+    },
+    {
+      "finding_id": "B211",
+      "closure_owner": "CAU-03",
+      "bundle_ids": [
+        "CAU-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5182",
+      "receipt_source": "CAU",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Vector WLS/reference/kernel/order/rank tests pass without dense diagonal weights.",
+      "mechanism_or_oracle_residual": "Full finding/baseline reconciliation remains; no new RDD numerical repair in this slice.",
+      "missing_input": "No production inputs needed for the generic algebra/design witness; any empirical assumption claim needs admitted local panel input.",
+      "semantic_owner_boundary": "No principal authority supplied by this test.",
+      "next_owner": "F RDD causal-analysis owner; G/E02 baseline broker",
+      "next_action": "Accept bounded O(n)-memory implementation/reference witness; retain rank/bandwidth refusals and reconcile selectors.",
+      "authority_limit": "Weighted-fit efficiency does not establish RBC or valid coverage.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B212",
+      "closure_owner": "CAU-04",
+      "bundle_ids": [
+        "CAU-04"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5194",
+      "receipt_source": "CAU",
+      "primary_residual_class": "marker_excluded_backend_input",
+      "current_bounded_evidence": "Recorder/IR point-only and genuine interval preservation controls pass.",
+      "mechanism_or_oracle_residual": "Real DoWhy point-only/interval backend consumer remains UNRUN.",
+      "missing_input": "DoWhy absent under Python3.14 baseline; marker python_version<3.13 excludes it. Native backend/version and admitted estimand inputs are not supplied.",
+      "semantic_owner_boundary": "F native DoWhy adapter owner must own reference profile; no parallel shim or marker bypass.",
+      "next_owner": "F DoWhy adapter/causal-analysis owner + reference environment owner; G",
+      "next_action": "Use an owner-approved native reference environment to exercise actual point-only and interval paths through typed consumer.",
+      "authority_limit": "Recorder is not DoWhy; point-only cannot imply invented SE/CI.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B213",
+      "closure_owner": "CAU-04",
+      "bundle_ids": [
+        "CAU-04"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5206",
+      "receipt_source": "CAU",
+      "primary_residual_class": "marker_excluded_backend_input",
+      "current_bounded_evidence": "Recorder requested-estimand/protocol and mismatch refusal controls pass.",
+      "mechanism_or_oracle_residual": "Actual DoWhy version/API/population/adjustment binding remains UNRUN.",
+      "missing_input": "DoWhy absent under Python3.14 baseline; marker python_version<3.13 excludes it. Native backend/version and admitted estimand inputs are not supplied.",
+      "semantic_owner_boundary": "F native DoWhy adapter owner must own reference profile; no parallel shim or marker bypass.",
+      "next_owner": "F DoWhy adapter/causal-analysis owner + reference environment owner; G",
+      "next_action": "Bind supported native estimand/contrast/population to real identify/estimate calls and use distinguishable supported/unsupported controls.",
+      "authority_limit": "Matching report labels do not prove an executed estimand.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B214",
+      "closure_owner": "GRF-03",
+      "bundle_ids": [
+        "GRF-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5218",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Synthetic known-direction and conservative CPDAG/PAG refusal controls pass.",
+      "mechanism_or_oracle_residual": "Full sound partial-graph extension/downstream capability and historical reconciliation remain unestablished.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F GRF-03 verification owner/E02 baseline broker; G",
+      "next_action": "Reconcile finding discriminator and downstream DAG consumer; keep unsupported partial-graph scope explicit.",
+      "authority_limit": "Known-arrow preservation tests do not establish full PAG capability.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B215",
+      "closure_owner": "SCM-02",
+      "bundle_ids": [
+        "SCM-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5230",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Real node→dispatcher→CAS Gaussian partial/full factual controls match mean1/variance0.5 or deterministic1; imputation with posterior markers retained fails oracle.",
+      "mechanism_or_oracle_residual": "Historical selector/four-base reconciliation and broader nonlinear posterior scope remain unestablished.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F SCM-02 verification owner/E02 baseline broker; G",
+      "next_action": "Accept bounded native posterior discriminator; reconcile historical result and independently admit any broader factual posterior.",
+      "authority_limit": "Known Gaussian synthetic property is not an admitted real-data counterfactual.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B216",
+      "closure_owner": "GRF-01",
+      "bundle_ids": [
+        "GRF-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5333",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Complete200 three-node ADMGs/2400 separation queries match independent moralization and real NetworkX; actual Rule1 consumer discriminates fork/collider.",
+      "mechanism_or_oracle_residual": "Finite synthetic domain and historical finding admission remain bounded.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F GRF-01 verification owner/E02 baseline broker; G",
+      "next_action": "Accept finite oracle/consumer witness; add any criterion-specific larger/descendant/renaming control without claiming theorem completeness.",
+      "authority_limit": "Finite graph differential testing does not prove universal graph soundness or real identification.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B217",
+      "closure_owner": "GRF-01",
+      "bundle_ids": [
+        "GRF-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5347",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "All8 action sets on complete three-node domain match latent-DAG incoming surgery; actual Rule3 removes pure confounding action.",
+      "mechanism_or_oracle_residual": "Finite domain and historical admission remain bounded.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F GRF-01 verification owner/E02 baseline broker; G",
+      "next_action": "Accept perfect-do latent oracle and actual rule consumer; reconcile finding selectors and any required broader graph scope.",
+      "authority_limit": "Graph surgery property is not empirical treatment-effect authority.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B218",
+      "closure_owner": "GRF-03",
+      "bundle_ids": [
+        "GRF-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5361",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Compact lag/self-lag round-trip and static-negative controls pass.",
+      "mechanism_or_oracle_residual": "Expanded temporal consumer/full dynamic causal capability and historical admission remain unsupported.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F GRF-03 verification owner/E02 baseline broker; G",
+      "next_action": "Reconcile lag-preserving consumers; require explicit supported temporal expansion before static GCM use.",
+      "authority_limit": "Preserved lag metadata does not implement every temporal estimand.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B219",
+      "closure_owner": "GRF-02",
+      "bundle_ids": [
+        "GRF-02"
+      ],
+      "ledger_status_preserved": "held",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5375",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "held_owner_admission",
+      "current_bounded_evidence": "Former missing locked NetworkX3.6.1 artifact now supplied in isolated real env; native graph26+oracle3 PASS and2400 native separator comparisons PASS.",
+      "mechanism_or_oracle_residual": "Canonical ledger held persists; mixed-edge semantic owner admission, exact consumer impact and four-base/currentness criteria are not resolved by installation.",
+      "missing_input": "Original shared-env15PASS/11FAIL stays nonPASS. Missing backend artifact is supplied for this bounded candidate, not for every receiver environment.",
+      "semantic_owner_boundary": "No authorization to promote held status; accountable GRF-02 owner/G must accept evidence and remaining scope.",
+      "next_owner": "GRF-02 held finding owner + G/E02 baseline broker",
+      "next_action": "Fetch exact code/receipt, reproduce locked native exporter and criterion-specific removal/consumer controls; retain held until owner decision.",
+      "authority_limit": "Installing backend or29PASS alone cannot lift held finding state.",
+      "candidate_semantic_state": "held"
+    },
+    {
+      "finding_id": "B220",
+      "closure_owner": "GRF-02",
+      "bundle_ids": [
+        "GRF-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5389",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Full native graph contract passes with locked NetworkX; receipt also reports bounded warm-copy/mutation/weakref probe.",
+      "mechanism_or_oracle_residual": "Finding-specific warm-cache deciding bytes/reconciliation and historical four-base admission remain to be established independently.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F GRF-02 verification owner/E02 baseline broker; G",
+      "next_action": "Bind exact mutation/copy-after-warm/dump-ancestors-export/weakref selectors and deciding output to this ID.",
+      "authority_limit": "A frozen marker or package PASS is not cache/topology immutability proof.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B221",
+      "closure_owner": "SCM-01",
+      "bundle_ids": [
+        "SCM-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5403",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "missing_fit_backend_and_joint_law",
+      "current_bounded_evidence": "Synthetic root/noise/query-law controls pass; SCM-01 tests deliberately exclude real DoWhy fitting.",
+      "mechanism_or_oracle_residual": "Native HybridSCMFit/root-joint-law fit and historical finding reconciliation remain unestablished.",
+      "missing_input": "Marker-excluded DoWhy native fit reference and, for empirical applicability, admitted observational root joint law/provenance.",
+      "semantic_owner_boundary": "SCM fitting owner admits source law; do not replace unknown roots with default Normal or infer fit from query fixture.",
+      "next_owner": "F SCM-01 fitting owner + source/data owner; G local runner",
+      "next_action": "Run actual supported fit→saved model→query chain on sufficient admitted root fixture/reference; use full local joint law only where criterion requires it.",
+      "authority_limit": "A known synthetic root law is not evidence of fitting on admitted real data.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B222",
+      "closure_owner": "SCM-01",
+      "bundle_ids": [
+        "SCM-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5417",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Synthetic saved polynomial evaluator/twin shared-noise controls pass.",
+      "mechanism_or_oracle_residual": "Full nonlinear fitting/posterior abduction and historical selector reconciliation remain unestablished.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F SCM-01 verification owner/E02 baseline broker; G",
+      "next_action": "Bind fitted saved payload to native evaluation/consumer on sufficient fixture; separately admit fitting backend and any real source law.",
+      "authority_limit": "Executing a saved nonlinear fixture is not full fitted-real-data model validity.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B223",
+      "closure_owner": "SCM-02",
+      "bundle_ids": [
+        "SCM-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5431",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Canonical declared-slot omission fixed; do2/observational contrast6 persists through real node/CAS/ensemble; identical/stochastic arms tested.",
+      "mechanism_or_oracle_residual": "Historical four-base/generated consumer admission and real identification remain limited.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F SCM-02 verification owner/E02 baseline broker; G",
+      "next_action": "Accept native alias/negative removal witness and all explicit contrasts; locally verify admitted identification inputs only for empirical claim.",
+      "authority_limit": "Persisted contrast semantics do not establish causal identification on real data.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B224",
+      "closure_owner": "SCM-03",
+      "bundle_ids": [
+        "SCM-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5445",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Existing perfect-do/pruning/query-plan/logical RNG controls pass.",
+      "mechanism_or_oracle_residual": "Historical finding selector reconciliation and broader admitted world-model applicability remain unestablished.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F SCM-03 verification owner/E02 baseline broker; G",
+      "next_action": "Reconcile no-evaluation-of-replaced-mechanism and irrelevant-node controls with real consumer output.",
+      "authority_limit": "Finite query-plan behavior does not admit an arbitrary world model.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B225",
+      "closure_owner": "SCM-03",
+      "bundle_ids": [
+        "SCM-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5459",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Malformed law/finiteness/support/tail/random-stream controls pass.",
+      "mechanism_or_oracle_residual": "Historical finding reconciliation and arbitrary-law/model authority remain unestablished.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F SCM-03 verification owner/E02 baseline broker; G",
+      "next_action": "Bind malformed-law refusal and continuous-tail/support/reproducibility selectors; preserve exact requested law.",
+      "authority_limit": "Supported synthetic stochastic law does not validate every policy law.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-001",
+      "closure_owner": "FRY-01",
+      "bundle_ids": [
+        "FRY-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L82",
+      "receipt_source": "FRY01",
+      "primary_residual_class": "runtime_bridge_missing",
+      "current_bounded_evidence": "Historical root_seed0/nonzero helper laws, v1 plan replay and compiler→CAS→Scientist artifact readback verified.",
+      "mechanism_or_oracle_residual": "Runtime execution consuming node/stream salts and binding to planned experiment seed is not established.",
+      "missing_input": "Actual execution selector/consumer and frozen-plan activation provenance.",
+      "semantic_owner_boundary": "Historical compiler root_seed0 differs from ExecPlan.random_seed; changing PRNG/digests needs semantic-owner decision.",
+      "next_owner": "F compiler/randomization owner + Scientist execution owner; G",
+      "next_action": "Trace actual salt consumer and bind execution/replay identity; preserve historical law until approved versioned change.",
+      "authority_limit": "Persisted reproducibility plan is not complete execution reproducibility.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-002",
+      "closure_owner": "FRY-01",
+      "bundle_ids": [
+        "FRY-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L109",
+      "receipt_source": "FRY01",
+      "primary_residual_class": "verification_admission",
+      "current_bounded_evidence": "Actual family catalog selection and IR IC certificate producer→CAS readback distinguish positive and nonmonotone schedules.",
+      "mechanism_or_oracle_residual": "G finding-level admission/historical selector reconciliation and external plugin scope remain.",
+      "missing_input": "No real production input needed for generic catalog-versus-certificate discriminator.",
+      "semantic_owner_boundary": "Catalog assumptions/descriptors are separate from executable authority; certificate stays IR-owned.",
+      "next_owner": "F family/IC verification owner; G; C for installed plugin discovery",
+      "next_action": "Accept native discriminator/lineage; independently admit exact finding receipt and any installed plugin route if claimed.",
+      "authority_limit": "Family membership cannot substitute for an IC certificate.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-003",
+      "closure_owner": "FRY-03",
+      "bundle_ids": [
+        "FRY-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L136",
+      "receipt_source": "ECO_FRY03",
+      "primary_residual_class": "native_bridge_and_backend_residual",
+      "current_bounded_evidence": "Default float32 fiscal/labor compile→PatchMap→persisted StateDelta/Snapshot preserves masks, accounting, keys and exact known effects.",
+      "mechanism_or_oracle_residual": "Mixed x64 collection remains FAIL at this receipt; registered result.patches JSON lacks an admitted native PatchMap materialization bridge.",
+      "missing_input": "Real activated compiler/method caller, selected model profile and admitted state/data provenance for production applicability.",
+      "semantic_owner_boundary": "Forecast/model/calibration/caller owner must retain non-equivalent laws; type bridge needs owner-approved mechanism, not test conversion.",
+      "next_owner": "F fiscal/labor execution + economic dtype/state owner; C/G caller/data owner",
+      "next_action": "Resolve x64 producer dtype and native registered-output bridge separately; rerun retained profile and actual consumer at approved candidate.",
+      "authority_limit": "32 default-profile PASS cannot promote59-case mixed-profile FAIL or establish calibration.",
+      "candidate_semantic_state": "limited_no_ledger_closure",
+      "supplemental_slice": "economic-dtype",
+      "supplemental_scope": "Conditional scalar dtype class repaired independently; original mixed59-case result remains FAIL at its original SHA. No combined final candidate or fiscal/objective authority conclusion."
+    },
+    {
+      "finding_id": "LA-004",
+      "closure_owner": "ECO-01",
+      "bundle_ids": [
+        "ECO-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L167",
+      "receipt_source": "ECO_FRY03",
+      "primary_residual_class": "principal_decision",
+      "current_bounded_evidence": "Native plugin versus baseline tests preserve distinct wealth/income tax, threshold/transition employment and state/accounting semantics.",
+      "mechanism_or_oracle_residual": "Equivalent optimizer/caller replacement or retirement not established; mixed-profile backend red also remains.",
+      "missing_input": "Actual live scenarios/callers, units/timestep/RNG/accounting profile mapping and calibrated applicability.",
+      "semantic_owner_boundary": "Principal(Denis) separate profile compatibility/retirement scope decision pending; ledger partial is preserved.",
+      "next_owner": "Principal(Denis) then F economic profile/caller owner; G/C",
+      "next_action": "Cost and choose compatibility/retirement scope with falsifier; keep both profiles until an approved migration binds actual callers.",
+      "authority_limit": "Richer plugin is not a drop-in replacement or better-calibrated authority.",
+      "candidate_semantic_state": "limited_principal_decision_pending",
+      "supplemental_slice": "economic-dtype",
+      "supplemental_scope": "Conditional scalar dtype class repaired independently; original mixed59-case result remains FAIL at its original SHA. No combined final candidate or fiscal/objective authority conclusion."
+    },
+    {
+      "finding_id": "LA-007",
+      "closure_owner": "GRF-01",
+      "bundle_ids": [
+        "GRF-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L254",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "owner_appointment_and_installed_input",
+      "current_bounded_evidence": "Local causal package cleanup/canonical imports retained; source-tree behavior bounded.",
+      "mechanism_or_oracle_residual": "External installed loader/resource lookup and wheel compatibility remain UNRUN.",
+      "missing_input": "Named external loader, appointed packaging owner, built/installed artifact outside source tree.",
+      "semantic_owner_boundary": "Packaging/external-loader appointment pending; do not delete live causal packages or infer external absence from source scan.",
+      "next_owner": "C packaging/external-loader owner with F GRF-01; G",
+      "next_action": "Appoint loader owner and run installed-package import/resource lookup plus supported legacy alias control outside source checkout.",
+      "authority_limit": "Local import cleanup does not establish installed/external compatibility.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-016",
+      "closure_owner": "CAU-05",
+      "bundle_ids": [
+        "CAU-01",
+        "CAU-05"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L513",
+      "receipt_source": "CAU",
+      "primary_residual_class": "owner_appointment_and_source_reconciliation",
+      "current_bounded_evidence": "Old/dedicated DiD wrapper and metadata/parity controls pass; numerical helpers remain canonical.",
+      "mechanism_or_oracle_residual": "Frozen plan/native first-party caller lifecycle and retirement completeness not established.",
+      "missing_input": "Appointed production DiD planning/replay caller, versioned frozen plans and finite consumer migration record.",
+      "semantic_owner_boundary": "Authoritative CAU-05/source card says DiD retirement; ledger residual/card proposal incorrectly mentions DoWhy. Reconcile without rewriting scope by analogy.",
+      "next_owner": "F CAU-05 DiD caller/lifecycle owner + G baseline/ledger reconciliation owner",
+      "next_action": "Reconcile source mismatch; appoint actual DiD caller, prove new planning uses dedicated route and supported old plans replay before retirement.",
+      "authority_limit": "Dedicated facade is not statistical attestation or native DoWhy closure.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-017",
+      "closure_owner": "LEX-01",
+      "bundle_ids": [
+        "LEX-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L540",
+      "receipt_source": "LEX",
+      "primary_residual_class": "admitted_law_input_custody",
+      "current_bounded_evidence": "Actual compared norm packs/pass plan bind native expr_ast checks, CAS report/diff, historical schema/markdown consumer and CLI refusal.",
+      "mechanism_or_oracle_residual": "Actual admitted corpus/callers/source-law/backend custody remains unestablished; CLI default StubBackend is transport only.",
+      "missing_input": "Admitted old/new pack IDs/bytes, legal source provenance, real context/backend and corpus sufficient for applicability.",
+      "semantic_owner_boundary": "Lex owns norm/compliance evidence; quantitative impact stays Scientist/Foundry; historical report_id alone is not content custody.",
+      "next_owner": "Lex source-law/backend/corpus owner with G local runner; C for caller custody as needed",
+      "next_action": "Replay exact candidate property command, then selected admitted corpus/backend locally; verify CAS bytes and heuristic authority remains blocked.",
+      "authority_limit": "Candidate KPI topics/CLI success do not establish legal adequacy or measured economic effect.",
+      "candidate_semantic_state": "limited_no_ledger_closure",
+      "supplemental_scope": "Final reviewed tuple snapshot56aa7 freezes admitted caller plan;22 native plus9 independent persisted controls passed. Actual legal corpus/custody remains absent."
+    },
+    {
+      "finding_id": "LA-019",
+      "closure_owner": "GRF-01",
+      "bundle_ids": [
+        "GRF-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L930",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "owner_appointment_and_installed_input",
+      "current_bounded_evidence": "Local causal package cleanup/canonical imports retained; source-tree behavior bounded.",
+      "mechanism_or_oracle_residual": "External installed loader/resource lookup and wheel compatibility remain UNRUN.",
+      "missing_input": "Named external loader, appointed packaging owner, built/installed artifact outside source tree.",
+      "semantic_owner_boundary": "Packaging/external-loader appointment pending; do not delete live causal packages or infer external absence from source scan.",
+      "next_owner": "C packaging/external-loader owner with F GRF-01; G",
+      "next_action": "Appoint loader owner and run installed-package import/resource lookup plus supported legacy alias control outside source checkout.",
+      "authority_limit": "Local import cleanup does not establish installed/external compatibility.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-020",
+      "closure_owner": "API-01",
+      "bundle_ids": [
+        "API-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L960",
+      "receipt_source": "API",
+      "primary_residual_class": "consumer_migration_and_independent_red",
+      "current_bounded_evidence": "Supported direct/star imports, object/FQN identity, monkeypatch behavior, JSON consumer and native pydoc ABI verified with property-removal control.",
+      "mechanism_or_oracle_residual": "External/computed caller retirement and MkDocs/installed plugin admission remain; UtilityJudge identification-ranking test still FAIL on exact base/candidate.",
+      "missing_input": "External supported-caller compatibility window; installed loader/plugin inputs if claimed.",
+      "semantic_owner_boundary": "API owner decides retirement; graph/Scientist semantic owner resolves ranking red. Full P41 denominator disjointness not established.",
+      "next_owner": "F API/doc owner + graph/Scientist semantic owner; C plugin owner; G",
+      "next_action": "Accept bounded ABI evidence, retain supported private aliases, resolve ranking consumer separately and migrate actual external callers.",
+      "authority_limit": "Explicit exports or pydoc rendering alone do not prove all consumer/runtime semantics.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-035",
+      "closure_owner": "ECO-01",
+      "bundle_ids": [
+        "ECO-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2066",
+      "receipt_source": "ECO_FRY03",
+      "primary_residual_class": "principal_decision",
+      "current_bounded_evidence": "Retained normalized-income/budget loss has native JAX JIT/grad/finite guards; positive-regime constant-1 and mixed-sign gradient are explicit.",
+      "mechanism_or_oracle_residual": "Equivalent modern objective and real production optimizer consumer remain unestablished.",
+      "missing_input": "Actual optimizer caller, preference/objective requirement and compatible GlobalState/EconomicState input profile.",
+      "semantic_owner_boundary": "Principal(Denis) objective/profile/retirement decision pending; no unapproved welfare formula substitution.",
+      "next_owner": "Principal(Denis) then F economic objective/optimizer owner; G",
+      "next_action": "Choose baseline versus new versioned objective with cost/falsifier, trace optimizer, preserve old formula and supported aliases.",
+      "authority_limit": "Numerical objective behavior does not decide institutional policy preferences.",
+      "candidate_semantic_state": "limited_principal_decision_pending",
+      "supplemental_slice": "economic-dtype",
+      "supplemental_scope": "Conditional scalar dtype class repaired independently; original mixed59-case result remains FAIL at its original SHA. No combined final candidate or fiscal/objective authority conclusion."
+    },
+    {
+      "finding_id": "LA-037",
+      "closure_owner": "FRY-01",
+      "bundle_ids": [
+        "FRY-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2146",
+      "receipt_source": "FRY01",
+      "primary_residual_class": "installed_distribution_and_docs_input",
+      "current_bounded_evidence": "Native IR layout/family builders, compiler/registry output and both historical/intermediate import identities verified.",
+      "mechanism_or_oracle_residual": "Docs build, installed package distribution and complete external address-window admission remain UNRUN.",
+      "missing_input": "Built/installed artifact, actual external clients/docs generator with supported toolchain.",
+      "semantic_owner_boundary": "IR remains layout owner; retirement of supported facade requires API lifecycle owner decision.",
+      "next_owner": "F FRY-01/IR layout owner + C packaging/docs owner; G",
+      "next_action": "Run native receipts after integration, docs build and installed old/intermediate address controls; preserve slot IDs/manifests.",
+      "authority_limit": "Source ABI identity is not complete installed distribution compatibility.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    }
+  ],
+  "slices": [
+    {
+      "slice": "cau-cohort-admission",
+      "branch": "codex/e02-F-cau",
+      "published_head_sha": "08aaccebfce37aa652ff243fce8037ff48020807",
+      "implementation_commits": [
+        "c8e16d0abb7d10605475862ede8c6f327ff7cce9",
+        "d27227d03a7c78b90c442e6f258c45987104f8a1"
+      ],
+      "candidate_tree_sha": "f8f48556b06648b51364389595d17470fd94beb2",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+      "receipt_sha256": "561a89549fe513551a793b3cc07587c2d652d51cb170c0b619b4dd39e39a6e0c",
+      "receipt_bytes": 35918,
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/18",
+      "receipt_url": "https://github.com/DenisKopylov/polisyos/blob/08aaccebfce37aa652ff243fce8037ff48020807/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+      "bundle_ids": [
+        "CAU-02"
+      ],
+      "native_validation": "Native79PASS5DoWhySKIP; independent21PASS",
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending",
+      "documentation_validation": "Substantive canonical companion independentlyGO at last doc implementation; own foundry_docs failure removed; actual full DocsGate FAIL expired freshness10, strict docs build UNRUN. Earlier native checks retain their runtime implementation SHA; new published head CI pending."
+    },
+    {
+      "slice": "graph-scm",
+      "branch": "codex/e02-F-graph-scm",
+      "published_head_sha": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+      "implementation_commits": [
+        "672f541313c550e96544728ed397daf330c04442"
+      ],
+      "candidate_tree_sha": "f6bf9b9467d56e86408693982c8f68ea381b1e4c",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm.json",
+      "receipt_sha256": "4c4bd3eb636a9e460c2fd239adbdc1a238463315d4c0899ba0bc8e6d4e4f3050",
+      "receipt_bytes": 29623,
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/23",
+      "receipt_url": "https://github.com/DenisKopylov/polisyos/blob/85c16de9f16a4e21c05c516271b6c81e08b7a39f/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm.json",
+      "bundle_ids": [
+        "GRF-01",
+        "GRF-02",
+        "GRF-03",
+        "SCM-01",
+        "SCM-02",
+        "SCM-03"
+      ],
+      "native_validation": "Native123PASS1DoWhySKIP; locked NetworkX29PASS and2400 oracle agreements; independent8PASS",
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    },
+    {
+      "slice": "economic-profile-consumers",
+      "branch": "codex/e02-F-economics",
+      "published_head_sha": "e642bb9025a67739c201393acca5712603cb064d",
+      "implementation_commits": [
+        "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6"
+      ],
+      "candidate_tree_sha": "7b7822e23901d9574b53ed97d410a1392763c484",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-profile-consumers.json",
+      "receipt_sha256": "adc53d604a8c5faae4942c4c24ab83fd1c59e41403a661aefdb044985e828841",
+      "receipt_bytes": 13917,
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/15",
+      "receipt_url": "https://github.com/DenisKopylov/polisyos/blob/e642bb9025a67739c201393acca5712603cb064d/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-profile-consumers.json",
+      "bundle_ids": [
+        "FRY-03",
+        "ECO-01"
+      ],
+      "native_validation": "Defining32PASS; independent32PASS; mixed broader55PASS4FAIL remains separate",
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    },
+    {
+      "slice": "fit-tmle",
+      "branch": "codex/e02-F-fit-tmle",
+      "published_head_sha": "ef3f208db031671d9f0d5cefe1ffa68af0650f0a",
+      "implementation_commits": [
+        "b57708fcc95a778d7ff88c4001e4ac8ca74b7889"
+      ],
+      "candidate_tree_sha": "77c3700a32743793ad8349bec1a3ca6a4908e4d6",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle.json",
+      "receipt_sha256": "2e6e0c9997dc8f9ee80c3cc273ea84572b78189c3dfcf17c88a9d1db1aee9fc3",
+      "receipt_bytes": 31684,
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/26",
+      "receipt_url": "https://github.com/DenisKopylov/polisyos/blob/ef3f208db031671d9f0d5cefe1ffa68af0650f0a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle.json",
+      "bundle_ids": [
+        "FIT-01"
+      ],
+      "native_validation": "Native63PASS; independent33PASS with fit-integrity adversaries",
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    },
+    {
+      "slice": "fry-compile-contracts",
+      "branch": "codex/e02-F-foundry",
+      "published_head_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "implementation_commits": [
+        "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2"
+      ],
+      "candidate_tree_sha": "465c255a4022c2506fb21d41c0bc0fc10ed774b6",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts.json",
+      "receipt_sha256": "34c41ca91eab404b3fbdfdba376108f1205ed47010d1e540b7f7b6f960f3e3ca",
+      "receipt_bytes": 20571,
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/20",
+      "receipt_url": "https://github.com/DenisKopylov/polisyos/blob/ea577ac3185829e066a39f51a8a2eae8f1bb5d43/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts.json",
+      "bundle_ids": [
+        "FRY-01"
+      ],
+      "native_validation": "Native45PASS; independent14PASS",
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    },
+    {
+      "slice": "api-consumer-abi",
+      "branch": "codex/e02-F-causal-api",
+      "published_head_sha": "0b6d872d8a681b1725abb5e2e3f57f9668e31c69",
+      "implementation_commits": [
+        "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+        "4b8cdf8ab88006c572c2b2d0039053d5a0138f14"
+      ],
+      "candidate_tree_sha": "81d0eace9b45d1a920e30a5564244c85bfc00ea8",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+      "receipt_sha256": "f07ae3db66b8dd4ea34359e059bc5d1bd120b7080188f5b34e978c900de6e388",
+      "receipt_bytes": 17360,
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/19",
+      "receipt_url": "https://github.com/DenisKopylov/polisyos/blob/0b6d872d8a681b1725abb5e2e3f57f9668e31c69/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+      "bundle_ids": [
+        "API-01"
+      ],
+      "native_validation": "Native26PASS; independentreviewGO; UtilityJudge broader red retained unexcluded",
+      "acceptance": "G checkpoint03 accepts earlier baad/0c709 bounded ABI runtime; appended4b8 doc and current receipt pending_G; no LA-020 closure",
+      "documentation_validation": "Substantive canonical companion independentlyGO at last doc implementation; own foundry_docs failure removed; actual full DocsGate FAIL expired freshness10, strict docs build UNRUN. Earlier native checks retain their runtime implementation SHA; new published head CI pending."
+    },
+    {
+      "slice": "lex-input-binding",
+      "branch": "codex/e02-F-lex",
+      "published_head_sha": "3fab28d98997527b2a26d46fe4e16220e42383b7",
+      "implementation_commits": [
+        "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0",
+        "56aa7d47876b29956676ef8dc9f04b64c865948f"
+      ],
+      "candidate_tree_sha": "ed6b298e5069bd32102ab9d733be77e3a1937083",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-input-binding.json",
+      "receipt_sha256": "4f0623168329cfc5c4006c5beb79dc205704beb1dc8b537e47b5d2c09e519c20",
+      "receipt_bytes": 29849,
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/21",
+      "receipt_url": "https://github.com/DenisKopylov/polisyos/blob/3fab28d98997527b2a26d46fe4e16220e42383b7/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-input-binding.json",
+      "bundle_ids": [
+        "LEX-01"
+      ],
+      "native_validation": "Final native22PASS; independent22PASS plus9 native persisted controls",
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    },
+    {
+      "slice": "economic-dtype",
+      "branch": "codex/e02-F-economic-dtype",
+      "published_head_sha": "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42",
+      "implementation_commits": [
+        "48a5c1eb64d8f7e89bcbc4ad478c98b4354eaea0"
+      ],
+      "candidate_tree_sha": "9dcc163a864635004408ddd449bab105762e1726",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype.json",
+      "receipt_sha256": "c7c0f21acfb3537c9c0a53ef39a36a762193a4b0bb3d0da07bd5c0653f173979",
+      "receipt_bytes": 26885,
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/29",
+      "receipt_url": "https://github.com/DenisKopylov/polisyos/blob/bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype.json",
+      "bundle_ids": [
+        "ECO-01",
+        "FRY-03"
+      ],
+      "native_validation": "Native60PASS; independent76PASS; default/x64 importers37/30PASS",
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    },
+    {
+      "slice": "causal-output",
+      "branch": "codex/e02-F-causal-output",
+      "published_head_sha": "9a952415bb988e6ff79983fa9ef782ac28f2e672",
+      "implementation_commits": [
+        "f2eb01abad3ef9638caf1cd7ca81c0a9f2d4e415"
+      ],
+      "candidate_tree_sha": "e577d7403d00db9ea4d8bc8a28ad5b6b46a84d66",
+      "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output.json",
+      "receipt_sha256": "16cb806f594c45b31de3337a7fdf82954a633fe12d53359422da2a4800467115",
+      "receipt_bytes": 32048,
+      "pull_request": "https://github.com/DenisKopylov/polisyos/pull/31",
+      "receipt_url": "https://github.com/DenisKopylov/polisyos/blob/9a952415bb988e6ff79983fa9ef782ac28f2e672/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-output.json",
+      "bundle_ids": [
+        "CAU-01",
+        "CAU-02",
+        "CAU-03",
+        "CAU-04",
+        "CAU-05"
+      ],
+      "native_validation": "Native196PASS8markerSKIP; independent12PASS plus actual direct-port removal",
+      "acceptance": "pending_G; native bounded evidence only; required broad gates remain pending"
+    }
+  ],
+  "accepted_finding_closures": [],
+  "integration_acceptance": "pending_G",
+  "integration_observed_head": "15d50bac59d06a3fb010327abf8e0c90f9ccbed0",
+  "independent_companions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/F-baseline-census.json",
+      "sha256": "f9c404ed76950e612cebb04b90c0cb17b1e7221bae68bbf1dafe98df4b88f46e",
+      "bytes": 6624
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/F-residual-authority-map.json",
+      "sha256": "121ca71fbefea997ea1d7f28a0055bd2c5242dd812ff6b1e518a4c7df9395fd4",
+      "bytes": 62032
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/receipt-audit.json",
+      "sha256": "e12587bb65fda2f576f4cbd8a2796fcce6a56755cf2bd03c43f013ffa7b8d08a",
+      "bytes": 58676
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/receipt-audit-delta-stage1.json",
+      "sha256": "e1f37bd7bbcfd195e8d15c7f4fa9c7a88d58d5be25a7471b4ba42249901c7b5d",
+      "bytes": 26091
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/receipt-audit-delta-approved.json",
+      "sha256": "ad97e4a9231a23784d9dd979c8c9703f7e4b58f42eebb0e904ac867557cf0330",
+      "bytes": 38735
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/foundry-index-published-snapshot.json",
+      "sha256": "4768bdf3738e44ea4ed003acea837bbee793ea3c46ff7b4740dd0ed387481526",
+      "bytes": 26772
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/receipt-audit-docs-companion-delta-approved.json",
+      "sha256": "67dc1769f2449a06c0c2b9b651099c9b036bbc508b844a3ecb2f253ee9cf8b9d",
+      "bytes": 20351,
+      "scope": "CAU published byteinspection; API author bytevalidation with independent graph doc/control review; full35owner census unchanged"
+    }
+  ],
+  "provenance_scope": "Current9 slice table supersedes earlier immutable checkpoints, including CAU/API substantive doc companions. Earlier receipts/reviews/CI retain their own source SHA and outcome; no earlier check becomes current-head or integrated PASS.",
+  "capacity": {
+    "requested_direct_agents": 20,
+    "available_direct_agent_slots": 6,
+    "used_direct_agents": 6,
+    "strategy": "all six used and recycled; no nested agents or artificial cloud compute/thread quota"
+  },
+  "backend_boundary": {
+    "python": "3.14.2",
+    "DoWhy_EconML": "baseline marker excluded; SKIP/UNRUN, no native witness and no shim",
+    "statsmodels": "real isolated locked0.14.6+patsy1.0.2",
+    "NetworkX": "real isolated locked3.6.1; native finite graph oracle only",
+    "JAX": "native0.8.2 CPU default/x64 bounded arrays and plugin consumers"
+  },
+  "broad_gate_boundary": "Architecture checks are UNRUNexit2 with completed partial drifts; no P41 inherited attribution. Common output production-invocation is UNRESOLVEDexit3; FIT scannerERROR137. Other static scanner PASS is partial and runtime_invocation_established=false. Large raw remains local/unadmitted.",
+  "input_boundary": "Known synthetic DGP/graph/norm/kernel fixtures establish their declared properties only. Full production inputs remain local/read-only. Missing estimand, semantic authority, installed external/plugin ABI and data custody remain limited/held per35-row map.",
+  "dependencies": [
+    {
+      "supplier": "causal-output common wrapper",
+      "consumers": "RDD/DiD and specialized kernel/operator/space-time outputs, native dematerializer/CAS",
+      "integration_action": "Apply canonical common wrapper once; recheck method consumers after TMLE/cohort slices coexist; do not substitute specialized result DTOs."
+    },
+    {
+      "supplier": "economic-dtype",
+      "consumers": "economics state/plugin/agent simulation/objective JIT",
+      "integration_action": "Compose with independent economic-profile tests; rerun original mixed profile on integrated candidate; fiscal and objective semantics remain held/limited."
+    },
+    {
+      "supplier": "C plugin/installed loader and actual caller custody",
+      "consumers": "LA-007/LA-019 and profile/ABI users",
+      "integration_action": "G/C must verify real installed external callers/plugins. Source literal/relative import census does not establish dynamic or outside-repository consumers."
+    }
+  ],
+  "G_receiving_protocol": [
+    "Fetch every exact topic head and receipt through Git/PR; no chat dependency.",
+    "Verify immutable source/tree/owner/footprint/evidence hashes using verify_delivery.py plus independent code review; passing bookkeeping does not accept product evidence.",
+    "Accept code separately from findings; only G publishes integration. Preserve held B219 and principal decisions B210/LA-004/LA-035.",
+    "Run affected importer/backend/oracle controls after composing accepted implementations, then required broad regression once at frozen integrated SHA with supported Node22/generator inputs.",
+    "For data-dependent rows, bind actual admitted input bytes/caller/backend/authority locally to that candidate and run the named35-row next action; full data stays local. Missing inputs or method authority remain limited/held.",
+    "Keep main outside this authorization; no merge/main push/force/history rewrite."
+  ],
+  "raw_receipt_claim_basis": "Huge local ignored raw hashes remain source declarations, not transferred byte custody. Only committed Git output refs are recomputed by delivery verifier.",
+  "ci_snapshot_boundary": "Actual CI historical source/merge/job outcomes transferred in CI evidence; current CAU/API new doc heads and final index head CI not established. All required broad gates remain FAIL/UNRUN/pending, no blanket inherited-red exemption.",
+  "G_institutional_observation": {
+    "source_sha": "15d50bac59d06a3fb010327abf8e0c90f9ccbed0",
+    "checkpoint_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-03.json",
+    "checkpoint_sha256": "f47ebbc9e8326b0d492b6dfb09310490eb19d81750a4e44a2466bd805e1ec49c",
+    "checkpoint_bytes": 3188,
+    "accepted_earlier_F_slices": [
+      {
+        "unit": "F",
+        "slice": "api-consumer-abi",
+        "accepted_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+        "candidate_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+        "candidate_tree": "42c3b569fdff79a03148ecb6a150904ac69019df",
+        "merge_sha": "540ffe8c2625c572548056a9897935b0cc2bf5f7",
+        "merge_parents": [
+          "a41d13ed51c12a6afc585b5717d61327dfcb6616",
+          "baada065af0aaa4edafb8d53abce5fd797de2c6c"
+        ],
+        "code_acceptance": "Retained supported symbolic facade ABI and native documentation witness",
+        "reviewers": [
+          "consumer_c",
+          "G"
+        ],
+        "deciding_receipt": "checks/f-api.json",
+        "full_diff_paths_from_base": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+        ],
+        "readback": "All complete topic diff paths are byte-identical Git blobs on integration HEAD; topic ancestry true",
+        "finding_closure": false
+      }
+    ],
+    "current_API_doc_head_acceptance": "not_established; accepted_head is baad; current published0b6 has later doc implementation and corrected receipt only",
+    "finding_closures": [],
+    "full_F_delivery_acceptance": "pending_G",
+    "provenance": "institutionally_supplied actual Git checkpoint; no inferred whole-current-head acceptance"
+  },
+  "CI_evidence_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/transfer-manifest.json",
+    "sha256": "faa46fc455acc51edf27360fd332ce05624bf911c96eff1c1fc9bcc435543243",
+    "bytes": 273963,
+    "scope": "complete historical deciding CI/native logs, input census and source/job identities; no overall PASS"
+  },
+  "CI_evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/001-pr15-run37321206367-artifact11350435751-canary_matrix_result.json",
+      "sha256": "58361cff275adfe8f801f9e97698d184fc1ef0dd5317fb317b48f47e0c14bf3a",
+      "bytes": 5747,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5747,
+      "original_sha256": "58361cff275adfe8f801f9e97698d184fc1ef0dd5317fb317b48f47e0c14bf3a",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/002-pr15-run37321206367-job111800438545.log.json",
+      "sha256": "bf72c91da8d7c1dd89c1ff381c950f8712876fe600550d243e31edd44d37ca3c",
+      "bytes": 76446,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 74379,
+      "original_sha256": "c9e260f8bad929ec3cce7b65646a7c3e1ccd119084a221e9a48fe52e44d3f5d8",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/003-pr15-run37321036478-artifact11350425828-canary_matrix_result.json",
+      "sha256": "f9fc04df31c4ca4bcae31093dcd6b0642d26da733e2b0bea8c9313111aae9166",
+      "bytes": 5747,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5747,
+      "original_sha256": "f9fc04df31c4ca4bcae31093dcd6b0642d26da733e2b0bea8c9313111aae9166",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/004-pr15-run37321036478-job111799868493.log.json",
+      "sha256": "d7e747bf87588c06aff17a723456df6b558288675a9438df018aa825538d6318",
+      "bytes": 76475,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 74408,
+      "original_sha256": "6845af89df14d21b04f13ce702bae0732c6162b499a1bd952ef1a19ee3024217",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/005-pr18-run37321832053-artifact11349958299-canary_matrix_result.json",
+      "sha256": "c5309a518651ede0fd789f6275762fefd8d936079300da28bcee993d0ceb0dad",
+      "bytes": 5747,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5747,
+      "original_sha256": "c5309a518651ede0fd789f6275762fefd8d936079300da28bcee993d0ceb0dad",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/006-pr18-run37321832053-job111802572756.log.json",
+      "sha256": "12f393f29a6ab9f5f8a3dce00d95278ea9c1f78dd7fd698f0d314117866d435f",
+      "bytes": 78783,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 76671,
+      "original_sha256": "f835355c2d46dbd26c1345163f19bdb7ec07495de8f9518ec9ba42c4838b296c",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/007-pr18-run37321169101-artifact11350271368-canary_matrix_result.json",
+      "sha256": "fb98e1f5ebe19a3582f0dc2dbe3c5425f574d9f85708bb9b631e7ee6f39f6e27",
+      "bytes": 5747,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5747,
+      "original_sha256": "fb98e1f5ebe19a3582f0dc2dbe3c5425f574d9f85708bb9b631e7ee6f39f6e27",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/008-pr18-run37321169101-job111800321281.log.json",
+      "sha256": "057445c72ceedaef15f907c82e17178fbdc474c2fa9555effbe0e9f7adabc9d0",
+      "bytes": 74407,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 72379,
+      "original_sha256": "48dfaed29537652806d291d2911baaf5d03af82e9b23c3773c408ba1a91e69c5",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/009-pr19-run37321848673-artifact11352060038-canary_matrix_result.json",
+      "sha256": "8f6e34295610ef1624aee62a2219bed2a98fee6267a672a2f28cad760a30f202",
+      "bytes": 5747,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5747,
+      "original_sha256": "8f6e34295610ef1624aee62a2219bed2a98fee6267a672a2f28cad760a30f202",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/010-pr19-run37321848673-job111802628524.log.json",
+      "sha256": "fa75cc8635ec9f73c649db659c8c0cf0235a0310b26231446caa12eb434820e7",
+      "bytes": 77227,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 75145,
+      "original_sha256": "b022f28aa56f2447b3626beb108618fbae93b68de54e7eaa7951915975f157ad",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/011-pr19-run37321389178-artifact11351051421-canary_matrix_result.json",
+      "sha256": "b3932bb7b201f95e1f35248e02f86481c3ee5302487e2e941f67c3cd2376bc30",
+      "bytes": 5747,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5747,
+      "original_sha256": "b3932bb7b201f95e1f35248e02f86481c3ee5302487e2e941f67c3cd2376bc30",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/012-pr19-run37321389178-job111801044537.log.json",
+      "sha256": "db1bbfaf6ce8bf613536410447c86d347e343fc391e69774a2377b2aeba80f00",
+      "bytes": 79006,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 76891,
+      "original_sha256": "7a16cfe01e859ebf3018d994edc734625d28e863f006be1f1601169120f1f09d",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/013-pr21-run37325034517-artifact11353071430-canary_matrix_result.json",
+      "sha256": "5730ca9fc739ae63886b757e57e79912f2073ddd7b01c46d789afda2e84dde47",
+      "bytes": 5747,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5747,
+      "original_sha256": "5730ca9fc739ae63886b757e57e79912f2073ddd7b01c46d789afda2e84dde47",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/014-pr21-run37325034517-job111813480049.log.json",
+      "sha256": "70ed4b662711c92b520cb719bdfdc7a344c8dfef8ff12b42f34e41a18f1a111c",
+      "bytes": 81436,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 79273,
+      "original_sha256": "1665910573d0843a0bf369da0ddc740106bd1bb46a88abea14380c8e664212f1",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/015-pr23-run37323047501-artifact11352500763-canary_matrix_result.json",
+      "sha256": "25d44a74b3af6fa90d5117adef08a80d069317e9877f15f95d40e21fa7e9b0a3",
+      "bytes": 5747,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5747,
+      "original_sha256": "25d44a74b3af6fa90d5117adef08a80d069317e9877f15f95d40e21fa7e9b0a3",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/016-pr23-run37323047501-job111806705313.log.json",
+      "sha256": "7874f41d237bb084fdebbda58e6faf345379306924245492fb2c4c5c9849f4a0",
+      "bytes": 81437,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 79274,
+      "original_sha256": "f8f367b0fb07414cef29080daa0b96f2bcc6fae547e3aa53863e28030efe9eb4",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/017-pr26-run37324919982-artifact11352896930-canary_matrix_result.json",
+      "sha256": "d3de18fad44bf7abe1ebb02ae28a9a048a56196429aa9a96aeff016451200dd3",
+      "bytes": 5747,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5747,
+      "original_sha256": "d3de18fad44bf7abe1ebb02ae28a9a048a56196429aa9a96aeff016451200dd3",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/018-pr26-run37324919982-job111813090804.log.json",
+      "sha256": "25debe8b6045e624229a41e3aa1cb8872cdc685b3601d71b44224b58ae996a55",
+      "bytes": 81597,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 79431,
+      "original_sha256": "52d8d869cb9819933656f5aabd1b4daca285ac801d37ecfad7b963e8b7c62e7a",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/019-pr29-run37324581530-artifact11352584147-canary_matrix_result.json",
+      "sha256": "b47f87c6068d10b770c3f08ed4482e5cf2a7d9fd431ab961ba4a51d0662735f5",
+      "bytes": 5747,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5747,
+      "original_sha256": "b47f87c6068d10b770c3f08ed4482e5cf2a7d9fd431ab961ba4a51d0662735f5",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/020-pr29-run37324581530-job111811923370.log.json",
+      "sha256": "f80a0cc1582f30b402b88b6b248e3c09c541a50fdf57c4d09761dbb1f8e06517",
+      "bytes": 81564,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 79398,
+      "original_sha256": "feb7a036ce171b83c3f04fe341aa5efb4419bf469b5ddc3cc831838ca87bb86f",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/021-artifact-11353795188-canary_matrix_result.json",
+      "sha256": "13e99ee2dce09dbb7a5320b72b00557042a457962a100f72765004fd5f8ad242",
+      "bytes": 5747,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5747,
+      "original_sha256": "13e99ee2dce09dbb7a5320b72b00557042a457962a100f72765004fd5f8ad242",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/022-pr21-run37325029585-job111813461947.log.json",
+      "sha256": "74e5095e9f63c699f4af7a9abfaaf77f4d364b5f373160135180c9f1fd41c5bf",
+      "bytes": 78801,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 76689,
+      "original_sha256": "51fe90f334d6c86267cbd2448e069934e0c04e656df041b32e0b225fbdb9ee7a",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/023-artifact-11353730256-canary_matrix_result.json",
+      "sha256": "a2de2eb27209f3706bbfc7ed6265eda186d33368ad09aefaf81196b9a35c223f",
+      "bytes": 5747,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5747,
+      "original_sha256": "a2de2eb27209f3706bbfc7ed6265eda186d33368ad09aefaf81196b9a35c223f",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/024-pr29-run37324592560-job111811960391.log.json",
+      "sha256": "9e695af14fd3943b3faf376f8ad734d93ab06c9efd72b7c73d941cad49755f48",
+      "bytes": 81280,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 79120,
+      "original_sha256": "c9d0708365a0d2e42f4dbf15aa36feccd04efd02df3177ecd363b5ed2b8bc92b",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/025-pr31-run37326442567-artifact11354038639-canary_matrix_result.json",
+      "sha256": "7ae7796c33fe8c50d64b69f899a15748eb57165351d89700f709c6c4af1ee0a1",
+      "bytes": 5747,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5747,
+      "original_sha256": "7ae7796c33fe8c50d64b69f899a15748eb57165351d89700f709c6c4af1ee0a1",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/026-pr31-run37326442567-job111818298240.log.json",
+      "sha256": "f16d238aebfe16d01ebbcc5214dc2664b94300a6122ae41b7d3007eb8e15403d",
+      "bytes": 81285,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 79125,
+      "original_sha256": "aae57eab19706fa67274f00bf7232dc772c8904475d5ffeb3ba2dbc0256e8634",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/027-canary-classification-final.json",
+      "sha256": "cced83c4b0e36c61e63f285b8c24e63de71fb49b456b2d45037068a574395848",
+      "bytes": 109426,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 109426,
+      "original_sha256": "cced83c4b0e36c61e63f285b8c24e63de71fb49b456b2d45037068a574395848",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/028-current-pr-canary-status-final.json",
+      "sha256": "be44a99e38d811c31eb7346fa151c7210e34bffcd2cc8321217b6339e0b64517",
+      "bytes": 65686,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 65686,
+      "original_sha256": "be44a99e38d811c31eb7346fa151c7210e34bffcd2cc8321217b6339e0b64517",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/029-canonical-owner-equality.json",
+      "sha256": "cbc26604f8fa3f60d56d801e0794ef18e966b60473ff06df0ce4b6c84a93559b",
+      "bytes": 14418,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 14418,
+      "original_sha256": "cbc26604f8fa3f60d56d801e0794ef18e966b60473ff06df0ce4b6c84a93559b",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/030-canonical-owner-sources.json",
+      "sha256": "56b1b0eb9a175a522dcb979eb3ff190ffca8176c19760b53bdb31e41bedf3cb5",
+      "bytes": 2207,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2207,
+      "original_sha256": "56b1b0eb9a175a522dcb979eb3ff190ffca8176c19760b53bdb31e41bedf3cb5",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/031-checked-commit-manifest.json",
+      "sha256": "2e864d42f6309af037f902ea2a1a6ab4ec383bfd0670fe0e83d18287e7c948c1",
+      "bytes": 10971,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 10971,
+      "original_sha256": "2e864d42f6309af037f902ea2a1a6ab4ec383bfd0670fe0e83d18287e7c948c1",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/032-commit-a5a165adbdf800a0d2598d41e2008e7cae13ee58.json",
+      "sha256": "0908dc866969b2d209ced7858383e78e26e4dc4a4f5c51d7ef6982be429fa6fa",
+      "bytes": 126856,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 126856,
+      "original_sha256": "0908dc866969b2d209ced7858383e78e26e4dc4a4f5c51d7ef6982be429fa6fa",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/001-summary.txt.json",
+      "sha256": "14b900c0a43d266262f240136b3683c8953923ba1e3f7568f7b60352d35addf7",
+      "bytes": 4968,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 4739,
+      "original_sha256": "73416171a0708ff45b6140a7cfd80a16607f88143e581023a3cc3aab10254fdf",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/002-summary.json",
+      "sha256": "fd1e885714b08b0abb756de8a287e83884bea2abaddeb0f17c7f2589fe0a36bc",
+      "bytes": 30355,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 30355,
+      "original_sha256": "fd1e885714b08b0abb756de8a287e83884bea2abaddeb0f17c7f2589fe0a36bc",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/003-checked-source-identities.json",
+      "sha256": "c6c9dc792777f093998a15462efa6d519d1e94c0fde9b014c46f9979ecc63370",
+      "bytes": 9963,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 9963,
+      "original_sha256": "c6c9dc792777f093998a15462efa6d519d1e94c0fde9b014c46f9979ecc63370",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/004-merge-commit-identities.json",
+      "sha256": "d8bb2527be24b32c67713f284691a46f16f07f9db1a2416050481701f8df4d9f",
+      "bytes": 987,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 987,
+      "original_sha256": "d8bb2527be24b32c67713f284691a46f16f07f9db1a2416050481701f8df4d9f",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/005-locale-leaf-census.json",
+      "sha256": "3af1e0ecceed1be21a7c2f01c65dac7478a46d2ae7866cfe34736f100723a289",
+      "bytes": 1009,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 1009,
+      "original_sha256": "3af1e0ecceed1be21a7c2f01c65dac7478a46d2ae7866cfe34736f100723a289",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/006-transfer-url-scan.json",
+      "sha256": "e7c2184bcd0d0d60297d1c57425ebdc6d3717967c903c94b7cdb3080b10cbe63",
+      "bytes": 27419,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 27419,
+      "original_sha256": "e7c2184bcd0d0d60297d1c57425ebdc6d3717967c903c94b7cdb3080b10cbe63",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/007-job-111800441948.complete.txt.json",
+      "sha256": "cc618dcba588480b424e819742e8d2b1cc02b7e9e8c943baaabde5b00dd996b7",
+      "bytes": 313143,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 287456,
+      "original_sha256": "a87477cc68fa671ef728cbf15de062cd174cca8c5a84b9f7b9fed703d1e2d792",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/008-job-111800441948.json",
+      "sha256": "451e43b5379e24bbfe42908416903b4935e69cd5248b3cb322390a916133c65e",
+      "bytes": 3212,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3212,
+      "original_sha256": "451e43b5379e24bbfe42908416903b4935e69cd5248b3cb322390a916133c65e",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/009-job-111800442457.complete.txt.json",
+      "sha256": "e33cc8a02b45487ee3affaec906a166e375efb762f7abc5ce6614f8ed48cc378",
+      "bytes": 74683,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 69301,
+      "original_sha256": "f50fbd2d4a39ef907ff11200fb1f48fe9168ce3e444b2f761d4579368e246fa0",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/010-job-111800442457.json",
+      "sha256": "a483ba8ad1a94bd514e57764d6a9cd0b0f3f4e512d8c1bf90f78ad7b00baffae",
+      "bytes": 3299,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3299,
+      "original_sha256": "a483ba8ad1a94bd514e57764d6a9cd0b0f3f4e512d8c1bf90f78ad7b00baffae",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/011-job-111800442523.complete.txt.json",
+      "sha256": "4b5178317f8bbdce68bc6b55a68d2d6a576d992c75a5b2ff5fa981d87dbd2076",
+      "bytes": 81946,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 80543,
+      "original_sha256": "1fa3c52175ab89fda658b851c643e0a1309b1fa69e0ad4aa2a29e1339f614763",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/012-job-111800442523.json",
+      "sha256": "110f858632440e2b3c04a0af025c728a312387460cf2b2fc7971ec4a524e3772",
+      "bytes": 2223,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2223,
+      "original_sha256": "110f858632440e2b3c04a0af025c728a312387460cf2b2fc7971ec4a524e3772",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/013-job-111800442368.complete.txt.json",
+      "sha256": "23a6ca22d79d98d716c7896e1c49cde31d6eb7adc92770fd5d9b4c6a276b67e5",
+      "bytes": 463622,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 403965,
+      "original_sha256": "d4b2e953a3847a5714ff2f09df32645f8eba7d70d75c451272c02c9202682fcf",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/014-job-111800442368.json",
+      "sha256": "fc23bd221b9d9e808f7bb8cc1d77c1b06e633b64001580f84088fc4c5ac47d2e",
+      "bytes": 2399,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2399,
+      "original_sha256": "fc23bd221b9d9e808f7bb8cc1d77c1b06e633b64001580f84088fc4c5ac47d2e",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/015-job-111802574400.complete.txt.json",
+      "sha256": "019a3f3270d71e3d5088cd9a515743e004bcb4644b140fbaa945fdb1ed8338e5",
+      "bytes": 316763,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 290405,
+      "original_sha256": "36fd1fc21b556a517be61d4acbcc4ecfb854111e823f6ade7fba7c5b1d8a6b83",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/016-job-111802574400.json",
+      "sha256": "83d3a3356035ec1845b706e3e92e3805af6bec8d0f9fc18c30d22710b4e48898",
+      "bytes": 3206,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3206,
+      "original_sha256": "83d3a3356035ec1845b706e3e92e3805af6bec8d0f9fc18c30d22710b4e48898",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/017-job-111802574428.complete.txt.json",
+      "sha256": "289ff35f43d09dc12cb16088bdc932443ca910b498ce56dd325844fcbd5081c2",
+      "bytes": 74766,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 69383,
+      "original_sha256": "69b41241dd9eadaa61ea338d437601e16be021e47f9779655b96210d706a1a74",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/018-job-111802574428.json",
+      "sha256": "2a52a7fc6b33ca7ce40bdcca93db760ab1fcb4f9c791946a2333066197a39083",
+      "bytes": 3293,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3293,
+      "original_sha256": "2a52a7fc6b33ca7ce40bdcca93db760ab1fcb4f9c791946a2333066197a39083",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/019-job-111802574080.complete.txt.json",
+      "sha256": "78a9987895de019bd8ee8c95f42ed30388fc86e70584bee60ae18602eb1086a6",
+      "bytes": 80487,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 79106,
+      "original_sha256": "6de48929033707e73b03d3e6e100a7ab466f8660663f8fea6f99022deb82b7b6",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/020-job-111802574080.json",
+      "sha256": "1b2b67b68db65a5c8d962855a0923051e427875cbb4fd1a8b2524f61182536b3",
+      "bytes": 2217,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2217,
+      "original_sha256": "1b2b67b68db65a5c8d962855a0923051e427875cbb4fd1a8b2524f61182536b3",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/021-job-111802574468.complete.txt.json",
+      "sha256": "17c43785632aea3df1fa5a5a9275b87a9ff1446d2519a58555c72d9a98c4870c",
+      "bytes": 453104,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 395636,
+      "original_sha256": "6ead92f3fab0c2e4ce7a70d7958f98791734aca28a392a16647e1e7a03e78809",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/022-job-111802574468.json",
+      "sha256": "d7c2922505acac48781a257ba7ae24839b1fc6f425259954e0bce87c19501aeb",
+      "bytes": 2393,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2393,
+      "original_sha256": "d7c2922505acac48781a257ba7ae24839b1fc6f425259954e0bce87c19501aeb",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/023-job-111802650701.complete.txt.json",
+      "sha256": "b8e999b091584ae74cd471e5102ba6f1fcc914172d03299899267b48d08d13fb",
+      "bytes": 316775,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 290417,
+      "original_sha256": "7677e6382a1566c314f921638aa88fc67d2c651d80f9160d38883f2bcc385a72",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/024-job-111802650701.json",
+      "sha256": "ab5ea04bbe77aa2df2c1cb48d3def7dd368b165db5b9ea2ee72f9f5f66e2f334",
+      "bytes": 3213,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3213,
+      "original_sha256": "ab5ea04bbe77aa2df2c1cb48d3def7dd368b165db5b9ea2ee72f9f5f66e2f334",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/025-job-111802650045.complete.txt.json",
+      "sha256": "1da1ff5b7d164bd624bd844934027be38c53a342aa4c0f04915ad133412ff4e8",
+      "bytes": 74748,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 69365,
+      "original_sha256": "7f56a6db229e18f68c30355d04e88f22e677c436f4dfc1394775d2f4002b5673",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/026-job-111802650045.json",
+      "sha256": "31d2a49efdf9d044e57bbd6292558a5f0388e0c74b455fed59827604bf3b009f",
+      "bytes": 3300,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3300,
+      "original_sha256": "31d2a49efdf9d044e57bbd6292558a5f0388e0c74b455fed59827604bf3b009f",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/027-job-111802650513.complete.txt.json",
+      "sha256": "3eaa1e3fa90e1a4fe0500c6207220385601004494213dd43c90b5aeba39ec80b",
+      "bytes": 81612,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 80214,
+      "original_sha256": "c54bb9e2edb7f6f8f1370d70de224b2e42a0ae571c1429b344f53461266931d0",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/028-job-111802650513.json",
+      "sha256": "ef6e8464bddf9e54a29a4fbdd7d5fac695dbed822aae906883f49134bfedc04b",
+      "bytes": 2224,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2224,
+      "original_sha256": "ef6e8464bddf9e54a29a4fbdd7d5fac695dbed822aae906883f49134bfedc04b",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/029-job-111802650848.complete.txt.json",
+      "sha256": "d8dd7c1f08e9dbbd3b8a95a340cad032cd6c92b3d01e7717bd8ef45b784408fe",
+      "bytes": 452812,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 395426,
+      "original_sha256": "3c3fa2667d5e2162005a86d334d31c2613a0dd8c5db29cb20a3312e18cee608b",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/030-job-111802650848.json",
+      "sha256": "ab4803ab74dd5dad462909d85a962498ba4b271025086b840586d319f32f7fe5",
+      "bytes": 2400,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2400,
+      "original_sha256": "ab4803ab74dd5dad462909d85a962498ba4b271025086b840586d319f32f7fe5",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/031-job-111811969133.complete.txt.json",
+      "sha256": "b36139c1e9a6a32da25290c7de53d8f6e70ecf104275805f5a2e4fb93831cc77",
+      "bytes": 49678,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 48498,
+      "original_sha256": "e6f899c175ba013de70ef2d05617c6394e205e3377f4f3d527795f79468bfb1c",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/032-job-111811969133.json",
+      "sha256": "711e9330acc83720b02ac6601407234c93c35e81e86e7f703781feb93eb758ea",
+      "bytes": 3077,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3077,
+      "original_sha256": "711e9330acc83720b02ac6601407234c93c35e81e86e7f703781feb93eb758ea",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/033-commit-8280a4aa6e028af0dd74d2f987ce6fc6e498b877.json",
+      "sha256": "7f2757feeb20bb66ad11cdf8213925a237532c80015dd3e8c3db724328dae8ef",
+      "bytes": 2640,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2640,
+      "original_sha256": "7f2757feeb20bb66ad11cdf8213925a237532c80015dd3e8c3db724328dae8ef",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/034-commit-2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225.json",
+      "sha256": "ebfdc11edf04fa920e973442db1db18593c1b73ae78418daa09728aee4eca7fd",
+      "bytes": 2640,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2640,
+      "original_sha256": "ebfdc11edf04fa920e973442db1db18593c1b73ae78418daa09728aee4eca7fd",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/035-commit-674146c9053dc61b9db08bd88d16a76f7cdf51eb.json",
+      "sha256": "509ff3a37e3950fade076157019a3f69d8c9f404d59350d01407b34e85a5fd39",
+      "bytes": 2640,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2640,
+      "original_sha256": "509ff3a37e3950fade076157019a3f69d8c9f404d59350d01407b34e85a5fd39",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/036-commit-51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b.json",
+      "sha256": "9369f89145b9249e505890eec70f80525e929f1224283a8844188e6db3829d8c",
+      "bytes": 2640,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2640,
+      "original_sha256": "9369f89145b9249e505890eec70f80525e929f1224283a8844188e6db3829d8c",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/037-run-37321206372.json",
+      "sha256": "03147faf38a31ba292ac203229b9c1ccc94bd22718d1d74f204c858629f62431",
+      "bytes": 12885,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 12885,
+      "original_sha256": "03147faf38a31ba292ac203229b9c1ccc94bd22718d1d74f204c858629f62431",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/038-run-37321831625.json",
+      "sha256": "69389f8795c08e7fd3f010ee69724d6c6137916174caf6d2a0ba288d97dce379",
+      "bytes": 12848,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 12848,
+      "original_sha256": "69389f8795c08e7fd3f010ee69724d6c6137916174caf6d2a0ba288d97dce379",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/039-run-37321848405.json",
+      "sha256": "2f4663988b168579869dc27fbeb2d23fc20a4b2e52b44f55a019d09706bdd81f",
+      "bytes": 12866,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 12866,
+      "original_sha256": "2f4663988b168579869dc27fbeb2d23fc20a4b2e52b44f55a019d09706bdd81f",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/040-run-37324581716.json",
+      "sha256": "369ac8089f355dee43d110607f6a4a9ce58a1e254bdedb6038eb6f2b86407ee7",
+      "bytes": 12880,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 12880,
+      "original_sha256": "369ac8089f355dee43d110607f6a4a9ce58a1e254bdedb6038eb6f2b86407ee7",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/041-directory-health.json",
+      "sha256": "f6831f02a12d2cb0820caaf212dc114d03a70756c4c94fd5f2d088aa68a73be2",
+      "bytes": 39229,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 39229,
+      "original_sha256": "f6831f02a12d2cb0820caaf212dc114d03a70756c4c94fd5f2d088aa68a73be2",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/042-directory-health.md.json",
+      "sha256": "dbccf24048a8eac4d046ccc653c1a8f5112d9b37b928cf54b4378b61bea3e0e4",
+      "bytes": 3482,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 3157,
+      "original_sha256": "af51f058028a7e102dfba3d6dfeb3cda5776c341ba580275dcb15873b9bab3c3",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/043-test-economics-summary.md.json",
+      "sha256": "11997979ddc5361c65732d7657046752686e9b8156574480ebf7c3b7529fac57",
+      "bytes": 801,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 549,
+      "original_sha256": "4546b310e3d79719dc22ea0ac3b339c69bb296fdfa61ced9b60ede4db34d836c",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/044-index.json",
+      "sha256": "32f0c41db6f98c469bf2d1f57338fc568433d54623d8637ab58195c18f2c0acc",
+      "bytes": 23247,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 23247,
+      "original_sha256": "32f0c41db6f98c469bf2d1f57338fc568433d54623d8637ab58195c18f2c0acc",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/045-extended-index.json",
+      "sha256": "006fb81136399d5d34fbf1d68000edbd65174ffe8d0177ba65e36a4c4aa36d4b",
+      "bytes": 2365,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2365,
+      "original_sha256": "006fb81136399d5d34fbf1d68000edbd65174ffe8d0177ba65e36a4c4aa36d4b",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/046-extended-additional-index.json",
+      "sha256": "aea9cfb9d94e129515f21d46b487ada382c5706f9adb9ee5ffea491c9831293a",
+      "bytes": 2029,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2029,
+      "original_sha256": "aea9cfb9d94e129515f21d46b487ada382c5706f9adb9ee5ffea491c9831293a",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/047-governed-projection-index.json",
+      "sha256": "1787fce964bf5adf20de28627c7b4ac8f03f9c8e028cfeb0051329462abad4fa",
+      "bytes": 492,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 492,
+      "original_sha256": "1787fce964bf5adf20de28627c7b4ac8f03f9c8e028cfeb0051329462abad4fa",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/048-governed-worker-index.json",
+      "sha256": "80f7a1651e3da2bd6d35d19c91adeb6a55f75376515dee894d7bca3fa9b95c6f",
+      "bytes": 1076,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 1076,
+      "original_sha256": "80f7a1651e3da2bd6d35d19c91adeb6a55f75376515dee894d7bca3fa9b95c6f",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/049-action.yml.json",
+      "sha256": "f64dea0fd50d04bafdfa39d50844c002c7b026f610ab893c3dc46836ac624fe5",
+      "bytes": 3031,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 2739,
+      "original_sha256": "ed6341360ddad176ed1ae72d3c90bf6a0f4b60c6ca4528ae00a2a69068805626",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/050-ci.yml.json",
+      "sha256": "46404793015bef900ff26bd3194adddf80a4de72884efd4aced10d2fb96039c1",
+      "bytes": 14927,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 14253,
+      "original_sha256": "8a5d685ea40caeaaf54be090c44d62aac4167ff835d26b055ee64a008c204018",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/051-package.json",
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "bytes": 11599,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 11599,
+      "original_sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/052-playwright.config.ts.json",
+      "sha256": "123817025575f012dada6df01895a590ca779ae0e5a9a0ee60c54c8254482963",
+      "bytes": 3212,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 2819,
+      "original_sha256": "04e27f939d43268b2c678bc205c941c0cf1ef719e430bdb65ecf6d197d844927",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/053-persist_atlas_evidence.py.json",
+      "sha256": "7fe517fb1ce70abad3a9b4c6dc6d36c5608159bef2626ade99a1816147adba38",
+      "bytes": 104374,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 98913,
+      "original_sha256": "ca2bcf8841eea740103afcf500e546e3c0f03b6000a1050e8d3e1cf8c486c328",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/054-serve_fixture_runtime_api.py.json",
+      "sha256": "23bda88750b1d149b6fd16c5ed20a779ed8f608840874a202215f364166ae7f5",
+      "bytes": 8028,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 7457,
+      "original_sha256": "210a02646fc4bdade933ca85fa53ced9b91dcdea4ca49d62abd265b5d7826dce",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/055-en.json",
+      "sha256": "6cb6dc4550d0f4ff3b49dd38ae8c4f0eaa34f0218c405616bfc5d233f907a4c7",
+      "bytes": 152836,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 152836,
+      "original_sha256": "6cb6dc4550d0f4ff3b49dd38ae8c4f0eaa34f0218c405616bfc5d233f907a4c7",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/056-uk.json",
+      "sha256": "f103c6daabb31632ef3882329af5f5742f071cb387ddc6d3cb4b647667b8c1a7",
+      "bytes": 198820,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 198820,
+      "original_sha256": "f103c6daabb31632ef3882329af5f5742f071cb387ddc6d3cb4b647667b8c1a7",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/057-parity.test.ts.json",
+      "sha256": "9a3e1b32512e9a0d3a89578c033589d4386bcff424f8994fa4e40eaff3798eb2",
+      "bytes": 76850,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 72843,
+      "original_sha256": "21f83038635e61acd446c4433f6da62a70fba03b3ce5b0ecd4ccb39cf7208a11",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/058-atlasAutomatedEvidenceCapture.test.ts.json",
+      "sha256": "c304d4bce226c26f953f8a79c279958d763cd62a41d21af3c7f0052ba4c51f3b",
+      "bytes": 24914,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 23569,
+      "original_sha256": "d24d8de12e67166bac7bae0976a460999757fe9a4fd9f5c668d151f1572aa384",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/059-directory_health.toml.json",
+      "sha256": "593b2557774018950ca86a18852e0d57c0510831b9f3a34c78d5bbf518893609",
+      "bytes": 11656,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 10504,
+      "original_sha256": "83866ac4983eace76221baa832d9bb999a5d78b5b4075042572342e603e658ec",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/060-store.py.json",
+      "sha256": "27ca9b67203e3e42ad3b208440bb45c90f4c20b88486640f77aac16532b30cec",
+      "bytes": 44836,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 42587,
+      "original_sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/061-run_lifecycle.py.json",
+      "sha256": "7f642ad46aa161b46bf5c0690bb0d7929b5c8be7a331680086012ffceb68bc16",
+      "bytes": 360059,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 347497,
+      "original_sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/062-governed_projection_dependencies.py.json",
+      "sha256": "9076a29d4361e5d6530bf0510e8f8d41ddafd610727cec4440a829d76713a4a3",
+      "bytes": 8491,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 7934,
+      "original_sha256": "fdc36162cefd57c807e70026fca9d27608ecf540930cece436dcf6a75d4dc6aa",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/063-governed_projection_validation_worker.py.json",
+      "sha256": "e7ba283849df11ad913b5f4a364bd521f2f760c5e7a2796bd77570ca8ee8bc84",
+      "bytes": 39982,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 38045,
+      "original_sha256": "e913ddef94876b7a54eb524d4577c489c8ee79f3f5b87092a8232d7a33b70536",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/064-governed_projections.py.json",
+      "sha256": "7d6a3d4f3f0f61ff528be8bced49e308ff28c11775bae4a3a0d4d45eb61a4f17",
+      "bytes": 111077,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 106265,
+      "original_sha256": "f697b9bd324cafd7d90ca0d3dd6e641d9c2db131b2a49d9d1af0ebb024e9668a",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/065-substrate_registry.py.json",
+      "sha256": "29d4c2800f7e669468714361c2b166d053db28ad01bb9659815b5b5c30e9abd4",
+      "bytes": 82577,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 79191,
+      "original_sha256": "a2a4f06452428a225b393941ae16cf3cb42043c01a38679bb725595818cb9f62",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/066-runtime_http.py.json",
+      "sha256": "90f1ebb7737aa1949843af6ff4405aa94e784b67fa0cb4fbdd25dd359940d388",
+      "bytes": 60524,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 56431,
+      "original_sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/067-test_runtime_hot_paths.py.json",
+      "sha256": "a39381c42868b5b62773bba9ade364045489d4ce2b91393dbe41e85da1bab1f5",
+      "bytes": 32487,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 30760,
+      "original_sha256": "d0da5c4a19e83d1e2f4e4457ccd6b5c71e0d57749fc0dda0dc8e1e26b47165c3",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/068-check_runtime_api_contract.py.json",
+      "sha256": "9c0f861ec98a4a8236c7791d803815c2dc13b25af9abee9720aedba335094d21",
+      "bytes": 8093,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 7528,
+      "original_sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/069-report_test_economics.py.json",
+      "sha256": "75b56769ea88585b8b9f407f3a00f2edaa08ff91358c4a100ba3e188329abdb8",
+      "bytes": 10587,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 9837,
+      "original_sha256": "f7df1df0c8c2cfdd2fcb54c84d496fd0774198bf509e77ea47ac81ee61d07dae",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/070-check_layer3_gy_confidence_ledger.py.json",
+      "sha256": "02d3e0c6feb7ec8f4a6d7137abfdb9dc6ecb382b0e2cb12f2ed2e731ff576dfb",
+      "bytes": 206445,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 197019,
+      "original_sha256": "14a30d4b930e78af4b59e8e56b94405fe65051ce5ad375d355ebfa91e396ecd7",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/071-directory_health.py.json",
+      "sha256": "4358e0c11a38b6689dfc5ab3e87d2184e45600a6129049eabba561af57083b2a",
+      "bytes": 52126,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 49252,
+      "original_sha256": "8eb2025d08401282a716debbedb00f4cf527611a5947040a13d0fc94a4ba4417",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/001-summary.json",
+      "sha256": "5e8f02f0209abc66c76837f3be15b48d6c24e1e0dc3d29bba33155fd624d7863",
+      "bytes": 10810,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 10810,
+      "original_sha256": "5e8f02f0209abc66c76837f3be15b48d6c24e1e0dc3d29bba33155fd624d7863",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/002-main-c40-fast-runs.json",
+      "sha256": "83130aca151f1acd48e89784e1e0742a2be88771481a3e349b4e1ec373b14e35",
+      "bytes": 355,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 355,
+      "original_sha256": "83130aca151f1acd48e89784e1e0742a2be88771481a3e349b4e1ec373b14e35",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/003-main-c40-run.json",
+      "sha256": "db1e67038ba9297851376c4d216610069fa2370833d57e2398a7c1babf2540dc",
+      "bytes": 12705,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 12705,
+      "original_sha256": "db1e67038ba9297851376c4d216610069fa2370833d57e2398a7c1babf2540dc",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/004-main-c40-jobs.json",
+      "sha256": "235a1aa2931d57e93112c797e4129424a7839edb0d8ce067a85a071c8ade18b7",
+      "bytes": 15930,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 15930,
+      "original_sha256": "235a1aa2931d57e93112c797e4129424a7839edb0d8ce067a85a071c8ade18b7",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/005-main-c40-archive-5_Fast_PR___Schema_snapshots.txt.json",
+      "sha256": "2ff0e29eed6046291064c22651219181e08860738c2c5e1086ca93b483fd3253",
+      "bytes": 37932,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 36987,
+      "original_sha256": "169ade6c2e253e3ac12020e4ab547c676693e2c1abbf90e330a46e0d9f0a89b9",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/006-main-c40-schema-complete-normalized.txt.json",
+      "sha256": "0d25eb3b18ec13915a8ba64682376169e4d1349f5bd69ef3669afe453a13fb70",
+      "bytes": 22281,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 21446,
+      "original_sha256": "960ab08bdf924db8c258ce6e388c4cd1c652fd68a65e940e263c72e6e14bb557",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/007-run-37321206325.json",
+      "sha256": "d6fa30e3f8bc2293f1d3a1eb27f385a502aaf4848fe0b0dcf058775cba3cb018",
+      "bytes": 12885,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 12885,
+      "original_sha256": "d6fa30e3f8bc2293f1d3a1eb27f385a502aaf4848fe0b0dcf058775cba3cb018",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/008-pr15-111800440922-job.json",
+      "sha256": "c4ed2e6c37fce38f9941376b34bf1e4d82d46d75d4829c45255ab4b9ae841889",
+      "bytes": 2054,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2054,
+      "original_sha256": "c4ed2e6c37fce38f9941376b34bf1e4d82d46d75d4829c45255ab4b9ae841889",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/009-pr15-111800440690-job.json",
+      "sha256": "2907c63c7c0a799aec8a418555e963e35cd3a349b1a988db30f9e7a0e48b80c6",
+      "bytes": 3241,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3241,
+      "original_sha256": "2907c63c7c0a799aec8a418555e963e35cd3a349b1a988db30f9e7a0e48b80c6",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/010-pr15-merge-commit.json",
+      "sha256": "7f2757feeb20bb66ad11cdf8213925a237532c80015dd3e8c3db724328dae8ef",
+      "bytes": 2640,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2640,
+      "original_sha256": "7f2757feeb20bb66ad11cdf8213925a237532c80015dd3e8c3db724328dae8ef",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/011-run-37321206325-archive-1_Fast_PR___Schema_snapshots.txt.json",
+      "sha256": "e76633f4c3e54903c890514ec4252558ff95f42cdf37572ded0d79ee2b18c95c",
+      "bytes": 38957,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 37990,
+      "original_sha256": "4ab66c530dce94117a2e5aee1c1c3d82f9743026d893d12d77f0a837610418f9",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/012-run-37321206325-archive-2_Fast_PR___ABI_drift.txt.json",
+      "sha256": "3f5c7ade61705d4c4a19cd8eaf29efde3a42a826364075e4913c87d406b22b46",
+      "bytes": 54795,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 53448,
+      "original_sha256": "a573cea376eceaf551cd022542e2ca10ccf5cac071e0092883792b9aa322bd66",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/013-pr15-schema-complete-normalized.txt.json",
+      "sha256": "a94bd9d1951dd49ad3de43c7efe12f0c123b198de9373979574be4ebc757b22b",
+      "bytes": 22860,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 22014,
+      "original_sha256": "e8fb7ee9f048ec02209633949ff424b6026057234b4017ca6a188a3365578463",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/014-pr15-abi-complete-normalized.txt.json",
+      "sha256": "04bcc387de7a0079c5365afa448179215bb0973fc3b819e82251cd451060feed",
+      "bytes": 33547,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 32507,
+      "original_sha256": "a97e49ffca2eb80543fb56e5250f51b550073ccad52b9853d0a05ce0f0803a87",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/015-complete-log-normalization-receipts.json",
+      "sha256": "b87e3f26b0e6183dcb4fd339ef9d9d9f358cb37e1d47ef3b7080e8d317f852a3",
+      "bytes": 2021,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2021,
+      "original_sha256": "b87e3f26b0e6183dcb4fd339ef9d9d9f358cb37e1d47ef3b7080e8d317f852a3",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/016-run-37321831696.json",
+      "sha256": "39e39ef5326cb841e126f61068b95154851aa42d96232f16415455bd230367a1",
+      "bytes": 12845,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 12845,
+      "original_sha256": "39e39ef5326cb841e126f61068b95154851aa42d96232f16415455bd230367a1",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/017-run-37321848468.json",
+      "sha256": "dc3a38483cd12420f39ee1e8c9c22c1bb5081b8ecdab1579b5a60a3cb8cc59d5",
+      "bytes": 12863,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 12863,
+      "original_sha256": "dc3a38483cd12420f39ee1e8c9c22c1bb5081b8ecdab1579b5a60a3cb8cc59d5",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/018-pr18-111802572091-job.json",
+      "sha256": "bfeff982c92ddfa40ba425b8f99de6dc3585eb418a218e88792f850477a2e9f9",
+      "bytes": 2048,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2048,
+      "original_sha256": "bfeff982c92ddfa40ba425b8f99de6dc3585eb418a218e88792f850477a2e9f9",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/019-pr18-111802571950-job.json",
+      "sha256": "f8bb702fc2128155f285a7cdd562706a7b3fc5d26aeb6739e06de22d2970e12b",
+      "bytes": 3235,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3235,
+      "original_sha256": "f8bb702fc2128155f285a7cdd562706a7b3fc5d26aeb6739e06de22d2970e12b",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/020-pr19-111802631692-job.json",
+      "sha256": "abd6a0ab8265afb92b0696df67ad5550b75f45ed2fc1ed45b15247d9510b4a6f",
+      "bytes": 2055,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2055,
+      "original_sha256": "abd6a0ab8265afb92b0696df67ad5550b75f45ed2fc1ed45b15247d9510b4a6f",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/021-pr19-111802631813-job.json",
+      "sha256": "198f001972677651b3d4ce05e2aef4bfc77b4848b9aa56109b79346e01a3e425",
+      "bytes": 3242,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3242,
+      "original_sha256": "198f001972677651b3d4ce05e2aef4bfc77b4848b9aa56109b79346e01a3e425",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/022-pr18-merge-commit.json",
+      "sha256": "ebfdc11edf04fa920e973442db1db18593c1b73ae78418daa09728aee4eca7fd",
+      "bytes": 2640,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2640,
+      "original_sha256": "ebfdc11edf04fa920e973442db1db18593c1b73ae78418daa09728aee4eca7fd",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/023-pr19-merge-commit.json",
+      "sha256": "509ff3a37e3950fade076157019a3f69d8c9f404d59350d01407b34e85a5fd39",
+      "bytes": 2640,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2640,
+      "original_sha256": "509ff3a37e3950fade076157019a3f69d8c9f404d59350d01407b34e85a5fd39",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/024-pr15-check-annotations.json",
+      "sha256": "15451db57c41944255ff4545f2b54aeb5489e6ff60cb047b4faf38f7ec2d9095",
+      "bytes": 1337,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 1337,
+      "original_sha256": "15451db57c41944255ff4545f2b54aeb5489e6ff60cb047b4faf38f7ec2d9095",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/025-pr18-check-annotations.json",
+      "sha256": "4cfea05117f6947e350eecfae90f56510770bf30d6f429a11c61d50e139eddb1",
+      "bytes": 1337,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 1337,
+      "original_sha256": "4cfea05117f6947e350eecfae90f56510770bf30d6f429a11c61d50e139eddb1",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/026-pr19-check-annotations.json",
+      "sha256": "4f05b04513bdf18ea7e49890ac0abe455a603471dad10a5fe8e6c5ca8429f524",
+      "bytes": 1337,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 1337,
+      "original_sha256": "4f05b04513bdf18ea7e49890ac0abe455a603471dad10a5fe8e6c5ca8429f524",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/027-selected-jobs-snapshot.json",
+      "sha256": "19712a3847e0c65423c28fba8e9f30b7ab4087f968153c366fed1cb16ba88530",
+      "bytes": 5874,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5874,
+      "original_sha256": "19712a3847e0c65423c28fba8e9f30b7ab4087f968153c366fed1cb16ba88530",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/028-full-gen-schema-native-replays.json",
+      "sha256": "d96ffb6047144fa102efa6ae93dc516143fb1dde4dce763706eb263b767a0938",
+      "bytes": 5777,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5777,
+      "original_sha256": "d96ffb6047144fa102efa6ae93dc516143fb1dde4dce763706eb263b767a0938",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/029-other-F-full-gen-schema-native-replays.json",
+      "sha256": "03aaf322e3346bb60db4d3949c045ced8aa0080869e7fdf74071ea5280ea7542",
+      "bytes": 8420,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 8420,
+      "original_sha256": "03aaf322e3346bb60db4d3949c045ced8aa0080869e7fdf74071ea5280ea7542",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/030-base-c40-source-denominator.json",
+      "sha256": "acc9e04fbcd5cb09137baee0177d3b79c0dc9114c44367a05ba348e38f313b76",
+      "bytes": 2431749,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2431749,
+      "original_sha256": "acc9e04fbcd5cb09137baee0177d3b79c0dc9114c44367a05ba348e38f313b76",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/031-all-F-static-input-comparisons.json",
+      "sha256": "8528ef2479924a6dcb055867aa96d753872cc85554090443eb0c3221a3191685",
+      "bytes": 17043,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 17043,
+      "original_sha256": "8528ef2479924a6dcb055867aa96d753872cc85554090443eb0c3221a3191685",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/032-source-denominator-trace.py.json",
+      "sha256": "e456ec233c1b4bbc538bdb35abc9047ed93f8269288c24287a538978ca415150",
+      "bytes": 5025,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 4743,
+      "original_sha256": "dc34c47ef1f5d521e88936c450774048f98206ca3704c0af1bf01c6bf8d0b28d",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/033-feedback-result-source-identity.json",
+      "sha256": "94c5e03534b8ed0a1ee3367d0a94ec63378d7bf6e334296d16794e1a203c5ca3",
+      "bytes": 6013,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 6013,
+      "original_sha256": "94c5e03534b8ed0a1ee3367d0a94ec63378d7bf6e334296d16794e1a203c5ca3",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/034-base-c40-feedback-result-direct-diff.txt.json",
+      "sha256": "45c312a20f7ffe2057281dbf251829b166921a45268afa1f37e2dc3edc3c23a1",
+      "bytes": 3329,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 2786,
+      "original_sha256": "84eee19676f2ac4f40a6584e1a4976c20611d211d850c2dffa50e0c84ff5e895",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/035-base-c40-feedback-result-generated-direct.schema.json",
+      "sha256": "27dad4e3ca52c016d9203c5d70b27299bfbb38698fc6f64f4e2bc7377d2045d3",
+      "bytes": 10458,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 10458,
+      "original_sha256": "27dad4e3ca52c016d9203c5d70b27299bfbb38698fc6f64f4e2bc7377d2045d3",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/036-fetch-receipts.json",
+      "sha256": "d3bf4e6d9baf4ca7e99a3f401a0befe5ae9c0c90d8753173335dab63677a1f75",
+      "bytes": 7391,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 7391,
+      "original_sha256": "d3bf4e6d9baf4ca7e99a3f401a0befe5ae9c0c90d8753173335dab63677a1f75",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/037-fetch-direct-logs-receipts.json",
+      "sha256": "b18a55b9b31b34d5461bace46b31b02207bcf5e78faec06e62f4993fb1e73319",
+      "bytes": 2822,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2822,
+      "original_sha256": "b18a55b9b31b34d5461bace46b31b02207bcf5e78faec06e62f4993fb1e73319",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/038-fetch-runzip-receipts.json",
+      "sha256": "6902a2823bb619df8404440c89baea1d05fa512aec96cfe68bbafad3da34be07",
+      "bytes": 8282,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 8282,
+      "original_sha256": "6902a2823bb619df8404440c89baea1d05fa512aec96cfe68bbafad3da34be07",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/039-fetch-identity-receipts.json",
+      "sha256": "3c6a6964eab19dc7ba4a0166e202a34beb244619271de2b765ebe49a95c7ddac",
+      "bytes": 3255,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3255,
+      "original_sha256": "3c6a6964eab19dc7ba4a0166e202a34beb244619271de2b765ebe49a95c7ddac",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/040-fetch-main-c40-receipts.json",
+      "sha256": "6155e42bbd1aaf5bb307ec7e52379c78661875e20cd23829f59f23cb4865b5b4",
+      "bytes": 1984,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 1984,
+      "original_sha256": "6155e42bbd1aaf5bb307ec7e52379c78661875e20cd23829f59f23cb4865b5b4",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/001-F-docs-pr15-native-job-log.txt.json",
+      "sha256": "627e1e4087f7bb963e8202bb59faf19bbc273c0b6dfa7a564132e40244f79caa",
+      "bytes": 47918,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 46889,
+      "original_sha256": "fdcd7e97f251b02ba69c2289ab88c0292b35826c8df13eab80706523aec565a4",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/002-F-docs-pr15-job-111800440136.json",
+      "sha256": "a9cb89dbc89169dce393f74265fea0ae1905c2242044caa2d057566443e2f4aa",
+      "bytes": 3270,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3270,
+      "original_sha256": "a9cb89dbc89169dce393f74265fea0ae1905c2242044caa2d057566443e2f4aa",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/003-F-docs-pr18-native-job-log.txt.json",
+      "sha256": "d5e3dbeef41ba0855ea93c33c302ac67b9ab9cf2c3cf41ec82fc168376d64475",
+      "bytes": 49455,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 48416,
+      "original_sha256": "dfe9383201a417165216d01b6dbb9cf4d7e9fb7515e81fd7580babfee7a2461f",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/004-F-docs-pr18-job-111802572067.json",
+      "sha256": "845021d783d4c6fa2400331376a30a876b1ee26116584680bc810491f21adb11",
+      "bytes": 3264,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3264,
+      "original_sha256": "845021d783d4c6fa2400331376a30a876b1ee26116584680bc810491f21adb11",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/005-F-docs-pr19-native-job-log.txt.json",
+      "sha256": "c3df75fc8ed2d2865b06ad54e9f0121c9dbff77bac8a724257a519db667559a9",
+      "bytes": 49299,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 48261,
+      "original_sha256": "775e25b69ee65d2a0b371c69309d2f9267770de3b75f970958e5b7416acc4bf0",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/006-F-docs-pr19-job-111802631444.json",
+      "sha256": "46aab18a9da27b2987daf13166788fceb72d24bbc9ca84b6d999bc756356d05c",
+      "bytes": 3271,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3271,
+      "original_sha256": "46aab18a9da27b2987daf13166788fceb72d24bbc9ca84b6d999bc756356d05c",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/007-F-docs-pr20-native-job-log.txt.json",
+      "sha256": "10e63d2ce29067b0fc0be97aeabef1fe3fadbcffc2d41eccdafd69c61db77038",
+      "bytes": 51200,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 50146,
+      "original_sha256": "a2a780ad1d4875c8f00960a2e18f730b0ace0ef542ba203dab4e93a979150370",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/008-F-docs-pr20-job-111811930974.json",
+      "sha256": "b7ec6fee5695eefddc0585324550e7673446a1b3340f8c8299a8c996bc1fb5fd",
+      "bytes": 3268,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3268,
+      "original_sha256": "b7ec6fee5695eefddc0585324550e7673446a1b3340f8c8299a8c996bc1fb5fd",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/009-F-docs-ci-semantic-summary.json",
+      "sha256": "040715ca5bbe071ef7dffa1b6dc206a7d796a5281eb8f5419c60be318512bf16",
+      "bytes": 17752,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 17752,
+      "original_sha256": "040715ca5bbe071ef7dffa1b6dc206a7d796a5281eb8f5419c60be318512bf16",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/010-F-docs-ci-checkout-merges.json",
+      "sha256": "d0dd0823bda96cd0bfb764a04bf2bf1e75e7f9f9c311181a2c4303513a218da3",
+      "bytes": 2455,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 2455,
+      "original_sha256": "d0dd0823bda96cd0bfb764a04bf2bf1e75e7f9f9c311181a2c4303513a218da3",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/011-F-docs-ci-jobs.json",
+      "sha256": "4a5df4553e1b6de5741de70f9353c1f0175cc7b36d44a2feebfa5a81ebd2cd12",
+      "bytes": 16402,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 16402,
+      "original_sha256": "4a5df4553e1b6de5741de70f9353c1f0175cc7b36d44a2feebfa5a81ebd2cd12",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/012-F-docs-ci-evidence.py.json",
+      "sha256": "e068c8f91b7690cb6e3626c03473124a8d3d05530b3345e40e59f97ddc1a32d2",
+      "bytes": 5839,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 5521,
+      "original_sha256": "83fd5275d05aedbd037d552c143461900a6a8ca0a6739c9eb586d5b7a9ddda2f",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/013-F-docs-base-freshness-native-replay.txt.json",
+      "sha256": "177fe6db8878b9effad83a1dc24942192c5e7c85ba270035f180b5f2b8360660",
+      "bytes": 964,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 701,
+      "original_sha256": "5672a3eb6ff381dfb59ebac2e8cfafb988f16d9ef3b14d60e432712e49427d85",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/014-F-docs-base-freshness-native-replay.json",
+      "sha256": "1b8f3f5be3b0aa7e11c7c3117e079345eabfa857ad83d234642480151f210f10",
+      "bytes": 1004,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 1004,
+      "original_sha256": "1b8f3f5be3b0aa7e11c7c3117e079345eabfa857ad83d234642480151f210f10",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/015-F-docs-base-replay.py.json",
+      "sha256": "043186ff27cb8aba48c639bcd7150cfe2587328fe97796ce1e1b2069f6984af1",
+      "bytes": 2398,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 2121,
+      "original_sha256": "26ee8af0712999eb60c01db2886a9ee7681b741141c11b69fef4ea73723c18c8",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/016-F-docs-base-accuracy-full.txt.json",
+      "sha256": "51387616ed3a24a453efb79b0898326a48fe4fb2c970eba1b9db1812d6c92794",
+      "bytes": 2833,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 2589,
+      "original_sha256": "459cc4ff53c6dcb5cb8444e1bc22c715583f3a69411870176a6bf06bafcdb6be",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/017-F-docs-freshness-denominator.json",
+      "sha256": "13f176162073ca31be74c0bb17d11a170ef73fba2ac266603313ca877e8e54eb",
+      "bytes": 347426,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 347426,
+      "original_sha256": "13f176162073ca31be74c0bb17d11a170ef73fba2ac266603313ca877e8e54eb",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/018-F-docs-freshness-denominator.py.json",
+      "sha256": "6a451abdbd2a87cf7c7b63b3fc965780e30a2a0955f85b8edef29eae207d4480",
+      "bytes": 8644,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 8224,
+      "original_sha256": "82746efac4833b412d381530f122a29bf595f3d3afa98ff148721fdff54e4d46",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/019-F-docs-freshness-bounded-provenance.json",
+      "sha256": "07c9de3da831a5472eb251ecb1f41442eb3a455040e37b44915e8d9342e760ec",
+      "bytes": 5902,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 5902,
+      "original_sha256": "07c9de3da831a5472eb251ecb1f41442eb3a455040e37b44915e8d9342e760ec",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/020-F-docs-cau-independent-review.json",
+      "sha256": "1dd10e413808c8e3e972f18861d4455b96384fe1c592b549cae20efef2f7cb21",
+      "bytes": 12232,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 12232,
+      "original_sha256": "1dd10e413808c8e3e972f18861d4455b96384fe1c592b549cae20efef2f7cb21",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/021-F-docs-cau-independent-after-native.txt.json",
+      "sha256": "169c2ad6ab2360202a35e87680df655018ca1cbc58a7583d65287f8d47fdae50",
+      "bytes": 1793,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 1511,
+      "original_sha256": "57679fb3c7e2f303dd4c9076f0fd493dc872667cf2c0becdaf9305a22e841f34",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/022-F-docs-api-independent-review.json",
+      "sha256": "95680d0c33dbd009914dd4ff60b32e798b1afbf7f9b4bead7cd6322ec0f2d491",
+      "bytes": 15988,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 15988,
+      "original_sha256": "95680d0c33dbd009914dd4ff60b32e798b1afbf7f9b4bead7cd6322ec0f2d491",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/023-F-docs-api-independent-after-native.txt.json",
+      "sha256": "e94ce9344f037713c77e53d8156ed5c65a779f04442a06e4e8cf8696b5717902",
+      "bytes": 1757,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 1475,
+      "original_sha256": "9328d6b96467793b7ed817cb1e6f859ff2235567921555ba1bb5d6a5a5742efe",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/024-F-docs-independent-review.py.json",
+      "sha256": "ddefdab0550d35a95ba17cb4b027528964be47ccc25260c76ecd327a06878396",
+      "bytes": 5008,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 4686,
+      "original_sha256": "9c25523267b6b7b3b189cbe1ad8ff02bcfb2267f5f64655085f3b691817dc345",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/025-F-docs-publication-independent-control.json",
+      "sha256": "00df6f5e10815b63442327b92aeeca9d4cb3eecec35858036b1165d5387d9da3",
+      "bytes": 10996,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 10996,
+      "original_sha256": "00df6f5e10815b63442327b92aeeca9d4cb3eecec35858036b1165d5387d9da3",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/001-cau-ci-python-quality-triage.json",
+      "sha256": "3fc6330cc8783e56e0233b350a3be138b5ebc7505c87a6811af565551d41cf4d",
+      "bytes": 55785,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 55785,
+      "original_sha256": "3fc6330cc8783e56e0233b350a3be138b5ebc7505c87a6811af565551d41cf4d",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/002-cau-ci-pr15-python-complete.log.json",
+      "sha256": "c2c3a074452d7d0eb54cc18e2e4a782cc81a536d23707dbfec0a6efd1e356be1",
+      "bytes": 46941,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 45955,
+      "original_sha256": "0254638268b4e4aa916b2552f3b0bcdb026056a6a8d0660842b3f41d502df167",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/003-cau-ci-pr15-python-job.json",
+      "sha256": "22daab23f7129f1869139d53191752d63176d39b2080a6b028d7cce6e15fce54",
+      "bytes": 4295,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 4295,
+      "original_sha256": "22daab23f7129f1869139d53191752d63176d39b2080a6b028d7cce6e15fce54",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/004-cau-ci-pr15-python-run.json",
+      "sha256": "d6fa30e3f8bc2293f1d3a1eb27f385a502aaf4848fe0b0dcf058775cba3cb018",
+      "bytes": 12885,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 12885,
+      "original_sha256": "d6fa30e3f8bc2293f1d3a1eb27f385a502aaf4848fe0b0dcf058775cba3cb018",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/005-cau-ci-pr15-python-check.json",
+      "sha256": "6dec18c6523234c9d708c235e75c1afece46b46b4d1806174a358e2919da9a42",
+      "bytes": 3547,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3547,
+      "original_sha256": "6dec18c6523234c9d708c235e75c1afece46b46b4d1806174a358e2919da9a42",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/006-cau-ci-pr15-python-annotations.json",
+      "sha256": "e080dc731afd9b4d292d84e679c1dd11212491c136b7f1cb6f678c24d4d4b2fb",
+      "bytes": 1337,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 1337,
+      "original_sha256": "e080dc731afd9b4d292d84e679c1dd11212491c136b7f1cb6f678c24d4d4b2fb",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/007-policy-engine__architecture__imports__policy.toml.json",
+      "sha256": "86d7a6a20ebdd3633c6b6d4d52dc8fcc208ed58856c2ba917f716f0cd4526010",
+      "bytes": 4212,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 3465,
+      "original_sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/008-policy-engine__architecture__packages__boundaries.toml.json",
+      "sha256": "687b3a42e9f07cfbb15c7a49baad5f354cf6043990b9620199717195e34c0d82",
+      "bytes": 10766,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 9655,
+      "original_sha256": "e822643497f797aeec90979b6658234e704c5c2f05e8c341352acede3c9a3bbf",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/009-policy-engine__architecture__imports__exceptions.toml.json",
+      "sha256": "8c150990751582d5fe5c87187947a643b75942de50705bce12b51880dad14906",
+      "bytes": 11796,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 11017,
+      "original_sha256": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/010-policy-engine__tools__quality__lint__lint_imports.py.json",
+      "sha256": "62446d846a8563112aab225a1d13ac549191e5d70cf4bf650eea9654d47165e4",
+      "bytes": 66005,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 63190,
+      "original_sha256": "199041448fbd4d5fd7b5b7a188d62a561bc9dd120ee13f129498dbeadc8b2af8",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/011-policy-engine__tools__lib____init__.py.json",
+      "sha256": "fc0ddcd48e4f57ff4333d70b3e78c4a50a4c4c84435681416dabc0b572760706",
+      "bytes": 2701,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 2284,
+      "original_sha256": "98a4ac5172a956abac2586bfeb819f86d3d64e09eef960d26d9263e12bf80035",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/012-policy-engine__tools__lib__cache.py.json",
+      "sha256": "31dbefa96c7e565fde971b430607a52bcf5554c8f01330433b033a0d8a016330",
+      "bytes": 8897,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 8186,
+      "original_sha256": "96b787ab64110c930db58f18dc60cfd20a7c899137fecb92fe8d6416801b87a1",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/013-policy-engine__tools__lib__fs.py.json",
+      "sha256": "414e34d3f195fea5bcc0ec9489800ef90cc67cebcf7a520879b67c2f1cd2df86",
+      "bytes": 14032,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 13108,
+      "original_sha256": "d0ec5e12b7762027051614290cf4e21b09dc3602e371a040f9d7ffcd38a8193f",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/014-policy-engine__tools__lib__imports.py.json",
+      "sha256": "a8e6fe9e5a144efeb6bd5de6bbc452ba520b81067b33fc7321467239bddaefee",
+      "bytes": 1952,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 1623,
+      "original_sha256": "f04010c5a61accc638d01ffcb0eceb788730eea4b1d74d015eadeed413951f95",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/015-policy-engine__tools__lib__output.py.json",
+      "sha256": "427b6e71d019392bf9a2281277b9925f9cdd3d1bb5111cbfa3e844f28a9438de",
+      "bytes": 7143,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 6514,
+      "original_sha256": "6c86cefdfdc54962ab851d87adbfbad6e682e33cbff6fbb90858fca70cac8a16",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/016-.github__workflows__abi.yml.json",
+      "sha256": "15f21641410ea814b9642e6756a72464cc75680654994e479fe845e7148fb0a7",
+      "bytes": 13776,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 13097,
+      "original_sha256": "efa0bf5c6fa830d524cfa3e28ce4a43933f12b858041de08de612b0cb3369519",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/017-.github__actions__setup-policy-engine-python__action.yml.json",
+      "sha256": "3e682fa4df8507c639ad34ec15af8287768141eeb403a28a837e4afe43a3876e",
+      "bytes": 2306,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 1963,
+      "original_sha256": "32958e0c11c8e6a1ccf5118a2c72ec86db5d16a33428e24989f2fdb6a13e7c62",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/018-policy-engine__pyproject.toml.json",
+      "sha256": "1044b7a8abbff8d856134e3737b7f53176bf2653b1110bd01f63982bba16a680",
+      "bytes": 12046,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 11007,
+      "original_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/019-policy-engine__uv.lock.json",
+      "sha256": "dc6dcaf620163f654c7fa3fb294ef071ab0b4fd4817ebd25431a3297e44fccbc",
+      "bytes": 805146,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 779204,
+      "original_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/020-pr15-complete-denominator.json",
+      "sha256": "80fa4b2e40412e62ec3e036c91e7609a393a85b7a33dd1ca42ff7c4ae1a130f6",
+      "bytes": 621522,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 621522,
+      "original_sha256": "80fa4b2e40412e62ec3e036c91e7609a393a85b7a33dd1ca42ff7c4ae1a130f6",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/021-cau-ci-pr18-python-complete.log.json",
+      "sha256": "fbd497d782c4c80b9ee7f10c5956c308927a41e86315063126f0e5bfe5750715",
+      "bytes": 45789,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 44821,
+      "original_sha256": "c95f6c1dcb5159326e85b8084faa5e682b76ee82d30eb739ed191d61d2ba0843",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/022-cau-ci-pr18-python-job.json",
+      "sha256": "0d418d463da656a77519114b15b69296c70410648dcc3d385e3175b1e7db25e0",
+      "bytes": 4289,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 4289,
+      "original_sha256": "0d418d463da656a77519114b15b69296c70410648dcc3d385e3175b1e7db25e0",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/023-cau-ci-pr18-python-run.json",
+      "sha256": "39e39ef5326cb841e126f61068b95154851aa42d96232f16415455bd230367a1",
+      "bytes": 12845,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 12845,
+      "original_sha256": "39e39ef5326cb841e126f61068b95154851aa42d96232f16415455bd230367a1",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/024-cau-ci-pr18-python-check.json",
+      "sha256": "70e873e0ab69a4aaa79ac37e1850f71028137599392ab51b6e8a7bc1bc894dd8",
+      "bytes": 3541,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3541,
+      "original_sha256": "70e873e0ab69a4aaa79ac37e1850f71028137599392ab51b6e8a7bc1bc894dd8",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/025-cau-ci-pr18-python-annotations.json",
+      "sha256": "8a7f69aaf425aa70fe8684c6d596e2e4321bf4037f6a18bd2bfb258a63d0c09c",
+      "bytes": 1337,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 1337,
+      "original_sha256": "8a7f69aaf425aa70fe8684c6d596e2e4321bf4037f6a18bd2bfb258a63d0c09c",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/026-pr18-complete-denominator.json",
+      "sha256": "757089219b7611deb0671eea26e8597accc9b831e537367b8e2c8530334ee935",
+      "bytes": 621522,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 621522,
+      "original_sha256": "757089219b7611deb0671eea26e8597accc9b831e537367b8e2c8530334ee935",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/027-cau-ci-pr19-python-complete.log.json",
+      "sha256": "c0d3b5031a86edcc63fa2f840a0330f07a389a45e11d24375d9e533ede2c4a01",
+      "bytes": 46941,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 45955,
+      "original_sha256": "db5bdb94c2f9a4bae0b7337629fcaecdfc51a64f46c1ad4fe9f4d4f482c3faa8",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/028-cau-ci-pr19-python-job.json",
+      "sha256": "de7150309a4bfc281010cd82ceacf7d3ecb1ab3d335ece478821e1911eee1a68",
+      "bytes": 4296,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 4296,
+      "original_sha256": "de7150309a4bfc281010cd82ceacf7d3ecb1ab3d335ece478821e1911eee1a68",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/029-cau-ci-pr19-python-run.json",
+      "sha256": "dc3a38483cd12420f39ee1e8c9c22c1bb5081b8ecdab1579b5a60a3cb8cc59d5",
+      "bytes": 12863,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 12863,
+      "original_sha256": "dc3a38483cd12420f39ee1e8c9c22c1bb5081b8ecdab1579b5a60a3cb8cc59d5",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/030-cau-ci-pr19-python-check.json",
+      "sha256": "f985784efbf64cae021e56691bacc15b87b9a81c356259770b3c8c8d3fd0a150",
+      "bytes": 3548,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3548,
+      "original_sha256": "f985784efbf64cae021e56691bacc15b87b9a81c356259770b3c8c8d3fd0a150",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/031-cau-ci-pr19-python-annotations.json",
+      "sha256": "2e6455dc02a865fdc756b34464aa15ef4f987f8318fb81ea73bdcf6bc87cc56c",
+      "bytes": 1337,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 1337,
+      "original_sha256": "2e6455dc02a865fdc756b34464aa15ef4f987f8318fb81ea73bdcf6bc87cc56c",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/032-pr19-complete-denominator.json",
+      "sha256": "87c7b66a83ddcfdf4ad29f2a1e8e2d8121c73c5b111368c7d082b3d7a5e5ce5f",
+      "bytes": 621522,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 621522,
+      "original_sha256": "87c7b66a83ddcfdf4ad29f2a1e8e2d8121c73c5b111368c7d082b3d7a5e5ce5f",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/033-cau-ci-pr20-python-complete.log.json",
+      "sha256": "5b40341f11a9619b54abe0d60495de0ae998563507992aac515b517d7790e89b",
+      "bytes": 46945,
+      "encoding": "lossless UTF-8 text in JSON content; decode content.encode(utf-8)",
+      "original_bytes": 45959,
+      "original_sha256": "4e4b6d424c205d201bc6011992e9d41453e5935a81dd7ecac53c04d1a55d29a3",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/034-cau-ci-pr20-python-job.json",
+      "sha256": "8ce67890ad8f9f933ca0b449bfcb16bb46226057cf361ff2e83eea3a9f76e415",
+      "bytes": 4293,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 4293,
+      "original_sha256": "8ce67890ad8f9f933ca0b449bfcb16bb46226057cf361ff2e83eea3a9f76e415",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/035-cau-ci-pr20-python-run.json",
+      "sha256": "949ad1a5c7abd040286882b1d7b8d57c7f89331b3f0d2fb38b98ef291343744d",
+      "bytes": 12862,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 12862,
+      "original_sha256": "949ad1a5c7abd040286882b1d7b8d57c7f89331b3f0d2fb38b98ef291343744d",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/036-cau-ci-pr20-python-check.json",
+      "sha256": "6d5a39c522479e5f09b25a57ad6762ccfbb215a7eb3d951fd8a195328d9860c1",
+      "bytes": 3545,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3545,
+      "original_sha256": "6d5a39c522479e5f09b25a57ad6762ccfbb215a7eb3d951fd8a195328d9860c1",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/037-cau-ci-pr20-python-annotations.json",
+      "sha256": "c08598cc1e63c4be48382d08d14066b38d2e82a1e8d5a30798427efc26a6b3fd",
+      "bytes": 1337,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 1337,
+      "original_sha256": "c08598cc1e63c4be48382d08d14066b38d2e82a1e8d5a30798427efc26a6b3fd",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/038-pr20-complete-denominator.json",
+      "sha256": "7e97ad4f54e2eb30402304a072a5ea1ddcddd489e5f3a36fa9e9ea4f3cebcbd5",
+      "bytes": 621522,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 621522,
+      "original_sha256": "7e97ad4f54e2eb30402304a072a5ea1ddcddd489e5f3a36fa9e9ea4f3cebcbd5",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/G-observed/checkpoint-03.json",
+      "sha256": "f47ebbc9e8326b0d492b6dfb09310490eb19d81750a4e44a2466bd805e1ec49c",
+      "bytes": 3188,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 3188,
+      "original_sha256": "f47ebbc9e8326b0d492b6dfb09310490eb19d81750a4e44a2466bd805e1ec49c",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/G-observed/f-api.json",
+      "sha256": "a495416eac8df093d17e229798518aee9cc57566b6a13eedde8e0c0ad6c1ef0c",
+      "bytes": 4704,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 4704,
+      "original_sha256": "a495416eac8df093d17e229798518aee9cc57566b6a13eedde8e0c0ad6c1ef0c",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/canary/selection.json",
+      "sha256": "18b34adbf2be1ffd2ebfff41fd2aa5c15f6a7977319d456cbd8316332eb71c69",
+      "bytes": 14847,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 14847,
+      "original_sha256": "18b34adbf2be1ffd2ebfff41fd2aa5c15f6a7977319d456cbd8316332eb71c69",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/economics/selection.json",
+      "sha256": "75bf1d4ccf11ce2eefd28f7d08a553859b65488cae97cb33a3434c4905f774b0",
+      "bytes": 106848,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 106848,
+      "original_sha256": "75bf1d4ccf11ce2eefd28f7d08a553859b65488cae97cb33a3434c4905f774b0",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/schema/selection.json",
+      "sha256": "38c88f5d0b7ac955e4ab3e320d4679c2fa420635e97d26bf38b7f82587019402",
+      "bytes": 17668,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 17668,
+      "original_sha256": "38c88f5d0b7ac955e4ab3e320d4679c2fa420635e97d26bf38b7f82587019402",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/docs/selection.json",
+      "sha256": "3ffe033cb89b496bc1c95b2ef38fc065af7d7cf993a28a6c7cdb5c12a4e0c1a3",
+      "bytes": 22879,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 22879,
+      "original_sha256": "3ffe033cb89b496bc1c95b2ef38fc065af7d7cf993a28a6c7cdb5c12a4e0c1a3",
+      "sanitation": "none added by root"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/ci-evidence/python/selection.json",
+      "sha256": "a3cc34db2b15979251583f774a749d4fa1189b20e15f2f0093df740e8138f073",
+      "bytes": 42928,
+      "encoding": "original complete UTF-8 JSON bytes",
+      "original_bytes": 42928,
+      "original_sha256": "a3cc34db2b15979251583f774a749d4fa1189b20e15f2f0093df740e8138f073",
+      "sanitation": "none added by root"
+    }
+  ],
+  "CI_cluster_outcomes": {
+    "python": "4actual jobsFAIL at import policy; downstream pytestSKIP, not method PASS",
+    "docs": "4historical jobsFAIL; ownCAU/API companion fixed independently; newdoc fullnativeFAILfreshness10, strictbuildUNRUN",
+    "canary": "13completed actual childrunsFAIL preapplication identity admission; no runtime launch/backend witness",
+    "schema": "actual c40/PR15 paired snapshotFAIL; API comparisonSKIP; PR18/19payloadnot_established; native9sameFAIL lacks blanketdisjointness",
+    "economics_frontend": "13deciding jobsFAIL: missingcatalogfixture, existingOpenAPIdependencyreceipt drift, locale/CASassertions, missingJUnit/directoryhealth; no Fregression exclusion",
+    "new_doc_and_delivery_heads": "CIpending/not_established at frozen snapshot"
+  },
+  "receipt_metadata_correction": {
+    "branch": "codex/e02-F-causal-api",
+    "previous_head": "6ebc4bf62c04d1f5f068bcef736099f0280ea3c0",
+    "current_head": "0b6d872d8a681b1725abb5e2e3f57f9668e31c69",
+    "scope": "Single receipt outcome normalization to canonical PASS with separate bounded predicate scope; actual fullDocsGate FAIL preserved, implementation/source/evidence hashes unchanged; earlier independent6eb audit retained at its actual SHA."
+  }
+}

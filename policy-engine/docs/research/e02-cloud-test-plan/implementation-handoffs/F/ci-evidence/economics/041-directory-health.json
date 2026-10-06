@@ -1,0 +1,1367 @@
+{
+  "complete_verdict": true,
+  "contract": "architecture/policies/directory_health.toml",
+  "contract_error_count": 0,
+  "contract_errors": [],
+  "dashboard": {
+    "asset_counts": {
+      "examples_tutorial_assets": 45,
+      "golden_records": 19,
+      "product_seed_assets": 15,
+      "test_fixtures": 412
+    },
+    "empty_directories_outside_ignored_roots": [],
+    "high_volume_subtrees": [
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "apps",
+        "tracked_file_count": 1345
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 6,
+        "path": "apps/runtime-dashboard",
+        "tracked_file_count": 1334
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 9,
+        "path": "apps/runtime-dashboard/e2e",
+        "tracked_file_count": 63
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots",
+        "tracked_file_count": 23
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "apps/runtime-dashboard/public",
+        "tracked_file_count": 21
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "apps/runtime-dashboard/scripts",
+        "tracked_file_count": 28
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 7,
+        "path": "apps/runtime-dashboard/src",
+        "tracked_file_count": 1180
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "apps/runtime-dashboard/src/api",
+        "tracked_file_count": 82
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 9,
+        "path": "apps/runtime-dashboard/src/app",
+        "tracked_file_count": 106
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 15,
+        "path": "apps/runtime-dashboard/src/features",
+        "tracked_file_count": 462
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 10,
+        "path": "apps/runtime-dashboard/src/shared",
+        "tracked_file_count": 436
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 5,
+        "path": "apps/runtime-dashboard/src/test",
+        "tracked_file_count": 76
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 12,
+        "path": "architecture",
+        "tracked_file_count": 733
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "architecture/atlas_surfaces",
+        "tracked_file_count": 37
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 6,
+        "path": "architecture/baselines",
+        "tracked_file_count": 33
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "architecture/baselines/structure_remediation",
+        "tracked_file_count": 20
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "architecture/packages",
+        "tracked_file_count": 22
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 7,
+        "path": "architecture/policy_design_case",
+        "tracked_file_count": 535
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "architecture/policy_design_case/layer3_gx_reports",
+        "tracked_file_count": 43
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe",
+        "tracked_file_count": 21
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022",
+        "tracked_file_count": 21
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "architecture/policy_design_case/layer3_gy_acquisition_cas",
+        "tracked_file_count": 24
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts",
+        "tracked_file_count": 23
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "architecture/policy_design_case/layer3_gy_task0_audit",
+        "tracked_file_count": 36
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "architecture/tooling",
+        "tracked_file_count": 35
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 29,
+        "path": "benchmarks",
+        "tracked_file_count": 159
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 20,
+        "path": "docs",
+        "tracked_file_count": 3844
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "docs/adr",
+        "tracked_file_count": 198
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "docs/archive",
+        "tracked_file_count": 77
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "docs/archive/reports",
+        "tracked_file_count": 74
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "docs/brand",
+        "tracked_file_count": 24
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "docs/how-to",
+        "tracked_file_count": 31
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "docs/plans",
+        "tracked_file_count": 403
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "docs/plans/active",
+        "tracked_file_count": 363
+      },
+      {
+        "documented": false,
+        "immediate_child_directory_count": 2,
+        "path": "docs/plans/active/agent-packages",
+        "tracked_file_count": 239
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "docs/plans/active/atlas-slices",
+        "tracked_file_count": 61
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "docs/plans/archive",
+        "tracked_file_count": 28
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 10,
+        "path": "docs/reference",
+        "tracked_file_count": 189
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "docs/reference/scientist",
+        "tracked_file_count": 44
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "docs/research",
+        "tracked_file_count": 454
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 5,
+        "path": "docs/research/e02-cloud-test-plan",
+        "tracked_file_count": 56
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "docs/research/e02-cloud-test-plan/results",
+        "tracked_file_count": 27
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 22,
+        "path": "docs/research/policy-operations",
+        "tracked_file_count": 343
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 26,
+        "path": "docs/research/policy-operations/audits",
+        "tracked_file_count": 148
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 5,
+        "path": "docs/research/policy-operations/consolidation",
+        "tracked_file_count": 36
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "docs/research/universal-policy-design",
+        "tracked_file_count": 32
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "docs/research/universal-policy-design/outcome-corpus",
+        "tracked_file_count": 30
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "docs/runbooks",
+        "tracked_file_count": 27
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 5,
+        "path": "docs/superpowers",
+        "tracked_file_count": 2348
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 17,
+        "path": "docs/superpowers/journals",
+        "tracked_file_count": 2251
+      },
+      {
+        "documented": false,
+        "immediate_child_directory_count": 3,
+        "path": "docs/superpowers/journals/acquisition-movement",
+        "tracked_file_count": 20
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 6,
+        "path": "docs/superpowers/journals/corr-evidence",
+        "tracked_file_count": 947
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "docs/superpowers/journals/gy-builders",
+        "tracked_file_count": 71
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 8,
+        "path": "docs/superpowers/journals/gy-eight-gaps-evidence",
+        "tracked_file_count": 581
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "docs/superpowers/journals/gy-phase5-evidence",
+        "tracked_file_count": 426
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "docs/superpowers/journals/receipts",
+        "tracked_file_count": 39
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "docs/superpowers/plans",
+        "tracked_file_count": 39
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "docs/superpowers/specs",
+        "tracked_file_count": 47
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "docs/system-design-decisions",
+        "tracked_file_count": 20
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "examples",
+        "tracked_file_count": 45
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 7,
+        "path": "examples/extensions",
+        "tracked_file_count": 42
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 11,
+        "path": "ops",
+        "tracked_file_count": 270
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "ops/cloud",
+        "tracked_file_count": 57
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "ops/cloud/helm",
+        "tracked_file_count": 40
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "ops/cloud/helm/polisyos-cell",
+        "tracked_file_count": 22
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 14,
+        "path": "ops/components",
+        "tracked_file_count": 100
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "ops/migrations",
+        "tracked_file_count": 28
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 17,
+        "path": "ops/migrations/runtime_state",
+        "tracked_file_count": 18
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "ops/observability",
+        "tracked_file_count": 34
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "packages",
+        "tracked_file_count": 109
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "packages/atlas-ui",
+        "tracked_file_count": 80
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 6,
+        "path": "packages/atlas-ui/src",
+        "tracked_file_count": 41
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "packages/atlas-ui/src/primitives",
+        "tracked_file_count": 27
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "packages/atlas-ui/tests",
+        "tracked_file_count": 21
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "release-fragments",
+        "tracked_file_count": 77
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "release-fragments/unreleased",
+        "tracked_file_count": 75
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 10,
+        "path": "schemas",
+        "tracked_file_count": 157
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "schemas/snapshots",
+        "tracked_file_count": 113
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "schemas/snapshots/ir",
+        "tracked_file_count": 103
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "src",
+        "tracked_file_count": 2909
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 25,
+        "path": "src/polisyos",
+        "tracked_file_count": 2908
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "src/polisyos/berl",
+        "tracked_file_count": 33
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 20,
+        "path": "src/polisyos/core",
+        "tracked_file_count": 217
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "src/polisyos/core/artifacts",
+        "tracked_file_count": 33
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "src/polisyos/core/contracts",
+        "tracked_file_count": 40
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "src/polisyos/core/security",
+        "tracked_file_count": 36
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 5,
+        "path": "src/polisyos/data_forge",
+        "tracked_file_count": 314
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "src/polisyos/data_forge/domains",
+        "tracked_file_count": 253
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 7,
+        "path": "src/polisyos/data_forge/kernel",
+        "tracked_file_count": 42
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 5,
+        "path": "src/polisyos/ddm",
+        "tracked_file_count": 35
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 24,
+        "path": "src/polisyos/fabric",
+        "tracked_file_count": 323
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "src/polisyos/fabric/claims",
+        "tracked_file_count": 24
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 14,
+        "path": "src/polisyos/fabric/connectors",
+        "tracked_file_count": 153
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "src/polisyos/fabric/world",
+        "tracked_file_count": 26
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 19,
+        "path": "src/polisyos/foundry",
+        "tracked_file_count": 641
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "src/polisyos/foundry/agent_sim",
+        "tracked_file_count": 81
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 15,
+        "path": "src/polisyos/foundry/methods",
+        "tracked_file_count": 425
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 17,
+        "path": "src/polisyos/ir",
+        "tracked_file_count": 208
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "src/polisyos/ir/analytics",
+        "tracked_file_count": 97
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 5,
+        "path": "src/polisyos/lex",
+        "tracked_file_count": 53
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "src/polisyos/runtime",
+        "tracked_file_count": 324
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "src/polisyos/runtime/http",
+        "tracked_file_count": 122
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "src/polisyos/runtime/quality",
+        "tracked_file_count": 194
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "src/polisyos/scholar",
+        "tracked_file_count": 32
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 19,
+        "path": "src/polisyos/scientist",
+        "tracked_file_count": 635
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "src/polisyos/scientist/agent",
+        "tracked_file_count": 60
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "src/polisyos/scientist/evidence",
+        "tracked_file_count": 29
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "src/polisyos/scientist/governance",
+        "tracked_file_count": 79
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 7,
+        "path": "src/polisyos/scientist/methods",
+        "tracked_file_count": 161
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "src/polisyos/scientist/nodes",
+        "tracked_file_count": 78
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 6,
+        "path": "src/polisyos/scientist/orchestration",
+        "tracked_file_count": 115
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "src/polisyos/scientist/policy_design",
+        "tracked_file_count": 27
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "src/polisyos/scientist/validation",
+        "tracked_file_count": 21
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 14,
+        "path": "tests",
+        "tracked_file_count": 3271
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 8,
+        "path": "tests/_data",
+        "tracked_file_count": 106
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "tests/_data/data_forge",
+        "tracked_file_count": 58
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "tests/_data/data_forge/non_lex_split",
+        "tracked_file_count": 25
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "tests/_data/fabric",
+        "tracked_file_count": 33
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "tests/_data/fabric/shared",
+        "tracked_file_count": 21
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/_helpers",
+        "tracked_file_count": 24
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/contract",
+        "tracked_file_count": 22
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 10,
+        "path": "tests/fixtures",
+        "tracked_file_count": 290
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 12,
+        "path": "tests/fixtures/layer2",
+        "tracked_file_count": 124
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "tests/fixtures/layer2/s14",
+        "tracked_file_count": 28
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 5,
+        "path": "tests/fixtures/layer3",
+        "tracked_file_count": 66
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/fixtures/layer3/g0",
+        "tracked_file_count": 21
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/fixtures/layer3/g1",
+        "tracked_file_count": 23
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 10,
+        "path": "tests/fixtures/policy_design_case",
+        "tracked_file_count": 46
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "tests/fixtures/universal-corpus",
+        "tracked_file_count": 28
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 12,
+        "path": "tests/integration",
+        "tracked_file_count": 38
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 8,
+        "path": "tests/property",
+        "tracked_file_count": 43
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "tests/property/foundry",
+        "tracked_file_count": 31
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "tests/property/foundry/methods",
+        "tracked_file_count": 27
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 5,
+        "path": "tests/repo_quality",
+        "tracked_file_count": 331
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "tests/repo_quality/architecture",
+        "tracked_file_count": 55
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "tests/repo_quality/tools",
+        "tracked_file_count": 262
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 27,
+        "path": "tests/unit",
+        "tracked_file_count": 2376
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 8,
+        "path": "tests/unit/core",
+        "tracked_file_count": 130
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/unit/core/mirror_contracts",
+        "tracked_file_count": 32
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/unit/core/phase0",
+        "tracked_file_count": 26
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/unit/core/security",
+        "tracked_file_count": 27
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 5,
+        "path": "tests/unit/data_forge",
+        "tracked_file_count": 207
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "tests/unit/data_forge/domains",
+        "tracked_file_count": 112
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/unit/data_forge/legal_batch",
+        "tracked_file_count": 40
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/unit/data_forge/mirror_contracts",
+        "tracked_file_count": 27
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 7,
+        "path": "tests/unit/fabric",
+        "tracked_file_count": 189
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 5,
+        "path": "tests/unit/fabric/connectors",
+        "tracked_file_count": 42
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/unit/fabric/mirror_contracts",
+        "tracked_file_count": 64
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 20,
+        "path": "tests/unit/foundry",
+        "tracked_file_count": 519
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "tests/unit/foundry/agent_sim",
+        "tracked_file_count": 25
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/unit/foundry/calibration",
+        "tracked_file_count": 20
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "tests/unit/foundry/methods",
+        "tracked_file_count": 271
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/unit/foundry/mirror_contracts",
+        "tracked_file_count": 87
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/unit/foundry/runtime",
+        "tracked_file_count": 21
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 5,
+        "path": "tests/unit/ir",
+        "tracked_file_count": 172
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/unit/ir/analytics",
+        "tracked_file_count": 49
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/unit/ir/mirror_contracts",
+        "tracked_file_count": 65
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "tests/unit/lex",
+        "tracked_file_count": 28
+      },
+      {
+        "documented": false,
+        "immediate_child_directory_count": 0,
+        "path": "tests/unit/remediation",
+        "tracked_file_count": 87
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "tests/unit/runtime",
+        "tracked_file_count": 379
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "tests/unit/runtime/http",
+        "tracked_file_count": 112
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/unit/runtime/mirror_contracts",
+        "tracked_file_count": 37
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "tests/unit/runtime/quality",
+        "tracked_file_count": 225
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 20,
+        "path": "tests/unit/scientist",
+        "tracked_file_count": 558
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "tests/unit/scientist/agent",
+        "tracked_file_count": 47
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "tests/unit/scientist/evidence",
+        "tracked_file_count": 29
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "tests/unit/scientist/governance",
+        "tracked_file_count": 64
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 6,
+        "path": "tests/unit/scientist/methods",
+        "tracked_file_count": 63
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tests/unit/scientist/mirror_contracts",
+        "tracked_file_count": 41
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "tests/unit/scientist/nodes",
+        "tracked_file_count": 75
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 6,
+        "path": "tests/unit/scientist/orchestration",
+        "tracked_file_count": 102
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 2,
+        "path": "tests/unit/scientist/search",
+        "tracked_file_count": 58
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 9,
+        "path": "tools",
+        "tracked_file_count": 540
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 0,
+        "path": "tools/ci",
+        "tracked_file_count": 34
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 6,
+        "path": "tools/devx",
+        "tracked_file_count": 51
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "tools/devx/workspace",
+        "tracked_file_count": 26
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 10,
+        "path": "tools/ops_runners",
+        "tracked_file_count": 116
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 4,
+        "path": "tools/ops_runners/cloud",
+        "tracked_file_count": 41
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 6,
+        "path": "tools/quality",
+        "tracked_file_count": 266
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 1,
+        "path": "tools/quality/validation",
+        "tracked_file_count": 209
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "tools/research",
+        "tracked_file_count": 37
+      },
+      {
+        "documented": true,
+        "immediate_child_directory_count": 3,
+        "path": "tools/research/benchmarks",
+        "tracked_file_count": 23
+      }
+    ],
+    "largest_subtrees_by_tracked_file_count": [
+      {
+        "path": "docs",
+        "tracked_file_count": 3844
+      },
+      {
+        "path": "tests",
+        "tracked_file_count": 3271
+      },
+      {
+        "path": "src",
+        "tracked_file_count": 2909
+      },
+      {
+        "path": "src/polisyos",
+        "tracked_file_count": 2908
+      },
+      {
+        "path": "tests/unit",
+        "tracked_file_count": 2376
+      },
+      {
+        "path": "docs/superpowers",
+        "tracked_file_count": 2348
+      },
+      {
+        "path": "docs/superpowers/journals",
+        "tracked_file_count": 2251
+      },
+      {
+        "path": "apps",
+        "tracked_file_count": 1345
+      },
+      {
+        "path": "apps/runtime-dashboard",
+        "tracked_file_count": 1334
+      },
+      {
+        "path": "apps/runtime-dashboard/src",
+        "tracked_file_count": 1180
+      }
+    ],
+    "local_residue_by_class": {
+      "ambiguous_fixture_directories": 0,
+      "examples_tutorial_assets": 45,
+      "generated_benchmark_reports": 0,
+      "golden_records": 19,
+      "ignored_source_docs_schemas_tests": 0,
+      "local_reports": 0,
+      "product_seed_assets": 15,
+      "source_adjacent_residue": 17,
+      "test_fixtures": 412
+    },
+    "max_directory_depth_by_root": {
+      ".cursor": 2,
+      ".devcontainer": 1,
+      ".vscode": 1,
+      "apps": 8,
+      "architecture": 7,
+      "benchmarks": 3,
+      "data": 2,
+      "design": 2,
+      "docs": 8,
+      "examples": 5,
+      "ops": 5,
+      "packages": 4,
+      "release": 1,
+      "release-fragments": 2,
+      "schemas": 3,
+      "src": 7,
+      "tests": 7,
+      "tools": 5,
+      "vendor": 2
+    },
+    "metrics": {
+      "archive_report_promotion_backlog": 0,
+      "closure_data_only_pytest_count": 0,
+      "closure_empty_ui_component_directory_count": 0,
+      "closure_forbidden_lifecycle_commit_count": 0,
+      "closure_forbidden_product_import_count": 0,
+      "closure_non_product_init_count": 0,
+      "closure_over_threshold_feature_without_owner_count": 0,
+      "closure_phase_local_junk_count": 0,
+      "closure_top_level_loose_file_count": 0,
+      "closure_unregistered_frontend_fixture_count": 0,
+      "closure_unregistered_generated_api_count": 0,
+      "empty_directory_count_outside_ignored_roots": 0,
+      "example_asset_count": 45,
+      "golden_record_count": 19,
+      "high_volume_subtree_documentation_coverage_percent": 98.35,
+      "max_directory_depth": 8,
+      "non_product_python_root_count": 8,
+      "product_asset_count": 15,
+      "source_local_residue_count": 0,
+      "test_fixture_count": 412,
+      "top_level_directory_contract_coverage_percent": 100.0,
+      "undocumented_frontend_subtree_count": 0
+    },
+    "non_product_python_roots": [
+      {
+        "exists": true,
+        "init_file_count": 0,
+        "root": "apps",
+        "sample_init_files": []
+      },
+      {
+        "exists": true,
+        "init_file_count": 0,
+        "root": "architecture",
+        "sample_init_files": []
+      },
+      {
+        "exists": true,
+        "init_file_count": 28,
+        "root": "benchmarks",
+        "sample_init_files": [
+          "benchmarks/__init__.py",
+          "benchmarks/abstraction/__init__.py",
+          "benchmarks/advanced/__init__.py",
+          "benchmarks/adversarial/__init__.py",
+          "benchmarks/capability_wins/__init__.py",
+          "benchmarks/comparators/__init__.py",
+          "benchmarks/composition/__init__.py",
+          "benchmarks/discovery/__init__.py",
+          "benchmarks/distributional/__init__.py",
+          "benchmarks/estimation/__init__.py"
+        ]
+      },
+      {
+        "exists": true,
+        "init_file_count": 0,
+        "root": "docs",
+        "sample_init_files": []
+      },
+      {
+        "exists": true,
+        "init_file_count": 7,
+        "root": "examples",
+        "sample_init_files": [
+          "examples/extensions/data_forge_domain/src/polisyos_data_forge_domain_example/__init__.py",
+          "examples/extensions/fabric_connector/src/polisyos_fabric_connector_example/__init__.py",
+          "examples/extensions/foundry_method/src/polisyos_foundry_method_example/__init__.py",
+          "examples/extensions/lex_normpack/src/polisyos_lex_normpack_example/__init__.py",
+          "examples/extensions/runtime_middleware/src/polisyos_runtime_middleware_example/__init__.py",
+          "examples/extensions/scientist_governance_pass/src/polisyos_scientist_governance_pass_example/__init__.py",
+          "examples/extensions/scientist_node/src/polisyos_scientist_node_example/__init__.py"
+        ]
+      },
+      {
+        "exists": true,
+        "init_file_count": 0,
+        "root": "ops",
+        "sample_init_files": []
+      },
+      {
+        "exists": true,
+        "init_file_count": 66,
+        "root": "tests",
+        "sample_init_files": [
+          "tests/_helpers/__init__.py",
+          "tests/unit/core/__init__.py",
+          "tests/unit/core/artifacts/__init__.py",
+          "tests/unit/core/artifacts/backends/__init__.py",
+          "tests/unit/core/security/__init__.py",
+          "tests/unit/data_forge/domains/academic/__init__.py",
+          "tests/unit/data_forge/domains/academic/batch/__init__.py",
+          "tests/unit/data_forge/domains/academic/knowledge/__init__.py",
+          "tests/unit/data_forge/domains/catalog/__init__.py",
+          "tests/unit/data_forge/domains/catalog/batch/__init__.py"
+        ]
+      },
+      {
+        "exists": true,
+        "init_file_count": 38,
+        "root": "tools",
+        "sample_init_files": [
+          "tools/__init__.py",
+          "tools/archive/__init__.py",
+          "tools/ci/__init__.py",
+          "tools/devx/__init__.py",
+          "tools/devx/architecture/__init__.py",
+          "tools/devx/connectors/__init__.py",
+          "tools/devx/foundry/__init__.py",
+          "tools/devx/refactor/__init__.py",
+          "tools/devx/workspace/__init__.py",
+          "tools/lib/__init__.py"
+        ]
+      }
+    ],
+    "top_level_directories": {
+      "covered": [
+        ".cursor",
+        ".devcontainer",
+        ".vscode",
+        "apps",
+        "architecture",
+        "benchmarks",
+        "data",
+        "design",
+        "docs",
+        "examples",
+        "ops",
+        "packages",
+        "release",
+        "release-fragments",
+        "schemas",
+        "src",
+        "tests",
+        "tools",
+        "vendor"
+      ],
+      "missing_contract": [],
+      "present": [
+        ".cursor",
+        ".devcontainer",
+        ".vscode",
+        "apps",
+        "architecture",
+        "benchmarks",
+        "data",
+        "design",
+        "docs",
+        "examples",
+        "ops",
+        "packages",
+        "release",
+        "release-fragments",
+        "schemas",
+        "src",
+        "tests",
+        "tools",
+        "vendor"
+      ]
+    },
+    "undocumented_frontend_subtrees": []
+  },
+  "fail_closed_closure": true,
+  "finding_count": 0,
+  "finding_coverage": "declared scope only",
+  "findings": [],
+  "generated_at": "2026-10-05T14:40:58+00:00",
+  "measurement": {
+    "measured": "Directory contracts, tracked-file volume and local-document presence, fixture registrations, and the configured filesystem-residue scopes.",
+    "omission": "Not measured: documentation substance, runtime behavior, fixture adequacy, or hosted CI. Tracked-file metrics exclude untracked/ignored contents; missing local roots are not inspected. Filesystem-residue checks use their separate on-disk scopes."
+  },
+  "mode": "fail_closed",
+  "phase": "6.2",
+  "regression_count": 1,
+  "regressions": [
+    {
+      "check": "directory-health-regression",
+      "detail": "observed=98.35 baseline=100.0",
+      "message": "metric decreased below baseline",
+      "severity": "blocker",
+      "subject": "high_volume_subtree_documentation_coverage_percent"
+    }
+  ],
+  "status": "failed",
+  "top_level_path_moves_active": false
+}

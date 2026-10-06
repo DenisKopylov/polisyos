@@ -1,0 +1,885 @@
+{
+  "schema": "policyos.e02.F.residual_authority_map.v1",
+  "purpose": "Independent semantic next-action/authority map for G index; no product writes or ledger closures.",
+  "executor": "/root/graph_scm",
+  "predicate_basis": "recomputed",
+  "source_base": "c40d4acae1ce58b597267255026d9356565828fd",
+  "authoritative_ownership": {
+    "finding_owners": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv@c40d4acae1ce58b597267255026d9356565828fd",
+    "bundle_owners": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv@c40d4acae1ce58b597267255026d9356565828fd",
+    "residual_ledger": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd"
+  },
+  "denominator": {
+    "finding_rows": 35,
+    "unique_finding_ids": 35,
+    "bundles": 17,
+    "complete_file_types": "complete TSV ownership tables; complete selected JSON ledger rows and seven published handoff JSONs; all17 canonical Markdown bundles and contained source-card identity blocks",
+    "walk": "CSV unit==F selection, union of every source_bundle_ids, ledger lookup, every bundle SOURCE_BEGIN identity; all sets reconciled without sampling"
+  },
+  "source_status_counts": {
+    "partial": 34,
+    "held": 1
+  },
+  "residual_class_counts": {
+    "bounded_mechanism_with_unadmitted_input_path": 1,
+    "missing_outer_resource_carrier": 1,
+    "verification_oracle": 14,
+    "missing_case_record_and_calibrated_oracle": 1,
+    "missing_null_calibration_oracle": 1,
+    "missing_case_record": 1,
+    "principal_decision": 3,
+    "marker_excluded_backend_input": 2,
+    "held_owner_admission": 1,
+    "missing_fit_backend_and_joint_law": 1,
+    "runtime_bridge_missing": 1,
+    "verification_admission": 1,
+    "native_bridge_and_backend_residual": 1,
+    "owner_appointment_and_installed_input": 2,
+    "owner_appointment_and_source_reconciliation": 1,
+    "admitted_law_input_custody": 1,
+    "consumer_migration_and_independent_red": 1,
+    "installed_distribution_and_docs_input": 1
+  },
+  "canonical_bundle_refs": [
+    {
+      "bundle_id": "API-01",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/API-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "9517facd14cda8d71844d0fc6387d1dfa0e67c61"
+    },
+    {
+      "bundle_id": "CAU-01",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "1dd9f6929c46a11aaeb2e53d18653a0365b759c7"
+    },
+    {
+      "bundle_id": "CAU-02",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-02.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "9a619ee9f8775b5e1e84a84f25a30994f27226ba"
+    },
+    {
+      "bundle_id": "CAU-03",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-03.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "c6d09dd6996ae133f6baefb6202b5d3627d263ff"
+    },
+    {
+      "bundle_id": "CAU-04",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-04.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "72843e24065005efd2bd5d09a7855a65c25a8f8a"
+    },
+    {
+      "bundle_id": "CAU-05",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-05.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "8b57419058c276d17e9899aecca97b9548c5ab08"
+    },
+    {
+      "bundle_id": "ECO-01",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/ECO-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "9112b8ff94b3732d18508302491fd962006e47fe"
+    },
+    {
+      "bundle_id": "FIT-01",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FIT-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "9a7c550c56937430370253621bbd0a84c2fea3ec"
+    },
+    {
+      "bundle_id": "FRY-01",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRY-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "a811402415f70da517c8e86e3f41a9653af906c7"
+    },
+    {
+      "bundle_id": "FRY-03",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRY-03.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "9e1f5419d4d1d39819125e714ec5cf7222251bac"
+    },
+    {
+      "bundle_id": "GRF-01",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "14e15343cc12b70dcaf0624c28bdec109c46af28"
+    },
+    {
+      "bundle_id": "GRF-02",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-02.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "8bc228e2e6d8dff5071925cf7974ad13179424b3"
+    },
+    {
+      "bundle_id": "GRF-03",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/GRF-03.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "8cd1caf85dbddf84763cf750303ce351b78cf74d"
+    },
+    {
+      "bundle_id": "LEX-01",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LEX-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "f2fdbef01812a910c5b90d3dd665fed76758334e"
+    },
+    {
+      "bundle_id": "SCM-01",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "20fc17b509d287f25404ef642f19dda66d214a18"
+    },
+    {
+      "bundle_id": "SCM-02",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-02.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "05fcca4604bcdd2204df1410a5578b1c5c8d5451"
+    },
+    {
+      "bundle_id": "SCM-03",
+      "source_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-03.md@c40d4acae1ce58b597267255026d9356565828fd",
+      "git_blob": "52caa96fe6bf2f34a421f8b772f3d1a8ddfe0227"
+    }
+  ],
+  "published_receipt_sources": {
+    "CAU": {
+      "published_head": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "branch": "codex/e02-F-cau",
+      "handoff_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json@6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "implementation_commits": [
+        "c8e16d0abb7d10605475862ede8c6f327ff7cce9"
+      ],
+      "candidate_tree_sha": "a7b2625d8dc41f7ae364a5d98ebf6f3c4f60a2cf",
+      "sha256": "6b920930afda41a260c0c4a106279bbd1e6d054225c137af13a3531a96ba8b30"
+    },
+    "GRF_SCM": {
+      "published_head": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+      "branch": "codex/e02-F-graph-scm",
+      "handoff_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm.json@85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+      "implementation_commits": [
+        "672f541313c550e96544728ed397daf330c04442"
+      ],
+      "candidate_tree_sha": "f6bf9b9467d56e86408693982c8f68ea381b1e4c",
+      "sha256": "4c4bd3eb636a9e460c2fd239adbdc1a238463315d4c0899ba0bc8e6d4e4f3050"
+    },
+    "ECO_FRY03": {
+      "published_head": "e642bb9025a67739c201393acca5712603cb064d",
+      "branch": "codex/e02-F-economics",
+      "handoff_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-profile-consumers.json@e642bb9025a67739c201393acca5712603cb064d",
+      "implementation_commits": [
+        "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6"
+      ],
+      "candidate_tree_sha": "7b7822e23901d9574b53ed97d410a1392763c484",
+      "sha256": "adc53d604a8c5faae4942c4c24ab83fd1c59e41403a661aefdb044985e828841"
+    },
+    "FIT": {
+      "published_head": "91c793fa8ff24e1b59569a96b63ac89361dac2df",
+      "branch": "codex/e02-F-fit-tmle",
+      "handoff_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle.json@91c793fa8ff24e1b59569a96b63ac89361dac2df",
+      "implementation_commits": [
+        "b57708fcc95a778d7ff88c4001e4ac8ca74b7889"
+      ],
+      "candidate_tree_sha": "77c3700a32743793ad8349bec1a3ca6a4908e4d6",
+      "sha256": "2556113ef008a9a4982d8a00cb4dc60ccd7831d409024d30d791e92a02b6f248"
+    },
+    "FRY01": {
+      "published_head": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "branch": "codex/e02-F-foundry",
+      "handoff_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts.json@ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "implementation_commits": [
+        "cb8cd0dcadb0d6cf81803257ee061ecbb4854fe2"
+      ],
+      "candidate_tree_sha": "465c255a4022c2506fb21d41c0bc0fc10ed774b6",
+      "sha256": "34c41ca91eab404b3fbdfdba376108f1205ed47010d1e540b7f7b6f960f3e3ca"
+    },
+    "API": {
+      "published_head": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "branch": "codex/e02-F-causal-api",
+      "handoff_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json@baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "implementation_commits": [
+        "0c709ea924d2b868eacf1016f5c70ff749e287a8"
+      ],
+      "candidate_tree_sha": "42c3b569fdff79a03148ecb6a150904ac69019df",
+      "sha256": "6b1d887fe80163ddc0f5c0d23c9ee8925def223501eaf85797211944be6f85ff"
+    },
+    "LEX": {
+      "published_head": "56aa7d47876b29956676ef8dc9f04b64c865948f",
+      "branch": "codex/e02-F-lex",
+      "handoff_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-input-binding.json@56aa7d47876b29956676ef8dc9f04b64c865948f",
+      "implementation_commits": [
+        "ec5e55ec733fde4dfcfbc5d5c12018b2e1e295e0"
+      ],
+      "candidate_tree_sha": "510b423cdbb7f52b5f0dfff9ba8bad9d42fcfd02",
+      "sha256": "fb8a4e4940048db5d04da4ad8ddc9c9112a960d9e9c055ab9a45e262819ce0b7"
+    }
+  },
+  "non_transferable_authority": {
+    "held_status": "B219 remains ledger held after real locked backend receipt; evidence acceptance and held-owner decision are separate.",
+    "principal_decisions": [
+      "B210: RBC scope/cost/falsifier",
+      "LA-004: economic profile compatibility/retirement",
+      "LA-035: economic objective/optimizer compatibility/retirement"
+    ],
+    "DoWhy_EconML": "Python3.14 baseline excludes DoWhy python_version<3.13 and EconML python_version<3.14. Absence/SKIP/UNRUN is not a positive backend witness; no shim or marker bypass.",
+    "synthetic_to_real": "Generic graph/algebra/cache/compiler properties can be tested with sufficient fixtures. Real empirical/legal/calibration/source-law authority requires the named admitted local inputs only when its criterion depends on them.",
+    "publication": "No finding status changed. G accepts code/receipts separately, then runs integrated broad checks and any exact candidate local input-dependent checks.",
+    "P41": "Architecture UNRUN, missing diagnostic bytes and ranking/mixed-profile FAIL stay explicit; no inherited-red label without exact slice-base replay plus complete input-denominator disjointness.",
+    "source_reconciliation": "LA-016 is DiD umbrella retirement under CAU-05; canonical ledger DoWhy wording is an unresolved source mismatch, not license to change estimand scope."
+  },
+  "matrix": [
+    {
+      "finding_id": "B54",
+      "closure_owner": "FIT-01",
+      "bundle_ids": [
+        "FIT-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1379",
+      "receipt_source": "FIT",
+      "primary_residual_class": "bounded_mechanism_with_unadmitted_input_path",
+      "current_bounded_evidence": "Auto/explicit namespace cache binds full X/T/Y and fit settings; immutable fit bytes and isolated current diagnostics reach native AIPW/TMLE consumers.",
+      "mechanism_or_oracle_residual": "Precomputed __shared_nuisance_bundle and advanced_designs direct admission remain outside the repaired cache boundary.",
+      "missing_input": "Actual precomputed producer, source snapshot and current-contract provenance; full production data is unnecessary for generic cache correctness.",
+      "semantic_owner_boundary": "F causal owner must define and trace precomputed admission; do not promote supplied bundles by label.",
+      "next_owner": "F causal TMLE owner; G integration; actual precomputed caller owner",
+      "next_action": "Accept bounded cache code/controls separately; trace and content-bind a real precomputed producer before widening scope.",
+      "authority_limit": "Numerical/cache correctness only; no real-data causal validity or nominal coverage.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B56",
+      "closure_owner": "FIT-01",
+      "bundle_ids": [
+        "FIT-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L1409",
+      "receipt_source": "FIT",
+      "primary_residual_class": "missing_outer_resource_carrier",
+      "current_bounded_evidence": "Serial/internal-cap2/external-cap1 native fits preserve every fold/repeat/seed, predictions and nonzero measured EIF uncertainty.",
+      "mechanism_or_oracle_residual": "No admitted production study executor/resource carrier binds aggregate work across studies.",
+      "missing_input": "Actual outer caller, aggregate resource budget and admission lifecycle.",
+      "semantic_owner_boundary": "F owns scientific plan; B consults resource capability. Monetary BudgetMiddleware is not a CPU/fold API.",
+      "next_owner": "F TMLE owner with B resource/caller owner; G",
+      "next_action": "Appoint/trace outer resource carrier and compose existing max_parallel_folds; retain all scientific repeats and test no deadlock.",
+      "authority_limit": "Explicit synthetic cap composition does not establish production aggregate admission.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B204",
+      "closure_owner": "CAU-01",
+      "bundle_ids": [
+        "CAU-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5094",
+      "receipt_source": "CAU",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Known ATT3 and invalid pre/post-design controls pass on synthetic panels.",
+      "mechanism_or_oracle_residual": "Finding-level historical selector/four-base replay and empirical parallel-trend validity remain unestablished.",
+      "missing_input": "No production inputs needed for the generic algebra/design witness; any empirical assumption claim needs admitted local panel input.",
+      "semantic_owner_boundary": "No principal authority supplied by this test.",
+      "next_owner": "F CAU-01 verification owner/E02 baseline broker; G",
+      "next_action": "Reconcile card-specific positive/refusal selector and replay; assess admitted panel design locally only for a real-data claim.",
+      "authority_limit": "A pre period or non-rejection does not prove parallel trends.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B205",
+      "closure_owner": "CAU-01",
+      "bundle_ids": [
+        "CAU-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5106",
+      "receipt_source": "CAU",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Real statsmodels0.14.6 CR0 reference and technical-period-duplication controls pass.",
+      "mechanism_or_oracle_residual": "Historical replay, small-cluster inference and nominal coverage remain unestablished.",
+      "missing_input": "No production inputs needed for the generic algebra/design witness; any empirical assumption claim needs admitted local panel input.",
+      "semantic_owner_boundary": "No principal authority supplied by this test.",
+      "next_owner": "F CAU-01 verification owner/E02 baseline broker; G",
+      "next_action": "Reconcile card selector; independently assess covariance unit/cluster assumptions on any admitted panel.",
+      "authority_limit": "Cluster/HC1 arithmetic parity is not population interval coverage.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B206",
+      "closure_owner": "CAU-01",
+      "bundle_ids": [
+        "CAU-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5120",
+      "receipt_source": "CAU",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Confidence-level widening, unchanged95% and invalid-level controls pass.",
+      "mechanism_or_oracle_residual": "Historical replay and procedure-specific coverage remain unestablished; this cannot repair wrong SE or RBC.",
+      "missing_input": "No production inputs needed for the generic algebra/design witness; any empirical assumption claim needs admitted local panel input.",
+      "semantic_owner_boundary": "No principal authority supplied by this test.",
+      "next_owner": "F CAU-01 verification owner/E02 baseline broker; G",
+      "next_action": "Reconcile shared DiD/RDD critical-value selectors and actual consumer projection.",
+      "authority_limit": "Correct quantiles do not validate covariance, bias correction or coverage.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B207",
+      "closure_owner": "CAU-02",
+      "bundle_ids": [
+        "CAU-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5132",
+      "receipt_source": "CAU",
+      "primary_residual_class": "missing_case_record_and_calibrated_oracle",
+      "current_bounded_evidence": "Known single-cell DGP has descriptive unit variation; requested unsupported g0 cohort is refused rather than silently omitted.",
+      "mechanism_or_oracle_residual": "Serial-correlated/multi-cohort coverage and joint influence/aggregate estimand validation remain unestablished.",
+      "missing_input": "Complete provenance-bearing staggered panel with independent-unit/cohort/timing identities.",
+      "semantic_owner_boundary": "Causal-analysis data owner supplies case; methodology owner admits inference procedure, not a bootstrap label.",
+      "next_owner": "Causal-analysis data owner + F staggered methodology owner; G local runner",
+      "next_action": "Run receipt command at exact candidate on admitted local case; independently test serial correlation/multiple cohorts before inferential admission.",
+      "authority_limit": "Descriptive variability and cohort refusal are not calibrated CI or effect authority on real data.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B208",
+      "closure_owner": "CAU-02",
+      "bundle_ids": [
+        "CAU-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5146",
+      "receipt_source": "CAU",
+      "primary_residual_class": "missing_null_calibration_oracle",
+      "current_bounded_evidence": "p-value and inferential CI remain absent; descriptive multiplier interval is explicitly non-gate-eligible.",
+      "mechanism_or_oracle_residual": "H0/statistic/null distribution, calibration, power and interval-test agreement not established.",
+      "missing_input": "Admitted cohort/unit record when an empirical claim is sought; independent null/coverage DGP can be built without production data.",
+      "semantic_owner_boundary": "Methodology owner must choose justified null procedure; do not manufacture a centered p-value for closure.",
+      "next_owner": "F staggered methodology owner + causal-analysis data owner; G",
+      "next_action": "Define H0 and shared unit-level resampling/influence procedure, falsify it on known null/effect DGP, then validate admitted record locally.",
+      "authority_limit": "Absence of invented inference is honest limitation, not implementation of calibrated inference.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B209",
+      "closure_owner": "CAU-02",
+      "bundle_ids": [
+        "CAU-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5158",
+      "receipt_source": "CAU",
+      "primary_residual_class": "missing_case_record",
+      "current_bounded_evidence": "Strict nonnegative integer anticipation, timing eligibility and unsupported requested cohort refusal pass known synthetic controls.",
+      "mechanism_or_oracle_residual": "Real anticipation/no-anticipation validity and full cohort scope not established.",
+      "missing_input": "Provenance-bearing cohort timing, independent units and defensible anticipation window.",
+      "semantic_owner_boundary": "Data/method owner supplies empirical timing assumption; implementation does not infer it.",
+      "next_owner": "Causal-analysis data owner + F staggered owner; G",
+      "next_action": "Run candidate locally with admitted timing/cohort record; verify g=t+a, never-treated, baseline support and explicit aggregate scope.",
+      "authority_limit": "Integer admission and synthetic timing property do not validate an empirical anticipation assumption.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B210",
+      "closure_owner": "CAU-03",
+      "bundle_ids": [
+        "CAU-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5170",
+      "receipt_source": "CAU",
+      "primary_residual_class": "principal_decision",
+      "current_bounded_evidence": "Unsupported requested RBC returns point-free refusal; explicitly uncorrected profile remains supported.",
+      "mechanism_or_oracle_residual": "Real curvature correction/variance adaptation and RBC coverage remain absent.",
+      "missing_input": "Approved RBC profile/version/bandwidth/order/variance basis if a broader procedure is selected.",
+      "semantic_owner_boundary": "Principal(Denis) scope/cost decision pending; do not call quadratic fit RBC or change corrected label.",
+      "next_owner": "Principal(Denis) then F RDD methodology owner; G",
+      "next_action": "Resolve RBC scope/cost/falsifier; implement or keep declared unsupported profile, separately validate curvature/coverage.",
+      "authority_limit": "Fail-closed refusal repairs a false promise but does not implement RBC.",
+      "candidate_semantic_state": "limited_principal_decision_pending"
+    },
+    {
+      "finding_id": "B211",
+      "closure_owner": "CAU-03",
+      "bundle_ids": [
+        "CAU-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5182",
+      "receipt_source": "CAU",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Vector WLS/reference/kernel/order/rank tests pass without dense diagonal weights.",
+      "mechanism_or_oracle_residual": "Full finding/baseline reconciliation remains; no new RDD numerical repair in this slice.",
+      "missing_input": "No production inputs needed for the generic algebra/design witness; any empirical assumption claim needs admitted local panel input.",
+      "semantic_owner_boundary": "No principal authority supplied by this test.",
+      "next_owner": "F RDD causal-analysis owner; G/E02 baseline broker",
+      "next_action": "Accept bounded O(n)-memory implementation/reference witness; retain rank/bandwidth refusals and reconcile selectors.",
+      "authority_limit": "Weighted-fit efficiency does not establish RBC or valid coverage.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B212",
+      "closure_owner": "CAU-04",
+      "bundle_ids": [
+        "CAU-04"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5194",
+      "receipt_source": "CAU",
+      "primary_residual_class": "marker_excluded_backend_input",
+      "current_bounded_evidence": "Recorder/IR point-only and genuine interval preservation controls pass.",
+      "mechanism_or_oracle_residual": "Real DoWhy point-only/interval backend consumer remains UNRUN.",
+      "missing_input": "DoWhy absent under Python3.14 baseline; marker python_version<3.13 excludes it. Native backend/version and admitted estimand inputs are not supplied.",
+      "semantic_owner_boundary": "F native DoWhy adapter owner must own reference profile; no parallel shim or marker bypass.",
+      "next_owner": "F DoWhy adapter/causal-analysis owner + reference environment owner; G",
+      "next_action": "Use an owner-approved native reference environment to exercise actual point-only and interval paths through typed consumer.",
+      "authority_limit": "Recorder is not DoWhy; point-only cannot imply invented SE/CI.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B213",
+      "closure_owner": "CAU-04",
+      "bundle_ids": [
+        "CAU-04"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5206",
+      "receipt_source": "CAU",
+      "primary_residual_class": "marker_excluded_backend_input",
+      "current_bounded_evidence": "Recorder requested-estimand/protocol and mismatch refusal controls pass.",
+      "mechanism_or_oracle_residual": "Actual DoWhy version/API/population/adjustment binding remains UNRUN.",
+      "missing_input": "DoWhy absent under Python3.14 baseline; marker python_version<3.13 excludes it. Native backend/version and admitted estimand inputs are not supplied.",
+      "semantic_owner_boundary": "F native DoWhy adapter owner must own reference profile; no parallel shim or marker bypass.",
+      "next_owner": "F DoWhy adapter/causal-analysis owner + reference environment owner; G",
+      "next_action": "Bind supported native estimand/contrast/population to real identify/estimate calls and use distinguishable supported/unsupported controls.",
+      "authority_limit": "Matching report labels do not prove an executed estimand.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B214",
+      "closure_owner": "GRF-03",
+      "bundle_ids": [
+        "GRF-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5218",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Synthetic known-direction and conservative CPDAG/PAG refusal controls pass.",
+      "mechanism_or_oracle_residual": "Full sound partial-graph extension/downstream capability and historical reconciliation remain unestablished.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F GRF-03 verification owner/E02 baseline broker; G",
+      "next_action": "Reconcile finding discriminator and downstream DAG consumer; keep unsupported partial-graph scope explicit.",
+      "authority_limit": "Known-arrow preservation tests do not establish full PAG capability.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B215",
+      "closure_owner": "SCM-02",
+      "bundle_ids": [
+        "SCM-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5230",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Real node→dispatcher→CAS Gaussian partial/full factual controls match mean1/variance0.5 or deterministic1; imputation with posterior markers retained fails oracle.",
+      "mechanism_or_oracle_residual": "Historical selector/four-base reconciliation and broader nonlinear posterior scope remain unestablished.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F SCM-02 verification owner/E02 baseline broker; G",
+      "next_action": "Accept bounded native posterior discriminator; reconcile historical result and independently admit any broader factual posterior.",
+      "authority_limit": "Known Gaussian synthetic property is not an admitted real-data counterfactual.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B216",
+      "closure_owner": "GRF-01",
+      "bundle_ids": [
+        "GRF-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5333",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Complete200 three-node ADMGs/2400 separation queries match independent moralization and real NetworkX; actual Rule1 consumer discriminates fork/collider.",
+      "mechanism_or_oracle_residual": "Finite synthetic domain and historical finding admission remain bounded.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F GRF-01 verification owner/E02 baseline broker; G",
+      "next_action": "Accept finite oracle/consumer witness; add any criterion-specific larger/descendant/renaming control without claiming theorem completeness.",
+      "authority_limit": "Finite graph differential testing does not prove universal graph soundness or real identification.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B217",
+      "closure_owner": "GRF-01",
+      "bundle_ids": [
+        "GRF-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5347",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "All8 action sets on complete three-node domain match latent-DAG incoming surgery; actual Rule3 removes pure confounding action.",
+      "mechanism_or_oracle_residual": "Finite domain and historical admission remain bounded.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F GRF-01 verification owner/E02 baseline broker; G",
+      "next_action": "Accept perfect-do latent oracle and actual rule consumer; reconcile finding selectors and any required broader graph scope.",
+      "authority_limit": "Graph surgery property is not empirical treatment-effect authority.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B218",
+      "closure_owner": "GRF-03",
+      "bundle_ids": [
+        "GRF-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5361",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Compact lag/self-lag round-trip and static-negative controls pass.",
+      "mechanism_or_oracle_residual": "Expanded temporal consumer/full dynamic causal capability and historical admission remain unsupported.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F GRF-03 verification owner/E02 baseline broker; G",
+      "next_action": "Reconcile lag-preserving consumers; require explicit supported temporal expansion before static GCM use.",
+      "authority_limit": "Preserved lag metadata does not implement every temporal estimand.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B219",
+      "closure_owner": "GRF-02",
+      "bundle_ids": [
+        "GRF-02"
+      ],
+      "ledger_status_preserved": "held",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5375",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "held_owner_admission",
+      "current_bounded_evidence": "Former missing locked NetworkX3.6.1 artifact now supplied in isolated real env; native graph26+oracle3 PASS and2400 native separator comparisons PASS.",
+      "mechanism_or_oracle_residual": "Canonical ledger held persists; mixed-edge semantic owner admission, exact consumer impact and four-base/currentness criteria are not resolved by installation.",
+      "missing_input": "Original shared-env15PASS/11FAIL stays nonPASS. Missing backend artifact is supplied for this bounded candidate, not for every receiver environment.",
+      "semantic_owner_boundary": "No authorization to promote held status; accountable GRF-02 owner/G must accept evidence and remaining scope.",
+      "next_owner": "GRF-02 held finding owner + G/E02 baseline broker",
+      "next_action": "Fetch exact code/receipt, reproduce locked native exporter and criterion-specific removal/consumer controls; retain held until owner decision.",
+      "authority_limit": "Installing backend or29PASS alone cannot lift held finding state.",
+      "candidate_semantic_state": "held"
+    },
+    {
+      "finding_id": "B220",
+      "closure_owner": "GRF-02",
+      "bundle_ids": [
+        "GRF-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5389",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Full native graph contract passes with locked NetworkX; receipt also reports bounded warm-copy/mutation/weakref probe.",
+      "mechanism_or_oracle_residual": "Finding-specific warm-cache deciding bytes/reconciliation and historical four-base admission remain to be established independently.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F GRF-02 verification owner/E02 baseline broker; G",
+      "next_action": "Bind exact mutation/copy-after-warm/dump-ancestors-export/weakref selectors and deciding output to this ID.",
+      "authority_limit": "A frozen marker or package PASS is not cache/topology immutability proof.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B221",
+      "closure_owner": "SCM-01",
+      "bundle_ids": [
+        "SCM-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5403",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "missing_fit_backend_and_joint_law",
+      "current_bounded_evidence": "Synthetic root/noise/query-law controls pass; SCM-01 tests deliberately exclude real DoWhy fitting.",
+      "mechanism_or_oracle_residual": "Native HybridSCMFit/root-joint-law fit and historical finding reconciliation remain unestablished.",
+      "missing_input": "Marker-excluded DoWhy native fit reference and, for empirical applicability, admitted observational root joint law/provenance.",
+      "semantic_owner_boundary": "SCM fitting owner admits source law; do not replace unknown roots with default Normal or infer fit from query fixture.",
+      "next_owner": "F SCM-01 fitting owner + source/data owner; G local runner",
+      "next_action": "Run actual supported fit→saved model→query chain on sufficient admitted root fixture/reference; use full local joint law only where criterion requires it.",
+      "authority_limit": "A known synthetic root law is not evidence of fitting on admitted real data.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B222",
+      "closure_owner": "SCM-01",
+      "bundle_ids": [
+        "SCM-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5417",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Synthetic saved polynomial evaluator/twin shared-noise controls pass.",
+      "mechanism_or_oracle_residual": "Full nonlinear fitting/posterior abduction and historical selector reconciliation remain unestablished.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F SCM-01 verification owner/E02 baseline broker; G",
+      "next_action": "Bind fitted saved payload to native evaluation/consumer on sufficient fixture; separately admit fitting backend and any real source law.",
+      "authority_limit": "Executing a saved nonlinear fixture is not full fitted-real-data model validity.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B223",
+      "closure_owner": "SCM-02",
+      "bundle_ids": [
+        "SCM-02"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5431",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Canonical declared-slot omission fixed; do2/observational contrast6 persists through real node/CAS/ensemble; identical/stochastic arms tested.",
+      "mechanism_or_oracle_residual": "Historical four-base/generated consumer admission and real identification remain limited.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F SCM-02 verification owner/E02 baseline broker; G",
+      "next_action": "Accept native alias/negative removal witness and all explicit contrasts; locally verify admitted identification inputs only for empirical claim.",
+      "authority_limit": "Persisted contrast semantics do not establish causal identification on real data.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B224",
+      "closure_owner": "SCM-03",
+      "bundle_ids": [
+        "SCM-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5445",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Existing perfect-do/pruning/query-plan/logical RNG controls pass.",
+      "mechanism_or_oracle_residual": "Historical finding selector reconciliation and broader admitted world-model applicability remain unestablished.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F SCM-03 verification owner/E02 baseline broker; G",
+      "next_action": "Reconcile no-evaluation-of-replaced-mechanism and irrelevant-node controls with real consumer output.",
+      "authority_limit": "Finite query-plan behavior does not admit an arbitrary world model.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "B225",
+      "closure_owner": "SCM-03",
+      "bundle_ids": [
+        "SCM-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L5459",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "verification_oracle",
+      "current_bounded_evidence": "Malformed law/finiteness/support/tail/random-stream controls pass.",
+      "mechanism_or_oracle_residual": "Historical finding reconciliation and arbitrary-law/model authority remain unestablished.",
+      "missing_input": "No production dataset required for demonstrated graph/SCM generic property; admitted joint law/history is required only for a real-data criterion.",
+      "semantic_owner_boundary": "F graph/SCM scientific owner retains scope; G cannot invent graph/model semantics for integration.",
+      "next_owner": "F SCM-03 verification owner/E02 baseline broker; G",
+      "next_action": "Bind malformed-law refusal and continuous-tail/support/reproducibility selectors; preserve exact requested law.",
+      "authority_limit": "Supported synthetic stochastic law does not validate every policy law.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-001",
+      "closure_owner": "FRY-01",
+      "bundle_ids": [
+        "FRY-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L82",
+      "receipt_source": "FRY01",
+      "primary_residual_class": "runtime_bridge_missing",
+      "current_bounded_evidence": "Historical root_seed0/nonzero helper laws, v1 plan replay and compiler→CAS→Scientist artifact readback verified.",
+      "mechanism_or_oracle_residual": "Runtime execution consuming node/stream salts and binding to planned experiment seed is not established.",
+      "missing_input": "Actual execution selector/consumer and frozen-plan activation provenance.",
+      "semantic_owner_boundary": "Historical compiler root_seed0 differs from ExecPlan.random_seed; changing PRNG/digests needs semantic-owner decision.",
+      "next_owner": "F compiler/randomization owner + Scientist execution owner; G",
+      "next_action": "Trace actual salt consumer and bind execution/replay identity; preserve historical law until approved versioned change.",
+      "authority_limit": "Persisted reproducibility plan is not complete execution reproducibility.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-002",
+      "closure_owner": "FRY-01",
+      "bundle_ids": [
+        "FRY-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L109",
+      "receipt_source": "FRY01",
+      "primary_residual_class": "verification_admission",
+      "current_bounded_evidence": "Actual family catalog selection and IR IC certificate producer→CAS readback distinguish positive and nonmonotone schedules.",
+      "mechanism_or_oracle_residual": "G finding-level admission/historical selector reconciliation and external plugin scope remain.",
+      "missing_input": "No real production input needed for generic catalog-versus-certificate discriminator.",
+      "semantic_owner_boundary": "Catalog assumptions/descriptors are separate from executable authority; certificate stays IR-owned.",
+      "next_owner": "F family/IC verification owner; G; C for installed plugin discovery",
+      "next_action": "Accept native discriminator/lineage; independently admit exact finding receipt and any installed plugin route if claimed.",
+      "authority_limit": "Family membership cannot substitute for an IC certificate.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-003",
+      "closure_owner": "FRY-03",
+      "bundle_ids": [
+        "FRY-03"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L136",
+      "receipt_source": "ECO_FRY03",
+      "primary_residual_class": "native_bridge_and_backend_residual",
+      "current_bounded_evidence": "Default float32 fiscal/labor compile→PatchMap→persisted StateDelta/Snapshot preserves masks, accounting, keys and exact known effects.",
+      "mechanism_or_oracle_residual": "Mixed x64 collection remains FAIL at this receipt; registered result.patches JSON lacks an admitted native PatchMap materialization bridge.",
+      "missing_input": "Real activated compiler/method caller, selected model profile and admitted state/data provenance for production applicability.",
+      "semantic_owner_boundary": "Forecast/model/calibration/caller owner must retain non-equivalent laws; type bridge needs owner-approved mechanism, not test conversion.",
+      "next_owner": "F fiscal/labor execution + economic dtype/state owner; C/G caller/data owner",
+      "next_action": "Resolve x64 producer dtype and native registered-output bridge separately; rerun retained profile and actual consumer at approved candidate.",
+      "authority_limit": "32 default-profile PASS cannot promote59-case mixed-profile FAIL or establish calibration.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-004",
+      "closure_owner": "ECO-01",
+      "bundle_ids": [
+        "ECO-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L167",
+      "receipt_source": "ECO_FRY03",
+      "primary_residual_class": "principal_decision",
+      "current_bounded_evidence": "Native plugin versus baseline tests preserve distinct wealth/income tax, threshold/transition employment and state/accounting semantics.",
+      "mechanism_or_oracle_residual": "Equivalent optimizer/caller replacement or retirement not established; mixed-profile backend red also remains.",
+      "missing_input": "Actual live scenarios/callers, units/timestep/RNG/accounting profile mapping and calibrated applicability.",
+      "semantic_owner_boundary": "Principal(Denis) separate profile compatibility/retirement scope decision pending; ledger partial is preserved.",
+      "next_owner": "Principal(Denis) then F economic profile/caller owner; G/C",
+      "next_action": "Cost and choose compatibility/retirement scope with falsifier; keep both profiles until an approved migration binds actual callers.",
+      "authority_limit": "Richer plugin is not a drop-in replacement or better-calibrated authority.",
+      "candidate_semantic_state": "limited_principal_decision_pending"
+    },
+    {
+      "finding_id": "LA-007",
+      "closure_owner": "GRF-01",
+      "bundle_ids": [
+        "GRF-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L254",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "owner_appointment_and_installed_input",
+      "current_bounded_evidence": "Local causal package cleanup/canonical imports retained; source-tree behavior bounded.",
+      "mechanism_or_oracle_residual": "External installed loader/resource lookup and wheel compatibility remain UNRUN.",
+      "missing_input": "Named external loader, appointed packaging owner, built/installed artifact outside source tree.",
+      "semantic_owner_boundary": "Packaging/external-loader appointment pending; do not delete live causal packages or infer external absence from source scan.",
+      "next_owner": "C packaging/external-loader owner with F GRF-01; G",
+      "next_action": "Appoint loader owner and run installed-package import/resource lookup plus supported legacy alias control outside source checkout.",
+      "authority_limit": "Local import cleanup does not establish installed/external compatibility.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-016",
+      "closure_owner": "CAU-05",
+      "bundle_ids": [
+        "CAU-01",
+        "CAU-05"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L513",
+      "receipt_source": "CAU",
+      "primary_residual_class": "owner_appointment_and_source_reconciliation",
+      "current_bounded_evidence": "Old/dedicated DiD wrapper and metadata/parity controls pass; numerical helpers remain canonical.",
+      "mechanism_or_oracle_residual": "Frozen plan/native first-party caller lifecycle and retirement completeness not established.",
+      "missing_input": "Appointed production DiD planning/replay caller, versioned frozen plans and finite consumer migration record.",
+      "semantic_owner_boundary": "Authoritative CAU-05/source card says DiD retirement; ledger residual/card proposal incorrectly mentions DoWhy. Reconcile without rewriting scope by analogy.",
+      "next_owner": "F CAU-05 DiD caller/lifecycle owner + G baseline/ledger reconciliation owner",
+      "next_action": "Reconcile source mismatch; appoint actual DiD caller, prove new planning uses dedicated route and supported old plans replay before retirement.",
+      "authority_limit": "Dedicated facade is not statistical attestation or native DoWhy closure.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-017",
+      "closure_owner": "LEX-01",
+      "bundle_ids": [
+        "LEX-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L540",
+      "receipt_source": "LEX",
+      "primary_residual_class": "admitted_law_input_custody",
+      "current_bounded_evidence": "Actual compared norm packs/pass plan bind native expr_ast checks, CAS report/diff, historical schema/markdown consumer and CLI refusal.",
+      "mechanism_or_oracle_residual": "Actual admitted corpus/callers/source-law/backend custody remains unestablished; CLI default StubBackend is transport only.",
+      "missing_input": "Admitted old/new pack IDs/bytes, legal source provenance, real context/backend and corpus sufficient for applicability.",
+      "semantic_owner_boundary": "Lex owns norm/compliance evidence; quantitative impact stays Scientist/Foundry; historical report_id alone is not content custody.",
+      "next_owner": "Lex source-law/backend/corpus owner with G local runner; C for caller custody as needed",
+      "next_action": "Replay exact candidate property command, then selected admitted corpus/backend locally; verify CAS bytes and heuristic authority remains blocked.",
+      "authority_limit": "Candidate KPI topics/CLI success do not establish legal adequacy or measured economic effect.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-019",
+      "closure_owner": "GRF-01",
+      "bundle_ids": [
+        "GRF-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L930",
+      "receipt_source": "GRF_SCM",
+      "primary_residual_class": "owner_appointment_and_installed_input",
+      "current_bounded_evidence": "Local causal package cleanup/canonical imports retained; source-tree behavior bounded.",
+      "mechanism_or_oracle_residual": "External installed loader/resource lookup and wheel compatibility remain UNRUN.",
+      "missing_input": "Named external loader, appointed packaging owner, built/installed artifact outside source tree.",
+      "semantic_owner_boundary": "Packaging/external-loader appointment pending; do not delete live causal packages or infer external absence from source scan.",
+      "next_owner": "C packaging/external-loader owner with F GRF-01; G",
+      "next_action": "Appoint loader owner and run installed-package import/resource lookup plus supported legacy alias control outside source checkout.",
+      "authority_limit": "Local import cleanup does not establish installed/external compatibility.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-020",
+      "closure_owner": "API-01",
+      "bundle_ids": [
+        "API-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L960",
+      "receipt_source": "API",
+      "primary_residual_class": "consumer_migration_and_independent_red",
+      "current_bounded_evidence": "Supported direct/star imports, object/FQN identity, monkeypatch behavior, JSON consumer and native pydoc ABI verified with property-removal control.",
+      "mechanism_or_oracle_residual": "External/computed caller retirement and MkDocs/installed plugin admission remain; UtilityJudge identification-ranking test still FAIL on exact base/candidate.",
+      "missing_input": "External supported-caller compatibility window; installed loader/plugin inputs if claimed.",
+      "semantic_owner_boundary": "API owner decides retirement; graph/Scientist semantic owner resolves ranking red. Full P41 denominator disjointness not established.",
+      "next_owner": "F API/doc owner + graph/Scientist semantic owner; C plugin owner; G",
+      "next_action": "Accept bounded ABI evidence, retain supported private aliases, resolve ranking consumer separately and migrate actual external callers.",
+      "authority_limit": "Explicit exports or pydoc rendering alone do not prove all consumer/runtime semantics.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    },
+    {
+      "finding_id": "LA-035",
+      "closure_owner": "ECO-01",
+      "bundle_ids": [
+        "ECO-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2066",
+      "receipt_source": "ECO_FRY03",
+      "primary_residual_class": "principal_decision",
+      "current_bounded_evidence": "Retained normalized-income/budget loss has native JAX JIT/grad/finite guards; positive-regime constant-1 and mixed-sign gradient are explicit.",
+      "mechanism_or_oracle_residual": "Equivalent modern objective and real production optimizer consumer remain unestablished.",
+      "missing_input": "Actual optimizer caller, preference/objective requirement and compatible GlobalState/EconomicState input profile.",
+      "semantic_owner_boundary": "Principal(Denis) objective/profile/retirement decision pending; no unapproved welfare formula substitution.",
+      "next_owner": "Principal(Denis) then F economic objective/optimizer owner; G",
+      "next_action": "Choose baseline versus new versioned objective with cost/falsifier, trace optimizer, preserve old formula and supported aliases.",
+      "authority_limit": "Numerical objective behavior does not decide institutional policy preferences.",
+      "candidate_semantic_state": "limited_principal_decision_pending"
+    },
+    {
+      "finding_id": "LA-037",
+      "closure_owner": "FRY-01",
+      "bundle_ids": [
+        "FRY-01"
+      ],
+      "ledger_status_preserved": "partial",
+      "source_card_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@c40d4acae1ce58b597267255026d9356565828fd#L2146",
+      "receipt_source": "FRY01",
+      "primary_residual_class": "installed_distribution_and_docs_input",
+      "current_bounded_evidence": "Native IR layout/family builders, compiler/registry output and both historical/intermediate import identities verified.",
+      "mechanism_or_oracle_residual": "Docs build, installed package distribution and complete external address-window admission remain UNRUN.",
+      "missing_input": "Built/installed artifact, actual external clients/docs generator with supported toolchain.",
+      "semantic_owner_boundary": "IR remains layout owner; retirement of supported facade requires API lifecycle owner decision.",
+      "next_owner": "F FRY-01/IR layout owner + C packaging/docs owner; G",
+      "next_action": "Run native receipts after integration, docs build and installed old/intermediate address controls; preserve slot IDs/manifests.",
+      "authority_limit": "Source ABI identity is not complete installed distribution compatibility.",
+      "candidate_semantic_state": "limited_no_ledger_closure"
+    }
+  ],
+  "limits": "This artifact independently classifies semantics/next ownership from pinned source and published receipts. It neither reruns all seven slices nor replaces the separate API mechanical receipt/hash audit or G admission. Full production inputs stay local.",
+  "basis_scope": "recomputed complete source/owner/receipt semantic reconciliation; execution outcomes cite published authors/reviewers, not a new full runtime wave."
+}

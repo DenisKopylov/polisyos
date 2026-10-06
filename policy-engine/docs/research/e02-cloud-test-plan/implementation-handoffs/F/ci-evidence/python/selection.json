@@ -1,0 +1,1020 @@
+{
+  "schema": "policyos.e02.ci_transfer_selection.v1",
+  "items": [
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-python-quality-triage.json",
+      "bytes": 55785,
+      "sha256": "3fc6330cc8783e56e0233b350a3be138b5ebc7505c87a6811af565551d41cf4d",
+      "role": "Complete unchanged canonical full triage of all4 actual Python CI jobs and source-owned denominator"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr15-python-complete.log",
+      "bytes": 45955,
+      "sha256": "0254638268b4e4aa916b2552f3b0bcdb026056a6a8d0660842b3f41d502df167",
+      "role": "Full complete deciding plaintext Python quality/unit job log",
+      "pr": 15,
+      "topic_source_sha": "e642bb9025a67739c201393acca5712603cb064d",
+      "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "run_id": 37321206325,
+      "job_id": 111800440568,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440568"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr15-python-job.json",
+      "bytes": 4295,
+      "sha256": "22daab23f7129f1869139d53191752d63176d39b2080a6b028d7cce6e15fce54",
+      "role": "Full actual job steps/outcomes",
+      "pr": 15,
+      "topic_source_sha": "e642bb9025a67739c201393acca5712603cb064d",
+      "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "run_id": 37321206325,
+      "job_id": 111800440568,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440568"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr15-python-run.json",
+      "bytes": 12885,
+      "sha256": "d6fa30e3f8bc2293f1d3a1eb27f385a502aaf4848fe0b0dcf058775cba3cb018",
+      "role": "Full actual workflow run metadata",
+      "pr": 15,
+      "topic_source_sha": "e642bb9025a67739c201393acca5712603cb064d",
+      "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "run_id": 37321206325,
+      "job_id": 111800440568,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440568"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr15-python-check.json",
+      "bytes": 3547,
+      "sha256": "6dec18c6523234c9d708c235e75c1afece46b46b4d1806174a358e2919da9a42",
+      "role": "Full actual Python check-run metadata",
+      "pr": 15,
+      "topic_source_sha": "e642bb9025a67739c201393acca5712603cb064d",
+      "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "run_id": 37321206325,
+      "job_id": 111800440568,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440568"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr15-python-annotations.json",
+      "bytes": 1337,
+      "sha256": "e080dc731afd9b4d292d84e679c1dd11212491c136b7f1cb6f678c24d4d4b2fb",
+      "role": "Full actual Python check annotations",
+      "pr": 15,
+      "topic_source_sha": "e642bb9025a67739c201393acca5712603cb064d",
+      "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "run_id": 37321206325,
+      "job_id": 111800440568,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440568"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__architecture__imports__policy.toml",
+      "bytes": 3465,
+      "sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d",
+      "role": "Full canonical immutable import-policy/helper/workflow/bootstrap/dependency authority input",
+      "git_path": "policy-engine/architecture/imports/policy.toml",
+      "git_blob_sha": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+      "source_binding": "Byte-identical at all four topic and actual checked merge snapshots"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__architecture__packages__boundaries.toml",
+      "bytes": 9655,
+      "sha256": "e822643497f797aeec90979b6658234e704c5c2f05e8c341352acede3c9a3bbf",
+      "role": "Full canonical immutable import-policy/helper/workflow/bootstrap/dependency authority input",
+      "git_path": "policy-engine/architecture/packages/boundaries.toml",
+      "git_blob_sha": "964fbd1d6af68d98aa5c09468065185ec1990ba9",
+      "source_binding": "Byte-identical at all four topic and actual checked merge snapshots"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__architecture__imports__exceptions.toml",
+      "bytes": 11017,
+      "sha256": "74de9ec4637a00ecc840f6c9ee4a402ed25a269c0b8b6f21f61a37d7b0f5db79",
+      "role": "Full canonical immutable import-policy/helper/workflow/bootstrap/dependency authority input",
+      "git_path": "policy-engine/architecture/imports/exceptions.toml",
+      "git_blob_sha": "04bebe01f2d39f0d0fcacb2ff66a109a2baf1ed3",
+      "source_binding": "Byte-identical at all four topic and actual checked merge snapshots"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__tools__quality__lint__lint_imports.py",
+      "bytes": 63190,
+      "sha256": "199041448fbd4d5fd7b5b7a188d62a561bc9dd120ee13f129498dbeadc8b2af8",
+      "role": "Full canonical immutable import-policy/helper/workflow/bootstrap/dependency authority input",
+      "git_path": "policy-engine/tools/quality/lint/lint_imports.py",
+      "git_blob_sha": "b441e2f4f5ccd8f0f8e952a5a3bcd113edd3b7ee",
+      "source_binding": "Byte-identical at all four topic and actual checked merge snapshots"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__tools__lib____init__.py",
+      "bytes": 2284,
+      "sha256": "98a4ac5172a956abac2586bfeb819f86d3d64e09eef960d26d9263e12bf80035",
+      "role": "Full canonical immutable import-policy/helper/workflow/bootstrap/dependency authority input",
+      "git_path": "policy-engine/tools/lib/__init__.py",
+      "git_blob_sha": "d62f851b87bd36b7eac1458a43da313aa00878b5",
+      "source_binding": "Byte-identical at all four topic and actual checked merge snapshots"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__tools__lib__cache.py",
+      "bytes": 8186,
+      "sha256": "96b787ab64110c930db58f18dc60cfd20a7c899137fecb92fe8d6416801b87a1",
+      "role": "Full canonical immutable import-policy/helper/workflow/bootstrap/dependency authority input",
+      "git_path": "policy-engine/tools/lib/cache.py",
+      "git_blob_sha": "b5b9e77548f32ca3fa20786fd4c6c642d8ce30de",
+      "source_binding": "Byte-identical at all four topic and actual checked merge snapshots"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__tools__lib__fs.py",
+      "bytes": 13108,
+      "sha256": "d0ec5e12b7762027051614290cf4e21b09dc3602e371a040f9d7ffcd38a8193f",
+      "role": "Full canonical immutable import-policy/helper/workflow/bootstrap/dependency authority input",
+      "git_path": "policy-engine/tools/lib/fs.py",
+      "git_blob_sha": "f23d92e182a2a1d8be8049b342704e0542071fd4",
+      "source_binding": "Byte-identical at all four topic and actual checked merge snapshots"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__tools__lib__imports.py",
+      "bytes": 1623,
+      "sha256": "f04010c5a61accc638d01ffcb0eceb788730eea4b1d74d015eadeed413951f95",
+      "role": "Full canonical immutable import-policy/helper/workflow/bootstrap/dependency authority input",
+      "git_path": "policy-engine/tools/lib/imports.py",
+      "git_blob_sha": "2d41d47837fdc6083d8a02bb46debddf303fb1af",
+      "source_binding": "Byte-identical at all four topic and actual checked merge snapshots"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__tools__lib__output.py",
+      "bytes": 6514,
+      "sha256": "6c86cefdfdc54962ab851d87adbfbad6e682e33cbff6fbb90858fca70cac8a16",
+      "role": "Full canonical immutable import-policy/helper/workflow/bootstrap/dependency authority input",
+      "git_path": "policy-engine/tools/lib/output.py",
+      "git_blob_sha": "de354e2ec3602068a06ec4fc279ba751ac8130ea",
+      "source_binding": "Byte-identical at all four topic and actual checked merge snapshots"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/.github__workflows__abi.yml",
+      "bytes": 13097,
+      "sha256": "efa0bf5c6fa830d524cfa3e28ce4a43933f12b858041de08de612b0cb3369519",
+      "role": "Full canonical immutable import-policy/helper/workflow/bootstrap/dependency authority input",
+      "git_path": ".github/workflows/abi.yml",
+      "git_blob_sha": "5f6b4ce11ab4a0e91e4e2a5aa1da8f24e92ef82d",
+      "source_binding": "Byte-identical at all four topic and actual checked merge snapshots"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/.github__actions__setup-policy-engine-python__action.yml",
+      "bytes": 1963,
+      "sha256": "32958e0c11c8e6a1ccf5118a2c72ec86db5d16a33428e24989f2fdb6a13e7c62",
+      "role": "Full canonical immutable import-policy/helper/workflow/bootstrap/dependency authority input",
+      "git_path": ".github/actions/setup-policy-engine-python/action.yml",
+      "git_blob_sha": "9257b2039596a820081dc89ad052a89901e7fc76",
+      "source_binding": "Byte-identical at all four topic and actual checked merge snapshots"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__pyproject.toml",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "role": "Full canonical immutable import-policy/helper/workflow/bootstrap/dependency authority input",
+      "git_path": "policy-engine/pyproject.toml",
+      "git_blob_sha": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "source_binding": "Byte-identical at all four topic and actual checked merge snapshots"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__uv.lock",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "role": "Full canonical immutable import-policy/helper/workflow/bootstrap/dependency authority input",
+      "git_path": "policy-engine/uv.lock",
+      "git_blob_sha": "85f1fb2150a4da454fee02108565381d44f56730",
+      "source_binding": "Byte-identical at all four topic and actual checked merge snapshots"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/pr15-complete-denominator.json",
+      "bytes": 621522,
+      "sha256": "80fa4b2e40412e62ec3e036c91e7609a393a85b7a33dd1ca42ff7c4ae1a130f6",
+      "role": "Full complete2697source input denominator and all13canonical authority inputs",
+      "pr": 15,
+      "topic_source_sha": "e642bb9025a67739c201393acca5712603cb064d",
+      "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "run_id": 37321206325,
+      "job_id": 111800440568,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440568"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr18-python-complete.log",
+      "bytes": 44821,
+      "sha256": "c95f6c1dcb5159326e85b8084faa5e682b76ee82d30eb739ed191d61d2ba0843",
+      "role": "Full complete deciding plaintext Python quality/unit job log",
+      "pr": 18,
+      "topic_source_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "run_id": 37321831696,
+      "job_id": 111802572014,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831696/job/111802572014"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr18-python-job.json",
+      "bytes": 4289,
+      "sha256": "0d418d463da656a77519114b15b69296c70410648dcc3d385e3175b1e7db25e0",
+      "role": "Full actual job steps/outcomes",
+      "pr": 18,
+      "topic_source_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "run_id": 37321831696,
+      "job_id": 111802572014,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831696/job/111802572014"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr18-python-run.json",
+      "bytes": 12845,
+      "sha256": "39e39ef5326cb841e126f61068b95154851aa42d96232f16415455bd230367a1",
+      "role": "Full actual workflow run metadata",
+      "pr": 18,
+      "topic_source_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "run_id": 37321831696,
+      "job_id": 111802572014,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831696/job/111802572014"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr18-python-check.json",
+      "bytes": 3541,
+      "sha256": "70e873e0ab69a4aaa79ac37e1850f71028137599392ab51b6e8a7bc1bc894dd8",
+      "role": "Full actual Python check-run metadata",
+      "pr": 18,
+      "topic_source_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "run_id": 37321831696,
+      "job_id": 111802572014,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831696/job/111802572014"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr18-python-annotations.json",
+      "bytes": 1337,
+      "sha256": "8a7f69aaf425aa70fe8684c6d596e2e4321bf4037f6a18bd2bfb258a63d0c09c",
+      "role": "Full actual Python check annotations",
+      "pr": 18,
+      "topic_source_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "run_id": 37321831696,
+      "job_id": 111802572014,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831696/job/111802572014"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/pr18-complete-denominator.json",
+      "bytes": 621522,
+      "sha256": "757089219b7611deb0671eea26e8597accc9b831e537367b8e2c8530334ee935",
+      "role": "Full complete2697source input denominator and all13canonical authority inputs",
+      "pr": 18,
+      "topic_source_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "run_id": 37321831696,
+      "job_id": 111802572014,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831696/job/111802572014"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr19-python-complete.log",
+      "bytes": 45955,
+      "sha256": "db5bdb94c2f9a4bae0b7337629fcaecdfc51a64f46c1ad4fe9f4d4f482c3faa8",
+      "role": "Full complete deciding plaintext Python quality/unit job log",
+      "pr": 19,
+      "topic_source_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "run_id": 37321848468,
+      "job_id": 111802631656,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848468/job/111802631656"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr19-python-job.json",
+      "bytes": 4296,
+      "sha256": "de7150309a4bfc281010cd82ceacf7d3ecb1ab3d335ece478821e1911eee1a68",
+      "role": "Full actual job steps/outcomes",
+      "pr": 19,
+      "topic_source_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "run_id": 37321848468,
+      "job_id": 111802631656,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848468/job/111802631656"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr19-python-run.json",
+      "bytes": 12863,
+      "sha256": "dc3a38483cd12420f39ee1e8c9c22c1bb5081b8ecdab1579b5a60a3cb8cc59d5",
+      "role": "Full actual workflow run metadata",
+      "pr": 19,
+      "topic_source_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "run_id": 37321848468,
+      "job_id": 111802631656,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848468/job/111802631656"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr19-python-check.json",
+      "bytes": 3548,
+      "sha256": "f985784efbf64cae021e56691bacc15b87b9a81c356259770b3c8c8d3fd0a150",
+      "role": "Full actual Python check-run metadata",
+      "pr": 19,
+      "topic_source_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "run_id": 37321848468,
+      "job_id": 111802631656,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848468/job/111802631656"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr19-python-annotations.json",
+      "bytes": 1337,
+      "sha256": "2e6455dc02a865fdc756b34464aa15ef4f987f8318fb81ea73bdcf6bc87cc56c",
+      "role": "Full actual Python check annotations",
+      "pr": 19,
+      "topic_source_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "run_id": 37321848468,
+      "job_id": 111802631656,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848468/job/111802631656"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/pr19-complete-denominator.json",
+      "bytes": 621522,
+      "sha256": "87c7b66a83ddcfdf4ad29f2a1e8e2d8121c73c5b111368c7d082b3d7a5e5ce5f",
+      "role": "Full complete2697source input denominator and all13canonical authority inputs",
+      "pr": 19,
+      "topic_source_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "run_id": 37321848468,
+      "job_id": 111802631656,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848468/job/111802631656"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr20-python-complete.log",
+      "bytes": 45959,
+      "sha256": "4e4b6d424c205d201bc6011992e9d41453e5935a81dd7ecac53c04d1a55d29a3",
+      "role": "Full complete deciding plaintext Python quality/unit job log",
+      "pr": 20,
+      "topic_source_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "checked_merge_sha": "7f0c1573281a9379c61b256ae5a714ea127591dd",
+      "run_id": 37322540817,
+      "job_id": 111811930909,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811930909"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr20-python-job.json",
+      "bytes": 4293,
+      "sha256": "8ce67890ad8f9f933ca0b449bfcb16bb46226057cf361ff2e83eea3a9f76e415",
+      "role": "Full actual job steps/outcomes",
+      "pr": 20,
+      "topic_source_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "checked_merge_sha": "7f0c1573281a9379c61b256ae5a714ea127591dd",
+      "run_id": 37322540817,
+      "job_id": 111811930909,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811930909"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr20-python-run.json",
+      "bytes": 12862,
+      "sha256": "949ad1a5c7abd040286882b1d7b8d57c7f89331b3f0d2fb38b98ef291343744d",
+      "role": "Full actual workflow run metadata",
+      "pr": 20,
+      "topic_source_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "checked_merge_sha": "7f0c1573281a9379c61b256ae5a714ea127591dd",
+      "run_id": 37322540817,
+      "job_id": 111811930909,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811930909"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr20-python-check.json",
+      "bytes": 3545,
+      "sha256": "6d5a39c522479e5f09b25a57ad6762ccfbb215a7eb3d951fd8a195328d9860c1",
+      "role": "Full actual Python check-run metadata",
+      "pr": 20,
+      "topic_source_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "checked_merge_sha": "7f0c1573281a9379c61b256ae5a714ea127591dd",
+      "run_id": 37322540817,
+      "job_id": 111811930909,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811930909"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-pr20-python-annotations.json",
+      "bytes": 1337,
+      "sha256": "c08598cc1e63c4be48382d08d14066b38d2e82a1e8d5a30798427efc26a6b3fd",
+      "role": "Full actual Python check annotations",
+      "pr": 20,
+      "topic_source_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "checked_merge_sha": "7f0c1573281a9379c61b256ae5a714ea127591dd",
+      "run_id": 37322540817,
+      "job_id": 111811930909,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811930909"
+    },
+    {
+      "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/pr20-complete-denominator.json",
+      "bytes": 621522,
+      "sha256": "7e97ad4f54e2eb30402304a072a5ea1ddcddd489e5f3a36fa9e9ea4f3cebcbd5",
+      "role": "Full complete2697source input denominator and all13canonical authority inputs",
+      "pr": 20,
+      "topic_source_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "checked_merge_sha": "7f0c1573281a9379c61b256ae5a714ea127591dd",
+      "run_id": 37322540817,
+      "job_id": 111811930909,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811930909"
+    }
+  ],
+  "scope": "Read-only frozen historical Python quality/unit jobs PR15/18/19/20; root owns Gittransfer; no source/Git/import/marker/governance edits",
+  "verdict": "All4 actual jobs fail import-policy with same21unadjudicated violations across17source files; downstream fast-unit and later quality stepsSKIPPED. LocalnativePASS is bounded. Newer topichead CI unestablished.",
+  "source_snapshots": [
+    {
+      "pr": 15,
+      "topic_source_sha": "e642bb9025a67739c201393acca5712603cb064d",
+      "checked_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "run_id": 37321206325,
+      "job_id": 111800440568,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440568",
+      "source_python_count": 2697,
+      "canonical_inputs": 13,
+      "topic_and_checked_merge_input_blob_identity": true,
+      "denominator": {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/pr15-complete-denominator.json",
+        "bytes": 621522,
+        "sha256": "80fa4b2e40412e62ec3e036c91e7609a393a85b7a33dd1ca42ff7c4ae1a130f6",
+        "role": "Full denominator"
+      }
+    },
+    {
+      "pr": 18,
+      "topic_source_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "checked_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "run_id": 37321831696,
+      "job_id": 111802572014,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831696/job/111802572014",
+      "source_python_count": 2697,
+      "canonical_inputs": 13,
+      "topic_and_checked_merge_input_blob_identity": true,
+      "denominator": {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/pr18-complete-denominator.json",
+        "bytes": 621522,
+        "sha256": "757089219b7611deb0671eea26e8597accc9b831e537367b8e2c8530334ee935",
+        "role": "Full denominator"
+      }
+    },
+    {
+      "pr": 19,
+      "topic_source_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "checked_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "run_id": 37321848468,
+      "job_id": 111802631656,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848468/job/111802631656",
+      "source_python_count": 2697,
+      "canonical_inputs": 13,
+      "topic_and_checked_merge_input_blob_identity": true,
+      "denominator": {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/pr19-complete-denominator.json",
+        "bytes": 621522,
+        "sha256": "87c7b66a83ddcfdf4ad29f2a1e8e2d8121c73c5b111368c7d082b3d7a5e5ce5f",
+        "role": "Full denominator"
+      }
+    },
+    {
+      "pr": 20,
+      "topic_source_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "checked_merge_sha": "7f0c1573281a9379c61b256ae5a714ea127591dd",
+      "run_id": 37322540817,
+      "job_id": 111811930909,
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811930909",
+      "source_python_count": 2697,
+      "canonical_inputs": 13,
+      "topic_and_checked_merge_input_blob_identity": true,
+      "denominator": {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/pr20-complete-denominator.json",
+        "bytes": 621522,
+        "sha256": "7e97ad4f54e2eb30402304a072a5ea1ddcddd489e5f3a36fa9e9ea4f3cebcbd5",
+        "role": "Full denominator"
+      }
+    }
+  ],
+  "canonical_full_triage": {
+    "path": "/workspace/e02-F-receipts/cau-ci-python-quality-triage.json",
+    "bytes": 55785,
+    "sha256": "3fc6330cc8783e56e0233b350a3be138b5ebc7505c87a6811af565551d41cf4d",
+    "role": "Complete original canonical triage"
+  },
+  "moderation_and_sanitation": {
+    "selected_artifacts": "All deciding full moderate logs/metadata/complete denominator/input companions selected without excerpts. Four raw4.28MiB recursive API tree responses retained local@hash; their complete deciding2697Python+13canonical input entries are selected, irrelevant non-input repository entries excluded.",
+    "log_publication_encoding": "Plaintext CI timestamp-only lines contain trailing spaces. Transfer exact raw bytes or lossless JSON complete_console_output; encoded Git artifact bytes/SHA must be bound separately from raw decoded output bytes/SHA. Do not strip raw logs.",
+    "selected_signed_query_material": "None detected by bounded URL query-key census (Azure/AWS/token signed query keys); avatar version and GitHub API-template query metadata harmless and retained. No claim of general secret freedom. Originals are not rewritten.",
+    "unselected": "Empty failed direct-download logs; duplicate connector response wrappers; raw full unrelated API-tree entries",
+    "per_artifact_scan": [
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-python-quality-triage.json",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr15-python-complete.log",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 1,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr15-python-job.json",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr15-python-run.json",
+        "query_urls_host_keys_only": [
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "api.github.com",
+            "keys": [
+              "since,all,participating}"
+            ],
+            "signed": false
+          },
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "api.github.com",
+            "keys": [
+              "since,all,participating}"
+            ],
+            "signed": false
+          }
+        ],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr15-python-check.json",
+        "query_urls_host_keys_only": [
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          }
+        ],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr15-python-annotations.json",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__architecture__imports__policy.toml",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__architecture__packages__boundaries.toml",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__architecture__imports__exceptions.toml",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__tools__quality__lint__lint_imports.py",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__tools__lib____init__.py",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__tools__lib__cache.py",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__tools__lib__fs.py",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__tools__lib__imports.py",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__tools__lib__output.py",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/.github__workflows__abi.yml",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/.github__actions__setup-policy-engine-python__action.yml",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__pyproject.toml",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/policy-engine__uv.lock",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/pr15-complete-denominator.json",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr18-python-complete.log",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 1,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr18-python-job.json",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr18-python-run.json",
+        "query_urls_host_keys_only": [
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "api.github.com",
+            "keys": [
+              "since,all,participating}"
+            ],
+            "signed": false
+          },
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "api.github.com",
+            "keys": [
+              "since,all,participating}"
+            ],
+            "signed": false
+          }
+        ],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr18-python-check.json",
+        "query_urls_host_keys_only": [
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          }
+        ],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr18-python-annotations.json",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/pr18-complete-denominator.json",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr19-python-complete.log",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 1,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr19-python-job.json",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr19-python-run.json",
+        "query_urls_host_keys_only": [
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "api.github.com",
+            "keys": [
+              "since,all,participating}"
+            ],
+            "signed": false
+          },
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "api.github.com",
+            "keys": [
+              "since,all,participating}"
+            ],
+            "signed": false
+          }
+        ],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr19-python-check.json",
+        "query_urls_host_keys_only": [
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          }
+        ],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr19-python-annotations.json",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/pr19-complete-denominator.json",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr20-python-complete.log",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 1,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr20-python-job.json",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr20-python-run.json",
+        "query_urls_host_keys_only": [
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "api.github.com",
+            "keys": [
+              "since,all,participating}"
+            ],
+            "signed": false
+          },
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          },
+          {
+            "host": "api.github.com",
+            "keys": [
+              "since,all,participating}"
+            ],
+            "signed": false
+          }
+        ],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr20-python-check.json",
+        "query_urls_host_keys_only": [
+          {
+            "host": "avatars.githubusercontent.com",
+            "keys": [
+              "v"
+            ],
+            "signed": false
+          }
+        ],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-pr20-python-annotations.json",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      },
+      {
+        "path": "/workspace/e02-F-receipts/cau-ci-transfer-inputs/pr20-complete-denominator.json",
+        "query_urls_host_keys_only": [],
+        "signed_query_count": 0,
+        "upstream_masked_authorization_lines": 0,
+        "private_key_begin_marker_count": 0,
+        "redaction_count": 0
+      }
+    ],
+    "source_rewrites": false,
+    "redaction_count": 0
+  },
+  "limitations": [
+    "Originaltriage current-head assertions are historical observation; later finalrefs differ and index must qualify them.",
+    "Exact pre-edit fullc40 command replay absent; no inherited-red verdict.",
+    "Complete static source/config input denominator does not bind all OS/date/stdlib/actions/runner/transitiveexecution state.",
+    "API sha field preserved asreported; relevant blob equality establishes inputbindings, not an inferred Git treeobject identity."
+  ],
+  "item_count": 38,
+  "selected_total_bytes": 3737033
+}

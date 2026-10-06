@@ -1,0 +1,35 @@
+[
+  {
+    "kind": "schema",
+    "raw_path": "/workspace/e02-F-receipts/fit-ci-schema-abi/run-37321206325-archive-1_Fast PR _ Schema snapshots.txt",
+    "raw_bytes": 37990,
+    "raw_sha256": "4ab66c530dce94117a2e5aee1c1c3d82f9743026d893d12d77f0a837610418f9",
+    "normalized_path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-schema-complete-normalized.txt",
+    "normalized_bytes": 22014,
+    "normalized_sha256": "e8fb7ee9f048ec02209633949ff424b6026057234b4017ca6a188a3365578463",
+    "lines": 554,
+    "normalization": "removed leading UTF8BOM, ANSIcolor escape sequences, and per-line UTCprefix; every log line retained in order; original bytes preserved separately"
+  },
+  {
+    "kind": "abi",
+    "raw_path": "/workspace/e02-F-receipts/fit-ci-schema-abi/run-37321206325-archive-2_Fast PR _ ABI drift.txt",
+    "raw_bytes": 53448,
+    "raw_sha256": "a573cea376eceaf551cd022542e2ca10ccf5cac071e0092883792b9aa322bd66",
+    "normalized_path": "/workspace/e02-F-receipts/fit-ci-schema-abi/pr15-abi-complete-normalized.txt",
+    "normalized_bytes": 32507,
+    "normalized_sha256": "a97e49ffca2eb80543fb56e5250f51b550073ccad52b9853d0a05ce0f0803a87",
+    "lines": 721,
+    "normalization": "removed leading UTF8BOM, ANSIcolor escape sequences, and per-line UTCprefix; every log line retained in order; original bytes preserved separately"
+  },
+  {
+    "kind": "exact-c40-main-schema",
+    "raw_path": "/workspace/e02-F-receipts/fit-ci-schema-abi/main-c40-archive-5_Fast PR _ Schema snapshots.txt",
+    "raw_bytes": 36987,
+    "raw_sha256": "169ade6c2e253e3ac12020e4ab547c676693e2c1abbf90e330a46e0d9f0a89b9",
+    "normalized_path": "/workspace/e02-F-receipts/fit-ci-schema-abi/main-c40-schema-complete-normalized.txt",
+    "normalized_bytes": 21446,
+    "normalized_sha256": "960ab08bdf924db8c258ce6e388c4cd1c652fd68a65e940e263c72e6e14bb557",
+    "lines": 539,
+    "normalization": "removed UTF8BOM, ANSIcolor escape sequences, and UTCper-line prefixes; every line retained in order; originalfullbytes preserved"
+  }
+]

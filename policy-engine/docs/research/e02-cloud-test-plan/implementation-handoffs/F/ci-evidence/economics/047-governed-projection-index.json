@@ -1,0 +1,8 @@
+{
+  "source_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+  "path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+  "blob_sha": "11e2b068fafa53361ba96ad847fa93da5e169b7e",
+  "sha256": "f697b9bd324cafd7d90ca0d3dd6e641d9c2db131b2a49d9d1af0ebb024e9668a",
+  "bytes": 106265,
+  "local_path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/governed_projections.py"
+}

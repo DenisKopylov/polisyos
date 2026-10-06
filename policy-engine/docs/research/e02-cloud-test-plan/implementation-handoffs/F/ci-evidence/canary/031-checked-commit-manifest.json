@@ -1,0 +1,181 @@
+[
+  {
+    "sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+    "tree_sha": "450181a90ce9cc1698b4bcf18896521b564147ec",
+    "parents": [
+      "c40d4acae1ce58b597267255026d9356565828fd",
+      "6a6ddfe9542000914bffd6502d72a166c1d33261"
+    ],
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal-probe.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "policy-engine/tests/unit/remediation/test_cau_02.py"
+    ]
+  },
+  {
+    "sha": "37e43479a08a42fed998c56d328a21b4a997547b",
+    "tree_sha": "802062f5e1a96b5682ecd3c109606d208ae51378",
+    "parents": [
+      "c40d4acae1ce58b597267255026d9356565828fd",
+      "85c16de9f16a4e21c05c516271b6c81e08b7a39f"
+    ],
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-contract-targeted.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-networkx-oracle.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-networkx-targeted.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-architecture.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-independent-review.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm-targeted.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-scm.json",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+      "policy-engine/tests/unit/remediation/test_scm_02.py"
+    ]
+  },
+  {
+    "sha": "51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b",
+    "tree_sha": "f80d2aabdadb85c2a8c44e13205811f217be8ae5",
+    "parents": [
+      "c40d4acae1ce58b597267255026d9356565828fd",
+      "bfc5d0fb8195c2246db72dfb5d46e29a8eec9e42"
+    ],
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-architecture.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-deciding.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype-removal.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-dtype.json",
+      "policy-engine/src/polisyos/foundry/agent_sim/distributions.py",
+      "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+      "policy-engine/tests/unit/foundry/plugins/test_economics_dtype.py"
+    ]
+  },
+  {
+    "sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+    "tree_sha": "1c33f0376faa6ff13e76e70e5a91cad216a48b61",
+    "parents": [
+      "c40d4acae1ce58b597267255026d9356565828fd",
+      "baada065af0aaa4edafb8d53abce5fd797de2c6c"
+    ],
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+    ]
+  },
+  {
+    "sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+    "tree_sha": "450181a90ce9cc1698b4bcf18896521b564147ec",
+    "parents": [
+      "c8e16d0abb7d10605475862ede8c6f327ff7cce9"
+    ],
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal-probe.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json"
+    ]
+  },
+  {
+    "sha": "6d2c1df282709dcfbe1fcbff95b7da3da5da60dc",
+    "tree_sha": "871ac9a5576ea591c52db2bc1ec07614bca3d34e",
+    "parents": [
+      "c40d4acae1ce58b597267255026d9356565828fd",
+      "ef3f208db031671d9f0d5cefe1ffa68af0650f0a"
+    ],
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/.gitignore",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/architecture.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/base-probes.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/consumer-regression.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-adversarial.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/independent-native.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/native-frozen.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fit-tmle/removal-controls.txt",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py"
+    ]
+  },
+  {
+    "sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+    "tree_sha": "a51d4d9c7151a3a25867adc8c38a1cd4f1f7b008",
+    "parents": [
+      "c40d4acae1ce58b597267255026d9356565828fd",
+      "e642bb9025a67739c201393acca5712603cb064d"
+    ],
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-profile-consumers.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-candidate-deciding.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-mask-removal.txt",
+      "policy-engine/src/polisyos/foundry/plugins/README.md",
+      "policy-engine/tests/unit/remediation/test_eco_01.py",
+      "policy-engine/tests/unit/remediation/test_fry_03.py"
+    ]
+  },
+  {
+    "sha": "99856c944c7d6e62cbaf7f502b7164900061a6bc",
+    "tree_sha": "860a236668b7194212980271ffafa66677434517",
+    "parents": [
+      "c40d4acae1ce58b597267255026d9356565828fd",
+      "3fab28d98997527b2a26d46fe4e16220e42383b7"
+    ],
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-architecture.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-frozen-tests.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-green.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-controls.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-native.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-removed-controls.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-independent-fit-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-input-binding.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-invocation.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-green.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-red.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-plan-freeze-selector-error.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-red.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-removal.txt",
+      "policy-engine/release-fragments/unreleased/2026-10-05-lex-impact-input-binding.toml",
+      "policy-engine/src/polisyos/core/components/_cli_lex.py",
+      "policy-engine/src/polisyos/lex/legal_evaluation/README.md",
+      "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py"
+    ]
+  },
+  {
+    "sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+    "tree_sha": "1c33f0376faa6ff13e76e70e5a91cad216a48b61",
+    "parents": [
+      "0c709ea924d2b868eacf1016f5c70ff749e287a8"
+    ],
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt"
+    ]
+  },
+  {
+    "sha": "e642bb9025a67739c201393acca5712603cb064d",
+    "tree_sha": "a51d4d9c7151a3a25867adc8c38a1cd4f1f7b008",
+    "parents": [
+      "ea1171cd51e912f17bade020f9c7c99a0d7e9cb6"
+    ],
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-profile-consumers.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-candidate-deciding.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-mask-removal.txt"
+    ]
+  }
+]

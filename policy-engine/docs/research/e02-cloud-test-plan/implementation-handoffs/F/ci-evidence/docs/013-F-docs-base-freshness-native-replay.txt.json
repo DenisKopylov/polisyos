@@ -1,0 +1,7 @@
+{
+  "schema": "policyos.e02.complete_text_log.v1",
+  "original_filename": "F-docs-base-freshness-native-replay.txt",
+  "raw_bytes": 701,
+  "raw_sha256": "5672a3eb6ff381dfb59ebac2e8cfafb988f16d9ef3b14d60e432712e49427d85",
+  "content": "source_sha=c40d4acae1ce58b597267255026d9356565828fd\nsource_clean=true\ncwd=/workspace/e02-F-base-control/policy-engine\nargv=[\"uv\", \"run\", \"polisyos-tools\", \"validation\", \"check-docs-freshness-baseline\"]\nstarted_utc=2026-10-05T15:08:32.200831+00:00\npython=3.14.2; native CI used 3.14.7\nwall_seconds=2.209892\nexit_code=1\n--- stdout (complete) ---\nDocs freshness baseline FAILED:\n- docs freshness exception baseline expired\n- docs freshness violation count changed: expected 0, observed 10\n- docs freshness baseline hash changed: expected a3030ecf013ab9e3e7ffec891b2743e7dac6f2892361fad35f63774f7e4fe7a2, observed 459cc4ff53c6dcb5cb8444e1bc22c715583f3a69411870176a6bf06bafcdb6be\n--- stderr (complete) ---\n"
+}

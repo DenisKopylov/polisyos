@@ -1,0 +1,154 @@
+{
+  "schema": "e02.F.docs-companion-independent-review.v1",
+  "frozen_sha": "4b8cdf8ab88006c572c2b2d0039053d5a0138f14",
+  "source_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "before_source_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+  "doc_path": "policy-engine/docs/reference/foundry/causal-engine-architecture.md",
+  "before_changed_paths": [
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt",
+    "src/polisyos/foundry/methods/catalog/causal/README.md",
+    "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+  ],
+  "after_changed_paths": [
+    "docs/reference/foundry/causal-engine-architecture.md",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt",
+    "src/polisyos/foundry/methods/catalog/causal/README.md",
+    "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+  ],
+  "before_plan": {
+    "commands": [
+      {
+        "key": "docs_accuracy",
+        "label": "verify docs freshness baseline",
+        "argv": [
+          "uv",
+          "run",
+          "polisyos-tools",
+          "validation",
+          "check-docs-freshness-baseline"
+        ]
+      },
+      {
+        "key": "strict_docs_build",
+        "label": "build documentation site in strict mode",
+        "argv": [
+          "uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "-m",
+          "mkdocs",
+          "build",
+          "--strict"
+        ]
+      }
+    ],
+    "findings": [
+      {
+        "rule_id": "foundry_docs",
+        "message": "Foundry compile/execute/method/calibration changes require Foundry reference, benchmark docs, or an impact note. Touched: `src/polisyos/foundry/methods/catalog/causal/README.md`. Expected one of: `docs/reference/foundry/**`, `docs/benchmarks/**`, `docs/explanation/causal-engine.md`, `docs/reference/documentation-inventory.md`."
+      }
+    ]
+  },
+  "after_plan": {
+    "commands": [
+      {
+        "key": "docs_accuracy",
+        "label": "verify docs freshness baseline",
+        "argv": [
+          "uv",
+          "run",
+          "polisyos-tools",
+          "validation",
+          "check-docs-freshness-baseline"
+        ]
+      },
+      {
+        "key": "strict_docs_build",
+        "label": "build documentation site in strict mode",
+        "argv": [
+          "uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "-m",
+          "mkdocs",
+          "build",
+          "--strict"
+        ]
+      }
+    ],
+    "findings": []
+  },
+  "remove_documentation_path_negative": {
+    "commands": [
+      {
+        "key": "docs_accuracy",
+        "label": "verify docs freshness baseline",
+        "argv": [
+          "uv",
+          "run",
+          "polisyos-tools",
+          "validation",
+          "check-docs-freshness-baseline"
+        ]
+      },
+      {
+        "key": "strict_docs_build",
+        "label": "build documentation site in strict mode",
+        "argv": [
+          "uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "-m",
+          "mkdocs",
+          "build",
+          "--strict"
+        ]
+      }
+    ],
+    "findings": [
+      {
+        "rule_id": "foundry_docs",
+        "message": "Foundry compile/execute/method/calibration changes require Foundry reference, benchmark docs, or an impact note. Touched: `src/polisyos/foundry/methods/catalog/causal/README.md`. Expected one of: `docs/reference/foundry/**`, `docs/benchmarks/**`, `docs/explanation/causal-engine.md`, `docs/reference/documentation-inventory.md`."
+      }
+    ]
+  },
+  "controls": "PASS bounded foundry_docs path predicate: before missing / after clear / actual after paths minus document missing",
+  "implementation_delta_paths": [
+    "policy-engine/docs/reference/foundry/causal-engine-architecture.md"
+  ],
+  "working_status_at_start": [],
+  "untracked_receipt_boundary": "Mutable handoff companions, if recorded, excluded from path planning by explicit immutable head-ref; runtime/tests/reference docs frozen. Freshness does not read these unpublished JSON/TXT bodies.",
+  "doc_delta": "diff --git a/policy-engine/docs/reference/foundry/causal-engine-architecture.md b/policy-engine/docs/reference/foundry/causal-engine-architecture.md\nindex 44e8977d5..c93aa900c 100644\n--- a/policy-engine/docs/reference/foundry/causal-engine-architecture.md\n+++ b/policy-engine/docs/reference/foundry/causal-engine-architecture.md\n@@ -3,10 +3,16 @@\n Owner: `@foundry-owners`\n Source of truth: `src/polisyos/foundry/methods/catalog/causal/**`, `benchmarks/_reports/server_pull_focused_v26_20260320/`, and `tests/unit/foundry/methods/catalog/causal/**`\n \n-> **Version**: v26 (March 20, 2026)\n+> **Benchmark snapshot**: v26 (March 20, 2026)\n+> **Facade ABI documentation**: October 5, 2026\n > **Location**: `policy-engine/src/polisyos/foundry/methods/catalog/causal/`\n > **Benchmark data**: `policy-engine/benchmarks/_reports/server_pull_focused_v26_20260320/`\n \n+The numerical results, module/method counts, readiness labels, and competitor\n+comparisons below describe the dated v26 snapshot. They are retained as historical\n+reporting, not a current backend census or a fresh scientific-validation result.\n+The package layout and consumer ABI section describe the current source surface.\n+\n ---\n \n ## Table of Contents\n@@ -31,7 +37,7 @@ Source of truth: `src/polisyos/foundry/methods/catalog/causal/**`, `benchmarks/_\n \n The Causal Engine is the central analytical core of PolicyOS. It implements the **Pearl-Bareinboim causal inference framework** end-to-end: from symbolic identification of causal queries on DAGs/ADMGs, through compilation to statistical estimands, to numerical estimation with full audit trails.\n \n-**Key numbers:**\n+**Key numbers from the March 20, 2026 v26 snapshot:**\n \n - **91 Python modules** in the causal catalog\n - **70+ registered methods** across 9 development phases\n@@ -95,12 +101,12 @@ User Query (treatment, outcome, graph, data)\n \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n ```\n \n-### Module Map\n+### Current Module Map\n \n ```text\n causal/\n-\u251c\u2500\u2500 causal_engine.py          \u2190 Main orchestrator (600+ lines)\n-\u251c\u2500\u2500 id_engine.py              \u2190 Identification algorithms (1200+ lines)\n+\u251c\u2500\u2500 causal_engine/            \u2190 Public package; api.py orchestrator and leaf mixins\n+\u251c\u2500\u2500 id_engine/                \u2190 Identification package; core, transport, counterfactual, api\n \u251c\u2500\u2500 do_calculus.py            \u2190 Pearl's 3 rules\n \u251c\u2500\u2500 estimand_compiler.py      \u2190 AST \u2192 ExecutionPlan (400+ lines)\n \u251c\u2500\u2500 admg_ops.py               \u2190 Pure graph algorithms (500+ lines)\n@@ -140,7 +146,7 @@ causal/\n \u251c\u2500\u2500 constraint_discovery.py    \u2190 PC, FCI, GES\n \u2502\n \u251c\u2500\u2500 # Special topics\n-\u251c\u2500\u2500 interference.py            \u2190 Network/spatial AIPW, partial interference\n+\u251c\u2500\u2500 interference/              \u2190 Explicit public package; api and identification leaves\n \u251c\u2500\u2500 missing_data.py            \u2190 M-graph recoverability\n \u251c\u2500\u2500 data_fusion.py             \u2190 Multi-source fusion\n \u251c\u2500\u2500 path_specific.py           \u2190 NDE/NIE via cross-fit EIF\n@@ -152,6 +158,83 @@ causal/\n \u2514\u2500\u2500 transport_engine.py        \u2190 Multi-backend transport solver\n ```\n \n+### Current consumer ABI of the explicit facades\n+\n+Use the package addresses\n+`polisyos.foundry.methods.catalog.causal.causal_engine` and\n+`polisyos.foundry.methods.catalog.causal.interference` for their supported public\n+imports. They are packages after the module split. Their explicit `__all__`\n+bindings select the public surface; importing another service into a leaf does\n+not add that service to these exports. The adjacent `id_engine` remains a split\n+identification package and is not included in this explicit-export ABI witness.\n+\n+| Package entrypoint | Public binding | Canonical definition |\n+| ------------------ | -------------- | -------------------- |\n+| `causal_engine` | `CausalEngine` | `polisyos.foundry.methods.catalog.causal.causal_engine.api.CausalEngine` |\n+| `causal_engine` | `DataReadinessBlockedError` | `polisyos.foundry.methods.catalog.causal._causal_engine_contracts.DataReadinessBlockedError` |\n+| `interference` | `BipartiteInterferenceEstimator`, `NetworkAIPWEstimator`, `PartialInterferenceEstimator`, `SpatialInterferenceEstimator` | `polisyos.foundry.methods.catalog.causal.interference.api` |\n+| `interference` | `InterferenceAugmentedGraph`, `InterferenceIdentificationResult` | `polisyos.foundry.methods.catalog.causal._interference_contracts` |\n+| `interference` | `build_block_stratified_network_causal_data`, `build_interference_topology_contracts`, `identify_interference_effect` | `polisyos.foundry.methods.catalog.causal.interference.identification` |\n+\n+These are the same class/function objects as their leaf definitions, rather than\n+wrapper types. Direct and star imports retain those identities and their\n+`__module__`/`__qualname__` addresses. Existing class/function pickle consumers\n+resolve those canonical addresses; the ABI tests round-trip the exported objects\n+themselves. This does not assert that arbitrary graph or result instances can be\n+pickled. Typed result consumers use their supported JSON model readers.\n+\n+Historical direct callers can still address\n+`causal_engine._make_dummy_identification_result` and patch\n+`causal_engine.id_with_oracle_fallback`, `id_star_algorithm`,\n+`idc_star_algorithm`, or `mz_id_algorithm`. These compatibility bindings are\n+outside `__all__`. Before identification,\n+`causal_engine.identification._sync_public_algorithm_overrides` copies present\n+package-level algorithm bindings into the real identification leaf, so a patch\n+at a retained package address affects execution. Restoring that binding and\n+invoking identification again restores the genuine algorithm. The interference\n+package retains `_ReductionErrorBoundPlan`, `_SimplicialSupportGate`, and\n+`_TopologyCertificatePlan` for historical direct test callers, also outside\n+`__all__`. New internal callers should use their leaf owners; retiring these\n+addresses requires consumer migration and an API-owner decision.\n+\n+Consumer compatibility includes execution and serialization:\n+\n+- The real Scientist consumer\n+  `polisyos.scientist.methods.discovery.stability._evaluate_identifiability`\n+  imports `CausalEngine` from its package and consumes the identification status.\n+  A simple identified graph returns true, while a confounded bow graph returns\n+  false in the bounded fixture controls.\n+- `CausalEngine.run` supplies an `EvidenceBundle` that a consumer can reconstruct\n+  through `EvidenceBundle.model_validate_json(bundle.model_dump_json())`.\n+  Identification-only fixtures retain `identified` versus `hedge_found` and the\n+  corresponding `NegativeCertificate`; they provide no numerical effect report.\n+- `interference.identify_interference_effect` supplies an\n+  `InterferenceIdentificationResult`; its JSON reader retains the typed\n+  `InterferenceAugmentedGraph`, exposure nodes, and interference/SUTVA flags.\n+- Native `pydoc.render_doc` consumes both actual package modules and renders their\n+  supported exports. This is runtime API rendering, not a MkDocs site-build or a\n+  causal-estimation result.\n+\n+`tests/unit/remediation/test_api_01.py` covers explicit exports, incidental-name\n+rejection, and reload cleanup.\n+`tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py` executes the\n+consumer paths above, class/function pickle identity, literal repository imports,\n+and supported patch restoration. Its removal control disables the override\n+bridge while retaining the public class and exports: identification still runs,\n+but the package patch no longer reaches the invoked algorithm. Export identity\n+alone therefore misses an actual ABI break. Literal AST imports cover tracked\n+Python callers, including relative imports; computed import addresses and callers\n+outside the repository remain unresolved.\n+\n+These checks establish a bounded software ABI and symbolic fixture behavior.\n+They do not establish native DoWhy/EconML availability, estimator calibration on\n+an admitted dataset, or full scientific authority for a policy-effect claim.\n+Python 3.14 markers exclude DoWhy/EconML in the baseline profile; those exclusions\n+are not positive backend evidence. Registration and installed external plugin\n+discovery have their own registry/extension-point owners and are outside this\n+facade witness. No new plugin census or compatibility-retirement decision follows\n+from it.\n+\n ---\n \n <a id=\"3-layer-1-symbolic-identification\"></a>\n@@ -302,7 +385,7 @@ EstimandAST \u2192 classify_estimand() \u2192 EstimandShape \u2192 recommend_estimator()\n \n | Capability                       | Module                                          |\n | -------------------------------- | ----------------------------------------------- |\n-| Network/spatial interference     | `interference.py`                               |\n+| Network/spatial interference     | `interference/`                               |\n | M-graph recovery (missing data)  | `missing_data.py`                               |\n | Multi-source data fusion         | `data_fusion.py`                                |\n | Path-specific effects (NDE/NIE)  | `path_specific.py`                              |\n@@ -399,7 +482,9 @@ All external data flows through typed IR from `polisyos.ir.analytics`:\n \n ## 8. Registry & Plugin System\n \n-`_registry_boot.py` exports `register_causal_methods()` which dynamically registers **70+ method classes** via the Foundry `MethodRegistry`.\n+The v26 snapshot described **70+ method classes** registered through\n+`_registry_boot.py` and the Foundry `MethodRegistry`. This historical count does\n+not certify the current installed external plugin set.\n \n ### Registration Phases\n \n@@ -494,6 +579,9 @@ Scorecards \u2192 Mean rank, max rank, deviation, top-quartile failure\n \n ## 11. Benchmark Results (v26)\n \n+These are the reported March 20, 2026 results. Their PASS/readiness labels apply\n+to that run and its inputs; the current ABI tests do not rerun or renew them.\n+\n ### Run Environment\n \n - **Date**: March 20, 2026\n",
+  "full_native_gate": {
+    "argv": [
+      "uv",
+      "run",
+      "polisyos-tools",
+      "validation",
+      "check-docs-gate",
+      "--repo-root",
+      ".",
+      "--base-ref",
+      "c40d4acae1ce58b597267255026d9356565828fd",
+      "--head-ref",
+      "4b8cdf8ab88006c572c2b2d0039053d5a0138f14"
+    ],
+    "exit_code": 1,
+    "wall_seconds": 3.984402629000215,
+    "log_path": "/workspace/e02-F-receipts/F-docs-api-independent-after-native.txt",
+    "log_bytes": 1475,
+    "log_sha256": "9328d6b96467793b7ed817cb1e6f859ff2235567921555ba1bb5d6a5a5742efe",
+    "preserved_failure": "expired freshness baseline; observed10/hash459cc; strict_docs_build unrun after child failure"
+  },
+  "verdict": "GO for substantive companion coverage only; whole Docs quality remains FAILED; no estimator/backend/real-data or ledger authority extension"
+}

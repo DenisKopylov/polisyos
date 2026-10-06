@@ -1,0 +1,81 @@
+[
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/main-c40-run.json",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/runs/37317558355"
+    ],
+    "exit_code": 0,
+    "bytes": 12705,
+    "sha256": "db1e67038ba9297851376c4d216610069fa2370833d57e2398a7c1babf2540dc",
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/main-c40-jobs.json",
+    "argv": [
+      "gh",
+      "api",
+      "--paginate",
+      "repos/DenisKopylov/polisyos/actions/runs/37317558355/jobs"
+    ],
+    "exit_code": 0,
+    "bytes": 15930,
+    "sha256": "235a1aa2931d57e93112c797e4129424a7839edb0d8ce067a85a071c8ade18b7",
+    "stderr": ""
+  },
+  {
+    "path": "/workspace/e02-F-receipts/fit-ci-schema-abi/main-c40-run-full-logs.zip",
+    "argv": [
+      "gh",
+      "api",
+      "repos/DenisKopylov/polisyos/actions/runs/37317558355/logs"
+    ],
+    "exit_code": 0,
+    "bytes": 42489,
+    "sha256": "95086d4a2317a83705986fadf2ba9465d1adbb92941dc9e6ee5cd42013eea507",
+    "stderr": "",
+    "members": [
+      {
+        "name": "0_Fast PR _ Gate.txt",
+        "bytes": 3056
+      },
+      {
+        "name": "Fast PR _ Gate/system.txt",
+        "bytes": 577
+      },
+      {
+        "name": "1_Fast PR _ Python quality and unit.txt",
+        "bytes": 44959
+      },
+      {
+        "name": "Fast PR _ Python quality and unit/system.txt",
+        "bytes": 582
+      },
+      {
+        "name": "2_Fast PR _ Workflow governance.txt",
+        "bytes": 28195
+      },
+      {
+        "name": "Fast PR _ Workflow governance/system.txt",
+        "bytes": 585
+      },
+      {
+        "name": "3_Fast PR _ Docs quality.txt",
+        "bytes": 42841
+      },
+      {
+        "name": "Fast PR _ Docs quality/system.txt",
+        "bytes": 578
+      },
+      {
+        "name": "5_Fast PR _ Schema snapshots.txt",
+        "bytes": 36987
+      },
+      {
+        "name": "Fast PR _ Schema snapshots/system.txt",
+        "bytes": 582
+      }
+    ]
+  }
+]

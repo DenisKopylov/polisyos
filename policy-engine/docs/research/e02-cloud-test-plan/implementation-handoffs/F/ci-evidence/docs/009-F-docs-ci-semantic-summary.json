@@ -1,0 +1,451 @@
+{
+  "schema": "e02.F.docs-ci-read-only.v1",
+  "source_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "scope": "Actual completed Docs quality jobs PR15/18/19/20; full changed-path sets and bounded documentation coverage planning",
+  "rows": [
+    {
+      "pr": 15,
+      "run_id": "37321206325",
+      "job_id": "111800440136",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321206325/job/111800440136",
+      "event_head_sha": "e642bb9025a67739c201393acca5712603cb064d",
+      "source_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "checkout_merge_sha": "8280a4aa6e028af0dd74d2f987ce6fc6e498b877",
+      "checkout_merge_log_line": "HEAD is now at 8280a4aa6 Merge e642bb9025a67739c201393acca5712603cb064d into c40d4acae1ce58b597267255026d9356565828fd",
+      "full_changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economic-profile-consumers.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-candidate-deciding.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/economics-mask-removal.txt",
+        "policy-engine/src/polisyos/foundry/plugins/README.md",
+        "policy-engine/tests/unit/remediation/test_eco_01.py",
+        "policy-engine/tests/unit/remediation/test_fry_03.py"
+      ],
+      "changed_path_count": 6,
+      "actual_before_plan": {
+        "commands": [
+          {
+            "key": "docs_accuracy",
+            "label": "verify docs freshness baseline",
+            "argv": [
+              "uv",
+              "run",
+              "polisyos-tools",
+              "validation",
+              "check-docs-freshness-baseline"
+            ]
+          },
+          {
+            "key": "strict_docs_build",
+            "label": "build documentation site in strict mode",
+            "argv": [
+              "uv",
+              "run",
+              "--extra",
+              "docs",
+              "python",
+              "-m",
+              "mkdocs",
+              "build",
+              "--strict"
+            ]
+          }
+        ],
+        "findings": []
+      },
+      "failed_step": "Run path-aware docs drift gate",
+      "job_conclusion": "failure",
+      "failed_child_command": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-docs-freshness-baseline"
+      ],
+      "source_sha_log_match": true,
+      "complete_native_log": {
+        "path": "/workspace/e02-F-receipts/F-docs-pr15-native-job-log.txt",
+        "bytes": 46889,
+        "lines": 638,
+        "sha256": "fdcd7e97f251b02ba69c2289ab88c0292b35826c8df13eab80706523aec565a4"
+      },
+      "native_ci_environment": {
+        "python": "3.14.7",
+        "docs_profile_setup": "success"
+      },
+      "unreached_steps": [
+        "Run path-aware docs drift gate for push",
+        "Check docs freshness baseline",
+        "Check docs lifecycle gates",
+        "Check ADR thematic index freshness",
+        "Check tool config split drift",
+        "Build docs in strict mode",
+        "Check public-surface docstring quality"
+      ],
+      "concrete_own_regression": null
+    },
+    {
+      "pr": 18,
+      "run_id": "37321831696",
+      "job_id": "111802572067",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321831696/job/111802572067",
+      "event_head_sha": "6a6ddfe9542000914bffd6502d72a166c1d33261",
+      "source_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "checkout_merge_sha": "2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225",
+      "checkout_merge_log_line": "HEAD is now at 2a8cc6bb6 Merge 6a6ddfe9542000914bffd6502d72a166c1d33261 into c40d4acae1ce58b597267255026d9356565828fd",
+      "full_changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-base-red.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-development-green.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-native.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-original-env-error.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal-probe.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission-removal.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/cau-cohort-admission.json",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+        "policy-engine/tests/unit/remediation/test_cau_02.py"
+      ],
+      "changed_path_count": 9,
+      "actual_before_plan": {
+        "commands": [
+          {
+            "key": "docs_accuracy",
+            "label": "verify docs freshness baseline",
+            "argv": [
+              "uv",
+              "run",
+              "polisyos-tools",
+              "validation",
+              "check-docs-freshness-baseline"
+            ]
+          },
+          {
+            "key": "strict_docs_build",
+            "label": "build documentation site in strict mode",
+            "argv": [
+              "uv",
+              "run",
+              "--extra",
+              "docs",
+              "python",
+              "-m",
+              "mkdocs",
+              "build",
+              "--strict"
+            ]
+          }
+        ],
+        "findings": [
+          {
+            "rule_id": "foundry_docs",
+            "message": "Foundry compile/execute/method/calibration changes require Foundry reference, benchmark docs, or an impact note. Touched: `src/polisyos/foundry/methods/catalog/causal/did.py`. Expected one of: `docs/reference/foundry/**`, `docs/benchmarks/**`, `docs/explanation/causal-engine.md`, `docs/reference/documentation-inventory.md`."
+          }
+        ]
+      },
+      "failed_step": "Run path-aware docs drift gate",
+      "job_conclusion": "failure",
+      "failed_child_command": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-docs-freshness-baseline"
+      ],
+      "source_sha_log_match": true,
+      "complete_native_log": {
+        "path": "/workspace/e02-F-receipts/F-docs-pr18-native-job-log.txt",
+        "bytes": 48416,
+        "lines": 648,
+        "sha256": "dfe9383201a417165216d01b6dbb9cf4d7e9fb7515e81fd7580babfee7a2461f"
+      },
+      "native_ci_environment": {
+        "python": "3.14.7",
+        "docs_profile_setup": "success"
+      },
+      "unreached_steps": [
+        "Run path-aware docs drift gate for push",
+        "Check docs freshness baseline",
+        "Check docs lifecycle gates",
+        "Check ADR thematic index freshness",
+        "Check tool config split drift",
+        "Build docs in strict mode",
+        "Check public-surface docstring quality"
+      ],
+      "concrete_own_regression": "missing required Foundry canonical documentation companion",
+      "approved_unique_doc_path": "policy-engine/docs/reference/foundry/causal-statistical-validity.md",
+      "prospective_path_predicate_only": {
+        "commands": [
+          {
+            "key": "docs_accuracy",
+            "label": "verify docs freshness baseline",
+            "argv": [
+              "uv",
+              "run",
+              "polisyos-tools",
+              "validation",
+              "check-docs-freshness-baseline"
+            ]
+          },
+          {
+            "key": "strict_docs_build",
+            "label": "build documentation site in strict mode",
+            "argv": [
+              "uv",
+              "run",
+              "--extra",
+              "docs",
+              "python",
+              "-m",
+              "mkdocs",
+              "build",
+              "--strict"
+            ]
+          }
+        ],
+        "findings": []
+      },
+      "prospective_is_actual_docs_validation": false
+    },
+    {
+      "pr": 19,
+      "run_id": "37321848468",
+      "job_id": "111802631444",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37321848468/job/111802631444",
+      "event_head_sha": "baada065af0aaa4edafb8d53abce5fd797de2c6c",
+      "source_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "checkout_merge_sha": "674146c9053dc61b9db08bd88d16a76f7cdf51eb",
+      "checkout_merge_log_line": "HEAD is now at 674146c90 Merge baada065af0aaa4edafb8d53abce5fd797de2c6c into c40d4acae1ce58b597267255026d9356565828fd",
+      "full_changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+      ],
+      "changed_path_count": 5,
+      "actual_before_plan": {
+        "commands": [
+          {
+            "key": "docs_accuracy",
+            "label": "verify docs freshness baseline",
+            "argv": [
+              "uv",
+              "run",
+              "polisyos-tools",
+              "validation",
+              "check-docs-freshness-baseline"
+            ]
+          },
+          {
+            "key": "strict_docs_build",
+            "label": "build documentation site in strict mode",
+            "argv": [
+              "uv",
+              "run",
+              "--extra",
+              "docs",
+              "python",
+              "-m",
+              "mkdocs",
+              "build",
+              "--strict"
+            ]
+          }
+        ],
+        "findings": [
+          {
+            "rule_id": "foundry_docs",
+            "message": "Foundry compile/execute/method/calibration changes require Foundry reference, benchmark docs, or an impact note. Touched: `src/polisyos/foundry/methods/catalog/causal/README.md`. Expected one of: `docs/reference/foundry/**`, `docs/benchmarks/**`, `docs/explanation/causal-engine.md`, `docs/reference/documentation-inventory.md`."
+          }
+        ]
+      },
+      "failed_step": "Run path-aware docs drift gate",
+      "job_conclusion": "failure",
+      "failed_child_command": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-docs-freshness-baseline"
+      ],
+      "source_sha_log_match": true,
+      "complete_native_log": {
+        "path": "/workspace/e02-F-receipts/F-docs-pr19-native-job-log.txt",
+        "bytes": 48261,
+        "lines": 647,
+        "sha256": "775e25b69ee65d2a0b371c69309d2f9267770de3b75f970958e5b7416acc4bf0"
+      },
+      "native_ci_environment": {
+        "python": "3.14.7",
+        "docs_profile_setup": "success"
+      },
+      "unreached_steps": [
+        "Run path-aware docs drift gate for push",
+        "Check docs freshness baseline",
+        "Check docs lifecycle gates",
+        "Check ADR thematic index freshness",
+        "Check tool config split drift",
+        "Build docs in strict mode",
+        "Check public-surface docstring quality"
+      ],
+      "concrete_own_regression": "missing required Foundry canonical documentation companion",
+      "approved_unique_doc_path": "policy-engine/docs/reference/foundry/causal-engine-architecture.md",
+      "prospective_path_predicate_only": {
+        "commands": [
+          {
+            "key": "docs_accuracy",
+            "label": "verify docs freshness baseline",
+            "argv": [
+              "uv",
+              "run",
+              "polisyos-tools",
+              "validation",
+              "check-docs-freshness-baseline"
+            ]
+          },
+          {
+            "key": "strict_docs_build",
+            "label": "build documentation site in strict mode",
+            "argv": [
+              "uv",
+              "run",
+              "--extra",
+              "docs",
+              "python",
+              "-m",
+              "mkdocs",
+              "build",
+              "--strict"
+            ]
+          }
+        ],
+        "findings": []
+      },
+      "prospective_is_actual_docs_validation": false
+    },
+    {
+      "pr": 20,
+      "run_id": "37322540817",
+      "job_id": "111811930974",
+      "job_url": "https://github.com/DenisKopylov/polisyos/actions/runs/37322540817/job/111811930974",
+      "event_head_sha": "ea577ac3185829e066a39f51a8a2eae8f1bb5d43",
+      "source_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "checkout_merge_sha": "7f0c1573281a9379c61b256ae5a714ea127591dd",
+      "checkout_merge_log_line": "HEAD is now at 7f0c15732 Merge ea577ac3185829e066a39f51a8a2eae8f1bb5d43 into c40d4acae1ce58b597267255026d9356565828fd",
+      "full_changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts-checks.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/fry-compile-contracts.json",
+        "policy-engine/tests/unit/foundry/compile/test_compile_artifact_contracts.py",
+        "policy-engine/tests/unit/foundry/compile/test_randomization.py",
+        "policy-engine/tests/unit/foundry/contracts/test_layout.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_families.py"
+      ],
+      "changed_path_count": 6,
+      "actual_before_plan": {
+        "commands": [
+          {
+            "key": "docs_accuracy",
+            "label": "verify docs freshness baseline",
+            "argv": [
+              "uv",
+              "run",
+              "polisyos-tools",
+              "validation",
+              "check-docs-freshness-baseline"
+            ]
+          },
+          {
+            "key": "strict_docs_build",
+            "label": "build documentation site in strict mode",
+            "argv": [
+              "uv",
+              "run",
+              "--extra",
+              "docs",
+              "python",
+              "-m",
+              "mkdocs",
+              "build",
+              "--strict"
+            ]
+          }
+        ],
+        "findings": []
+      },
+      "failed_step": "Run path-aware docs drift gate",
+      "job_conclusion": "failure",
+      "failed_child_command": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-docs-freshness-baseline"
+      ],
+      "source_sha_log_match": true,
+      "complete_native_log": {
+        "path": "/workspace/e02-F-receipts/F-docs-pr20-native-job-log.txt",
+        "bytes": 50146,
+        "lines": 663,
+        "sha256": "a2a780ad1d4875c8f00960a2e18f730b0ace0ef542ba203dab4e93a979150370"
+      },
+      "native_ci_environment": {
+        "python": "3.14.7",
+        "docs_profile_setup": "success"
+      },
+      "unreached_steps": [
+        "Run path-aware docs drift gate for push",
+        "Check docs freshness baseline",
+        "Check docs lifecycle gates",
+        "Check ADR thematic index freshness",
+        "Check tool config split drift",
+        "Build docs in strict mode",
+        "Check public-surface docstring quality"
+      ],
+      "concrete_own_regression": null
+    }
+  ],
+  "rule_source": {
+    "path": "policy-engine/tools/quality/validation/check_docs_gate.py",
+    "source_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+    "accepted_foundry_evidence": [
+      "docs/reference/foundry/**",
+      "docs/benchmarks/**",
+      "docs/explanation/causal-engine.md",
+      "docs/reference/documentation-inventory.md"
+    ],
+    "behavior": "All docs/** companion JSON/TXT activate docs_accuracy and strict_docs_build. Actual command loop fails fast at freshness; own path findings remain printed."
+  },
+  "common_freshness_failure": {
+    "exit_code": 1,
+    "expired": "2026-06-30",
+    "expected_count": 0,
+    "observed_count": 10,
+    "expected_sha256": "a3030ecf013ab9e3e7ffec891b2743e7dac6f2892361fad35f63774f7e4fe7a2",
+    "observed_sha256": "459cc4ff53c6dcb5cb8444e1bc22c715583f3a69411870176a6bf06bafcdb6be",
+    "provenance_class": "FAILED, same base replay observed; P41 attribution not yet established without complete measured input denominator",
+    "no_exception_or_baseline_changes": true
+  },
+  "native_base_replay": {
+    "source_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+    "source_clean": true,
+    "argv": [
+      "uv",
+      "run",
+      "polisyos-tools",
+      "validation",
+      "check-docs-freshness-baseline"
+    ],
+    "cwd": "/workspace/e02-F-base-control/policy-engine",
+    "started_utc": "2026-10-05T15:08:32.200831+00:00",
+    "wall_seconds": 2.209891686999981,
+    "exit_code": 1,
+    "stdout": "Docs freshness baseline FAILED:\n- docs freshness exception baseline expired\n- docs freshness violation count changed: expected 0, observed 10\n- docs freshness baseline hash changed: expected a3030ecf013ab9e3e7ffec891b2743e7dac6f2892361fad35f63774f7e4fe7a2, observed 459cc4ff53c6dcb5cb8444e1bc22c715583f3a69411870176a6bf06bafcdb6be\n",
+    "stderr": "",
+    "output_path": "/workspace/e02-F-receipts/F-docs-base-freshness-native-replay.txt",
+    "output_sha256": "5672a3eb6ff381dfb59ebac2e8cfafb988f16d9ef3b14d60e432712e49427d85",
+    "attribution": "Base same failure replay only; complete denominator proof not yet established."
+  },
+  "boundaries": [
+    "Whole Docs quality job remains failure; skipped strict build/lifecycle/generator/docstring checks are not PASS.",
+    "New own path-rule failures in PR18/19 prevent classifying the whole docs gate as inherited.",
+    "Path planning measures companion presence; substantive docs and frozen after/drop controls still require independent review."
+  ]
+}

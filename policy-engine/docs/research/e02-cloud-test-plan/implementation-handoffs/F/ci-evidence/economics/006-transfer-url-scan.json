@@ -1,0 +1,545 @@
+{
+  "schema_version": "e02.transfer_url_scan.v1",
+  "scanned_text_files": 107,
+  "scanned_files": [
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/checked-source-identities.json",
+      "sha256": "c6c9dc792777f093998a15462efa6d519d1e94c0fde9b014c46f9979ecc63370",
+      "bytes": 9963
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/commit-2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225.json",
+      "sha256": "ebfdc11edf04fa920e973442db1db18593c1b73ae78418daa09728aee4eca7fd",
+      "bytes": 2640
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/commit-51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b.json",
+      "sha256": "9369f89145b9249e505890eec70f80525e929f1224283a8844188e6db3829d8c",
+      "bytes": 2640
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/commit-674146c9053dc61b9db08bd88d16a76f7cdf51eb.json",
+      "sha256": "509ff3a37e3950fade076157019a3f69d8c9f404d59350d01407b34e85a5fd39",
+      "bytes": 2640
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/commit-8280a4aa6e028af0dd74d2f987ce6fc6e498b877.json",
+      "sha256": "7f2757feeb20bb66ad11cdf8213925a237532c80015dd3e8c3db724328dae8ef",
+      "bytes": 2640
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/download-index.json",
+      "sha256": "d846b1f63189f3955b717aac3f0e405283644285f0b5d8804fc95fe4bdb3b521",
+      "bytes": 19108
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111800441948.complete.txt",
+      "sha256": "a87477cc68fa671ef728cbf15de062cd174cca8c5a84b9f7b9fed703d1e2d792",
+      "bytes": 287456
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111800441948.json",
+      "sha256": "451e43b5379e24bbfe42908416903b4935e69cd5248b3cb322390a916133c65e",
+      "bytes": 3212
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111800442368.complete.txt",
+      "sha256": "d4b2e953a3847a5714ff2f09df32645f8eba7d70d75c451272c02c9202682fcf",
+      "bytes": 403965
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111800442368.json",
+      "sha256": "fc23bd221b9d9e808f7bb8cc1d77c1b06e633b64001580f84088fc4c5ac47d2e",
+      "bytes": 2399
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111800442457.complete.txt",
+      "sha256": "f50fbd2d4a39ef907ff11200fb1f48fe9168ce3e444b2f761d4579368e246fa0",
+      "bytes": 69301
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111800442457.json",
+      "sha256": "a483ba8ad1a94bd514e57764d6a9cd0b0f3f4e512d8c1bf90f78ad7b00baffae",
+      "bytes": 3299
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111800442523.complete.txt",
+      "sha256": "1fa3c52175ab89fda658b851c643e0a1309b1fa69e0ad4aa2a29e1339f614763",
+      "bytes": 80543
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111800442523.json",
+      "sha256": "110f858632440e2b3c04a0af025c728a312387460cf2b2fc7971ec4a524e3772",
+      "bytes": 2223
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802574080.complete.txt",
+      "sha256": "6de48929033707e73b03d3e6e100a7ab466f8660663f8fea6f99022deb82b7b6",
+      "bytes": 79106
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802574080.json",
+      "sha256": "1b2b67b68db65a5c8d962855a0923051e427875cbb4fd1a8b2524f61182536b3",
+      "bytes": 2217
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802574400.complete.txt",
+      "sha256": "36fd1fc21b556a517be61d4acbcc4ecfb854111e823f6ade7fba7c5b1d8a6b83",
+      "bytes": 290405
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802574400.json",
+      "sha256": "83d3a3356035ec1845b706e3e92e3805af6bec8d0f9fc18c30d22710b4e48898",
+      "bytes": 3206
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802574428.complete.txt",
+      "sha256": "69b41241dd9eadaa61ea338d437601e16be021e47f9779655b96210d706a1a74",
+      "bytes": 69383
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802574428.json",
+      "sha256": "2a52a7fc6b33ca7ce40bdcca93db760ab1fcb4f9c791946a2333066197a39083",
+      "bytes": 3293
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802574468.complete.txt",
+      "sha256": "6ead92f3fab0c2e4ce7a70d7958f98791734aca28a392a16647e1e7a03e78809",
+      "bytes": 395636
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802574468.json",
+      "sha256": "d7c2922505acac48781a257ba7ae24839b1fc6f425259954e0bce87c19501aeb",
+      "bytes": 2393
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802650045.complete.txt",
+      "sha256": "7f56a6db229e18f68c30355d04e88f22e677c436f4dfc1394775d2f4002b5673",
+      "bytes": 69365
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802650045.json",
+      "sha256": "31d2a49efdf9d044e57bbd6292558a5f0388e0c74b455fed59827604bf3b009f",
+      "bytes": 3300
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802650513.complete.txt",
+      "sha256": "c54bb9e2edb7f6f8f1370d70de224b2e42a0ae571c1429b344f53461266931d0",
+      "bytes": 80214
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802650513.json",
+      "sha256": "ef6e8464bddf9e54a29a4fbdd7d5fac695dbed822aae906883f49134bfedc04b",
+      "bytes": 2224
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802650701.complete.txt",
+      "sha256": "7677e6382a1566c314f921638aa88fc67d2c651d80f9160d38883f2bcc385a72",
+      "bytes": 290417
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802650701.json",
+      "sha256": "ab5ea04bbe77aa2df2c1cb48d3def7dd368b165db5b9ea2ee72f9f5f66e2f334",
+      "bytes": 3213
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802650848.complete.txt",
+      "sha256": "3c3fa2667d5e2162005a86d334d31c2613a0dd8c5db29cb20a3312e18cee608b",
+      "bytes": 395426
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111802650848.json",
+      "sha256": "ab4803ab74dd5dad462909d85a962498ba4b271025086b840586d319f32f7fe5",
+      "bytes": 2400
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111811969133.complete.txt",
+      "sha256": "e6f899c175ba013de70ef2d05617c6394e205e3377f4f3d527795f79468bfb1c",
+      "bytes": 48498
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/job-111811969133.json",
+      "sha256": "711e9330acc83720b02ac6601407234c93c35e81e86e7f703781feb93eb758ea",
+      "bytes": 3077
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/locale-leaf-census.json",
+      "sha256": "3af1e0ecceed1be21a7c2f01c65dac7478a46d2ae7866cfe34736f100723a289",
+      "bytes": 1009
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/merge-commit-identities.json",
+      "sha256": "d8bb2527be24b32c67713f284691a46f16f07f9db1a2416050481701f8df4d9f",
+      "bytes": 987
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/pr29-test-economics-artifact/last-mile/directory-health.json",
+      "sha256": "f6831f02a12d2cb0820caaf212dc114d03a70756c4c94fd5f2d088aa68a73be2",
+      "bytes": 39229
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/pr29-test-economics-artifact/last-mile/directory-health.md",
+      "sha256": "af51f058028a7e102dfba3d6dfeb3cda5776c341ba580275dcb15873b9bab3c3",
+      "bytes": 3157
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/pr29-test-economics-artifact/test-reports/test-economics-summary.md",
+      "sha256": "4546b310e3d79719dc22ea0ac3b339c69bb296fdfa61ced9b60ede4db34d836c",
+      "bytes": 549
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/run-37321206372.json",
+      "sha256": "03147faf38a31ba292ac203229b9c1ccc94bd22718d1d74f204c858629f62431",
+      "bytes": 12885
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/run-37321831625.json",
+      "sha256": "69389f8795c08e7fd3f010ee69724d6c6137916174caf6d2a0ba288d97dce379",
+      "bytes": 12848
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/run-37321848405.json",
+      "sha256": "2f4663988b168579869dc27fbeb2d23fc20a4b2e52b44f55a019d09706bdd81f",
+      "bytes": 12866
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/run-37324581716.json",
+      "sha256": "369ac8089f355dee43d110607f6a4a9ce58a1e254bdedb6038eb6f2b86407ee7",
+      "bytes": 12880
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/.github/workflows/ci.yml",
+      "sha256": "8a5d685ea40caeaaf54be090c44d62aac4167ff835d26b055ee64a008c204018",
+      "bytes": 14253
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/apps/runtime-dashboard/package.json",
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "bytes": 11599
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "sha256": "21f83038635e61acd446c4433f6da62a70fba03b3ce5b0ecd4ccb39cf7208a11",
+      "bytes": 72843
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "sha256": "d24d8de12e67166bac7bae0976a460999757fe9a4fd9f5c668d151f1572aa384",
+      "bytes": 23569
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/architecture/policies/directory_health.toml",
+      "sha256": "83866ac4983eace76221baa832d9bb999a5d78b5b4075042572342e603e658ec",
+      "bytes": 10504
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+      "bytes": 42587
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "bytes": 347497
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/tests/_helpers/runtime_http.py",
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+      "bytes": 56431
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "sha256": "d0da5c4a19e83d1e2f4e4457ccd6b5c71e0d57749fc0dda0dc8e1e26b47165c3",
+      "bytes": 30760
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+      "bytes": 7528
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/tools/quality/testing/report_test_economics.py",
+      "sha256": "f7df1df0c8c2cfdd2fcb54c84d496fd0774198bf509e77ea47ac81ee61d07dae",
+      "bytes": 9837
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/2a8cc6bb6776f74886c2bdb88dbbdb76c93a9225/policy-engine/tools/quality/validation/directory_health.py",
+      "sha256": "8eb2025d08401282a716debbedb00f4cf527611a5947040a13d0fc94a4ba4417",
+      "bytes": 49252
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/.github/workflows/ci.yml",
+      "sha256": "8a5d685ea40caeaaf54be090c44d62aac4167ff835d26b055ee64a008c204018",
+      "bytes": 14253
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/apps/runtime-dashboard/package.json",
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "bytes": 11599
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "sha256": "21f83038635e61acd446c4433f6da62a70fba03b3ce5b0ecd4ccb39cf7208a11",
+      "bytes": 72843
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "sha256": "d24d8de12e67166bac7bae0976a460999757fe9a4fd9f5c668d151f1572aa384",
+      "bytes": 23569
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/architecture/policies/directory_health.toml",
+      "sha256": "83866ac4983eace76221baa832d9bb999a5d78b5b4075042572342e603e658ec",
+      "bytes": 10504
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+      "bytes": 42587
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "bytes": 347497
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/tests/_helpers/runtime_http.py",
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+      "bytes": 56431
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "sha256": "d0da5c4a19e83d1e2f4e4457ccd6b5c71e0d57749fc0dda0dc8e1e26b47165c3",
+      "bytes": 30760
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+      "bytes": 7528
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/tools/quality/testing/report_test_economics.py",
+      "sha256": "f7df1df0c8c2cfdd2fcb54c84d496fd0774198bf509e77ea47ac81ee61d07dae",
+      "bytes": 9837
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/51bbc932c0efe18c2ab96b56251f1d2ab1a8b78b/policy-engine/tools/quality/validation/directory_health.py",
+      "sha256": "8eb2025d08401282a716debbedb00f4cf527611a5947040a13d0fc94a4ba4417",
+      "bytes": 49252
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/.github/workflows/ci.yml",
+      "sha256": "8a5d685ea40caeaaf54be090c44d62aac4167ff835d26b055ee64a008c204018",
+      "bytes": 14253
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/apps/runtime-dashboard/package.json",
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "bytes": 11599
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "sha256": "21f83038635e61acd446c4433f6da62a70fba03b3ce5b0ecd4ccb39cf7208a11",
+      "bytes": 72843
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "sha256": "d24d8de12e67166bac7bae0976a460999757fe9a4fd9f5c668d151f1572aa384",
+      "bytes": 23569
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/architecture/policies/directory_health.toml",
+      "sha256": "83866ac4983eace76221baa832d9bb999a5d78b5b4075042572342e603e658ec",
+      "bytes": 10504
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+      "bytes": 42587
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "bytes": 347497
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/tests/_helpers/runtime_http.py",
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+      "bytes": 56431
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "sha256": "d0da5c4a19e83d1e2f4e4457ccd6b5c71e0d57749fc0dda0dc8e1e26b47165c3",
+      "bytes": 30760
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+      "bytes": 7528
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/tools/quality/testing/report_test_economics.py",
+      "sha256": "f7df1df0c8c2cfdd2fcb54c84d496fd0774198bf509e77ea47ac81ee61d07dae",
+      "bytes": 9837
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/674146c9053dc61b9db08bd88d16a76f7cdf51eb/policy-engine/tools/quality/validation/directory_health.py",
+      "sha256": "8eb2025d08401282a716debbedb00f4cf527611a5947040a13d0fc94a4ba4417",
+      "bytes": 49252
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/.github/actions/setup-runtime-dashboard/action.yml",
+      "sha256": "ed6341360ddad176ed1ae72d3c90bf6a0f4b60c6ca4528ae00a2a69068805626",
+      "bytes": 2739
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/.github/workflows/ci.yml",
+      "sha256": "8a5d685ea40caeaaf54be090c44d62aac4167ff835d26b055ee64a008c204018",
+      "bytes": 14253
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/package.json",
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "bytes": 11599
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/playwright.config.ts",
+      "sha256": "04e27f939d43268b2c678bc205c941c0cf1ef719e430bdb65ecf6d197d844927",
+      "bytes": 2819
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/scripts/persist_atlas_evidence.py",
+      "sha256": "ca2bcf8841eea740103afcf500e546e3c0f03b6000a1050e8d3e1cf8c486c328",
+      "bytes": 98913
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+      "sha256": "210a02646fc4bdade933ca85fa53ced9b91dcdea4ca49d62abd265b5d7826dce",
+      "bytes": 7457
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+      "sha256": "6cb6dc4550d0f4ff3b49dd38ae8c4f0eaa34f0218c405616bfc5d233f907a4c7",
+      "bytes": 152836
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+      "sha256": "f103c6daabb31632ef3882329af5f5742f071cb387ddc6d3cb4b647667b8c1a7",
+      "bytes": 198820
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+      "sha256": "21f83038635e61acd446c4433f6da62a70fba03b3ce5b0ecd4ccb39cf7208a11",
+      "bytes": 72843
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/apps/runtime-dashboard/src/test/evidence/atlasAutomatedEvidenceCapture.test.ts",
+      "sha256": "d24d8de12e67166bac7bae0976a460999757fe9a4fd9f5c668d151f1572aa384",
+      "bytes": 23569
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/architecture/policies/directory_health.toml",
+      "sha256": "83866ac4983eace76221baa832d9bb999a5d78b5b4075042572342e603e658ec",
+      "bytes": 10504
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710",
+      "bytes": 42587
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "bytes": 347497
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+      "sha256": "fdc36162cefd57c807e70026fca9d27608ecf540930cece436dcf6a75d4dc6aa",
+      "bytes": 7934
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+      "sha256": "e913ddef94876b7a54eb524d4577c489c8ee79f3f5b87092a8232d7a33b70536",
+      "bytes": 38045
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+      "sha256": "f697b9bd324cafd7d90ca0d3dd6e641d9c2db131b2a49d9d1af0ebb024e9668a",
+      "bytes": 106265
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "sha256": "a2a4f06452428a225b393941ae16cf3cb42043c01a38679bb725595818cb9f62",
+      "bytes": 79191
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tests/_helpers/runtime_http.py",
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e",
+      "bytes": 56431
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tests/performance/test_runtime_hot_paths.py",
+      "sha256": "d0da5c4a19e83d1e2f4e4457ccd6b5c71e0d57749fc0dda0dc8e1e26b47165c3",
+      "bytes": 30760
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+      "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+      "bytes": 7528
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/testing/report_test_economics.py",
+      "sha256": "f7df1df0c8c2cfdd2fcb54c84d496fd0774198bf509e77ea47ac81ee61d07dae",
+      "bytes": 9837
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+      "sha256": "14a30d4b930e78af4b59e8e56b94405fe65051ce5ad375d355ebfa91e396ecd7",
+      "bytes": 197019
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/8280a4aa6e028af0dd74d2f987ce6fc6e498b877/policy-engine/tools/quality/validation/directory_health.py",
+      "sha256": "8eb2025d08401282a716debbedb00f4cf527611a5947040a13d0fc94a4ba4417",
+      "bytes": 49252
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/extended-additional-index.json",
+      "sha256": "aea9cfb9d94e129515f21d46b487ada382c5706f9adb9ee5ffea491c9831293a",
+      "bytes": 2029
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/extended-index.json",
+      "sha256": "006fb81136399d5d34fbf1d68000edbd65174ffe8d0177ba65e36a4c4aa36d4b",
+      "bytes": 2365
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/governed-projection-index.json",
+      "sha256": "1787fce964bf5adf20de28627c7b4ac8f03f9c8e028cfeb0051329462abad4fa",
+      "bytes": 492
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/governed-worker-index.json",
+      "sha256": "80f7a1651e3da2bd6d35d19c91adeb6a55f75376515dee894d7bca3fa9b95c6f",
+      "bytes": 1076
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/source-inputs/index.json",
+      "sha256": "32f0c41db6f98c469bf2d1f57338fc568433d54623d8637ab58195c18f2c0acc",
+      "bytes": 23247
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/summary.json",
+      "sha256": "fd1e885714b08b0abb756de8a287e83884bea2abaddeb0f17c7f2589fe0a36bc",
+      "bytes": 30355
+    },
+    {
+      "path": "/workspace/e02-F-receipts/ci-economics/summary.txt",
+      "sha256": "73416171a0708ff45b6140a7cfd80a16607f88143e581023a3cc3aab10254fdf",
+      "bytes": 4739
+    }
+  ],
+  "scan": "Offline text URL parse for credential-like query keys/SAS signatures, AWS/Google presigning and URL userinfo. No query values emitted. Not a general secret-scanner verdict.",
+  "credential_like_url_count": 0,
+  "credential_like_urls": [],
+  "scan_worktree_writes": false
+}

@@ -1,0 +1,7 @@
+{
+  "schema": "policyos.e02.complete_text_log.v1",
+  "original_filename": "test-economics-summary.md",
+  "raw_bytes": 549,
+  "raw_sha256": "4546b310e3d79719dc22ea0ac3b339c69bb296fdfa61ced9b60ede4db34d836c",
+  "content": "# Test Economics Report\n\nGenerated at `2026-10-05T14:40:26+00:00`.\n\n- Reports parsed: 0 / 3\n- Total tests: 0\n- Total failures/errors: 0\n- Total skipped: 0\n- Aggregate suite time: 0.00s\n- Missing reports: `runtime-http`, `performance`, `integration`\n\n## Suite Totals\n\n| suite | tests | failures | skipped | time (s) |\n|---|---:|---:|---:|---:|\n\n## Top Slowest Tests\n\n| seconds | suite | testcase | status |\n|---:|---|---|---|\n\n## Unstable and Quarantined Tests\n\n- Active quarantines: 0\n- Expired quarantines: 0\n\nNo quarantine entries are registered.\n"
+}

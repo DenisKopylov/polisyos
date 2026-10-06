@@ -419,7 +419,7 @@ def census(root: Path, ref: str) -> dict:
             raise RuntimeError("Git blob reader failed")
     return {
         "schema": "policyos.e02.facade_census.v2",
-        "executing_party": "F/fit_tmle API writer",
+        "executing_party": "F/causal_api continuation writer",
         "source_sha": sha,
         "source_tree": _git(root, "rev-parse", sha + "^{tree}").decode().strip(),
         "target_facades": TARGETS,

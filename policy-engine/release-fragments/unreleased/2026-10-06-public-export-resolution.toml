@@ -1,0 +1,28 @@
+id = "2026-10-06-public-export-resolution"
+title = "Resolve declared public export maps without module execution"
+type = "fixed"
+component = "architecture-tooling"
+owner = "team-architecture"
+summary = "Resolve declared __all__ through maintained local/imported literal name maps and sequences. Generated entrypoint inventory records actual dependency reads; missing, unreadable, cyclic and unsupported expressions refuse measurement instead of reporting an empty export set."
+compatibility = "Supported causal library facades retain their canonical classes and functions. Retired shadow filenames were already absent before this slice; filename loaders have no implicit alias. Generated inventory gains export_resolution metadata with a bounded static selector."
+change_class = "tooling"
+surface_classification = "internal: public-surface generator and caller census; public_stable: existing causal library facade addresses unchanged"
+migration = "Use supported package imports for causal_engine, id_engine and interference; private helpers use their canonical leaf owners. Dynamic-import AST candidates are classified by source/configuration and are not established runtime clients."
+limitations = "The static grammar does not execute modules or prove external plugin/configuration caller coverage. Unsupported runtime-dependent declarations are unresolved. Generation on the current composed producer namespace is required separately; source fixture checks do not establish scientific causal validity, admitted data or Runtime authority."
+evidence = ["tests/repo_quality/architecture/test_public_surface_export_resolution.py", "tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py"]
+public_surface_inventory_reviewed = false
+generated_client_compatibility = "not_applicable"
+
+[[compatibility_change]]
+id = "named-public-export-resolution"
+change_class = "tooling"
+impact = "compatible"
+surface = "internal: generated public-surface entrypoint inventory"
+owner = "team-architecture"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable: no public facade retirement or address change"
+release_note = "Entrypoint exports are resolved through declared literal maps, with source-read identities and explicit unresolved refusal. Existing causal library facade ABI and the dated v26 benchmark scope remain separate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md", "docs/reference/foundry/causal-engine-architecture.md"]
+runbook_docs = []

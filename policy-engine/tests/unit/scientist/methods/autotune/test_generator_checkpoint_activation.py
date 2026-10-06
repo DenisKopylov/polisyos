@@ -284,3 +284,10 @@ def test_standalone_current_transferred_rows_are_readmitted_before_model_restore
         peer.set_state(deepcopy(checkpoint))
     assert peer.get_state() == before
     assert peer._optimizer._model is None
+    native = StrategyState.from_artifact(
+        original_generator._json_bytes(checkpoint["strategy_state"])
+    )
+    with pytest.raises(ValueError):
+        peer._optimizer.set_state(native)
+    assert peer.get_state() == before
+    assert peer._optimizer._model is None

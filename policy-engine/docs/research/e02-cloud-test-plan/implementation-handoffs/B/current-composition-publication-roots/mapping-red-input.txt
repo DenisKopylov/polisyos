@@ -1,0 +1,364 @@
+from __future__ import annotations
+
+import json
+import os
+import time
+from types import SimpleNamespace
+from uuid import uuid4
+
+import numpy as np
+import pytest
+
+from polisyos.foundry.methods.backends.checkpointing import (
+    ChainCheckpoint,
+    CheckpointDigestMismatchError,
+    CheckpointingChainExecutor,
+    CheckpointLoadError,
+    CheckpointSaveError,
+    _compute_chain_digest,
+)
+
+
+class _FakeChain:
+    def __init__(self, fqns: list[str]) -> None:
+        self.execution_order = [uuid4() for _ in fqns]
+        self._nodes = {
+            node_id: SimpleNamespace(id=node_id, method_fqn=fqn, params={}, static_params={})
+            for node_id, fqn in zip(self.execution_order, fqns, strict=True)
+        }
+
+    def get_node(self, node_id):
+        return self._nodes[node_id]
+
+    def get_signature(self, node_id):
+        from polisyos.foundry.methods.base import ComputeBackend
+
+        return SimpleNamespace(
+            fqn=self._nodes[node_id].method_fqn,
+            backend=ComputeBackend.NUMPY,
+            input_slots=(),
+        )
+
+    def get_bindings_for_target(self, node_id):
+        return []
+
+
+def test_chain_checkpoint_round_trips_numpy_sidecars_atomically(tmp_path) -> None:
+    path = tmp_path / "checkpoint_abc_0000.json"
+    checkpoint = ChainCheckpoint(
+        chain_digest="abc",
+        completed_fqns=["demo.method@1.0.0"],
+        completed_node_ids=[str(uuid4())],
+        intermediate_state={"nested": {"arr": np.array([1.0, 2.0])}, "ok": True},
+        node_timing_ms=[1.5],
+    )
+
+    checkpoint.save(path)
+    loaded = ChainCheckpoint.load(path)
+
+    assert loaded.checkpoint_path == path
+    assert loaded.intermediate_state["ok"] is True
+    np.testing.assert_allclose(loaded.intermediate_state["nested"]["arr"], np.array([1.0, 2.0]))
+    assert not list(tmp_path.glob("*.tmp"))
+
+
+def test_chain_checkpoint_load_rejects_missing_sidecar(tmp_path) -> None:
+    path = tmp_path / "checkpoint_abc_0000.json"
+    checkpoint = ChainCheckpoint(
+        chain_digest="abc",
+        completed_fqns=["demo.method@1.0.0"],
+        completed_node_ids=[str(uuid4())],
+        intermediate_state={"arr": np.array([1.0, 2.0])},
+    )
+    checkpoint.save(path)
+    for sidecar in tmp_path.rglob("*.npy"):
+        sidecar.unlink()
+
+    with pytest.raises(CheckpointLoadError, match="sidecar missing"):
+        ChainCheckpoint.load(path)
+
+
+@pytest.mark.parametrize("fault", ["sidecar_fsync", "snapshot_fsync", "pointer_replace"])
+def test_prepublication_filesystem_fault_preserves_selected_generation(
+    tmp_path, monkeypatch, fault
+) -> None:
+    import polisyos.foundry.methods.backends.checkpointing as module
+
+    path = tmp_path / "selected.json"
+    old = ChainCheckpoint("boundary", [], [], {"arr": np.array([1.0])})
+    old.save(path)
+    pointer_bytes = path.read_bytes()
+    generation_root = tmp_path / f".{path.name}.generations"
+    old_generations = set(generation_root.iterdir())
+    actual_fsync = module.os.fsync
+    actual_replace = module.os.replace
+    observed = []
+
+    def fsync(fd):
+        member = os.readlink(f"/proc/self/fd/{fd}")
+        sidecar_fault = fault == "sidecar_fsync" and ".npy." in member
+        snapshot_fault = fault == "snapshot_fsync" and ".snapshot.json." in member
+        if sidecar_fault or snapshot_fault:
+            observed.append(member)
+            raise OSError(f"injected actual {fault}")
+        return actual_fsync(fd)
+
+    def replace(source, target, *args, **kwargs):
+        if fault == "pointer_replace" and os.fspath(target) == os.fspath(path):
+            observed.append(os.fspath(target))
+            raise OSError("injected actual pointer replace")
+        return actual_replace(source, target, *args, **kwargs)
+
+    monkeypatch.setattr(module.os, "fsync", fsync)
+    monkeypatch.setattr(module.os, "replace", replace)
+    with pytest.raises(CheckpointSaveError, match="injected actual"):
+        ChainCheckpoint("boundary", [], [], {"arr": np.array([2.0])}).save(path)
+
+    assert observed
+    assert path.read_bytes() == pointer_bytes
+    assert set(generation_root.iterdir()) == old_generations
+    np.testing.assert_array_equal(ChainCheckpoint.load(path).intermediate_state["arr"], [1.0])
+
+
+@pytest.mark.parametrize("corruption", ["content", "traversal", "symlink", "format"])
+def test_generation_pointer_refuses_unbound_or_foreign_snapshot(tmp_path, corruption) -> None:
+    path = tmp_path / "selected.json"
+    ChainCheckpoint("binding", [], [], {"value": 1}).save(path)
+    pointer = json.loads(path.read_text())
+    snapshot = tmp_path / pointer["snapshot_ref"]
+    if corruption == "content":
+        snapshot.write_text(snapshot.read_text().replace('"value": 1', '"value": 2'))
+    elif corruption == "traversal":
+        pointer["snapshot_ref"] = "../foreign-snapshot.json"
+    elif corruption == "symlink":
+        foreign = tmp_path.parent / "foreign-snapshot.json"
+        foreign.write_bytes(snapshot.read_bytes())
+        snapshot.unlink()
+        snapshot.symlink_to(foreign)
+    else:
+        pointer["checkpoint_format"] = "unknown"
+    path.write_text(json.dumps(pointer))
+
+    with pytest.raises(CheckpointLoadError):
+        ChainCheckpoint.load(path)
+
+
+def test_generation_collision_cannot_delete_existing_generation(tmp_path, monkeypatch) -> None:
+    import polisyos.foundry.methods.backends.checkpointing as module
+
+    path = tmp_path / "selected.json"
+    ChainCheckpoint("collision", [], [], {"arr": np.array([1.0])}).save(path)
+    pointer_bytes = path.read_bytes()
+    snapshot = tmp_path / json.loads(pointer_bytes)["snapshot_ref"]
+    generation_id = snapshot.parent.name
+    monkeypatch.setattr(module, "uuid4", lambda: SimpleNamespace(hex=generation_id))
+
+    with pytest.raises(CheckpointSaveError):
+        ChainCheckpoint("collision", [], [], {"arr": np.array([2.0])}).save(path)
+
+    assert path.read_bytes() == pointer_bytes
+    np.testing.assert_array_equal(ChainCheckpoint.load(path).intermediate_state["arr"], [1.0])
+
+
+@pytest.mark.parametrize("unsupported", ["integer", "boolean", "null", "mixed", "reserved_tag"])
+def test_unsupported_mapping_refuses_before_pointer_and_preserves_original(
+    tmp_path, unsupported
+) -> None:
+    path = tmp_path / "selected.json"
+    ChainCheckpoint("mapping", [], [], {"arr": np.array([1.0])}).save(path)
+    pointer_bytes = path.read_bytes()
+    generation_root = tmp_path / f".{path.name}.generations"
+    old_generations = set(generation_root.iterdir())
+    if unsupported == "mixed":
+        nested = {1: np.array([2.0]), "1": np.array([3.0])}
+    elif unsupported == "reserved_tag":
+        nested = {"__npy_ref__": "ordinary user label", "arr": np.array([2.0])}
+    else:
+        key = {"integer": 1, "boolean": True, "null": None}[unsupported]
+        nested = {key: np.array([2.0])}
+
+    with pytest.raises(CheckpointSaveError):
+        ChainCheckpoint("mapping", [], [], {"nested": [nested]}).save(path)
+    assert path.read_bytes() == pointer_bytes
+    assert set(generation_root.iterdir()) == old_generations
+    np.testing.assert_array_equal(ChainCheckpoint.load(path).intermediate_state["arr"], [1.0])
+
+    # Removing only the unsupported key form retains actual generation/array
+    # publication and admits the nested list/mapping/NumPy consumer normally.
+    ChainCheckpoint("mapping", [], [], {"nested": [{"ordinary": np.array([2.0])}]}).save(path)
+    np.testing.assert_array_equal(
+        ChainCheckpoint.load(path).intermediate_state["nested"][0]["ordinary"], [2.0]
+    )
+
+
+def test_find_latest_checkpoint_skips_corrupt_latest_and_records_issue(tmp_path) -> None:
+    chain = _FakeChain(["demo.a@1.0.0", "demo.b@1.0.0"])
+    digest = _compute_chain_digest(chain)
+    older = tmp_path / f"checkpoint_{digest[:8]}_0001_20200101T000000.json"
+    newer = tmp_path / f"checkpoint_{digest[:8]}_0002_20200101T000001.json"
+    ChainCheckpoint(
+        chain_digest=digest,
+        completed_fqns=["demo.a@1.0.0"],
+        completed_node_ids=[str(chain.execution_order[0])],
+        intermediate_state={"value": 1},
+    ).save(older)
+    newer.write_text("{not-json", encoding="utf-8")
+    now = time.time()
+    os.utime(older, (now - 10, now - 10))
+    os.utime(newer, (now, now))
+
+    executor = CheckpointingChainExecutor(checkpoint_dir=tmp_path)
+    recovered = executor.find_latest_checkpoint(chain)
+
+    assert recovered is not None
+    assert recovered.checkpoint_path == older
+    assert executor.checkpoint_issues
+    assert executor.checkpoint_issues[-1].operation == "load"
+
+
+def test_checkpoint_save_failure_is_diagnostic_and_can_fail_closed(tmp_path, monkeypatch) -> None:
+    chain = _FakeChain(["demo.a@1.0.0"])
+    digest = _compute_chain_digest(chain)
+    node_id = chain.execution_order[0]
+    result = SimpleNamespace(timing=SimpleNamespace(wall_time_ms=2.0))
+
+    def _boom(self, path):
+        raise CheckpointSaveError("disk full")
+
+    monkeypatch.setattr(ChainCheckpoint, "save", _boom)
+    executor = CheckpointingChainExecutor(checkpoint_dir=tmp_path, fail_on_checkpoint_error=False)
+    executor._save_checkpoint(
+        chain=chain,
+        chain_digest=digest,
+        completed_up_to_idx=0,
+        execution_order=chain.execution_order,
+        all_node_results=[(node_id, result)],
+        state={"value": 1},
+    )
+
+    assert executor.checkpoint_issues
+    assert executor.checkpoint_issues[-1].operation == "save"
+
+    strict_executor = CheckpointingChainExecutor(checkpoint_dir=tmp_path)
+    with pytest.raises(CheckpointSaveError, match="disk full"):
+        strict_executor._save_checkpoint(
+            chain=chain,
+            chain_digest=digest,
+            completed_up_to_idx=0,
+            execution_order=chain.execution_order,
+            all_node_results=[(node_id, result)],
+            state={"value": 1},
+        )
+
+
+def test_execute_rejects_legacy_checkpoint_stub_results(tmp_path) -> None:
+    from polisyos.core.observability.determinism import DeterminismTier
+    from polisyos.foundry.methods.backends.protocol import (
+        MethodResult,
+        MethodTiming,
+        ReproducibilityInfo,
+    )
+    from polisyos.foundry.methods.base import ComputeBackend
+
+    chain = _FakeChain(["demo.a@1.0.0", "demo.b@1.0.0"])
+    checkpoint_path = tmp_path / "checkpoint_resume.json"
+    ChainCheckpoint(
+        chain_digest=_compute_chain_digest(chain),
+        completed_fqns=["demo.a@1.0.0"],
+        completed_node_ids=[str(chain.execution_order[0])],
+        intermediate_state={"value": 1},
+        node_timing_ms=[3.5],
+    ).save(checkpoint_path)
+    checkpoint = ChainCheckpoint.load(checkpoint_path)
+
+    method_class = type(
+        "FakeMethod",
+        (),
+        {"signature": SimpleNamespace(backend=ComputeBackend.NUMPY)},
+    )
+    registry = SimpleNamespace(get=lambda _fqn: method_class)
+
+    class _Dispatcher:
+        def dispatch(self, *, method_class, signature, state, params, seed):
+            return MethodResult(
+                output={"value": int(state["value"]) + 1},
+                timing=MethodTiming(wall_time_ms=1.25),
+                reproducibility=ReproducibilityInfo(
+                    backend=signature.backend,
+                    determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
+                    seed=seed,
+                ),
+            )
+
+    executor = CheckpointingChainExecutor(
+        checkpoint_dir=None,
+        registry=registry,
+        dispatcher=_Dispatcher(),
+    )
+
+    with pytest.raises(CheckpointDigestMismatchError, match="lacks execution identity"):
+        executor.execute(
+            chain,
+            initial_state={"value": 0},
+            checkpoint=checkpoint,
+            seed=11,
+        )
+
+
+def test_execute_resumes_fully_bound_checkpoint_with_native_results(tmp_path) -> None:
+    from polisyos.core.observability.determinism import DeterminismTier
+    from polisyos.foundry.methods.backends.protocol import (
+        MethodResult,
+        MethodTiming,
+        ReproducibilityInfo,
+    )
+    from polisyos.foundry.methods.base import ComputeBackend
+
+    chain = _FakeChain(["demo.a@1.0.0", "demo.b@1.0.0"])
+    method_class = type(
+        "FakeMethod",
+        (),
+        {
+            "signature": SimpleNamespace(backend=ComputeBackend.NUMPY),
+        },
+    )
+    registry = SimpleNamespace(get=lambda _fqn: method_class)
+
+    class _Dispatcher:
+        def dispatch(self, *, method_class, signature, state, params, seed):
+            return MethodResult(
+                output={"value": int(state["value"]) + 1},
+                timing=MethodTiming(wall_time_ms=1.25),
+                reproducibility=ReproducibilityInfo(
+                    backend=signature.backend,
+                    determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
+                    seed=seed,
+                ),
+            )
+
+    producer = CheckpointingChainExecutor(
+        checkpoint_dir=tmp_path,
+        registry=registry,
+        dispatcher=_Dispatcher(),
+    )
+    producer.execute(chain, initial_state={"value": 0}, seed=11)
+    checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0000_*.json")))
+
+    consumer = CheckpointingChainExecutor(
+        checkpoint_dir=None,
+        registry=registry,
+        dispatcher=_Dispatcher(),
+    )
+    result = consumer.execute(
+        chain,
+        initial_state={"value": 0},
+        checkpoint=checkpoint,
+        seed=11,
+    )
+
+    assert [item.output for _, item in result.node_results] == [{"value": 1}, {"value": 2}]
+    assert result.node_results[0][1].reproducibility.seed == 11
+    assert result.final_state["value"] == 2
+    assert result.reproducibility_contract["determinism_tier"] == "library_deterministic"
+    assert result.reproducibility_contract["node_count"] == 2
+    assert result.reproducibility_contract["composition_kind"] == "serial"

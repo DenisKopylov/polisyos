@@ -7,6 +7,9 @@ from .fabric_quality import FabricUncertaintyContext, fabric_uncertainty_context
 from .protocol import PropagationResult, PropagationStrategy
 from .sampling_admission import (
     BoundedIndicatorResponse,
+    admit_empirical_weights,
+    admit_unit_uniform,
+    empirical_cdf,
     reconcile_draw_outcomes,
     sampling_content_digest,
     verify_mean_certificate,
@@ -42,8 +45,11 @@ __all__ = [
     "PropagationResult",
     "PropagationStrategy",
     "QuasiMCSampler",
+    "admit_empirical_weights",
+    "admit_unit_uniform",
     "aggregate_envelopes",
     "compute_first_order_indices",
+    "empirical_cdf",
     "extract_std",
     "fabric_uncertainty_context_from_decision_data",
     "reconcile_draw_outcomes",

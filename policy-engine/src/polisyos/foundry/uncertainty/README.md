@@ -63,3 +63,8 @@ Scientist consumes `BoundedIndicatorResponse`, `reconcile_draw_outcomes`,
 facade. These exports preserve the canonical sampling owner objects and its
 recomputed denominator/certificate refusals. They do not establish a served
 evaluator or institutional authority.
+
+`admit_empirical_weights`, `empirical_cdf` and `admit_unit_uniform` expose the
+same finite law admission used by sampling producers. Positive categories must
+retain distinct representable CDF intervals, and inverse transforms use finite
+coordinates in `[0, 1)`. These functions supply no joint law or source authority.

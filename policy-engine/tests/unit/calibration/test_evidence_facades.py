@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from polisyos import calibration
@@ -92,3 +93,18 @@ def test_public_sampling_entrypoint_recomputes_terminal_denominator() -> None:
     forged = dict(receipt, requested_draw_count=2)
     with pytest.raises(ValueError, match="denominator"):
         uncertainty.reconcile_draw_outcomes(forged, ["y"])
+
+
+def test_public_finite_law_admission_preserves_atoms_and_domain() -> None:
+    owner = importlib.import_module("polisyos.foundry.uncertainty.sampling_admission")
+    for name in ("admit_empirical_weights", "admit_unit_uniform", "empirical_cdf"):
+        assert getattr(uncertainty, name) is getattr(owner, name)
+    probabilities = uncertainty.admit_empirical_weights([1, 1, 2], 3)
+    cumulative = uncertainty.empirical_cdf(probabilities)
+    np.testing.assert_array_equal(cumulative, [0.25, 0.5, 1.0])
+    uniforms = uncertainty.admit_unit_uniform([0, 0.25, 0.5, np.nextafter(1.0, 0.0)])
+    np.testing.assert_array_equal(np.searchsorted(cumulative, uniforms, side="right"), [0, 1, 2, 2])
+    with pytest.raises(ValueError, match="collapses"):
+        uncertainty.admit_empirical_weights([0.5, 1e-20, 0.5], 3)
+    with pytest.raises(ValueError, match=r"\[0, 1\)"):
+        uncertainty.admit_unit_uniform([1.0])

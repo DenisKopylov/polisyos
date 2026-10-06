@@ -1,0 +1,63 @@
+{
+  "target_sha": "ff6d86f56948dc49780e5034d4ec2a3f619df8c6",
+  "source_identity": {
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py": "fd65b5971cbca7c6ad6d755770cd801dc592ffd622224aee4947a37ce2eae0b5",
+    "policy-engine/src/polisyos/core/artifacts/async_store.py": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py": "c0f35d92580f305d527042d477985cb06a446af4beef7dfb8d1c78cae593de5e"
+  },
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "cancellation_count_final": 1,
+  "suppressed_hook": [
+    {
+      "kind": "cancellation_suppressed",
+      "cancelling": 1
+    },
+    {
+      "kind": "real_checkpoint_completed",
+      "cancelling": 1
+    }
+  ],
+  "termination": {
+    "type": "returned",
+    "status": "ok",
+    "state_params": {
+      "seed": 7,
+      "result": 14
+    },
+    "run_ref": {
+      "artifact_id": "sha256:9c6e0651f08385c3bfca743cf7f4f7bb12d9827deab92d1908fc87b255a77a2d",
+      "kind": "core.run_manifest",
+      "media_type": "application/json"
+    }
+  },
+  "provider_calls": 1,
+  "events_before_cancel": [
+    "RUN_STARTED",
+    "RUN_INPUT_ADDED",
+    "RUN_INPUT_ADDED",
+    "NODE_STARTED",
+    "NODE_CACHE_STORE",
+    "NODE_OK"
+  ],
+  "events_after_cancel": [
+    "RUN_OUTPUT_ADDED",
+    "RUN_OUTPUT_ADDED",
+    "RUN_FINALIZED"
+  ],
+  "run_outputs_after_cancel": [
+    {
+      "artifact_id": "sha256:bc00317f091efd14312d329492964721ddf424db45d2fa1f145d2ab4b57ba172",
+      "kind": "scientist.experiment_state",
+      "media_type": "application/json"
+    },
+    {
+      "artifact_id": "sha256:755aae0e66e4750ac3a836c483147cb3ad5b434805848f47d7216639923ee584",
+      "kind": "scientist.workflow_report",
+      "media_type": "application/json"
+    }
+  ],
+  "checkpoint_physically_exists": true,
+  "unbounded_owner": true,
+  "all_source_unchanged": true,
+  "pass_no_new_owner_publication": false
+}

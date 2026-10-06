@@ -1,0 +1,100 @@
+"""Prepare/run only the existing five configured-transfer consumer checks."""
+import argparse
+import importlib.util
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+import uuid
+
+spec = importlib.util.spec_from_file_location('e02_broad_wave_helpers', '/tmp/e02-D-broad-wave.py')
+base = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(base)
+REPO = Path('/workspace/e02-D-published-root')
+SOURCE = '8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47'
+PYTHON = '/workspace/e02-D-doe-env/bin/python'
+SELECTOR = 'tests/integration/scientist/methods/search/test_configured_transfer_controller.py'
+PROBE = Path('/tmp/e02_configured_transfer_probe.py')
+OBSERVER = Path('/tmp/e02_broad_observer.py')
+TOKENIZER = Path('/workspace/e02-D2-receipts/tokenizer')
+
+p = argparse.ArgumentParser();p.add_argument('--run', action='store_true');p.add_argument('--output', type=Path)
+a = p.parse_args()
+output = a.output or Path('/tmp/e02-D-configured-transfer-8c-' + uuid.uuid4().hex)
+assert Path('/tmp') in output.resolve().parents and not output.exists()
+state = base.state(REPO)
+assert state['head'] == SOURCE and not state['status_porcelain']
+assert state['tree'] == '4b0b58cc1fe0d7faab3d7aec49f99519dd080459'
+controls = {k: os.environ[k] for k in base.CAP_KEYS if os.environ.get(k)}
+if os.environ.get('PYTEST_ADDOPTS'):controls['PYTEST_ADDOPTS'] = os.environ['PYTEST_ADDOPTS']
+assert not controls, 'No inherited caps/filter/addopts permitted'
+output.mkdir()
+tree = base.tree_files(REPO, SOURCE)
+names = {q for q in tree if q.startswith('policy-engine/src/polisyos/') and q.endswith('.py')}
+names.update(q for q in tree if q.startswith('policy-engine/tests/') and
+             (q.endswith('/conftest.py') or q.startswith('policy-engine/tests/_helpers/')))
+names.update(['policy-engine/' + SELECTOR,
+              'policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py',
+              'policy-engine/pytest.ini','policy-engine/pyproject.toml','policy-engine/uv.lock',
+              'policy-engine/tests/quarantine.toml'])
+external = [Path(__file__), Path('/tmp/e02-D-broad-wave.py'), PROBE, OBSERVER]
+external += [q for q in TOKENIZER.rglob('*') if q.is_file() and not q.is_symlink()]
+before = base.input_snapshot(REPO, names, tree, external)
+before.update(git_state=state,resources=base.resources(REPO, output))
+base.write_json(output / 'before.json', before)
+assert not before['frozen_file_mismatches']
+env = os.environ.copy();env.update(PYTHONDONTWRITEBYTECODE='1',PYTHONUNBUFFERED='1',
+    PYTHONPATH=str(REPO/'policy-engine/src')+':'+str(REPO/'policy-engine')+':/tmp',
+    TIKTOKEN_CACHE_DIR=str(TOKENIZER), E02_BROAD_OUTPUT=str(output),
+    E02_BROAD_REPO=str(REPO), E02_BROAD_SOURCE=SOURCE)
+basetemp = output / ('pytest-basetemp-' + uuid.uuid4().hex)
+assert not basetemp.exists()
+argv = [PYTHON,'-m','pytest','-p',OBSERVER.stem,'-p',PROBE.stem,'-q',SELECTOR,
+        '-ra','--run-quarantine','--basetemp='+str(basetemp),'--junitxml='+str(output/'junit.xml')]
+manifest = {'schema':'e02.configured_transfer_actual_run.v1','status':'PREPARED_NOT_EXECUTED',
+            'source_sha':SOURCE,'source_tree':state['tree'],'cwd':str(REPO/'policy-engine'),
+            'complete_argv':argv,'expected_cases':5,'seed_from_frozen_test':19,
+            'requested_backends':['torch','botorch','gpytorch','hnswlib'],
+            'input_file_count':len(before['files']), 'environment_assignments':{k:env[k] for k in
+               ['PYTHONDONTWRITEBYTECODE','PYTHONUNBUFFERED','PYTHONPATH','TIKTOKEN_CACHE_DIR']},
+            'limits':'No introduced worker/thread/process/CPU/test/time caps, skip filters, retries or cleanup.',
+            'native_availability':'UNRUN until actual child imports and model/fit execution.',
+            'profiling':'Passive sys.setprofile selected original fit/constructor/test-return observations; no fit/model replacement.'}
+base.write_json(output/'execution-manifest.json', manifest)
+print(json.dumps({'output':str(output),'status':manifest['status'],'argv':argv}),flush=True)
+if not a.run:raise SystemExit(0)
+start=time.monotonic();manifest['status']='RUNNING';manifest['started_wall_ns']=time.time_ns()
+with (output/'complete.stdout.txt').open('wb') as stdout,(output/'complete.stderr.txt').open('wb') as stderr:
+    child=subprocess.Popen(argv,cwd=REPO/'policy-engine',env=env,stdout=stdout,stderr=stderr)
+    manifest['child_pid']=child.pid;base.write_json(output/'execution-manifest.json',manifest)
+    print(json.dumps({'child_pid':child.pid,'output':str(output),'status':'RUNNING'}),flush=True)
+    _,wait_status,usage=os.wait4(child.pid,0);child.returncode=os.waitstatus_to_exitcode(wait_status)
+after=base.input_snapshot(REPO,names,tree,external);after.update(git_state=base.state(REPO),resources=base.resources(REPO,output))
+base.write_json(output/'after.json',after)
+xml=base.junit(output/'junit.xml')
+observed=json.loads((output/'observer-summary.json').read_text()) if (output/'observer-summary.json').exists() else None
+fit=json.loads((output/'actual-fit-summary.json').read_text()) if (output/'actual-fit-summary.json').exists() else None
+unchanged=before['files']==after['files'] and before['git_state']==after['git_state'] and before['external_input_files']==after['external_input_files']
+if child.returncode<0:status='ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN'
+elif observed is None or fit is None or xml['status']!='COMPLETE_PARSE':status='ERROR_INCOMPLETE_OBSERVER_FIT_OR_JUNIT'
+elif not unchanged or observed['source_mismatches'] or observed['observer_errors'] or fit['probe_errors']:status='ERROR_SOURCE_OR_OBSERVER'
+elif child.returncode!=0:status='FAIL_PYTEST' if child.returncode==1 else 'ERROR_PYTEST'
+elif xml['outcomes']['SKIP'] or observed['deselected']:status='SKIP_UNRUN_NOT_NATIVE_PASS'
+elif xml['case_count']!=5 or observed['collected_count']!=5:status='ERROR_CASE_DENOMINATOR'
+else:status='PASS_FIVE_CONFIGURED_TRANSFER_CONSUMER_CHECKS'
+retained=[]
+if basetemp.exists():
+ for q in sorted(basetemp.rglob('*')):
+  if q.is_file() and not q.is_symlink():retained.append({'path':str(q),**base.file_identity(q)})
+base.write_json(output/'retained-fixture-identities.json',retained)
+result={'source_sha':SOURCE,'source_tree':state['tree'],'status':status,'child_pid':child.pid,
+        'actual_exit':child.returncode,'actual_signal':-child.returncode if child.returncode<0 else None,
+        'wall_seconds':time.monotonic()-start,'child_usage':{'user_seconds':usage.ru_utime,'system_seconds':usage.ru_stime,'maxrss_KiB_linux':usage.ru_maxrss},
+        'input_and_git_identity_unchanged':unchanged,'junit':xml,'actual_loaded_backends':observed['backend_state'] if observed else None,
+        'actual_fit_summary':'actual-fit-summary.json' if fit else 'MISSING_PARTIAL_UNRUN','retained_fixture_files':len(retained),
+        'cause_scope':'Actual signal/exception and observed cgroup deltas only. No inferred OOM or native success from installation.'}
+base.write_json(output/'result.json',result)
+print(json.dumps({'status':status,'output':str(output),'exit':child.returncode,'junit':xml.get('outcomes'),'wall_seconds':result['wall_seconds']}),flush=True)
+raise SystemExit(child.returncode if child.returncode>=0 else 128-child.returncode)

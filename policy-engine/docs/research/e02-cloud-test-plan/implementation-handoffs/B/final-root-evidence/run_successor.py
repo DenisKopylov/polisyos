@@ -137,6 +137,7 @@ def main() -> None:
             "UV_NO_SYNC": "1",
             "PYTHONPATH": ":".join(map(str, [PRODUCT / "src", PRODUCT, SCRATCH / "tools"])),
             "POLISYOS_METRICS_PORT": "0",
+            "E02_ORACLE_PRODUCT_ROOT": str(PRODUCT),
             "TIKTOKEN_CACHE_DIR": str(SCRATCH / "tools/tokenizer-input/cache"),
         }
     )
@@ -320,6 +321,7 @@ def main() -> None:
                 "POLISYOS_METRICS_PORT",
                 "TIKTOKEN_CACHE_DIR",
                 "E02_B_COHORT_INVENTORY_PATH",
+                "E02_ORACLE_PRODUCT_ROOT",
             )
         },
         "ambient_cap_names_removed": removed,

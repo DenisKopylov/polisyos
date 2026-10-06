@@ -10,6 +10,7 @@ homoskedastic GaussianLikelihood with Normalize and Standardize, in float64.
 from __future__ import annotations
 
 import copy
+import importlib
 import inspect
 import io
 import json
@@ -241,6 +242,7 @@ class AnalyticCase:
     initial_fit_calls: int
     append_fit_calls: int
     conditioning_rows: list[tuple[list, list]]
+    uninterrupted_strategy: BayesianOptimizer
 
 
 @pytest.fixture(scope="module")
@@ -302,6 +304,7 @@ def analytic_case(tmp_path_factory: pytest.TempPathFactory) -> AnalyticCase:
         initial_fit_calls,
         append_fit_calls,
         conditioning_rows,
+        strategy,
     )
 
 
@@ -499,8 +502,12 @@ def test_same_checkpoint_acquisition_is_independent_of_ambient_torch_rng(
             for seed in (4101, 9917):
                 restored = _restore(case)
                 torch.manual_seed(seed)
+                before_ask_rng = torch.get_rng_state().clone()
                 candidate = restored.suggest(copy.deepcopy(case.current))
                 assert candidate.source_strategy == "bayesian_acquisition"
+                assert torch.equal(torch.get_rng_state(), before_ask_rng), (
+                    "Native acquisition must preserve the caller's ambient Torch stream"
+                )
                 proposals.append(candidate.params_normalized)
             assert fit.call_count == 0
         np.testing.assert_allclose(proposals[0], proposals[1], rtol=0, atol=1e-12)
@@ -609,14 +616,28 @@ def test_saved_torch_rng_mutation_reaches_actual_acquisition_or_refuses(
     changed.rng_state["torch"] = generator.get_state().tolist()
     observed = []
     real_optimize = bayesian_module.optimize_acqf
+    optimize_module = importlib.import_module("botorch.optim.optimize")
+    real_initializer = optimize_module.gen_batch_initial_conditions
+
+    def observe_real_initializer(*args, **kwargs):
+        result = real_initializer(*args, **kwargs)
+        observed.append(result.detach().clone())
+        return result
 
     def observe_real_acquisition(*args, **kwargs):
-        observed.append(torch.get_rng_state().clone())
+        initial_conditions = kwargs.get("batch_initial_conditions")
+        if initial_conditions is not None:
+            observed.append(initial_conditions.detach().clone())
         return real_optimize(*args, **kwargs)
 
     ambient = torch.get_rng_state()
     try:
-        with patch.object(bayesian_module, "optimize_acqf", side_effect=observe_real_acquisition):
+        with (
+            patch.object(bayesian_module, "optimize_acqf", side_effect=observe_real_acquisition),
+            patch.object(
+                optimize_module, "gen_batch_initial_conditions", new=observe_real_initializer
+            ),
+        ):
             for state in (case.initial, changed):
                 restored = _restore(case)
                 before = restored.get_state()
@@ -632,8 +653,61 @@ def test_saved_torch_rng_mutation_reaches_actual_acquisition_or_refuses(
                 )
         assert len(observed) == 2
         assert not torch.equal(observed[0], observed[1]), (
-            "Saved Torch RNG was ignored by the actual acquisition consumer"
+            "Saved Torch RNG was ignored by the actual consumed restart tensors"
         )
+    finally:
+        torch.set_rng_state(ambient)
+
+
+def test_uninterrupted_and_resumed_acquisition_consume_equal_restart_tensors(
+    analytic_case: AnalyticCase,
+) -> None:
+    case = analytic_case
+    torch = require_torch()
+    optimize_module = importlib.import_module("botorch.optim.optimize")
+    real_initializer = optimize_module.gen_batch_initial_conditions
+    real_optimize = bayesian_module.optimize_acqf
+    observed = []
+
+    def observe_real_initializer(*args, **kwargs):
+        result = real_initializer(*args, **kwargs)
+        observed.append(result.detach().clone())
+        return result
+
+    def observe_real_acquisition(*args, **kwargs):
+        initial_conditions = kwargs.get("batch_initial_conditions")
+        if initial_conditions is not None:
+            observed.append(initial_conditions.detach().clone())
+        return real_optimize(*args, **kwargs)
+
+    ambient = torch.get_rng_state()
+    try:
+        restored = _restore(case, case.conditioned)
+        proposals = []
+        with (
+            patch.object(
+                bayesian_module, "fit_gpytorch_mll", wraps=bayesian_module.fit_gpytorch_mll
+            ) as fit,
+            patch.object(bayesian_module, "optimize_acqf", side_effect=observe_real_acquisition),
+            patch.object(
+                optimize_module, "gen_batch_initial_conditions", new=observe_real_initializer
+            ),
+        ):
+            for strategy, ambient_seed in ((case.uninterrupted_strategy, 4101), (restored, 9917)):
+                torch.manual_seed(ambient_seed)
+                before_ask_rng = torch.get_rng_state().clone()
+                candidate = strategy.suggest(
+                    [*copy.deepcopy(case.current), copy.deepcopy(case.appended)]
+                )
+                assert candidate.source_strategy == "bayesian_acquisition"
+                assert torch.equal(torch.get_rng_state(), before_ask_rng)
+                proposals.append(candidate.params_normalized)
+            assert fit.call_count == 0
+        assert len(observed) == 2
+        assert torch.equal(observed[0], observed[1]), (
+            "Checkpoint replay changed actual acquisition restart tensors"
+        )
+        np.testing.assert_allclose(proposals[0], proposals[1], rtol=0, atol=1e-12)
     finally:
         torch.set_rng_state(ambient)
 

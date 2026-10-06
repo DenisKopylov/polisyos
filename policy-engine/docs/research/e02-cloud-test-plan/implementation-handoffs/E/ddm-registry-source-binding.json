@@ -153,16 +153,42 @@
       "output": "ddm-registry-source-binding-removal-quantity-final.stdout.txt"
     },
     {
-      "command": "see exact source-origin/schema/fixture validation and Ruff scope in receipt",
+      "command": [
+        ".venv/bin/python",
+        "-"
+      ],
       "target_sha": "052135e93a5c61dab854e17656feef3903042999",
       "outcome": "PASS",
-      "output": "ddm-registry-source-binding-origins-schema-final.stdout.txt"
+      "output": "ddm-registry-source-binding-origins-schema-final.stdout.txt",
+      "stdin_oracle": "import importlib.metadata, json, pathlib, platform, runpy, subprocess, sys\nimport jsonschema\nimport polisyos.ddm.calibration.calibrate as calibrate\nimport polisyos.ddm.calibration.audit as audit\nimport polisyos.ddm.integration.monitor as monitor\nimport polisyos.ddm.integration.model_registry as registry\nroot=pathlib.Path.cwd().resolve()\nfor module in [calibrate,audit,monitor,registry]:\n    path=pathlib.Path(module.__file__).resolve()\n    assert path.is_relative_to(root/'src'), path\n    print('SOURCE_ORIGIN',module.__name__,path)\nfixtures=runpy.run_path('tests/unit/remediation/test_ddm_02.py')\nreport, projected_audit, budget, result=fixtures['_run'](degradation_event=fixtures['_degradation']())\nrecord=result.registry_record\nschema=json.loads((root/'src/polisyos/ddm/integration/model_registry_record.schema.json').read_text())\njsonschema.Draft202012Validator.check_schema(schema)\njsonschema.validate(record.model_dump(mode='json'),schema,format_checker=jsonschema.FormatChecker())\nassert report.empirical_stationary_holdout.alerts == 0\nassert report.empirical_stationary_holdout.windows == 100\nassert record.readiness_effective_at == result.readiness_event.timestamp\nassert record.readiness_expires_at == result.readiness_event.expires_at\nassert registry.evaluate_registry_gate(record).promotion_allowed\nprint('REAL_PRODUCER',json.dumps({'method':report.calibration_method,'seed':report.random_seed,'requested_streams':100,'eligible_streams':100,'observed_streams':report.empirical_stationary_holdout.windows,'alerts':report.empirical_stationary_holdout.alerts,'fp_upper95':report.empirical_stationary_holdout.confidence_interval_95[1],'historical_pass':report.empirical_stationary_holdout.pass_,'report_valid_until':report.expiration.valid_until.isoformat(),'readiness_effective_at':record.readiness_effective_at.isoformat(),'readiness_expires_at':record.readiness_expires_at.isoformat(),'source_binding_digest':record.source_binding_digest,'report_digest':record.calibration_validity.report_digest,'canonical_degradation_budget':result.degradation_event.budget_used}))\nprint('SCHEMA native producer registry validation PASS')\nprint('ENV',json.dumps({'python':sys.version,'executable':sys.executable,'platform':platform.platform(),'packages':{name:importlib.metadata.version(name) for name in ['pytest','pydantic','jsonschema','numpy','scipy','jax','jaxlib']},'uv':subprocess.check_output(['uv','--version'],text=True).strip(),'selected_extras':['lint','test'],'install_mode':'uv sync --frozen --extra lint --extra test','numeric_caps_added':False}))\n"
     },
     {
-      "command": "see exact source-origin/schema/fixture validation and Ruff scope in receipt",
       "target_sha": "052135e93a5c61dab854e17656feef3903042999",
       "outcome": "PASS",
-      "output": "ddm-registry-source-binding-ruff-final.stdout.txt"
+      "output": "ddm-registry-source-binding-ruff-final.stdout.txt",
+      "commands": [
+        [
+          ".venv/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "src/polisyos/ddm/integration/model_registry.py",
+          "src/polisyos/ddm/integration/monitor.py",
+          "tests/unit/remediation/test_ddm_02.py",
+          "tests/unit/ddm/test_full_acceptance.py"
+        ],
+        [
+          ".venv/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "src/polisyos/ddm/integration/model_registry.py",
+          "src/polisyos/ddm/integration/monitor.py",
+          "tests/unit/remediation/test_ddm_02.py",
+          "tests/unit/ddm/test_full_acceptance.py"
+        ]
+      ]
     }
   ],
   "property": {

@@ -2043,7 +2043,10 @@ def test_real_framed_failed_spend_wire_rejects_corrupt_projection(corruption):
     import base64
     from decimal import Decimal
 
-    from polisyos.scientist.orchestration.engine.runner.serialization import serialize_state_safe
+    from polisyos.scientist.orchestration.engine.runner.serialization import (
+        DeserializationError,
+        serialize_state_safe,
+    )
 
     budgets = {"llm_spent_usd": Decimal(2)}
     run_id = "R_spend"
@@ -2069,7 +2072,8 @@ def test_real_framed_failed_spend_wire_rejects_corrupt_projection(corruption):
         channel.put(("error", payload))
         status, received = channel.get(timeout=0.1)
         assert status == "error"
-        with pytest.raises(Exception):
+        rejection = DeserializationError if corruption in {"version", "hash"} else ValueError
+        with pytest.raises(rejection):
             retry_module._worker_node_error(received, expected_run_id="R_spend")
     finally:
         channel.close()

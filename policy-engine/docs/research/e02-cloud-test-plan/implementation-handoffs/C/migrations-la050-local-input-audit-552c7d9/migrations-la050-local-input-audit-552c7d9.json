@@ -1,8 +1,9 @@
 {
   "adjudication": "LA-050 remains limited. A historical persisted DatasetManifest fixture and its mapping/lineage are still required before closure.",
   "audit_commit_context": {
-    "append_after_commit": "552c7d923130b25480fc3f43eae0164e38063f1d",
-    "append_after_tree": "2f306377ddc5d01603695dc208957568419ac1de",
+    "append_after_commit": "d3e058ff9ec1784d71367c82b1db2284646a5e1c",
+    "append_after_tree": "c49c2a547a562f4324adc24b496e82da6adecbab",
+    "previous_receipt_sha256": "adfb9b1345ab60969e4d62611f986bef562018fcaca22bad2206686a4af5cab7",
     "source_freeze_commit": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
     "source_freeze_tree": "5369c0167bc63096a12ee1bea666b42c837ea78b"
   },
@@ -269,14 +270,52 @@
   ],
   "census_commands": [
     {
-      "argv": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -I <manifest_name_census.py>",
+      "argv": [
+        "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "-I",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-la050-local-input-audit-552c7d9/manifest_name_census.py"
+      ],
       "cwd": "/tmp",
-      "result_capture": "captures/census/manifest-name-census.stdout"
+      "exit_capture": {
+        "bytes": 2,
+        "path": "captures/census/manifest-name-census.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "stderr_capture": {
+        "bytes": 0,
+        "path": "captures/census/manifest-name-census.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout_capture": {
+        "bytes": 12326,
+        "path": "captures/census/manifest-name-census.stdout",
+        "sha256": "123eb6af96c8c51f99f299af9180e00cdf3c0fb12c6b66682db2ee6537938cfd"
+      }
     },
     {
-      "argv": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -I <dataset_catalog_schema_census.py>",
+      "argv": [
+        "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "-I",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-la050-local-input-audit-552c7d9/dataset_catalog_schema_census.py"
+      ],
       "cwd": "/tmp",
-      "result_capture": "captures/census/dataset-catalog-schema-census.stdout"
+      "exit_capture": {
+        "bytes": 2,
+        "path": "captures/census/dataset-catalog-schema-census.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "stderr_capture": {
+        "bytes": 0,
+        "path": "captures/census/dataset-catalog-schema-census.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout_capture": {
+        "bytes": 15967,
+        "path": "captures/census/dataset-catalog-schema-census.stdout",
+        "sha256": "4fed6511e84c2af18d40afd3c0645c12328c1f1ee209ff417c557123edc89adb"
+      }
     }
   ],
   "criterion": "LA-050",
@@ -305,7 +344,6 @@
   "installed_cli_probe": {
     "candidate_source_checkout_on_strict_reader_sys_path": false,
     "child_environment": "The runner copies its environment, unsets PYTHONPATH and PYTHONHOME, and records that delta per dataset. Full environment values were not retained.",
-    "current_version_readback_command": "<venv-base>/bin/python -I <current_v1_strict_readback.py> --input-dir <private_run_root>/inputs --output-dir <private_run_root>/outputs-replay",
     "distribution": "policy-engine",
     "distribution_version": "0.1.0",
     "installed_candidate": {
@@ -327,7 +365,24 @@
       "--receipt-path",
       "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/public-cli-results-replay.json"
     ],
-    "outer_runner_command": "python3 -I <current_v1_public_noop.py> --run-dir <private_run_root> --output-dir <private_run_root>/outputs-replay --commands-dir <private_run_root>/commands-replay-cli --receipt-path <private_run_root>/public-cli-results-replay.json",
+    "outer_runner_capture": {
+      "exit_capture": {
+        "bytes": 2,
+        "path": "captures/installed/public-runner.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "stderr_capture": {
+        "bytes": 0,
+        "path": "captures/installed/public-runner.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout_capture": {
+        "bytes": 12883,
+        "path": "captures/installed/public-runner.stdout",
+        "sha256": "b9a0dcac06c17ead58aefadb93b0bb6635056c21b0adb9819926b8a0c556b4e3"
+      }
+    },
     "outer_runner_cwd": "/tmp",
     "outer_runner_mode": "Python isolated mode; the helper removes PYTHONPATH and PYTHONHOME from the child environment before invoking the installed console script.",
     "strict_dto_module_origin": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/lib/python3.14/site-packages/polisyos/fabric/identity/manifest.py",
@@ -341,6 +396,24 @@
       "--output-dir",
       "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos/.tmp/e02-C2/raw/local-inputs/la050-current-v1-ca2b802e7eeb46d7850694c7a7058d55/outputs-replay"
     ],
+    "strict_readback_capture": {
+      "exit_capture": {
+        "bytes": 2,
+        "path": "captures/installed/strict-readback.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "exit_code": 0,
+      "stderr_capture": {
+        "bytes": 0,
+        "path": "captures/installed/strict-readback.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout_capture": {
+        "bytes": 2311,
+        "path": "captures/installed/strict-readback.stdout",
+        "sha256": "0ba5c85ce3b51f07b2d513101dfaea328f8f76910b290aeb1e4e9acb41aef977"
+      }
+    },
     "strict_readback_cwd_argument": "/tmp",
     "strict_readback_reported_resolved_cwd": "/private/tmp",
     "target_schema_version": "1.0",

@@ -1,0 +1,149 @@
+{
+  "source": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+  "checks": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "path_label_unchanged": true,
+      "old_body_equals_exact_git": true,
+      "bytes_unchanged": true,
+      "sha256_unchanged": true,
+      "blob_match": true,
+      "no_body": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "path_label_unchanged": true,
+      "old_body_equals_exact_git": true,
+      "bytes_unchanged": true,
+      "sha256_unchanged": true,
+      "blob_match": true,
+      "no_body": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_lesson_partial_consumer.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "path_label_unchanged": true,
+      "old_body_equals_exact_git": true,
+      "bytes_unchanged": true,
+      "sha256_unchanged": true,
+      "blob_match": true,
+      "no_body": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "path_label_unchanged": true,
+      "old_body_equals_exact_git": true,
+      "bytes_unchanged": true,
+      "sha256_unchanged": true,
+      "blob_match": true,
+      "no_body": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "path_label_unchanged": true,
+      "old_body_equals_exact_git": true,
+      "bytes_unchanged": true,
+      "sha256_unchanged": true,
+      "blob_match": true,
+      "no_body": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "path_label_unchanged": true,
+      "old_body_equals_exact_git": true,
+      "bytes_unchanged": true,
+      "sha256_unchanged": true,
+      "blob_match": true,
+      "no_body": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "path_label_unchanged": true,
+      "old_body_equals_exact_git": true,
+      "bytes_unchanged": true,
+      "sha256_unchanged": true,
+      "blob_match": true,
+      "no_body": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-lesson-partial-answer.toml",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "path_label_unchanged": true,
+      "old_body_equals_exact_git": true,
+      "bytes_unchanged": true,
+      "sha256_unchanged": true,
+      "blob_match": true,
+      "no_body": true
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "path_label_unchanged": true,
+      "old_body_equals_exact_git": true,
+      "bytes_unchanged": true,
+      "sha256_unchanged": true,
+      "blob_match": true,
+      "no_body": true
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "path_label_unchanged": true,
+      "old_body_equals_exact_git": true,
+      "bytes_unchanged": true,
+      "sha256_unchanged": true,
+      "blob_match": true,
+      "no_body": true
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "path_label_unchanged": true,
+      "old_body_equals_exact_git": true,
+      "bytes_unchanged": true,
+      "sha256_unchanged": true,
+      "blob_match": true,
+      "no_body": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "source_sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+      "path_label_unchanged": true,
+      "old_body_equals_exact_git": true,
+      "bytes_unchanged": true,
+      "sha256_unchanged": true,
+      "blob_match": true,
+      "no_body": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "source_sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+      "path_label_unchanged": true,
+      "old_body_equals_exact_git": true,
+      "bytes_unchanged": true,
+      "sha256_unchanged": true,
+      "blob_match": true,
+      "no_body": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "source_sha": "6ca3b5f167c140370a44653f25a3483bad4a9659",
+      "path_label_unchanged": true,
+      "old_body_equals_exact_git": true,
+      "bytes_unchanged": true,
+      "sha256_unchanged": true,
+      "blob_match": true,
+      "no_body": true
+    },
+    {
+      "unique_input_all_fields_and_body_unchanged": true,
+      "sha256": "15a1f91222a2808bfd1107316f0b060a4b0e09dc4e9c8abae1599df294397d12"
+    }
+  ]
+}

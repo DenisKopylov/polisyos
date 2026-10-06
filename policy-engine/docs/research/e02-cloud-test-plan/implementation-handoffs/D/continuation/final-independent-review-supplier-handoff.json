@@ -1,0 +1,56 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "role": "Independent supplier document/criterion packaging delta review; not product or runtime acceptance",
+  "slice": "FUN5ab-accountinged99-supplier-document-delta",
+  "branch": "codex/e02-D-final-independent-review",
+  "slice_base_sha": "2988f80c8b13c3337b43aadd9884578a86861f93",
+  "D_continuation_slice_base_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "original_D_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+  "implementation_tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+  "review_commit_sha": "cbd264eaebdefb5f3f7d42255c7540a9411bc8ee",
+  "review_tree": "cf1a29558a84eddfd728c8019fe9f41714c5eb5e",
+  "supplier_sha": "5ab28d7621a6e290d4d0482a5091a62d201de850",
+  "accounting_document_head": "f055e68f87bf9ce465528e1d7e6225f8dfd16d94",
+  "closure_ids": [],
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/FUN-5ab-accounting-document-delta.json"
+  ],
+  "complete_deciding_output": {
+    "source_sha": "cbd264eaebdefb5f3f7d42255c7540a9411bc8ee",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/FUN-5ab-accounting-document-delta.json",
+    "git_blob": "728e977d3e08f13edc90549d3fdfb9fa322c2f70",
+    "bytes": 11446,
+    "sha256": "950f4b3332586924d55f82bbe8be6306671b9be5776d31bf7a1756bb73d3e240",
+    "remote_full_UTF8_and_Gitblob_readback": "MATCH"
+  },
+  "checks": {
+    "f258_two_exact_Git_substitutions": "PASS; entire original60-member parsed payload recovered;58othermembers and all other fields unchanged",
+    "broad_interruption_carrier": "PASS identity/packaging only; all9 extant original-wave byte files unchanged",
+    "process_signal_reconciliation": "Actual committed Linux proc stat exit_code values independently decode child-9/harness-15. Cause remains not_established.",
+    "accounting_original_bindings": "PASS all46 original fields/45IDs/17bundles retained;39OPEN_VERIFICATION_PENDING,1limited,5held,formal0/Gfalse",
+    "composed_new_product_or_test_paths": "0 at docsheadf055 vs8c; not an acceptance of the future node bridge"
+  },
+  "runtime": {
+    "new_test_runs": 0,
+    "numerical_backends_executed": false,
+    "actual_broad_property_result": "ERROR_UNRUN; no completed collection/tests/JUnit/fit deciding result",
+    "GP_targeted_report": "Separate parent-reported fit substeps/interruption/four-negativecarrier pending, not promoted by this metadata review",
+    "no_new_verdict_from_packaging": true
+  },
+  "predicate_basis": "independently_reconciled for exactGit/oldcarrier/actualproc observations; not_established for current unreceived runtime and authority positives",
+  "publication": {
+    "method": "Git metadataAPI on owned existing metadata topic; no checkout/worktree/root source mutation",
+    "local_hooks": "UNRUN",
+    "force": false,
+    "main_or_Gintegration_write": false
+  },
+  "limitations": [
+    "8c in preliminary accounting slice_base_sha is the metadata-document lane base, not a P41 inherited-red waiver or a replacement for D continuationcae/originalD198 bases.",
+    "Future narrow node/RunContext/ParetoRegistry product delta requires separate independent source/consumer review; not all available tasks are claimed complete.",
+    "All original source/outputs retained; no delete, Trash clearing, child agent or backend replay."
+  ]
+}

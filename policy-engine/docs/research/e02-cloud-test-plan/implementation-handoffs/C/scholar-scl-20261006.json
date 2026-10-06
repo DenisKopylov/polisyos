@@ -1,0 +1,207 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "scholar-scl-20261006",
+  "closure_ids": ["B17", "LA-024", "LA-025"],
+  "bundle_ids": ["SCL-01", "SCL-03"],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "549a2806fd0610ef24a92a9c6a87d5c62c3a429f",
+    "6124a2378d8db38a515014632b108b5db83c6bd9",
+    "8fa3766b9792e3612ff502b1cf0d392620c7487f"
+  ],
+  "candidate_tree_sha": "552d3e49db08ab8c8144a7ef2748ebced700c4bd",
+  "branch": "codex/e02-C-scholar-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/scholar/README.md",
+    "policy-engine/src/polisyos/scholar/api.py",
+    "policy-engine/src/polisyos/scholar/discover/README.md",
+    "policy-engine/src/polisyos/scholar/discover/http_fetch.py",
+    "policy-engine/src/polisyos/scholar/discover/transport.py",
+    "policy-engine/src/polisyos/scholar/fetch_contracts.py",
+    "policy-engine/src/polisyos/scholar/orchestrator/bundle.py",
+    "policy-engine/src/polisyos/scholar/orchestrator/enrich.py",
+    "policy-engine/src/polisyos/scholar/search/cache.py",
+    "policy-engine/src/polisyos/scholar/search/fetcher.py",
+    "policy-engine/src/polisyos/scholar/search/jobs.py",
+    "policy-engine/src/polisyos/scholar/search/models.py",
+    "policy-engine/src/polisyos/scholar/search/providers.py",
+    "policy-engine/src/polisyos/scholar/search/scoring.py",
+    "policy-engine/src/polisyos/scholar/search/service.py",
+    "policy-engine/src/polisyos/scholar/types.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+    "policy-engine/tests/unit/remediation/test_scl_01.py",
+    "policy-engine/tests/unit/remediation/test_scl_03.py",
+    "policy-engine/tests/unit/scholar/search/test_service_jobs_tools.py",
+    "policy-engine/tests/unit/scholar/test_api_web_bootstrap.py"
+  ],
+  "current_main_at_slice_base": {
+    "coverage_source": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@198076863e143dea9f89f02734b13d50dae3eed5",
+    "current_rows": [
+      {
+        "id": "B17",
+        "historical_status": "partial",
+        "capability_label": "bridge_missing",
+        "closure_now": "not_adjudicated",
+        "criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCL-01.md@97c85fae2d4505ec8248540d98b9556296244208#L57",
+        "criterion_source": "B_r19 lines 399-410, SHA-256 1bf7c67194b569d0f2dd955a3f03856dd8117acf907dcef1b9385980f0321848"
+      },
+      {
+        "id": "LA-024",
+        "historical_status": "partial",
+        "capability_label": "bridge_missing",
+        "closure_now": "not_adjudicated",
+        "criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCL-01.md@97c85fae2d4505ec8248540d98b9556296244208#L76",
+        "criterion_source": "LA_r09 lines 1084-1113, SHA-256 ac5148dc11d7ccb7f825d8d672b2be62db9fee78d7c8a0f15150889bd154ef67"
+      },
+      {
+        "id": "LA-025",
+        "historical_status": "partial",
+        "capability_label": "bridge_missing",
+        "closure_now": "not_adjudicated",
+        "criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCL-03.md@97c85fae2d4505ec8248540d98b9556296244208#L58",
+        "criterion_source": "LA_r09 lines 1114-1149, SHA-256 2bc4e727677c0b073b03c2cd763b0dc65c25b0917ab5e423ee9f7d4442c05da4"
+      }
+    ],
+    "accepted_prior_and_missing_bridges": [
+      "The base ProviderFailoverPolicy already continued after an empty result and returned the first nonempty result. Its tuple did not retain per-provider outcome records or a typed exhausted state; on total exhaustion it returned the last provider name, an empty hit list, and only the last error. The service could not distinguish all-empty, mixed error/unsuitable, and budget-stop outcomes in persisted query traces. The candidate preserves the existing ordered policy and adds typed attempt/stop outcomes. Source: policy-engine/src/polisyos/scholar/search/providers.py@198076863e143dea9f89f02734b13d50dae3eed5 and policy-engine/src/polisyos/scholar/search/service.py@198076863e143dea9f89f02734b13d50dae3eed5.",
+      "The base search page fetcher and seed URL fetcher had separate raw HTTP implementations. Existing URL/redirect admission remains owned by SearchConstraints and validate_fetch_url; this candidate wires both callers through one raw transport without changing that owner. Sources: policy-engine/src/polisyos/scholar/search/fetcher.py@198076863e143dea9f89f02734b13d50dae3eed5 and policy-engine/src/polisyos/scholar/discover/http_fetch.py@198076863e143dea9f89f02734b13d50dae3eed5.",
+      "The base seed adapter already resolved and verified CAS bytes when the source had a raw reference, but it could substitute the mutable URL cache's current artifact ID when the source lacked one. The base decision-packet web-evidence projection read bundle metadata without resolving and verifying each source's raw CAS artifact. The candidate requires source-bound ref or digest, emits typed gaps without URL fallback, and makes the packet consumer read and verify per-source snapshots. Sources: policy-engine/src/polisyos/scholar/api.py@198076863e143dea9f89f02734b13d50dae3eed5 and policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py@198076863e143dea9f89f02734b13d50dae3eed5."
+    ]
+  },
+  "candidate_verdicts": [
+    {
+      "finding_id": "B17",
+      "candidate_verdict": "PASS_bounded",
+      "closure_now": "not_adjudicated",
+      "property": "Permitted providers are queried in policy order; empty, unsuitable, and error outcomes continue; first useful result short-circuits; exhaustion is terminal only after the permitted list is consumed; persisted query state distinguishes provider exhaustion from budget stops.",
+      "producer_bridge_consumer": "ProviderFailoverPolicy.search_detailed → ScholarDeepSearchService.deep_search → persisted WebEvidenceBundle v1.1/query trace and no-hit frontier.",
+      "independent_oracle": "Scripted-provider call logs and expected outcomes; independent SHA-256 over fixed local-server response bytes; expected source identity recomputed from the expected redirected URL and response digest.",
+      "negative_control": "Temporarily removed the empty-result continue branch while retaining trace/status fields. The real-service test failed at `assert not bundle.no_hit_frontier`: the empty first provider incorrectly became terminal. The temporary mutation was reverted before implementation commit.",
+      "predicate_basis": [
+        {"predicate": "provider order/call sequence", "basis": "independently_reconciled"},
+        {"predicate": "source raw digest and CAS ID", "basis": "recomputed"},
+        {"predicate": "source identity from expected final URL and digest", "basis": "recomputed"}
+      ],
+      "p38_divergence": "At the base, an empty response continued in the loop but the tuple API erased per-provider outcomes and did not report typed exhaustion; mixed errors and budget stops could look like ordinary no-hit. The candidate persists separate attempt outcomes and terminal/budget reasons, while the removal control shows the actual service still depends on empty→continue.",
+      "remaining": "Independent review and integration admission are still required before any ledger closure claim."
+    },
+    {
+      "finding_id": "LA-024",
+      "candidate_verdict": "LIMITED",
+      "closure_now": "not_adjudicated",
+      "property": "Search and seed acquisition use one redirect-aware raw transport and preserve response bytes, final URL, response headers, content type, byte count, digest, redirect chain, fetch profile, and typed transport/admission refusal reasons.",
+      "producer_bridge_consumer": "discover.transport.fetch_raw → search.fetcher.fetch_open_page and discover.http_fetch.fetch_url → cache/CAS and typed Scholar result adapters.",
+      "independent_oracle": "Two local HTTP callers are compared with an independent server request transcript and hashlib SHA-256 of the exact response body. Test cases cover blocked initial address, blocked redirect domain, redirect loop, timeout, size limit, and MIME refusal for both callers.",
+      "negative_control": "Temporarily forced fetch_failure_reason to return `transport_error`; the two-caller typed-refusal matrix reported 10 failures and 2 passes, demonstrating that the distinct reason mapping is consumed by both adapters. The temporary mutation was reverted before implementation commit.",
+      "predicate_basis": [
+        {"predicate": "raw-byte digest/size", "basis": "recomputed"},
+        {"predicate": "local server request/redirect transcript", "basis": "independently_reconciled"},
+        {"predicate": "network admission constraints", "basis": "institutionally_supplied"},
+        {"predicate": "license admissibility/allowlist", "basis": "not_established"}
+      ],
+      "p38_divergence": "At the base the two callers owned separate HTTP paths and result adapters did not preserve the same complete raw transport record. The shared transport now measures exact bytes and maps the tested refusal classes into the caller results; the license refusal rule remains unestablished because no license-policy owner/allowlist was supplied.",
+      "remaining_capability_label": "absent/unallocated",
+      "remaining": "Do not claim disallowed-license refusal coverage or reuse authorization. No license allowlist or license-policy owner decision was invented; license admissibility remains not_established. Independent review and integration admission remain open."
+    },
+    {
+      "finding_id": "LA-025",
+      "candidate_verdict": "PASS_bounded",
+      "closure_now": "not_adjudicated",
+      "property": "Enrichment and the downstream decision-packet web-evidence consumer bind to the exact search-time CAS snapshot v1 after the same URL/cache advances to v2; unavailable, denied, missing, or mismatched source snapshots yield typed gaps without a second URL fetch. An explicit refresh creates a new v2 lineage.",
+      "producer_bridge_consumer": "Real local HTTP search → persisted Scholar raw CAS v1 → actual enrich_topic/_enrich_topic → KnowledgeBundle and document metadata → actual decision-packet web-evidence section builder resolving the same source ArtifactID.",
+      "independent_oracle": "The local server transcript is exactly `/source`, `/snapshot-v1`, `/source`, `/snapshot-v2`; the v1/v2 bodies have independent SHA-256 values. Readback proves KnowledgeBundle and doc_meta point to v1 while the URL cache points to v2, and packet readback invokes CAS get_bytes exactly once for v1 and records `status=verified`.",
+      "negative_control": "Removing the missing-snapshot gap and restoring URL-backed SourceSpec reconstruction caused `test_missing_raw_snapshot_does_not_reconstruct_from_fragments` to fail at `raw snapshot gap must not fall back to a second URL fetch`. Separate negative cases cover absent ref+digest, digest without CAS bytes, denied CAS read, and ref/digest mismatch. Explicit refresh v2 carries v1 parent and refresh reason.",
+      "predicate_basis": [
+        {"predicate": "ArtifactID/digest/byte size against CAS bytes", "basis": "recomputed"},
+        {"predicate": "v1/v2 local HTTP timeline", "basis": "independently_reconciled"},
+        {"predicate": "packet source snapshot content", "basis": "recomputed"}
+      ],
+      "p38_divergence": "The base could substitute the mutable URL cache artifact when a source lacked a source-bound reference, and the packet projected the bundle without verifying raw source bytes. The candidate requires source ref/digest, records typed gaps, and has the real packet consumer resolve/hash/size-check the CAS bytes; deleting the gap behavior makes the no-fallback control fail.",
+      "remaining": "Independent review and integration admission are still required before any ledger closure claim."
+    }
+  ],
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos/policy-engine/src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider -c pytest.ini --tb=short tests/unit/remediation/test_scl_01.py tests/unit/remediation/test_scl_03.py tests/unit/scholar/search/test_providers.py tests/unit/scholar/search/test_service_jobs_tools.py tests/unit/scholar/search/test_fetcher_security_cache.py tests/unit/scholar/search/test_openalex_provider.py tests/unit/scholar/test_api_web_bootstrap.py tests/unit/scientist/evidence/test_decision_packet_web_evidence.py",
+      "target_sha": "6124a2378d8db38a515014632b108b5db83c6bd9",
+      "environment": {
+        "python": "3.14.0",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "executable": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "source_import": "candidate worktree policy-engine/src via PYTHONPATH",
+        "network": "loopback-only test servers; timeout refusal uses a fake opener",
+        "production_data": "not used"
+      },
+      "input_closure": "Eight changed/importer test files listed in command, their fixtures, pytest.ini, and tracked implementation paths at target SHA; no DB or external network.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 15.64,
+      "output": "...............................................................          [100%]\n=============================== warnings summary ===============================\n../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n63 passed, 1 warning in 15.64s\n",
+      "warning_cause": "The repository pytest.ini has a cache_dir option, while -p no:cacheprovider disables the plugin that registers it; this is a harness warning, not a product test failure."
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-scholar-20261006/polisyos/policy-engine/src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider -c pytest.ini --tb=short tests/unit/remediation/test_scl_01.py",
+      "target_sha": "8fa3766b9792e3612ff502b1cf0d392620c7487f",
+      "environment": {
+        "python": "3.14.0",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "executable": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "network": "loopback-only test server",
+        "production_data": "not used"
+      },
+      "input_closure": "All 19 SCL-01 tests including the exact expected source_id assertion added in commit 8fa3766b.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 8.39,
+      "output": "...................                                                      [100%]\n=============================== warnings summary ===============================\n../../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n19 passed, 1 warning in 8.39s\n",
+      "warning_cause": "The repository pytest.ini has a cache_dir option, while -p no:cacheprovider disables the plugin that registers it; this is a harness warning, not a product test failure."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/scholar/api.py src/polisyos/scholar/discover/http_fetch.py src/polisyos/scholar/discover/transport.py src/polisyos/scholar/fetch_contracts.py src/polisyos/scholar/orchestrator/bundle.py src/polisyos/scholar/orchestrator/enrich.py src/polisyos/scholar/search/cache.py src/polisyos/scholar/search/fetcher.py src/polisyos/scholar/search/jobs.py src/polisyos/scholar/search/models.py src/polisyos/scholar/search/providers.py src/polisyos/scholar/search/scoring.py src/polisyos/scholar/search/service.py src/polisyos/scholar/types.py src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py tests/unit/remediation/test_scl_01.py tests/unit/remediation/test_scl_03.py tests/unit/scholar/search/test_service_jobs_tools.py tests/unit/scholar/test_api_web_bootstrap.py",
+      "target_sha": "8fa3766b9792e3612ff502b1cf0d392620c7487f",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "All checks passed!\n"
+    },
+    {
+      "command": "git diff --check",
+      "target_sha": "8fa3766b9792e3612ff502b1cf0d392620c7487f",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": ""
+    }
+  ],
+  "non_deciding_diagnostics": [
+    "An earlier run using `-c /dev/null` passed all 63 tests but emitted a PytestUnraisableExceptionWarning from finalizing an HTTPResponse whose file had already closed. Isolated SCL-01 and SCL-03 files did not reproduce it. The deciding repository-config replay at 6124a237 passed all 63 tests with only the cache_dir warning above and no HTTPResponse finalizer warning; no product conclusion is based on the earlier warning.",
+    "A PYTHONTRACEMALLOC=15 diagnostic attempt was interrupted during pytest collection after 31.66 seconds; it ran no tests and is not a deciding check."
+  ],
+  "pattern_pass": {
+    "relevant_ids": ["P01", "P02", "P04", "P05", "P07", "P10", "P12", "P27", "P29", "P31", "P32", "P33", "P37", "P38", "P41"],
+    "observed_antipatterns": [
+      "Provider failover returned tuple status without preserving each outcome or terminal-exhaustion distinction.",
+      "Search and seed callers duplicated raw HTTP fetching.",
+      "A mutable URL-cache record could stand in for a source-bound CAS snapshot; the packet consumer did not resolve raw source refs.",
+      "Earlier LA-025 test fixture used a stub _enrich_topic and did not prove the real consumer chain."
+    ],
+    "target_pattern": "Retain existing provider, security, cache, CAS, enrich, and packet owners; add one typed selector result, one shared raw transport, and source-bound CAS readback with actual producer and consumer witnesses.",
+    "capability_state": "The candidate branch wires the tested producer/artifact/bridge/consumer paths; main ledger rows remain partial and not adjudicated until independent review and integration admission.",
+    "p37_basis": "Exact raw hash, size, artifact ID and expected source ID are recomputed; local server transcript is independently reconciled; existing network admission is consumed as supplied by its owner; license admissibility is not established.",
+    "p38_property_code_divergence": "The code now records the distinction the property requires and tests the real service/adapters/packet consumer; the explicit property-removal tests make each tested divergence observable. License admissibility remains an explicit unestablished boundary."
+  },
+  "missing_inputs_and_limits": [
+    "No license-policy owner contract or allowlist was supplied. LA-024 remains limited for disallowed-license refusal and authorization; literal license metadata is preserved and no allowlist was invented.",
+    "No independent reviewer decision or G integration admission is recorded. The three original coverage rows remain closure_now=not_adjudicated; this candidate does not change the ledger.",
+    "No installed-package probe was run: this writer lease permitted the existing Python environment with candidate source on PYTHONPATH and explicitly prohibited installs. An installed environment/command remains a separate missing input.",
+    "No production invocation was run under the lease's no-full-production boundary. A source-only audit is not represented as runtime proof.",
+    "Architecture guardrails were attempted but interrupted after the runner spawned the runtime OpenAPI exporter for more than four minutes; the outer command was stopped with exit 143 and no deciding output. Record UNRUN, not a product failure.",
+    "The checkout-local pre-commit dispatcher was missing apps/runtime-dashboard/node_modules/.bin/lefthook. No install or shared hook configuration was changed; commits used a per-command core.hooksPath=/dev/null after Ruff, focused tests, and diff checks."
+  ],
+  "next_owner": [
+    "Independent reviewer: inspect the frozen implementation SHA/tree and the exact three verdicts, especially the LA-024 license limitation and the P38 removal controls.",
+    "G: decide integration/admission and update the three separate ledger rows only with accepted evidence; do not treat this handoff or candidate tests as current-main closure.",
+    "License-policy owner: supply the authoritative admissibility rule before any disallowed-license behavior is implemented or claimed."
+  ]
+}

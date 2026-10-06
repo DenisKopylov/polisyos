@@ -608,6 +608,35 @@ def _load_core_ingest_context(
     if not isinstance(metadata, dict):
         metadata = {}
     stage_status = str(stage_state.get("status") or "").strip()
+    checkpoint_state: dict[str, object] = {}
+    if config.observation_ingest_checkpoint_path.exists():
+        try:
+            with open(config.observation_ingest_checkpoint_path, encoding="utf-8") as fh:
+                loaded_checkpoint = json.load(fh)
+            if isinstance(loaded_checkpoint, dict):
+                checkpoint_state = loaded_checkpoint
+        except (OSError, json.JSONDecodeError):
+            checkpoint_state = {}
+    from polisyos.data_forge.domains.catalog.batch.core_sources.validators import (
+        _build_core_output_receipt,
+    )
+
+    current_core_receipt = _build_core_output_receipt(
+        config,
+        con=con,
+        checkpoint_state=checkpoint_state,
+    )
+    checkpoint_receipt = checkpoint_state.get("core_output_receipt")
+    stage_receipt = metadata.get("core_output_receipt")
+    core_receipt_current = bool(
+        current_core_receipt is not None
+        and checkpoint_receipt == current_core_receipt
+        and stage_receipt == current_core_receipt
+    )
+    checkpoint_work_packages = checkpoint_state.get("work_packages")
+    core_evidence_expected = bool(
+        isinstance(checkpoint_work_packages, dict) and checkpoint_work_packages
+    ) or stage_status in {"complete", "warning", "running"}
     observation_count = 0
     if _table_exists(con, "ds_observations"):
         observation_count = int(
@@ -634,9 +663,21 @@ def _load_core_ingest_context(
         if isinstance(value, (int, float)) and int(value) > 0
     }
     current_phase = str(metadata.get("current_phase") or "").strip()
-    publishable_core_complete = bool(metadata.get("publishable_core_complete"))
-    publishable_core_pending = max(0, int(metadata.get("publishable_core_pending", 0) or 0))
-    backfill_pending = max(0, int(metadata.get("backfill_pending", 0) or 0))
+    if core_receipt_current and current_core_receipt is not None:
+        publishable_core_complete = bool(
+            current_core_receipt["publishable_core_complete"]
+        )
+        publishable_core_pending = max(
+            0, int(current_core_receipt["publishable_core_pending"])
+        )
+        backfill_pending = max(0, int(current_core_receipt["backfill_pending"]))
+    else:
+        publishable_core_complete = False
+        publishable_core_pending = max(
+            1,
+            int(metadata.get("publishable_core_pending", 0) or 0),
+        )
+        backfill_pending = max(0, int(metadata.get("backfill_pending", 0) or 0))
     source_core_completion_pct = {
         str(key): float(value)
         for key, value in (metadata.get("source_core_completion_pct", {}) or {}).items()
@@ -658,6 +699,10 @@ def _load_core_ingest_context(
             or completed_shards == 0
         )
     )
+    if core_evidence_expected and (
+        not core_receipt_current or not publishable_core_complete
+    ):
+        blocked = True
     if blocked:
         evaluation_mode = "partial-eval"
     elif publishable_core_complete and backfill_pending > 0:
@@ -677,6 +722,10 @@ def _load_core_ingest_context(
         "publishable_core_complete": publishable_core_complete,
         "publishable_core_pending": publishable_core_pending,
         "backfill_pending": backfill_pending,
+        "core_output_receipt_current": core_receipt_current,
+        "core_output_receipt_digest": (
+            current_core_receipt.get("basis_digest") if current_core_receipt else None
+        ),
         "source_core_completion_pct": source_core_completion_pct,
         "source_full_completion_pct": source_full_completion_pct,
         "blocked": blocked,

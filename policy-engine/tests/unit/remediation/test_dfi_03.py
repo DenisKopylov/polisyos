@@ -412,11 +412,12 @@ def test_pipeline_preserves_current_core_producer_progress_for_benchmark(
             last_checked_at=datetime.now(UTC),
         )
 
-    fetch_state = {"fail": False}
+    fetch_state = {"fail": False, "calls": 0}
 
     async def _fetch_dataset(
         _connector: WorldBankConnector, _handle: object, _request: object
     ) -> object:
+        fetch_state["calls"] += 1
         if fetch_state["fail"]:
             raise RuntimeError("fixture World Bank fetch failure")
         return type(
@@ -538,6 +539,125 @@ def test_pipeline_preserves_current_core_producer_progress_for_benchmark(
     assert retried_shards[0]["shard_id"] not in retried_checkpoint["deferred"]
     assert persisted_observations == [("wb-gdp", "NY.GDP.PCAP.PP.CD", "UA", 2020, 1.1)]
     assert retried_benchmark["evaluation_mode"] == "full-ready"
+
+    calls_before_valid_resume = fetch_state["calls"]
+    valid_resume_stats = run_dataset_pipeline_sync(retry_config)
+    valid_resume_benchmark = json.loads(
+        retry_config.benchmark_report_path.read_text(encoding="utf-8")
+    )
+    assert fetch_state["calls"] == calls_before_valid_resume
+    assert valid_resume_stats.metrics["core_failures"] == 0
+    assert valid_resume_benchmark["evaluation_mode"] == "full-ready"
+
+    completed_checkpoint = json.loads(
+        retry_config.observation_ingest_checkpoint_path.read_text(encoding="utf-8")
+    )
+    completed_shard_id = retried_shards[0]["shard_id"]
+    stale_checkpoint = json.loads(json.dumps(completed_checkpoint))
+    stale_result = stale_checkpoint["completed"].pop(completed_shard_id)
+    stale_checkpoint["deferred"][completed_shard_id] = {
+        **stale_result,
+        "status": "deferred",
+    }
+    retry_config.observation_ingest_checkpoint_path.write_text(
+        json.dumps(stale_checkpoint), encoding="utf-8"
+    )
+
+    from polisyos.data_forge.domains.catalog.batch.benchmark import run_benchmark
+
+    run_benchmark(retry_config)
+    marker_only_report = json.loads(
+        retry_config.benchmark_report_path.read_text(encoding="utf-8")
+    )
+    assert marker_only_report["evaluation_mode"] == "partial-eval"
+    assert marker_only_report["metrics"]["benchmark_partial_eval"] == 1
+
+    retry_config.observation_ingest_checkpoint_path.write_text(
+        json.dumps(completed_checkpoint), encoding="utf-8"
+    )
+    with duckdb.connect(str(retry_config.db_path)) as con:
+        con.execute("DELETE FROM ds_observations WHERE dataset_id = 'wb-gdp'")
+        con.execute("CHECKPOINT")
+
+    prior_green_stage = json.loads(retry_config.stage_state_path.read_text(encoding="utf-8"))[
+        "core_sources_ingest"
+    ]
+    assert prior_green_stage["status"] == "complete"
+    assert prior_green_stage["metadata"]["core_output_receipt"] is not None
+    removed_output_benchmark = run_benchmark(retry_config)
+    removed_output_report = json.loads(
+        retry_config.benchmark_report_path.read_text(encoding="utf-8")
+    )
+    assert removed_output_benchmark.metrics["benchmark_partial_eval"] == 1
+    assert removed_output_report["evaluation_mode"] == "partial-eval"
+
+    before_missing_output_retry = fetch_state["calls"]
+    fetch_state["fail"] = True
+    missing_output_stats = run_dataset_pipeline_sync(retry_config)
+    missing_output_state = json.loads(
+        retry_config.stage_state_path.read_text(encoding="utf-8")
+    )["core_sources_ingest"]
+    missing_output_benchmark = json.loads(
+        retry_config.benchmark_report_path.read_text(encoding="utf-8")
+    )
+    with duckdb.connect(str(retry_config.db_path), read_only=True) as con:
+        missing_output_rows = con.execute(
+            "SELECT count(*) FROM ds_observations WHERE dataset_id = 'wb-gdp'"
+        ).fetchone()[0]
+
+    assert fetch_state["calls"] == before_missing_output_retry + 1
+    assert missing_output_stats.metrics["core_failures"] == 1
+    assert missing_output_state["status"] == "warning"
+    assert missing_output_state["metadata"]["publishable_core_complete"] is False
+    assert missing_output_rows == 0
+    assert missing_output_benchmark["evaluation_mode"] == "partial-eval"
+
+    fetch_state["fail"] = False
+    repaired_stats = run_dataset_pipeline_sync(retry_config)
+    repaired_benchmark = json.loads(retry_config.benchmark_report_path.read_text(encoding="utf-8"))
+    with duckdb.connect(str(retry_config.db_path), read_only=True) as con:
+        repaired_rows = con.execute(
+            "SELECT dataset_id, raw_variable, country_code, year, value "
+            "FROM ds_observations WHERE dataset_id = 'wb-gdp'"
+        ).fetchall()
+
+    assert repaired_stats.metrics["core_failures"] == 0
+    assert fetch_state["calls"] == before_missing_output_retry + 2
+    assert repaired_rows == [("wb-gdp", "NY.GDP.PCAP.PP.CD", "UA", 2020, 1.1)]
+    assert repaired_benchmark["evaluation_mode"] == "full-ready"
+
+    with duckdb.connect(str(retry_config.db_path)) as con:
+        con.execute(
+            "UPDATE ds_variable_alignments SET confidence = confidence + 0.01 "
+            "WHERE dataset_id = 'wb-gdp'"
+        )
+        con.execute("CHECKPOINT")
+
+    altered_alignment_benchmark = run_benchmark(retry_config)
+    altered_alignment_report = json.loads(
+        retry_config.benchmark_report_path.read_text(encoding="utf-8")
+    )
+    assert altered_alignment_benchmark.metrics["benchmark_partial_eval"] == 1
+    assert altered_alignment_report["evaluation_mode"] == "partial-eval"
+
+    before_alignment_retry = fetch_state["calls"]
+    fetch_state["fail"] = True
+    altered_alignment_retry = run_dataset_pipeline_sync(retry_config)
+    assert fetch_state["calls"] == before_alignment_retry + 1
+    assert altered_alignment_retry.metrics["core_failures"] == 1
+
+    calls_before_changed_plan = fetch_state["calls"]
+    fetch_state["fail"] = False
+    with duckdb.connect(str(retry_config.db_path)) as con:
+        con.execute("UPDATE ds_datasets SET title = 'Changed plan input' WHERE id = 'wb-gdp'")
+        con.execute("CHECKPOINT")
+    changed_plan_stats = run_dataset_pipeline_sync(retry_config)
+    changed_plan_benchmark = json.loads(
+        retry_config.benchmark_report_path.read_text(encoding="utf-8")
+    )
+    assert fetch_state["calls"] == calls_before_changed_plan + 1
+    assert changed_plan_stats.metrics["core_failures"] == 0
+    assert changed_plan_benchmark["evaluation_mode"] == "full-ready"
 
 
 def test_core_sources_ingest_is_not_resumed_without_bound_fetch_receipt(tmp_path) -> None:

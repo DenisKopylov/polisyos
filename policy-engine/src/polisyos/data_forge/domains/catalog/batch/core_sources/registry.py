@@ -89,6 +89,25 @@ from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts im
 
 logger = get_logger(__name__)
 
+# These are the database relations the catalog core-source producer reads to
+# construct its transport plan and the relations it writes for downstream
+# catalog consumers. Keep this inventory beside the producer's table schema
+# and plan loader so receipt consumers bind the same persisted boundary.
+_CORE_SOURCE_RECEIPT_TABLES: dict[str, tuple[str, ...]] = {
+    "inputs": ("ds_datasets", "ds_distributions"),
+    "outputs": (
+        "ds_registry_datasets",
+        "ds_variable_alignments",
+        "ds_alignment_audit",
+        "ds_observations",
+    ),
+}
+
+
+def _core_source_receipt_tables() -> dict[str, tuple[str, ...]]:
+    """Return the catalog core producer's canonical persisted table boundary."""
+    return {role: tuple(names) for role, names in _CORE_SOURCE_RECEIPT_TABLES.items()}
+
 _TRANSPORT_SOURCES = frozenset(
     {
         "worldbank",

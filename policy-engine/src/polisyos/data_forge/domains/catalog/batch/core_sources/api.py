@@ -246,6 +246,7 @@ for __dependency_name, __dependency_owner in (
     ("_apply_dimension_order_to_snapshot", "transformers"),
     ("_build_catalog_alignments", "registry"),
     ("_build_catalog_observation_plans", "registry"),
+    ("_build_core_output_receipt", "validators"),
     ("_build_observation_shards", "validators"),
     ("_build_observation_shards_from_sketches", "registry"),
     ("_build_support_sketches", "registry"),
@@ -282,6 +283,7 @@ for __dependency_name, __dependency_owner in (
     ("_planner_split_shard_from_capability", "validators"),
     ("_prune_expired_capability_failures", "validators"),
     ("_prune_expired_support_cache", "validators"),
+    ("_prepare_core_output_resume", "validators"),
     ("_record_shard_result", "validators"),
     ("_records_from_payload", "loaders"),
     ("_rewrite_sdmx_requests_with_dimension_key", "transformers"),
@@ -332,6 +334,7 @@ def run_core_sources_ingest(config: DatasetBatchConfig) -> CoreSourcesIngestStat
 async def run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSourcesIngestStats:
     """Async entrypoint for ingesting registry/observation data used by DatasetRegistry."""
     started_at = datetime.now(UTC).isoformat()
+    __resolve_implementation_dependency("_prepare_core_output_resume", "validators")(config)
     __resolve_implementation_dependency("_write_core_ingest_stage_progress", "validators")(
         config,
         metadata={},
@@ -341,6 +344,43 @@ async def run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSourc
     stats = await __resolve_implementation_dependency("_run_core_sources_ingest_async", "api")(
         config
     )
+    checkpoint_state = __resolve_implementation_dependency(
+        "_load_observation_checkpoint_state", "validators"
+    )(config)
+    try:
+        with duckdb.connect(str(config.db_path), read_only=True) as con:
+            core_output_receipt = __resolve_implementation_dependency(
+                "_build_core_output_receipt", "validators"
+            )(
+                config,
+                con=con,
+                checkpoint_state=checkpoint_state,
+            )
+    except (duckdb.Error, OSError):
+        core_output_receipt = None
+    __resolve_implementation_dependency("_write_observation_checkpoint_state", "validators")(
+        config,
+        completed=checkpoint_state["completed"],
+        failed=checkpoint_state["failed"],
+        deferred=checkpoint_state["deferred"],
+        unsupported_signatures=checkpoint_state["unsupported_signatures"],
+        empty_signatures=checkpoint_state["empty_signatures"],
+        inflight_leases=checkpoint_state["inflight_leases"],
+        async_fetch_leases=checkpoint_state["async_fetch_leases"],
+        capability_snapshots=checkpoint_state["capability_snapshots"],
+        capability_failures=checkpoint_state["capability_failures"],
+        source_budgets=checkpoint_state["source_budgets"],
+        writer_state=checkpoint_state["writer_state"],
+        support_sketches=checkpoint_state["support_sketches"],
+        work_packages=checkpoint_state["work_packages"],
+        planner_phase=checkpoint_state["planner_phase"],
+        publishable_core_complete=bool(
+            core_output_receipt and core_output_receipt["publishable_core_complete"]
+        ),
+        negative_cache_version=checkpoint_state["negative_cache_version"],
+        planner_signature=checkpoint_state["planner_signature"],
+        core_output_receipt=core_output_receipt,
+    )
     progress_metadata = dict(stats._progress_metadata or {})
     progress_metadata.update(
         {
@@ -349,12 +389,31 @@ async def run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSourc
             "completed_shards": int(stats.completed_shards),
             "deferred_shards": int(stats.deferred_shards),
             "failed_shards": int(stats.failed_shards),
+            "core_output_receipt": core_output_receipt,
         }
     )
-    core_complete = progress_metadata.get("publishable_core_complete")
-    core_pending = progress_metadata.get("publishable_core_pending")
-    core_status_established = isinstance(core_complete, bool) and type(core_pending) is int
-    core_incomplete = not core_status_established or not core_complete or core_pending > 0
+    if core_output_receipt is not None:
+        progress_metadata.update(
+            {
+                "publishable_core_complete": core_output_receipt[
+                    "publishable_core_complete"
+                ],
+                "publishable_core_pending": core_output_receipt[
+                    "publishable_core_pending"
+                ],
+                "backfill_pending": core_output_receipt["backfill_pending"],
+                "selected_work_pending": core_output_receipt["selected_pending"],
+            }
+        )
+    else:
+        progress_metadata.update(
+            {"publishable_core_complete": False, "publishable_core_pending": 1}
+        )
+    core_incomplete = (
+        core_output_receipt is None
+        or not bool(core_output_receipt["publishable_core_complete"])
+        or int(core_output_receipt["selected_pending"]) > 0
+    )
     stage_status = "warning" if stats.failures or core_incomplete else "complete"
     write_stage_manifest(
         manifest_path=config.manifests_dir / "core_sources_ingest.json",
@@ -373,6 +432,12 @@ async def run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSourc
             "failed_shards": stats.failed_shards,
             "empty_shards": stats.empty_shards,
             "observations_by_source": stats.observations_by_source or {},
+            "publishable_core_complete": progress_metadata["publishable_core_complete"],
+            "publishable_core_pending": progress_metadata["publishable_core_pending"],
+            "backfill_pending": progress_metadata.get("backfill_pending", 0),
+            "core_output_receipt_digest": (
+                core_output_receipt.get("basis_digest") if core_output_receipt else None
+            ),
         },
         artifacts=[config.db_path],
         started_at=started_at,

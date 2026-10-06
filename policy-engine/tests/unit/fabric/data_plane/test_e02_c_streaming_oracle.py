@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import json
 import threading
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 from urllib.parse import parse_qs, urlsplit
 
 import pytest
@@ -122,6 +122,55 @@ def _window_case(strategy: str) -> tuple[list[dict[str, Any]], WindowPolicy, lis
     raise AssertionError(f"unknown test strategy: {strategy}")
 
 
+def _over_capacity_window_case(strategy: str) -> tuple[list[dict[str, Any]], WindowPolicy]:
+    """Three rows remain live together so the actual retained operator exceeds two."""
+    ids = ("a", "b", "c")
+    if strategy == "count":
+        return (
+            [{"_message_id": key, "value": index} for index, key in enumerate(ids)],
+            WindowPolicy(strategy=WindowStrategy.COUNT, size=16),
+        )
+    if strategy == "tumbling":
+        return (
+            [
+                {
+                    "_message_id": key,
+                    "event_time": f"2024-01-01T00:00:{index * 5:02d}Z",
+                    "value": index,
+                }
+                for index, key in enumerate(ids)
+            ],
+            WindowPolicy(
+                strategy=WindowStrategy.TUMBLING,
+                size=60,
+                timestamp_field="event_time",
+            ),
+        )
+    if strategy == "session":
+        return (
+            [
+                {
+                    "_message_id": key,
+                    "event_time": f"2024-01-01T00:00:{index * 5:02d}Z",
+                    "value": index,
+                }
+                for index, key in enumerate(ids)
+            ],
+            WindowPolicy(
+                strategy=WindowStrategy.SESSION,
+                size=60,
+                session_gap_seconds=60,
+                timestamp_field="event_time",
+            ),
+        )
+    if strategy == "sliding":
+        return (
+            [{"_message_id": key, "value": index} for index, key in enumerate(ids)],
+            WindowPolicy(strategy=WindowStrategy.SLIDING, size=4, slide=1),
+        )
+    raise AssertionError(f"unknown test strategy: {strategy}")
+
+
 def _window_rows_and_lineage(
     store: FileSystemCAS,
     chunk_refs: list[Any],
@@ -153,6 +202,76 @@ def _window_rows_and_lineage(
         observed_rows.append(ids)
         observed_lineage.append(manifest_refs)
     return observed_rows, observed_lineage
+
+
+def _dedupe_options(
+    *,
+    partition_key: str = "default",
+    max_dedupe_keys: int = 2,
+) -> StreamRuntimeOptions:
+    """Build a small runtime profile for the explicit event/version fixture."""
+    return StreamRuntimeOptions(
+        partition_key=partition_key,
+        batch_size=1,
+        checkpoint_every_chunks=1,
+        dedupe_key_fields=("event_id", "source_version"),
+        max_dedupe_keys=max_dedupe_keys,
+        max_buffered_rows=16,
+        max_buffered_bytes=100_000,
+        window_policy=WindowPolicy(strategy=WindowStrategy.COUNT, size=16),
+    )
+
+
+def _capacity_processing_contract(
+    strategy: str,
+    *,
+    max_rows: int,
+    max_bytes: int,
+) -> Any:
+    """Build the declared backpressure strategy around the requested cap."""
+    from polisyos.fabric.quality.processing_guarantees import (
+        BackpressureStrategy,
+        stream_processing_contract,
+    )
+
+    contract = stream_processing_contract(
+        max_buffered_rows=max_rows,
+        max_buffered_bytes=max_bytes,
+    )
+    backpressure = contract.backpressure.model_copy(
+        update={"strategy": BackpressureStrategy(strategy)}
+    )
+    return contract.model_copy(update={"backpressure": backpressure})
+
+
+def _dedupe_horizon_entries(checkpoint: Any) -> dict[tuple[tuple[str, object], ...], datetime]:
+    """Decode committed horizon entries to compare event/version meaning."""
+    horizon = checkpoint.metadata.get("dedupe_horizon")
+    assert isinstance(horizon, dict), "checkpoint must persist the UTC dedupe horizon"
+    assert horizon.get("version") == 1
+    assert horizon.get("window_seconds") == 86_400
+    assert horizon.get("fields") == ["event_id", "source_version"]
+    entries = horizon.get("entries")
+    assert isinstance(entries, dict)
+    return {
+        tuple(
+            (str(field), value) for field, value in json.loads(encoded_key)
+        ): datetime.fromisoformat(str(timestamp))
+        for encoded_key, timestamp in entries.items()
+    }
+
+
+def _persisted_stream_rows(store: FileSystemCAS, *, dataset_id: str) -> list[dict[str, Any]]:
+    """Read emitted rows from their actual stream-chunk CAS artifacts."""
+    indexed_chunks: list[tuple[int, list[dict[str, Any]]]] = []
+    for artifact_id in store.iter_artifact_ids():
+        if store.get_manifest(artifact_id).kind != "fabric.stream_chunk":
+            continue
+        payload = from_canonical_bytes(store.get_bytes(artifact_id))
+        if payload.get("dataset_id") != dataset_id:
+            continue
+        indexed_chunks.append((int(payload["chunk_index"]), list(payload["data"])))
+    return [row for _index, rows in sorted(indexed_chunks) for row in rows]
 
 
 async def _run_stream(
@@ -605,12 +724,17 @@ async def test_b81_b82_b85_baseexception_restart_replays_actual_cas_lineage(
 
 
 @pytest.mark.parametrize("strategy", ["count", "tumbling", "session", "sliding"])
+@pytest.mark.parametrize(
+    "backpressure_strategy",
+    ["pause", "throttle", "fail_closed", "spill_to_disk"],
+)
 @pytest.mark.asyncio
 async def test_b84_restored_state_over_new_capacity_refuses_before_source_or_cas_effects(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     stream_registry: ConnectorRegistry,
     strategy: str,
+    backpressure_strategy: str,
 ) -> None:
     """A smaller restored cap fails before rewind/poll and leaves the old frontier intact."""
     rows, policy, _expected = _window_case(strategy)
@@ -624,13 +748,14 @@ async def test_b84_restored_state_over_new_capacity_refuses_before_source_or_cas
         session_gap_seconds=policy.session_gap_seconds,
         timestamp_field=policy.timestamp_field,
     )
-    stream_path = tmp_path / f"restore-{strategy}.jsonl"
+    dataset_id = f"restore-{strategy}-{backpressure_strategy}"
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
     stream_path.write_text(
         "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
         encoding="utf-8",
     )
     registry = _configure_stream_registry(stream_registry, stream_path)
-    cas_root = tmp_path / f"restore-cas-{strategy}"
+    cas_root = tmp_path / f"restore-cas-{strategy}-{backpressure_strategy}"
     store = FileSystemCAS(cas_root)
     cursor_store = CursorStore(store)
     original_poll = StreamingSourceSession.poll
@@ -646,7 +771,7 @@ async def test_b84_restored_state_over_new_capacity_refuses_before_source_or_cas
     with pytest.raises(_ProcessDeath):
         await process_stream_dataset(
             connector_id="stream.jsonl",
-            dataset_id=f"restore-{strategy}",
+            dataset_id=dataset_id,
             store=store,
             cursor_store=cursor_store,
             sanitize_rows=_valid_rows,
@@ -655,14 +780,19 @@ async def test_b84_restored_state_over_new_capacity_refuses_before_source_or_cas
                 max_buffered_rows=3,
                 max_buffered_bytes=100_000,
                 window_policy=policy,
+                processing_contract=_capacity_processing_contract(
+                    backpressure_strategy,
+                    max_rows=3,
+                    max_bytes=100_000,
+                ),
             ),
             registry=registry,
         )
 
     monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
     before = CursorStore(FileSystemCAS(cas_root))
-    prior_checkpoint = before.find_latest_stream_checkpoint("stream.jsonl", f"restore-{strategy}")
-    prior_cursor = before.find_latest_cursor("stream.jsonl", f"restore-{strategy}")
+    prior_checkpoint = before.find_latest_stream_checkpoint("stream.jsonl", dataset_id)
+    prior_cursor = before.find_latest_cursor("stream.jsonl", dataset_id)
     assert prior_checkpoint is not None
     assert prior_checkpoint.metadata["frontier_intent"]["state"] == "committed"
     accumulator_state = prior_checkpoint.metadata["operator_state"]["accumulator"]
@@ -703,7 +833,7 @@ async def test_b84_restored_state_over_new_capacity_refuses_before_source_or_cas
     with pytest.raises(RuntimeError, match="capacity|retained|buffer"):
         await process_stream_dataset(
             connector_id="stream.jsonl",
-            dataset_id=f"restore-{strategy}",
+            dataset_id=dataset_id,
             store=resumed_store,
             cursor_store=CursorStore(resumed_store),
             sanitize_rows=_valid_rows,
@@ -712,16 +842,21 @@ async def test_b84_restored_state_over_new_capacity_refuses_before_source_or_cas
                 max_buffered_rows=1,
                 max_buffered_bytes=100_000,
                 window_policy=policy,
+                processing_contract=_capacity_processing_contract(
+                    backpressure_strategy,
+                    max_rows=1,
+                    max_bytes=100_000,
+                ),
             ),
             registry=registry,
         )
 
     assert effects == {"rewind": 0, "poll": 0, "commit": 0}
     after = CursorStore(FileSystemCAS(cas_root))
-    assert after.find_latest_stream_checkpoint("stream.jsonl", f"restore-{strategy}").model_dump(
+    assert after.find_latest_stream_checkpoint("stream.jsonl", dataset_id).model_dump(
         mode="json"
     ) == prior_checkpoint.model_dump(mode="json")
-    current_cursor = after.find_latest_cursor("stream.jsonl", f"restore-{strategy}")
+    current_cursor = after.find_latest_cursor("stream.jsonl", dataset_id)
     assert (current_cursor.model_dump(mode="json") if current_cursor else None) == (
         prior_cursor.model_dump(mode="json") if prior_cursor else None
     )
@@ -733,15 +868,20 @@ async def test_b84_restored_state_over_new_capacity_refuses_before_source_or_cas
     retry_store = FileSystemCAS(cas_root)
     retried = await process_stream_dataset(
         connector_id="stream.jsonl",
-        dataset_id=f"restore-{strategy}",
+        dataset_id=dataset_id,
         store=retry_store,
         cursor_store=CursorStore(retry_store),
         sanitize_rows=_valid_rows,
         runtime_options=StreamRuntimeOptions(
             checkpoint_every_chunks=1,
-            max_buffered_rows=3,
+            max_buffered_rows=4,
             max_buffered_bytes=100_000,
             window_policy=policy,
+            processing_contract=_capacity_processing_contract(
+                backpressure_strategy,
+                max_rows=4,
+                max_bytes=100_000,
+            ),
         ),
         registry=registry,
     )
@@ -762,15 +902,21 @@ async def test_b84_restored_state_over_new_capacity_refuses_before_source_or_cas
 
 
 @pytest.mark.parametrize("strategy", ["count", "tumbling", "session", "sliding"])
+@pytest.mark.parametrize(
+    "backpressure_strategy",
+    ["pause", "throttle", "fail_closed", "spill_to_disk"],
+)
 @pytest.mark.asyncio
 async def test_b84_capacity_exactly_allows_a_window_closing_transition(
     tmp_path: Path,
     stream_registry: ConnectorRegistry,
     strategy: str,
+    backpressure_strategy: str,
 ) -> None:
     """A row that closes/advances an operator at its declared cap is admissible."""
     rows, policy, expected = _window_case(strategy)
-    stream_path = tmp_path / f"at-cap-{strategy}.jsonl"
+    dataset_id = f"at-cap-{strategy}-{backpressure_strategy}"
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
     stream_path.write_text(
         "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
         encoding="utf-8",
@@ -781,10 +927,10 @@ async def test_b84_capacity_exactly_allows_a_window_closing_transition(
     cap_bytes = sum(
         len(json.dumps(row, sort_keys=True, default=str).encode("utf-8")) for row in rows[:2]
     )
-    cas_root = tmp_path / f"at-cap-cas-{strategy}"
+    cas_root = tmp_path / f"at-cap-cas-{strategy}-{backpressure_strategy}"
     result = await process_stream_dataset(
         connector_id="stream.jsonl",
-        dataset_id=f"at-cap-{strategy}",
+        dataset_id=dataset_id,
         store=FileSystemCAS(cas_root),
         cursor_store=CursorStore(FileSystemCAS(cas_root)),
         sanitize_rows=_valid_rows,
@@ -793,12 +939,125 @@ async def test_b84_capacity_exactly_allows_a_window_closing_transition(
             max_buffered_rows=2,
             max_buffered_bytes=cap_bytes,
             window_policy=policy,
+            processing_contract=_capacity_processing_contract(
+                backpressure_strategy,
+                max_rows=2,
+                max_bytes=cap_bytes,
+            ),
         ),
         registry=registry,
     )
     store = FileSystemCAS(cas_root)
     actual_rows, _lineage = _window_rows_and_lineage(store, result.chunk_refs, result.window_refs)
     assert actual_rows == expected
+
+
+@pytest.mark.parametrize("strategy", ["count", "tumbling", "session", "sliding"])
+@pytest.mark.parametrize(
+    "backpressure_strategy",
+    ["pause", "throttle", "fail_closed", "spill_to_disk"],
+)
+@pytest.mark.asyncio
+async def test_b84_live_operator_over_capacity_refuses_and_preserves_frontier(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stream_registry: ConnectorRegistry,
+    strategy: str,
+    backpressure_strategy: str,
+) -> None:
+    """A third actually retained row is refused under every strategy."""
+    import polisyos.fabric.data_plane.streaming as streaming_module
+
+    rows, policy = _over_capacity_window_case(strategy)
+    dataset_id = f"over-cap-{strategy}-{backpressure_strategy}"
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
+    stream_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+    registry = _configure_stream_registry(stream_registry, stream_path)
+    cas_root = tmp_path / f"over-cap-cas-{strategy}-{backpressure_strategy}"
+    store = FileSystemCAS(cas_root)
+    before_third: dict[str, Any] = {}
+    poll_calls = {"count": 0}
+    original_poll = StreamingSourceSession.poll
+
+    async def capture_predecessor_before_third_poll(session: StreamingSourceSession):
+        if poll_calls["count"] == 2:
+            before = CursorStore(FileSystemCAS(cas_root))
+            checkpoint = before.find_latest_stream_checkpoint("stream.jsonl", dataset_id)
+            cursor = before.find_latest_cursor("stream.jsonl", dataset_id)
+            assert checkpoint is not None
+            before_third["checkpoint"] = checkpoint
+            before_third["cursor"] = cursor
+            before_third["artifacts"] = set(map(str, FileSystemCAS(cas_root).iter_artifact_ids()))
+            accumulator_state = checkpoint.metadata["operator_state"]["accumulator"]
+            before_third["retained_rows"] = sum(
+                len(accumulator_state.get(key, ()))
+                for key in (
+                    "count_buffer",
+                    "sliding_rows",
+                    "bucket_rows",
+                    "session_rows",
+                    "sliding_time_rows",
+                )
+            )
+        poll_calls["count"] += 1
+        return await original_poll(session)
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", capture_predecessor_before_third_poll)
+    with pytest.raises(getattr(streaming_module, "StreamCapacityError", RuntimeError)) as exc_info:
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            store=store,
+            cursor_store=CursorStore(store),
+            sanitize_rows=_valid_rows,
+            runtime_options=StreamRuntimeOptions(
+                checkpoint_every_chunks=1,
+                max_buffered_rows=2,
+                max_buffered_bytes=100_000,
+                window_policy=policy,
+                processing_contract=_capacity_processing_contract(
+                    backpressure_strategy,
+                    max_rows=2,
+                    max_bytes=100_000,
+                ),
+            ),
+            registry=registry,
+        )
+
+    assert type(exc_info.value).__name__ == "StreamCapacityError"
+    assert exc_info.value.stage == "operator"
+    assert exc_info.value.rows == 3
+    assert exc_info.value.max_rows == 2
+    assert poll_calls["count"] == 3, "admission must inspect the transition that would overflow"
+    assert before_third["checkpoint"].offset == 1
+    assert before_third["retained_rows"] == 2
+    after = CursorStore(FileSystemCAS(cas_root))
+    assert after.find_latest_stream_checkpoint("stream.jsonl", dataset_id).model_dump(
+        mode="json"
+    ) == before_third["checkpoint"].model_dump(mode="json")
+    current_cursor = after.find_latest_cursor("stream.jsonl", dataset_id)
+    previous_cursor = before_third["cursor"]
+    assert (current_cursor.model_dump(mode="json") if current_cursor else None) == (
+        previous_cursor.model_dump(mode="json") if previous_cursor else None
+    )
+    after_store = FileSystemCAS(cas_root)
+    current_artifacts = set(map(str, after_store.iter_artifact_ids()))
+    extra_artifacts = current_artifacts - before_third["artifacts"]
+    extra_details: list[dict[str, Any]] = []
+    for artifact_ref in sorted(extra_artifacts):
+        manifest = after_store.get_manifest(artifact_ref)
+        detail: dict[str, Any] = {"artifact_ref": artifact_ref, "kind": manifest.kind}
+        if manifest.kind == "fabric.stream_chunk":
+            payload = from_canonical_bytes(after_store.get_bytes(artifact_ref))
+            detail["chunk_index"] = payload["chunk_index"]
+            detail["message_ids"] = [row.get("_message_id") for row in payload["data"]]
+        extra_details.append(detail)
+    assert not extra_details, (
+        f"capacity refusal persisted rejected-input artifacts: {extra_details}"
+    )
 
 
 @pytest.mark.parametrize("batch_size", [1, 2, 8])
@@ -911,13 +1170,16 @@ def test_b88_served_replay_uses_owned_fixture_catalog_and_reads_back_evidence(
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.data_forge.read_api import catalog as catalog_api
     from polisyos.fabric.data_plane.replay_store import ReplayStore
+    from polisyos.runtime.http.services.control import run_lifecycle as control_lifecycle
     from polisyos.runtime.quality import substrate_registry
     from tests.unit.runtime.http import test_b88_served_replay as b88
 
     catalog_root = tmp_path / "fixture-catalog"
     catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
     original_catalog_paths = substrate_registry.default_substrate_catalog_paths
-    startup_root = Path.cwd().resolve()
+    # ControlPlaneService resolves its policy-engine root from the owner
+    # module, independently of pytest's current working directory.
+    runtime_root = Path(control_lifecycle.__file__).resolve().parents[6]
     monkeypatch.setattr(
         substrate_registry,
         "default_substrate_catalog_paths",
@@ -926,7 +1188,7 @@ def test_b88_served_replay_uses_owned_fixture_catalog_and_reads_back_evidence(
                 original_catalog_paths(root),
                 l1_dcat_path=catalog_root / "catalog.duckdb",
             )
-            if Path(root).resolve() == startup_root
+            if Path(root).resolve() == runtime_root
             else original_catalog_paths(root)
         ),
     )
@@ -1018,3 +1280,469 @@ def test_b88_served_replay_uses_owned_fixture_catalog_and_reads_back_evidence(
     finally:
         close_runtime_api_env(env)
         ConnectorRegistry.reset_instance()
+
+
+@pytest.mark.asyncio
+async def test_b83_live_event_key_cap_refuses_without_eviction_and_retries_from_checkpoint(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stream_registry: ConnectorRegistry,
+) -> None:
+    """A cap of two refuses c without evicting a; a larger retry replays c then a."""
+    import polisyos.fabric.data_plane.streaming as streaming_module
+
+    # These are explicit synthetic JSONL event/version fields. Their names do
+    # not establish a real source owner's key contract.
+    rows = [
+        {"event_id": "evt", "source_version": 1, "entity_id": "entity-1", "value": "a"},
+        {"event_id": "evt", "source_version": 2, "entity_id": "entity-1", "value": "b"},
+        {"event_id": "evt-c", "source_version": 1, "entity_id": "entity-2", "value": "c"},
+        {"event_id": "evt", "source_version": 1, "entity_id": "entity-1", "value": "a-redelivery"},
+    ]
+    dataset_id = "dedupe-live-cap"
+    stream_path = tmp_path / "dedupe-live-cap.jsonl"
+    stream_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+    registry = _configure_stream_registry(stream_registry, stream_path)
+    cas_root = tmp_path / "dedupe-live-cap-cas"
+    store = FileSystemCAS(cas_root)
+    clock = {"now": datetime(2026, 10, 6, tzinfo=UTC)}
+    monkeypatch.setattr(
+        streaming_module,
+        "_ingestion_utc",
+        lambda: clock["now"],
+        raising=False,
+    )
+    original_poll = StreamingSourceSession.poll
+    poll_state = {"count": 0}
+
+    async def crash_before_third_source_chunk(session: StreamingSourceSession):
+        if poll_state["count"] == 2:
+            raise _ProcessDeath("leave a and b at the committed horizon")
+        poll_state["count"] += 1
+        return await original_poll(session)
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", crash_before_third_source_chunk)
+    with pytest.raises(_ProcessDeath):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            store=store,
+            cursor_store=CursorStore(store),
+            sanitize_rows=_valid_rows,
+            runtime_options=_dedupe_options(max_dedupe_keys=2),
+            registry=registry,
+        )
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
+    before = CursorStore(FileSystemCAS(cas_root))
+    prior_checkpoint = before.find_latest_stream_checkpoint("stream.jsonl", dataset_id)
+    prior_cursor = before.find_latest_cursor("stream.jsonl", dataset_id)
+    assert prior_checkpoint is not None
+    assert prior_cursor is not None
+    prior_entries = _dedupe_horizon_entries(prior_checkpoint)
+    key_a1 = (("event_id", "evt"), ("source_version", 1))
+    key_a2 = (("event_id", "evt"), ("source_version", 2))
+    key_c1 = (("event_id", "evt-c"), ("source_version", 1))
+    assert set(prior_entries) == {key_a1, key_a2}
+    assert prior_checkpoint.metadata["dedupe_horizon"]["scope"] == [
+        "stream.jsonl",
+        dataset_id,
+        "default",
+    ]
+    prior_ids = set(map(str, FileSystemCAS(cas_root).iter_artifact_ids()))
+
+    unsupported_type = getattr(streaming_module, "StreamDedupeUnsupported", RuntimeError)
+    with pytest.raises(unsupported_type) as exc_info:
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            store=FileSystemCAS(cas_root),
+            cursor_store=CursorStore(FileSystemCAS(cas_root)),
+            sanitize_rows=_valid_rows,
+            runtime_options=_dedupe_options(max_dedupe_keys=2),
+            registry=registry,
+        )
+    assert type(exc_info.value).__name__ == "StreamDedupeUnsupported"
+
+    after_refusal = CursorStore(FileSystemCAS(cas_root))
+    assert after_refusal.find_latest_stream_checkpoint("stream.jsonl", dataset_id).model_dump(
+        mode="json"
+    ) == prior_checkpoint.model_dump(mode="json")
+    current_cursor = after_refusal.find_latest_cursor("stream.jsonl", dataset_id)
+    assert current_cursor.model_dump(mode="json") == prior_cursor.model_dump(mode="json")
+    assert set(map(str, FileSystemCAS(cas_root).iter_artifact_ids())) == prior_ids
+
+    retried_store = FileSystemCAS(cas_root)
+    retried = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        store=retried_store,
+        cursor_store=CursorStore(retried_store),
+        sanitize_rows=_valid_rows,
+        runtime_options=_dedupe_options(max_dedupe_keys=3),
+        registry=registry,
+    )
+    assert retried.dedupe_dropped == 1
+    final_checkpoint = CursorStore(retried_store).find_latest_stream_checkpoint(
+        "stream.jsonl",
+        dataset_id,
+    )
+    assert final_checkpoint is not None
+    assert set(_dedupe_horizon_entries(final_checkpoint)) == {key_a1, key_a2, key_c1}
+    emitted = _persisted_stream_rows(retried_store, dataset_id=dataset_id)
+    assert [(row["event_id"], row["source_version"]) for row in emitted] == [
+        ("evt", 1),
+        ("evt", 2),
+        ("evt-c", 1),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_b83_nonempty_legacy_dedupe_keys_without_utc_time_refuse_before_rewind(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stream_registry: ConnectorRegistry,
+) -> None:
+    """A legacy key list cannot be resumed by inventing ingestion timestamps."""
+    import polisyos.fabric.data_plane.streaming as streaming_module
+
+    row = {"event_id": "evt", "source_version": 1, "entity_id": "entity"}
+    dataset_id = "dedupe-legacy-no-time"
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
+    stream_path.write_text(json.dumps(row, sort_keys=True) + "\n", encoding="utf-8")
+    registry = _configure_stream_registry(stream_registry, stream_path)
+    cas_root = tmp_path / f"{dataset_id}-cas"
+    store = FileSystemCAS(cas_root)
+    runtime_options = _dedupe_options(max_dedupe_keys=2)
+    result = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        store=store,
+        cursor_store=CursorStore(store),
+        sanitize_rows=_valid_rows,
+        runtime_options=runtime_options,
+        registry=registry,
+    )
+    assert result.final_checkpoint is not None
+    checkpoint = result.final_checkpoint
+    assert checkpoint.dedupe_keys
+    assert "dedupe_horizon" in checkpoint.metadata
+
+    legacy_metadata = dict(checkpoint.metadata)
+    legacy_metadata.pop("dedupe_horizon")
+    legacy_metadata.pop("frontier_intent", None)
+    legacy_checkpoint = checkpoint.model_copy(update={"metadata": legacy_metadata})
+    before = CursorStore(FileSystemCAS(cas_root))
+    before.save_stream_checkpoint(legacy_checkpoint)
+    prior_cursor = before.find_latest_cursor("stream.jsonl", dataset_id)
+    assert prior_cursor is not None
+    seeded_checkpoint = before.find_latest_stream_checkpoint("stream.jsonl", dataset_id)
+    assert seeded_checkpoint is not None
+    assert seeded_checkpoint.dedupe_keys
+    assert "dedupe_horizon" not in seeded_checkpoint.metadata
+    prior_ids = set(map(str, FileSystemCAS(cas_root).iter_artifact_ids()))
+
+    effects = {"rewind": 0, "poll": 0, "commit": 0}
+    original_rewind = StreamingSourceSession.rewind
+    original_poll = StreamingSourceSession.poll
+    original_commit = StreamingSourceSession.commit
+
+    async def count_rewind(session: StreamingSourceSession, prior: Any) -> None:
+        effects["rewind"] += 1
+        await original_rewind(session, prior)
+
+    async def count_poll(session: StreamingSourceSession):
+        effects["poll"] += 1
+        return await original_poll(session)
+
+    async def count_commit(session: StreamingSourceSession, prior: Any) -> None:
+        effects["commit"] += 1
+        await original_commit(session, prior)
+
+    monkeypatch.setattr(StreamingSourceSession, "rewind", count_rewind)
+    monkeypatch.setattr(StreamingSourceSession, "poll", count_poll)
+    monkeypatch.setattr(StreamingSourceSession, "commit", count_commit)
+    unsupported_type = getattr(streaming_module, "StreamDedupeUnsupported", RuntimeError)
+    with pytest.raises(unsupported_type, match="UTC|ingestion time|horizon") as exc_info:
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            store=FileSystemCAS(cas_root),
+            cursor_store=CursorStore(FileSystemCAS(cas_root)),
+            sanitize_rows=_valid_rows,
+            runtime_options=runtime_options,
+            registry=registry,
+        )
+
+    assert type(exc_info.value).__name__ == "StreamDedupeUnsupported"
+    assert effects == {"rewind": 0, "poll": 0, "commit": 0}
+    after = CursorStore(FileSystemCAS(cas_root))
+    assert after.find_latest_stream_checkpoint("stream.jsonl", dataset_id).model_dump(
+        mode="json"
+    ) == seeded_checkpoint.model_dump(mode="json")
+    current_cursor = after.find_latest_cursor("stream.jsonl", dataset_id)
+    assert current_cursor.model_dump(mode="json") == prior_cursor.model_dump(mode="json")
+    assert set(map(str, FileSystemCAS(cas_root).iter_artifact_ids())) == prior_ids
+
+
+@pytest.mark.asyncio
+async def test_b83_first_accepted_key_expires_at_utc_86400_seconds_after_restart(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stream_registry: ConnectorRegistry,
+) -> None:
+    """A duplicate near expiry does not refresh the first-accepted timestamp."""
+    import polisyos.fabric.data_plane.streaming as streaming_module
+
+    first_accepted = datetime(2026, 1, 1, tzinfo=UTC)
+    initial_times = [first_accepted, first_accepted + timedelta(seconds=10)]
+    clock = {"now": first_accepted}
+
+    def ingestion_time() -> datetime:
+        if initial_times:
+            return initial_times.pop(0)
+        return clock["now"]
+
+    monkeypatch.setattr(streaming_module, "_ingestion_utc", ingestion_time, raising=False)
+    duplicate_v1 = {
+        "event_id": "entity-event",
+        "source_version": 1,
+        "entity_id": "same-entity",
+        "value": "version-1",
+    }
+    rows = [
+        duplicate_v1,
+        {
+            "event_id": "entity-event",
+            "source_version": 2,
+            "entity_id": "same-entity",
+            "value": "version-2",
+        },
+        {**duplicate_v1, "value": "redelivery-before-expiry"},
+    ]
+    dataset_id = "dedupe-expiry-restart"
+    stream_path = tmp_path / "dedupe-expiry-restart.jsonl"
+    stream_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+    registry = _configure_stream_registry(stream_registry, stream_path)
+    cas_root = tmp_path / "dedupe-expiry-cas"
+    store = FileSystemCAS(cas_root)
+    original_poll = StreamingSourceSession.poll
+    poll_state = {"count": 0}
+
+    async def crash_before_third_source_chunk(session: StreamingSourceSession):
+        if poll_state["count"] == 2:
+            raise _ProcessDeath("leave both versions in the persisted horizon")
+        poll_state["count"] += 1
+        return await original_poll(session)
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", crash_before_third_source_chunk)
+    with pytest.raises(_ProcessDeath):
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            store=store,
+            cursor_store=CursorStore(store),
+            sanitize_rows=_valid_rows,
+            runtime_options=_dedupe_options(max_dedupe_keys=2),
+            registry=registry,
+        )
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
+    before = CursorStore(FileSystemCAS(cas_root))
+    prior_checkpoint = before.find_latest_stream_checkpoint("stream.jsonl", dataset_id)
+    assert prior_checkpoint is not None
+    key_v1 = (("event_id", "entity-event"), ("source_version", 1))
+    key_v2 = (("event_id", "entity-event"), ("source_version", 2))
+    assert _dedupe_horizon_entries(prior_checkpoint) == {
+        key_v1: first_accepted,
+        key_v2: first_accepted + timedelta(seconds=10),
+    }
+
+    clock["now"] = first_accepted + timedelta(seconds=86_399)
+    resumed_store = FileSystemCAS(cas_root)
+    before_expiry = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        store=resumed_store,
+        cursor_store=CursorStore(resumed_store),
+        sanitize_rows=_valid_rows,
+        runtime_options=_dedupe_options(max_dedupe_keys=2),
+        registry=registry,
+    )
+    assert before_expiry.dedupe_dropped == 1
+    before_expiry_checkpoint = CursorStore(resumed_store).find_latest_stream_checkpoint(
+        "stream.jsonl",
+        dataset_id,
+    )
+    assert before_expiry_checkpoint is not None
+    assert _dedupe_horizon_entries(before_expiry_checkpoint) == {
+        key_v1: first_accepted,
+        key_v2: first_accepted + timedelta(seconds=10),
+    }
+
+    rows.append({**duplicate_v1, "value": "redelivery-at-expiry"})
+    stream_path.write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+    clock["now"] = first_accepted + timedelta(seconds=86_400)
+    expiry_store = FileSystemCAS(cas_root)
+    at_expiry = await process_stream_dataset(
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        store=expiry_store,
+        cursor_store=CursorStore(expiry_store),
+        sanitize_rows=_valid_rows,
+        runtime_options=_dedupe_options(max_dedupe_keys=2),
+        registry=registry,
+    )
+    assert at_expiry.dedupe_dropped == 0
+    final_checkpoint = CursorStore(expiry_store).find_latest_stream_checkpoint(
+        "stream.jsonl",
+        dataset_id,
+    )
+    assert final_checkpoint is not None
+    assert _dedupe_horizon_entries(final_checkpoint) == {
+        key_v1: first_accepted + timedelta(seconds=86_400),
+        key_v2: first_accepted + timedelta(seconds=10),
+    }
+    emitted = _persisted_stream_rows(expiry_store, dataset_id=dataset_id)
+    assert [(row["event_id"], row["source_version"]) for row in emitted] == [
+        ("entity-event", 1),
+        ("entity-event", 2),
+        ("entity-event", 1),
+    ]
+
+
+@pytest.mark.parametrize(
+    ("row", "case_id"),
+    [
+        ({"source_version": 1, "entity_id": "e"}, "missing-event-id"),
+        ({"event_id": "evt", "source_version": True}, "boolean-version"),
+        ({"event_id": "evt", "source_version": [1]}, "list-version"),
+    ],
+    ids=lambda value: str(value)[:40],
+)
+@pytest.mark.asyncio
+async def test_b83_missing_or_nonprimitive_event_version_refuses_without_fallback_writes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stream_registry: ConnectorRegistry,
+    row: dict[str, Any],
+    case_id: str,
+) -> None:
+    """A missing or non-primitive configured key never falls back to a payload hash."""
+    import polisyos.fabric.data_plane.streaming as streaming_module
+
+    monkeypatch.setattr(
+        streaming_module,
+        "_ingestion_utc",
+        lambda: datetime(2026, 10, 6, tzinfo=UTC),
+        raising=False,
+    )
+    dataset_id = f"dedupe-invalid-{case_id}"
+    stream_path = tmp_path / f"{dataset_id}.jsonl"
+    stream_path.write_text(json.dumps(row, sort_keys=True) + "\n", encoding="utf-8")
+    registry = _configure_stream_registry(stream_registry, stream_path)
+    cas_root = tmp_path / f"dedupe-invalid-cas-{case_id}"
+    store = FileSystemCAS(cas_root)
+    before_ids = set(map(str, store.iter_artifact_ids()))
+    unsupported_type = getattr(streaming_module, "StreamDedupeUnsupported", RuntimeError)
+
+    with pytest.raises(unsupported_type, match="event/version|event-key|dedupe") as exc_info:
+        await process_stream_dataset(
+            connector_id="stream.jsonl",
+            dataset_id=dataset_id,
+            store=store,
+            cursor_store=CursorStore(store),
+            sanitize_rows=_valid_rows,
+            runtime_options=_dedupe_options(max_dedupe_keys=2),
+            registry=registry,
+        )
+
+    assert type(exc_info.value).__name__ == "StreamDedupeUnsupported"
+    after = CursorStore(FileSystemCAS(cas_root))
+    assert after.find_latest_stream_checkpoint("stream.jsonl", dataset_id) is None
+    assert after.find_latest_cursor("stream.jsonl", dataset_id) is None
+    assert set(map(str, FileSystemCAS(cas_root).iter_artifact_ids())) == before_ids
+
+
+@pytest.mark.asyncio
+async def test_b83_horizon_scope_isolated_by_connector_dataset_and_partition(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stream_registry: ConnectorRegistry,
+) -> None:
+    """The same fixture key is admitted independently in each declared scope."""
+    import polisyos.fabric.data_plane.streaming as streaming_module
+    from polisyos.fabric.connectors.sources.event_stream import EventStreamConnector
+    from polisyos.ir.connectors import ConnectorMetadataSpec
+
+    monkeypatch.setattr(
+        streaming_module,
+        "_ingestion_utc",
+        lambda: datetime(2026, 10, 6, tzinfo=UTC),
+        raising=False,
+    )
+    row = {"event_id": "evt", "source_version": 1, "entity_id": "entity"}
+    stream_path = tmp_path / "dedupe-scope.jsonl"
+    stream_path.write_text(json.dumps(row, sort_keys=True) + "\n", encoding="utf-8")
+    registry = _configure_stream_registry(stream_registry, stream_path)
+
+    class _OtherFixtureConnector(EventStreamConnector):
+        namespace = "oracle"
+        short_id = "jsonl"
+        connector_id = "oracle.jsonl"
+        metadata: ClassVar[ConnectorMetadataSpec] = EventStreamConnector.metadata.model_copy(
+            update={"namespace": "oracle"}
+        )
+
+    registry.register(
+        _OtherFixtureConnector,
+        config=ConnectionConfig(
+            url=stream_path.as_uri(),
+            headers={"X-Stream-ChunkSize": "1"},
+        ),
+    )
+
+    store = FileSystemCAS(tmp_path / "dedupe-scope-cas")
+    cursor_store = CursorStore(store)
+    scopes = (
+        ("stream.jsonl", "dataset-a", "partition-a"),
+        ("stream.jsonl", "dataset-a", "partition-b"),
+        ("stream.jsonl", "dataset-b", "partition-a"),
+        ("oracle.jsonl", "dataset-a", "partition-a"),
+    )
+    for connector_id, dataset_id, partition_key in scopes:
+        result = await process_stream_dataset(
+            connector_id=connector_id,
+            dataset_id=dataset_id,
+            store=store,
+            cursor_store=cursor_store,
+            sanitize_rows=_valid_rows,
+            runtime_options=_dedupe_options(
+                partition_key=partition_key,
+                max_dedupe_keys=2,
+            ),
+            registry=registry,
+        )
+        assert result.dedupe_dropped == 0
+        assert result.rows_emitted == 1
+        checkpoint = cursor_store.find_latest_stream_checkpoint(
+            connector_id,
+            dataset_id,
+            partition_key=partition_key,
+        )
+        assert checkpoint is not None
+        assert checkpoint.metadata["dedupe_horizon"]["scope"] == [
+            connector_id,
+            dataset_id,
+            partition_key,
+        ]
+        assert len(_dedupe_horizon_entries(checkpoint)) == 1

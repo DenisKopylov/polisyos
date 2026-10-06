@@ -1,0 +1,229 @@
+{
+  "architecture-default-ready": {
+    "workspace": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready",
+    "source_copy_lock": {
+      "path": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready/source/uv.lock",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    "private_environment_cfg": {
+      "path": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready/environment/pyvenv.cfg",
+      "bytes": 179,
+      "sha256": "5b48d511ca6f9041a086238c18869c2d91b8b50f67bc52f2705e911e86b9b258"
+    },
+    "complete_output_file_count": 5,
+    "complete_outputs": [
+      {
+        "family": "runtime-api-client",
+        "relative_output": "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "observed": {
+          "path": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+          "bytes": 31276,
+          "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+        },
+        "expected": {
+          "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+          "git_blob": "3ae262fcb1aa09aef80929be1c270170d787179e",
+          "bytes": 31276,
+          "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+        },
+        "whole_byte_equal": true,
+        "expected_custody": "Complete exact immutable1862 Git source_ref/blob/bytes/hash; no duplicate expected artifact in this packet."
+      },
+      {
+        "family": "runtime-api-client",
+        "relative_output": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "observed": {
+          "path": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "bytes": 108061,
+          "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+        },
+        "expected": {
+          "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "git_blob": "7fba416588d222e0195dc95f54c4a164d25264a5",
+          "bytes": 108061,
+          "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+        },
+        "whole_byte_equal": true,
+        "expected_custody": "Complete exact immutable1862 Git source_ref/blob/bytes/hash; no duplicate expected artifact in this packet."
+      },
+      {
+        "family": "runtime-api-client",
+        "relative_output": "packages/runtime-api-client/types.ts",
+        "observed": {
+          "path": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready/outputs/runtime-api-client/packages/runtime-api-client/types.ts",
+          "bytes": 951543,
+          "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+        },
+        "expected": {
+          "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/packages/runtime-api-client/types.ts",
+          "git_blob": "fed12f54958a714d738007d69fcefcb724e4abec",
+          "bytes": 951543,
+          "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+        },
+        "whole_byte_equal": true,
+        "expected_custody": "Complete exact immutable1862 Git source_ref/blob/bytes/hash; no duplicate expected artifact in this packet."
+      },
+      {
+        "family": "runtime-dashboard-api-types",
+        "relative_output": "apps/runtime-dashboard/src/api/types.ts",
+        "observed": {
+          "path": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+          "bytes": 791736,
+          "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+        },
+        "expected": {
+          "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/apps/runtime-dashboard/src/api/types.ts",
+          "git_blob": "91e455f1424cd2222fd3e45fd9e14a20a54cffa0",
+          "bytes": 791736,
+          "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+        },
+        "whole_byte_equal": true,
+        "expected_custody": "Complete exact immutable1862 Git source_ref/blob/bytes/hash; no duplicate expected artifact in this packet."
+      },
+      {
+        "family": "trust-claim-posture-register",
+        "relative_output": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "observed": {
+          "path": "/dev/shm/e02-B-completed-architecture-1862c021df74-cache-ready/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+          "bytes": 2376644,
+          "sha256": "a8d6c1638690961fb33745bfdbb9ed4df6a4cf4a4d3828d3288459aeb487b119"
+        },
+        "expected": {
+          "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+          "git_blob": "38f8b0b40ca439aa5e52cf39b3c8cda894391db6",
+          "bytes": 2365635,
+          "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+        },
+        "whole_byte_equal": false,
+        "expected_custody": "Complete exact immutable1862 Git source_ref/blob/bytes/hash; no duplicate expected artifact in this packet."
+      }
+    ],
+    "family_count": 3
+  },
+  "architecture-runtime-ml-ready": {
+    "workspace": "/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready",
+    "source_copy_lock": {
+      "path": "/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready/source/uv.lock",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    },
+    "private_environment_cfg": {
+      "path": "/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready/environment/pyvenv.cfg",
+      "bytes": 179,
+      "sha256": "5b48d511ca6f9041a086238c18869c2d91b8b50f67bc52f2705e911e86b9b258"
+    },
+    "complete_output_file_count": 6,
+    "complete_outputs": [
+      {
+        "family": "runtime-api-client",
+        "relative_output": "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "observed": {
+          "path": "/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+          "bytes": 31276,
+          "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+        },
+        "expected": {
+          "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+          "git_blob": "3ae262fcb1aa09aef80929be1c270170d787179e",
+          "bytes": 31276,
+          "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+        },
+        "whole_byte_equal": true,
+        "committed_observed_path": "final-output-bytes/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js.source.txt",
+        "expected_custody": "Complete exact immutable1862 Git source_ref/blob/bytes/hash; no duplicate expected artifact in this packet."
+      },
+      {
+        "family": "runtime-api-client",
+        "relative_output": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "observed": {
+          "path": "/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "bytes": 108061,
+          "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+        },
+        "expected": {
+          "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+          "git_blob": "7fba416588d222e0195dc95f54c4a164d25264a5",
+          "bytes": 108061,
+          "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+        },
+        "whole_byte_equal": true,
+        "committed_observed_path": "final-output-bytes/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts.source.txt",
+        "expected_custody": "Complete exact immutable1862 Git source_ref/blob/bytes/hash; no duplicate expected artifact in this packet."
+      },
+      {
+        "family": "runtime-api-client",
+        "relative_output": "packages/runtime-api-client/types.ts",
+        "observed": {
+          "path": "/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready/outputs/runtime-api-client/packages/runtime-api-client/types.ts",
+          "bytes": 951543,
+          "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+        },
+        "expected": {
+          "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/packages/runtime-api-client/types.ts",
+          "git_blob": "fed12f54958a714d738007d69fcefcb724e4abec",
+          "bytes": 951543,
+          "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+        },
+        "whole_byte_equal": true,
+        "committed_observed_path": "final-output-bytes/runtime-api-client/packages/runtime-api-client/types.ts.source.txt",
+        "expected_custody": "Complete exact immutable1862 Git source_ref/blob/bytes/hash; no duplicate expected artifact in this packet."
+      },
+      {
+        "family": "runtime-dashboard-api-types",
+        "relative_output": "apps/runtime-dashboard/src/api/types.ts",
+        "observed": {
+          "path": "/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+          "bytes": 791736,
+          "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+        },
+        "expected": {
+          "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/apps/runtime-dashboard/src/api/types.ts",
+          "git_blob": "91e455f1424cd2222fd3e45fd9e14a20a54cffa0",
+          "bytes": 791736,
+          "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+        },
+        "whole_byte_equal": true,
+        "committed_observed_path": "final-output-bytes/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts.source.txt",
+        "expected_custody": "Complete exact immutable1862 Git source_ref/blob/bytes/hash; no duplicate expected artifact in this packet."
+      },
+      {
+        "family": "runtime-openapi-snapshot",
+        "relative_output": "schemas/runtime_api_v1.openapi.json",
+        "observed": {
+          "path": "/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+          "bytes": 2812414,
+          "sha256": "902564b2e0a60c249cda382686cc959585559a80cd24647a17b3ef26e21645a0"
+        },
+        "expected": {
+          "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/schemas/runtime_api_v1.openapi.json",
+          "git_blob": "193ea44186dc5d58fbdfa01b7bdb77e53bfe3507",
+          "bytes": 2812414,
+          "sha256": "5309d53ad805a8a1cdefab108d5f8c1bc867a640ffeb03f646fe5bd6baa7d4a3"
+        },
+        "whole_byte_equal": false,
+        "committed_observed_path": "final-output-bytes/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json.source.txt",
+        "expected_custody": "Complete exact immutable1862 Git source_ref/blob/bytes/hash; no duplicate expected artifact in this packet."
+      },
+      {
+        "family": "trust-claim-posture-register",
+        "relative_output": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "observed": {
+          "path": "/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+          "bytes": 2376644,
+          "sha256": "a8d6c1638690961fb33745bfdbb9ed4df6a4cf4a4d3828d3288459aeb487b119"
+        },
+        "expected": {
+          "source_ref": "1862c021df74a5c5815bc5cd21a20e61b30132b6:policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+          "git_blob": "38f8b0b40ca439aa5e52cf39b3c8cda894391db6",
+          "bytes": 2365635,
+          "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+        },
+        "whole_byte_equal": false,
+        "committed_observed_path": "final-output-bytes/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json.source.txt",
+        "expected_custody": "Complete exact immutable1862 Git source_ref/blob/bytes/hash; no duplicate expected artifact in this packet."
+      }
+    ],
+    "family_count": 4
+  }
+}

@@ -1,0 +1,1933 @@
+{
+  "before": {
+    "executed_head": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+    "executed_tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+    "semantic_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "semantic_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "scope": "actual loaded source bytes; metadata HEAD may advance",
+    "refs": [
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/pyproject.toml",
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+        "bytes": 11007,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "bytes": 1021,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/pytest.ini",
+        "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "sha256": "9003558130bcc2f378f22658a8ff685c4ab93766d8bc7f20de1d7bf5d5323429",
+        "bytes": 5871,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "git_blob": "24316603e405589fe7c13a433997fb0dd32ea7c4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "sha256": "f02ff7db20a47e16f4129e38c4ba2a6f445cf98551ad935e27b178fa8cc0d6f3",
+        "bytes": 25310,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "git_blob": "173dc65f7a507b88cf0fa3b9a211ddace25f2fcc"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "sha256": "2f4bd7b8f46cedacd3c26134ecc9a7b9d03dd868953b34cf306dd1702a0ec035",
+        "bytes": 18511,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "git_blob": "a8d670610f73536e3831a65a7d091432d4bfb599"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+        "bytes": 29464,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+        "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049",
+        "bytes": 6312,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+        "git_blob": "76c81fa6a75eb11587b6012c7eb239cd9f6d7fd4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/uv.lock",
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+        "bytes": 779204,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+      }
+    ]
+  },
+  "after": {
+    "executed_head": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+    "executed_tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+    "semantic_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "semantic_source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "scope": "actual loaded source bytes; metadata HEAD may advance",
+    "refs": [
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/pyproject.toml",
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+        "bytes": 11007,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "bytes": 1021,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/pytest.ini",
+        "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/__init__.py",
+        "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c",
+        "bytes": 24,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/__init__.py",
+        "git_blob": "a1b746537b78f1e2e6c5e8f288df8174fb936906"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/common/__init__.py",
+        "sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080",
+        "bytes": 1336,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/common/__init__.py",
+        "git_blob": "696045bd775c9a9fe4023217628e686bf76b78f3"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/common/async_tools.py",
+        "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+        "bytes": 11846,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/common/async_tools.py",
+        "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/common/canonical.py",
+        "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+        "bytes": 10154,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/common/canonical.py",
+        "git_blob": "25fa43311ba8a04a25845a1863898399a7eed958"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/common/hashing.py",
+        "sha256": "4ecfe5e4ed78585a25dfd4ee7de1eee10f4d4b467bca95fd6716537a68ef3ead",
+        "bytes": 3345,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/common/hashing.py",
+        "git_blob": "796af1b64e6ae530cb6d880bbff54803e8298a47"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/common/logger.py",
+        "sha256": "d496cd41f388b185cc4c9c9bcb5d7f7c2c3eecba02fc9f437ae5f02f2201e5a0",
+        "bytes": 8631,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/common/logger.py",
+        "git_blob": "db809a0db12ca6dbe3dccf318f2d2e21cde7bb2e"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/common/serialization.py",
+        "sha256": "03c7fc1756449d77aff0819a79038c632724a398fee1091b2423bffca9d93d24",
+        "bytes": 12881,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/common/serialization.py",
+        "git_blob": "7811e996a306ec3a6a2b4d7c7c670fdf8d85e735"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/__init__.py",
+        "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+        "bytes": 11696,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/__init__.py",
+        "git_blob": "5964150861173fd27143d44363fda0ddd1b6f7e4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "sha256": "a3e70ebad63ed31e840ef76195c831e98bf6fe2818ed8db7b04ea9464ad8f38c",
+        "bytes": 3471,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "git_blob": "329786340d076973b812a5302aefc21e0938c62f"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/_atomic_write.py",
+        "sha256": "afa41fe64aa388d65ec89db504d2f651447c5a92b5a8cea0384a6793c924ebcf",
+        "bytes": 4074,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/_atomic_write.py",
+        "git_blob": "4f355498b5a615865c5c190bba9f2510316b93ad"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4",
+        "bytes": 12619,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "git_blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/_layout.py",
+        "sha256": "693f2a119d9b413e3091f0fbf5b1dc093ad3786c7af5cc15ed0c3209e660f194",
+        "bytes": 1987,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/_layout.py",
+        "git_blob": "f51a8cf732778ddeec4bdcc10522b2adf0ae873f"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+        "sha256": "b0948bf37ec2fd9e7d0b893db319b63bfdc21290564a7aa414e80a97cbebf966",
+        "bytes": 6664,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+        "git_blob": "cba03f8d7542954cb20dbc84a746a24baafda64e"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "sha256": "0627738427829a9f7489082297635c1b604d987182aca1e5559b2bafc510cb85",
+        "bytes": 18059,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+        "git_blob": "5c483b787d7afbef8b489383e5a01fc9734af6e7"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "sha256": "27709becae4680c5a16445a4bfea2270dc1de8a2cea93b06c30205104c9e00b7",
+        "bytes": 46449,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "git_blob": "70f7a735755f56dbf2cfd7ad5e4859cd17bf91a9"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/async_store.py",
+        "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+        "bytes": 7518,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+        "git_blob": "1111ad75ed6632d87280e5699845811ec355bfbb"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/backends/__init__.py",
+        "sha256": "c1b63ae18ac92ae67fac24338d775c0dd17253682d0240e32f92bd98398a998a",
+        "bytes": 74,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/backends/__init__.py",
+        "git_blob": "cbf733e7d9fb984bdcf2e68888e8863adfc7ed33"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/backends/config.py",
+        "sha256": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d",
+        "bytes": 8035,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+        "git_blob": "93c144f77b44c9e9300d7479b7f5b8c86e766345"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+        "sha256": "c3425f30443b55fcabe44adde78bd7cd5373e7424eae1dd1a6a9ad6d4a4260d1",
+        "bytes": 5262,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/cas_integrity_report.py",
+        "git_blob": "10c362d63a869ef3cd1bafd243916ec1faed0c9a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/graph.py",
+        "sha256": "26fe822573a2c9787fafe015195121b70a1a2a7ff89e3bf20d182a92d4909e1f",
+        "bytes": 5861,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/graph.py",
+        "git_blob": "d64f8cef24a186730ea8a66455c6a94f8c79fe00"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/ids.py",
+        "sha256": "96ab03d78510679bb9195ce79a58dd1559be8f7ccf1de2e6d10031c172ae07e6",
+        "bytes": 2794,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+        "git_blob": "f187d1becd6ea2d1c6bbac2a50263c700f385ab5"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d",
+        "bytes": 12758,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "git_blob": "3c76237c88f4a667ab71e9e70037eb91a1d83f10"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+        "sha256": "aa7ee9af617c1adc338a21a5b0186d41a690e6b86f2a0810ae9b5a7ee4ff7ce5",
+        "bytes": 756,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+        "git_blob": "fac90cf474c8e86418d0fc4e8c83b6077c8c0e6e"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/ownership.py",
+        "sha256": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a",
+        "bytes": 98037,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+        "git_blob": "6e4af36382211f1abcc7dbb8128491c2dd4e06f7"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "sha256": "242a23a1c4c75f230c65aa5f284da0066641d9eec945c4eccdc12abc84e7adc5",
+        "bytes": 5769,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "git_blob": "7748250f475b0ac2c212468ecb6609c8f80ed8b9"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/registry.py",
+        "sha256": "e665dc55703db9d4c4a9b4f4040c665a8a85c300ae9c668d67480f6241ccaf28",
+        "bytes": 992,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/registry.py",
+        "git_blob": "50ae012e30b3f7f84de5b6e00e28a1301114a5f9"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/signing.py",
+        "sha256": "2b58237eddbafa61bb6bd7a41b5e7f2cf96553c92406f1edf4cbbf236934261d",
+        "bytes": 30675,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+        "git_blob": "8aa4cdd46dc9de873df15b977ed6576eb11bb30f"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "627676dcb74c442b7e3f30a64bf7b4023e4ef5f1a8f2dac1d37fdf3e69654a4f",
+        "bytes": 190227,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "git_blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/artifacts/write_contract.py",
+        "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+        "bytes": 1137,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+        "git_blob": "610a563ce506be29c3606b4229ae4ab427920d5f"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/canon/__init__.py",
+        "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3",
+        "bytes": 606,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/canon/__init__.py",
+        "git_blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/canon/canon_json.py",
+        "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+        "bytes": 1882,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+        "git_blob": "ca14a6bf9cec51292cf457243f38191892c5828a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/canon/hashing.py",
+        "sha256": "a32caf919317c5667ac02bde68fa6a1d0fa064e1edeb44c89bc066a14a9272c0",
+        "bytes": 2352,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/canon/hashing.py",
+        "git_blob": "0007ba9acac60ad77c58f85355eacece9150df56"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/components/__init__.py",
+        "sha256": "7be43542a1e235b4a32cb13f2a0924fac8cc43087433515c063f7f7b683dfd89",
+        "bytes": 3896,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/components/__init__.py",
+        "git_blob": "473a0a59dbd5ce6bf1bc56884357f17572ce6f97"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/components/bootstrap.py",
+        "sha256": "6a5d7216f16bd1d659cc8b9876d776fcc862bc18c0bfd27b58247b0b771b4d10",
+        "bytes": 6574,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/components/bootstrap.py",
+        "git_blob": "d1cc3baabe15db526f66c8a57782fb44eb002f27"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/components/capabilities.py",
+        "sha256": "899ac56d56e4c85e1447c707c1e8637ef9798cc2b1a7373b002a84cadfed9a8a",
+        "bytes": 1274,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/components/capabilities.py",
+        "git_blob": "d191649c4931df237e75ee7b7711fcbb3882c821"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/components/compliance.py",
+        "sha256": "b34a3adb344e6332d2912faee4156f64d800bac5f9244920b41a2080325c1e1b",
+        "bytes": 16405,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/components/compliance.py",
+        "git_blob": "f01deed0d2e6257fb4ba9905acb1c46709581650"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/components/discovery.py",
+        "sha256": "d82889dc55e74b6e80d4243364a980e2f763c65930a803c9b8efdfbb074e7b22",
+        "bytes": 42689,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/components/discovery.py",
+        "git_blob": "54efe19873fc8087426120eb6fcff5e0bd48fc5d"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/components/ids.py",
+        "sha256": "7cac29d83cbe0775829892a9e32339c53ef7b06c0dabef95e9341b99e26c5c6c",
+        "bytes": 9713,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/components/ids.py",
+        "git_blob": "1bc3173672a668d955b7187403026af9c78787d8"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/components/metadata.py",
+        "sha256": "efba84687477aaf838aa55db88c82eedfdbbc0b414020d9190cc6e2b0b10df05",
+        "bytes": 2587,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/components/metadata.py",
+        "git_blob": "8dc3a616b855fb1f7c2a5193abd37525c7e2b0ac"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/components/protocols.py",
+        "sha256": "a755d4f4bf0c008265afc9be48f84f854c0604d9d0aa669bc8c872d834af7a01",
+        "bytes": 1362,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/components/protocols.py",
+        "git_blob": "1ac91730868ddc315a18d6863f34e3058d806a53"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/components/registry.py",
+        "sha256": "e15806f4df623df06293e3e50ded6c160b9e3f14257174b263608734fbdc41fe",
+        "bytes": 9040,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/components/registry.py",
+        "git_blob": "7a5952a4f8461ea09bbfb360e5a354c475a56b2b"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/discovery/__init__.py",
+        "sha256": "050b0b60b19d7ae358b9927baa279b8efc70f999b18a083b62ee7588c9a474ce",
+        "bytes": 536,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/discovery/__init__.py",
+        "git_blob": "b0295a41b4286a344e04d41fde653e36f2a149a7"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/discovery/base.py",
+        "sha256": "c6ca686a2823557950e9e801419f404ee58c5f7b74666c2a9518719db9f0f7bf",
+        "bytes": 5733,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/discovery/base.py",
+        "git_blob": "dddb72dfe46791c1a6959b37862f8d894ebfb1b3"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/errors/__init__.py",
+        "sha256": "e1bbe5e46a1f67d2c9d01175400036782717be128130ab15c63768af1003cdec",
+        "bytes": 210,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/errors/__init__.py",
+        "git_blob": "3e5f2a2d2ed7f54ea09b04e3a86f47a564be42de"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/errors/base.py",
+        "sha256": "f013683b373b4bf947dbdaf0b5e6fc4c830da6fa6b74ef431d59a215bbbeaaed",
+        "bytes": 2349,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/errors/base.py",
+        "git_blob": "ab56a6e4cc36ab91891415b25819cd70ef57c743"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/__init__.py",
+        "sha256": "e8382029341226839ad5e9b14110d11233c9aca0c9d32b39ae275533a3cc4128",
+        "bytes": 983,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/llm/__init__.py",
+        "git_blob": "b362658c388c1c4c3a861b986c326688e32f1f54"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/cost.py",
+        "sha256": "502d16e322fcbadff094eb0cd3ade4c289ca604ecfeb4ff514e62c11b49f93b0",
+        "bytes": 1573,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/llm/cost.py",
+        "git_blob": "b06f0e58ea638333bb233f23b2159029a1a35b41"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/protocols.py",
+        "sha256": "591d7cd709f470ccf6684fa9dff44b48235d405ed8f1ccabfea39cf01e741e3e",
+        "bytes": 689,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/llm/protocols.py",
+        "git_blob": "833c37548e6d76fc1aff37acf900197bda688250"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/response.py",
+        "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581",
+        "bytes": 8621,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/llm/response.py",
+        "git_blob": "33c7b310aef734b31c2ed2e61fe28d6525524b97"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/retry.py",
+        "sha256": "f321dcab248a4379b08bfc53f075584b61129a6988c8570b12b5532161d6750a",
+        "bytes": 154,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/llm/retry.py",
+        "git_blob": "d102b49b172139ff9c6b45d919e8f485c0f01ecf"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/sanitization.py",
+        "sha256": "c0c1fc588a0ba8cc7070bc64440b1fae86c8c5f0e82bd4d6838189f5285a5a4b",
+        "bytes": 14466,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/llm/sanitization.py",
+        "git_blob": "17eb67288c8b63801c961700843f75bfc08b15ed"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/settlement.py",
+        "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7",
+        "bytes": 21507,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "git_blob": "a21bca5b1280069d6852bad0b5437d9783925886"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/llm/traced_client.py",
+        "sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a",
+        "bytes": 37572,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+        "git_blob": "df786193b548215d84b4e7b1707c73272416d618"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/observability/__init__.py",
+        "sha256": "13e425237dd9ce7dfc45a18eb5a57f77cad6196d72a97f30450bcb19fdf61377",
+        "bytes": 21332,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/observability/__init__.py",
+        "git_blob": "13b7588762d07a9ac2e56b7858195fdcfaa97230"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/observability/_metrics_helpers.py",
+        "sha256": "d168be218d7a3e9dfbb457342127d088d65ee31b417d5766d6a5bc4588964355",
+        "bytes": 2439,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/observability/_metrics_helpers.py",
+        "git_blob": "f21a2f51a87bb8233bcb7bdcb2402e9b759c7d2c"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/observability/_metrics_registry_base.py",
+        "sha256": "922eac01d723a6e30070fd887f469b8c6c0c735d922b1fb76185cb0e47d62f85",
+        "bytes": 49658,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/observability/_metrics_registry_base.py",
+        "git_blob": "1ae17bbe492d61218375968e7b37c932ec8a42a1"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/observability/config.py",
+        "sha256": "08cacb20670ed714ce97f90e0d42a9ce5ce4f57b629395fe70fba4dd2d5e0be0",
+        "bytes": 5902,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/observability/config.py",
+        "git_blob": "2c548ee17173274a7cbb517e18552573007e3eb8"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/observability/decorators.py",
+        "sha256": "909bf120a4650ee6ef0f0b6d0e02af3d23283c172e77e8646aad976c4913d27d",
+        "bytes": 10267,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/observability/decorators.py",
+        "git_blob": "c4202269fd0dfb972657ea63c8439ce184fed6a7"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/observability/determinism.py",
+        "sha256": "989adf82b32a6ea03d11c11920364d97cc2fb64982b5bc54006b76b36e4bd7de",
+        "bytes": 1982,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/observability/determinism.py",
+        "git_blob": "59bca8e6f153dc9f35e0f5fbea521b381f11da66"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/observability/logs.py",
+        "sha256": "9d51eda431ee4a4d9e839866500d792e4f527c1bec08731f247a5ad083d72f4f",
+        "bytes": 5563,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/observability/logs.py",
+        "git_blob": "e49a4164b1502e600c22efe3f08b10ca5b5d6d6e"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/observability/metrics.py",
+        "sha256": "9148d24d122b591e2a9f16d1aaafee161dd37746cbab024686b1750e549ba022",
+        "bytes": 292,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/observability/metrics.py",
+        "git_blob": "92afd54998f40b3630588cda1f9fd50695c54d5c"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/observability/metrics_parts.py",
+        "sha256": "45d3d3183677aeed557e0d410cdce412387c29e526bc33c81c16ad324a4287ac",
+        "bytes": 40462,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/observability/metrics_parts.py",
+        "git_blob": "08d4cfc6cc012243904d280470ec0fa49d1eadd4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/observability/pricing.py",
+        "sha256": "3a0920548c07468519635b3e9f1dc9c579d8e423739b4b83a001e73d032fe311",
+        "bytes": 2148,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/observability/pricing.py",
+        "git_blob": "68b79e01df6d9c66dd6a4558a2d89c8246144e9c"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/observability/propagation.py",
+        "sha256": "0662550de014f5f6eefbb85a371328503f630186b9df376d610fd444fd843a96",
+        "bytes": 6189,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/observability/propagation.py",
+        "git_blob": "ff635c68cd5b8c6f808b3733bc2370c9e58428d2"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/observability/tracer.py",
+        "sha256": "bac8b15dc232b3e1589198d68e89c2e785f0cf7d5f80352344fba99644b71a8d",
+        "bytes": 14594,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/observability/tracer.py",
+        "git_blob": "2e0b0303eba54574e0a746abd1003768fc41f6ab"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/registry/__init__.py",
+        "sha256": "3c0133c05fcda3e0270a117f54ca2b401f1e2dce02c2291c247c786a2e4f6e6d",
+        "bytes": 2084,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/registry/__init__.py",
+        "git_blob": "d0dbdf77cff76fe6fc12a3719976b6df10ffd1aa"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/registry/base.py",
+        "sha256": "140b47ccc131641a2a3cf3bbb91f899e6ef7429348ba2be3bd59afa7b275a015",
+        "bytes": 4727,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/registry/base.py",
+        "git_blob": "045b8003f9f93e7005bc0aa50ea25ee3a660218f"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/registry/generic.py",
+        "sha256": "b1e1708fa846adf841fc4f54faa126c0b2605f005ce12c0c1e1ce9a79758553c",
+        "bytes": 6303,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/registry/generic.py",
+        "git_blob": "0563b4217dc587d2f60d502d5b5edf7dd0f5ea90"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/resilience/__init__.py",
+        "sha256": "0be35fe64f80c0a53e5f1982c69c4a2f6121166f4b9b9cbe5cfba09cb7b8ad74",
+        "bytes": 350,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/resilience/__init__.py",
+        "git_blob": "a3787ef4040069dce4659cd270c60557e27d296b"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/resilience/retry.py",
+        "sha256": "08b2d4db030005b8f582af2adc85d8b0516f54d14dc70372cb1bc449275997f3",
+        "bytes": 13914,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/resilience/retry.py",
+        "git_blob": "b25efd5c6222449fdfba5058e08f8db7d6e51321"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/security/__init__.py",
+        "sha256": "eaf1cfb96501a334d6f4f164bec3921fb209e2b28fd764eb448a52617cd96564",
+        "bytes": 18510,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/security/__init__.py",
+        "git_blob": "7641c716036cef618a6c99c97eec4edb53c7f00f"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/security/access_scope.py",
+        "sha256": "55633d848a8dc258a7a28d00ebd69d267ca605992af330269ba5d3398a32fb12",
+        "bytes": 3696,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/security/access_scope.py",
+        "git_blob": "817c95dd9901b7b7a9c996a5052d4cf5abbd15dd"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/security/db_backend.py",
+        "sha256": "e2a24be263f3afe4faa445cf0b0500cfeacec2fbe1949a911b138f8ba4c84727",
+        "bytes": 6549,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/security/db_backend.py",
+        "git_blob": "fcf1961a70cdeecb6ec600e702fba5f4a5fb1a55"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/security/exceptions.py",
+        "sha256": "7ec972cde8fc7da7d79b553a4ea5441cffff35add96787c5ffab515250083f92",
+        "bytes": 2766,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/security/exceptions.py",
+        "git_blob": "40e2281a27f2c42e9d4186b030d2f3edb5bbb1a6"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/security/identity.py",
+        "sha256": "3b9891de3ab17fb03c49223a459dcd6e04d6155b12cce058ff4b21f3b1fdccb5",
+        "bytes": 22441,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/security/identity.py",
+        "git_blob": "e4066055a1a2b2c46788c6af668673407ed8045f"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/core/security/tenant_context.py",
+        "sha256": "f9051375fa189e5bc3e020356eccc4d14f6c1e6402080cd4261396ef3b56c9e0",
+        "bytes": 4174,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/core/security/tenant_context.py",
+        "git_blob": "5645cf0bf4f8633dc02e800ae28f4496f8d421a9"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/__init__.py",
+        "sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3",
+        "bytes": 12109,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/__init__.py",
+        "git_blob": "d481f246cdec134fdb5e9b1447404d56b341c304"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/_adapters/__init__.py",
+        "sha256": "28922aeeb106540cb982aa42554df9814c15938674b056f56aeaef091263000d",
+        "bytes": 78,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/_adapters/__init__.py",
+        "git_blob": "b93b8d5338cb83bf9415eae157baba9bd7a5dec4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/_adapters/observability.py",
+        "sha256": "7ed4578be91e2d28b201c05e19bfbac0eb3f355635aa78fbb3b669fa34673502",
+        "bytes": 26615,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/_adapters/observability.py",
+        "git_blob": "98e6e5c4eb7f330a1d89f2ed7271cb1d634ae457"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/_internal/__init__.py",
+        "sha256": "a9e3d0e9942dd30f2a39b1e9e31b33e8bfa6ad86292d23c3d053fec918d3ec73",
+        "bytes": 82,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/_internal/__init__.py",
+        "git_blob": "4754adcc7c771b65a37b195944b3e46001165a83"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/_internal/numeric_parsing.py",
+        "sha256": "dfaebaa2a77e937dffeea5b7ea382e0529fb9fb49e86799b86ce2a21dafc1392",
+        "bytes": 3192,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/_internal/numeric_parsing.py",
+        "git_blob": "aba19e2b84544297855c3e2b43f08600ea4e24cd"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/__init__.py",
+        "sha256": "b94d11e4f49ab084f28cd1e262ccec2e3d5bbdc356890d4756daabff80b3b593",
+        "bytes": 8593,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/__init__.py",
+        "git_blob": "0417defffac8e47e27d1218bd3aa9c7bbab19776"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/_registry_errors.py",
+        "sha256": "68f3dcf11bbef42f33bb16c5d1f79c8993255051f90990f59adb482fd3acd26f",
+        "bytes": 2230,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/_registry_errors.py",
+        "git_blob": "4bbcfc82078100689a8f6bc9dceb73cd9d53c135"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+        "sha256": "50871b4cae9d88a6426e9036572e58893f7fe9bec257be8d50e6244c00e42b31",
+        "bytes": 29359,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+        "git_blob": "71d21e8f8d4517c602efc2662106f35d45f0ebc4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/_registry_models.py",
+        "sha256": "0bd5d823066aaa2f75e1bd8089fbcef385bcdba6c24b44cc9264079804a971e6",
+        "bytes": 3617,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/_registry_models.py",
+        "git_blob": "edea9ee00bbab2c7ec7707f2fc1ee703d9ba9844"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/base.py",
+        "sha256": "b5ac7224955922b7712604f7be929a734cd1a4fc2381d2fc62db9152595493c5",
+        "bytes": 19819,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/base.py",
+        "git_blob": "791d3927acc040a7932e69a4886339f08b190bb1"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/cache/__init__.py",
+        "sha256": "80aa15aa9437636acc25c8cdccbce899a7b18e600ceacda58f5c7fd667ad5ca9",
+        "bytes": 1400,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/cache/__init__.py",
+        "git_blob": "0bd335d1a246d96cd899106d69cb663698552e26"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py",
+        "sha256": "5ddc7e55ac0fc2f112ae509df30d29acaa82df09b48aa2ba52ff61b4c4c2098d",
+        "bytes": 24258,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py",
+        "git_blob": "6e348e54be118e971e996666ef419d4b0f316d94"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/cache/_store_index.py",
+        "sha256": "a23985a9e12e8fad8049a629d0326957818c398247562b8cbc74d668e4d908a0",
+        "bytes": 14701,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_index.py",
+        "git_blob": "a59234b8d3bc238ea8df513802038c79845abd53"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/cache/_store_models.py",
+        "sha256": "2bdb0a6d58b2cc599b2b9aada50910d14a55014183fb53fe26abf4932104bb51",
+        "bytes": 9151,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_models.py",
+        "git_blob": "9f7e846d6af5b5fe69c2826f122d1271cdc24e55"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/cache/_store_serialization.py",
+        "sha256": "573cd024546110236fe9cba85eca621f8fbd5bcaa78ad2926f1ebc215f6639b0",
+        "bytes": 6870,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_serialization.py",
+        "git_blob": "d205bc5896eec8383e31aeff80692299e14571a2"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+        "sha256": "78304ca3d0db2eb86a31bfa76fbca77c2a7e5c177216f4ca21ea9e7fa389dd74",
+        "bytes": 7484,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/cache/invalidation.py",
+        "git_blob": "17cdd76157609b2814ec1c6e4bc202ef31577bc2"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/cache/policy.py",
+        "sha256": "f74134d5434183de582c5df8ffe57465ea73c9e0706e750d26a02fb660e53c69",
+        "bytes": 9800,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/cache/policy.py",
+        "git_blob": "23796f595aa61b6fae76d424d90acc5dd09ec5f6"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/cache/prefetch.py",
+        "sha256": "06e26bc975aeae47a03d9cd585e8a5dd51cdfd513c3b856e2efc7c6d870c490c",
+        "bytes": 12435,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/cache/prefetch.py",
+        "git_blob": "2917255ea05619642aea9274c851f238b2a8c632"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/cache/proxy.py",
+        "sha256": "1267c4417b069dbc62d59b279f94a81c070a8bccfbdc2ee3b3965c9b7ba28b40",
+        "bytes": 7101,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/cache/proxy.py",
+        "git_blob": "db5f9423959196cf7e58bb83e8ec7c4fe44b51ad"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/cache/schema_aware.py",
+        "sha256": "ae349256d2f0e887f031fafb1845e3aa28314a0edbb9d9f845726df427dd7e73",
+        "bytes": 1414,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/cache/schema_aware.py",
+        "git_blob": "1842181018bff3f72ffa6179364e5875dbe0229f"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/cache/store.py",
+        "sha256": "e5f782ee3cf9fab3b175bbc24d70d2db069095e2a3fdecd590d31d859d36b1bd",
+        "bytes": 1576,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/cache/store.py",
+        "git_blob": "f634b2772100ed882bfe65a2110f467d527bae24"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/capabilities.py",
+        "sha256": "bb4c35a82227b2ecbe4c29808680f78a9f7532dec641093d3ac10048e18ddfd6",
+        "bytes": 13993,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/capabilities.py",
+        "git_blob": "194538aba6062444b885c31adc89c5b05d3b9db4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/__init__.py",
+        "sha256": "7908640c14a3a058f7bab40650c65fa94536ba414e79c45342b2517badce6766",
+        "bytes": 5358,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/__init__.py",
+        "git_blob": "116b13df9e21ad29e2f4cdab8c2b2a7445fe16b0"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/_inference_config.py",
+        "sha256": "38273bf454e3a3fc856d3d3b0f010f17979b0d4470863572d9d5284cd920214a",
+        "bytes": 2560,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/_inference_config.py",
+        "git_blob": "25543fdfaa22b9e49099bfc2c47cdcc92ffc65b7"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/_inference_engine.py",
+        "sha256": "5d9959c94ab8d5c4d83dfee9bc1c3e19a21da1f94ab469cefb9fc535c3858225",
+        "bytes": 24872,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/_inference_engine.py",
+        "git_blob": "1e4978b7fad6c4dadf70cf1d7459f9197e10939c"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/_inference_result.py",
+        "sha256": "23e30c5a41cb2a60f2d16526683b8ed6cb6f1f6dacdc4e2ef216437f1e923fdd",
+        "bytes": 1372,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/_inference_result.py",
+        "git_blob": "f8d94cce4e9b864e0ffc8e1902e99026459dfcca"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/_inference_validation.py",
+        "sha256": "f30c35ca779f2a719a20566781c3a5c0ee0e38553486431aa6f997bfb9a6df03",
+        "bytes": 12945,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/_inference_validation.py",
+        "git_blob": "55f608568e612cae9763f94df875439f583111ba"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/_schema_core.py",
+        "sha256": "c9ddfda7eec2ec10ff9311c60c3c2b005198e83642d5d7eb1fea2ed50ab09b28",
+        "bytes": 14952,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/_schema_core.py",
+        "git_blob": "ff7f8f572a70bfeb620bfc1d910749ea9dae4e41"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/_schema_errors.py",
+        "sha256": "344a4625fbf195a095a661977c2511038f0e368e4560f33a30493c83d0d5ee28",
+        "bytes": 1736,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/_schema_errors.py",
+        "git_blob": "f50fbcb6bb3ee3b95bdc872ab47ba9c88bb8fc9c"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/_schema_field.py",
+        "sha256": "7ecb87f0a670faac12c326055bbfb76a00d054e8485e630e144b6cbcd7e0f5df",
+        "bytes": 18728,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/_schema_field.py",
+        "git_blob": "df28248958139a5898a638a5795c5f4883455f79"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/_schema_types.py",
+        "sha256": "f4bffa52e4a2d38dd44db7913c2cf15e98eaee517e11df0aec7f769e5ac0f317",
+        "bytes": 14587,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/_schema_types.py",
+        "git_blob": "291aa6e26c6b8f1a0d1a8742b3e798efd524174b"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/contract.py",
+        "sha256": "f3b6695477c5fc107017fb8f5a4446695a2211c03ead6cb297bb1d56fc4c5691",
+        "bytes": 8038,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/contract.py",
+        "git_blob": "57af744e53f7d9d21be06ce0d6da123023b783cd"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/contract_registry.py",
+        "sha256": "ff0ced5bfedef59a82c4f4a901ce526bb24d6be1c36d891df4d2b321432d2955",
+        "bytes": 11570,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/contract_registry.py",
+        "git_blob": "b5219974aa019283ad19c630fdb5e6bf7c50981a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/evolution.py",
+        "sha256": "cae3c1964f9e7afbc0e557dd28f277c218c9d3a835a69d4fbb2c34b36f84b484",
+        "bytes": 37182,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/evolution.py",
+        "git_blob": "b5371840170f763ab4564b1e098af468320a446f"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/governance.py",
+        "sha256": "717b0ba3c0799cafa115f7085aec17da3104a32cfa7b70fb9b70142877d561c1",
+        "bytes": 3547,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/governance.py",
+        "git_blob": "ef1ec1fae50a8c94b704db5ea26d2ac32fd98d55"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/governance_checks.py",
+        "sha256": "7d97a3bfe30e9225bd1c45f4a7ad6259ac0ffb26ec3afdabf8ae5abe5b8a4f40",
+        "bytes": 4983,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/governance_checks.py",
+        "git_blob": "5b33fb6d4e273b401ccf72981e921a9757d97429"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/inference.py",
+        "sha256": "f0417b8677087c39ee649f552066f96d3c5b99640d43cd980225c80e2cb6e90a",
+        "bytes": 1690,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/inference.py",
+        "git_blob": "f96310c48d2975dffd850689c48b7e8207da6bf5"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/registry.py",
+        "sha256": "9801241358792033ff3e5d254a9e0067133d09949b92b8cff0ad313075615337",
+        "bytes": 15783,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/registry.py",
+        "git_blob": "1c429f606f36dbd762bbcb313b9514550a87b2da"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/schema.py",
+        "sha256": "a55fb7143925cf91864da967b3482fe4035e38058100a8de8f1694d96abad7b6",
+        "bytes": 1557,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/schema.py",
+        "git_blob": "18f0618c9bcf26dad41faceb1ed0ae8cf500a7e1"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/source_contract.py",
+        "sha256": "66ecd493fb781ecdbd6a9a80d52061bc41f5d45da48a78fad329a39366d1d0fe",
+        "bytes": 27364,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/source_contract.py",
+        "git_blob": "572366d6ab84a331b45aecaa4b55c7c5426dafbc"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/contracts/validation_middleware.py",
+        "sha256": "38639eb540e8a8e50f6fa060bf2c4ceb82e03985284eec3b43898844db8c0ab1",
+        "bytes": 13380,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/contracts/validation_middleware.py",
+        "git_blob": "0ece17a4fcb07803decfaaf8351fda560efc76ca"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/discovery.py",
+        "sha256": "18fed67e69b3b7c344f9c57f88d2f4febbdd14dfd9a33acf9e221a28e02eb5c9",
+        "bytes": 19278,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/discovery.py",
+        "git_blob": "318675543d85b0172dca494a03a30c55942418bc"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/family_contracts.py",
+        "sha256": "71ede8ec66d8a5128268bb44eb33fc53d8b186da111393016eeac5bfcdc9bcd7",
+        "bytes": 7085,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/family_contracts.py",
+        "git_blob": "780d02574eeedb4f9c69250019cbfba411ce30b4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/governance_metadata.py",
+        "sha256": "e5e43ffbd2d68b76435b89e1b991ef427370cf7dfdc4c140d09d72c5b3bd27c4",
+        "bytes": 3196,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/governance_metadata.py",
+        "git_blob": "af24dc75c7ebb29156fecf571713be957593974a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/http_limits.py",
+        "sha256": "15d1ca4307f66343a4681562fc36eb7450047f4ea4455c1570f719a7b5ad71d0",
+        "bytes": 4606,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/http_limits.py",
+        "git_blob": "c4ab38b9937132179c86e04733b01396116ef3d8"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "sha256": "0efa56aab0b99ae5213be8f5e5e44bc3f5ffb935382b878ed0858cbbaa7ece35",
+        "bytes": 43461,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "git_blob": "850659c2e09aa6a23aa7f3f0daebb88637fd9e29"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/profiles/__init__.py",
+        "sha256": "411aa99f3012b58d43b24b01d283998bd1f2c2db987df157701dda0aa18d831e",
+        "bytes": 236,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/profiles/__init__.py",
+        "git_blob": "f12073c219b5ea1d7d167f553fc9b2e777e1dd09"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/profiles/models.py",
+        "sha256": "cd1278772bb443d2a8b4b2e37e0d8c1e8fd3a32c4e6007cc92d0b5c0209b809a",
+        "bytes": 4495,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/profiles/models.py",
+        "git_blob": "0bf6568675eaf10ca7cdd37f9c6f4527a9d7753d"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/profiles/registry.py",
+        "sha256": "f1d560f500db8c4cb39ab23552bd266ffbc736d3dffbe11c1a3a47579b19f250",
+        "bytes": 2805,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/profiles/registry.py",
+        "git_blob": "3a5d0614b4e3cdd330ca4ea92c61d734149999a0"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/profiles/resolver.py",
+        "sha256": "7df7feb14129eb11fea7d9467e36c9f2e27b821726a5453e9f947eca7b6c2bfc",
+        "bytes": 4007,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/profiles/resolver.py",
+        "git_blob": "8600211a2a66c8258cb58e20fbfd70d8a031408a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/reference/__init__.py",
+        "sha256": "03014c492200fb39a566a25c2f8b8e82306e86061e5b1c612298112c5c7c3c2a",
+        "bytes": 667,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/reference/__init__.py",
+        "git_blob": "e4bd21821f76fa3e13e898190a9adb3ed972b2d9"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/reference/rest_json.py",
+        "sha256": "b256152d8f36ffd09dcc0062fc47c8e0209b496f672cc451da59a09302b58816",
+        "bytes": 25953,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/reference/rest_json.py",
+        "git_blob": "d942b4bbc04330f29eff9667014d5588a0f2aa17"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/reference/sdmx.py",
+        "sha256": "2a7bc75b228771849b33b091aa41f26e26c0b2905de6df53a39f52139a5b3609",
+        "bytes": 27754,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/reference/sdmx.py",
+        "git_blob": "ec3b2469f3fe19489f1a033f89809a8c9026bb46"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/reference/static_csv.py",
+        "sha256": "770558cf2c526fe1ee7a5af3d36197def4ae329fb3acb59ac74383f4ba647be9",
+        "bytes": 17327,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/reference/static_csv.py",
+        "git_blob": "af73281d8dc59cd784e03b838db02a3c69368be2"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/registry.py",
+        "sha256": "9b1d8efbd3dcff030db88ab7a28080beb0877adf1ac78e270292cf26b45ded05",
+        "bytes": 769,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/registry.py",
+        "git_blob": "fb7d08d06747eaa81bc30fbdd03a290721f3ed9c"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/registry_core.py",
+        "sha256": "1f148b9e26139eb774b48d3aada940ca44a2ac8bebd4274133c091d4a1fffe5a",
+        "bytes": 683,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/registry_core.py",
+        "git_blob": "99fb1e31b79bd1afca072c0c12d9356fa02168a3"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+        "sha256": "08d9e9da61ed238233af222e009d139853db60ddf1e4975efe546a02a61e5f2f",
+        "bytes": 35875,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+        "git_blob": "fe1be7f203a0db865e9ecc6a6fad43963234d8a5"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/__init__.py",
+        "sha256": "653342554eff4831b8b3ab218524572659291e904e4e454dfd0f0f41e3698b4d",
+        "bytes": 12268,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/__init__.py",
+        "git_blob": "bb2e6c641ab56c5b65c00aca8fcc1d08d4fda2b4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "sha256": "9003558130bcc2f378f22658a8ff685c4ab93766d8bc7f20de1d7bf5d5323429",
+        "bytes": 5871,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+        "git_blob": "24316603e405589fe7c13a433997fb0dd32ea7c4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "sha256": "f02ff7db20a47e16f4129e38c4ba2a6f445cf98551ad935e27b178fa8cc0d6f3",
+        "bytes": 25310,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+        "git_blob": "173dc65f7a507b88cf0fa3b9a211ddace25f2fcc"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/fallback.py",
+        "sha256": "c85fdb3889c1e6e933c4a5ebcea04bde74684b5c687ec849385aed86b9f1eb69",
+        "bytes": 13953,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/fallback.py",
+        "git_blob": "3fd79103452908e4aaf8cd922c6557cf1a960010"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "sha256": "2f4bd7b8f46cedacd3c26134ecc9a7b9d03dd868953b34cf306dd1702a0ec035",
+        "bytes": 18511,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+        "git_blob": "a8d670610f73536e3831a65a7d091432d4bfb599"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/resilience/retry.py",
+        "sha256": "5c342313bf65ef8832698eecb4ac5bb7e0930c47cf7177ea7c0a7dada1ad7e9d",
+        "bytes": 477,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/resilience/retry.py",
+        "git_blob": "cc50554495c57b4125965fa989443489ec43f20a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/__init__.py",
+        "sha256": "3d839a1dbcdc78afdf87e16d5fd8899bc9fb68c1ba3db3b08b58b29b93f07aeb",
+        "bytes": 2745,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/__init__.py",
+        "git_blob": "e527fd28011a96f6749f4cf56c4b43c62bb6be6f"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/_contracts/__init__.py",
+        "sha256": "4af8f0ddf04ec47b87c9c6f443d6e593699edaac7ac67def8d302c0b24c1fc5c",
+        "bytes": 1610,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/_contracts/__init__.py",
+        "git_blob": "efac31c5ae3ed20fc5c801ca94015a504d09bbad"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/_contracts/_governance.py",
+        "sha256": "30f3d57dffae141f90feae3217d0974fea89a36dbff89534ba7ae346ac8ad381",
+        "bytes": 917,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/_contracts/_governance.py",
+        "git_blob": "a5f5c391344b41ca0d48f6d6fe8c852f71ac6c53"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/_contracts/eurostat_contracts.py",
+        "sha256": "f975a8f6fa3204c40e94a1c8ecdc00242395ea9fb4044c40b072e3f01abe69ee",
+        "bytes": 3328,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/_contracts/eurostat_contracts.py",
+        "git_blob": "e4bf85831bbc1efd1f2b4c47561ae6513d1d0ae2"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/_contracts/sdmx_contracts.py",
+        "sha256": "18bb31ebcdf7aaa3cd99d570a573feb02c0c3a539f689e85e0d4bb0c1ca0c230",
+        "bytes": 3110,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/_contracts/sdmx_contracts.py",
+        "git_blob": "db8060c364e76bcf99d4903cd101717fbea5b41e"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/_contracts/ukons_contracts.py",
+        "sha256": "d8000c9eb0a280959ff11bc659901fc9ccb8f85034f7a50f190c686fed58a065",
+        "bytes": 3136,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/_contracts/ukons_contracts.py",
+        "git_blob": "f908171ddadf6a22c5543bd7728ad0680351ab0a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/_contracts/world_bank_contracts.py",
+        "sha256": "1e4f1b85a910c9e68c8075eef839daf29ac983ba4e502a96937b57319ee69837",
+        "bytes": 4396,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/_contracts/world_bank_contracts.py",
+        "git_blob": "b04b9148a36654f46d5f239e3b241ffbee145ae6"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/_contracts/wvs_contracts.py",
+        "sha256": "4179f5b147dea536fbcefc891fd8a4e920e69b8d2ef0899bdea4fa913ac00087",
+        "bytes": 4459,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/_contracts/wvs_contracts.py",
+        "git_blob": "f85b25117f03f254f9f24305ccf50cb1268064b0"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+        "sha256": "a3ccf9c8444e20a71898ba963f25d63cc0fd0d396921505b4d39a8ce44b40567",
+        "bytes": 8342,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+        "git_blob": "f99d73848682b6b45a0a20dafbf8a5b3588b3e5e"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/ckan_catalog.py",
+        "sha256": "cfac059e7490ddf1879a7044899cab05cf030ce78e32a47e87409ae1840577b1",
+        "bytes": 10017,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/ckan_catalog.py",
+        "git_blob": "452e82eec2b6aa477dff9af8396e4ab4e0234fb4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/ckan_resource.py",
+        "sha256": "eebd115e85a54cbdea5ff915d21765305895aeb91df0d2a6f409dc39041b40af",
+        "bytes": 18547,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/ckan_resource.py",
+        "git_blob": "57aaf13a2dfde9a8fe14e46e89009a30f10e4e6b"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/eurostat.py",
+        "sha256": "c4308fcfb8137a2d1a04f4ac5c3f5e878f2d5f0a24a83e1d81b6b748dab65ea5",
+        "bytes": 29541,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/eurostat.py",
+        "git_blob": "4c03214e18cdb8223fd0909bb5ba0e3be11af96d"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+        "sha256": "63fb6aed45dd586828adec4a8a1dd8eea8a347ff4659ad1b5a801c8bd78a2d48",
+        "bytes": 9344,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/event_stream.py",
+        "git_blob": "1d3e5c36215cb4f4ccda86a9ac7f05908a81fc1c"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/file_tabular.py",
+        "sha256": "914cf5487a32cc9d8676aa0c913ad64ed5bc7c3ff02909a23abd8afac167edb1",
+        "bytes": 10521,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/file_tabular.py",
+        "git_blob": "11e847f68893addab5cd4794a1d1e555cce2d4dc"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/geojson.py",
+        "sha256": "67df52c49a707f754ca3894707872db6e16f6772819786535194ccd25ee3d98f",
+        "bytes": 8909,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/geojson.py",
+        "git_blob": "69922a3b59737b2ce3187400795b51b0c2ce3344"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/graphql_api.py",
+        "sha256": "634965323ef6ffc39b7691e9ff1b11c6589c94cb3b7fdd9c58ec88a0fc853282",
+        "bytes": 13888,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/graphql_api.py",
+        "git_blob": "b5587e5a02d51eb27f0b320409de2d8fc3dc304a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/http_base.py",
+        "sha256": "d36be5ce12da72589092dda9e79a53f139b6cedba3a9b638eb9b7a1658961db1",
+        "bytes": 23706,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/http_base.py",
+        "git_blob": "2ee304b7480835f61c2a2465cfb4ba3c765fe155"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/http_common.py",
+        "sha256": "bdb7e30073532cbac14cc38c3a22d6a50e760e0f6d14010e6b22b27f9a8a2d20",
+        "bytes": 4072,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/http_common.py",
+        "git_blob": "ad7a8aecfa154ab82ef2ddf1d4270620be7952b1"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/object_storage.py",
+        "sha256": "05ca3e400b8eeb416c288c472fe8cb49e2d2b2659c1a4a5f28ccd26ece35c1a8",
+        "bytes": 4704,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/object_storage.py",
+        "git_blob": "2a1e1655b4e166f9c7f0cca1066d2cd74e9287d5"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/opendatasoft.py",
+        "sha256": "8ea650ab1d5192a75ad6879cd4437c0d1a67c7eccb1c0bb35960df52f4c7f672",
+        "bytes": 13628,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/opendatasoft.py",
+        "git_blob": "df7774581de7c926a75b64745657b6f70fd392c9"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/rest_json.py",
+        "sha256": "95adc947c8bd66cd90237581e541cb99b2a73a4a494fe0ce79a2f5afd8c8ad28",
+        "bytes": 2284,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/rest_json.py",
+        "git_blob": "27264dbbc35d2867fe6811282a07a0ff6caff53b"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/sdmx_source.py",
+        "sha256": "db1104706c925739cfe65af6031f212e2c5b81523b57f990fdb677263ca2bb72",
+        "bytes": 32568,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/sdmx_source.py",
+        "git_blob": "ea8afe891d41eb520987cc1cbbd71efa34445704"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/socrata.py",
+        "sha256": "bd1818075479639f0f99266c1bed241999089dd5c16a596370ca18b407052624",
+        "bytes": 15155,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/socrata.py",
+        "git_blob": "5556a49836dd91dfac91dc7a3fd736143a28d1bd"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/sparql.py",
+        "sha256": "02b630812765b90a37ae9a97bac846751142968803364ea8bf81518c2f214a25",
+        "bytes": 15602,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/sparql.py",
+        "git_blob": "2a959bb3ed0d8e4ecb4193cdbe3990d79f1a4992"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/sql_query.py",
+        "sha256": "b177510d09f6e1b9cee56f3b1a1e30227a5b43c104c832042bc2d64bf953703c",
+        "bytes": 12150,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/sql_query.py",
+        "git_blob": "ca2badba98399225783c515192085a8c1e5f4282"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/ukons.py",
+        "sha256": "6e9a0146172c82c34ee163bad3e334780499861037df5c4f9b77741a169e4dd7",
+        "bytes": 9221,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/ukons.py",
+        "git_blob": "e7c42df21e050eb1df09ea99b0a9d6b7cc7f57d2"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/unesco_uis.py",
+        "sha256": "951400f8f12d4d5f32294e11ef5f560abdef605236944ee59f182bb1d39e6460",
+        "bytes": 10572,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/unesco_uis.py",
+        "git_blob": "afebcda9dea2cf63d21374fe4ab240f0ebed65ed"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/unpd.py",
+        "sha256": "d659ee8bae3c1df9ef3c232da627d6642919a0e0776084566ee1bb82331aace1",
+        "bytes": 12767,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/unpd.py",
+        "git_blob": "a8faba162fe987375009511966e877b9c64b319c"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/who.py",
+        "sha256": "37a0c5a01992980ac766a69c90351ca32a2d03eb57ebfd4a8ea8f70afee22506",
+        "bytes": 12992,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/who.py",
+        "git_blob": "55c4faa5919ee717932e58292f5f2b52b9d3fd42"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/world_bank.py",
+        "sha256": "02d44b5ce1a112aee1cc28f305cd76184abb5472964f011a4eddca205873f285",
+        "bytes": 14994,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/world_bank.py",
+        "git_blob": "ff19ae201c1145c34589645eecdedea54f459ba6"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+        "sha256": "f5cdb1fa17c92ed55f1c22af5ec8531a3afc77d3aaeceaff47f3662e0e550362",
+        "bytes": 18213,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/sources/wvs.py",
+        "git_blob": "ee52d903a12774491bcedfc43786bde647809e1f"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/__init__.py",
+        "sha256": "76a7f51eef2446ff0b1364ca55fb0536a42184a2d056e2e3656535e614e87bf9",
+        "bytes": 5178,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/__init__.py",
+        "git_blob": "df476cadb3f723387d08e03a8de508d6aecb88e2"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/_coercion_engine.py",
+        "sha256": "2192fe83868ab216b779b055803463f277c8294e3e70dcf03998ae522e9205f8",
+        "bytes": 9250,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/_coercion_engine.py",
+        "git_blob": "dd4fcca8973c89d8c07842c57861c3fdef6998b4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/_coercion_errors.py",
+        "sha256": "4c21ef8cd159909f4d77e278389d0f6aac6d3f4dd9740ed1d6e3b80886d80093",
+        "bytes": 1459,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/_coercion_errors.py",
+        "git_blob": "5596e408c447d6955839d6f216d6651a0f41c8f4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/_coercion_policies.py",
+        "sha256": "2628fbab0d908e546288fc5b60e0a4056005cce1128b2fd35e0587361765d5a9",
+        "bytes": 6511,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/_coercion_policies.py",
+        "git_blob": "b0b83e41be16bc9f0b47facb0b9d61873e9a6f6e"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/_coercion_rules.py",
+        "sha256": "9137906d12f2f0db623a3b5929489d0193a7fb7da4e83beb1fba1e96a9425977",
+        "bytes": 22090,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/_coercion_rules.py",
+        "git_blob": "de3c51d217c55a946180bf238ba9e77873c31c7d"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/_units_base.py",
+        "sha256": "5657b45b2176aef424fa5ca70841f060f2374f06d216b6424a5156781a67f66b",
+        "bytes": 13296,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/_units_base.py",
+        "git_blob": "d769a45aadf3e0f0fbc022a40f3cc6bc2be916ea"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/_units_core.py",
+        "sha256": "6f05ccd585d5250699b21245e0ef6f762a437709453b8a62f16c46f5b34358bc",
+        "bytes": 21647,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/_units_core.py",
+        "git_blob": "a8c0040e23a03d0a12a1aa6f953975a91a357ead"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/_units_errors.py",
+        "sha256": "8a6703f52323c74bb3613a45dcce1bec568b7acad2801a3617aa33fddb326f1b",
+        "bytes": 965,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/_units_errors.py",
+        "git_blob": "62aad935463a1266037b5fe53e674cd9ceacdc3c"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/_units_prefixes.py",
+        "sha256": "e2ff233432fbb58bb547857ad943f4242adf074288db11c63217efd22d209d3c",
+        "bytes": 2519,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/_units_prefixes.py",
+        "git_blob": "6f678898557f7fd47455fa2960323b646d21afc1"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/_units_registry.py",
+        "sha256": "0cb955efdcc6c6448c3df49dfa20168db5798469a470221215f8d76c609d9850",
+        "bytes": 6633,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/_units_registry.py",
+        "git_blob": "5dca5b10aa29afcab1ba0b4d7c75d31b0d14d48f"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/coercion.py",
+        "sha256": "6e9293bd22f499c40b65361bd98eff391634ebd4236593a8e50e2abb91fc805f",
+        "bytes": 1666,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/coercion.py",
+        "git_blob": "460126dd5591badcc0dc444455df3b3f66049743"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/connector_types.py",
+        "sha256": "76f3858856955d895cec79f1fdf5ac23173bc49cf4ea01202b5203601eef51a1",
+        "bytes": 11119,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/connector_types.py",
+        "git_blob": "f27a1b1e27bfde574994c4e356083fefdcfec840"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/dimensions.py",
+        "sha256": "e9506ef8fda1701a0c54734bdbded6353501491909e24ac27891c7cdc715710a",
+        "bytes": 19252,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/dimensions.py",
+        "git_blob": "0ad038e5b261f5a88b3f53e7c1249957cd7f57e5"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/temporal.py",
+        "sha256": "bec4afcd2e38585e0e92d507ab7587964a3e41d6208cbb6d0d25dd3acb1c8fb0",
+        "bytes": 26894,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/temporal.py",
+        "git_blob": "faf9e55498a5a7d6308a5bf593e91e7bb5589689"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/types/units.py",
+        "sha256": "17fddcd9ed97cd972600d3081a23afc1b207a74fb9f9ff8f608312f6a203761e",
+        "bytes": 1744,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/types/units.py",
+        "git_blob": "fb591a21eef6c1aa599db3eff7cda38f7b720bb1"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/connectors/validation.py",
+        "sha256": "ccf689e0a26399ae7c11b393287d3ee1c906d2a5f07cc9f4b59725947d9f2bb8",
+        "bytes": 2951,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/connectors/validation.py",
+        "git_blob": "6c78128fd7621cccea56884c181acb9f5ea8abf3"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/data_plane/__init__.py",
+        "sha256": "38e9ae9c90273509d18b33947469b7c543571b1e08dd38c284aa083883e77912",
+        "bytes": 9018,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/data_plane/__init__.py",
+        "git_blob": "5f05eb20426b9353769bad0ad4d4185c04b68db5"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/data_plane/tabular.py",
+        "sha256": "defad8bca650d9f4d6a9c2c90ac926003a2e6911598e75421026df8629860ff7",
+        "bytes": 1149,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/data_plane/tabular.py",
+        "git_blob": "411a5eea1e1718d3641c3d5035f29174c1f25d10"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/data_plane/temporal.py",
+        "sha256": "06958de926a07d6e2da887a2e19d4699922379d1f90648d3dc4f8e64bdcde2a5",
+        "bytes": 3783,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/data_plane/temporal.py",
+        "git_blob": "bac55fbdc16ebf8f14081c7da6c5ca0838e3912e"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/io/__init__.py",
+        "sha256": "0580738d4da80d17f8010810cb978f75cbbb9469c6149da72b72af037b9613ae",
+        "bytes": 82,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/io/__init__.py",
+        "git_blob": "98f61b4a657fcb833cac291793f4a9a4f1213f30"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/io/atomic.py",
+        "sha256": "e85c51a0938d6e871ca6056040e72cfe5e96d069023ed2dbde668b353d4b4c77",
+        "bytes": 3518,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/io/atomic.py",
+        "git_blob": "6ff139e733da8b77109818554c16b2248bce69de"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/numerics/__init__.py",
+        "sha256": "a98c3b63aa74ca1a631accff678d70216d8420c722459bf2db7351cfacec87a7",
+        "bytes": 339,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/numerics/__init__.py",
+        "git_blob": "ed06ce0a77aee93cffcce764e447130cbd924b0d"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/numerics/finite.py",
+        "sha256": "c387146812cdf8ba4851f580c1d2e9d92955d8475bd13efc8897fe3e1313474a",
+        "bytes": 1718,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/numerics/finite.py",
+        "git_blob": "005d228e44f8f46eca534412f55d77bcb7b5bae9"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/quality/__init__.py",
+        "sha256": "9600f49bb3ac6915eb41017f2f5ccbeee4b67ea1b7777697dc796bca6cb69151",
+        "bytes": 360,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/quality/__init__.py",
+        "git_blob": "e1ea3078f7999fef4edde285cf2c3befbd486a55"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/quality/fitness_report.py",
+        "sha256": "966180409817f49018d67f1396002ddeb2bdcb7541eba5fafa73a05d54d69d68",
+        "bytes": 9341,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/quality/fitness_report.py",
+        "git_blob": "b97267c8aa18cdb5e71d3a7277214765a772b441"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/quality/processing_guarantees.py",
+        "sha256": "a09cf1206959e15e720a87f92572fe7ffdb5ad86b6f199b68ebde4f7f5113800",
+        "bytes": 10546,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/quality/processing_guarantees.py",
+        "git_blob": "3074055a1cdac38d7031f36158a2a0b33b54620b"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/quality/quality.py",
+        "sha256": "8dc607b2fd88a44f796e81dd6eb62e0b7f8098a06af742d4392d4e8fcd632ea9",
+        "bytes": 22392,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/quality/quality.py",
+        "git_blob": "0954c77bce8563fe2a0194d5e3c0c273e34c87bb"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/quality/safety.py",
+        "sha256": "682fd06a860658125c62c0b0dd39f63bd06dc2a054c004cbee66e536397053ec",
+        "bytes": 7843,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/quality/safety.py",
+        "git_blob": "cf331033e3e509c320c2d85b33f5062e7cd162e3"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/security/__init__.py",
+        "sha256": "f3daf5478d0686b00935ccfa3aca7623906990b0ab94f353bea6bfc4b2bf64e1",
+        "bytes": 1835,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/security/__init__.py",
+        "git_blob": "12c1e7e66eac7da0e403a94d4dcd2959b41fb1b2"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/security/access_control.py",
+        "sha256": "ce369220bcfa8a25785acad9bdbec68cf91f4e3055d4bafa87395b9bbf7c9166",
+        "bytes": 5601,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/security/access_control.py",
+        "git_blob": "97eadf547b82557c5c6c10759a5f099be3b04d8a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/security/adapters.py",
+        "sha256": "d516583a33fa08c0b9e53cde311f0f969f8e4634249295720cefa5812c6ff748",
+        "bytes": 1405,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/security/adapters.py",
+        "git_blob": "644c6c2b7d3769aed455a71648107d91843a8330"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/security/column_mask.py",
+        "sha256": "9095edfaa5495c7cfa587bfdf195531bcec07edb659c72e91257f1bda475e97e",
+        "bytes": 2632,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/security/column_mask.py",
+        "git_blob": "6593c8118df8d02f35a8a526e3b71966913da772"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/security/governed_artifacts.py",
+        "sha256": "fc168a854e7ef1b75f1bb912ffd7b21120120dd949270a83bb1763fdb0f86275",
+        "bytes": 4345,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/security/governed_artifacts.py",
+        "git_blob": "388736c87f99704128e427bc58acf81f4fbcd753"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/fabric/security/retention.py",
+        "sha256": "d54abca66a755eabc0b02d1c0bc628ccf3ecac1b88daa51983a886519b4110e2",
+        "bytes": 8498,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/fabric/security/retention.py",
+        "git_blob": "78739491b7d118d4abba424965b9a06c37ba3a6b"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/__init__.py",
+        "sha256": "7758c7b1b07ceb5906fa322a83bd156dadb4b33dfce8e2653198d3f961606e3c",
+        "bytes": 38827,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/__init__.py",
+        "git_blob": "66068a49645b226700ae797f41c8b9d8b3049a44"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/_internal/__init__.py",
+        "sha256": "26efcf5ea5aa8d7138a675fef7ccd2f17083279ddf38f6fda5c028830dab3756",
+        "bytes": 91,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/_internal/__init__.py",
+        "git_blob": "e52c60e2615b2dc86dbde59a863b12adcf4669d3"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/_internal/validation.py",
+        "sha256": "d1cb68bfec95789a5067cf352adae538875297e67423dc344f3453885b2d8b4b",
+        "bytes": 11801,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/_internal/validation.py",
+        "git_blob": "9164ebe1a441bee8a4694acfc0437d484590d55b"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/api.py",
+        "sha256": "50eef6b0cb043705d1bd03069e6e1ecd5cfe995575faedb2c5af1fd4e544e384",
+        "bytes": 47862,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/api.py",
+        "git_blob": "aa3ec766d950a830292b8448015f2bb390080a4b"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/artifacts/__init__.py",
+        "sha256": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134",
+        "bytes": 1915,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+        "git_blob": "c96397492332b5a5d896f1c990c5bfe34513f693"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "sha256": "9caecf307c06ca3efe13b7b234d10e860e734bfd415823e3cd6650f3d0ed1c9b",
+        "bytes": 6659,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "git_blob": "9c7220fc3b1516ae102770078bf16d98f2d9414a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/artifacts/io.py",
+        "sha256": "e876f8d65572ef11992a5ba7336decffea966af7e5b6df12a48ec7dae25b08f3",
+        "bytes": 1857,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "git_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/artifacts/lineage.py",
+        "sha256": "52627f8886454ecb4b3d23435754eb3e68ecd8245761765bf2eef02a8c6722ff",
+        "bytes": 11349,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/artifacts/lineage.py",
+        "git_blob": "f6a31539326275a200adf3574b19e9b9eafa0d54"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/artifacts/transport.py",
+        "sha256": "ae135cb10626f01d4bae2d5f9853cc133be4ea80650b15920f375b6246eb6a0d",
+        "bytes": 9178,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/artifacts/transport.py",
+        "git_blob": "97e9659b4d0587b8bb3f91e2e2d25a6d81d21b8e"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/connectors/__init__.py",
+        "sha256": "73ac4426d8bc2cf07de492c45533e14c4bb5d5ab430a7aefb6dde446fa886ac3",
+        "bytes": 33518,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/connectors/__init__.py",
+        "git_blob": "c08e6a8dae0e207f4d1d1014a45c3a06fa29f3dc"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/kernel/__init__.py",
+        "sha256": "1a1124a1b02cca8854bb0f42b56fa8ec97363d2025b351557c2f2bf9eec4b04a",
+        "bytes": 778,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/kernel/__init__.py",
+        "git_blob": "defe43d23655f9e4e095fd2aa62a6031b942429a"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/kernel/base.py",
+        "sha256": "ca08c309aefc4d39bc5d96850e44c8801f30441f49c67da4aa3aed92d9091607",
+        "bytes": 2195,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/kernel/base.py",
+        "git_blob": "cbb0c4b122ecf0ac9fbebbcab84dd2348c6265c8"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/kernel/units.py",
+        "sha256": "47be6475ab0523e1a276a78162becf8eb43f3b4915c3dcae04cfae65075b35d4",
+        "bytes": 3327,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/kernel/units.py",
+        "git_blob": "c2e8e964c9255ca9d414edc20c10f879cd33c7c0"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/model_layer/__init__.py",
+        "sha256": "7ed768ff9143dc957510f4f22ac51c44bb2c2791a68b5209185cd2eb8bb72993",
+        "bytes": 133,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/model_layer/__init__.py",
+        "git_blob": "aa2c8ac5e927963512184cb84e6c5b29ff55b6b1"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/model_layer/canon.py",
+        "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+        "bytes": 2555,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+        "git_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/model_layer/types.py",
+        "sha256": "9420f2ccde75f9ffe37a1f2acacd37b330aac1489daf77a42da9ab6da1c6bde6",
+        "bytes": 2238,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/model_layer/types.py",
+        "git_blob": "5e2e88fb82b83c4ec0e77791122d3def2ea72538"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/observation/__init__.py",
+        "sha256": "b230861e7a7deb64941bbe5393073cc825f45924634e531efa943d27da4f6686",
+        "bytes": 25386,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/observation/__init__.py",
+        "git_blob": "c5c2c3f01edc752ac231c4414975d42ca159aefe"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/observation/contracts.py",
+        "sha256": "4154ee4d25e789791e2d590e73425f1856f376e01deb73d8225257ef8415b6c7",
+        "bytes": 9657,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/observation/contracts.py",
+        "git_blob": "51ab79b8b1e3ce7f4c2dbf971a74ab22e7f6b6ec"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/registry/__init__.py",
+        "sha256": "edebf2f8452d62b447bc593d9935c75183857653b281f82fd46dc571e38116f2",
+        "bytes": 144,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/registry/__init__.py",
+        "git_blob": "cb6c56e385a1cdebe29389eb8c642c9fbc53404f"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/ir/registry/refs.py",
+        "sha256": "4135199d208ea8970114df0d53a45b92f4e880b32451387a59de43be4987ed19",
+        "bytes": 39552,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/src/polisyos/ir/registry/refs.py",
+        "git_blob": "5c64514b14c9d1df0f167a6a572551f3546c7019"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+        "bytes": 29464,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+        "git_blob": "4907e921e867a383243c6380b5ca682c435fedc6"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+        "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049",
+        "bytes": 6312,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+        "git_blob": "76c81fa6a75eb11587b6012c7eb239cd9f6d7fd4"
+      },
+      {
+        "path": "/workspace/e02-B-current-coordination/policy-engine/uv.lock",
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+        "bytes": 779204,
+        "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "relative_path": "policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+      }
+    ]
+  },
+  "pytest_exit": 0,
+  "probe": {
+    "path": "/workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/test_half_open_consumer.py",
+    "sha256": "d2144e5330993c7f1c99a0365ddb8da7e35591bd25fb7ae85c15c91e1344fd0e",
+    "bytes": 8064
+  },
+  "driver": {
+    "path": "/workspace/e02-B-current-runtime/.polisyos/e02-B-current-runtime/b93-half-open/run_probe.py",
+    "sha256": "56dbb21f1eed6fa4a61cf9e6f69d31ae84e2e33f0f16894b6a4f7c6c409d9693",
+    "bytes": 6126
+  },
+  "installed_distributions": {
+    "pytest": "9.0.2",
+    "pytest-asyncio": "1.3.0",
+    "pydantic": "2.12.5",
+    "opentelemetry-api": "1.39.1"
+  }
+}

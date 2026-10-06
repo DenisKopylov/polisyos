@@ -58,7 +58,7 @@
         "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
         "python": "3.14.2",
         "source_checkout": "/workspace/e02-B-current-composition",
-        "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src",
+        "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine",
         "no_new_worktree": true,
         "no_source_or_test_edits": true,
         "no_artificial_process_quota": true
@@ -84,7 +84,7 @@
         "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
         "python": "3.14.2",
         "source_checkout": "/workspace/e02-B-current-composition",
-        "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src",
+        "PYTHONPATH": "src",
         "no_new_worktree": true,
         "no_source_or_test_edits": true,
         "no_artificial_process_quota": true,

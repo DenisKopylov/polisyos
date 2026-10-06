@@ -358,6 +358,7 @@ def test_bound_terminal_event_fault_rolls_back_state_progress_history_and_outbox
 
     monkeypatch.setattr(store, "append_event", fail_terminal_event)
     before = _database_rows(database)
+
     def operation() -> None:
         if terminal == "complete":
             store.complete_job(job_id=job.job_id, progress={"terminal": terminal})
@@ -365,6 +366,7 @@ def test_bound_terminal_event_fault_rolls_back_state_progress_history_and_outbox
             store.fail_job(
                 job_id=job.job_id, error_message="fixture", progress={"terminal": terminal}
             )
+
     with (
         store.job_execution_fence(job_id=job.job_id, worker_id="worker-A", attempt=job.attempt),
         pytest.raises(OSError, match="publication boundary"),

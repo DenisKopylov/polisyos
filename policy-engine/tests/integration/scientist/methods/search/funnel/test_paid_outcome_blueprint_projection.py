@@ -49,7 +49,8 @@ def test_actual_paid_outcome_survives_blueprint_json_and_fresh_cas_reopen(
     assert actual["evaluation_status"] == ("partial" if partial else "evaluated")
     assert actual["compute_actual_usd"] == float(expected_spend)
     assert actual["compute_cost_source"] == "provider_reported_only"
-    assert actual["provider_spend_usd"] == str(expected_spend)
+    assert actual["provider_spend_usd"] == str(outcome.provider_spend_usd)
+    assert Decimal(actual["provider_spend_usd"]) == expected_spend
     assert actual["resource_event_ids"] == list(outcome.resource_event_ids)
     assert actual["completed"] is (not partial)
     for level, result in outcome.stage_results.items():

@@ -1,0 +1,318 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "continuation-funnel-node-projection",
+  "branch": "codex/e02-D-published-funnel",
+  "closure_ids": [],
+  "finding_ids": [
+    "B118",
+    "B119",
+    "B120",
+    "B121",
+    "B123",
+    "B156",
+    "B158",
+    "B159",
+    "B157",
+    "B160",
+    "B162",
+    "B165",
+    "B161",
+    "B163",
+    "B164"
+  ],
+  "bundle_ids": [
+    "CTL-01",
+    "CTL-03",
+    "FUN-01",
+    "FUN-02",
+    "FUN-03"
+  ],
+  "slice_base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "implementation_commits": {
+    "adopted_stress_node_owner": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+    "D_component_consumer": "64e7db6114d9da3abd3831f828ac7e6a5a4e8efd"
+  },
+  "candidate_sha": "82c83630fea342e99d92cd7d35c83cee24a47217",
+  "candidate_tree_sha": "32f6e5c035c87509a027e6dcd12fb18306015c7a",
+  "test_companions": {
+    "paid_initial": "8b236df8d638cdac7d2e4b306fbd6d096ba3b0a1",
+    "ordinary_JSON_bytes": "3b349155abd5e7276254648494b1e5cf669b5370",
+    "component_input": "4e2550c02516d39b0988f65e6bc581a7523a7219",
+    "exact_Decimal_expectation": "dc0f0520acd67c457f03848c7ab50c754d3ce2c8",
+    "actual_pending_projection": "82c83630fea342e99d92cd7d35c83cee24a47217"
+  },
+  "canonical_criteria_ref": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md@96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "source_delta_ref": "56d1ee7b0837b361c34937d384b423fd86d72f29..82c83630fea342e99d92cd7d35c83cee24a47217",
+  "own_production_delta": "Existing L5 _observed_stress_assessment recomputes expected completeness/score_status from existing report.scenario_complete, which includes every declared typedcomponent. Other local count/fraction/schema/metadata guards retained. No producer/node/B mechanism authorship transferred.",
+  "actual_runtime_chain": [
+    "Existing environment-backed native adversary/translator factory",
+    "TracedLLMClient/B LLMBudgetEnforcer/native Gateway HTTP text fixture",
+    "Canonical B1.1 BudgetMiddleware/FileBudgetLedger and exact readback",
+    "Actual D FunnelOrchestrator stage/outcome",
+    "Actual node _serialize_funnel_outcome",
+    "Ordinary ExperimentState JsonValue/model_dump_json",
+    "FileSystemCAS.put_bytes and fresh FileSystemCAS/ExperimentState reopen"
+  ],
+  "predicate_basis": {
+    "local_receipt": "independently_reconciled against same configured canonical B owner",
+    "component_completeness": "recomputed from actual typed report/component counts and rule",
+    "invoice_or_institutional_authority": "not_established",
+    "promotion_permit": "not_established; bridge_missing/UNRUN"
+  },
+  "checks": {
+    "funnel-component-deciding-red": {
+      "metadata_member": "funnel-component-deciding-red/red.json",
+      "output_member": "funnel-component-deciding-red/red.txt",
+      "command_exit_code": -9,
+      "executed_tests": 0,
+      "PASS": 0,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "junit_exists": false,
+      "classification": "ERROR/-9 after172.011s, empty/noJUnit; no native successor verdict. Exact candidate4e255 preserved, no artificial timeout or OOM attribution.",
+      "outcome": "ERROR",
+      "expected_removal_failure": false
+    },
+    "funnel-node-component-final": {
+      "metadata_member": "funnel-node-component-final/actual.json",
+      "output_member": "funnel-node-component-final/actual.txt",
+      "command_exit_code": 1,
+      "executed_tests": 20,
+      "PASS": 18,
+      "FAIL": 2,
+      "ERROR": 0,
+      "SKIP": 0,
+      "junit_exists": true,
+      "classification": "Exact64e:18PASS2FAIL. Paid projection preserving originalDecimal1.0/2.0 failed own synthetic expectation spelling1/2; legitimate test-onlydc0f now compares exact original representation plus independent numerical total. All17actualorigin guardsMATCH.",
+      "outcome": "FAIL",
+      "expected_removal_failure": false
+    },
+    "funnel-node-component-corrected": {
+      "metadata_member": "funnel-node-component-corrected/actual.json",
+      "output_member": "funnel-node-component-corrected/actual.txt",
+      "command_exit_code": 0,
+      "executed_tests": 20,
+      "PASS": 20,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "junit_exists": true,
+      "classification": "Exactdc0f:20PASS/all17loaded originsMATCH. Real paidfull/partial -> node serializer -> ordinaryExperimentState JSON -> fresh CAS. Defaults2, L5wholeoriginal13/component3. Author run, not independent.",
+      "outcome": "PASS",
+      "expected_removal_failure": false
+    },
+    "funnel-pending-blueprint": {
+      "metadata_member": "funnel-pending-blueprint/actual.json",
+      "output_member": "funnel-pending-blueprint/actual.txt",
+      "command_exit_code": 0,
+      "executed_tests": 2,
+      "PASS": 2,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "junit_exists": true,
+      "classification": "Exact82c836:2PASS/all17originsMATCH. Actual native provider paid response with no-mutationunknown ACK vs realwrite-beforeACK. Same serializer/ordinaryJSON/fresh CAS preserve immutablependingpayload or knownrecordedreceipt, never false confirmedzero/scientificsuccess.",
+      "outcome": "PASS",
+      "expected_removal_failure": false
+    },
+    "funnel-component-old-module": {
+      "metadata_member": "funnel-component-old-module/red.json",
+      "output_member": "funnel-component-old-module/red.txt",
+      "command_exit_code": 1,
+      "executed_tests": 3,
+      "PASS": 2,
+      "FAIL": 1,
+      "ERROR": 0,
+      "SKIP": 0,
+      "junit_exists": true,
+      "classification": "Exactold4e fullL5 module compiled in canonical module namespace on82current typed producer/node/report. Unchanged3tests yield2PASS1FAIL (empty component partial becomesunassessed), asrequired. Five actual on-disk origin guardsMATCH with executionoverrideexplicit. In-memory exactold-module witness, not independent fulloldtree replay/P41proof.",
+      "outcome": "FAIL",
+      "expected_removal_failure": true
+    }
+  },
+  "complete_output_bundle": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-node-proof/output.json.gz",
+    "sha256": "4836cee235e330dedc91df173f0df6e38ff029dfde7030cbb3839ab237049668",
+    "uncompressed_sha256": "28141f0e11c71ce83a6052251f95abed1fa24e4563f5cb43c168c5778375769d",
+    "uncompressed_bytes": 66220,
+    "compressed_bytes": 7377,
+    "member_count": 19,
+    "encoding": "gzip UTF8 JSON map members; all original bytes validated losslessly; complete stdout/stderr/metadata/JUnit/harness inputs, no source copies"
+  },
+  "per_finding_residuals": [
+    {
+      "finding_id": "B118",
+      "bundle": "CTL-01",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/0"
+    },
+    {
+      "finding_id": "B119",
+      "bundle": "CTL-01",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/1"
+    },
+    {
+      "finding_id": "B120",
+      "bundle": "CTL-03",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/2"
+    },
+    {
+      "finding_id": "B121",
+      "bundle": "CTL-03",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/3"
+    },
+    {
+      "finding_id": "B123",
+      "bundle": "CTL-03",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/4"
+    },
+    {
+      "finding_id": "B156",
+      "bundle": "FUN-01",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/5"
+    },
+    {
+      "finding_id": "B158",
+      "bundle": "FUN-01",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/6"
+    },
+    {
+      "finding_id": "B159",
+      "bundle": "FUN-01",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/7"
+    },
+    {
+      "finding_id": "B157",
+      "bundle": "FUN-02",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/8"
+    },
+    {
+      "finding_id": "B160",
+      "bundle": "FUN-02",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/9"
+    },
+    {
+      "finding_id": "B162",
+      "bundle": "FUN-02",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/10"
+    },
+    {
+      "finding_id": "B165",
+      "bundle": "FUN-02",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/11"
+    },
+    {
+      "finding_id": "B161",
+      "bundle": "FUN-03",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/12"
+    },
+    {
+      "finding_id": "B163",
+      "bundle": "FUN-03",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/13"
+    },
+    {
+      "finding_id": "B164",
+      "bundle": "FUN-03",
+      "state": "partial",
+      "closure": false,
+      "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/rows/14"
+    }
+  ],
+  "residual_updates": {
+    "B120": {
+      "engineering": "Actual worker default scopes full/split:2physical provider events/outcome USD2 versus3Bper-key receipts/provider_spent USD3. Distinct scoped ledger accounting preserved, never physical invoice claim.",
+      "missing_input": "RawHTTPJSON underflow21FAIL; standalone cache resolver14FAIL; nontraced Breturnedtypedsettlement; B durable owned/atomic two-key/scope/snapshot supplier; CostBudgetStopping actual configured authoritative snapshot has a separate owner."
+    },
+    "B158": {
+      "engineering": "Available actual native worker/full/split/reservation capacity and local receipt readback profile remains verified; node typedcontext stillordinaryactualbackend admission refusal, not a fakepaid default node.",
+      "missing_input": "Default native policy CPU backend physical resource measurement/link and appointed evaluation context/certificate/verifier; B durable owned reservation/atomic two-key."
+    },
+    "B159": {
+      "engineering": "Actual unknown ACK immutable event/digest/reported amount remains in ordinaryJSON/fresh CAS; committed after unknown ACK local recorded charge1 distinct no-mutation unknown None. Scientific failure retained.",
+      "missing_input": "Fresh retry/release reservation owner and semantic run/stage/evaluation event scope, no invented permission or resume event."
+    },
+    "B160": {
+      "engineering": "Available real paid full/evaluated andsplit/partial statuses/costorigins/provider Decimal exact text/eventIDs now survive actualnode serializer and ordinaryJSON/fresh CAS. Native unknown ACK projection2alsoverified.",
+      "missing_input": "Default node CPU backend has no native paid provider factory or numerical resource producer; all admitted stage positive needs real A evaluation-safety context/certificate/verifier. Deployed operator/registry/sibling consumers remain held."
+    },
+    "B162": {
+      "engineering": "Actual namedcase producer/report merge/CAS→L5 complete/partialempty/partial unknown keeps observed fraction; no population/MODEL complement. Actualhigh/critical prior producer controls retained.",
+      "missing_input": "Natural evaluator format/method/sampling/provenance scientific admission remains originalproducer owner input."
+    },
+    "B163": {
+      "engineering": "L5 metadata comparison now reflects substantive every component completeness rather than finiteaggregate count-only proxy; empty declared component never erases conditional observed fraction. This is not a new natural calibration corpus acceptance.",
+      "missing_input": "Natural calibration history and admitted subject/run/config snapshot remainE/A owner."
+    },
+    "B165": {
+      "engineering": "Actual node projection retains evaluation_status and all per-stage/per-trace/aggregate cost source/spend/event fields; unknown ACK original feedback persists verbatim. No favorable intermediate scientificverdict chosen.",
+      "missing_input": "Remaining served operator/registry compatibility admission/deployment, typed write owner appointment held."
+    },
+    "B164": {
+      "engineering": "Unchanged zero effect/failclosed property; neither local receipt nor observed fraction grants publication authority.",
+      "missing_input": "Valid owner-issued permit/current independent verifier/revoke-serialized write API absent/unallocated; positive UNRUN/bridge_missing. Legacy bool marker revocation proof never claimed typed issuer proof."
+    }
+  },
+  "LA_015_companion": {
+    "residual_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/LA_015_companion",
+    "state": "partial",
+    "updated_available_caller": "Native actual receipt/cost/status data survives admitted local JSON/CAS consumer; served lifecycle retirement/history window/rollback/resume remains canonical migration owner."
+  },
+  "retained_red_refs": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json@56d1ee7b0837b361c34937d384b423fd86d72f29#/checks",
+    "Current archive preserves -9unknown execution and test fixture Decimal spelling failure; no inherited/debt waiver."
+  ],
+  "independent_review": {
+    "previous": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-funnel-d796-review.json@17a85c2fdb7a342405afb8a08308f6af824930f2",
+    "scope": "21originalcache/replay controls on exactd796; core.response/funnelorchestrator/Bproducer mechanics source unchanged here. This is not an independent review of newL5/node delta.",
+    "new_delta": "UNRUN pendingrootcommission; current20+2 areauthor results."
+  },
+  "backend": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "version": "3.14.7",
+    "cwd": "/workspace/e02-D-published-funnel/policy-engine",
+    "PYTHONPATH": "src:.",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "tokenizer_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+    "quotas": "No artificial CPU/process/worker/test limits; no shared env writes or tokenizer substitute."
+  },
+  "pattern_pass": [
+    "P03/P04 actualserializer status/cost projection",
+    "P29 exact old-module removal witness keeps typed producer/markers",
+    "P31/P40 existing canonical observedbasis intake, no new scientific rule or store",
+    "P14 independent source/runtime scopes distinguished",
+    "P41 all execution/fixture red retained without inherited waiver"
+  ],
+  "cleanup": "All fresh basetemps/output directories retained; no new permanent deletion/Trash empty. Historical exact deviation remains linked predecessor receipt. No nonexistent path claimed deleted.",
+  "output_payload_commit": "2c1f889162a9b2e4cf18e431f51360ee27e486cb",
+  "receipt_validation": "All19 original UTF8 member bytes validated losslessly; all15 predecessor row pointers match finding/bundle; no closure or corpus acceptance inferred."
+}

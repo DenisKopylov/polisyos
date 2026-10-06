@@ -9,6 +9,7 @@ import os
 import socket
 import stat
 import tarfile
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +21,25 @@ from polisyos.core.artifacts.manifest import ProducerInfo
 
 OLD = b"complete previous export generation"
 NEW = b"complete replacement export generation"
+
+
+@pytest.fixture(autouse=True)
+def _archive_property_removal_control(monkeypatch: pytest.MonkeyPatch) -> None:
+    """An explicit test-only probe removes private staging while retaining its markers."""
+    if os.environ.get("E02_B_PROPERTY_REMOVAL") != "cas-private-archive":
+        return
+    original = tarfile.open
+
+    def write_live(path, mode="r", *args, **kwargs):
+        candidate = Path(path)
+        if mode == "w:gz" and ".staging-" in candidate.name:
+            live_name = candidate.name.split(".staging-", 1)[0].removeprefix(".")
+            live = candidate.with_name(live_name)
+            if live.exists():
+                path = live
+        return original(path, mode, *args, **kwargs)
+
+    monkeypatch.setattr(tarfile, "open", write_live)
 
 
 def _put(store: FileSystemCAS, payload: bytes):
@@ -221,6 +241,16 @@ def _pause_after_publication_syscall(
         return result
 
     transfer.os.replace = replace
+    if os.environ.get("E02_B_PROPERTY_REMOVAL") == "cas-atomic-directory":
+
+        def rename_with_gap(stage, current):
+            previous = Path(tempfile.mkdtemp(prefix=".removed-atomicity-", dir=current.parent))
+            previous.rmdir()
+            transfer.os.replace(current, previous)
+            transfer.os.replace(stage, current)
+            transfer.os.replace(previous, stage)
+
+        transfer._exchange_directory_generation = rename_with_gap
     if hasattr(transfer, "_exchange_directory_generation"):
         original_exchange = transfer._exchange_directory_generation
 
@@ -401,7 +431,7 @@ def test_prepublication_directory_sync_refusal_keeps_the_old_package(
         raise OSError("injected pre-publication directory sync failure")
 
     monkeypatch.setattr(transfer, "fsync_directory", refuse_directory)
-    with pytest.raises(OSError, match="pre-publication|publication has not occurred") as refusal:
+    with pytest.raises(OSError, match=r"pre-publication|publication has not occurred") as refusal:
         source.export_subgraph([new], target, compress=compress)
     monkeypatch.setattr(transfer, "fsync_directory", original_sync)
     if compress:

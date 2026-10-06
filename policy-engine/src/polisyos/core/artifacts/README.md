@@ -39,10 +39,9 @@ environment fingerprints.
 
 ## Current State
 
-- Last updated: 2026-06-16
+- Last updated: 2026-10-06
 - The package still serves as the CAS source of truth for audit exports, runtime lineage, and registry bundles.
 - The tree now explicitly includes `protocol.py` and the `environment_parts.py` facade alongside the capture/comparison helpers.
-
 
 ### Transfer generations
 

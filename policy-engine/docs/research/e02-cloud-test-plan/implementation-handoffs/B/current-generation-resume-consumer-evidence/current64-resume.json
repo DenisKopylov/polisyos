@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/remediation/test_res_01.py",
+    "tests/integration/scientist/test_checkpoint_resume.py::test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier",
+    "tests/integration/scientist/test_checkpoint_resume.py::test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer",
+    "--basetemp",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current64-resume-pytest",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current64-resume-cache",
+    "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current64-resume.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "head": "64d0fa76831469b73a576bce87bbe95ce48d4aba",
+  "tree": "eb08e7c0b3e27d7f222b82c82231ab7a7cde7f94",
+  "head_after": "64d0fa76831469b73a576bce87bbe95ce48d4aba",
+  "wall_s": 82.43722664900997,
+  "process_rusage_maxrss_kib": 671472,
+  "exit_code": 0,
+  "output_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current64-resume.txt",
+  "output_sha256": "cfc14fd2dc11c362cccf5421245ca5ab0e9d286b54a604a80bd2dd5522f6feb9",
+  "source_environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "LANG": "C.UTF-8",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+    "E02_B_PROPERTY_REMOVAL": null
+  }
+}

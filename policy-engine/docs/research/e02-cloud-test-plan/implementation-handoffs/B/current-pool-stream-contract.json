@@ -634,7 +634,9 @@
       "12f601e736c237d956d00d6f00609e97b04ec8c5",
       "46656d88103f8cb289da78d92411f2d58f01df4a"
     ],
-    "state": "full source and deltas reviewed; compact Git reviewer packet pending append; no independent duplicate runtime rerun claimed"
+    "state": "full source and deltas reviewed independently; source-only accepted; no independent duplicate runtime rerun claimed",
+    "committed_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-pool-stream-oracle-review.json@0f64409dc8f4aff7d2f38139fe337639f76148c7",
+    "packet_sha256": "5afca1c5693170d8e93741983bc86f0d47f0726ee2c5bc7a2102a35e7a5c84a6"
   },
   "capability_state_or_finding_state": "B87 producer evidence limited pending C restore-budget admission contract; no B finding newly closed by this cross-owner receipt. Final full B cohort still pending.",
   "typed_cross_unit_contract": {

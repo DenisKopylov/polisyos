@@ -276,7 +276,7 @@ plans, or backlog docs.
 | P03 | `src/polisyos/core/contracts/runtime.py`, `src/polisyos/runtime/http/services/control/response_shapes.py`, `packages/runtime-api-client/` |
 | P04 | `src/polisyos/runtime/quality/scorecard.py`, `approval.py`, `phase_barriers.py`, `src/polisyos/scientist/validation/claim_support.py` |
 | P05 | `src/polisyos/runtime/quality/authority.py`, `projection_semantics.py`, `public_export.py`, `authority_reconciliation.py` |
-| P06 | `architecture/shims.toml`, `src/polisyos/scientist/evidence/_shim.py`, `src/polisyos/scientist/methods/_compat.py` |
+| P06 | `architecture/shims.toml`, `src/polisyos/scientist/methods/_compat.py` |
 | P07 | `src/polisyos/runtime/quality/schema_compat.py`, `architecture/production_quality/schema_compatibility.toml`, `src/polisyos/scientist/methods/research_dag/replay.py` |
 | P08 | `src/polisyos/runtime/http/services/temporal.py`, `src/polisyos/core/contracts/runtime.py`, `src/polisyos/ir/governance/temporal_logic.py` |
 | P09 | `src/polisyos/scientist/validation/decision_validity.py`, `src/polisyos/runtime/quality/effective_mode.py`, `src/polisyos/runtime/quality/scorecard.py` |

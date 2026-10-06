@@ -56,8 +56,6 @@ allowed_root_loose_files = [
   "SECURITY.md",
   "SUPPORT.md",
   "basedpyright.toml",
-  "install.sh",
-  "jax_bootstrap.py",
   "migrate.py",
   "mkdocs.yml",
   "mutmut.cfg",

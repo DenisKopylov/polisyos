@@ -205,10 +205,23 @@ def test_live_docs_do_not_reference_legacy_scripts_paths() -> None:
     for path in sorted(candidates):
         text = path.read_text(encoding="utf-8")
         for line_no, line in enumerate(text.splitlines(), start=1):
-            if _references_product_root_scripts(line):
+            if _references_product_root_scripts(line, path=path):
                 hits.append(f"{path}:{line_no}: {line.strip()}")
 
     assert hits == []
+
+
+def test_product_root_script_reference_check_respects_document_scope() -> None:
+    """Archive-local scripts are not product-root script instructions."""
+
+    command = "`scripts/verify.py`"
+    assert _references_product_root_scripts(
+        command, path=REPO_ROOT / "docs/how-to/run-benchmarks.md"
+    )
+    assert not _references_product_root_scripts(
+        command,
+        path=REPO_ROOT / "docs/reference/frontend/atlas-v15-adjudication.md",
+    )
 
 
 def test_mutation_tool_scientist_all_aggregates_failures(monkeypatch) -> None:
@@ -237,16 +250,22 @@ def test_remote_acceptance_imports_are_normalized() -> None:
 
 
 def test_root_benchmark_support_code_is_owned_by_benchmarks_package() -> None:
-    harness = (REPO_ROOT / "benchmarks" / "harness.py").read_text(encoding="utf-8")
-    shim = (REPO_ROOT / "tools" / "research" / "benchmarks" / "harness.py").read_text(
-        encoding="utf-8"
-    )
+    from benchmarks import harness, metrics, suite_registry
 
-    assert "from benchmarks.metrics import" in harness
-    assert '_TARGET = "benchmarks.harness"' in shim
+    canonical = REPO_ROOT / "benchmarks"
+    assert Path(harness.__file__).resolve() == (canonical / "harness.py").resolve()
+    assert Path(metrics.__file__).resolve() == (canonical / "metrics.py").resolve()
+    assert Path(suite_registry.__file__).resolve() == (canonical / "suite_registry.py").resolve()
+    assert suite_registry.spec_by_suite_id("reproducibility_deterministic") is not None
+    assert not (REPO_ROOT / "tools/research/benchmarks/harness.py").exists()
+    assert not (REPO_ROOT / "tools/research/benchmarks/metrics.py").exists()
+    assert not (REPO_ROOT / "tools/research/benchmarks/suite_registry.py").exists()
 
 
-def _references_product_root_scripts(line: str) -> bool:
+def _references_product_root_scripts(line: str, *, path: Path) -> bool:
+    relative_path = path.relative_to(REPO_ROOT)
+    if relative_path.parts[:3] == ("docs", "reference", "frontend"):
+        return False
     if "frontend/" in line:
         return False
     if "forbidden paths" in line:

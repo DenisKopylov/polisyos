@@ -729,7 +729,7 @@ def _source_role(relative_path: str) -> str:
         return "research_only"
     if first in {"src", "tools", "apps", "ops", "architecture"}:
         return "production_capable"
-    if relative_path in {"jax_bootstrap.py", "migrate.py"}:
+    if relative_path == "migrate.py":
         return "production_capable"
     raise AssertionError(f"unclassified Python/stub path: {relative_path}")
 

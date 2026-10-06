@@ -84,7 +84,7 @@ def __getattr__(name: str) -> Any:
 
         return IncentiveCompatibilityPass
     if name == "LegalPass":
-        from .legal_pass import LegalPass
+        from polisyos.core.governance.passes.legal_pass import LegalPass
 
         return LegalPass
     if name == "LiteratureGatePass":
@@ -112,7 +112,7 @@ def __getattr__(name: str) -> Any:
 
         return QualityGatePass
     if name == "SafetyPass":
-        from .safety_pass import SafetyPass
+        from polisyos.core.governance.passes.safety_pass import SafetyPass
 
         return SafetyPass
     if name == "SchemaPass":

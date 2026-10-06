@@ -19,9 +19,14 @@ package-private unless exported by the pass registry.
 
 | Path | Role |
 | --- | --- |
-| `base.py` | Shared pass protocol and context helpers. |
 | `*_pass.py` | Builtin pass implementations. |
 | `_artifact_resolution.py` | Private artifact lookup helper. |
+
+The shared `ValidatorPass`, `PassContext`, issue types, and the canonical
+`LegalPass`/`SafetyPass` implementations are owned by
+`polisyos.core.governance.passes`; the Scientist package facade resolves those
+Core classes directly while retaining Scientist's configured registry and
+workflow lifecycle.
 
 ## Extension Points
 

@@ -45,6 +45,7 @@ include = [
 ]
 """
 INCLUDES = tomllib.loads(LEGACY)["tool"]["hatch"]["build"]["targets"]["sdist"]["include"]
+WORKSPACE_ROOTS = ("apps", "packages")
 # Two governance documents are outside this lane's permitted content denominator.
 EXCLUDED_NAMES = {"debt-register.md", "ledger.md"}
 
@@ -97,6 +98,17 @@ def contexts(tmp_path_factory):
         .decode()
         .split("\0")
     )
+    workspace_paths = tuple(
+        sorted(
+            name
+            for name in listed
+            if name
+            and any(name == root or name.startswith(root + "/") for root in WORKSPACE_ROOTS)
+        )
+    )
+    workspace_readmes = {
+        name for name in workspace_paths if Path(name).name.casefold() == "readme.md"
+    }
     selected = sorted(
         {
             name
@@ -105,7 +117,7 @@ def contexts(tmp_path_factory):
             and Path(name).name.casefold() not in EXCLUDED_NAMES
             and any(
                 name == prefix or name.startswith(prefix + "/")
-                for prefix in [*INCLUDES, "hatch.toml"]
+                for prefix in [*INCLUDES, *WORKSPACE_ROOTS, "hatch.toml"]
             )
         }
     )
@@ -129,15 +141,18 @@ def contexts(tmp_path_factory):
                 "context_paths": len(copied),
                 "excluded_basenames": sorted(EXCLUDED_NAMES),
                 "source_packages": ["src/polisyos", "tools"],
+                "workspace_paths": len(workspace_paths),
+                "workspace_readmes": len(workspace_readmes),
+                "workspace_non_readmes": len(set(workspace_paths) - workspace_readmes),
             },
             sort_keys=True,
         )
     )
-    return native, legacy, scratch
+    return native, legacy, scratch, workspace_paths, workspace_readmes
 
 
 def test_native_backend_preserves_complete_wheel_and_sdist_contract(contexts):
-    native, legacy, scratch = contexts
+    native, legacy, scratch, workspace_paths, workspace_readmes = contexts
     old_wheel, old_members = _wheel(legacy)
     old_sdist, old_sdist_members = _sdist(legacy)
     assert (native / "hatch.toml").is_file(), "native Hatch configuration is required"
@@ -156,6 +171,21 @@ def test_native_backend_preserves_complete_wheel_and_sdist_contract(contexts):
     )
     assert old_members == new_members  # Every member, METADATA and all entry-point groups.
     assert any(name.startswith("tools/") for name in new_members)
+    workspace_wheel_members = {
+        name
+        for name in new_members
+        if any(name.startswith(root + "/") for root in WORKSPACE_ROOTS)
+    }
+    workspace_sdist_members = {
+        name
+        for name in new_sdist_members
+        if any(name.startswith(root + "/") for root in WORKSPACE_ROOTS)
+    }
+    assert not workspace_wheel_members
+    assert workspace_sdist_members <= workspace_readmes
+    assert workspace_paths
+    assert workspace_readmes
+    assert set(workspace_paths) - workspace_readmes
     old_wire = tomllib.loads((legacy / "pyproject.toml").read_text())
     new_wire = tomllib.loads((native / "pyproject.toml").read_text())
     del old_wire["tool"]["hatch"]
@@ -177,14 +207,17 @@ def test_native_backend_preserves_complete_wheel_and_sdist_contract(contexts):
                 "wheel_members_except_record": len(new_members),
                 "sdist_members": len(new_sdist_members),
                 "sdist_delta": ["hatch.toml", "pyproject.toml"],
+                "workspace_sdist_members": sorted(workspace_sdist_members),
             }
         )
     )
 
 
-@pytest.mark.parametrize("mutation", ["missing", "wrong_prefix", "packages", "entrypoint"])
+@pytest.mark.parametrize(
+    "mutation", ["missing", "wrong_prefix", "packages", "entrypoint", "workspace_sdist"]
+)
 def test_missing_or_wrong_native_config_is_detected_by_real_build(contexts, mutation):
-    native, legacy, scratch = contexts
+    native, legacy, scratch, workspace_paths, workspace_readmes = contexts
     assert (native / "hatch.toml").is_file(), "native Hatch configuration is required"
     broken = _clone(native, scratch / mutation)
     config = broken / "hatch.toml"
@@ -196,9 +229,38 @@ def test_missing_or_wrong_native_config_is_detected_by_real_build(contexts, muta
         _replace(
             config, config.read_text().replace('["src/polisyos", "tools"]', '["src/polisyos"]')
         )
+    elif mutation == "workspace_sdist":
+        _replace(
+            config,
+            config.read_text().replace('  "tools",\n', '  "tools",\n  "apps",\n  "packages",\n'),
+        )
     else:
         manifest = broken / "pyproject.toml"
         _replace(manifest, manifest.read_text().replace('polisyos-tools = "tools.cli:main"\n', ""))
+
+    if mutation == "workspace_sdist":
+        _, expected_sdist = _sdist(legacy)
+        _, observed_sdist = _sdist(broken)
+        expected_workspace = {
+            name
+            for name in expected_sdist
+            if any(name.startswith(root + "/") for root in WORKSPACE_ROOTS)
+        }
+        observed_workspace = {
+            name
+            for name in observed_sdist
+            if any(name.startswith(root + "/") for root in WORKSPACE_ROOTS)
+        }
+        workspace_payloads = set(workspace_paths) - workspace_readmes
+        app_payload = next(name for name in sorted(workspace_payloads) if name.startswith("apps/"))
+        package_payload = next(
+            name for name in sorted(workspace_payloads) if name.startswith("packages/")
+        )
+        assert not expected_workspace & workspace_payloads
+        assert app_payload in observed_workspace
+        assert package_payload in observed_workspace
+        return
+
     _, expected = _wheel(legacy)
     try:
         wheel, observed = _wheel(broken)
@@ -212,7 +274,7 @@ def test_missing_or_wrong_native_config_is_detected_by_real_build(contexts, muta
 
 @pytest.mark.parametrize("stage", [0, 1])
 def test_docker_manifest_copy_keeps_native_build_behavior(contexts, stage):
-    native, legacy, scratch = contexts
+    native, legacy, scratch, _, _ = contexts
     assert (native / "hatch.toml").is_file(), "native Hatch configuration is required"
     copies = [
         shlex.split(line)[1:-1]
@@ -234,7 +296,7 @@ def test_docker_manifest_copy_keeps_native_build_behavior(contexts, stage):
 
 
 def test_gcp_archive_carries_buildable_native_config(contexts):
-    native, legacy, scratch = contexts
+    native, legacy, scratch, _, _ = contexts
     assert (native / "hatch.toml").is_file(), "native Hatch configuration is required"
     workspace = scratch / "cloud"
     workspace.mkdir()

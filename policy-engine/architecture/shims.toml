@@ -22,33 +22,11 @@ phase_2_3_removal_rule = "A shim may be removed only when caller_count is zero o
 waves_2_4_precondition = "No package source move in Waves 2-4 starts until every planned source path has exactly one compatibility decision in this map."
 
 [[shim]]
-id = "product-install-sh-to-workspace-bootstrap"
-source_path = "install.sh"
-target_path = "tools/devx/workspace/bootstrap.py"
-type = "wrapper_only"
-reason = "Consolidate bootstrap entrypoints under polisyos-tools workspace bootstrap"
-owner = "team-devx"
-created = "2026-04-18"
-sunset_date = "2026-08-01"
-issue = "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline"
-
-[[shim]]
 id = "product-migrate-py-to-tools-migrations"
 source_path = "migrate.py"
 target_path = "tools/ops_runners/migrations/migrate.py"
 type = "wrapper_only"
 reason = "Move migration command into the canonical tools tree"
-owner = "team-devx"
-created = "2026-04-18"
-sunset_date = "2026-08-01"
-issue = "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline"
-
-[[shim]]
-id = "product-jax-bootstrap-to-workspace-vendor"
-source_path = "jax_bootstrap.py"
-target_path = "src/polisyos/common/jax_env.py"
-type = "wrapper_only"
-reason = "Move JAX/toolchain bootstrap into workspace tooling"
 owner = "team-devx"
 created = "2026-04-18"
 sunset_date = "2026-08-01"

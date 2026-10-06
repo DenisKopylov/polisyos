@@ -1,0 +1,210 @@
+{
+  "schema": "policyos.e02.champion_primitive_admission.v1",
+  "source_sha": "c84725cfe54525356aabaab6124e6e5fb324be27",
+  "source_tree": "9334e5e4194028ea3d0e208d6082244afabc609d",
+  "published_docs_sha": "b7ca8f399b518e87d3df2a703cc64dcec3fa18d2",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "parent_before_correction": "290def7c3800aa818a07299a4402ec6dd072d2ef",
+  "source_inputs": [
+    {
+      "source_sha": "c84725cfe54525356aabaab6124e6e5fb324be27",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "git_blob": "66417098881a5d2f8200120d22c9eacb8367b40b",
+      "sha256": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf",
+      "bytes": 27900
+    },
+    {
+      "source_sha": "c84725cfe54525356aabaab6124e6e5fb324be27",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "git_blob": "195ab88a8d761b4a4c369bb4f38c02a5a3c8620b",
+      "sha256": "2da84438a8707bcdd8da5ec7af93076d6b1765e65f0b0468ff37f758393bb78c",
+      "bytes": 26820
+    },
+    {
+      "source_sha": "c84725cfe54525356aabaab6124e6e5fb324be27",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py",
+      "git_blob": "308ad8610a03f5790e75a0d250b6f4f466c6397a",
+      "sha256": "1838267e2bca47f37ca6bf76b90c1872dd4490567244fc40a110c255600ad3f4",
+      "bytes": 7279
+    },
+    {
+      "source_sha": "b7ca8f399b518e87d3df2a703cc64dcec3fa18d2",
+      "path": "policy-engine/README.md",
+      "git_blob": "6156ae5b488f7ba58ce5c30c76f24a2720bb0611",
+      "sha256": "aaa4419e455a91751c4a8be61f9506bf321377e7c02ad946c1aecd824dd1e749",
+      "bytes": 14211
+    },
+    {
+      "source_sha": "b7ca8f399b518e87d3df2a703cc64dcec3fa18d2",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-champion.toml",
+      "git_blob": "e3c1746b38c5c3cfefbe45f7d07401936e5a024f",
+      "sha256": "5baeb684c8d6aa5d44793a7a18842afc82bff451291d51156c22dec5143740e1",
+      "bytes": 4472
+    }
+  ],
+  "closure_ids": [],
+  "status": "bounded primitive-admission correction published; full consumer/static acceptance not established",
+  "pattern_pass": {
+    "P40_bucket": "same evidence-admission class one level deeper: present JSON primitive semantics before coercion; mechanism widened from all declared numeric/bool annotations, including unions, typed containers and mutation subclasses",
+    "P38_before": "True metric/count became1; integer1 guard becameTrue before the actual registry comparison",
+    "P29_decision": "independent unchanged real CAS cold-registry oracle retains complete basis and producer/input refs and exercises actual promotion effects; malformed primitives are not rejected by a missing basis stand-in",
+    "P41": "No inherited gate waiver; interrupted consumer/mypy and failed release gate remain ERROR/FAIL"
+  },
+  "mechanism_scope": [
+    "strict finite declared numeric fields and strict boolean fields before Pydantic coercion in the common autotune model",
+    "seven artifact/suite/search-space version label fields require actual strings; their existing version patterns remain",
+    "benchmark comparison schema supports only benchmark-comparison.v1",
+    "registry guardrails require actual True; existing POSIX lock, canonical reread and atomic pointer are unchanged"
+  ],
+  "independent_red": {
+    "source_sha": "fac5c77a31aa1b392a33f93730e76703478870f0",
+    "source_tree": "04566efb021c2beeee1e160fee40ab9216a037e5",
+    "test_source_sha": "4d2b9bdb975a61c7348028523abec707c8d2bfc0",
+    "test_path": "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+    "test_git_blob": "720e2fb78a4f67cdd125c19f587680ca9bab7d8d",
+    "test_sha256": "ca886ae1422aa3bd08a93208c47c4ad14d3691323b0cf8c64dc73604f5a42720",
+    "review_receipt_source_sha": "e2ebaab94c670ad1358ccd3b8d6ffdb43cb5652a",
+    "review_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-review-fac5.json",
+    "log_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-fac5-q3-complete.txt",
+    "log_sha256": "aa06f49e77c4f67aeba314fa3a19c39dee5e3644be72cd705de2151b989b8e9d",
+    "result": "reviewer reported three FAIL, one Q1 deselected; legitimate control promotes in each case; malformed bool score/count or integer guard promotes at cold pointer effect",
+    "successor_replay": {
+      "source_sha": "c812510541c898d7118004661ce07335823d2209",
+      "source_tree": "40fbf8a3a53949eacc1c0bed58f90f0aac141382",
+      "review_receipt_source_sha": "9b48e6878d7384b6144c7d1430f52e6cffcf4800",
+      "review_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-successor-c812.json",
+      "log_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-c812-complete.txt",
+      "log_sha256": "c6e7edcabac87e4396a9fabd24945b60308d8958518f039b27c12d6173a404d0",
+      "test_changes": false,
+      "result": "independent unchanged whole4-case oracle PASS4, zero skips/deselections,1.40s; all three Q3 legitimate controls promote and malformed primitive counterparts refuse without a negative champion pointer",
+      "scope": "The three exposed Q3 raw primitive controls only; the separate Q1 malformed-stage controlled refusal has no GP construction/conditioning in this negative. Neither supplies broad field-family or authority closure."
+    }
+  },
+  "checks": [
+    {
+      "name": "new primitive controls",
+      "result": "PASS21; precommit working-tree execution, exact three input hashes match immutable c847 source",
+      "exit_code": 0,
+      "wall_seconds": 11.6984682350012,
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-focused-iteration.txt.gz",
+      "scope": "13 actual raw CAS/cold registry negatives with legitimate controls,6 nonfinite producer refusals,1 builtin numeric-field CAS discriminator,1 cold pointer reader/no-rewrite"
+    },
+    {
+      "name": "consumer union",
+      "result": "ERROR/UNRUN verdict: signal9 after nine dots, not102PASS",
+      "exit_code": -9,
+      "wall_seconds": 46.83166441899084,
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-consumers-c847.txt.gz",
+      "basetemp": "/dev/shm/e02-D2-champion-primitive-consumers-8070bdde41dd40c29986559e2e6d57fc",
+      "basetemp_preserved": true,
+      "selection": "former78 plus canonical lifecycle3 plus new21; same default pytest configuration, no numeric/worker caps"
+    },
+    {
+      "name": "mypy two changed production files",
+      "result": "ERROR/UNRUN verdict; shell137 killed, redirected stream empty",
+      "exit_code": 137,
+      "logs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-mypy-c847.txt.gz",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-mypy-shell-result.txt.gz"
+      ],
+      "cache_preserved": "/dev/shm/e02-D2-champion-mypy-c847",
+      "cause": "not established; global cgroup OOM observations do not identify this PID as the victim"
+    },
+    {
+      "name": "Ruff check and format",
+      "result": "PASS both on immutable production/test bytes",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-ruff-c847.txt.gz"
+    },
+    {
+      "name": "release compatibility full gate",
+      "result": "FAIL2,84fragments/109structuredrecords; no own updated fragment diagnostic and no full gate waiver",
+      "exit_code": 1,
+      "wall_seconds": 0.1814175379986409,
+      "source_sha": "b7ca8f399b518e87d3df2a703cc64dcec3fa18d2",
+      "log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-release-b7.txt.gz"
+    }
+  ],
+  "observed_resource_limits": {
+    "scope": "post-interruption shared cgroup; no prior counter baseline or PID attribution",
+    "memory_current": 17179799552,
+    "memory_max": 17179869184,
+    "first_oom": 5,
+    "first_oom_kill": 4,
+    "later_oom": 7,
+    "later_oom_kill": 6,
+    "later_memory_stat": {
+      "shmem": 14065098752,
+      "anon": 638681088,
+      "file": 15311683584,
+      "kernel": 1169674240
+    }
+  },
+  "limitations": [
+    "Datatype fidelity does not establish scientific measurement truth, callback-source custody, evaluator appointment or promotion authority.",
+    "Opaque Any metadata/params and untyped dataset contents are not made into validation authority by this correction.",
+    "Arbitrary configured suite/search-space version labels retain their existing pattern contracts; no persisted SearchService checkpoint API is introduced.",
+    "No process-crash, distributed coordination or persisted service rollback acceptance is inferred.",
+    "Existing prior numerical/search/resource receipts are historical separate properties; no full consumer/static gate inherited from them."
+  ],
+  "preservation": {
+    "new_pytest_basetemps": "fresh nonexistent explicit /dev/shm paths, preserved; no manual deletion",
+    "prior_retention_correction": "champion-native-lifecycle.json@290def7c3800aa818a07299a4402ec6dd072d2ef",
+    "preparation_error": "First Ruff precommit command used product-relative paths from repo cwd and failedE902 without any source mutation; corrected exact commands passed. No verdict waiver."
+  },
+  "log_bindings": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-focused-iteration.txt.gz",
+      "sha256": "b0bf47c05796f6bb413bd87ca9f10dddb6906a56fce9301fd3b1da9f99c1d124",
+      "bytes": 958,
+      "decoded_sha256": "5bbde00678f8ec63a81644a1adcdd7b405169d13206ad502622b3c9e82ef78e4",
+      "decoded_bytes": 1923,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/primitive-focused-iteration.txt",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-consumers-c847.txt.gz",
+      "sha256": "b2422ae30cb82221d93415591f8fc2544631d21a723f3b173e9428e2acc3ec99",
+      "bytes": 729,
+      "decoded_sha256": "c40d9e589c0513051da1c3bbfb30a14c38125433fb1cccd4934f4cfebefb0a7f",
+      "decoded_bytes": 1758,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/primitive-consumers-c847.txt",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-mypy-c847.txt.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "bytes": 20,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "decoded_bytes": 0,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/primitive-mypy-c847.txt",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-mypy-shell-result.txt.gz",
+      "sha256": "3e9a97ab75633dd852eaeb48b0f76e47809f4d5631c16e3fc07343542cc7e9fa",
+      "bytes": 362,
+      "decoded_sha256": "4fd6d971e4f097f9a22868df3e1e9b19676b239b5a1f3ce5238e643d42b331da",
+      "decoded_bytes": 535,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/primitive-mypy-shell-result.txt",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-ruff-c847.txt.gz",
+      "sha256": "4601198d3392e6c1f0be47ee63c220062757dd5c656357c214c90d4fc9d0060d",
+      "bytes": 591,
+      "decoded_sha256": "73c200be08fea03314a5ef77bf7d4a0e0eaca9ad0eae4b274807961027449aa0",
+      "decoded_bytes": 1866,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/primitive-ruff-c847.txt",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-release-b7.txt.gz",
+      "sha256": "6782d0bac29266293bc1e0ae7a359e8f739295c3d95e86d06043afc105c49a33",
+      "bytes": 739,
+      "decoded_sha256": "5f7dc721467c82e1954e823ac017eeadedfee93bd39b49232cab2883b3cb4734",
+      "decoded_bytes": 1672,
+      "original_runtime_path": "/workspace/e02-D2-receipts/champion/primitive-release-b7.txt",
+      "encoding": "gzip; lossless complete stream or captured runtime artifact"
+    }
+  ]
+}

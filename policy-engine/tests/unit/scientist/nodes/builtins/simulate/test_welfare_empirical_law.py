@@ -136,6 +136,9 @@ def test_native_ge_preserves_empirical_atoms_failed_support_and_conditional_valu
     assert samples.welfare_ge_draws == (0.0,) * len(samples.welfare_draws)
     assert samples.metadata["estimate_scope"] == "conditional_on_all_outputs_finite"
     assert bundle.credible_interval is None
+    assert bundle.robust_interval is None
+    assert bundle.interval_semantics.value == "none"
+    assert "welfare_ge_outer_bound_not_established" in bundle.warnings
     assert bundle.diagnostics["successful_draw_count"] == len(samples.welfare_draws)
     report = from_canonical_bytes(fresh.get_bytes(bundle.diagnostics["propagation_report_ref"]))
     assert report["draw_summary"]["welfare_mean"] is None
@@ -231,7 +234,7 @@ def test_native_ge_receipt_binds_exact_carrier_rows_and_weights(tmp_path):
     fresh, bundle, receipt, _, env_ref = _run_native(tmp_path)
     original_manifest = fresh.get_manifest(bundle.diagnostics["draw_outcomes_ref"]["artifact_id"])
     law = receipt["empirical_input_laws"]["A"]
-    assert law["envelope_ref"]["artifact_id"] == env_ref.artifact_id
+    assert law["envelope_ref"]["artifact_id"] == str(env_ref.artifact_id)
     assert law["sample_axis"] == "fixture_row"
     assert [row["row_index"] for row in receipt["empirical_rows"]] == (
         np.random.default_rng(31415).random(128) >= 0.75

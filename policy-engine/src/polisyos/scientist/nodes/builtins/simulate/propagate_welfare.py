@@ -696,7 +696,9 @@ class PropagateWelfareNode:
                 nominal_params=nominal_params,
                 input_envelopes=used_input_envelopes,
             )
-            if not math.isfinite(robust_interval[0]) or not math.isfinite(robust_interval[1]):
+            if robust_interval is not None and (
+                not math.isfinite(robust_interval[0]) or not math.isfinite(robust_interval[1])
+            ):
                 raise _fail_error(
                     _ERROR_WELFARE_OUTPUT_NONFINITE,
                     "Robust welfare interval contains non-finite values",
@@ -712,6 +714,8 @@ class PropagateWelfareNode:
                 else ()
             )
             limitation_codes.extend(propagation.diagnostics.get("limitation_codes", ()))
+            if robust_diagnostics.get("limitation_code"):
+                limitation_codes.append(robust_diagnostics["limitation_code"])
             limitation_codes = list(dict.fromkeys(limitation_codes))
             for code in limitation_codes:
                 if code not in warnings:
@@ -3624,7 +3628,22 @@ def _build_robust_interval(
     context: _ResolvedWelfareContext,
     nominal_params: Mapping[str, float],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
-) -> tuple[tuple[float, float], dict[str, Any]]:
+) -> tuple[tuple[float, float] | None, dict[str, Any]]:
+    if (
+        context.ge_context.source_kind == "technical_coefficients"
+        and set(context.ge_context.ge_entry_map).intersection(input_envelopes)
+        and (
+            context.ge_context.lower_multiplier is None
+            or context.ge_context.upper_multiplier is None
+        )
+    ):
+        # A point inverse is not an outer bound for a varying, possibly singular
+        # operator. Bounds require the existing separate multiplier-bound input.
+        return None, {
+            "limitation_code": "welfare_ge_outer_bound_not_established",
+            "gate_eligible": False,
+            "owner": "Welfare GE bound producer",
+        }
     response_lower = np.array(context.base_response, copy=True)
     response_upper = np.array(context.base_response, copy=True)
     for idx, label in enumerate(context.labels):
@@ -3815,7 +3834,7 @@ def _persist_sensitivity_diagnostics(
     simulation_fn: Any,
     nominal_params: Mapping[str, float],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
-    robust_interval: tuple[float, float],
+    robust_interval: tuple[float, float] | None,
 ) -> ArtifactRefModel | None:
     if not input_envelopes:
         return None
@@ -3848,7 +3867,11 @@ def _persist_sensitivity_diagnostics(
         payload={
             "schema_version": "1.0",
             "sensitivity_rows": rows,
-            "robust_interval": [float(robust_interval[0]), float(robust_interval[1])],
+            "robust_interval": (
+                [float(robust_interval[0]), float(robust_interval[1])]
+                if robust_interval is not None
+                else None
+            ),
         },
         kind="foundry.welfare_sensitivity_diagnostics",
         schema_name="polisyos.foundry.WelfareSensitivityDiagnostics",

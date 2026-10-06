@@ -1,0 +1,355 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-completed-generated-companions",
+  "owner": "B root; independent metadata/source review CAS",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CMP-01"
+  ],
+  "slice_base_sha": "e6766fe089013a621895c23a0584632509e3f5a5",
+  "published_main_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "b4dbcfb261f7cf46085de4063050c486cb8551ad",
+    "9618ea5f90b7ac98b1992f5dc64646d1011fd489",
+    "2839852a3ea7302f92f2b677bac190619060e044",
+    "59760f76c2c087931dede4c3f6039b6154ace9c8"
+  ],
+  "implementation_sha": "59760f76c2c087931dede4c3f6039b6154ace9c8",
+  "candidate_tree_sha": "c2f420b26b0695253be0caa554ab42202304e230",
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55",
+  "changed_paths": [
+    "policy-engine/architecture/generated_artifacts.toml",
+    "policy-engine/docs/reference/generated-artifacts.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/actual-output-overlay-and-client-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/driver-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/driver-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/full-recursive-diff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step0.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step0.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step1.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step1.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step2.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step3.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step3.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step4.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step4.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/public-sync-and-lifecycle-identity.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/public-sync.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/public-sync.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/registered-generator-launch.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/stub-check.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/stub-check.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-compiled-chain-plan.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-openapi-example-freshness.toml",
+    "policy-engine/schemas/runtime_api_v1.openapi.json"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "name": "canonical_public_surface_and_generated_reference_sync",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "python",
+        "tools/devx/architecture/guardrails.py",
+        "sync",
+        "--skip-deep-import-baseline"
+      ],
+      "target_sha": "b4dbcfb261f7cf46085de4063050c486cb8551ad",
+      "environment": {
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "POLISYOS_METRICS_PORT": "0"
+      },
+      "input_closure": {
+        "source": "Git@b4dbcfb261f7cf46085de4063050c486cb8551ad",
+        "public_source_contracts": "current-completed-generated-evidence/public-sync-and-lifecycle-identity.json",
+        "produced_reference_output": "Git@9618ea5f90b7ac98b1992f5dc64646d1011fd489; output overlay is distinguished from b4 input"
+      },
+      "outcome": "PASS",
+      "output": {
+        "full_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/public-sync.txt",
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/public-sync.json",
+        "wall_s": 12.442381999993813
+      }
+    },
+    {
+      "name": "stub-check",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "foundry",
+        "generate-stubs",
+        "--check"
+      ],
+      "target_sha": "e511ccd9b73697788a711cfdf64b562792ae2511",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": {
+        "source_tree": "823d08214f6c5629059ca3b5eb134bbbe1922808",
+        "recipe_source": "canonical foundry generator + actual Ruff config + all four generated stubs; source correspondence independently reviewed",
+        "generated_OpenAPI_client_input": null
+      },
+      "outcome": "PASS",
+      "output": {
+        "full_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/stub-check.txt",
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/stub-check.json",
+        "wall_s": 3.588994849997107,
+        "maxrss_kib": 55764,
+        "sha256": "34c245eaa33c9fbbaad2f56c85de149ef57baa8c22a07711684e0dd78c18b900"
+      }
+    },
+    {
+      "name": "generator-step0",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--no-sync",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/export_runtime_openapi.py",
+        "--output",
+        "/dev/shm/e02-B-completed-generated-8142b14162f6/after.json",
+        "--scratch-root",
+        "/dev/shm/e02-B-completed-generated-8142b14162f6/runtime-cas"
+      ],
+      "target_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": {
+        "source_tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+        "recipe_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/registered-generator-launch.source.txt",
+        "generated_OpenAPI_client_input": null
+      },
+      "outcome": "PASS",
+      "output": {
+        "full_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step0.txt",
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step0.json",
+        "wall_s": 57.09763233900594,
+        "maxrss_kib": 1189828,
+        "sha256": "7d863b87367ac61d16b2e76d72ade0f70e7831e3a7d8cbc7c387b1db2c8be928"
+      }
+    },
+    {
+      "name": "generator-step1",
+      "command": [
+        "corepack",
+        "pnpm",
+        "--dir",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client",
+        "exec",
+        "openapi-typescript",
+        "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "-o",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts"
+      ],
+      "target_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": {
+        "source_tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+        "recipe_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/registered-generator-launch.source.txt",
+        "generated_OpenAPI_client_input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/actual-output-overlay-and-client-custody.json"
+      },
+      "outcome": "PASS",
+      "output": {
+        "full_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step1.txt",
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step1.json",
+        "wall_s": 1.8939843910047784,
+        "maxrss_kib": 218220,
+        "sha256": "9c3fa0c9159eab7bb840b84e197322dc0d424662fa36cc76f17f8517c7c83f32"
+      }
+    },
+    {
+      "name": "generator-step2",
+      "command": [
+        "node",
+        "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs",
+        "--types",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/types.ts"
+      ],
+      "target_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": {
+        "source_tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+        "recipe_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/registered-generator-launch.source.txt",
+        "generated_OpenAPI_client_input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/actual-output-overlay-and-client-custody.json"
+      },
+      "outcome": "PASS",
+      "output": {
+        "full_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step2.txt",
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step2.json",
+        "wall_s": 0.6088614470063476,
+        "maxrss_kib": 164052,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "generator-step3",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "tools/ops_runners/runtime/generate_runtime_client.py",
+        "--openapi",
+        "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "--out-ts",
+        "/dev/shm/e02-B-completed-generated-8142b14162f6/runtimeApiClient.ts",
+        "--out-js",
+        "/dev/shm/e02-B-completed-generated-8142b14162f6/runtimeApiClient.js"
+      ],
+      "target_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": {
+        "source_tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+        "recipe_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/registered-generator-launch.source.txt",
+        "generated_OpenAPI_client_input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/actual-output-overlay-and-client-custody.json"
+      },
+      "outcome": "PASS",
+      "output": {
+        "full_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step3.txt",
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step3.json",
+        "wall_s": 0.09562381899741013,
+        "maxrss_kib": 26140,
+        "sha256": "0817e6135832f06a03c52ee0c3171c626c319f01da7221c527a3e57b1ab26317"
+      }
+    },
+    {
+      "name": "generator-step4",
+      "command": [
+        "node",
+        "packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+        "--openapi",
+        "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "--client",
+        "/dev/shm/e02-B-completed-generated-8142b14162f6/runtimeApiClient.ts",
+        "--out-ts",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "--runtime-js",
+        "/dev/shm/e02-B-completed-generated-8142b14162f6/runtimeApiClient.js",
+        "--out-js",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js"
+      ],
+      "target_sha": "8142b14162f6417045ccbc560588da4341ac93ce",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "E02_B_COHORT_INVENTORY_PATH": null
+      },
+      "input_closure": {
+        "source_tree": "c9089aea682ca12a44633cb8e114c8d95a662780",
+        "recipe_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/registered-generator-launch.source.txt",
+        "generated_OpenAPI_client_input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/actual-output-overlay-and-client-custody.json"
+      },
+      "outcome": "PASS",
+      "output": {
+        "full_log": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step4.txt",
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/generator-step4.json",
+        "wall_s": 0.6468076760065742,
+        "maxrss_kib": 138164,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "property": {
+    "statement": "Register the complete four-output Foundry typing producer/verifier lifecycle, regenerate reference and OpenAPI outputs, and run every registered Runtime API client constituent against the actually produced OpenAPI snapshot. Preserve source versus generated output identities and full contract equality.",
+    "runtime_path": [
+      "actual registered Foundry generator -> readonly four-byte-target comparison -> internal typing consumers",
+      "generated artifact registry -> canonical architecture public sync -> committed generated-artifacts reference",
+      "actual Runtime app exporter -> retained OpenAPI output overlay -> committed snapshot",
+      "actual openapi-typescript -> recursive normalization -> actual Python TS/JS client generator -> Node canonicalizer -> three committed client outputs"
+    ],
+    "proxy_divergence": "Descriptive dry-run/constructor readiness can remain successful with a genuine stale typing output; canonical --check refuses it. Root healthy --check is a new execution on e511. Client generator exit0 does not itself establish contract equality: complete recursive OpenAPI comparison independently finds exactly9 example fingerprint deltas, while all nonexample JSON and all three generated client bytes are unchanged.",
+    "negative_controls": [
+      "Genuine stale-copy original definitions/AST retained but full expected-byte comparator refuses; actual b7 counterfactual full logs and CAS e2ba66 review, source correspondence to root e511 stated separately.",
+      "Private locked architecture freshness recipes are a distinct input profile; default194 exporter outcomes never substitute for their execution."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "per_quantity_predicate_basis": {
+    "actual_seven_command_outcomes": "recomputed",
+    "OpenAPI_recursive_diff_and_three_full_client_byte_identities": "recomputed; foreign CAS reconciliation pending separate review commit",
+    "prior_genuine_stale_copy_counterfactual": "independently_reconciled, not a new root counterfactual execution",
+    "internal_typing_classification": "consumer_asserted from complete tracked public contract/inventory and supported facades; no institutional permission grant"
+  },
+  "capability_state_or_finding_state": "Generated lifecycle companion implemented and seven actual recipe/check outcomes PASS; finding closures and all global gates remain separate.",
+  "limitations_and_next_owner": [
+    "Final source cohort and eight complete global gates remain UNRUN on the eventual root freeze; historical DD outcomes do not establish new acceptance.",
+    "Default194/global-registry OpenAPI profile differs from architecture private locked/hashseed0 environment; private freshness outcome remains pending.",
+    "Cause of nine dependency/projection/receipt fingerprint changes is not established by source delta alone. Full573 schemas/111 paths/113 operations preserve all nonexample JSON, and three registered client outputs remain byte-identical.",
+    "G reviews exact implementation SHA/tree and separate metadata review; no integration/main publication is authorized here."
+  ],
+  "evidence_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-generated-evidence/index.json",
+    "sha256": "ac21c0a1fe33412f2c84ed094e7eb4cb6a9cd5e14c0742b950c2ecc34e95f3cc",
+    "count_excluding_index": 20,
+    "bytes_excluding_index": 43535
+  },
+  "cleanup_candidates": [
+    "/dev/shm/e02-B-completed-generated-8142b14162f6/runtime-cas (repeatable test fixture after deciding outputs preserved)",
+    "/dev/shm/e02-B-completed-generated-8142b14162f6/runtimeApiClient.ts and runtimeApiClient.js (repeatable intermediates; final bytes retained)"
+  ],
+  "cleanup_policy": "No native Trash available; exact candidates retained, no permanent deletion. Useful code/docs, unique outputs and production data preserved."
+}

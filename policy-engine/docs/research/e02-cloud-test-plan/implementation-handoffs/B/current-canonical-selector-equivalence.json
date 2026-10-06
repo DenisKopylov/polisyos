@@ -62,7 +62,6 @@
   "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
   "changed_paths": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-selector-equivalence.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/instrument.source.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/reconciliation.txt"
   ],
@@ -1306,6 +1305,25 @@
     "source_grade": "Metadata/path/definition reconciliation only; no production bug verdict or formal closure.",
     "runtime_and_gate_execution": "UNRUN by this reviewer; no future product PASS",
     "parent_terminal_report_role": "Explicit task admission only; native case and phase counters are not independently recounted or imported into this receipt."
+  },
+  "receipt_metadata_history": {
+    "scope": "Receipt commits are mandatory metadata companions separate from the exact implementation-commit footprint.",
+    "snapshots": [
+      {
+        "commit": "9cd2c860f2b614d7a976b6ebb14f06744177f72e",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-selector-equivalence.json",
+        "role": "Published pre-terminal source-only metadata history; not an implementation commit."
+      },
+      {
+        "commit": "197e54900956031093e82f387286caf216c3f7e3",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-selector-equivalence.json",
+        "sha256": "3348fad7cc74abef644c4c9a5921747f1b719220514cb7435b8b11741842e1fe",
+        "role": "Published terminal handoff snapshot preserved; its changed_paths incorrectly included SELFreceipt."
+      }
+    ],
+    "forward_correction": "changed_paths now equals the complete diff-tree path union of declared implementation commits e50 and21c only. This append changes no map, consumer, selector, evidence bytes or prior actual outcomes.",
+    "mechanism_source_changes": [],
+    "runtime_or_gate_reexecution": "UNRUN; not required for a footprint-only forward correction."
   },
   "mandatory_metadata_companions": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-selector-equivalence.json",

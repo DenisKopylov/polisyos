@@ -1,0 +1,3 @@
+{"key": "owned", "action": "trip", "pending": 1}
+{"key": "owned", "action": "probe", "pending": 1}
+{"key": "recovery-key", "action": "capacity-after-release", "pending": 1}

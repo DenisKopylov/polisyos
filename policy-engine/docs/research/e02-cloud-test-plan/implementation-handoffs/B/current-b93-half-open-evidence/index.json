@@ -32,17 +32,17 @@
       "bytes": 111096
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider0/physical-provider.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
       "sha256": "b4067228a5b0ed0243ac7b4baa2c52c176a615c95591c125f62c36d40f2248ea",
       "bytes": 173
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider1/physical-provider.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider1/physical-provider.jsonl.source.txt",
       "sha256": "b4067228a5b0ed0243ac7b4baa2c52c176a615c95591c125f62c36d40f2248ea",
       "bytes": 173
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider2/physical-provider.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/native/test_actual_half_open_provider2/physical-provider.jsonl.source.txt",
       "sha256": "6d0eb0a331d3563dcc27ac35b0bd8450f0ebeaae30d9c520024b9a5313193aa2",
       "bytes": 228
     },
@@ -67,7 +67,7 @@
       "bytes": 111096
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/test_actual_half_open_provider0/physical-provider.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/preparation/remove/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
       "sha256": "2715b733c579d3867aefc975f6f3b120656dbb47892b6b42ab7d7edb53700f75",
       "bytes": 99
     },
@@ -102,17 +102,17 @@
       "bytes": 111116
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider0/physical-provider.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
       "sha256": "b4067228a5b0ed0243ac7b4baa2c52c176a615c95591c125f62c36d40f2248ea",
       "bytes": 173
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider1/physical-provider.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider1/physical-provider.jsonl.source.txt",
       "sha256": "b4067228a5b0ed0243ac7b4baa2c52c176a615c95591c125f62c36d40f2248ea",
       "bytes": 173
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider2/physical-provider.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/native/test_actual_half_open_provider2/physical-provider.jsonl.source.txt",
       "sha256": "6d0eb0a331d3563dcc27ac35b0bd8450f0ebeaae30d9c520024b9a5313193aa2",
       "bytes": 228
     },
@@ -137,7 +137,7 @@
       "bytes": 111116
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/test_actual_half_open_provider0/physical-provider.jsonl",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b93-half-open-evidence/qualified/remove/test_actual_half_open_provider0/physical-provider.jsonl.source.txt",
       "sha256": "855a24e41efbd32717e52b6b89800e8be08ea948cfa43a8d80968053e9ee0a05",
       "bytes": 293
     },
@@ -168,5 +168,6 @@
     }
   ],
   "payload_count": 33,
-  "payload_bytes": 700209
+  "payload_bytes": 700209,
+  "physical_capture_suffix": "Original physical-provider.jsonl bytes retained under documentary .source.txt suffix; ordinary .jsonl files ignored by repository. Raw execution artifacts stay at original ignored paths."
 }

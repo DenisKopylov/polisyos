@@ -390,20 +390,47 @@ def test_synthetic_cg2_contract_mechanism_remains_non_promotable():
 
     reference = _reference()
     engine = GroundingRelationEngine(reference)
-    relation = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="corr-synthetic")
-    decision = GroundingBindGate.for_contract_testing(
+    synthetic_relation = engine.certificate_for(
+        _pure_synonym_probe(engine), proposal_id="corr-synthetic"
+    )
+    synthetic_decision = GroundingBindGate.for_contract_testing(
         reference,
         calibration_seed_anchor=True,
-    ).certificate_for(relation)
-    mechanical = resolve_grounding_decision_promotability_for_contract_testing(decision, reference)
-    actual = resolve_grounding_decision_promotability(decision, reference)
+    ).certificate_for(synthetic_relation)
+    synthetic_mechanical = resolve_grounding_decision_promotability_for_contract_testing(
+        synthetic_decision, reference
+    )
+    synthetic_actual = resolve_grounding_decision_promotability(synthetic_decision, reference)
 
-    assert decision.synthetic is True
-    assert mechanical.reason == "synthetic_input_cannot_grant_authority"
-    assert not mechanical.promotable
-    assert not actual.promotable
-    assert _cg2_resolution_is_contract_lane_bind(mechanical)
-    assert not _cg2_resolution_is_contract_lane_bind(actual)
+    assert synthetic_decision.decision == "abstain"
+    assert synthetic_decision.synthetic is True
+    assert synthetic_mechanical.reason == "synthetic_input_cannot_grant_authority"
+    assert not synthetic_mechanical.promotable
+    assert not synthetic_actual.promotable
+    assert not _cg2_resolution_is_contract_lane_bind(synthetic_mechanical)
+    assert not _cg2_resolution_is_contract_lane_bind(synthetic_actual)
+
+    # Use the canonical contract-test seed case for the helper's positive bind
+    # shape. Its persisted seed anchor proves non-promotable mechanics, not
+    # production authority.
+    contract_relation = engine.certificate_for(
+        _pure_synonym_probe(engine), proposal_id="cg2-dto-test"
+    )
+    contract_decision = GroundingBindGate.for_contract_testing(
+        reference,
+        calibration_seed_anchor=True,
+    ).certificate_for(contract_relation)
+    contract_mechanical = resolve_grounding_decision_promotability_for_contract_testing(
+        contract_decision, reference
+    )
+
+    assert contract_decision.decision == "bind"
+    assert contract_decision.production_promotable is False
+    assert contract_decision.synthetic is True
+    assert contract_mechanical.store_authority_scope == "contract_testing"
+    assert contract_mechanical.promotable is False
+    assert contract_mechanical.reason == "synthetic_input_cannot_grant_authority"
+    assert _cg2_resolution_is_contract_lane_bind(contract_mechanical)
     for mutation in (
         {"owned_anchor_id": None},
         {"store_anchor_content_hash": None},
@@ -413,9 +440,9 @@ def test_synthetic_cg2_contract_mechanism_remains_non_promotable():
         {"authority_scope": "production"},
         {"store_authority_scope": "production"},
     ):
-        assert not _cg2_resolution_is_contract_lane_bind(mechanical.model_copy(update=mutation)), (
-            mutation
-        )
+        assert not _cg2_resolution_is_contract_lane_bind(
+            contract_mechanical.model_copy(update=mutation)
+        ), mutation
 
 
 @pytest.fixture(scope="module")
@@ -2216,6 +2243,7 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
         cycle_job_design_problem_ref,
         cycle_job_profile_selection_ref,
     )
+    from polisyos.runtime.quality.design_problem import CandidateLever, CandidateLeverSpace
     from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
     from polisyos.runtime.quality.generation_source import (
         GenerationSourceRepository,
@@ -2230,7 +2258,10 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
         _authenticated_tenant_scope,
         _TestCurrentJobExecutionOwner,
     )
-    from tests.unit.runtime.quality.test_generation_cycle import _cyc01_owner_bound_n5_case
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _cyc01_owner_bound_n5_case,
+        _problem,
+    )
 
     def ref(artifact_token, kind):
         return ArtifactRef(
@@ -2335,7 +2366,28 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
         )
 
     if schema_version in {"v4", "v5"}:
-        problem, source_context, source_candidate = _cyc01_owner_bound_n5_case()
+        # This selected-view unit case exercises one candidate against its
+        # canonical world slot. Keep the persisted problem's lever set bounded
+        # to that candidate so the real owner can verify every slot binding.
+        problem_seed = _problem(f"selected_view_{schema_version}")
+        problem_seed = problem_seed.model_copy(
+            update={
+                "candidate_lever_space": CandidateLeverSpace(
+                    allowed_operator_kinds=["tax_subsidy"],
+                    candidate_levers=[
+                        CandidateLever(
+                            lever_id="income_subsidy",
+                            operator_kind="tax_subsidy",
+                            instrument="Income subsidy",
+                            target_slot="agents.income",
+                        )
+                    ],
+                )
+            }
+        )
+        problem, source_context, source_candidate = _cyc01_owner_bound_n5_case(
+            problem_seed=problem_seed
+        )
         problem_ref = cycle_job_design_problem_ref(problem)
         atom = source_candidate.atom.model_copy(
             update={"problem_frame_ref": problem_ref}

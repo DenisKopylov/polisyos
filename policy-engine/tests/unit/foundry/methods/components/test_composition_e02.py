@@ -255,3 +255,68 @@ def test_manual_auto_single_edge_structural_refusal_has_identical_typed_reason(g
         errors.append(result.value)
     assert type(errors[0]) is type(errors[1])
     assert str(errors[0]) == str(errors[1])
+
+
+def _pair_chain(source_names, target_names):
+    class PairProducer:
+        signature: ClassVar = replace(
+            _SIGNATURE, output_slots=frozenset(_slot(name) for name in source_names)
+        )
+        metadata: ClassVar = _METADATA
+
+        @staticmethod
+        def pure_step(state, params):
+            return {source_names[0]: 7, source_names[1]: 11}
+
+    class PairConsumer:
+        signature: ClassVar = replace(
+            _SIGNATURE,
+            name="weighted_consumer",
+            input_slots=frozenset(_slot(name) for name in target_names),
+            output_slots=frozenset({_slot("result")}),
+        )
+        metadata: ClassVar = _METADATA
+
+        @staticmethod
+        def materialize_input(bound_inputs, fallback_state):
+            return {**fallback_state, **bound_inputs}
+
+        @staticmethod
+        def pure_step(state, params):
+            return {"result": state[target_names[0]] * 100 + state[target_names[1]]}
+
+    registry = _registry(PairProducer, PairConsumer)
+    composer = MethodComposer(registry=registry, linker=SlotLinker(LinkerConfig.strict()))
+    source = composer.add(PairProducer.signature.fqn)
+    target = composer.add(PairConsumer.signature.fqn)
+    return registry, composer, source, target
+
+
+@pytest.mark.parametrize(
+    ("source_names", "target_names"),
+    [(("a", "b"), ("left", "right")), (("z_source", "a_source"), ("z_target", "a_target"))],
+)
+def test_equal_full_matching_requires_explicit_choice_after_actual_numeric_controls(
+    source_names, target_names
+):
+    values = []
+    for permutation in (source_names, source_names[::-1]):
+        registry, composer, source, target = _pair_chain(source_names, target_names)
+        composer.connect(source, target, dict(zip(permutation, target_names)))
+        chain = composer.build(validate_semantics=SemanticValidationLevel.STRICT)
+        values.append(
+            execute_heterogeneous_chain(chain, state={}, registry=registry).final_state["result"]
+        )
+    assert values == [711, 1107]
+    _, composer, source, target = _pair_chain(source_names, target_names)
+    with pytest.raises(SlotConnectionError, match="Ambiguous automatic bindings"):
+        composer.connect(source, target)
+
+
+def test_exact_named_full_matching_is_a_resolved_actual_numeric_control():
+    registry, composer, source, target = _pair_chain(("left", "right"), ("left", "right"))
+    composer.connect(source, target)
+    chain = composer.build(validate_semantics=SemanticValidationLevel.STRICT)
+    assert (
+        execute_heterogeneous_chain(chain, state={}, registry=registry).final_state["result"] == 711
+    )

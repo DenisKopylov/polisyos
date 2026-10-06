@@ -46,6 +46,10 @@ Public field mutation cannot modify the private checker projection. Legacy
 records missing their source or time projection stay non-gating. Readiness
 expiry is checked separately at the fresh calibration check's effective time;
 an expired readiness event cannot gain a new TTL by refreshing calibration.
+The same admission recomputes `budget_used` from the exact metric policy,
+confidence bounds and current estimate through the existing readiness helper.
+Nonfinite inputs or a different supplied quantity are not admitted; this does
+not certify the calibration law or the completeness of the observation feed.
 
 Promotion rules:
 

@@ -27,6 +27,7 @@ from polisyos.ddm.integration.model_registry import (
     rebind_calibration_validity,
 )
 from polisyos.ddm.integration.monitor import DriftAndDegradationMonitor
+from polisyos.ddm.readiness.readiness_mapper import metric_budget_used
 
 NOW = datetime(2026, 4, 26, tzinfo=UTC)
 
@@ -104,6 +105,15 @@ def _degradation(**changes):
         "calibration_id": "calibration-1",
     }
     payload.update(changes)
+    if "budget_used" not in changes:
+        payload["budget_used"] = metric_budget_used(
+            metric_direction=payload["metric_direction"],
+            reference_value=payload["reference_value"],
+            current_estimate=payload["current_estimate"],
+            confidence_interval_95=payload["confidence_interval_95"],
+            minimum_acceptable_value=payload["minimum_acceptable_value"],
+            maximum_acceptable_value=payload.get("maximum_acceptable_value"),
+        )
     return PerformanceDegradationEvent(**payload)
 
 
@@ -143,6 +153,23 @@ def test_monitor_reconciles_every_shared_calibration_identity(field):
 def test_monitor_reconciles_every_declared_metric_budget_field(changes):
     with pytest.raises(ValueError, match=r"metric.*binding|binding.*metric"):
         _run(degradation_event=_degradation(**changes))
+
+
+def test_readiness_recomputes_budget_quantity_before_accepting_source():
+    event = _degradation(
+        current_estimate=0.70, confidence_interval_95=(0.69, 0.71), budget_used=0.0
+    )
+    # Independent bounded-ratio oracle; no statistical/backend assumption.
+    expected = min(1.0, max(0.0, (0.9 - 0.69) / (0.9 - 0.8)))
+    assert expected == 1.0
+    with pytest.raises(ValueError, match="budget_used_mismatch"):
+        _run(degradation_event=event)
+
+
+def test_nonfinite_budget_inputs_do_not_become_clean_readiness():
+    event = _degradation(current_estimate=float("nan"), budget_used=0.0)
+    with pytest.raises(ValueError, match="budget_used_not_established"):
+        _run(degradation_event=event)
 
 
 def _reopen(report, audit, budget, result, *, now=NOW, payload=None):

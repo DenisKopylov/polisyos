@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -580,6 +581,9 @@ def _registry_source_binding_reasons(
             f"degradation_event.metric_binding_{field}_mismatch"
             for field in _shared_source_mismatches(metric_budget, degradation_event)
         )
+        budget_reason = _degradation_budget_binding_reason(metric_budget, degradation_event)
+        if budget_reason is not None:
+            reasons.append(budget_reason)
         # Missing performance calibration is distinct from a false reference.
         if (
             degradation_event.calibration_id is not None
@@ -587,6 +591,35 @@ def _registry_source_binding_reasons(
         ):
             reasons.append("degradation_event.calibration_binding_calibration_id_mismatch")
     return tuple(reasons)
+
+
+def _degradation_budget_binding_reason(
+    metric_budget: MetricBudgetPolicy, event: PerformanceDegradationEvent
+) -> str | None:
+    """Recompute the quantity consumed by readiness using its canonical owner."""
+
+    from polisyos.ddm.readiness.readiness_mapper import metric_budget_used
+
+    source_values = (
+        metric_budget.reference_value,
+        metric_budget.minimum_acceptable_value,
+        metric_budget.maximum_acceptable_value,
+        event.current_estimate,
+        *event.confidence_interval_95,
+    )
+    if any(value is not None and not math.isfinite(value) for value in source_values):
+        return "degradation_event.metric_binding_budget_used_not_established"
+    expected = metric_budget_used(
+        metric_direction=metric_budget.metric_direction,
+        reference_value=metric_budget.reference_value,
+        current_estimate=event.current_estimate,
+        confidence_interval_95=event.confidence_interval_95,
+        minimum_acceptable_value=metric_budget.minimum_acceptable_value,
+        maximum_acceptable_value=metric_budget.maximum_acceptable_value,
+    )
+    if event.budget_used != expected:
+        return "degradation_event.metric_binding_budget_used_mismatch"
+    return None
 
 
 def _payload_digest(payload: object) -> str:

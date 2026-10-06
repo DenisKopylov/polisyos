@@ -24,6 +24,7 @@ from polisyos.ddm.integration import (
 )
 from polisyos.ddm.integration.model_registry import rebind_calibration_validity
 from polisyos.ddm.readiness import MetricBudgetPolicy
+from polisyos.ddm.readiness.readiness_mapper import metric_budget_used
 
 
 def _window() -> MonitoringWindow:
@@ -205,7 +206,13 @@ def test_monitor_emits_all_runtime_outputs_and_registry_gate_blocks_r1() -> None
         minimum_acceptable_value=0.80,
         current_estimate=0.84,
         confidence_interval_95=(0.82, 0.86),
-        budget_used=0.80,
+        budget_used=metric_budget_used(
+            metric_direction=MetricDirection.HIGHER_IS_BETTER,
+            reference_value=0.90,
+            current_estimate=0.84,
+            confidence_interval_95=(0.82, 0.86),
+            minimum_acceptable_value=0.80,
+        ),
         calibration_id="calib-1",
     )
     metric_budget = MetricBudgetPolicy(

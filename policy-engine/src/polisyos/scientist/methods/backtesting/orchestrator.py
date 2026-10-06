@@ -252,7 +252,12 @@ class BacktestOrchestrator:
         effective_modes: list[str] = []
         degraded_reasons: list[str] = []
 
+        replay_plans: list[HistoricalValidationPlan] = []
         for plan in plans:
+            expanded = self._expand_replay_plans(plan)
+            replay_plans.extend(expanded)
+
+        for plan in replay_plans:
             (
                 scenario,
                 scenario_warnings,
@@ -271,8 +276,11 @@ class BacktestOrchestrator:
         report = self._aggregate(
             report_id=resolved_report_id,
             scenarios=scenarios,
-            plans=plans,
-            metadata={"warnings": warnings, **(metadata or {})},
+            plans=replay_plans,
+            metadata={
+                **(metadata or {}),
+                "warnings": warnings,
+            },
             prediction_mode_requested=_collapse_modes(requested_modes),
             prediction_mode_effective=_collapse_modes(effective_modes),
             degraded_reasons=degraded_reasons,
@@ -281,6 +289,36 @@ class BacktestOrchestrator:
         ref = persist_backtest_report(self._store, report, inputs=manifest_inputs)
         report.cas_artifact_id = str(ref.artifact_id)
         return report
+
+    @staticmethod
+    def _expand_replay_plans(
+        plan: HistoricalValidationPlan,
+    ) -> list[HistoricalValidationPlan]:
+        """Resolve requested Scientist replays into scalar, separately seeded plans."""
+        count = (
+            plan.n_simulation_runs if plan.prediction_source is PredictionSource.SCIENTIST else 1
+        )
+        streams = np.random.SeedSequence(plan.random_seed).spawn(count) if count > 1 else []
+        return [
+            plan.model_copy(
+                deep=True,
+                update={
+                    "plan_id": f"{plan.plan_id}:replica:{index}" if count > 1 else plan.plan_id,
+                    "n_simulation_runs": 1,
+                    "random_seed": (
+                        int(streams[index].generate_state(1)[0]) if streams else plan.random_seed
+                    ),
+                    "metadata": {
+                        **plan.metadata,
+                        "source_plan_id": plan.plan_id,
+                        "replica_index": index,
+                        "replica_count": count,
+                        "declared_n_simulation_runs": plan.n_simulation_runs,
+                    },
+                },
+            )
+            for index in range(count)
+        ]
 
     def _run_single_scenario(
         self,
@@ -308,7 +346,14 @@ class BacktestOrchestrator:
                 plan.prediction_source.value,
             ),
             "degraded": bool(prediction_payload.get("degraded", False)),
+            "replay_seed": plan.random_seed,
+            "source_plan_id": plan.metadata.get("source_plan_id", plan.plan_id),
+            "backend_attempted": bool(prediction_payload.get("backend_attempted", False)),
         }
+        if "historical_snapshot_ref" in prediction_payload:
+            scenario_metadata["historical_snapshot_ref"] = prediction_payload[
+                "historical_snapshot_ref"
+            ]
         if "interval_type" in prediction_payload:
             scenario_metadata["interval_type"] = prediction_payload["interval_type"]
         if "interval_metadata_source" in prediction_payload:
@@ -381,6 +426,8 @@ class BacktestOrchestrator:
         plan: HistoricalValidationPlan,
         masked_data: dict[str, Any],
     ) -> dict[str, Any]:
+        if plan.n_simulation_runs != 1:
+            raise ValueError("Scientist dispatch requires one expanded scalar replay plan")
         warnings: list[str] = []
         if plan.scientist_state is None:
             reason = "scientist_state_missing"
@@ -415,7 +462,20 @@ class BacktestOrchestrator:
         inputs["data_snapshot_ref"] = self._persist_masked_view(plan, masked_data)
         state_payload["inputs"] = inputs
 
-        result = run_experiment(state_payload)
+        try:
+            result = run_experiment(state_payload)
+        except Exception as exc:
+            reason = f"scientist_execution_failed:{type(exc).__name__}"
+            naive = self._predict_with_naive(plan, masked_data)
+            naive.update(
+                warnings=[reason, *naive.get("warnings", [])],
+                prediction_mode_effective=PredictionSource.NAIVE.value,
+                degraded=True,
+                degraded_reasons=[reason],
+                historical_snapshot_ref=inputs["data_snapshot_ref"],
+                backend_attempted=True,
+            )
+            return naive
         artifacts = result.get("artifacts_index", {}) if isinstance(result, dict) else {}
         if not isinstance(artifacts, dict):
             reason = "scientist_artifacts_index_missing"
@@ -425,6 +485,8 @@ class BacktestOrchestrator:
             naive["prediction_mode_effective"] = PredictionSource.NAIVE.value
             naive["degraded"] = True
             naive["degraded_reasons"] = [reason]
+            naive["historical_snapshot_ref"] = inputs["data_snapshot_ref"]
+            naive["backend_attempted"] = True
             return naive
 
         metrics_ref_payload = artifacts.get("metrics_ref")
@@ -480,6 +542,8 @@ class BacktestOrchestrator:
             naive["prediction_mode_effective"] = PredictionSource.NAIVE.value
             naive["degraded"] = True
             naive["degraded_reasons"] = [reason]
+            naive["historical_snapshot_ref"] = inputs["data_snapshot_ref"]
+            naive["backend_attempted"] = True
             return naive
         result = {
             "predictions": predictions,
@@ -488,6 +552,8 @@ class BacktestOrchestrator:
             "prediction_mode_effective": PredictionSource.SCIENTIST.value,
             "degraded": bool(interval_degraded_reasons),
             "degraded_reasons": list(interval_degraded_reasons),
+            "historical_snapshot_ref": inputs["data_snapshot_ref"],
+            "backend_attempted": True,
         }
         result.update(interval_metadata)
         return result
@@ -831,32 +897,27 @@ class BacktestOrchestrator:
         total_compared = sum(item[3] for item in scenario_statistics)
         total_percentage_count = sum(item[4] for item in scenario_statistics)
 
-        rmse_values = [item.rmse for item in scenarios if item.rmse is not None]
-        mae_values = [item.mae for item in scenarios if item.mae is not None]
-        mape_values = [item.mape for item in scenarios if item.mape is not None]
-        coverage_values = [
-            item.coverage_probability for item in scenarios if item.coverage_probability is not None
-        ]
-
         if total_compared > 0:
             overall_rmse = float(np.sqrt(total_squared_error / total_compared))
             overall_mae = float(total_absolute_error / total_compared)
         else:
-            overall_rmse = float(np.mean(rmse_values)) if rmse_values else None
-            overall_mae = float(np.mean(mae_values)) if mae_values else None
+            overall_rmse = None
+            overall_mae = None
         overall_mape = (
             float(total_percentage_error / total_percentage_count)
             if total_percentage_count > 0
-            else (float(np.mean(mape_values)) if mape_values else None)
+            else None
         )
         interval_evaluated = sum(item.interval_evaluated_count for item in scenarios)
         interval_hits = sum(item.interval_hit_count for item in scenarios)
         overall_coverage = (
-            float(interval_hits / interval_evaluated)
-            if interval_evaluated > 0
-            else (float(np.mean(coverage_values)) if coverage_values else None)
+            float(interval_hits / interval_evaluated) if interval_evaluated > 0 else None
         )
-        macro_rmse_values = [item.rmse for item in scenarios if item.rmse is not None]
+        macro_rmse_values = [
+            item.rmse
+            for item, statistics in zip(scenarios, scenario_statistics, strict=True)
+            if item.rmse is not None and statistics[3] > 0
+        ]
         overall_macro_rmse = float(np.mean(macro_rmse_values)) if macro_rmse_values else None
         interval_contracts = [
             {
@@ -872,6 +933,69 @@ class BacktestOrchestrator:
             if item.nominal_confidence_level is not None or item.interval_type is not None
         ]
         metadata_payload = dict(metadata)
+        replay_groups: dict[str, list[BacktestScenario]] = {}
+        planned_groups: dict[str, list[HistoricalValidationPlan]] = {}
+        for plan in plans:
+            source_plan_id = str(plan.metadata.get("source_plan_id", plan.plan_id))
+            planned_groups.setdefault(source_plan_id, []).append(plan)
+        for scenario in scenarios:
+            source_plan_id = str(scenario.metadata.get("source_plan_id", scenario.scenario_id))
+            replay_groups.setdefault(source_plan_id, []).append(scenario)
+        metadata_payload["replay_denominators"] = [
+            {
+                "plan_id": source_plan_id,
+                "requested": len(planned_groups.get(source_plan_id, group)),
+                "declared_n_simulation_runs": (
+                    planned_groups[source_plan_id][0].metadata.get("declared_n_simulation_runs", 1)
+                    if source_plan_id in planned_groups
+                    else None
+                ),
+                "attempted": sum(bool(item.metadata.get("backend_attempted")) for item in group),
+                "completed": sum(
+                    item.metadata.get("prediction_source_requested") != "scientist"
+                    or item.metadata.get("prediction_source_effective") == "scientist"
+                    for item in group
+                ),
+                "failed": sum(
+                    item.metadata.get("prediction_source_requested") == "scientist"
+                    and item.metadata.get("prediction_source_effective") != "scientist"
+                    for item in group
+                ),
+                "unobserved": max(0, len(planned_groups.get(source_plan_id, group)) - len(group)),
+                "outcomes": [item.scenario_id for item in group],
+                "unit": "backend_replay"
+                if len(planned_groups.get(source_plan_id, group)) > 1
+                else "scenario",
+                "basis": "recomputed" if source_plan_id in planned_groups else "not_established",
+            }
+            for source_plan_id in dict.fromkeys([*planned_groups, *replay_groups])
+            for group in [replay_groups.get(source_plan_id, [])]
+        ]
+        metadata_payload["evaluation_status"] = (
+            "evaluated" if total_compared > 0 else "not_evaluated"
+        )
+        metadata_payload["comparison_denominator"] = {
+            "requested": (
+                sum(len(rows) for plan in plans for rows in plan.ground_truth_outcomes.values())
+                if plans
+                else sum(item.requested_count for item in scenarios)
+            ),
+            "eligible": total_compared,
+            "observed": sum(
+                item.metadata.get("comparison_denominator", {}).get("observed", item.compared_count)
+                for item in scenarios
+            ),
+            "unit": "metric_time_cell_per_replay",
+            "basis": "recomputed" if plans else "not_established",
+        }
+        metadata_payload["trust_admission"] = {
+            "status": "profile_missing",
+            "purpose": None,
+            "profile_ref": None,
+            "bias_equivalence": "not_established",
+            "predicate_basis": "not_established",
+            "next_owner": "Scientist backtest trust-profile owner",
+        }
         if interval_contracts:
             metadata_payload["interval_contracts"] = interval_contracts
         if trust_screening is not TrustScreeningMode.DEFAULT:
@@ -907,6 +1031,7 @@ class BacktestOrchestrator:
             trust_score, trust_grade = self._trust_scorer.compute(
                 scenarios=scenarios, biases=biases
             )
+        trust_eligible = trust_eligible and trust_score is not None and trust_grade is not None
 
         return BacktestReport(
             schema_version="1.0",

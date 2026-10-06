@@ -46,15 +46,15 @@ def test_backtest_matrix_runner_runs_all_five_backtests(tmp_path, cas_store) -> 
 
     assert len(result.kind_results) == 5
     assert result.backtest_report_ref is not None
-    assert result.composite_score is not None
-    assert 0.0 <= result.composite_score <= 1.0
+    assert result.composite_score is None
+    assert result.metadata["diagnostic_mean_score"] is not None
     assert all(item.status == "ok" for item in result.kind_results)
     assert all(item.score is not None and 0.0 <= item.score <= 1.0 for item in result.kind_results)
     assert result.report_id.startswith("BTM_")
 
     report = load_backtest_report(cas_store, result.backtest_report_ref)
     assert report.n_scenarios == 5
-    assert report.trust_eligible is True
+    assert report.trust_eligible is False
     assert report.degraded is False
     assert all("backtest_kind" in scenario.metadata for scenario in report.scenarios)
     assert all(":" in scenario.scenario_id for scenario in report.scenarios)
@@ -71,7 +71,7 @@ def test_backtest_matrix_runner_marks_missing_bundles_as_explicit_gaps(tmp_path,
 
     report = load_backtest_report(cas_store, result.backtest_report_ref)
     assert report.n_scenarios == 1
-    assert report.trust_eligible is True
+    assert report.trust_eligible is False
 
 
 def test_backtest_matrix_preserves_preallocated_id_and_manifest_inputs(
@@ -172,3 +172,79 @@ def test_backtest_matrix_rejects_unknown_payload_before_any_execution(tmp_path, 
                 BacktestKind.CELL: unknown_bundle,
             }
         )
+
+
+def test_matrix_reconciles_present_but_fake_trust_fields(monkeypatch, tmp_path, cas_store):
+    runner = BacktestMatrixRunner(cas_store)
+    original = runner._orchestrator._aggregate
+
+    def forged_aggregate(**kwargs):
+        report = original(**kwargs)
+        report.trust_eligible = True
+        report.trust_score = 1.0
+        report.trust_grade = "A"
+        report.metadata["trust_admission"] = {
+            "profile_ref": "present-but-fake",
+            "predicate_basis": "recomputed",
+        }
+        return report
+
+    monkeypatch.setattr(runner._orchestrator, "_aggregate", forged_aggregate)
+    result = runner.run({BacktestKind.MACRO: _bundle(tmp_path, BacktestKind.MACRO)})
+    report = load_backtest_report(cas_store, result.backtest_report_ref)
+    assert report.trust_eligible is True
+    assert report.trust_grade == "A"
+    assert result.kind_results[0].score is not None
+    assert result.composite_score is None
+    assert result.metadata["authority_admitted"] is False
+    assert result.metadata["trust_predicate_basis"] == "not_established"
+
+
+def test_matrix_expands_actual_scientist_replays(monkeypatch, tmp_path, cas_store):
+    import polisyos.scientist.methods.backtesting.orchestrator as orchestrator_module
+    from polisyos.ir.artifacts import get_json_artifact, put_json_artifact
+    from polisyos.ir.model_layer.canon import CanonSpec
+
+    runner = BacktestMatrixRunner(cas_store)
+    bundle = _bundle(tmp_path, BacktestKind.MACRO)
+    plan = HistoricalValidationPlan.model_validate(bundle.plans[0]).model_copy(
+        update={
+            "prediction_source": PredictionSource.SCIENTIST,
+            "scientist_state": {"params": {}},
+            "n_simulation_runs": 3,
+            "random_seed": 12,
+        }
+    )
+    bundle = bundle.model_copy(update={"plans": [plan.model_dump(mode="json")]})
+    calls = []
+
+    def execute(state):
+        calls.append(state)
+        snapshot = get_json_artifact(
+            runner._orchestrator._store, state["inputs"]["data_snapshot_ref"]["artifact_id"]
+        )
+        consumed = get_json_artifact(
+            runner._orchestrator._store, snapshot["data_ref"]["artifact_id"]
+        )
+        assert consumed["metric"] == [1.0, 1.05]
+        ref = put_json_artifact(
+            runner._orchestrator._store,
+            {"values": {"metric": [1.1, 1.15]}},
+            kind="scientist.backtest.metrics",
+            schema_name="test.matrix.Metrics",
+            schema_version="1.0",
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        return {"artifacts_index": {"metrics_ref": ref}}
+
+    monkeypatch.setattr(orchestrator_module, "run_experiment", execute)
+    result = runner.run({BacktestKind.MACRO: bundle})
+    assert len(calls) == 3
+    assert all(call["params"]["n_simulation_runs"] == 1 for call in calls)
+    assert len({call["params"]["random_seed"] for call in calls}) == 3
+    report = load_backtest_report(cas_store, result.backtest_report_ref)
+    assert report.n_scenarios == 3
+    assert report.metadata["replay_denominators"][0]["requested"] == 3
+    assert report.metadata["replay_denominators"][0]["attempted"] == 3
+    assert result.kind_results[0].n_scenarios == 3
+    assert result.composite_score is None

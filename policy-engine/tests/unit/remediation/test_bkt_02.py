@@ -39,7 +39,7 @@ def test_wrong_key_comparison_does_not_qualify_for_grade_a() -> None:
     score, grade = TrustScorer().compute(scenarios=[scenario], biases=[])
 
     assert scenario.compared_count == 0
-    assert score == pytest.approx(0.0)
+    assert score is None
     assert grade != "A"
 
 
@@ -68,7 +68,7 @@ def test_zero_evidence_does_not_receive_trust_grade() -> None:
         biases=[],
     )
 
-    assert score == pytest.approx(0.0)
+    assert score is None
     assert grade != "A"
 
 
@@ -230,7 +230,7 @@ def test_invalid_prediction_is_counted_and_kept_out_of_valid_denominator() -> No
     assert scenario.rmse == pytest.approx(0.0)
 
 
-def test_complete_exact_prediction_remains_a_positive_grade_control() -> None:
+def test_complete_exact_prediction_is_descriptive_without_trust_profile() -> None:
     scenario = PredictionEvaluator().evaluate(
         scenario_id="complete-exact",
         scenario_label="complete exact prediction",
@@ -244,11 +244,11 @@ def test_complete_exact_prediction_remains_a_positive_grade_control() -> None:
     assert scenario.compared_count == 2
     assert scenario.missing_count == 0
     assert scenario.invalid_count == 0
-    assert score == pytest.approx(1.0)
-    assert grade == "A"
+    assert score is None
+    assert grade is None
 
 
-def test_coverage_score_uses_persisted_nominal_confidence_level() -> None:
+def test_nominal_confidence_preserved_without_unadmitted_trust_score() -> None:
     scenario = BacktestScenario(
         scenario_id="nominal-coverage",
         scenario_label="nominal coverage",
@@ -268,8 +268,8 @@ def test_coverage_score_uses_persisted_nominal_confidence_level() -> None:
 
     score, grade = TrustScorer().compute(scenarios=[scenario], biases=[])
 
-    assert score == pytest.approx(1.0)
-    assert grade == "A"
+    assert score is None
+    assert grade is None
 
 
 def test_omitting_difficult_prediction_cannot_improve_completeness_or_grade() -> None:
@@ -293,7 +293,7 @@ def test_omitting_difficult_prediction_cannot_improve_completeness_or_grade() ->
     assert complete.requested_count == partial.requested_count == 2
     assert complete.compared_count == 2
     assert partial.compared_count == 1
-    assert complete_grade == "A"
+    assert complete_grade is None
     assert partial_grade != "A"
 
 
@@ -394,7 +394,8 @@ def test_persisted_envelope_metadata_overrides_plan_contract(monkeypatch, tmp_pa
     assert scenario.interval_type == "credible_interval"
     assert scenario.metadata["interval_metadata_source"] == "persisted_envelope"
     assert scenario.coverage_probability == pytest.approx(2 / 3)
-    assert report.trust_score == pytest.approx(0.9167)
+    assert report.trust_score is None
+    assert report.trust_grade is None
     contract = report.metadata["interval_contracts"][0]
     assert contract["nominal_confidence_level"] == pytest.approx(0.80)
     assert contract["interval_type"] == "credible_interval"

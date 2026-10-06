@@ -196,7 +196,10 @@ def read_search_analysis(
     ref = ArtifactRef.model_validate(ref)
     if require_selected_profile and ref.manifest_profile_sha256 is None:
         raise ValueError("Sensitivity consumption requires the full selected manifest reference")
-    snapshot = store.get_verified_snapshot(ref)
+    try:
+        snapshot = store.get_verified_snapshot(ref)
+    except FileNotFoundError as exc:
+        raise ValueError("Sensitivity source reference cannot be resolved") from exc
     reader = _AnalysisSnapshotReader(ref, snapshot)
     result = _load_analysis(cast("ArtifactStore", reader), ref)
     receipt = _AnalysisReceipt.model_validate(from_canonical_bytes(snapshot.data))

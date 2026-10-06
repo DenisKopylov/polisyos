@@ -1,0 +1,22 @@
+commit 386b361865fb22d6da241716481d919b6ebd8249
+Author:     Денис Копылов <skvidvard167m@gmail.com>
+AuthorDate: Tue Oct 6 16:27:52 2026 +0000
+Commit:     Денис Копылов <skvidvard167m@gmail.com>
+CommitDate: Tue Oct 6 16:27:52 2026 +0000
+
+    test(causal): bind worker interval through declared envelope numeric policy
+
+diff --git a/policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py b/policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py
+index ed5d2f31e..153226bce 100644
+--- a/policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py
++++ b/policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py
+@@ -177,7 +177,8 @@ assert list(report.confidence_interval)==worker['result']['interval']
+ envelope=report.to_uncertainty_envelope()
+ assert not envelope.gate_eligible
+ assert envelope.metadata['gate_eligibility_reason']=='causal_identification_admission_not_established'
+-assert envelope.confidence_level==.95 and list(envelope.confidence_interval)==worker['result']['interval']
++assert envelope.confidence_level==.95
++assert envelope.confidence_interval==tuple(envelope.numeric_policy.canonicalize(value) for value in worker['result']['interval'])
+ print(json.dumps({'python':sys.version,'report':report.model_dump(mode='json')},sort_keys=True))
+ """
+     fresh = subprocess.run(

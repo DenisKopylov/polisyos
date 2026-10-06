@@ -1,0 +1,37 @@
+{
+  "source_sha": "46932cd30935b08e1da795f505a9b443c9dc668a",
+  "source_tree": "77443e1dfa6cc82cce2560793239daf4b5436117",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-o",
+    "cache_dir=/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/cache",
+    "--basetemp",
+    "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/tmp",
+    "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py::test_real_worker_job_cas_fresh_python314_reader"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine/tools",
+    "TMPDIR": "/tmp"
+  },
+  "exit_code": 1,
+  "wall_seconds": 18.34697806100303,
+  "ending_head": "46932cd30935b08e1da795f505a9b443c9dc668a",
+  "outputs": {
+    "stdout": {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stdout",
+      "bytes": 6134,
+      "sha256": "f5ae61e5c9d7d0daa9e41193997abc001a4adb93477e826a4f32ee27f31b1a27"
+    },
+    "stderr": {
+      "path": "/tmp/e02-F-continuation-20261006/root-composed-worker-corrected/stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

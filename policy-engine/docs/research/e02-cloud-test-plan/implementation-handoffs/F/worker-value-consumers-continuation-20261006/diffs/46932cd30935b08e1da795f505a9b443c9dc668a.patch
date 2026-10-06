@@ -1,0 +1,21 @@
+commit 46932cd30935b08e1da795f505a9b443c9dc668a
+Author:     Денис Копылов <skvidvard167m@gmail.com>
+AuthorDate: Tue Oct 6 16:13:45 2026 +0000
+Commit:     Денис Копылов <skvidvard167m@gmail.com>
+CommitDate: Tue Oct 6 16:13:45 2026 +0000
+
+    test(causal): read canonical envelope interval in fresh worker companion
+
+diff --git a/policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py b/policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py
+index 3c63255bd..ed5d2f31e 100644
+--- a/policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py
++++ b/policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py
+@@ -177,7 +177,7 @@ assert list(report.confidence_interval)==worker['result']['interval']
+ envelope=report.to_uncertainty_envelope()
+ assert not envelope.gate_eligible
+ assert envelope.metadata['gate_eligibility_reason']=='causal_identification_admission_not_established'
+-assert envelope.confidence_level==.95 and list(envelope.ci)==worker['result']['interval']
++assert envelope.confidence_level==.95 and list(envelope.confidence_interval)==worker['result']['interval']
+ print(json.dumps({'python':sys.version,'report':report.model_dump(mode='json')},sort_keys=True))
+ """
+     fresh = subprocess.run(

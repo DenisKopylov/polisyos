@@ -1,0 +1,567 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "doe-ordered-experiment-20261006",
+  "closure_ids": [
+    "B97",
+    "B98",
+    "B99",
+    "B100",
+    "B101",
+    "B102",
+    "B103",
+    "B104",
+    "B105"
+  ],
+  "bundle_ids": [
+    "DOE-01",
+    "DOE-02",
+    "DOE-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "required_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "anchor_admission": "root verified ancestor before lane creation",
+  "implementation_commits": [
+    "47e46d918ea68beba8a9fd08113a01e59b943646",
+    "e092b1d1796265604df1891340f7a56ce633e745"
+  ],
+  "candidate_sha": "e092b1d1796265604df1891340f7a56ce633e745",
+  "candidate_tree_sha": "4689ee663187a15e8c81b22cd745ff55c60604c6",
+  "branch": "codex/e02-E-doe-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/39",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-doe-ordered-experiment.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+    "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+    "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+    "policy-engine/tests/unit/remediation/test_doe_02.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+    "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+    "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+    "policy-engine/tests/unit/scientist/methods/doe/test_stability.py"
+  ],
+  "admission": [
+    {
+      "mode": "create",
+      "complete_json_path": "/workspace/e02-E-20261006-receipts/doe-create.json",
+      "sha256": "7d17b29c381cb50c920ac833aed1fbc8949d8390e41d5b5b71253a772eefc6d4",
+      "custody": "E root retains full snapshot; no permanent cleanup"
+    },
+    {
+      "mode": "resume",
+      "complete_json_path": "/workspace/e02-E-20261006-receipts/doe-resume.json",
+      "sha256": "1ac36f5c0c11f865fdc73732478a918e9b86036858986e2e5fcb19ae93e4cbe9",
+      "custody": "E root retains full snapshot; no permanent cleanup"
+    }
+  ],
+  "baseline_cells": [
+    {
+      "id": "F03-P072",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_uncertainty.py",
+      "state": "PASS",
+      "collected": "12",
+      "calls": "12",
+      "call_pass": "12",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.03",
+      "rss_kib": "137256.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "202",
+      "extra_json": "{}",
+      "source_ref": "research_main",
+      "data_identity": {
+        "type": "source-reported test fixture",
+        "path": "policy-engine/tests/unit/scientist/methods/doe/test_uncertainty.py",
+        "at": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "raw_bytes": "not_transferred"
+      },
+      "backend": "source-reported sensitivity extra; actual native invocation not independently established without raw VM archive",
+      "environment_locator": "results/received/F03.txt metadata/profile",
+      "evidence_grade": "transfer_and_navigation_only"
+    },
+    {
+      "id": "F08-P071",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_doe_02.py",
+      "state": "PASS",
+      "collected": "12",
+      "calls": "12",
+      "call_pass": "12",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "6.014804840087891",
+      "rss_kib": "263024",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "194",
+      "extra_json": "{}",
+      "source_ref": "e02_head",
+      "data_identity": {
+        "type": "source-reported test fixture",
+        "path": "policy-engine/tests/unit/remediation/test_doe_02.py",
+        "at": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "raw_bytes": "not_transferred"
+      },
+      "backend": "source-reported sensitivity extra; actual native invocation not independently established without raw VM archive",
+      "environment_locator": "results/received/F08.txt metadata/profile",
+      "evidence_grade": "transfer_and_navigation_only"
+    },
+    {
+      "id": "F14-P119",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_doe_01.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.178130091999265",
+      "rss_kib": "266820",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "469",
+      "extra_json": "{}",
+      "source_ref": "integration_head",
+      "data_identity": {
+        "type": "source-reported test fixture",
+        "path": "policy-engine/tests/unit/remediation/test_doe_01.py",
+        "at": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "raw_bytes": "not_transferred"
+      },
+      "backend": "source-reported sensitivity extra; actual native invocation not independently established without raw VM archive",
+      "environment_locator": "results/received/F14.txt metadata/profile",
+      "evidence_grade": "transfer_and_navigation_only"
+    }
+  ],
+  "research_inputs": {
+    "closure_decisions_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "original_bundles": [
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-01.md",
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-02.md",
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-03.md"
+    ],
+    "ledger_full_denominator": 282,
+    "recorded_ledger_status": {
+      "B97": "partial",
+      "B98": "partial",
+      "B99": "partial",
+      "B100": "partial",
+      "B101": "partial",
+      "B102": "partial",
+      "B103": "partial",
+      "B104": "partial",
+      "B105": "partial"
+    },
+    "import_results_check": {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+      "outcome": "PASS",
+      "output": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}"
+    },
+    "query_failures_navigation": "unit E failures-only limit30 resolves FRC cells only; DOE exact cells queried separately; baseline PASS is not closure"
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/methods/doe",
+        "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "tests/unit/remediation/test_doe_01.py",
+        "tests/unit/remediation/test_doe_02.py",
+        "tests/unit/remediation/test_doe_03.py",
+        "--basetemp=/workspace/e02-E-doe-20261006-checks/native-pytest"
+      ],
+      "target_sha": "47e46d918ea68beba8a9fd08113a01e59b943646",
+      "target_tree": "b11293c138c582d8d015ba74432e22c63db1fe70",
+      "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 14.444060640002135,
+      "peak_rss_kib": 627772,
+      "user_cpu_s": 13.4956,
+      "system_cpu_s": 0.5864159999999999,
+      "environment_overrides": {},
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006-native.txt",
+      "output_sha256": "99c068acf46835df3a2a33ecbd2ca64070189eaea3cb43c6bb97cbcb5c75f67c",
+      "outcome": "PASS",
+      "interpretation": "native property check passed",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006-environment.json"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "-k",
+        "requires_declared_independent_law",
+        "-p",
+        "e02_doe_removal",
+        "--basetemp=/workspace/e02-E-doe-20261006-checks/law-removal-pytest"
+      ],
+      "target_sha": "47e46d918ea68beba8a9fd08113a01e59b943646",
+      "target_tree": "b11293c138c582d8d015ba74432e22c63db1fe70",
+      "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 12.458675667992793,
+      "peak_rss_kib": 623840,
+      "user_cpu_s": 11.870927,
+      "system_cpu_s": 0.513876,
+      "environment_overrides": {
+        "E02_DOE_REMOVAL": "law",
+        "PYTHONPATH": "/workspace/e02-E-doe-20261006-checks:"
+      },
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006-law-removal.txt",
+      "output_sha256": "9da986f7d6528ce9e85108b6f5c9330af29b3610f8cdba5ebfdad113d7a3f80e",
+      "outcome": "FAIL",
+      "interpretation": "expected discriminator failure after isolated property removal",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006-environment.json",
+      "control_input_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_ordered_20261006_removal.py",
+      "reproduce_from_product_root": "PYTHONPATH=docs/research/e02-cloud-test-plan/implementation-handoffs/E E02_DOE_REMOVAL=law .venv/bin/python -m pytest -o addopts=\"\" -q tests/unit/scientist/methods/doe/test_analysis_receipt.py -k \"requires_declared_independent_law\" -p doe_ordered_20261006_removal"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "-k",
+        "content_valid_fake_receipt and result",
+        "-p",
+        "e02_doe_removal",
+        "--basetemp=/workspace/e02-E-doe-20261006-checks/replay-removal-pytest"
+      ],
+      "target_sha": "47e46d918ea68beba8a9fd08113a01e59b943646",
+      "target_tree": "b11293c138c582d8d015ba74432e22c63db1fe70",
+      "cwd": "/workspace/e02-E-doe-20261006/policy-engine",
+      "exit_code": 1,
+      "wall_seconds": 11.30135842000891,
+      "peak_rss_kib": 619048,
+      "user_cpu_s": 10.626633,
+      "system_cpu_s": 0.6288,
+      "environment_overrides": {
+        "E02_DOE_REMOVAL": "replay",
+        "PYTHONPATH": "/workspace/e02-E-doe-20261006-checks:"
+      },
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006-replay-removal.txt",
+      "output_sha256": "34beec4ad24167bd201b7b8375b85ab0fe8fc3733cfca83bfc79d1421a6a1b32",
+      "outcome": "FAIL",
+      "interpretation": "expected discriminator failure after isolated property removal",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006-environment.json",
+      "control_input_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_ordered_20261006_removal.py",
+      "reproduce_from_product_root": "PYTHONPATH=docs/research/e02-cloud-test-plan/implementation-handoffs/E E02_DOE_REMOVAL=replay .venv/bin/python -m pytest -o addopts=\"\" -q tests/unit/scientist/methods/doe/test_analysis_receipt.py -k \"content_valid_fake_receipt and result\" -p doe_ordered_20261006_removal"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/methods/doe/test_stability.py",
+        "--basetemp=/workspace/e02-E-doe-20261006-checks/stability-delta-pytest"
+      ],
+      "target_sha": "e092b1d1796265604df1891340f7a56ce633e745",
+      "target_tree": "4689ee663187a15e8c81b22cd745ff55c60604c6",
+      "exit_code": 0,
+      "wall_seconds": 2.8061905990034575,
+      "peak_rss_kib": 263492,
+      "user_cpu_s": 2.845167,
+      "system_cpu_s": 0.234279,
+      "environment_overrides": {},
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006-stability-delta.txt",
+      "output_sha256": "4ac8e0f0a8820c06ffcaf025377a20db83cb3c952000c6e5a6254ba52e49c5b0",
+      "outcome": "PASS",
+      "interpretation": "native property check passed",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006-environment.json"
+    },
+    {
+      "command": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/scientist/methods/doe/test_stability.py",
+        "-k",
+        "native_sobol_stability",
+        "-p",
+        "e02_doe_stability_removal",
+        "--basetemp=/workspace/e02-E-doe-20261006-checks/stability-removal-pytest"
+      ],
+      "target_sha": "e092b1d1796265604df1891340f7a56ce633e745",
+      "target_tree": "4689ee663187a15e8c81b22cd745ff55c60604c6",
+      "exit_code": 1,
+      "wall_seconds": 2.973752295001759,
+      "peak_rss_kib": 263640,
+      "user_cpu_s": 2.922816,
+      "system_cpu_s": 0.31948699999999997,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-E-doe-20261006-checks:"
+      },
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006-stability-removal.txt",
+      "output_sha256": "5d8f26fab05ed404bec50a166fd1bfc01bc96207caa7970e4043fa8bc04d6313",
+      "outcome": "FAIL",
+      "interpretation": "expected discriminator failure after isolated property removal",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006-environment.json",
+      "control_input_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe_ordered_20261006_stability_removal.py",
+      "reproduce_from_product_root": "PYTHONPATH=docs/research/e02-cloud-test-plan/implementation-handoffs/E .venv/bin/python -m pytest -o addopts=\"\" -q tests/unit/scientist/methods/doe/test_stability.py -k native_sobol_stability -p doe_ordered_20261006_stability_removal"
+    },
+    {
+      "command": "SensitivityBridge.analyze_search_space(...,seed=43,n_trajectories=16,store=configured_CAS); fresh Python subprocess SensitivityAwareCandidateGenerator.from_artifact",
+      "target_sha": "47e46d918ea68beba8a9fd08113a01e59b943646",
+      "outcome": "PASS",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006-fresh-readback.json",
+      "input_closure": "test_analysis_receipt.py::_bounds at47e46...: x[0,10] metres,z[0,1] seconds,y=2x+3z; full48rows; fixture not production",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006-environment.json"
+    },
+    {
+      "command": ".venv/bin/python -m ruff check $(git diff --name-only 198076863e143dea9f89f02734b13d50dae3eed5...HEAD -- \"*.py\" | sed \"s|^policy-engine/||\"); .venv/bin/python -m ruff format --check same resolved file list",
+      "target_sha": "47e46d918ea68beba8a9fd08113a01e59b943646",
+      "outcome": "PASS",
+      "output": "All checks passed!\n10 files already formatted\n",
+      "input_closure": "git diff --name-only slice_base...implementation47e46 -- *.py; no runtime cap or thread override"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+        "src/polisyos/scientist/methods/doe/_receipt.py",
+        "src/polisyos/scientist/methods/doe/analysis.py",
+        "src/polisyos/scientist/methods/doe/designs.py",
+        "src/polisyos/scientist/methods/doe/sampling.py",
+        "src/polisyos/scientist/methods/doe/stability.py",
+        "src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+        "tests/unit/remediation/test_doe_02.py",
+        "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+        "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "tests/unit/scientist/methods/doe/test_stability.py"
+      ],
+      "target_sha": "e092b1d1796265604df1891340f7a56ce633e745",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "All checks passed!\n",
+      "input_closure": "complete changed Python denominator relative to fresh slice base"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+        "src/polisyos/scientist/methods/doe/_receipt.py",
+        "src/polisyos/scientist/methods/doe/analysis.py",
+        "src/polisyos/scientist/methods/doe/designs.py",
+        "src/polisyos/scientist/methods/doe/sampling.py",
+        "src/polisyos/scientist/methods/doe/stability.py",
+        "src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+        "tests/unit/remediation/test_doe_02.py",
+        "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+        "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "tests/unit/scientist/methods/doe/test_stability.py"
+      ],
+      "target_sha": "e092b1d1796265604df1891340f7a56ce633e745",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "output": "12 files already formatted\n",
+      "input_closure": "complete changed Python denominator relative to fresh slice base"
+    }
+  ],
+  "property": {
+    "statement": "Canonical seeded SALib sampler and analyzer share exact distribution, ordered design, experimental input law and estimator identity; the configured CAS persists every row/outcome, and the actual search consumer reproduces its result before using ranking. Bootstrap status preserves requested/attempted/success/failed counts.",
+    "runtime_path": [
+      "autotune.SensitivityBridge.analyze_search_space",
+      "doe.sampling.generate_sensitivity_samples",
+      "doe.analysis.analyze_sensitivity",
+      "doe._receipt._persist_analysis",
+      "configured ArtifactStore",
+      "doe._receipt._load_analysis",
+      "search.SensitivityAwareCandidateGenerator.from_artifact",
+      "search generate/generate_batch _sensitivity projection"
+    ],
+    "oracle": "Morris y=2x+3z physical derivatives(2,3),full-range effects(20,3); independent Sobol uniforms y=2x+3z S1=ST=(4/13,9/13),S2=0; native SALib1.5.2",
+    "negative_controls": [
+      "unknown/dependent Sobol law before any evaluator",
+      "missingseed/budget/unknownmethod before callbacks",
+      "reorder/correlate/wrongseed/wrongdistribution with unchanged shape",
+      "content-valid CAS fake numerical result/order/seed/kind/schema rejected at real search consumer",
+      "NaN,+inf,-inf failed outcomes preserve complete requested rows and whole Morris trajectory exclusion",
+      "isolated removal of lawgate yields2 expected failures; replayadmission removal1 expected failure; rankingmethod admission removal1 expected failure"
+    ],
+    "proxy_divergence": "Matching fields/shape/CAS digest admit a fabricated mu_star=999; exact native reproduction rejects it. Divisible rows with X2=X1 pass shape but not seeded independent Sobol design. Zero completed ranking replications can be unsupported rather than scientific instability."
+  },
+  "predicate_basis": {
+    "ordered_sobol_design": "recomputed",
+    "numerical_result_readback": "recomputed",
+    "declared_experimental_input_law": "consumer_asserted",
+    "population_source_law": "not_established",
+    "evaluator_provenance": "not_established",
+    "Morris_geometry": "recomputed",
+    "Morris_original_provenance": "not_established"
+  },
+  "capability_state_or_finding_state": {
+    "configured_fixture_chain": "producer_artifact_consumer_verified",
+    "default_production_search": "implemented_but_not_orchestrated",
+    "population_scientific_authority": "not_established",
+    "Sobol_FAST_ranking_stability": "unsupported",
+    "finding_closure": false
+  },
+  "review": {
+    "reviewer": "independent E root",
+    "reviewed_source_shas": [
+      "47e46d918ea68beba8a9fd08113a01e59b943646",
+      "e092b1d1796265604df1891340f7a56ce633e745"
+    ],
+    "outcomes_reported": "117 initialnative PASS;25 independent targeted PASS; scoped code accepted; root commits independent deciding receipt separately",
+    "P40": "Same design-structure consumer class found in ranking bootstrap; broadened status/denominator invariant, declared estimator-specific unsupported residual and ran native falsifier. No bypass of design identity."
+  },
+  "finding_verdicts": [
+    {
+      "finding_id": "B97",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "G code admission; E scientific DOE owner; D production search/autotune wiring",
+      "reason": "generic/native bounded properties retained and extended; full production evaluator/source law/default orchestration not established; no automatic ledger reclassification"
+    },
+    {
+      "finding_id": "B98",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "G code admission; E scientific DOE owner; D production search/autotune wiring",
+      "reason": "generic/native bounded properties retained and extended; full production evaluator/source law/default orchestration not established; no automatic ledger reclassification"
+    },
+    {
+      "finding_id": "B99",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "G code admission; E scientific DOE owner; D production search/autotune wiring",
+      "reason": "generic/native bounded properties retained and extended; full production evaluator/source law/default orchestration not established; no automatic ledger reclassification"
+    },
+    {
+      "finding_id": "B100",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "G code admission; E scientific DOE owner; D production search/autotune wiring",
+      "reason": "generic/native bounded properties retained and extended; full production evaluator/source law/default orchestration not established; no automatic ledger reclassification"
+    },
+    {
+      "finding_id": "B101",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "G code admission; E scientific DOE owner; D production search/autotune wiring",
+      "reason": "generic/native bounded properties retained and extended; full production evaluator/source law/default orchestration not established; no automatic ledger reclassification"
+    },
+    {
+      "finding_id": "B102",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "G code admission; E scientific DOE owner; D production search/autotune wiring",
+      "reason": "generic/native bounded properties retained and extended; full production evaluator/source law/default orchestration not established; no automatic ledger reclassification"
+    },
+    {
+      "finding_id": "B103",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "G code admission; E scientific DOE owner; D production search/autotune wiring",
+      "reason": "generic/native bounded properties retained and extended; full production evaluator/source law/default orchestration not established; no automatic ledger reclassification"
+    },
+    {
+      "finding_id": "B104",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "G code admission; E scientific DOE owner; D production search/autotune wiring",
+      "reason": "generic/native bounded properties retained and extended; full production evaluator/source law/default orchestration not established; no automatic ledger reclassification"
+    },
+    {
+      "finding_id": "B105",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "G code admission; E scientific DOE owner; D production search/autotune wiring",
+      "reason": "generic/native bounded properties retained and extended; full production evaluator/source law/default orchestration not established; no automatic ledger reclassification"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "G independently fetch exact remote head and separate receipt; common expensive E wave after all independent reviews on one final SHA. No broad wave claimed for this topic.",
+    "E/Scientific DOE owner supplies source/evaluator/profile provenance if making a population or production-law claim; current input_law is caller-declared exploratory experiment.",
+    "D search/autotune owner wires configured-store SensitivityBridge and from_artifact into default production caller. E public consumer path is exercised but not default orchestration.",
+    "Sobol/FAST ranking stability estimator-specific bootstrap absent: explicit unsupported requested denominator, zero attempted; no method closure claimed. Morris failed replicates produce limited conditional summary.",
+    "Nonuniform Morris uncertainty and seeded FAST inference remain unavailable as prior explicit profile. No production history mounted or transferred.",
+    "Historical red ownership not claimed; no P41 replay exemption used. Architecture/common integration checks belong to root frozen candidate wave."
+  ],
+  "reproduce_recipe_for_G": {
+    "implementation_sha": "e092b1d1796265604df1891340f7a56ce633e745",
+    "setup": "uv sync --frozen --extra sensitivity --extra analytics --extra test --extra lint --extra runtime; corepack pnpm install --frozen-lockfile on Python3.14/Node22",
+    "command": "cd policy-engine && .venv/bin/python -m pytest -o addopts=\"\" -q tests/unit/scientist/methods/doe tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py tests/unit/remediation/test_doe_01.py tests/unit/remediation/test_doe_02.py tests/unit/remediation/test_doe_03.py",
+    "input_type": "bounded synthetic analytic fixtures; no production dataset required to reproduce declared numerical/consumer property",
+    "consumer_contract": "Configured ArtifactStore + Core ArtifactRef kind doe_sensitivity_analysis/schema1.0; no new IR wire schema; from_artifact resolves actual same store and replays analysis"
+  },
+  "cleanup": {
+    "native_trash": "not available/established; no deletion performed",
+    "candidates_only": [
+      "/workspace/e02-E-doe-20261006/policy-engine/.venv",
+      "/workspace/e02-E-doe-20261006/policy-engine/node_modules",
+      "/workspace/e02-E-doe-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "/workspace/e02-E-doe-20261006-checks/native-pytest",
+      "/workspace/e02-E-doe-20261006-checks/law-removal-pytest",
+      "/workspace/e02-E-doe-20261006-checks/replay-removal-pytest",
+      "/workspace/e02-E-doe-20261006-checks/stability-delta-pytest",
+      "/workspace/e02-E-doe-20261006-checks/stability-removal-pytest"
+    ],
+    "preserve": [
+      "all implementation commits and worktree code",
+      "all committed deciding outputs/plugins/fresh readback",
+      "/workspace/e02-E-doe-20261006-checks/fresh-readback-cas",
+      "root full admission JSON snapshots",
+      "no production/unique data touched"
+    ]
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "finding_ids": [
+    "LA-056"
+  ],
+  "bundle_ids": [
+    "DDM-01"
+  ],
+  "target_sha": "cb9fb322a45efcac1cbdfa04d5f59a03d7dbe90a",
+  "target_tree": "930af5c2c52db9ea514184798b0b01e3f3937e01",
+  "input_path_denominator": 51,
+  "input_sha256": {
+    "policy-engine/src/polisyos/ddm/README.md": "8087e2e5ea56feeaa2fa8364d75226f484394a97b2a3605f40657085e70f5692",
+    "policy-engine/src/polisyos/ddm/__init__.py": "adbf26cc868a931b8ad4b2951558a065a52169a5d55acb3993e137d6657322fc",
+    "policy-engine/src/polisyos/ddm/calibration/__init__.py": "1accd35304221d8cbc248b22f8b99a57b74fadb69619111f072ea5460241f219",
+    "policy-engine/src/polisyos/ddm/calibration/audit.py": "02a8490bcaee5fbce7ed520e9a8cd3ce1e70653b18546fd9d1ec8eebf4dd9664",
+    "policy-engine/src/polisyos/ddm/calibration/calibrate.py": "eee9493030c961f89159d7d1f298b319377ff0656b0fe4555a443f3ac98409a8",
+    "policy-engine/src/polisyos/ddm/calibration/calibration_report.schema.json": "2b447a23a37c4b94085146a769d4e03ceb3b360e54b099031f1e0e058701d741",
+    "policy-engine/src/polisyos/ddm/calibration/multiple_testing.py": "b9acbfcc0e826f11346a94cbed0e48ff9aa600e5ab5915486697700132e683dc",
+    "policy-engine/src/polisyos/ddm/calibration/stationarity_regime.schema.json": "0e23ff0cd2f4f4fe4d587a83f64da1d221f8a84c87caca959173bd96e501e7cd",
+    "policy-engine/src/polisyos/ddm/contracts/events.py": "bb61dc020f9c905b7a3b47a9cec4ebdd98b002be5bb5692919bddc117a7a7ab7",
+    "policy-engine/src/polisyos/ddm/contracts/label_join_contract.yaml": "87ef2d937a7492677492c8c24ab3ae281621aa4f5ed6064fc8bcd59b1f184007",
+    "policy-engine/src/polisyos/ddm/contracts/metric_budget.py": "5f607000142ec570fdbd89297ea00039b7e2b2fef6cf825753eac24e7f4a4cdc",
+    "policy-engine/src/polisyos/ddm/contracts/metric_budget_policy.yaml": "3bb203ad5213ced6b9f06f9b210289feb350adedb158b391727e5a09a9d49d49",
+    "policy-engine/src/polisyos/ddm/contracts/prediction_logging_contract.yaml": "b7b4fdb489816ab228145b28663817b272c37860ee921fb9109b3a3a032a6739",
+    "policy-engine/src/polisyos/ddm/contracts/stationarity_regime_template.yaml": "eb0bb2dbfcece543a10b34ff7b5f3ca8974955b90ad86b7300a2bb6ccd0b71c5",
+    "policy-engine/src/polisyos/ddm/detectors/__init__.py": "1061636660258a5ca0cb448f95a53ffddde3c7f76819a986e52fac7131148608",
+    "policy-engine/src/polisyos/ddm/detectors/data_quality_monitor.py": "53619038d41dff14695da0478ed41fa16f5dc901adb23d9e2b566b584836b1b9",
+    "policy-engine/src/polisyos/ddm/detectors/performance_estimator.py": "cab2258a2eb0cf3303f9f8d62c3cfe9dc0f2d496c563ef01e47b769f4c552cd9",
+    "policy-engine/src/polisyos/ddm/detectors/realized_performance_monitor.py": "7ffbb95624e6d3c66ff9d254502b799b2f1f282595b953a3fe7b2fcb4ded7762",
+    "policy-engine/src/polisyos/ddm/detectors/track_2_2_shift_adapter.py": "aaaacc336c373d93a0be09940b201b9ef8a08ea0af9be100b1e51838af668f4b",
+    "policy-engine/src/polisyos/ddm/integration/__init__.py": "426bfbc35a951ff24434e755720fc7592ec27386ce046a7db3d05d07baff62b8",
+    "policy-engine/src/polisyos/ddm/integration/degradation_event.schema.json": "6e786d23937411a0d6f7dfc61e7c58ea4f82e249b60e2b0d6e7469da44c80e77",
+    "policy-engine/src/polisyos/ddm/integration/events.py": "894151bedc3046b2b41c469f15b42565818162dbd8d7a3d2d587a36ebcc9eb50",
+    "policy-engine/src/polisyos/ddm/integration/incident.py": "92561c5097bd0e82eb28220fdb9620164fd99236053b7fb0ba8a06183b871348",
+    "policy-engine/src/polisyos/ddm/integration/incident_payload.schema.json": "adb1186430ee4c391550adbcae78897ee5fb6219345397be1f18ee1a63e503f1",
+    "policy-engine/src/polisyos/ddm/integration/incident_runbook.md": "ff1b5e941c221f74da8203cc27c97c53854eb1fdff94743f1896c08d10b6aa84",
+    "policy-engine/src/polisyos/ddm/integration/model_registry.py": "0ef61509e34d1c2524574b272ebb3d1d4bfae2600256ae57b8c52a2d3e7eede4",
+    "policy-engine/src/polisyos/ddm/integration/model_registry_gate.md": "3fcb2a47e3dfb2788e9fcac91a14c6d7122216f84c2ab27d75c02926f4b2cbd6",
+    "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json": "2114c040f2b7799e5c6e7a1a6d996f020eecd63f168bca404752fc26910f0891",
+    "policy-engine/src/polisyos/ddm/integration/monitor.py": "d3593363c27db8d32c767a1082093651ab988eeaac38f8eecc8c71e59fc47054",
+    "policy-engine/src/polisyos/ddm/integration/readiness_state.schema.json": "ddfd41c112d174444a34ae487a5a31af2949b4049c8913cba215e4f62cd7f5c8",
+    "policy-engine/src/polisyos/ddm/integration/root_cause_bundle.schema.json": "82204b535e0d43d116a3978b294cb83e148eeda85c9699a7f315420472d2c514",
+    "policy-engine/src/polisyos/ddm/integration/shift_event.schema.json": "1bb48c1e7bd3531d8a8e81213f392f42fd91649654e41b42a8a4a2fb76045f65",
+    "policy-engine/src/polisyos/ddm/readiness/__init__.py": "cbd5315749bc31f57206b1a35b9c87e7ad066e4e43524fbece3077bfb2acbc13",
+    "policy-engine/src/polisyos/ddm/readiness/readiness_mapper.py": "040c993e244c868c897456429738e5140c9607eae4157cca33b70c849f9ca7d0",
+    "policy-engine/src/polisyos/ddm/readiness/readiness_policy.yaml": "f6debfb9cfab3b04e24247f6f8a2ac7e0d2fa48d7acc75b4ff7ad83ec79e987e",
+    "policy-engine/tests/unit/ddm/conftest.py": "86b228fb06286d2316310fc4d3490b438204106fe2c96d27732e4b79a7d86c3e",
+    "policy-engine/tests/unit/ddm/mirror_contracts/README.md": "4f70de7c5c801b18bf80f94b0981159e18e483ee93dd046e8ff124edc973b140",
+    "policy-engine/tests/unit/ddm/mirror_contracts/test_audit.py": "584f2eda727ccfae6a853b727b68c8f58c7b3998f7a2a0b9fd184abd7202d004",
+    "policy-engine/tests/unit/ddm/mirror_contracts/test_calibrate.py": "07ec15fc234d96c051a5781365049ce978bd1fb378f1e74107d19ceb38cb9cea",
+    "policy-engine/tests/unit/ddm/mirror_contracts/test_data_quality_monitor.py": "dd624e726aad49448ec6e654720b5162f61cb170cee66b76a8040a35ba8e89c4",
+    "policy-engine/tests/unit/ddm/mirror_contracts/test_events.py": "d0235d3b4baaf21d187cc553b9e6fa4bbf0012993969e5bb0dca1401cb6c0b40",
+    "policy-engine/tests/unit/ddm/mirror_contracts/test_multiple_testing.py": "55fefe397bb8cfb89f4ffc0dd0cfe94489a21236b9185a36ee4e1508361a44fc",
+    "policy-engine/tests/unit/ddm/mirror_contracts/test_performance_estimator.py": "6573e2de369e619a2b33819c50134b5723df3873cc81d61c23359c2f877ad350",
+    "policy-engine/tests/unit/ddm/mirror_contracts/test_realized_performance_monitor.py": "41970877ca582f9702b414c3a1efade7746bda5350a87d2282b231b8984eedf7",
+    "policy-engine/tests/unit/ddm/mirror_contracts/test_track_2_2_shift_adapter.py": "11fc4ddf50c619e8e3fb07bd9edfa9ce502a44f25420cf09a948fa89b5438577",
+    "policy-engine/tests/unit/ddm/test_delayed_label_replay.py": "c91422f563f9b51384e7dfd51645e4b78a2adfe95ee5a4bd58dfbe364ef3440d",
+    "policy-engine/tests/unit/ddm/test_facade.py": "9a1cb844e71ea17c4ae3baf78964954f1d3cb251be2d3c0ba493f4355e66737e",
+    "policy-engine/tests/unit/ddm/test_full_acceptance.py": "22afba9f452e073cc8bd03b399ed17b1c240dd92257d13deaed94145cebcda53",
+    "policy-engine/tests/unit/ddm/test_readiness_mapping.py": "eb802a8ad8435695812b4a059172923ac0c46b3f64335b1fca9778d4b184656b",
+    "policy-engine/tests/unit/ddm/test_stationary_replay.py": "678380870ff0530308562c22c6de24efb29344c5d731858b7bf7d00419e3f544",
+    "policy-engine/tests/unit/ddm/test_synthetic_drift_delay.py": "46886033be8660904762d359e80b7e66dbf283d61f10ce314a6a02d2e83b04e3"
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "thread_controls": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "XLA_FLAGS": null,
+      "JAX_PLATFORMS": null
+    }
+  },
+  "checks": [
+    {
+      "name": "contracts-only",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/contracts-only.py",
+        "positive"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "wall_s": 0.2529939339874545,
+      "outcome": "PASS",
+      "stdout": "{\"blocked_attempts\": [], \"loaded_execution_modules\": [], \"mode\": \"positive\", \"outcome\": \"PASS\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "root-lazy-removal",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/root-lazy-removal.py",
+        "root-eager"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "wall_s": 0.29325472300115507,
+      "outcome": "PASS",
+      "stdout": "{\"blocked_attempts\": [\"polisyos.ddm.integration.monitor\"], \"error\": \"contract entered execution dependency: polisyos.ddm.integration.monitor\", \"mode\": \"root-eager\", \"outcome\": \"FAIL\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "integration-lazy-removal",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/integration-lazy-removal.py",
+        "integration-eager"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "wall_s": 0.2497565539961215,
+      "outcome": "PASS",
+      "stdout": "{\"blocked_attempts\": [\"polisyos.ddm.integration.monitor\"], \"error\": \"contract entered execution dependency: polisyos.ddm.integration.monitor\", \"mode\": \"integration-eager\", \"outcome\": \"FAIL\"}\n",
+      "stderr": ""
+    },
+    {
+      "name": "identity-json-pickle-schema-consumer",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-20261006-receipts/closure-independent/ddm01/identity-json-pickle-schema-consumer.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 1,
+      "expected_exit_code": 0,
+      "wall_s": 2.5023754079884384,
+      "outcome": "FAIL",
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"/workspace/e02-E-20261006-receipts/closure-independent/ddm01/identity-json-pickle-schema-consumer.py\", line 69, in <module>\n    assert canonical.CalibrationAudit.model_validate(dict(samples[\"CalibrationAudit\"], pass_=True)).pass_ is True\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py\", line 716, in model_validate\n    return cls.__pydantic_validator__.validate_python(\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        obj,\n        ^^^^\n    ...<5 lines>...\n        by_name=by_name,\n        ^^^^^^^^^^^^^^^^\n    )\n    ^\npydantic_core._pydantic_core.ValidationError: 1 validation error for CalibrationAudit\npass_\n  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden\n"
+    },
+    {
+      "name": "native-ddm-public-consumers",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/ddm/test_facade.py",
+        "tests/unit/ddm/mirror_contracts/test_events.py",
+        "tests/unit/ddm/test_stationary_replay.py",
+        "tests/unit/ddm/test_full_acceptance.py",
+        "tests/unit/ddm/test_readiness_mapping.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+      "exit_code": 0,
+      "wall_s": 2.0015151080006035,
+      "outcome": "PASS",
+      "stdout": "..........................................                               [100%]\n",
+      "stderr": ""
+    }
+  ],
+  "predicate_basis": "recomputed",
+  "fixture_boundary": "Native import/class/wire/monitor component property. No production observation or deployment authority asserted.",
+  "pending": "Final combined frozen-SHA wave and accountable owner closure."
+}

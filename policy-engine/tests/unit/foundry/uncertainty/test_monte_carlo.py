@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import numpy.testing as npt
 import pytest
+
 from polisyos.foundry.uncertainty.config import AdaptiveStoppingConfig, PropagationConfig
 from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator
 from polisyos.ir.analytics.uncertainty import (
@@ -38,7 +39,9 @@ class TestMonteCarloPropagator:
     def test_mc_linear_fn_approximates_delta(self) -> None:
         config = PropagationConfig(mc_n_samples=2000, mc_seed=42)
         mc = MonteCarloPropagator(config)
-        envelopes = {"x": _normal_env(1.0, 0.5), "z": _normal_env(2.0, 1.0)}
+        envelopes = _declared_gaussian_product(
+            {"x": _normal_env(1.0, 0.5), "z": _normal_env(2.0, 1.0)}
+        )
 
         results = mc.propagate(
             _linear_sim,
@@ -92,7 +95,7 @@ class TestMonteCarloPropagator:
             abs=1e-6,
         )
 
-    def test_mc_adaptive_stopping_early(self) -> None:
+    def test_unadmitted_legacy_adaptive_settings_run_fixed_maximum(self) -> None:
         adaptive = AdaptiveStoppingConfig(
             enabled=True,
             min_samples=50,
@@ -112,10 +115,8 @@ class TestMonteCarloPropagator:
         )
 
         assert len(results) == 1
-        assert (
-            results[0].diagnostics.get("stopped_early", False) is True
-            or results[0].diagnostics.get("n_samples", 5000) < 5000
-        )
+        assert results[0].diagnostics["stopped_early"] is False
+        assert results[0].diagnostics["n_samples"] == 5000
 
     def test_mc_qmc_vs_random_consistency(self) -> None:
         config_random = PropagationConfig(
@@ -186,7 +187,7 @@ class TestMonteCarloPropagator:
 
         assert results == []
 
-    def test_mc_sobol_chunking_preserves_requested_sample_count(self) -> None:
+    def test_mc_sobol_chunking_preserves_complete_rounded_net(self) -> None:
         config = PropagationConfig(
             mc_n_samples=130,
             mc_batch_size=70,
@@ -200,7 +201,7 @@ class TestMonteCarloPropagator:
             ["y"],
         )[0]
 
-        assert result.diagnostics["n_samples"] == 130
+        assert result.diagnostics["n_samples"] == 256
         assert result.diagnostics["n_failed"] == 0
 
     def test_qmc_sampler_state_reuses_buffered_chunk(self) -> None:
@@ -223,3 +224,23 @@ class TestMonteCarloPropagator:
         assert np.all((second >= 0.0) & (second <= 1.0))
         assert int(state["generated"]) == 140
         assert state["buffer"].shape[0] < 128
+
+
+def _declared_gaussian_product(envelopes):
+    from polisyos.foundry.uncertainty.covariance import extract_std
+
+    names = sorted(envelopes)
+    return {
+        name: env.model_copy(
+            update={
+                "metadata": {
+                    **env.metadata,
+                    "covariance_params": names,
+                    "covariance_row": [
+                        extract_std(env) ** 2 if column == name else 0.0 for column in names
+                    ],
+                }
+            }
+        )
+        for name, env in envelopes.items()
+    }

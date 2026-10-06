@@ -1,0 +1,23 @@
+PROPERTY REMOVAL: cas; source files and result markers retained
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_requested_replays_are_actual_calls_and_keep_rows_after_cas_readback[1] __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fe0514f1a70>
+tmp_path = PosixPath('/workspace/e02-E-20261006-receipts/backtest-final-cas-002/test_requested_replays_are_act0')
+count = 1
+
+    @pytest.mark.parametrize("count", [1, 7])
+    def test_requested_replays_are_actual_calls_and_keep_rows_after_cas_readback(
+        monkeypatch, tmp_path, count
+    ):
+        orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / "cas"))
+        calls = _backend(monkeypatch, orchestrator)
+        report = orchestrator.run([_plan(tmp_path, count=count)])
+>       assert len(calls) == count
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests/unit/scientist/methods/backtesting/test_replay_admission.py:89: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_requested_replays_are_actual_calls_and_keep_rows_after_cas_readback[1]

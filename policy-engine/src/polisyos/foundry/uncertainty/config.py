@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from .sampling_admission import BoundedIIDMeanPlan
+
 
 class AdaptiveStoppingConfig(BaseModel):
     """Criteria for adaptive Monte Carlo stopping."""
@@ -44,4 +46,5 @@ class PropagationConfig(BaseModel):
     adaptive_stopping: AdaptiveStoppingConfig = Field(
         default_factory=lambda: AdaptiveStoppingConfig(),
     )
+    bounded_iid_mean: BoundedIIDMeanPlan | None = None
     compute_sensitivity: bool = Field(default=True)

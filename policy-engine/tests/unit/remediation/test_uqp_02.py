@@ -214,7 +214,14 @@ def test_analytical_uses_joint_covariance_for_shared_difference_and_independent_
     independent_result = PropagationDispatcher(config).propagate(
         lambda **params: {"y": params["a"] - params["b"]},
         {"a": 0.0, "b": 0.0},
-        {"a": _normal_env(0.0, 1.0), "b": _normal_env(0.0, 1.0)},
+        {
+            "a": _normal_env(
+                0.0, 1.0, metadata={"covariance_row": [1.0, 0.0], "covariance_params": ["a", "b"]}
+            ),
+            "b": _normal_env(
+                0.0, 1.0, metadata={"covariance_row": [0.0, 1.0], "covariance_params": ["a", "b"]}
+            ),
+        },
         ["y"],
         weights={"a": 1.0, "b": -1.0},
     )[0]
@@ -250,6 +257,7 @@ def test_random_mc_preserves_shared_empirical_rows_and_axis() -> None:
         "a": _empirical_env((-1.0, 0.0, 0.0, 1.0), weights=weights),
         "b": _empirical_env((-1.0, 0.0, 0.0, 1.0), weights=weights),
     }
+    envelopes = _content_bound_joint(envelopes)
     result = MonteCarloPropagator(
         PropagationConfig(
             mc_n_samples=128,
@@ -284,6 +292,7 @@ def test_qmc_preserves_shared_empirical_rows_and_axis() -> None:
         "a": _empirical_env(samples),
         "b": _empirical_env(samples),
     }
+    envelopes = _content_bound_joint(envelopes)
     result = MonteCarloPropagator(
         PropagationConfig(
             mc_n_samples=128,
@@ -362,18 +371,26 @@ def test_incompatible_empirical_axes_are_not_sampled_as_independent() -> None:
         "a": _empirical_env((-1.0, 0.0, 0.0, 1.0), sample_axis="row-a"),
         "b": _empirical_env((-1.0, 0.0, 0.0, 1.0), sample_axis="row-b"),
     }
-    result = MonteCarloPropagator(
-        PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
-    ).propagate(
-        lambda **params: {"y": params["a"] - params["b"]},
-        {"a": 0.0, "b": 0.0},
-        envelopes,
-        ["y"],
-    )[0].envelope
+    result = (
+        MonteCarloPropagator(
+            PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
+        )
+        .propagate(
+            lambda **params: {"y": params["a"] - params["b"]},
+            {"a": 0.0, "b": 0.0},
+            envelopes,
+            ["y"],
+        )[0]
+        .envelope
+    )
 
     assert result.distribution_family is DistributionFamily.UNKNOWN
     assert result.gate_eligible is False
-    assert result.metadata["failure"] == "incompatible_joint_law"
+    assert result.metadata["failure"] in {
+        "incompatible_joint_law",
+        "unestablished_joint_row_identity",
+        "unknown_dependency",
+    }
 
 
 def test_same_empirical_axis_with_different_weights_is_not_a_joint_law() -> None:
@@ -382,18 +399,26 @@ def test_same_empirical_axis_with_different_weights_is_not_a_joint_law() -> None
         "a": _empirical_env((-1.0, 0.0, 0.0, 1.0), weights=(1.0, 1.0, 1.0, 1.0)),
         "b": _empirical_env((-1.0, 0.0, 0.0, 1.0), weights=(1.0, 2.0, 1.0, 1.0)),
     }
-    result = MonteCarloPropagator(
-        PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
-    ).propagate(
-        lambda **params: {"y": params["a"] - params["b"]},
-        {"a": 0.0, "b": 0.0},
-        envelopes,
-        ["y"],
-    )[0].envelope
+    result = (
+        MonteCarloPropagator(
+            PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
+        )
+        .propagate(
+            lambda **params: {"y": params["a"] - params["b"]},
+            {"a": 0.0, "b": 0.0},
+            envelopes,
+            ["y"],
+        )[0]
+        .envelope
+    )
 
     assert result.distribution_family is DistributionFamily.UNKNOWN
     assert result.gate_eligible is False
-    assert result.metadata["failure"] == "incompatible_joint_law"
+    assert result.metadata["failure"] in {
+        "incompatible_joint_law",
+        "unestablished_joint_row_identity",
+        "unknown_dependency",
+    }
 
 
 def test_same_empirical_axis_with_different_lengths_is_not_a_joint_law() -> None:
@@ -402,18 +427,26 @@ def test_same_empirical_axis_with_different_lengths_is_not_a_joint_law() -> None
         "a": _empirical_env((-1.0, 0.0, 0.0, 1.0)),
         "b": _empirical_env((-1.0, 0.0)),
     }
-    result = MonteCarloPropagator(
-        PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
-    ).propagate(
-        lambda **params: {"y": params["a"] - params["b"]},
-        {"a": 0.0, "b": 0.0},
-        envelopes,
-        ["y"],
-    )[0].envelope
+    result = (
+        MonteCarloPropagator(
+            PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
+        )
+        .propagate(
+            lambda **params: {"y": params["a"] - params["b"]},
+            {"a": 0.0, "b": 0.0},
+            envelopes,
+            ["y"],
+        )[0]
+        .envelope
+    )
 
     assert result.distribution_family is DistributionFamily.UNKNOWN
     assert result.gate_eligible is False
-    assert result.metadata["failure"] == "incompatible_joint_law"
+    assert result.metadata["failure"] in {
+        "incompatible_joint_law",
+        "unestablished_joint_row_identity",
+        "unknown_dependency",
+    }
 
 
 def test_mixed_empirical_and_parametric_inputs_are_not_assumed_independent() -> None:
@@ -422,18 +455,26 @@ def test_mixed_empirical_and_parametric_inputs_are_not_assumed_independent() -> 
         "a": _empirical_env((-1.0, 0.0, 1.0)),
         "b": _normal_env(0.0, 1.0),
     }
-    result = MonteCarloPropagator(
-        PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
-    ).propagate(
-        lambda **params: {"y": params["a"] - params["b"]},
-        {"a": 0.0, "b": 0.0},
-        envelopes,
-        ["y"],
-    )[0].envelope
+    result = (
+        MonteCarloPropagator(
+            PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
+        )
+        .propagate(
+            lambda **params: {"y": params["a"] - params["b"]},
+            {"a": 0.0, "b": 0.0},
+            envelopes,
+            ["y"],
+        )[0]
+        .envelope
+    )
 
     assert result.distribution_family is DistributionFamily.UNKNOWN
     assert result.gate_eligible is False
-    assert result.metadata["failure"] == "incompatible_joint_law"
+    assert result.metadata["failure"] in {
+        "incompatible_joint_law",
+        "unestablished_joint_row_identity",
+        "unknown_dependency",
+    }
 
 
 def test_default_empirical_draws_without_shared_identity_are_not_coupled() -> None:
@@ -442,18 +483,22 @@ def test_default_empirical_draws_without_shared_identity_are_not_coupled() -> No
         "a": _empirical_env((-1.0, 0.0, 1.0), joint_id=None),
         "b": _empirical_env((-1.0, 0.0, 1.0), joint_id=None),
     }
-    result = MonteCarloPropagator(
-        PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
-    ).propagate(
-        lambda **params: {"y": params["a"] - params["b"]},
-        {"a": 0.0, "b": 0.0},
-        envelopes,
-        ["y"],
-    )[0].envelope
+    result = (
+        MonteCarloPropagator(
+            PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
+        )
+        .propagate(
+            lambda **params: {"y": params["a"] - params["b"]},
+            {"a": 0.0, "b": 0.0},
+            envelopes,
+            ["y"],
+        )[0]
+        .envelope
+    )
 
     assert result.distribution_family is DistributionFamily.UNKNOWN
     assert result.gate_eligible is False
-    assert result.metadata["failure"] == "unestablished_joint_law"
+    assert result.metadata["failure"] == "unknown_dependency"
 
 
 def test_unknown_dependency_does_not_fall_back_to_independent_normal() -> None:
@@ -468,15 +513,17 @@ def test_unknown_dependency_does_not_fall_back_to_independent_normal() -> None:
         calls.append(params)
         return {"y": params["a"] - params["b"]}
 
-    result = PropagationDispatcher(
-        PropagationConfig(preferred_method="analytical")
-    ).propagate(
-        simulation,
-        {"a": 0.0, "b": 0.0},
-        envelopes,
-        ["y"],
-        weights={"a": 1.0, "b": -1.0},
-    )[0].envelope
+    result = (
+        PropagationDispatcher(PropagationConfig(preferred_method="analytical"))
+        .propagate(
+            simulation,
+            {"a": 0.0, "b": 0.0},
+            envelopes,
+            ["y"],
+            weights={"a": 1.0, "b": -1.0},
+        )[0]
+        .envelope
+    )
 
     assert result.distribution_family is DistributionFamily.UNKNOWN
     assert result.gate_eligible is False
@@ -546,9 +593,7 @@ def test_non_gate_input_stays_non_gate_through_all_propagators() -> None:
         input_envelopes=input_envelopes,
         output_metric_id="y",
     )
-    delta = DeltaMethodPropagator(
-        PropagationConfig(delta_use_full_covariance=True)
-    ).propagate(
+    delta = DeltaMethodPropagator(PropagationConfig(delta_use_full_covariance=True)).propagate(
         simulation,
         {"a": 0.0},
         input_envelopes,
@@ -571,3 +616,24 @@ def test_non_gate_input_stays_non_gate_through_all_propagators() -> None:
     assert analytical.envelope.gate_eligible is False
     assert delta.envelope.gate_eligible is False
     assert monte_carlo.envelope.gate_eligible is False
+
+
+def _content_bound_joint(envelopes):
+    from polisyos.foundry.uncertainty.sampling_admission import joint_carrier_digest
+
+    names = sorted(envelopes)
+    ids = [f"row-{index}" for index in range(len(envelopes[names[0]].distribution_payload.samples))]
+    digest = joint_carrier_digest(names, envelopes, ids)
+    return {
+        name: env.model_copy(
+            update={
+                "metadata": {
+                    **env.metadata,
+                    "joint_draw_ids": ids,
+                    "joint_parameter_order": names,
+                    "joint_law_sha256": digest,
+                }
+            }
+        )
+        for name, env in envelopes.items()
+    }

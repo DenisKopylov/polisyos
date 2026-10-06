@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/measurement-probe.py.txt", line 12, in <module>
+    import polisyos.scientist.methods.backtesting.forecast_owner as owner
+  File "/workspace/e02-E-pr38-r2-receipts/mc/exact-58e2-source/policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py", line 42, in <module>
+    from polisyos.foundry.methods.catalog.forecasting import ensure_forecasting_methods_registered
+  File "/workspace/e02-E-pr38-r2-receipts/mc/exact-58e2-source/policy-engine/src/polisyos/foundry/methods/catalog/__init__.py", line 133, in <module>
+    from polisyos.foundry.methods.catalog.dependency_authority import (
+    ...<2 lines>...
+    )
+  File "/workspace/e02-E-pr38-r2-receipts/mc/exact-58e2-source/policy-engine/src/polisyos/foundry/methods/catalog/dependency_authority.py", line 7157, in <module>
+    _OWNER_ENTRYPOINT_SPECS = derive_owner_entrypoint_denominator_from_source(
+        module_file=Path(__file__),
+        protocol_concrete_pairs=_OWNER_PROTOCOL_CONCRETE_PAIRS,
+    )
+  File "/workspace/e02-E-pr38-r2-receipts/mc/exact-58e2-source/policy-engine/src/polisyos/foundry/methods/catalog/dependency_authority.py", line 6119, in derive_owner_entrypoint_denominator_from_source
+    registry = load_digest_domain_registry(_DIGEST_REGISTRY_PATH)
+  File "/workspace/e02-E-pr38-r2-receipts/mc/exact-58e2-source/policy-engine/src/polisyos/foundry/methods/catalog/dependency_evidence.py", line 2253, in load_digest_domain_registry
+    return decode_digest_domain_registry_toml(path.read_bytes())
+                                              ~~~~~~~~~~~~~~~^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py", line 777, in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/mc/exact-58e2-source/policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml'

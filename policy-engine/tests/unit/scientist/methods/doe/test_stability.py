@@ -71,3 +71,46 @@ class TestRankingStabilityChecker:
         checker = RankingStabilityChecker(n_bootstrap=5)
         report = checker.check(plan, samples, outputs)
         assert isinstance(report, StabilityReport)
+
+    def test_native_sobol_stability_declares_unsupported_full_denominator(self):
+        from polisyos.scientist.methods.doe.sampling import generate_sensitivity_samples
+
+        plan = SensitivityPlan(
+            method=SensitivityMethod.SOBOL,
+            parameter_specs=_make_plan().parameter_specs,
+            n_trajectories=16,
+            seed=43,
+            input_law="independent",
+        )
+        samples = generate_sensitivity_samples(plan)
+        outputs = 2 * samples[:, 0] + 3 * samples[:, 1]
+        report = RankingStabilityChecker(n_bootstrap=20).check(plan, samples, outputs)
+        assert report.status == "unsupported"
+        assert report.reason == "estimator_specific_structured_bootstrap_not_implemented"
+        assert report.requested_bootstrap == 20
+        assert report.input_run_count == 96
+        assert report.attempted_bootstrap == report.n_bootstrap == report.failed_bootstrap == 0
+        assert report.replicate_outcomes == []
+
+    def test_morris_failed_replicates_preserve_denominator(self, monkeypatch):
+        from polisyos.scientist.methods.doe import analysis
+
+        plan = _make_plan()
+        samples, outputs = _generate_data(plan)
+        original = analysis.analyze_sensitivity
+        counter = 0
+
+        def fail_first_two(*args, **kwargs):
+            nonlocal counter
+            counter += 1
+            if counter <= 2:
+                raise ValueError("transient numerical fixture failure")
+            return original(*args, **kwargs)
+
+        monkeypatch.setattr(analysis, "analyze_sensitivity", fail_first_two)
+        report = RankingStabilityChecker(n_bootstrap=5).check(plan, samples, outputs)
+        assert report.status == "limited"
+        assert report.requested_bootstrap == report.attempted_bootstrap == 5
+        assert report.n_bootstrap == 3
+        assert report.failed_bootstrap == 2
+        assert len(report.replicate_outcomes) == 5

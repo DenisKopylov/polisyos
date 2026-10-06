@@ -1,0 +1,538 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "backtest-native-default-replay-r2",
+  "bundle_ids": [
+    "BKT-01"
+  ],
+  "closure_ids": [
+    "B166",
+    "B169",
+    "B170"
+  ],
+  "slice_base_sha": "028829629a9c30454e44d25e7bea7be3ea05b561",
+  "slice_base_tree_sha": "a00c054928d7f9bafff6b46f2fb19e95697e6e9b",
+  "integration_anchor_sha": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "implementation_commits": [
+    "0e457bf0b2cef01fb423ba925048d6d9f7ce1095",
+    "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef"
+  ],
+  "numerical_candidate_sha": "0e457bf0b2cef01fb423ba925048d6d9f7ce1095",
+  "numerical_candidate_tree_sha": "450930dad3573d9ecc4c4283e76245fb6e8bae22",
+  "candidate_sha": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+  "candidate_tree_sha": "47ae719ab9d442ae0d875d04390e1b6c79a79e10",
+  "branch": "codex/e02-E-backtest-20261006",
+  "worktree_root": "/workspace/e02-E-backtest-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/51",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-backtest-native-trajectory.toml",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/README.md",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py"
+  ],
+  "workspace_admission": {
+    "mode": "resume",
+    "branch": "codex/e02-E-backtest-20261006",
+    "path": "/workspace/e02-E-backtest-20261006",
+    "full_json_saved": "/workspace/e02-E-pr38-r2-receipts/backtest-resume.json",
+    "sha256": "4c9e7081e2fc5e0697fe1c5efa1c6d4d1fe67fe2780f352f9238bcf6eab0c975",
+    "status": "admitted; serialized root-owned doctor result",
+    "no_new_checkout_created_by_leaf": true
+  },
+  "inputs": {
+    "class": "small synthetic native fixture, not production evidence",
+    "fixture": "tests/unit/scientist/methods/backtesting/test_native_replay.py@0e457bf0b2cef01fb423ba925048d6d9f7ce1095",
+    "source_rows": {
+      "income": [
+        1,
+        2,
+        900,
+        901
+      ],
+      "time_index": [
+        "t0",
+        "t1",
+        "t2",
+        "t3"
+      ],
+      "row_ids": [
+        "r0",
+        "r1",
+        "r2",
+        "r3"
+      ]
+    },
+    "cutoff": 2,
+    "consumed_prefix": {
+      "income": [
+        1,
+        2
+      ],
+      "time_index": [
+        "t0",
+        "t1"
+      ],
+      "row_ids": [
+        "r0",
+        "r1"
+      ]
+    },
+    "native_model": "canonical income_tax mechanism, one agent id=0, fixed reported_income=2, rate=.25, two successive native steps; independent transition oracle income=2-.5*(step+1)",
+    "target": {
+      "metric": "income",
+      "slot_id": "agents.income",
+      "unit_id": "usd",
+      "reduction": "mean",
+      "purpose": "predictive_simulation",
+      "origin": "t2",
+      "time_index": [
+        "t2",
+        "t3"
+      ]
+    },
+    "immutable_identity": "Original source snapshot/Trinity/registry reconciled before deriving content-bound masked DataSnapshot and matching child Trinity.ModelSpec; original artifacts unchanged. Exact refs and native snapshot payloads in deciding evidence JSON."
+  },
+  "environment_receipt": "backtest-native-default-replay-r2-checks/backtest-environment-corrected.json",
+  "commands_and_outputs": [
+    {
+      "candidate_sha": "0e457bf0b2cef01fb423ba925048d6d9f7ce1095",
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "command_argv": [
+        "python3",
+        "/workspace/e02-E-pr38-r2-receipts/measure-command.py",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/backtesting/test_native_replay.py",
+        "-q",
+        "-o",
+        "cache_dir=/workspace/e02-E-pr38-r2-receipts/backtest-native-frozen-cache",
+        "--basetemp=/workspace/e02-E-pr38-r2-receipts/backtest-native-frozen-tests",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/backtest-native-frozen.xml"
+      ],
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-E-backtest-20261006/policy-engine/src"
+      },
+      "stdout": "backtest-native-default-replay-r2-checks/backtest-native-frozen.stdout.txt",
+      "junit": "backtest-native-default-replay-r2-checks/backtest-native-frozen.xml",
+      "result": {
+        "PASS": 13,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "measurement": {
+        "exit_code": 0,
+        "wall_seconds": 411.5987739550037,
+        "user_seconds": 303.540242,
+        "system_seconds": 16.43377,
+        "max_rss_kib": 968920
+      }
+    },
+    {
+      "candidate_sha": "0e457bf0b2cef01fb423ba925048d6d9f7ce1095",
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "command_argv": [
+        "python3",
+        "/workspace/e02-E-pr38-r2-receipts/measure-command.py",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+        "tests/unit/scientist/methods/backtesting/test_cv.py",
+        "tests/unit/scientist/governance/test_backtest_matrix.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_run_simulation.py",
+        "tests/unit/scientist/nodes/test_run_simulation_feedback_overrides.py",
+        "tests/unit/scientist/orchestration/workflows/test_engine_default_workflow_e1_7.py",
+        "-q",
+        "-o",
+        "cache_dir=/workspace/e02-E-pr38-r2-receipts/backtest-regression-frozen-cache",
+        "--basetemp=/workspace/e02-E-pr38-r2-receipts/backtest-regression-frozen-tests",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/backtest-regression-frozen.xml"
+      ],
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-E-backtest-20261006/policy-engine/src"
+      },
+      "stdout": "backtest-native-default-replay-r2-checks/backtest-regression-frozen.stdout.txt",
+      "junit": "backtest-native-default-replay-r2-checks/backtest-regression-frozen.xml",
+      "result": {
+        "PASS": 104,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "measurement": {
+        "exit_code": 0,
+        "wall_seconds": 178.20193164699594,
+        "user_seconds": 90.810873,
+        "system_seconds": 7.969793,
+        "max_rss_kib": 922220
+      }
+    },
+    {
+      "candidate_sha": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "command_argv": [
+        "python3",
+        "/workspace/e02-E-pr38-r2-receipts/measure-command.py",
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/methods/backtesting/test_native_replay.py::test_default_native_forecast_replays_consume_masked_rows_and_actual_seeds[1]",
+        "tests/unit/scientist/methods/backtesting/test_native_replay.py::test_native_replay_refuses_unadmitted_inputs_before_backend",
+        "tests/unit/scientist/methods/backtesting/test_native_replay.py::test_native_replay_counters_cannot_bypass_trajectory_requirement",
+        "-q",
+        "-o",
+        "cache_dir=/workspace/e02-E-pr38-r2-receipts/backtest-curated-native-cache",
+        "--basetemp=/workspace/e02-E-pr38-r2-receipts/backtest-curated-native-tests",
+        "--junitxml=/workspace/e02-E-pr38-r2-receipts/backtest-curated-native.xml"
+      ],
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-E-backtest-20261006/policy-engine/src"
+      },
+      "stdout": "backtest-native-default-replay-r2-checks/backtest-curated-native.stdout.txt",
+      "junit": "backtest-native-default-replay-r2-checks/backtest-curated-native.xml",
+      "result": {
+        "PASS": 12,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "measurement": {
+        "exit_code": 0,
+        "wall_seconds": 73.92259286799526,
+        "user_seconds": 65.036698,
+        "system_seconds": 5.037191,
+        "max_rss_kib": 913024
+      }
+    }
+  ],
+  "unique_test_cases": 117,
+  "repeated_import_followup_cases": 12,
+  "native_evidence_summary": [
+    {
+      "report_artifact_id": "sha256:26d12492f6a5f9c807a837eee86206ea6f67d3a96fa240f3743d1607d124d300",
+      "counts": [
+        {
+          "attempted": 1,
+          "basis": "recomputed",
+          "completed": 1,
+          "declared_n_simulation_runs": 1,
+          "failed": 0,
+          "outcomes": [
+            "native"
+          ],
+          "plan_id": "native",
+          "requested": 1,
+          "unit": "scenario",
+          "unobserved": 0
+        }
+      ],
+      "actual_foundry_seeds": [
+        12
+      ],
+      "actual_run_ids": [
+        "native-fiscal"
+      ],
+      "predictions": [
+        {
+          "income": [
+            1.5,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "report_artifact_id": "sha256:11da9926d1cfd9d7cf70a2fd4c414f0f5e0261d501b8bcdb8301b59b02bf1fe0",
+      "counts": [
+        {
+          "attempted": 7,
+          "basis": "recomputed",
+          "completed": 7,
+          "declared_n_simulation_runs": 7,
+          "failed": 0,
+          "outcomes": [
+            "native:replica:0",
+            "native:replica:1",
+            "native:replica:2",
+            "native:replica:3",
+            "native:replica:4",
+            "native:replica:5",
+            "native:replica:6"
+          ],
+          "plan_id": "native",
+          "requested": 7,
+          "unit": "backend_replay",
+          "unobserved": 0
+        }
+      ],
+      "actual_foundry_seeds": [
+        570356716,
+        741055479,
+        2285044420,
+        577497900,
+        82331697,
+        659408303,
+        3138027851
+      ],
+      "actual_run_ids": [
+        "native-fiscal:replica:0",
+        "native-fiscal:replica:1",
+        "native-fiscal:replica:2",
+        "native-fiscal:replica:3",
+        "native-fiscal:replica:4",
+        "native-fiscal:replica:5",
+        "native-fiscal:replica:6"
+      ],
+      "predictions": [
+        {
+          "income": [
+            1.5,
+            1.0
+          ]
+        },
+        {
+          "income": [
+            1.5,
+            1.0
+          ]
+        },
+        {
+          "income": [
+            1.5,
+            1.0
+          ]
+        },
+        {
+          "income": [
+            1.5,
+            1.0
+          ]
+        },
+        {
+          "income": [
+            1.5,
+            1.0
+          ]
+        },
+        {
+          "income": [
+            1.5,
+            1.0
+          ]
+        },
+        {
+          "income": [
+            1.5,
+            1.0
+          ]
+        }
+      ]
+    }
+  ],
+  "deciding_native_evidence": "backtest-native-default-replay-r2-checks/backtest-native-deciding-evidence.json",
+  "property_path": [
+    "HistoricalValidationPlan SCI K expansion",
+    "BacktestOrchestrator native profile admission",
+    "same configured core CAS immutable prefix + matching Trinity child",
+    "actual scientist_default workflow / BindFoundryInputsNode",
+    "RunSimulationNode sets actual FoundryExecConfig.seed",
+    "existing DefaultFoundryPort.execute for every declared step",
+    "actual SimulationResult -> materialized post-state snapshot -> registered target slot",
+    "typed persisted NativeForecastTrajectory",
+    "fresh CAS loader recomputes state observations and joins every simulation to consumed binding",
+    "persist BacktestReport -> fresh public report reader retains counted scenarios/seed/ref metadata"
+  ],
+  "independent_oracle": {
+    "expected": [
+      1.5,
+      1.0
+    ],
+    "basis": "Canonical native fiscal transition has last admitted income=2, reported_income=2, tax=.25*2=.5 per step. Future source values 900/901 are excluded. Naive constant 2, scalar effects and mechanism counters diverge.",
+    "positive_backend": "Actual default Scientist workflow and native Foundry execution; observer delegates to original DefaultFoundryPort.execute without replacing the evaluator."
+  },
+  "negative_controls": [
+    {
+      "selector": "test_native_replay_refuses_unadmitted_inputs_before_backend",
+      "cases": [
+        "missing_trinity",
+        "mismatched_trinity",
+        "future_binding",
+        "wrong_target",
+        "wrong_unit",
+        "wrong_horizon",
+        "wrong_time",
+        "hidden_future_parameter",
+        "prebound_state",
+        "model_future_dependency"
+      ],
+      "expected": "scientist_unavailable, empty comparisons, completed=0/failed=1 and zero Scientist backend calls"
+    },
+    {
+      "selector": "test_native_replay_counters_cannot_bypass_trajectory_requirement",
+      "expected": "Present metrics counter/effect-shaped output with successful ok marker is refused without successful SimulationResult/state trajectory; requested=attempted=1 completed=0 failed=1, no forecast fallback"
+    },
+    {
+      "selector": "test_default_native_forecast_replays_consume_masked_rows_and_actual_seeds[1|7] embedded CAS controls",
+      "expected": "Present typed forecast with correct markers but fabricated [2,2] values fails independent snapshot recomputation; manifest/payload schema-version mismatch fails readback"
+    }
+  ],
+  "old_proxy_divergence": {
+    "source_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+    "source_tree_sha": "ffd0d56892f8e515838af4c5b160cb9ac6d988ed",
+    "mechanism": "Git archive overlay of pinned policy-engine/src and policy-engine/architecture; imported orchestrator origin asserted before using the candidate fixture. No new worktree.",
+    "command_argv": [
+      "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-old58-falsifier.py"
+    ],
+    "environment": {
+      "PYTHONPATH": "/workspace/e02-E-pr38-r2-receipts/backtest-old58-overlay/policy-engine/src:/workspace/e02-E-backtest-20261006/policy-engine/src"
+    },
+    "stdout": "backtest-native-default-replay-r2-checks/backtest-old58-complete.stdout.txt",
+    "trace": "backtest-native-default-replay-r2-checks/backtest-old58-trace.jsonl",
+    "outcome": "Expected positive assertion FAIL, exit1: real BindFoundryInputs NODE_FAIL, RunSimulation NODE_SKIP, effective_mode=naive / scientist_predictions_missing. 32.5264s / 870316KiB.",
+    "limitation": "This new bounded fixture demonstrates the old module-level bridge failure. It does not replay missing raw VM archives or establish inherited global-gate reds; P41 remains not_established for those."
+  },
+  "import_only_transfer": {
+    "commit": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+    "changed": "Only Core artifacts/contracts imports in native_replay.py; canonical object identities equal, no execution/model/test changes",
+    "identity_receipt": "backtest-native-default-replay-r2-checks/backtest-curated-identity.json",
+    "new_source_checks": "12 PASS including actual K1 and every new negative",
+    "K7_evidence_attribution": "0e457bf0b2cef01fb423ba925048d6d9f7ce1095",
+    "remaining_final_check": "Root common expensive wave must run full native module on the frozen aggregate candidate; do not relabel the earlier K7 evidence SHA."
+  },
+  "predicate_basis": {
+    "P37_frozen_scope": "consumer_asserted predictive_simulation profile, exact target slot/unit/reduction, history columns/rows, source cutoff and declared future coordinates; no verifier/trust/causal authority",
+    "P40_class_fix": "Prefix admission rejects hidden parameters, prebound state/artifacts, undeclared inputs, future source indices and unscoped model data dependencies before backend; native consumers require state trajectories, not counters/effects/scalars",
+    "P41": "Transferred source cells remain navigation only; old58 bounded Git overlay has explicit origins/resources. No production/raw VM/global inherited-red claim."
+  },
+  "capability_state": {
+    "generic_native_default_workflow": "PASS on source checkpoint for K1/K7; exact successful persisted forecasts/counts/refs consumed",
+    "configured_actual_seed_binding": "PASS native ExecuteRequest observations, not requested-seed-only metadata",
+    "typed_trajectory_CAS_consumer": "PASS public BacktestReport fresh readback + independent target snapshot recomputation + consumed binding lineage",
+    "prediction_interval": "not_established; none inferred by this profile",
+    "stochastic_source_law_independence": "not_established; distinct actual execution seeds do not prove independent production worlds",
+    "production_history": "not_established; absent production history is not a blocker for the verified generic BKT01 wiring",
+    "trust_grade_or_causal_authority": "denied / withheld; B172/B173 owner purpose/profile/margin obligations unchanged"
+  },
+  "boundary_owner_inputs": [
+    {
+      "owner": "Canonical Foundry execution API/snapshot owner",
+      "required": "Admit or narrowly re-export existing get_state_path, load_state_snapshot, put_state_snapshot currently consumed from foundry.execute.executor; implementation does not manufacture admission",
+      "state": "pending root owner-ready packet; do not claim architecture gate PASS"
+    },
+    {
+      "owner": "Core registry/artifacts owner",
+      "required": "Admit curated Core.artifacts facade and load_registry_bundle_content boundary or approve narrow canonical export; no baseline sync is admission",
+      "state": "pending root owner-ready packet"
+    }
+  ],
+  "independent_review": {
+    "author_is_not_reviewer": true,
+    "reviewer": "Root-assigned DDM reviewer; source 0e457bf plus exact import-only 9c51 delta",
+    "state": "in progress outside author lane; no self-acceptance claim"
+  },
+  "finding_verdicts": [
+    {
+      "finding_id": "B166",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "reason": "Generic actual prefix/row/time/Trinity binding is now exercised through default native execution and fresh consumer. Owner adjudicates full criterion/closure separately; production history only if the selected local profile requires it.",
+      "next_owner": "Scientist historical-view/input-binding owner and formal finding-closure owner"
+    },
+    {
+      "finding_id": "B169",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "reason": "Real registered target/unit/time/horizon trajectories are consumed and recomputed; scalar/counter/fake data cannot substitute. This bounded predictive simulation profile emits no inferred interval or global semantic/causal authority; formal criterion/closure adjudication remains separate.",
+      "next_owner": "Scientist forecast-profile/temporal contract owner and formal finding-closure owner"
+    },
+    {
+      "finding_id": "B170",
+      "preserved_ledger_status": "partial",
+      "verdict": "limited",
+      "reason": "Real K1/K7 native replay counts, actual distinct seeds/runIDs, forecasts and failure controls now verified. PROVIDED remains governed by existing one-external-trajectory regression. Distinct seeds are not a stochastic-law proof; formal closure remains separate.",
+      "next_owner": "Scientist replay/Foundry execution-config owner and formal finding-closure owner"
+    }
+  ],
+  "G_local_reproduce": {
+    "implementation_sha": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+    "generic_recipe": "Fetch E topic by exact SHA; use repo-declared Scientist/JAX/NumPy extras. Run tests/unit/scientist/methods/backtesting/test_native_replay.py with isolated CAS/temp/cache on the implementation SHA; this requires no production dataset.",
+    "production_only_if_criterion_requires": {
+      "minimal_owner_input": [
+        "exact production source DataSnapshot/data refs, immutable source row IDs/time_index/declared feature columns",
+        "original Trinity whose ModelSpec binds the same source snapshot and exact registry bundle",
+        "explicit prefix-only input-binding rules, registered target slot/unit/reduction and predictive purpose/origin/future coordinates",
+        "cutoff/horizon, separately held actual outcomes, K and seed, model/world calibration and feature-lineage assumptions from the model/history owner"
+      ],
+      "procedure": "Local read-only source/history validation on exact candidate; preserve original refs, derive admitted prefix through existing producer, execute same default native path, reopen BacktestReport/NativeForecastTrajectory in configured CAS, independently reconcile rows/times/model/seeds/target values/counts. Do not transfer production data to cloud or substitute this synthetic fixture.",
+      "next_owner": "Local model/history owners supply inputs; G performs exact-candidate read-only reproduce and formal integration/closure checks"
+    }
+  },
+  "cleanup": {
+    "native_trash_available": false,
+    "action": "No permanent deletion. Keep useful source/docs/unique deciding outputs and shared root interpreter. List repeatable fixture/overlay/cache candidates for disposal only through Trash.",
+    "cleanup_candidates": [
+      "/workspace/e02-E-pr38-r2-receipts/backtest-curated-native-cache",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-curated-native-tests",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-native-frozen-cache",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-native-frozen-tests",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-old58-cache",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-old58-cache-002",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-old58-complete-tests",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-old58-exact-diagnostic-tests",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-old58-exact-tests",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-old58-overlay",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-old58-tests-001",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-old58-tests-002",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-positive1-cache",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-positive1-tests",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-positive1b-cache",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-positive1b-tests",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-preflight-cache",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-preflight-tests",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-regression-frozen-cache",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-regression-frozen-tests",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-working-cache",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-working-cache-002",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-working-native-001",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-working-native-002"
+    ],
+    "retain": [
+      "/workspace/e02-E-backtest-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-default-replay-r2-checks",
+      "/workspace/e02-E-pr38-r2-receipts/backtest-resume.json",
+      "/workspace/polisyos/policy-engine/.venv"
+    ]
+  },
+  "publication": {
+    "topic_only": true,
+    "no_main_push": true,
+    "no_force_rebase_reset": true,
+    "candidate_remote_readback": "backtest-native-default-replay-r2-checks/backtest-pr51-curated-readback.json",
+    "receipt_commit_sha": "The commit containing this file is the append-only receipt SHA; candidate source SHA remains explicit above."
+  },
+  "documentation_commits": [
+    "adf990d06137f91ac59a1dfa2361520ccbfe94f3"
+  ],
+  "documentation_tree_sha": "eda8e543d3cde6ba43a551a894a71b900afd013f",
+  "documentation_delta": {
+    "paths": [
+      "policy-engine/src/polisyos/scientist/methods/backtesting/README.md"
+    ],
+    "purpose": "FRC owner-requested companion: configured ForecastOwner v2 target unit/source-native scale/DataSchema admission and separate native BKT producer; legacy v1 replay preserved",
+    "source_tests_unchanged_after_candidate": true
+  },
+  "append_only_review_correction": {
+    "previous_source_sha": "9c51a7f7e0a7fc901a681b2fba6240b8cbcf7cef",
+    "code_disposition": "HOLD before class fix; earlier numerical PASS did not verify temporal/model substitution resistance",
+    "superseding_reader_receipt": "backtest-native-chain-admission-r2.json",
+    "final_reader_source_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+    "basis": "Independent reviewer found four genuine-artifact escapes; corrected with actual clock/materializer/previous-state/compiled-model joins. Earlier evidence and SHA attribution retained."
+  }
+}

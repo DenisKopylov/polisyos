@@ -1,0 +1,148 @@
+{
+  "schema_version": "1.0",
+  "unit": "E",
+  "reviewer": "cal_independent_r3",
+  "review_type": "Independent bounded code/property review; reviewer authored no production CAL/UQ/welfare mechanism",
+  "base": {
+    "sha": "d97c2c1b020f9570c83ee8166933321642975bd6",
+    "tree": "857d74f4fc852018052e216f05ed621b885eb0aa"
+  },
+  "candidate": {
+    "sha": "9dde740f6c5e179ea852a6a73b6b1a7b5eb9e8af",
+    "tree": "2e3a5460ffbee38b86b4a771ff8090b426f0dc07",
+    "topic": "codex/e02-E-cal-20261006",
+    "diff_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-draw-outcomes.toml",
+      "policy-engine/src/polisyos/foundry/calibration/README.md",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+      "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py"
+    ],
+    "source_sha256": {
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": "56672a2e5b97ad88f7022122f981b04e838bfa0a1fc3553b3aa51bb85b090b53",
+      "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py": "abad157b3b2775eb4b6ac135d738e97efc59b914b973fed30d131c892e6ed39b",
+      "policy-engine/src/polisyos/foundry/calibration/calibrator.py": "ecd18058f2541334469654bf109f3f09ed789330ec4d422967105c09d317e200",
+      "policy-engine/src/polisyos/foundry/calibration/hessian.py": "516fb0a8d02d76494f1990bf36ddc6e074f1a5891e8607f25254e689495ba00a",
+      "policy-engine/src/polisyos/foundry/calibration/report.py": "cdc50d6d70045fd904d257ab823135802343f7e81449a67cf143a51044fa4945",
+      "policy-engine/src/polisyos/ir/analytics/welfare.py": "58da810d7c06634d459edf55884147eb8e4265cece1c018eef902c30a4cea58b"
+    }
+  },
+  "code_decision": {
+    "verdict": "GO",
+    "scope": "Welfare complete terminal-draw support producer, configured CAS persistence, strict producer readback/fresh loader, pre-draw law/covariance admission; B197/B198 regression",
+    "independent_deciding_checks": 27,
+    "separate_native_fresh_B197_B198_checks": 3,
+    "no_open_bounded_code_blockers": true,
+    "author_test_counts_not_included": true,
+    "not_full_MC_review": true
+  },
+  "deciding_evidence": {
+    "welfare_receipt": "welfare-repaired-9dde740f6c5e-receipt.json",
+    "welfare_full_stdout": "welfare-repaired-9dde740f6c5e.log",
+    "fresh_B197_B198_receipt": "fresh-consumer-9dde740f6c5e-receipt.json",
+    "fresh_B197_B198_stdout": "fresh-consumer-9dde740f6c5e.log",
+    "environment": "environment-9dde740f6c5e.json",
+    "welfare_wall_seconds": 10.788851466990309,
+    "fresh_wall_seconds": 4.399199651001254,
+    "uniform_requested": 2048,
+    "uniform_successful": 1033,
+    "uniform_failed": 1015,
+    "unconditional_input_mean": 0.002223493846691546,
+    "conditional_output_mean": 0.4857377689202541,
+    "unconditional_evaluator_mean": "undefined_without_owner_completion_rule",
+    "property_path": "_propagate_credible_interval -> _persist_welfare_draw_outcomes -> _load_welfare_draw_outcomes -> persist_welfare_sample_bundle -> _load_verified_welfare_samples -> candidate report; independent FileSystemCAS instance reopens artifacts",
+    "independent_oracle": "numpy.default_rng(23).uniform(-1,1), exact success indices, known conditional mean1/2, observed all-input mean distinct; independent explicit failure index/code controls; J=[[1],[1]], Sigma=[[.0025]], J Sigma J^T and contrast variance0",
+    "present_but_fake_negatives": 17,
+    "removal_control": "Replace only runtime reconcile_draw_outcomes with no-op returning failed metric set: same CAS/schema/markers fake success count admitted; restore original -> refused.",
+    "old_proxy_divergence": "Public IR load_welfare_sample_bundle accepts each integrity-valid plausible success array while strict producer/fresh consumer rejects inconsistent outcome/count/hash/value/order/type/scope/kind/lineage.",
+    "source_freeze": "Exact HEAD and 6 mechanism SHA256 values equal before/after; isolated worktree clean; no code edits during checks"
+  },
+  "predicate_basis": {
+    "P37": "Frozen support relation: preserve requested/attempted/success/failed/unattempted; joint complete-output support determines conditional scope. Missing joint law forbids stochastic draws and unconditional uncertainty. Independent deterministic nominal point is permissible when labeled separately; selected candidate uses zero callbacks for missing-law. Invalid scale/covariance admission precedes every evaluator callback.",
+    "P40": "The entire finite per-draw support/identity class is covered: nonfinite, nonnumeric, missing metric, invalid response, evaluator exception, all-failed budget, absent law, nullable sampled input, exact strict count/axis types, orphan rows, input hash, output values, sample order, and W/PE/GE conditional moments.",
+    "P41": "Current candidate exact native caller and fresh CAS replay; historic source failure retained separately, no stale-red closure or author-test-count substitution.",
+    "patterns": "P01/P02/P05/P08/P09/P10/P14/P27/P29/P31-P33/P35-P38/P40/P41"
+  },
+  "finding_decision": {
+    "ledger_not_mutated": true,
+    "B197": {
+      "retained_ledger_status": "held",
+      "bounded_review_verdict": "limited",
+      "deciding_property": "Configured native Calibrator -> v2 report -> persisted selected CAS kind/schema/payload -> fresh welfare readback, singular tied covariance preserved",
+      "next_owner": "G and Calibrator/model source owner for complete original predicate and any production/source-law/served claim"
+    },
+    "B198": {
+      "retained_ledger_status": "closed",
+      "bounded_review_verdict": "closed",
+      "reason": "Regression preserved; typed std unchanged at display levels .8/.95, no new closure falsifier"
+    },
+    "UQP_UQS_affected_findings": "Technical regression evidence only; root retains current committed finding ledger and per-finding owner verdict; no automatic historical partial/held closure"
+  },
+  "capability_state": {
+    "native_JAX": "available:0.8.2 CPU float32 autodiff, x64False",
+    "native_welfare_NumPy": "available:2.3.5 float64",
+    "configured_CAS": "available, producer and fresh instances on same admitted scratch store",
+    "served_evaluator_provenance": "not_established",
+    "production_source_law": "not_established",
+    "public_legacy_IR_strict_sample_admission": "verification_missing",
+    "consumer_authority": "non-gating candidate; no source IID/regularity, confidence or causal authority established",
+    "IR_point_interval_semantic_ratification": "held external owner; wire unchanged"
+  },
+  "limitations_and_owners": [
+    {
+      "limitation": "Public legacy IR v1.1 sample payload reader is unchanged and does not enforce outcome reconciliation. No additional production sample-array consumer found.",
+      "state": "verification_missing",
+      "next_owner": "IR/runtime adapter owner plus G for intended downstream enforcement; requires exact consumer falsifier, no silent wire change"
+    },
+    {
+      "limitation": "Content-bound candidate outcomes are not independently established evaluator execution provenance or production source law.",
+      "state": "not_established",
+      "next_owner": "served evaluator/source-law owner; G local read-only exact-candidate reproduction if original criterion requires production history"
+    },
+    {
+      "limitation": "Newer MC owner candidate changes budget/display; common outcome API remains as f7 in this source, but final root combined candidate must get exact consumer coupling replay.",
+      "state": "remaining_check",
+      "next_owner": "root E orchestrator and independent MC reviewer"
+    }
+  ],
+  "reproduce_commands": [
+    {
+      "cwd": "/workspace/e02-E-cal-review-20261006",
+      "command": "PYTHONPATH=/workspace/e02-E-cal-review-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-20261006-receipts/cal-independent/welfare_repaired_review.py /workspace/e02-E-cal-review-20261006 9dde740f6c5e179ea852a6a73b6b1a7b5eb9e8af"
+    },
+    {
+      "cwd": "/workspace/e02-E-cal-review-20261006",
+      "command": "PYTHONPATH=/workspace/e02-E-cal-review-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-20261006-receipts/cal-independent/fresh_consumer_candidate.py /workspace/e02-E-cal-review-20261006 9dde740f6c5e179ea852a6a73b6b1a7b5eb9e8af"
+    }
+  ],
+  "probe_corrections": [
+    {
+      "files": [
+        "welfare-repaired-9dde740f6c5e-probe-serialization-error.log"
+      ],
+      "classification": "Probe ERROR: scratch logger Python set serialization; source unchanged. Corrected logger before deciding run."
+    },
+    {
+      "files": [
+        "welfare-repaired-9dde740f6c5e-probe-invalid-metadata-fixture.log",
+        "welfare-repaired-9dde740f6c5e-probe-invalid-metadata-fixture-receipt.json"
+      ],
+      "classification": "Probe fixture mismatch: legacy metadata.std is deliberately not a typed law. Corrected to malformed typed ParametricFitCarrier; native typed law refuses before callback. Not a product failure."
+    }
+  ],
+  "evidence_file_sha256": {
+    "welfare_repaired_review.py": "56c8135cffcf0bd95058f2837cfb4e4889120bbba2681c6c85208bdcf306de9e",
+    "fresh_consumer_candidate.py": "e72e1ab4982fef2a30c1749948e49e5ea66e74b683b288e6baecd43c365c62d9",
+    "welfare-repaired-9dde740f6c5e.log": "b5aec39a251016ab3dd87858b2032cd43a5eb80f4f7ced60ca36e2d3e58d4687",
+    "welfare-repaired-9dde740f6c5e-receipt.json": "8a181193209bcb36b2388d30a2ca4a738c53457a52018f4f6ca961c3611af1bc",
+    "fresh-consumer-9dde740f6c5e.log": "c5587618fb5d953119eea4addd2f5fd0403599630fe1ce2da6bd75953badda2c",
+    "fresh-consumer-9dde740f6c5e-receipt.json": "e6d45ffd22a07c4b30ddc4f6faeb706f61013a3cc93c969edcd9bea132c0bdaf",
+    "environment-9dde740f6c5e.json": "972331f253377d266ce4581ae2d3a3bbd7c2b926f2ef7d9caa4dce9622f58456"
+  },
+  "cleanup_candidates": [
+    "/workspace/e02-E-20261006-receipts/cal-independent/welfare-repaired-cas-9dde740f6c5e",
+    "/workspace/e02-E-20261006-receipts/cal-independent/fresh-cal-consumer-cas-9dde740f6c5e"
+  ],
+  "cleanup_policy": "Deciding files/scripts preserved. Reconstructible scratch CAS directories may go to Trash after root saves handoff; no permanent deletion and no Trash clearing. If no cloud Trash, hand off these exact candidates.",
+  "publication": "Root owns review commit on E topic and PR; reviewer made no production changes, Git checkout creation, commit, push, main publication, or messages to other user chats."
+}

@@ -1,0 +1,7 @@
+{
+  "identity_checks": {
+    "TrinityBundle": true,
+    "ArtifactRef": true
+  },
+  "scope": "two import statements only; no execution/reader/test property change"
+}

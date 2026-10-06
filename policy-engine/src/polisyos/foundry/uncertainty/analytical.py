@@ -7,6 +7,7 @@ from collections.abc import Mapping
 from statistics import NormalDist
 
 import jax.numpy as jnp
+import numpy as np
 
 from polisyos.ir.analytics.uncertainty import (
     CertificateKind,
@@ -27,6 +28,7 @@ from polisyos.ir.analytics.uncertainty import (
 
 from .covariance import build_covariance_matrix, has_unknown_dependency
 from .protocol import PropagationResult
+from .sampling_admission import admit_float32_range, admit_sampling_support
 
 
 class AnalyticalPropagator:
@@ -52,7 +54,66 @@ class AnalyticalPropagator:
         covariance: jnp.ndarray | None = None,
         use_full_covariance: bool = True,
     ) -> PropagationResult:
+        """Push a Gaussian law forward; supplied covariance uses sorted input order."""
         param_names = sorted(input_envelopes)
+        admit_sampling_support(input_envelopes)
+        if not param_names or any(
+            env.distribution_family is not DistributionFamily.NORMAL
+            for env in input_envelopes.values()
+        ):
+            raise ValueError("analytical Gaussian propagation requires nonempty normal inputs")
+        if not set(weights).issubset(input_envelopes):
+            raise ValueError("analytical weights reference an unknown input")
+        admit_float32_range(list(weights.values()))
+        declared_covariance = any(
+            "covariance_row" in env.metadata or "covariance_params" in env.metadata
+            for env in input_envelopes.values()
+        )
+        use_full_covariance = use_full_covariance or declared_covariance
+        if declared_covariance:
+            admitted_covariance = build_covariance_matrix(
+                param_names,
+                input_envelopes,
+                use_full_covariance=True,
+                jitter=0.0,
+                preserve_singular=True,
+            )
+            if covariance is not None and not np.allclose(
+                np.asarray(covariance),
+                np.asarray(admitted_covariance),
+                rtol=1e-7,
+                atol=1e-10,
+            ):
+                raise ValueError("supplied covariance differs from the declared joint law")
+            covariance = admitted_covariance
+        if covariance is not None:
+            supplied = admit_float32_range(covariance)
+            if supplied.shape != (len(param_names), len(param_names)):
+                raise ValueError("supplied covariance has the wrong dimension")
+            # Direct callers enter the same marginal/axis/PSD admission as the
+            # metadata producer. A raw array is not a prevalidated law.
+            supplied_inputs = {
+                name: input_envelopes[name].model_copy(
+                    update={
+                        "metadata": {
+                            **input_envelopes[name].metadata,
+                            "covariance_row": supplied[index].tolist(),
+                            "covariance_params": param_names,
+                        }
+                    }
+                )
+                for index, name in enumerate(param_names)
+            }
+            covariance = build_covariance_matrix(
+                param_names,
+                supplied_inputs,
+                use_full_covariance=True,
+                jitter=0.0,
+                preserve_singular=True,
+            )
+            use_full_covariance = True
+        elif has_unknown_dependency(input_envelopes):
+            raise ValueError("joint input law is unknown; missing covariance is not independence")
         if covariance is None:
             covariance = build_covariance_matrix(
                 param_names,
@@ -105,7 +166,7 @@ class AnalyticalPropagator:
             interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
             is_heuristic_ci=False,
             # Propagation cannot promote a non-gate-eligible input into a gate.
-            gate_eligible=all(envelope.gate_eligible for envelope in ordered_inputs),
+            gate_eligible=False,
             metadata={
                 "formula": "linear_combination_normal",
                 "weights": dict(weights),

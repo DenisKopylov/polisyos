@@ -1,5 +1,9 @@
 # Непрерывная интеграция E02
 
+Current continuation checkpoint: [checkpoint-09](checkpoint-09.json), with
+[second-wave accepted code and owner actions](reviews/2026-10-06-second-wave.md).
+Source312 has58 passing affected-consumer cases; broad E02 freeze/replay remains pending.
+
 G ведёт `codex/e02-integration` от опубликованного `origin/main`:
 `c40d4acae1ce58b597267255026d9356565828fd`, tree
 `897662caf73bd4487f798d66938b74d7abfe753e`. Этот checkpoint фиксирует входы
@@ -146,3 +150,10 @@ mutation сохраняют HOLD по независимым локальным 
 и отдельно закреплённые owner heads; новых finding closures не заявляет.
 Это исследовательский handoff для реализации полного критерия после bounded
 checkpoints, а не дополнительный runtime replay.
+
+## Continuation checkpoint, 2026-10-06
+
+[Checkpoint-08](checkpoint-08.json) accepts the bounded direct CAS put regression.
+[Current intake and owner actions](reviews/2026-10-06-first-wave.md) record exact
+receipts, independent checks, held admissions and follow-up consumers.
+No new finding closure or future main publication is authorized.

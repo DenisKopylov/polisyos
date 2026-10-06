@@ -1,0 +1,87 @@
+Resolved 418 packages in 8ms
+Scope: all 6 workspace projects
+Done in 547ms using pnpm v10.33.2
+[PASS] python: Python 3.14.7 via /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python
+[PASS] node: Node v22.23.3
+[PASS] uv: uv 0.9.21 at /workspace/.polisyos-environment/uv/bin/uv
+[PASS] playwright: Chromium browser is launchable
+[PASS] uv.lock: uv.lock is up to date
+[PASS] pnpm-lock: pnpm-lock.yaml matches package manifests
+[PASS] optional-surfaces: No optional surfaces selected
+doctor passed.
+Import gate report
+
+Policy: architecture/imports/policy.toml (v2)
+Exceptions: architecture/imports/exceptions.toml
+Scan mode: full
+Parse cache: hits=0, misses=2700
+
+Lapsed cover (0): none
+
+Unadjudicated (21):
+- src/polisyos/foundry/methods/catalog/causal/literature_prior.py:27 [ARCH007] forbidden narrowed internal import: foundry -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/ir/migrations/base.py:10 [ARCH006] forbidden internal subpackage import: polisyos.ir.migrations.base -> polisyos.common.migrations._engine. Cross-root imports must go through public facades.
+- src/polisyos/runtime/quality/chronology_proof.py:18 [ARCH006] forbidden internal subpackage import: polisyos.runtime.quality.chronology_proof -> polisyos.core.artifacts._manifest_lifecycle. Cross-root imports must go through public facades.
+- src/polisyos/runtime/quality/generation_source.py:18 [ARCH006] forbidden internal subpackage import: polisyos.runtime.quality.generation_source -> polisyos.core.artifacts._manifest_lifecycle. Cross-root imports must go through public facades.
+- src/polisyos/runtime/quality/workspace/foundry_consumption.py:33 [ARCH001] forbidden internal import: runtime -> policy_grammar via polisyos.policy_grammar (allowed={berl, common, core, data_forge, data_requirement, evidence, fabric, foundry, ir, lex, method_requirement, participation_requirement, pdc, runtime, scholar, scholar_requirement, scientist})
+- src/polisyos/runtime/quality/workspace/foundry_consumption.py:1015 [ARCH001] forbidden internal import: runtime -> obligation_graph via polisyos.obligation_graph (allowed={berl, common, core, data_forge, data_requirement, evidence, fabric, foundry, ir, lex, method_requirement, participation_requirement, pdc, runtime, scholar, scholar_requirement, scientist})
+- src/polisyos/runtime/quality/workspace/foundry_consumption.py:1016 [ARCH001] forbidden internal import: runtime -> obligation_rules via polisyos.obligation_rules (allowed={berl, common, core, data_forge, data_requirement, evidence, fabric, foundry, ir, lex, method_requirement, participation_requirement, pdc, runtime, scholar, scholar_requirement, scientist})
+- src/polisyos/runtime/quality/workspace/foundry_consumption.py:1021 [ARCH001] forbidden internal import: runtime -> policy_grammar via polisyos.policy_grammar (allowed={berl, common, core, data_forge, data_requirement, evidence, fabric, foundry, ir, lex, method_requirement, participation_requirement, pdc, runtime, scholar, scholar_requirement, scientist})
+- src/polisyos/scientist/agent/feasibility.py:232 [ARCH006] forbidden internal subpackage import: polisyos.scientist.agent.feasibility -> polisyos.foundry.execute._internal.snapshots. Cross-root imports must go through public facades.
+- src/polisyos/scientist/cross_graph/compiler.py:86 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/methods/discovery/prior_miner.py:28 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py:41 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py:38 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py:89 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py:63 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py:65 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py:90 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/orchestration/engine/context.py:11 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/orchestration/engine/executor.py:92 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/orchestration/engine/executor.py:544 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+- src/polisyos/scientist/orchestration/engine/protocol.py:15 [ARCH007] forbidden narrowed internal import: scientist -> data_forge via polisyos.data_forge.domains.academic.knowledge.skg_query (allowed_prefixes=polisyos.data_forge.read_api)
+
+Violation populations: lapsed cover=0 + unadjudicated=21 = total=21
+
+Allowed exceptions: none
+
+Cycles (runtime imports, package-level):
+- polisyos.calibration, polisyos.core, polisyos.data_forge, polisyos.data_requirement, polisyos.fabric, polisyos.fabric.io, polisyos.foundry, polisyos.ir, polisyos.lex, polisyos.obligation_rules, polisyos.pdc, polisyos.policy_grammar, polisyos.scholar, polisyos.scientist, polisyos.scientist.agent
+
+Top god files (internal import count, top 10):
+- src/polisyos/runtime/quality/__init__.py: 83
+- src/polisyos/runtime/http/services/control/run_lifecycle.py: 82
+- src/polisyos/foundry/methods/catalog/causal/__init__.py: 71
+- src/polisyos/foundry/methods/catalog/causal/_registry_boot.py: 60
+- src/polisyos/runtime/http/services/control/nl_pipeline.py: 59
+- src/polisyos/runtime/quality/generation_cycle.py: 57
+- src/polisyos/foundry/methods/catalog/causal/causal_engine/artifacts.py: 55
+- src/polisyos/runtime/quality/scorecard.py: 55
+- src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py: 54
+- src/polisyos/scientist/nodes/builtins/__init__.py: 47
+[run] doctor
+[run] lint imports
+Traceback (most recent call last):
+  File "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/uncapped_workspace_check.py", line 46, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/uncapped_workspace_check.py", line 27, in main
+    return verify.main(gate_args)
+           ~~~~~~~~~~~^^^^^^^^^^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/tools/devx/workspace/verify.py", line 389, in main
+    run_command(command)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "/workspace/e02-E-continuation-20261006/policy-engine/tools/devx/workspace/_common.py", line 134, in run_command
+    subprocess.run(
+    ~~~~~~~~~~~~~~^
+        list(spec.argv),
+        ^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        env=env,
+        ^^^^^^^^
+    )
+    ^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/workspace/.polisyos-environment/uv/bin/uv', 'run', 'python', 'tools/quality/lint/lint_imports.py', '--policy', 'architecture/imports/policy.toml', '--exceptions', 'architecture/imports/exceptions.toml']' returned non-zero exit status 1.

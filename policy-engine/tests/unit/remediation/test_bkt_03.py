@@ -223,8 +223,8 @@ def test_balanced_nonzero_errors_use_real_scipy_before_trust(
     report = _run_provided_report(tmp_path, predictions=predictions, truths=truths)
     assert report.overall_mae > 0.0
     assert report.degraded is False
-    assert report.trust_eligible is True
-    assert report.trust_grade == "A"
+    assert report.trust_eligible is False
+    assert report.trust_grade is None
 
 
 @pytest.mark.parametrize("truths", [[1.0], [1.0, 1.0, 1.0]])
@@ -248,5 +248,5 @@ def test_exact_zero_error_control_does_not_claim_backend_availability(
     assert report.detected_biases == []
     assert report.degraded is False
     assert report.degraded_reasons == []
-    assert report.trust_eligible is True
-    assert report.trust_grade == "A"
+    assert report.trust_eligible is False
+    assert report.trust_grade is None

@@ -87,7 +87,7 @@ def test_mc_missing_output_is_unknown_while_true_zero_remains_valid() -> None:
     assert genuine_zero.confidence_interval == (0.0, 0.0)
     assert genuine_zero.distribution_family is DistributionFamily.BOOTSTRAP
     assert genuine_zero.sample_size == 100
-    assert genuine_zero.gate_eligible is True
+    assert genuine_zero.gate_eligible is False
 
 
 def test_partial_node_persists_limitation_and_disables_gate(tmp_path) -> None:

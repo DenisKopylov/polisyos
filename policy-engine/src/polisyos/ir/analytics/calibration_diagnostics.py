@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, Literal
+import hashlib
+import json
+from collections.abc import Mapping
+from typing import Any, ClassVar, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 from polisyos.ir.analytics._truthfulness import (
     TruthfulnessReceipt,
@@ -109,6 +112,30 @@ class CalibrationDiagnosticsReport(BaseModel):
     recommended_action: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
     truthfulness_receipt: TruthfulnessReceipt | None = None
+    _continuous_inputs: dict[str, Any] | None = PrivateAttr(default=None)
+    _continuous_projection_digest: str | None = PrivateAttr(default=None)
+    _continuous_pairs_ref: str | None = PrivateAttr(default=None)
+
+    @model_validator(mode="after")
+    def _continuous_receipt_requires_reconciliation(self) -> CalibrationDiagnosticsReport:
+        # Serialized/self-provided receipts cannot reproduce interval pairs. The
+        # calibration owner rebinds this private state after actual evaluation.
+        if self.task == "continuous":
+            object.__setattr__(self, "truthfulness_receipt", None)
+        return self
+
+    def _projection_digest(self) -> str:
+        payload = self.model_dump(mode="json", exclude={"truthfulness_receipt"})
+        return hashlib.sha256(
+            json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+        ).hexdigest()
+
+    def model_copy(self, *, update: Mapping[str, Any] | None = None, deep: bool = False) -> Self:
+        """Keep continuous receipt extraction on the pair-reconciled projection path."""
+        copied = super().model_copy(update=update, deep=deep)
+        if copied.task == "continuous":
+            object.__setattr__(copied, "truthfulness_receipt", None)
+        return copied
 
     def has_errors(self) -> bool:
         """Return True if any structured issue is fatal."""
@@ -144,7 +171,7 @@ class CalibrationDiagnosticsReport(BaseModel):
     def to_truthfulness_receipt(self) -> TruthfulnessReceipt:
         """Project calibration diagnostics into the shared truthfulness receipt contract."""
 
-        if self.truthfulness_receipt is not None:
+        if self.task != "continuous" and self.truthfulness_receipt is not None:
             return self.truthfulness_receipt
 
         rejected_tests = tuple(
@@ -180,6 +207,15 @@ class CalibrationDiagnosticsReport(BaseModel):
             runtime_tier = TruthfulnessTier.UNVERIFIED
             degradation_reasons.append("calibration_test_rejected")
 
+        pairs_reconciled = (
+            self.task == "continuous"
+            and self._continuous_inputs is not None
+            and self._continuous_projection_digest == self._projection_digest()
+        )
+        if self.task == "continuous" and not pairs_reconciled:
+            runtime_tier = TruthfulnessTier.UNVERIFIED
+            degradation_reasons.append("interval_pairs_not_reconciled")
+
         diagnostics = {
             "task": self.task,
             "target_type": self.target_type,
@@ -193,11 +229,20 @@ class CalibrationDiagnosticsReport(BaseModel):
             "rejected_tests": list(rejected_tests),
             "recommended_action": self.recommended_action,
         }
+        if self.task == "continuous":
+            diagnostics.update(
+                interval_pairs_basis="recomputed" if pairs_reconciled else "not_established",
+                authority_purpose="descriptive_predictive_calibration",
+                production_source_basis="not_established",
+                gate_eligible=False,
+                denominator=self.metadata.get("interval_coverage", {}),
+            )
         return TruthfulnessReceipt(
             runtime_truthfulness_tier=runtime_tier,
             truthfulness_scope=TruthfulnessScope.PREDICTIVE_CALIBRATION,
             diagnostics=diagnostics,
             degradation_reasons=tuple(dict.fromkeys(degradation_reasons)),
+            evidence_ref=self._continuous_pairs_ref if pairs_reconciled else None,
         )
 
 

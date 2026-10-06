@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 from polisyos.ir.analytics.uncertainty import (
@@ -48,7 +49,9 @@ class TestAnalyticalRouting:
     def test_analytical_preferred_routes_correctly(self) -> None:
         config = PropagationConfig(preferred_method="analytical")
         dispatcher = PropagationDispatcher(config)
-        envelopes = {"x": _normal_env(1.0, 0.1), "z": _normal_env(2.0, 0.2)}
+        envelopes = _declared_gaussian_product(
+            {"x": _normal_env(1.0, 0.1), "z": _normal_env(2.0, 0.2)}
+        )
         weights = {"x": 2.0, "z": 3.0}
 
         results = dispatcher.propagate(
@@ -88,7 +91,9 @@ class TestAnalyticalRouting:
 
     def test_analytical_output_matches_delta_for_linear(self) -> None:
         """Analytical and delta results should be close for a linear function."""
-        envelopes = {"x": _normal_env(1.0, 0.1), "z": _normal_env(2.0, 0.2)}
+        envelopes = _declared_gaussian_product(
+            {"x": _normal_env(1.0, 0.1), "z": _normal_env(2.0, 0.2)}
+        )
         weights = {"x": 2.0, "z": 3.0}
         nominal = {"x": 1.0, "z": 2.0}
 
@@ -128,7 +133,9 @@ class TestAnalyticalRouting:
         """Auto mode should prefer analytical when weights + all normal."""
         config = PropagationConfig(preferred_method="auto")
         dispatcher = PropagationDispatcher(config)
-        envelopes = {"x": _normal_env(1.0, 0.1), "z": _normal_env(2.0, 0.2)}
+        envelopes = _declared_gaussian_product(
+            {"x": _normal_env(1.0, 0.1), "z": _normal_env(2.0, 0.2)}
+        )
         weights = {"x": 2.0, "z": 3.0}
 
         results = dispatcher.propagate(
@@ -145,7 +152,9 @@ class TestAnalyticalRouting:
         """Auto mode without weights should not use analytical."""
         config = PropagationConfig(preferred_method="auto")
         dispatcher = PropagationDispatcher(config)
-        envelopes = {"x": _normal_env(1.0, 0.1), "z": _normal_env(2.0, 0.2)}
+        envelopes = _declared_gaussian_product(
+            {"x": _normal_env(1.0, 0.1), "z": _normal_env(2.0, 0.2)}
+        )
 
         results = dispatcher.propagate(
             _linear_sim,
@@ -181,3 +190,23 @@ class TestAnalyticalRouting:
         assert results[0].envelope.point_estimate == pytest.approx(20.0)
         assert {call.get("scale") for call in calls} == {2.0}
         assert len(calls) < 10
+
+
+def _declared_gaussian_product(envelopes):
+    from polisyos.foundry.uncertainty.covariance import extract_std
+
+    names = sorted(envelopes)
+    return {
+        name: env.model_copy(
+            update={
+                "metadata": {
+                    **env.metadata,
+                    "covariance_params": names,
+                    "covariance_row": [
+                        extract_std(env) ** 2 if column == name else 0.0 for column in names
+                    ],
+                }
+            }
+        )
+        for name, env in envelopes.items()
+    }

@@ -1,0 +1,1 @@
+{"output": "/workspace/e02-E-pr38-r2-receipts/welfare-native-deciding.json", "bytes": 127264, "sha256": "15402911f3d25139d39199fdfccdc58e924bf1bcbc134c667b1b51c5d79c3d74", "target_sha": "884681db485b7466b183a206f83bbe0635f86ca3", "failed": 36, "success": 92, "conditional_mean": 2, "unconditional_mean": null}

@@ -20,9 +20,10 @@ from polisyos.calibration.forecast_bridge import (
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+from polisyos.fabric import DataSchema
 from polisyos.ir.analytics.backtest import load_backtest_report
 from polisyos.ir.analytics.forecasting_uncertainty import load_forecasting_uncertainty_bundle
-from polisyos.ir.artifacts import InputRef, get_json_artifact
+from polisyos.ir.artifacts import InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.scientist.methods.backtesting.forecast_owner import (
     CalibrationRuleBinding,
@@ -67,8 +68,21 @@ def _source(
         {"metric": values},
         kind="test.forecast.observed_data",
     )
+    schema_ref = put_json_artifact(
+        store,
+        DataSchema(
+            schema_id="test.forecast",
+            version="1.0",
+            fields=[{"name": "metric", "data_type": "float64", "unit": "count"}],
+        ).model_dump(mode="json"),
+        kind="fabric.data_schema",
+        schema_name="polisyos.fabric.DataSchema",
+        schema_version="1.0",
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
     snapshot = DataSnapshot(
         data_ref=ArtifactRef.model_validate(data_ref),
+        data_schema_ref=schema_ref,
         stats={"rows": len(values), "source": "test_frc_02_owner"},
     )
     snapshot_ref = _put_json(
@@ -134,6 +148,8 @@ def _request(
             horizon=horizon,
         ),
         target_metric="metric",
+        target_unit="count",
+        target_scale="source_native",
         method_fqn=METHOD_FQN,
         method_params={"horizon": horizon, "alpha": 0.3, "beta": 0.1},
         report_id=report_id,

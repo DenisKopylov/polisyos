@@ -1,0 +1,57 @@
+"""Replay the source-schema admission falsifier on exact old/new source."""
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
+import argparse
+import json
+
+from polisyos.core.artifacts import FileSystemCAS, PutOptions
+from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+from polisyos.ir.artifacts import normalize_artifact_ref, put_json_artifact
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+import polisyos.scientist.methods.backtesting.forecast_owner as owner
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output-root", type=Path, required=True)
+    args = parser.parse_args()
+    rows = []
+    for defect in ["missing_schema", "unresolved_schema", "wrong_unit"]:
+        store = FileSystemCAS(args.output_root / defect)
+        def put(payload, kind):
+            return store.put_json(payload, PutOptions(kind=kind, media_type="application/json"), canon_spec=CanonSpec(forbid_floats=False))
+        data = put({"metric": [float(i) for i in range(1,35)]}, "test.observed")
+        snapshot_payload = DataSnapshot(data_ref=data).model_dump(mode="json")
+        if defect == "unresolved_schema":
+            snapshot_payload["data_schema_ref"] = {"artifact_id": "sha256:" + "f" * 64, "kind": "fabric.data_schema", "media_type": "application/json"}
+        elif defect == "wrong_unit":
+            from polisyos.fabric import DataSchema
+            schema = DataSchema(schema_id="test.forecast", version="1.0", fields=[{"name":"metric", "data_type":"float64", "unit":"percent"}])
+            snapshot_payload["data_schema_ref"] = put_json_artifact(store, schema.model_dump(mode="json"), kind="fabric.data_schema", schema_name="polisyos.fabric.DataSchema", schema_version="1.0", canon_spec=CanonSpec(forbid_floats=False))
+        source = put(snapshot_payload, "fabric.data_snapshot")
+        rule = put({"schema_version":"1.0", "rule_id":"rolling-origin-residual-conformal.v1", "rule_version":"1.0", "estimand":"predictive_interval_coverage", "algorithm":"rolling_origin_residual_conformal", "nominal_coverage":0.9}, "ir.forecast_calibration_rule")
+        origin = datetime(2026,1,1,tzinfo=UTC)
+        payload = dict(observed_source_ref=DataSnapshotRef(artifact_id=source.artifact_id), split={"train_start":0,"train_end":30,"holdout_start":30,"holdout_end":34,"horizon":4}, target_metric="metric", method_params={"horizon":4}, report_id="schema-probe-" + defect, calibration_rule={"rule_id":"rolling-origin-residual-conformal.v1", "artifact_ref":normalize_artifact_ref(rule)}, temporal_roles=dict(zip(["data_valid_time","calibration_window_start","calibration_window_end","policy_effective_time","prediction_time","observation_time"],[origin+timedelta(days=i) for i in range(6)],strict=True)))
+        if "target_unit" in owner.ForecastOwnerRequest.model_fields:
+            payload.update(target_unit="count", target_scale="source_native")
+        request = owner.ForecastOwnerRequest(**payload)
+        original = MethodDispatcher.dispatch
+        callback_count = 0
+        def counted(self, *a, **kw):
+            nonlocal callback_count
+            callback_count += 1
+            return original(self, *a, **kw)
+        MethodDispatcher.dispatch = counted
+        result, error = None, None
+        try:
+            result = owner.ForecastOwner(store).run(request)
+        except Exception as exc:
+            error = {"type":type(exc).__name__, "message":str(exc)}
+        finally:
+            MethodDispatcher.dispatch = original
+        rows.append({"defect":defect, "callback_count":callback_count, "outcome":"REFUSED" if error else "EXECUTED", "error":error, "source_ref":str(source.artifact_id), "point_forecast":None if result is None else result.point_forecast, "measurement_bound":result is not None and hasattr(result,"measurement_binding")})
+    print(json.dumps({"source_file":owner.__file__, "oracle":"missing/unresolved/wrong-unit schema must refuse before numerical callback", "rows":rows}, indent=2))
+
+if __name__ == "__main__":
+    main()

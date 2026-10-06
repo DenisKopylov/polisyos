@@ -17,7 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, InputRef, SchemaInfo
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.foundry.calibration.identifiability import IdentifiabilityReport
 from polisyos.ir.analytics.calibration import CalibrationConfig
@@ -124,9 +124,9 @@ class CalibrationReport(BaseModel):
         default=None,
         description="Versioned map from Hessian optimizer coordinates to calibrated fields.",
     )
-    coordinate_projection_status: Literal[
-        "complete", "incomplete", "unsupported", "not_established"
-    ] | None = Field(
+    coordinate_projection_status: (
+        Literal["complete", "incomplete", "unsupported", "not_established"] | None
+    ) = Field(
         default=None,
         description=(
             "Whether the v2 optimizer-to-field map covers every reported calibrated field. "
@@ -230,13 +230,35 @@ def put_calibration_report(
         forbid_floats=False,
         exclude_none=report.schema_version == "1.0",
     )
+    bound_inputs = list(inputs or ())
+    objective_profile = report.execution_context.get("objective_profile")
+    if report.schema_version != "1.0" and objective_profile is not None:
+        profile_ref = store.put_json(
+            objective_profile,
+            PutOptions(
+                kind="foundry.calibration_objective_profile",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.foundry.GaussianObservationProfile", version="1.0"
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        bound_inputs = [
+            item for item in bound_inputs if item.role != "calibration_objective_profile"
+        ]
+        bound_inputs.append(
+            InputRef(
+                artifact_id=profile_ref.artifact_id,
+                role="calibration_objective_profile",
+                manifest_profile_sha256=profile_ref.manifest_profile_sha256,
+            )
+        )
     options = PutOptions(
         kind="foundry.calibration_report",
         media_type="application/json",
-        schema=SchemaInfo(
-            name="polisyos.foundry.CalibrationReport", version=report.schema_version
-        ),
-        inputs=inputs,
+        schema=SchemaInfo(name="polisyos.foundry.CalibrationReport", version=report.schema_version),
+        inputs=bound_inputs,
         canon=CanonInfo.from_spec(canon_spec),
     )
     if report.schema_version == "1.0":
@@ -246,3 +268,93 @@ def put_calibration_report(
         options,
         canon_spec=canon_spec,
     )
+
+
+def load_calibration_report(store: ArtifactStore, ref: ArtifactRef) -> CalibrationReport:
+    """Resolve a Foundry report only through its exact CAS kind/schema/payload.
+
+    A payload matching the report model under a different artifact kind is not
+    a calibration report. V2 reports also require their persisted configuration
+    edge. This loader establishes content integrity, not producer authority.
+    """
+    exact_ref = ArtifactRef(
+        artifact_id=ref.artifact_id,
+        kind=ref.kind,
+        media_type=ref.media_type,
+        manifest_profile_sha256=getattr(ref, "manifest_profile_sha256", None),
+    )
+    manifest = store.get_manifest(exact_ref)
+    schema = manifest.artifact_schema
+    if (
+        manifest.kind != "foundry.calibration_report"
+        or manifest.media_type != "application/json"
+        or schema is None
+        or schema.name != "polisyos.foundry.CalibrationReport"
+        or schema.version not in {"1.0", "2.0"}
+    ):
+        raise ValueError("calibration report manifest kind/schema mismatch")
+    if not store.verify(exact_ref).ok:
+        raise ValueError("calibration report content integrity failed")
+    report = CalibrationReport.model_validate(from_canonical_bytes(store.get_bytes(exact_ref)))
+    if report.schema_version != schema.version:
+        raise ValueError("calibration report payload/schema version mismatch")
+    if report.schema_version != "1.0":
+        configuration_inputs = [x for x in manifest.inputs if x.role == "calibration_config"]
+        if len(configuration_inputs) != 1:
+            raise ValueError("calibration report requires one calibration_config input")
+        configuration_input = configuration_inputs[0]
+        configuration_ref = ArtifactRef(
+            artifact_id=configuration_input.artifact_id,
+            kind="foundry.calibration_config",
+            media_type="application/json",
+            manifest_profile_sha256=configuration_input.manifest_profile_sha256,
+        )
+        try:
+            configuration_manifest = store.get_manifest(configuration_ref)
+        except ValueError as exc:
+            raise ValueError("calibration_config manifest admission failed") from exc
+        configuration_schema = configuration_manifest.artifact_schema
+        if (
+            configuration_manifest.kind != "foundry.calibration_config"
+            or configuration_manifest.media_type != "application/json"
+            or configuration_schema is None
+            or configuration_schema.name != "polisyos.ir.CalibrationConfig"
+        ):
+            raise ValueError("calibration_config manifest kind/schema mismatch")
+        if not store.verify(configuration_ref).ok:
+            raise ValueError("calibration_config content integrity failed")
+        configuration = CalibrationConfig.model_validate(
+            from_canonical_bytes(store.get_bytes(configuration_ref))
+        )
+        if configuration.schema_version != configuration_schema.version:
+            raise ValueError("calibration_config payload/schema version mismatch")
+        objective_profile = report.execution_context.get("objective_profile")
+        if objective_profile is not None:
+            profile_inputs = [
+                x for x in manifest.inputs if x.role == "calibration_objective_profile"
+            ]
+            if len(profile_inputs) != 1:
+                raise ValueError("calibration report objective profile input is missing")
+            profile_input = profile_inputs[0]
+            profile_ref = ArtifactRef(
+                artifact_id=profile_input.artifact_id,
+                kind="foundry.calibration_objective_profile",
+                media_type="application/json",
+                manifest_profile_sha256=profile_input.manifest_profile_sha256,
+            )
+            try:
+                profile_manifest = store.get_manifest(profile_ref)
+            except ValueError as exc:
+                raise ValueError("calibration report objective profile binding mismatch") from exc
+            if (
+                profile_manifest.kind != "foundry.calibration_objective_profile"
+                or profile_manifest.media_type != "application/json"
+                or profile_manifest.artifact_schema is None
+                or profile_manifest.artifact_schema.name
+                != "polisyos.foundry.GaussianObservationProfile"
+                or profile_manifest.artifact_schema.version != "1.0"
+                or not store.verify(profile_ref).ok
+                or from_canonical_bytes(store.get_bytes(profile_ref)) != objective_profile
+            ):
+                raise ValueError("calibration report objective profile binding mismatch")
+    return report

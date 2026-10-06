@@ -1,0 +1,636 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "calibration-batch-identity-and-welfare-support-20261006",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "integration_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "anchor_admission": "E root validated fresh origin/main before lane create; root retains full create/resume JSON",
+  "branch": "codex/e02-E-cal-20261006",
+  "candidate_sha": "9dde740f6c5e179ea852a6a73b6b1a7b5eb9e8af",
+  "candidate_tree_sha": "2e3a5460ffbee38b86b4a771ff8090b426f0dc07",
+  "implementation_commits": [
+    "ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55",
+    "f660c1fb62af6fbc3feaba513ce181abfe9878d2",
+    "34788febbbee4a9c45e14fd4245e719038680881",
+    "0cb369b6ef73f2afd041515a5120eadcc9e1efb9",
+    "9dde740f6c5e179ea852a6a73b6b1a7b5eb9e8af"
+  ],
+  "authored_changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-curvature-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-finite-objective.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-objective-binding.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibrator-batch-caller.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-draw-outcomes.toml",
+    "policy-engine/src/polisyos/foundry/calibration/README.md",
+    "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+    "policy-engine/src/polisyos/foundry/calibration/hessian.py",
+    "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+    "policy-engine/src/polisyos/foundry/calibration/report.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+    "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+    "policy-engine/tests/unit/foundry/calibration/test_report.py",
+    "policy-engine/tests/unit/remediation/test_cal_04.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py"
+  ],
+  "candidate_diff_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-admission.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-curvature-focused.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.native.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.ruff.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-calibration-scalar-batch.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-curvature-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-finite-objective.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-objective-binding.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibrator-batch-caller.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-sampling-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-draw-outcomes.toml",
+    "policy-engine/src/polisyos/foundry/calibration/README.md",
+    "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+    "policy-engine/src/polisyos/foundry/calibration/hessian.py",
+    "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+    "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+    "policy-engine/src/polisyos/foundry/calibration/report.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/analytical.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/config.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/delta.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/quasi_mc.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py",
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+    "policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+    "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py",
+    "policy-engine/tests/unit/foundry/calibration/test_report.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_delta.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_quasi_mc.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+    "policy-engine/tests/unit/remediation/test_cal_04.py",
+    "policy-engine/tests/unit/remediation/test_uqp_01.py",
+    "policy-engine/tests/unit/remediation/test_uqp_02.py",
+    "policy-engine/tests/unit/remediation/test_uqp_03.py",
+    "policy-engine/tests/unit/remediation/test_uqs_01.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py"
+  ],
+  "dependency_commits": [
+    {
+      "sha": "2721d7fbb83ecb0806aa5cac19ae1f2e1b713afa",
+      "owner": "E CAL05 leaf",
+      "scope": "run_pure_batch scalar lax.map state/time/key; approved NEW E topic merge",
+      "merge_sha": "3da687d1eed97a8ff8d1af2c15c4c6cd92eff1c1"
+    },
+    {
+      "sha": "f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7",
+      "owner": "E MC leaf",
+      "scope": "shared reconcile_draw_outcomes and sampling_content_digest; no author writes to uncertainty modules",
+      "merge_sha": "d97c2c1b020f9570c83ee8166933321642975bd6"
+    }
+  ],
+  "bundle_ids": [
+    "CAL-01",
+    "CAL-02",
+    "CAL-03",
+    "CAL-04",
+    "CAL-05",
+    "CAL-06"
+  ],
+  "closure_ids": [
+    "B176",
+    "B177",
+    "B178",
+    "B179",
+    "B180",
+    "B181",
+    "B182",
+    "B183",
+    "B184",
+    "B195",
+    "B196",
+    "B197",
+    "B198",
+    "B203",
+    "B185",
+    "B194"
+  ],
+  "baseline_cells": [
+    {
+      "cell": {
+        "id": "F13-P085",
+        "job": "F13",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "path": "policy-engine/tests/unit/remediation/test_cal_04.py",
+        "state": "PASS",
+        "collected": "12",
+        "calls": "12",
+        "call_pass": "12",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "11.99",
+        "rss_kib": "904724",
+        "receipt_status": "valid_reconciled",
+        "source_file": "received/F13.txt",
+        "source_line": "212",
+        "extra_json": "{}"
+      },
+      "findings": [
+        "B184",
+        "B196",
+        "B203"
+      ],
+      "source_ref": "integration_head",
+      "source_environment_ref": "results/received/F13.txt@198076863e143dea9f89f02734b13d50dae3eed5#header.environment-or-toolchain",
+      "data_identity": "policy-engine/tests/unit/remediation/test_cal_04.py@0213101b6d124e6f855b1aff7c442bb0912a61c2: repository fixtures only; transferred raw input archive absent",
+      "backend_identity": "source-reported CPU profile; exact nested numerical backend bytes not_established because raw_archive_transfer=missing"
+    },
+    {
+      "cell": {
+        "id": "F14-P118",
+        "job": "F14",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "path": "policy-engine/tests/unit/remediation/test_cal_02.py",
+        "state": "PASS",
+        "collected": "6",
+        "calls": "6",
+        "call_pass": "6",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "23.979265738000322",
+        "rss_kib": "752712",
+        "receipt_status": "valid_reconciled",
+        "source_file": "received/F14.txt",
+        "source_line": "468",
+        "extra_json": "{}"
+      },
+      "findings": [
+        "B179",
+        "B180",
+        "B181",
+        "B182"
+      ],
+      "source_ref": "integration_head",
+      "source_environment_ref": "results/received/F14.txt@198076863e143dea9f89f02734b13d50dae3eed5#header.environment-or-toolchain",
+      "data_identity": "policy-engine/tests/unit/remediation/test_cal_02.py@0213101b6d124e6f855b1aff7c442bb0912a61c2: repository fixtures only; transferred raw input archive absent",
+      "backend_identity": "source-reported CPU profile; exact nested numerical backend bytes not_established because raw_archive_transfer=missing"
+    },
+    {
+      "cell": {
+        "id": "F15-P034",
+        "job": "F15",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py",
+        "state": "PASS",
+        "collected": "10",
+        "calls": "10",
+        "call_pass": "10",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "2.22",
+        "rss_kib": "300872",
+        "receipt_status": "valid",
+        "source_file": "received/F15.txt",
+        "source_line": "189",
+        "extra_json": "{\"reason\":\"null\"}"
+      },
+      "findings": [
+        "B197",
+        "B198"
+      ],
+      "source_ref": "integration_head",
+      "source_environment_ref": "results/received/F15.txt@198076863e143dea9f89f02734b13d50dae3eed5#header.environment-or-toolchain",
+      "data_identity": "policy-engine/tests/unit/foundry/uncertainty/test_covariance.py@0213101b6d124e6f855b1aff7c442bb0912a61c2: repository fixtures only; transferred raw input archive absent",
+      "backend_identity": "source-reported CPU profile; exact nested numerical backend bytes not_established because raw_archive_transfer=missing"
+    },
+    {
+      "cell": {
+        "id": "F15-P086",
+        "job": "F15",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "path": "policy-engine/tests/unit/remediation/test_cal_03.py",
+        "state": "PASS",
+        "collected": "11",
+        "calls": "11",
+        "call_pass": "11",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "8.19",
+        "rss_kib": "619124",
+        "receipt_status": "valid",
+        "source_file": "received/F15.txt",
+        "source_line": "241",
+        "extra_json": "{\"reason\":\"null\"}"
+      },
+      "findings": [
+        "B183",
+        "B195"
+      ],
+      "source_ref": "integration_head",
+      "source_environment_ref": "results/received/F15.txt@198076863e143dea9f89f02734b13d50dae3eed5#header.environment-or-toolchain",
+      "data_identity": "policy-engine/tests/unit/remediation/test_cal_03.py@0213101b6d124e6f855b1aff7c442bb0912a61c2: repository fixtures only; transferred raw input archive absent",
+      "backend_identity": "source-reported CPU profile; exact nested numerical backend bytes not_established because raw_archive_transfer=missing"
+    },
+    {
+      "cell": {
+        "id": "F15-P097",
+        "job": "F15",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "path": "policy-engine/tests/unit/remediation/test_cal_01.py",
+        "state": "PASS",
+        "collected": "9",
+        "calls": "9",
+        "call_pass": "9",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "8.48",
+        "rss_kib": "653660",
+        "receipt_status": "valid",
+        "source_file": "received/F15.txt",
+        "source_line": "252",
+        "extra_json": "{\"reason\":\"null\"}"
+      },
+      "findings": [
+        "B176",
+        "B177",
+        "B178"
+      ],
+      "source_ref": "integration_head",
+      "source_environment_ref": "results/received/F15.txt@198076863e143dea9f89f02734b13d50dae3eed5#header.environment-or-toolchain",
+      "data_identity": "policy-engine/tests/unit/remediation/test_cal_01.py@0213101b6d124e6f855b1aff7c442bb0912a61c2: repository fixtures only; transferred raw input archive absent",
+      "backend_identity": "source-reported CPU profile; exact nested numerical backend bytes not_established because raw_archive_transfer=missing"
+    },
+    {
+      "cell": {
+        "id": "F14-P042",
+        "job": "F14",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+        "state": "PASS",
+        "collected": "8",
+        "calls": "8",
+        "call_pass": "8",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "23.042857077000008",
+        "rss_kib": "773144",
+        "receipt_status": "valid_reconciled",
+        "source_file": "received/F14.txt",
+        "source_line": "392",
+        "extra_json": "{}"
+      },
+      "findings": [
+        "B185"
+      ],
+      "source_ref": "integration_head",
+      "source_tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+      "source_environment_ref": "results/received/F14.txt@198076863e143dea9f89f02734b13d50dae3eed5#header.environment-or-toolchain",
+      "data_identity": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py@0213101b6d124e6f855b1aff7c442bb0912a61c2: repository fixtures only; raw archive unavailable",
+      "backend_identity": "source-reported CPU profile; exact nested backend bytes not_established because raw_archive_transfer=missing"
+    }
+  ],
+  "baseline_import_check": {
+    "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+    "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "environment": "system Python3.12.14",
+    "input_closure": "full tracked result import",
+    "outcome": "PASS",
+    "output": "{\"ok\":true,\"files\":[\"cells.tsv\",\"properties.tsv\",\"events.jsonl\",\"gates.json\",\"routes.tsv\",\"verification.json\"]}"
+  },
+  "baseline_navigation": "query.py --unit E --failures-only --limit 30 returned FRC historical failing cells; CAL PASS cells are navigation, not closure or exact P41 replay. Full B185 query has12 candidate route cells. No historical red inherited claim.",
+  "checks": [
+    {
+      "target_sha": "f660c1fb62af6fbc3feaba513ce181abfe9878d2",
+      "target_tree_sha": "2b5a35b8c5839d2a7e45b2a3efb5de8d2680d251",
+      "outcome": "PASS",
+      "tests": 249,
+      "command": "JAX_PLATFORMS=cpu .venv/bin/python -m pytest -q -o addopts= tests/unit/foundry/calibration tests/unit/remediation/test_cal_01.py tests/unit/remediation/test_cal_02.py tests/unit/remediation/test_cal_03.py tests/unit/remediation/test_cal_04.py tests/unit/remediation/test_cal_06.py tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-batch-candidate.txt",
+      "environment": "Python3.14.7 JAX/jaxlib0.8.2 NumPy2.3.5 SciPy1.16.3 nativeCPU,test-conftest x64True,thread_env{}",
+      "scope": "batch producer checkpoint only; not later finite-objective/identity/welfare deltas"
+    },
+    {
+      "target_sha": "0cb369b6ef73f2afd041515a5120eadcc9e1efb9",
+      "target_tree_sha": "bdda55333993ee5f734cb224e3d3b4299bd7fd84",
+      "outcome": "PASS",
+      "tests": 59,
+      "command": "JAX_PLATFORMS=cpu .venv/bin/python -m pytest -q -o addopts= tests/unit/foundry/calibration/test_hessian.py tests/unit/foundry/calibration/test_calibrator_batch.py tests/unit/foundry/calibration/test_report.py tests/unit/remediation/test_cal_04.py tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py::test_calibrator_tied_report_reaches_delta_and_monte_carlo_welfare",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-identity-candidate.txt",
+      "environment": "Python3.14.7 JAX/jaxlib0.8.2 NumPy2.3.5 SciPy1.16.3 nativeCPU,test-conftest x64True,thread_env{}",
+      "scope": "finite scalar objective, complete effective operand binding and actual batch/Gaussian CAS producer before welfare support delta"
+    },
+    {
+      "target_sha": "9dde740f6c5e179ea852a6a73b6b1a7b5eb9e8af",
+      "target_tree_sha": "2e3a5460ffbee38b86b4a771ff8090b426f0dc07",
+      "outcome": "PASS",
+      "tests": 45,
+      "command": [
+        "/workspace/e02-E-cal-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-o",
+        "addopts=",
+        "tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+      ],
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-welfare-candidate.txt",
+      "actual_environment": {
+        "collected": 45,
+        "devices": [
+          "TFRT_CPU_0"
+        ],
+        "executable": "/workspace/e02-E-cal-20261006/policy-engine/.venv/bin/python",
+        "jax": "0.8.2",
+        "jax_enable_x64": false,
+        "jax_platform": "cpu",
+        "jaxlib": "0.8.2",
+        "numpy": "2.3.5",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "pytest_exitstatus": 0,
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "scipy": "1.16.3",
+        "thread_env": {}
+      },
+      "result": {
+        "command": [
+          "/workspace/e02-E-cal-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-o",
+          "addopts=",
+          "tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py",
+          "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"
+        ],
+        "exit_code": 0,
+        "max_rss_kib": 1204868,
+        "source_unchanged": true,
+        "wall_s": 40.828236661996925
+      },
+      "input_identity": "real native income-tax Calibrator and file-system CAS; bounded synthetic Uniform[-1,1],N2048,seed23; no production source data/history",
+      "source_sha256": "56672a2e5b97ad88f7022122f981b04e838bfa0a1fc3553b3aa51bb85b090b53"
+    }
+  ],
+  "independent_review": {
+    "owner": "/root/cal_independent_r3",
+    "calibration_source_sha": "0cb369b6ef73f2afd041515a5120eadcc9e1efb9",
+    "calibration_verdict": "bounded code GO, no finding closure",
+    "calibration_checks": "16 independent analytic/measurement/spectral/removal,108 targeted native,5 real batch,3 fresh CAS PASS; all2910 tracked source hashes unchanged",
+    "calibration_review_receipt": "/workspace/e02-E-20261006-receipts/cal-independent/review-0cb369b6ef73.json",
+    "welfare_source_sha": "9dde740f6c5e179ea852a6a73b6b1a7b5eb9e8af",
+    "welfare_verdict": "bounded repaired welfare code GO; no remaining bounded code blocker",
+    "welfare_checks": "27 own controls PASS +3 separate native B197/B198 fresh-CAS controls PASS, source hashes stable/clean isolated lane; null successful input, strict types, orphan axes/count/hash/values/metrics/sample order/scope/wrong kind controls refuse; Inf/negative covariance MC/Delta and invalid typed scale0callbacks",
+    "welfare_review_receipt": "/workspace/e02-E-20261006-receipts/cal-independent/review-welfare-9dde740f6c5e.json",
+    "welfare_deciding_outputs": [
+      "/workspace/e02-E-20261006-receipts/cal-independent/welfare-repaired-9dde740f6c5e.log",
+      "/workspace/e02-E-20261006-receipts/cal-independent/welfare-repaired-9dde740f6c5e-receipt.json",
+      "/workspace/e02-E-20261006-receipts/cal-independent/fresh-consumer-9dde740f6c5e.log",
+      "/workspace/e02-E-20261006-receipts/cal-independent/fresh-consumer-9dde740f6c5e-receipt.json"
+    ]
+  },
+  "property": {
+    "statement": "Raw generic objective curvature is not an uncertainty law; bad raw spectrum is never repaired into valid covariance. An explicit narrow Gaussian NLL provides local inverse observed information under declared assumptions at a stationary admissible point. Foundry calibration report intake resolves the exact CAS kind/schema/payload and bound configuration/profile before welfare use.",
+    "runtime_path": [
+      "CalibratorInputs.gaussian_observation_std -> Calibrator.run -> JAX raw objective Hessian",
+      "CalibrationReport v2 with optimizer-to-field projection",
+      "put_calibration_config / put_calibration_report / separate calibration_objective_profile CAS input",
+      "load_calibration_report exact CAS view admission",
+      "PropagateWelfareNode -> persisted welfare sample and propagation report readback",
+      "CalibrationBatchInputs ordered state/time/row IDs -> single Calibrator._simulate_bundle -> scalar run_pure_batch for objective/final/Hessian",
+      "Welfare MC -> configured CAS WelfareDrawOutcomes -> shared reconcile_draw_outcomes -> exact fresh welfare samples readback by content/count/order/scope"
+    ],
+    "oracle": "Gaussian NLL .5*((theta1-1)^2/4+(theta2-2)^2/9): theta=(1,2), H=diag(1/4,1/9), inverse=diag(4,9), SE=(2,3); two independent finite-difference steps. Actual known-noise tied income-tax NLL yields Sigma_ab=.0025*ones(2,2), contrast variance/draws zero.; actual two-row incomes100/200,time0/1,internal clocks17/29; native compiled measurement trust[1,.1] vs[.1,1] changes loss/H/identity; Uniform[-1,1],N2048,seed23 gives1033success1015failed and conditional success mean .48573777, distinct from input mean .00222349. Unconditional evaluator mean is undefined without owner completion rule.",
+    "proxy_divergence": "Eigen-clipped generic/saddle curvature gives finite inverse despite no valid statistical covariance. A byte-identical report stored under Funnel kind passes the former payload-only welfare loader but fails exact CAS-profile admission.",
+    "negative_controls": [
+      "generic squared curvature has no covariance",
+      "raw saddle negative direction, flat/singular and nonstationary likelihood covariance refused",
+      "damping cannot repair singular observed information",
+      "property-removal mutant retains fields but returns generic inverse: the same analytic no-covariance oracle fails",
+      "same bytes/wrong CAS kind rejected by real welfare intake",
+      "schema/payload version mismatch and wrong configuration artifact kind rejected",
+      "objective/cache identity change misses; original final-forward/multi-start counters preserved",
+      "B198 typed scale unchanged across .8/.95 display levels",
+      "NaN/+Inf/-Inf finite-derivative objective refuses covariance; non-scalar objective rejected",
+      "Complete measurement weights/scales/metric axes/policy/batch/state/registry identity changes miss cache; unknown adapter/callback disables reuse",
+      "Present-but-fake ordinary scan replacing batch fails exact mixed row state/time oracle",
+      "Fresh valid CAS count/type/parameter-axis/hash/removed-failure/orphan/null-successful-input/outcome-value/sample-order/scope/wrong-kind controls refuse despite same plausible finite success arrays",
+      "PE-only or GE-only failed output retains successful siblings, with all joint moments explicitly conditional",
+      "All failed budget persists full requested terminal receipt before convergence error",
+      "Unknown multivariate marginal law executes zero stochastic/evaluator callbacks; invalid typed scale or calibration covariance/projection rejected before every evaluator callback"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_scope": "finite scalar objective, native gradient/Hessian/spectrum/stationarity; framed effective objective operands and cache reuse; scalar row axes/time/key; exact CAS kind/schema/profile/configuration; every outcome/input hash/ordered array/count/scope relation. Gaussian observation source assumptions consumer_asserted; producer/source authority not_established.",
+  "pattern_pass": [
+    "P01/P02",
+    "P05/P08/P09/P10/P14",
+    "P27/P29/P31-P33",
+    "P35-P38",
+    "P40/P41"
+  ],
+  "P40_widenings": [
+    "Curvature admission: nonfinite constant offset can preserve finite derivatives but cannot authorize covariance.",
+    "Objective binding: all effective operands/scales/resolved paths/frozen quality; arbitrary callable functional provenance not_established and noncacheable.",
+    "Failed-support second welfare escape: canonical requested/attempted/success/failed/unattempted IDs/inputs/output outcomes, all conditional estimands and fresh CAS reconciliation."
+  ],
+  "P41_replay_scope": "Historical compact cells are not exact execution replay. New deciding receipts attach bounded native runs to named immutable source checkpoints only.",
+  "capability_state_or_finding_state": "bounded internal mathematical producer/artifact/consumer available; no production/served calibration provenance or source-law authority",
+  "finding_disposition": {
+    "B176": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B177": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B178": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B179": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B180": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B181": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B182": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B183": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B184": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B195": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B196": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B197": {
+      "ledger_status": "held",
+      "verdict": "held",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B198": {
+      "ledger_status": "closed",
+      "verdict": "closed",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B203": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B185": {
+      "ledger_status": "partial",
+      "verdict": "limited",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    },
+    "B194": {
+      "ledger_status": "held",
+      "verdict": "held",
+      "closure_adjudication": "historical ledger retained; no automatic partial reclassification"
+    }
+  },
+  "limitations_and_next_owner": [
+    "G accepts code separately from finding closure; one frozen aggregate E expensive wave follows independent reviews.",
+    "B197 held: real configured internal CalibratorInputs/reportV2/configuredCAS/native welfare chain exists; served producer/Calibrator authority/source law remain unestablished. Next owner: configured producer/service owner + G.",
+    "B194 held: complete outcomes are technical support; admitted source law and unconditional evaluator completion rule remain owner inputs. Next owner: law/evaluator owner + G.",
+    "B185 limited pending closure-owner adjudication; runtime-only cross-sectional row path has no general measurement/time-resampling/controls mode.",
+    "Non-calibration multivariate product/joint law admission unsupported; marginal metadata/dependence labels cannot supply source law. Next owner: welfare input-law owner.",
+    "B201/B202 semantic wire contract unchanged; IR semantic owner ratification pending.",
+    "Legacy public IR welfare payload-only loader remains compatibility reader; this slice verifies actual internal propagation consumer. Served downstream consumers must reconcile refs under their owners.",
+    "Production history/source law remain local; no production data mounted/transferred. Synthetic runtime outputs are mathematical fixtures only.",
+    "Actual uv0.12.19 differs from contributor canonical0.9.21; locked backend modes/versions recorded.",
+    "Mixed-source early reviewer draft explicitly invalidated in independent mixed-source-caveat.json; never immutable f660 evidence."
+  ],
+  "local_check_request": {
+    "implementation_sha": "9dde740f6c5e179ea852a6a73b6b1a7b5eb9e8af",
+    "owner": "G plus actual configured producer/service and law/evaluator owners",
+    "required_local_inputs": [
+      "actual served CalibratorInputs configuration and graph/exec-plan CAS refs",
+      "training target/state/row identity and source-law/regularity assumptions",
+      "runtime configured CAS/store profile and consumer/run lineage",
+      "owner-declared known-noise observation model or approved alternative objective profile",
+      "source/evaluator support completion rule if unconditional inference requested"
+    ],
+    "read_only_recipe": [
+      "fetch candidate topic by exact SHA without production data transfer",
+      "run declared extras native regression command in checks[2] to establish backend",
+      "owner resolves actual configured inputs locally and runs existing Calibrator.run; persist V2 report/profile/config using configured CAS, reload by load_calibration_report; use existing PropagateWelfareNode configured consumer",
+      "verify exact report kind/schema/profile/input identity and all outcome hashes/IDs/counts/sample order/scope on fresh served read",
+      "retain held/not_established if producer/source assumptions or served consumer refs missing; publish only receipt and hashes, never local production data"
+    ]
+  },
+  "workspace_admission": {
+    "branch": "codex/e02-E-cal-20261006",
+    "path": "/workspace/e02-E-cal-20261006",
+    "create_full_json": "/workspace/e02-E-20261006-receipts/cal-create.json",
+    "resume_full_json": "/workspace/e02-E-20261006-receipts/cal-resume.json",
+    "owner": "E root retains full JSON in root handoff"
+  },
+  "cleanup": {
+    "mode": "no permanent deletion; no native Trash established",
+    "exact_candidates": [
+      "/workspace/e02-E-cal-20261006/policy-engine/.venv",
+      "/workspace/e02-E-cal-20261006/policy-engine/node_modules",
+      "/workspace/e02-E-cal-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "/workspace/e02-E-cal-20261006/policy-engine/apps/runtime-reference-shell/node_modules",
+      "/workspace/e02-E-cal-20261006/policy-engine/.venv/lib/python3.14/site-packages/nodejs_wheel/lib/node_modules",
+      "/workspace/e02-E-cal-20261006/policy-engine/_cache/uv/archive-v0/lSi0opvdtYxHMo1z/nodejs_wheel/lib/node_modules",
+      "/workspace/e02-E-cal-20261006/policy-engine/packages/cli/node_modules",
+      "/workspace/e02-E-cal-20261006/policy-engine/packages/runtime-api-client/node_modules",
+      "/workspace/e02-E-cal-20261006/policy-engine/packages/atlas-ui/node_modules",
+      "/tmp/pytest-of-agent/pytest-67",
+      "/workspace/e02-E-20261006-receipts/cal-initial.log",
+      "/workspace/e02-E-20261006-receipts/cal-focused.log",
+      "/workspace/e02-E-20261006-receipts/cal-consumer.log",
+      "/workspace/e02-E-20261006-receipts/cal-welfare-support-iteration.txt",
+      "/workspace/e02-E-20261006-receipts/cal-welfare-support-iteration2.txt",
+      "/workspace/e02-E-20261006-receipts/cal-welfare-support-iteration3.txt",
+      "/workspace/e02-E-20261006-receipts/cal-welfare-support-focused.txt",
+      "/workspace/e02-E-20261006-receipts/cal-welfare-support-focused2.txt"
+    ],
+    "preserve": "Code, useful documentation, unique/production data, receipt and deciding immutable outputs preserved. Native cloud Trash unavailable; exact repeatable candidates listed, none permanently deleted."
+  },
+  "publication_state": "source and append-only receipt committed; topic push/PR next; root publishes if leaf scoped actor denied",
+  "pull_request": null
+}

@@ -1,0 +1,128 @@
+{
+  "F13": {
+    "job": "F13",
+    "source": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+    "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+    "source_role": "integration_head",
+    "toolchain": {
+      "python": "3.14.2",
+      "uv": "0.9.21",
+      "node": "22.22.0",
+      "pnpm": "10.33.2",
+      "installed_distributions": 241,
+      "installed_version_changes": 0,
+      "numeric_threads": 1,
+      "JAX_PLATFORMS": "cpu"
+    },
+    "selected_profile": [
+      "lint",
+      "test",
+      "runtime",
+      "ml",
+      "analytics",
+      "bayesian",
+      "optimization-advanced",
+      "sensitivity",
+      "causal-discovery",
+      "causal-discovery-scale",
+      "search_bo",
+      "solvers",
+      "vector-search"
+    ],
+    "lock_hashes": {
+      "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+    }
+  },
+  "F14": {
+    "job": "F14",
+    "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+    "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+    "source_role": "integration_head",
+    "environment": {
+      "python": "3.14.2",
+      "uv": "0.9.21",
+      "node": "22.16.0",
+      "corepack_pnpm": "10.33.2",
+      "cpu_max": "400000 100000",
+      "cpu_quota": 4,
+      "cpuset_effective": "0-4",
+      "memory_max_bytes": 17179869184,
+      "numerical_threads": 1,
+      "JAX_PLATFORMS": "cpu",
+      "profile_segment": "frozen-union-1",
+      "selected_extras": [
+        "lint",
+        "test",
+        "runtime",
+        "ml",
+        "analytics",
+        "bayesian",
+        "optimization-advanced",
+        "sensitivity",
+        "causal-discovery",
+        "vector-search",
+        "solvers",
+        "search_bo",
+        "agent-sim",
+        "causal-discovery-scale"
+      ],
+      "native_property_controls": "all three removal controls absent in actual children",
+      "distribution_origins_ref": "environment.json",
+      "raw_transfer_missing": true
+    },
+    "lock_hashes": {
+      "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+      "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+    }
+  },
+  "F15": {
+    "job": "F15",
+    "source": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+    "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+    "environment": {
+      "python": "3.14.2",
+      "uv": "0.9.21",
+      "node": "22.16.0",
+      "pnpm": "10.33.2",
+      "platform": "Linux Debian 13 x86_64",
+      "cpu_quota_cores": 4.0,
+      "cpuset": "0-4",
+      "memory_limit_bytes": 17179869184,
+      "numerical_threads": 1,
+      "jax_platforms": "cpu",
+      "precision": "repository default unchanged",
+      "gnu_time_package": "time 1.9-0.2 amd64; --version reports GNU Time UNKNOWN",
+      "native_property_controls": "all three absent in every observed primary child",
+      "python_profile": "single frozen selected-extras union installed before native series",
+      "node_install": "one CI=true corepack pnpm install --frozen-lockfile before native series",
+      "setup_interruption": "initial uv sync lost VM connection; exit=null, cause not_established; same frozen profile resumed before native tests",
+      "toolchain_bootstrap_initial_wall_s": null
+    },
+    "selected_extras": [
+      "lint",
+      "test",
+      "runtime",
+      "ml",
+      "analytics",
+      "bayesian",
+      "optimization-advanced",
+      "sensitivity",
+      "causal-discovery",
+      "agent-sim",
+      "search_bo",
+      "solvers",
+      "vector-search"
+    ],
+    "config_hashes": {
+      "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+      "tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+    }
+  }
+}

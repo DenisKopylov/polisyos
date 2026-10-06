@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="55.641" timestamp="2026-10-06T13:40:07.600379+00:00" hostname="b5f0914494dc"><testcase classname="e02-E-pr38-r2-receipts.frc.test_a_status_reason" name="test_missing_ref_tier_and_s6_share_named_missing_ref_reason" time="0.002"><failure message="AssertionError: assert [] == ['s10://calib..._ref_missing']&#10;  &#10;  Right contains one more item: 's10://calibration/fail-closed/empirical_evidence_ref_missing'&#10;  Use -v to get more diff">def test_missing_ref_tier_and_s6_share_named_missing_ref_reason():
+        result = _build_s10_forecast_inputs(
+            **_inputs(method_result=SimpleNamespace(output={}), selected_method_fqn="forecasting.univariate.exponential_smoothing@1.0.0"),
+            forecast_tier="observable_calibrated", calibration_status="limit",
+            policy_context_ref="policy-context://reason-world", expected_policy_context_ref="policy-context://reason-world",
+            false_clear_counts={}, calibration_evidence={},
+        )
+        assert result["forecast_calibration_record"] is None
+        support = result["forecast_support"]
+        assert support.forecast_tier == "blocked"
+&gt;       assert support.s6_limitation_refs == ["s10://calibration/fail-closed/empirical_evidence_ref_missing"]
+E       AssertionError: assert [] == ['s10://calib..._ref_missing']
+E         
+E         Right contains one more item: 's10://calibration/fail-closed/empirical_evidence_ref_missing'
+E         Use -v to get more diff
+
+../../e02-E-pr38-r2-receipts/frc/test_a_status_reason.py:35: AssertionError</failure></testcase><testcase classname="e02-E-pr38-r2-receipts.frc.test_a_status_reason" name="test_resolved_limited_evidence_keeps_floor_failure_reason" time="0.659"><failure message="AssertionError: assert ['s10://calib...ient-history'] == ['s10://calib...loor_not_met']&#10;  &#10;  At index 0 diff: 's10://calibration/insufficient-history' != 's10://calibration/calibration_floor_not_met'&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-185/test_resolved_limited_evidence0')
+
+    def test_resolved_limited_evidence_keeps_floor_failure_reason(tmp_path: Path):
+        helper = runpy.run_path("tests/unit/scientist/methods/backtesting/test_forecast_owner.py")
+        store = FileSystemCAS(tmp_path / "cas")
+        request, profile = helper["_configured"](store, [1000.,1000.,1000.,1000.])
+        result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
+        fresh = FileSystemCAS(tmp_path / "cas")
+        fields = result.to_s10_input_fields(fresh)
+        inputs = RealValueOwnerGateway(repo_root=fresh.root, empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(fresh, ref)).produce_forecast_inputs(
+            **_inputs(method_result=SimpleNamespace(output=fields, temporal_roles=request.temporal_roles), selected_method_fqn=request.method_fqn)
+        )
+        record = inputs["forecast_calibration_record"]
+        assert record is not None and record.calibration_status == "limit"
+        support = inputs["forecast_support"]
+&gt;       assert support.s6_limitation_refs == ["s10://calibration/calibration_floor_not_met"]
+E       AssertionError: assert ['s10://calib...ient-history'] == ['s10://calib...loor_not_met']
+E         
+E         At index 0 diff: 's10://calibration/insufficient-history' != 's10://calibration/calibration_floor_not_met'
+E         Use -v to get more diff
+
+../../e02-E-pr38-r2-receipts/frc/test_a_status_reason.py:52: AssertionError</failure></testcase></testsuite></testsuites>

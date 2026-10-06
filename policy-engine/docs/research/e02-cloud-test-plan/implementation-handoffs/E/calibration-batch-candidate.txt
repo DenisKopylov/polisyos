@@ -1,0 +1,9 @@
+TARGET=f660c1fb62af6fbc3feaba513ce181abfe9878d2
+TREE=2b5a35b8c5839d2a7e45b2a3efb5de8d2680d251
+........................................................................ [ 28%]
+........................................................................ [ 57%]
+........................................................................ [ 86%]
+.................................                                        [100%]E02_NATIVE_ENV={"collected": 249, "devices": ["TFRT_CPU_0"], "executable": "/workspace/e02-E-cal-20261006/policy-engine/.venv/bin/python", "jax": "0.8.2", "jax_enable_x64": true, "jax_platform": "cpu", "jaxlib": "0.8.2", "numpy": "2.3.5", "platform": "Linux-6.18.44-x86_64-with-glibc2.41", "pytest_exitstatus": 0, "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]", "scipy": "1.16.3", "thread_env": {}}
+
+249 passed in 87.57s (0:01:27)
+E02_RESULT={"command": ["/workspace/e02-E-cal-20261006/policy-engine/.venv/bin/python", "-m", "pytest", "-q", "-o", "addopts=", "tests/unit/foundry/calibration", "tests/unit/remediation/test_cal_01.py", "tests/unit/remediation/test_cal_02.py", "tests/unit/remediation/test_cal_03.py", "tests/unit/remediation/test_cal_04.py", "tests/unit/remediation/test_cal_06.py", "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"], "exit_code": 0, "wall_s": 91.4851675270038, "max_rss_kib": 2414108}

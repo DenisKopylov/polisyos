@@ -1,0 +1,160 @@
+"""Bind criterion reconciliation to a root candidate without implying closure."""
+from __future__ import annotations
+
+import argparse
+import collections
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+E02 = 'policy-engine/docs/research/e02-cloud-test-plan'
+CONT = E02 + '/implementation-handoffs/E/continuation-20261006'
+CAL = '9dde740f6c5e179ea852a6a73b6b1a7b5eb9e8af'
+MC = '4e7e9f9a825011b8ef2091a6ff4ab3951ba04a9f'
+UPDATES = {
+    'B185': {
+        'deciding_scoped_evidence': 'Actual CalibratorInputs.batch_inputs -> optimizer/final projection/Hessian through run_pure_batch/lax.map; separate state/schedule time/fold_in keys and row IDs persisted/reopened. Independent CAL batch eager/JIT/grad/Hessian controls; inactive callback-removal divergence.',
+        'remaining_condition': 'Bounded batch criterion is a closure-adjudication candidate after exact final wave. Cross-sectional row execution does not establish population law or observation independence; fetched/time-resampled/measurement-bundle batch modes are explicitly unsupported.',
+        'next_owner': 'Foundry Calibrator/pure-executor finding owner; G exact-candidate acceptance',
+    },
+    'B187': {
+        'deciding_scoped_evidence': 'Native named covariance axes plus direct supplied analytical arrays enter common dimension/marginal/PSD/symmetry admission. False diagonal-optimization flag cannot replace declared tied joint law. Zero/singular support remains zero; overflow/subnormal float32 arithmetic escapes reject before callbacks.',
+        'remaining_condition': 'Exact final coupling replay and covariance/producer finding-owner adjudication. Conditional declared mathematical law is separate from source custody.',
+    },
+    'B188': {
+        'deciding_scoped_evidence': 'Native tied Gaussian contrast variance0 versus independent.005 across delta/analytical/MC; content-bound empirical paired rows/weights/order/digest; direct analytical override and diagonal flag cannot replace declared law. Missing multivariate welfare law refuses before evaluator/drawing.',
+        'remaining_condition': 'Content-bound supported law preserves the conditional numerical property. Source-owner product/joint-law authority and complete multivariate CAL posterior carrier lineage remain separately not established; marginal/dependence labels never authorize independence.',
+    },
+    'B192': {
+        'deciding_scoped_evidence': 'Supported finite atomic carrier is consumed by random/QMC law transforms with exact row pairing/weights/content identity; fresh configured CAS consumer keeps law limitations. B197 welfare uses report-owned coordinate covariance/projection, not a fabricated posterior carrier.',
+        'remaining_condition': 'Multivariate CAL posterior carrier producer still needs exact joint_law_sha256, joint_parameter_order and ordered joint_draw_ids if that family is emitted. Existing supported carrier mechanics do not ratify new B202 v2 wire storage; source-law authority remains conditional.',
+    },
+    'B193': {
+        'deciding_scoped_evidence': 'Canonical Uniform[0,1] indicator independent256pilot, all-zero U=.0995612819216314 and frozen408main; pilot excluded. Fresh readback recomputes full recipe/seed/count/moments/carrier/interval/budget. Complete independent RQMC replica means alone supply estimator SE; explicit Sobol maximum1000 fits full nets or refuses, never rounds to1024.',
+        'remaining_condition': 'Canonical certificate remains narrow bounded indicator over exact declared Uniform[0,1]. Opaque served evaluator/other law/quantile/CDF/interval/anytime stopping requires its own admitted response/theorem profile. Enabled cap includes pilot+main; computational budget display is not statistical/source authority.',
+    },
+    'B194': {
+        'deciding_scoped_evidence': 'MC and real welfare sibling preserve every requested terminal outcome, per-output partition/reason/input hash, ordered values and CAS outcome lineage. Fresh welfare replay: Uniform[-1,1] 2048requested =1033success+1015failed; .4857377689 success-only mean is conditional, unconditional evaluator mean undefined absent completion rule. Present-but-fake/no-op-reconciler negatives reject.',
+        'remaining_condition': 'Historical held and finding verdict held: actual served simulation-evaluator producer/domain/source-law provenance remains bridge_missing/not_established. Narrow configured fixture technical slice is GO/limited. Same-input transient classifier/retry contract remains absent; no new served route or completion rule is invented.',
+        'next_owner': 'Scientist served simulation/execution/domain and source-law owner; G exact-candidate local read-only check where original factual criterion requires',
+    },
+    'B197': {
+        'deciding_scoped_evidence': 'Configured native known-sigma Gaussian Calibrator -> v2 exact kind/schema/payload/config/objective-profile CAS -> fresh welfare consumer; J=[[1],[1]], Sigma=.0025 and singular contrast variance0 retained. Complete welfare terminal support producer/strict fresh readback repaired; malformed joint law refuses before callbacks. Independent 27support controls plus3fresh B197/B198 native controls on9dde.',
+        'remaining_condition': 'Historical held and finding verdict held: admitted real model/likelihood/source-law and actual served producer authority remain not_established. Unchanged public legacy IR v1.1 sample reader is not strict outcome admission: intended downstream adapter owner must choose its real enforcement seam and supply exact consumer falsifier. Bounded producer/strict fresh adapter is GO/limited; no silent wire change or fabricated carrier/Calibrator authority.',
+        'next_owner': 'Foundry configured Calibrator/model/source-law and Scientist served workflow owners; IR/runtime strict-adapter owner with G consumer falsifier/local check',
+    },
+    'B198': {
+        'deciding_scoped_evidence': 'Historical closed regression preserved: typed law std stays unchanged at .8/.95 display levels; fresh native B197/B198 consumer/readback on9dde. No new defining-property falsifier.',
+        'remaining_condition': 'Keep closed regression; final frozen replay outcome recorded separately. No new formal closure inferred.',
+    },
+    'B203': {
+        'deciding_scoped_evidence': 'Actual objective content identity now includes resolved mechanisms/schedules, metric axes, scales, all measurement operands/policy and frozen sample quality, constraints/groups, state/batch rows/keys and registries. Unknown custom adapter/auxiliary functional identity disables Hessian reuse; mutation/cache/gradient native controls retain raw spectrum.',
+        'remaining_condition': 'Exact final candidate replay including real batch caller and accountable finding-owner adjudication; callback identity remains explicitly not_established and does not authorize cache reuse.',
+    },
+}
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--repository', type=Path, required=True)
+    parser.add_argument('--candidate', required=True)
+    parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--frozen', action='store_true')
+    args = parser.parse_args()
+    def git(*parts: str) -> str:
+        return subprocess.check_output(['git', *parts],cwd=args.repository,text=True).strip()
+    candidate = git('rev-parse', args.candidate)
+    tree = git('rev-parse', candidate+'^{tree}')
+    args.output.mkdir(parents=True,exist_ok=True)
+    # Full denominator/source-hash audit is rerun against this exact root commit.
+    audit = subprocess.run([
+        'python3', str(HERE/'reconcile_criteria.py'), '--repository', str(args.repository),
+        '--candidate', candidate, '--handoff-index', str(HERE/'fresh_handoff_index.json'),
+        '--output', str(args.output/'tracked-criterion-audit'),
+    ],check=True,capture_output=True,text=True)
+    (args.output/'tracked-criterion-audit.stdout.txt').write_text(audit.stdout)
+    proposal = json.loads((args.output/'tracked-criterion-audit/criterion-proposal.json').read_text())
+    independent = {}
+    for family in ('cal','mc','welfare','ddm','backtest','pcl','doe','frc'):
+        path = CONT+'/reviews/'+family+'.json'
+        raw = subprocess.check_output(['git','show',candidate+':'+path],cwd=args.repository)
+        independent[family] = {
+            'tracked_path':path,'root_commit':candidate,'git_blob':git('rev-parse',candidate+':'+path),
+            'sha256':hashlib.sha256(raw).hexdigest(),'data':json.loads(raw),
+        }
+    admitted_sources = {
+        'cal':CAL, 'cal05':CAL, 'mc':MC,
+        **{family: independent[family]['data']['implementation_sha'] for family in ('ddm','backtest','pcl','doe','frc')},
+    }
+    # One producer owner per family; parent merged independently reviewed slices.
+    # Assert actual source/tests rather than assigning outputs another SHA.
+    index = json.loads((HERE/'fresh_handoff_index.json').read_text())
+    component_objects = []
+    for receipt in index:
+        family=receipt['family']; source=admitted_sources[family]
+        paths=set(receipt['data']['changed_paths'])
+        if family in ('cal','cal05'):
+            paths.update(git('diff','--name-only','ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55',CAL,'--','policy-engine/src/polisyos/foundry/calibration','policy-engine/tests/unit/foundry/calibration','policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py','policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py','policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py').splitlines())
+        if family=='mc':
+            paths.update(git('diff','--name-only','2ff602fd73c5c44e957ec58bcefd1aa48107e524',MC,'--','policy-engine/src/polisyos/foundry/uncertainty','policy-engine/tests/unit/foundry/uncertainty').splitlines())
+        for path in sorted(paths):
+            if not path.startswith(('policy-engine/src/','policy-engine/tests/')):continue
+            source_blob=git('rev-parse',source+':'+path)
+            root_blob=git('rev-parse',candidate+':'+path)
+            # MC is the newer shared owner for sampling_admission, whereas CAL
+            # review separately covers the unchanged common terminal API.
+            if path.endswith('.md'):
+                documentation_delta=source_blob!=root_blob
+            else:
+                assert source_blob==root_blob,(family,path,source,source_blob,root_blob)
+                documentation_delta=False
+            component_objects.append({'family':family,'path':path,'reviewed_source_sha':source,'reviewed_source_blob':source_blob,'git_blob':root_blob,'functional_identity_equal':source_blob==root_blob,'documentation_delta':documentation_delta})
+    complete=set(proposal['bounded_property_complete_candidate_ids'])|{'B185'}
+    for row in proposal['rows']:
+        fid=row['finding_id'];row.update(UPDATES.get(fid,{}))
+        verdict='closed' if fid=='B198' else 'held' if fid in ('B194','B197','B201','B202') else 'limited'
+        row['finding_verdict']=verdict;row['proposed_verdict']=verdict
+        row['technical_slice_verdict']='held' if fid in ('B201','B202') else 'closed regression' if fid=='B198' else 'limited'
+        row['bounded_code_review_verdict']='GO' if fid not in ('B201','B202') else 'GO for independent mechanics; semantic claim held'
+        family=next(r['family'] for r in index if fid in r['data']['closure_ids']) if fid!='LA-056' else 'ddm'
+        source=admitted_sources[family]
+        row['accepted_source_sha']=source;row['accepted_source_tree']=git('rev-parse',source+'^{tree}')
+        row['combined_candidate_sha']=candidate;row['combined_candidate_tree']=tree
+        row['final_frozen_wave']='pending actual deciding receipt; no PASS inferred'
+        row['formal_ledger_change']=False
+        row['criterion_complete_owner_adjudication_candidate']=fid in complete
+        row['criterion_property_assessment']='receipt-supported bounded criterion-complete candidate; exact final replay/owner adjudication still separate' if fid in complete else 'active defining producer/consumer/method/semantic boundary'
+        row['post_freeze_owner_adjudication_recommendation']='Retain historical closed regression unless exact new falsifier appears' if fid=='B198' else 'Owner may adjudicate bounded criterion only after exact final wave; no automatic partial-to-closed conversion' if fid in complete else 'Retain stated limited/held boundary; code GO is separate from finding closure'
+        row['independent_review_refs']=[independent['cal' if family=='cal05' else family]['tracked_path']+'@'+candidate]
+        if fid in ('B194','B197','B198'):
+            row['independent_review_refs'].append(independent['welfare']['tracked_path']+'@'+candidate)
+    counts=collections.Counter(r['finding_verdict'] for r in proposal['rows'])
+    assert counts=={'limited':49,'held':4,'closed':1}
+    assert collections.Counter(r['ledger_status_preserved'] for r in proposal['rows'])=={'partial':49,'held':4,'closed':1}
+    proposal.update({
+        'schema':'policyos.e02.independent_final_criterion_overlay.v1',
+        'review_source_sha':candidate,'review_source_tree':tree,
+        'source_freeze_state':'parent-declared frozen exact candidate' if args.frozen else 'draft awaiting parent-declared frozen source',
+        'finding_verdict_counts':dict(counts),'proposal_counts':dict(counts),
+        'bounded_property_complete_candidate_ids':sorted(complete),
+        'final_frozen_wave':'pending actual deciding receipt; no PASS inferred',
+        'authority':'Ledger unchanged. Independent bounded code GO, finding verdict, source/serving authority, test outcome and accountable owner closure are distinct.',
+        'independent_review_input_identities':[{k:v for k,v in r.items() if k!='data'} for r in independent.values()],
+        'accepted_component_git_objects':component_objects,
+        'latest_source_delta_full_reads':[
+            {'family':'CAL','from_sha':'ce8b168cbd669aea0bf1b6e1dd4f506e2cac8b55','to_sha':CAL,'lines':2032,'sha256':'89e7895f76d9d465a145c79fa6ed770ad4a2bc70937df81d725478e06d1e5291'},
+            {'family':'MC','from_sha':'2ff602fd73c5c44e957ec58bcefd1aa48107e524','to_sha':MC,'lines':1070,'sha256':'9665eeae837318897a4a44e676efeff75cbd041848ec1a62b3a364f4440f257d'},
+        ],
+    })
+    (args.output/'all-54-final-overlay.json').write_text(json.dumps(proposal,ensure_ascii=False,indent=2)+'\n')
+    lines=['# E criterion reconciliation overlay','','All 54 historical ledger states are preserved. Finding verdict counts: 49 limited, four held (B194/B197/B201/B202), B198 closed regression. B194/B197 have bounded technical GO/limited evidence. Exact final wave is pending its actual receipt; criterion-complete rows are owner-adjudication proposals, not formal closures.','','| ID | Bundles | Ledger | Finding verdict | Technical slice | Criterion complete candidate | Deciding scoped evidence | Missing condition / next owner |','|---|---|---|---|---|---|---|---|']
+    for row in proposal['rows']:
+        cells=[row['finding_id'],', '.join(row['bundle_ids']),row['ledger_status_preserved'],row['finding_verdict'],row['technical_slice_verdict'],'owner adjudication proposed' if row['criterion_complete_owner_adjudication_candidate'] else 'active boundary',row['deciding_scoped_evidence'],row['remaining_condition']+' Next: '+row['next_owner']]
+        lines.append('| '+' | '.join(c.replace('|','\\|').replace('\n',' ') for c in cells)+' |')
+    (args.output/'all-54-final-overlay.md').write_text('\n'.join(lines)+'\n')
+    print(json.dumps({'candidate':candidate,'tree':tree,'ledger_preserved':proposal['ledger_status_counts_preserved'],'finding_verdicts':dict(counts),'criterion_complete_owner_proposals':len(complete),'component_blob_assertions':len(component_objects),'final_wave':'pending'},indent=2))
+
+
+if __name__=='__main__':main()

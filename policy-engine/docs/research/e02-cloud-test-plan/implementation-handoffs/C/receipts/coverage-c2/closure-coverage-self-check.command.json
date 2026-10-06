@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/validate_coverage.py",
+    "--self-check"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+  "exit_code": 0,
+  "wall_seconds": 0.6146077919984236,
+  "outputs": {
+    "stdout": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/census/closure-coverage-self-check.stdout",
+      "bytes": 435,
+      "sha256": "46a173fcb04644e1f1c9ff0e7753b5f41d1360fe68204299eb58e91fbd86623a"
+    },
+    "stderr": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/census/closure-coverage-self-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

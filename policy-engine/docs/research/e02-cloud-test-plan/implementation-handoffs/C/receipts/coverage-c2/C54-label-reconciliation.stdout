@@ -1,0 +1,24 @@
+{
+  "basis": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@198076863e143dea9f89f02734b13d50dae3eed5",
+  "before": {
+    "complete_C_rows": 54,
+    "mismatches": [
+      {
+        "id": "B139",
+        "actual": {
+          "status": "partial",
+          "capability_label": "surface_missing"
+        },
+        "expected": {
+          "status": "partial",
+          "capability_label": "semantic_test_missing"
+        }
+      }
+    ]
+  },
+  "after": {
+    "complete_C_rows": 54,
+    "mismatches": []
+  },
+  "property": "every C historical status/label agrees with the coverage owner; no finding status changed"
+}

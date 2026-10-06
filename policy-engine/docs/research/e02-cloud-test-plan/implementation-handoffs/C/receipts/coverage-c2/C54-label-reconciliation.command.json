@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "python3",
+    ".tmp/e02-C2/raw/census/reconcile_c_labels.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+  "exit_code": 0,
+  "wall_seconds": 0.05599704198539257,
+  "outputs": {
+    "stdout": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/census/C54-label-reconciliation.stdout",
+      "bytes": 648,
+      "sha256": "662b31b16884bb364a2d3c74752a742d230fbc5392eeb674fc83a141d9c0574a"
+    },
+    "stderr": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/census/C54-label-reconciliation.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

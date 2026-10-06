@@ -1,0 +1,32 @@
+{
+  "capability": {
+    "node": "v22.23.3",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+    "browserCache": "/home/agent/.cache/ms-playwright",
+    "packagePath": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/playwright@1.59.1/node_modules/playwright/package.json",
+    "playwrightVersion": "1.59.1",
+    "testVersion": "1.59.1",
+    "chromiumExecutablePath": "/home/agent/.cache/ms-playwright/chromium-1217/chrome-linux64/chrome",
+    "persistentProfile": "/workspace/e02-E-pr38-r2-receipts/independent-wave-harness/chromium-profile",
+    "scope": "Browser launch/render capability only; no doctor/full-CI/browser-suite/numerical PASS inferred",
+    "browserVersion": "147.0.7727.15",
+    "actualRenderedText": "4",
+    "outcome": "PASS-browser-capability"
+  },
+  "actual_launch_executable": "/home/agent/.cache/ms-playwright/chromium_headless_shell-1217/chrome-headless-shell-linux64/chrome-headless-shell",
+  "binary_sha256": "22d72b589f908111fa29ff4e61ead8a0601e925177f59c70e2e851c22e9b1886",
+  "binary_size_bytes": 185257184,
+  "stdout_sha256": "346bbe5e1383460e392b94dcde869484f6797d3cb074bae30a22534df0d4ee2e",
+  "stdout_size_bytes": 4221,
+  "command": [
+    "/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin/node",
+    "/workspace/e02-E-pr38-r2-receipts/independent-wave-harness/browser_capability.cjs"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+  "environment": {
+    "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+    "DEBUG": "pw:browser"
+  },
+  "exit_code": 0,
+  "limitations": "Persistent profile preserves repeatable fixture outsideGit; native launch uses configured installed Playwright but this is not fulldoctor orCI PASS. Console DBuswarnings didnotpreventrealbrowser rendering."
+}

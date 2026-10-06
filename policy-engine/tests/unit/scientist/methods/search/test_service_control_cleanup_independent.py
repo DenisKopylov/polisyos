@@ -183,6 +183,7 @@ def _partial(service: NativeSearchService) -> dict[str, Any]:
         "paid": state.budget_spent,
         "budget_snapshot": deepcopy(state.budget_snapshot),
         "budget_source": state.budget_snapshot_source,
+        "budget_evidence": deepcopy(state.budget_evidence),
         "ledger_id": state.budget_ledger_id,
         "ledger_revision": state.budget_ledger_revision,
         "pending": deepcopy(service._pending_candidates),
@@ -206,9 +207,14 @@ def _assert_old_ack_and_paid_custody(
     assert [row.candidate for row in state.history] == [{"cost": 4}]
     assert state.evaluation_iterations == state.stage_b_evaluations == 1
     assert state.budget_spent == 2.375
-    assert state.budget_snapshot_source == "persisted_owner"
+    assert state.budget_snapshot_source == "configured_owner_recorded_state"
     assert state.budget_ledger_id == paid_snapshot.ledger_id
-    assert state.budget_ledger_revision == paid_snapshot.revision
+    # The controller consumes recorded owner state. Exact receipt custody is
+    # independently read below; it must not become a stronger runtime claim.
+    assert state.budget_ledger_revision is None
+    assert state.budget_evidence["receipt_revision_available"] is False
+    assert state.budget_evidence["provider_cost_origin_available"] is False
+    assert state.budget_evidence["recorded_by_provider"] == {"independent-batch-provider": 2.375}
     assert service._pending_candidates == {}
     assert len(service._completed_candidate_ids) == 1
     assert FileBudgetLedger(ledger_path).snapshot() == paid_snapshot

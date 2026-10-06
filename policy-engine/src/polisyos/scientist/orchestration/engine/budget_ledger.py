@@ -465,7 +465,11 @@ class FileBudgetLedger:
         return self._mutate_resource("require_reconciliation", apply)
 
     def _mutate_resource(
-        self, operation: str, apply: Callable[[BudgetLedgerSnapshot], BudgetLedgerMutationResult]
+        self,
+        operation: Literal[
+            "reserve_resource", "settle_resource", "release_resource", "require_reconciliation"
+        ],
+        apply: Callable[[BudgetLedgerSnapshot], BudgetLedgerMutationResult],
     ) -> BudgetLedgerMutationResult:
         with self._thread_lock, self._file_lock(exclusive=True):
             snapshot = self._normalize_snapshot(

@@ -1,0 +1,448 @@
+{
+  "schema": "policyos.e02.manual_adjudication_reconciliation.v1",
+  "mode": "Git/XML/source data only; no pytest/gate/product import",
+  "packet_sha256": "fd5c3edf97829c25e4635d41fde724a5b20fe4afb1fde3383fe5fe8f4487ab23",
+  "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "denominator": {
+    "findings": 60,
+    "bundles": 25,
+    "routes": 561,
+    "baseline_cells": 189
+  },
+  "evidence_refs_checked": 30,
+  "test_inputs_checked": 51,
+  "all_60_criterion_raw_hashes_match": true,
+  "all_60_case_projections_reconcile": true,
+  "literal_DD_XML_cases": 3622,
+  "status_counts": {
+    "limited": 8,
+    "closed": 43,
+    "held": 6,
+    "open": 3
+  },
+  "per_row": [
+    {
+      "finding_id": "B13",
+      "proposal": "limited",
+      "XML_states": {
+        "PASS": 1
+      }
+    },
+    {
+      "finding_id": "B14",
+      "proposal": "limited",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "B24",
+      "proposal": "limited",
+      "XML_states": {
+        "PASS": 6
+      }
+    },
+    {
+      "finding_id": "B37",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 37
+      }
+    },
+    {
+      "finding_id": "B38",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 12
+      }
+    },
+    {
+      "finding_id": "B39",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 5
+      }
+    },
+    {
+      "finding_id": "B40",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 35
+      }
+    },
+    {
+      "finding_id": "B42",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 1
+      }
+    },
+    {
+      "finding_id": "B43",
+      "proposal": "limited",
+      "XML_states": {
+        "PASS": 4
+      }
+    },
+    {
+      "finding_id": "B44",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "B45",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "B46",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 7
+      }
+    },
+    {
+      "finding_id": "B47",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 6
+      }
+    },
+    {
+      "finding_id": "B48",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 6
+      }
+    },
+    {
+      "finding_id": "B49",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 8
+      }
+    },
+    {
+      "finding_id": "B50",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 8
+      }
+    },
+    {
+      "finding_id": "B51",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 12
+      }
+    },
+    {
+      "finding_id": "B52",
+      "proposal": "limited",
+      "XML_states": {
+        "PASS": 45
+      }
+    },
+    {
+      "finding_id": "B53",
+      "proposal": "limited",
+      "XML_states": {
+        "PASS": 4
+      }
+    },
+    {
+      "finding_id": "B55",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "B57",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 74
+      }
+    },
+    {
+      "finding_id": "B58",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 73
+      }
+    },
+    {
+      "finding_id": "B59",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 14
+      }
+    },
+    {
+      "finding_id": "B60",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 9
+      }
+    },
+    {
+      "finding_id": "B61",
+      "proposal": "held",
+      "XML_states": {
+        "PASS": 1
+      }
+    },
+    {
+      "finding_id": "B62",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 1
+      }
+    },
+    {
+      "finding_id": "B63",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 7
+      }
+    },
+    {
+      "finding_id": "B64",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "B65",
+      "proposal": "open",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "B66",
+      "proposal": "open",
+      "XML_states": {
+        "PASS": 6
+      }
+    },
+    {
+      "finding_id": "B67",
+      "proposal": "held",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "B68",
+      "proposal": "held",
+      "XML_states": {
+        "PASS": 4
+      }
+    },
+    {
+      "finding_id": "B69",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 4
+      }
+    },
+    {
+      "finding_id": "B70",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "B71",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 6
+      }
+    },
+    {
+      "finding_id": "B72",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "B73",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "B74",
+      "proposal": "limited",
+      "XML_states": {
+        "PASS": 7
+      }
+    },
+    {
+      "finding_id": "B75",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 9
+      }
+    },
+    {
+      "finding_id": "B76",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 7
+      }
+    },
+    {
+      "finding_id": "B77",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 4
+      }
+    },
+    {
+      "finding_id": "B78",
+      "proposal": "held",
+      "XML_states": {
+        "PASS": 5
+      }
+    },
+    {
+      "finding_id": "B87",
+      "proposal": "open",
+      "XML_states": {
+        "PASS": 7,
+        "FAIL": 1
+      }
+    },
+    {
+      "finding_id": "B89",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 6
+      }
+    },
+    {
+      "finding_id": "B90",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 7
+      }
+    },
+    {
+      "finding_id": "B91",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 15
+      }
+    },
+    {
+      "finding_id": "B92",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 4
+      }
+    },
+    {
+      "finding_id": "B93",
+      "proposal": "held",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "B94",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 16
+      }
+    },
+    {
+      "finding_id": "B95",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 36
+      }
+    },
+    {
+      "finding_id": "B96",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 18
+      }
+    },
+    {
+      "finding_id": "B148",
+      "proposal": "held",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "B149",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 2
+      }
+    },
+    {
+      "finding_id": "B150",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "B151",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 1
+      }
+    },
+    {
+      "finding_id": "B152",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 24
+      }
+    },
+    {
+      "finding_id": "B153",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "B154",
+      "proposal": "limited",
+      "XML_states": {
+        "PASS": 2
+      }
+    },
+    {
+      "finding_id": "B155",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 3
+      }
+    },
+    {
+      "finding_id": "LA-057",
+      "proposal": "closed",
+      "XML_states": {
+        "PASS": 21
+      }
+    }
+  ],
+  "semantic_decision_warning": "Byte/hash/XML reconciliation verifies custody, not scientific/institutional authority or correctness of each proposed manual decision; root/G review remains required.",
+  "closure_ids": []
+}

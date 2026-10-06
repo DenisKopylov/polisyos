@@ -7,6 +7,7 @@ from runpy import run_path
 
 import pytest
 
+from polisyos.core.llm.traced_client import TracedLLMClient
 from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
 from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
@@ -28,7 +29,7 @@ def test_actual_same_provider_event_is_not_charged_again_at_next_stage(tmp_path,
     owner = BudgetMiddleware(budget, ledger=FileBudgetLedger(path))
     gateway = _text["TextGateway"](_text["response_text"]("usage", "cost_usd", "1"))
     enforcer = LLMBudgetEnforcer(
-        client=gateway,
+        client=TracedLLMClient(gateway, model_name="test-model"),
         budget_state=budget,
         budget_keys=["run"],
         run_id="replay-run",

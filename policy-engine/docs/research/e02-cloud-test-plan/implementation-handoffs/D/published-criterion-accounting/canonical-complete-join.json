@@ -1,0 +1,21 @@
+{
+  "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "cwd": "/workspace/e02-D-published-stress",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "/workspace/e02-D2-receipts/criterion-accounting/canonical_join.py",
+    "198076863e143dea9f89f02734b13d50dae3eed5"
+  ],
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:."
+  },
+  "basetemp": null,
+  "basetemp_precondition": "explicit nonexistent path checked for pytest invocations",
+  "exit_code": 0,
+  "wall_seconds": 1.1743112190015381,
+  "max_rss_kib": 20196,
+  "rss_scope": "completed-child cumulative high-water in this capture process",
+  "log_sha256": "21fea8482f3a64708d8ef397a57d9230a6914dcdc32e7c212bf57dd217f99db9"
+}

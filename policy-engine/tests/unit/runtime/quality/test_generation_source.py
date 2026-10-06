@@ -2185,14 +2185,23 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
     """Selected-view replay joins a candidate profile to a persisted context owner.
 
     V4/V5 bind a typed candidate profile to the real context-job CAS owner.
-    The N5 input/source/result loaders remain unit-controlled stubs, so this
-    test does not claim complete N4/N5 producer capability.
+    Other tenant-owned CAS dependencies have explicit fixture-stub bodies,
+    and the N5 input/source/result loaders remain unit-controlled. Their
+    fixture bodies and selected manifest views do not establish real N4/N5
+    producers, candidate profiles, or complete producer capability.
     """
     from decimal import Decimal
     from types import SimpleNamespace
 
     from polisyos.core import canon
-    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.artifacts.manifest import (
+        ArtifactRef,
+        ArtifactTenantContextInfo,
+        InputRef,
+        ProducerInfo,
+        SchemaInfo,
+    )
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
     from polisyos.ir.analytics.interventions import (
         InterventionContext,
         NodeIntervention,
@@ -2484,6 +2493,52 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
             with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
                 return operation(*args, **kwargs)
 
+        def selected_input(ref_value, role):
+            return InputRef(
+                artifact_id=ref_value.artifact_id,
+                role=role,
+                manifest_profile_sha256=ref_value.manifest_profile_sha256,
+            )
+
+        def persist_fixture_stub(
+            role,
+            kind,
+            *,
+            producer_version,
+            inputs=(),
+            payload=None,
+        ):
+            # These readable bytes satisfy this execution manifest's CAS
+            # denominator only. The unit-controlled loaders below do not treat
+            # them as evidence from N4, N5, a candidate model, or an NCM owner.
+            body = canon.to_canonical_bytes(
+                payload
+                or {
+                    "fixture_role": f"selected_view_{role}_stub",
+                    "schema_version": "test-stub-v1",
+                }
+            )
+            options = ArtifactWriteOptions(
+                kind=kind,
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=f"tests.unit.runtime.quality.selected_view.{role}",
+                    version="test-stub-v1",
+                ),
+                producer=ProducerInfo(
+                    component="tests.unit.runtime.quality.test_generation_source",
+                    version=producer_version,
+                ),
+                inputs=list(inputs),
+                tenant_context=ArtifactTenantContextInfo(
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                ),
+            )
+            fixture_ref = in_scope(store.put_bytes, body, options)
+            assert in_scope(store.get_bytes, fixture_ref) == body
+            return fixture_ref
+
         def hashed_model(model_type, payload):
             draft = model_type.model_construct(
                 **payload,
@@ -2589,19 +2644,81 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
             context_job.context.world_model_record.content_hash
             == profile.context_inputs.world_model_record.content_hash
         )
-        declaration_ref = ref("4", "runtime.quality.candidate_simulation_model_declaration")
-        # The two cases keep the same NCM bytes/ArtifactID and vary only the
-        # selected manifest-profile hash, which this unit test preserves.
-        ncm_ref = ref("5", "ir.ncm_spec")
-        other_view_suffix = "f" if view_profile_case == "a" else "a"
-        other_ncm_ref = ArtifactRef(
-            artifact_id=ncm_ref.artifact_id,
-            kind=ncm_ref.kind,
-            media_type=ncm_ref.media_type,
-            manifest_profile_sha256="sha256:" + other_view_suffix * 64,
+        declaration_ref = persist_fixture_stub(
+            "model_declaration",
+            "runtime.quality.candidate_simulation_model_declaration",
+            producer_version="test-stub-v1",
+            inputs=(selected_input(context_ref, "cycle_substrate_context_job"),),
+            payload={
+                "fixture_role": "selected_view_model_declaration_stub",
+                "profile_content_hash": profile.content_hash,
+                "target_world_slot": target_world_slot,
+            },
         )
+
+        ncm_payload = {
+            "fixture_role": "selected_view_ncm_spec_stub",
+            "schema_version": "test-stub-v1",
+        }
+        ncm_inputs = (selected_input(context_ref, "cycle_substrate_context_job"),)
+        # First create a default view, then two real sibling CAS manifest views
+        # over the same fixture-stub bytes. These are selected CAS views, not
+        # evidence of an actual candidate-profile/NCM producer.
+        persist_fixture_stub(
+            "ncm_spec",
+            "ir.ncm_spec",
+            producer_version="test-stub-base",
+            inputs=ncm_inputs,
+            payload=ncm_payload,
+        )
+        ncm_views = {
+            case: persist_fixture_stub(
+                "ncm_spec",
+                "ir.ncm_spec",
+                producer_version=f"test-stub-view-{case}",
+                inputs=ncm_inputs,
+                payload=ncm_payload,
+            )
+            for case in ("a", "f")
+        }
+        ncm_ref = ncm_views[view_profile_case]
+        other_ncm_ref = ncm_views["f" if view_profile_case == "a" else "a"]
+        assert ncm_ref.manifest_profile_sha256 is not None
+        assert other_ncm_ref.manifest_profile_sha256 is not None
         assert other_ncm_ref.artifact_id == ncm_ref.artifact_id
         assert other_ncm_ref.manifest_profile_sha256 != ncm_ref.manifest_profile_sha256
+
+        n4_ref = persist_fixture_stub(
+            "n4_source",
+            n4_kind,
+            producer_version="test-stub-v1",
+            inputs=(
+                selected_input(context_ref, "cycle_substrate_context_job"),
+                selected_input(declaration_ref, "candidate_model_declaration"),
+                selected_input(ncm_ref, "candidate_ncm_spec"),
+            ),
+            payload={
+                "fixture_role": "selected_view_n4_source_loader_stub",
+                "job_id": job_id,
+                "run_id": run_id,
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+                "context_job_ref": str(context_ref.artifact_id),
+            },
+        )
+        result_ref = persist_fixture_stub(
+            "n5_result",
+            "polisyos.runtime.joint_simulation_result",
+            producer_version="test-stub-v1",
+            inputs=(
+                selected_input(context_ref, "cycle_substrate_context_job"),
+                selected_input(n4_ref, "n4_source"),
+            ),
+            payload={
+                "fixture_role": "selected_view_n5_result_loader_stub",
+                "receipt_payload_hash": "sha256:" + "f" * 64,
+            },
+        )
 
         context_hash = context_job.context.content_hash
         world_hash = context_job.context.world_model_record.content_hash
@@ -2647,9 +2764,45 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
                 }
             )
         # The N5 input loader is intentionally a unit stub below. Keep its
-        # returned object typed while making the persisted context owner the
-        # only authority-backed artifact in this fixture.
+        # returned object typed while keeping its CAS body an explicitly
+        # labeled, tenant-owned fixture dependency.
         input_record = input_types[schema_version].model_construct(**input_fields)
+        input_dependencies = [
+            selected_input(n4_ref, "n4_source"),
+            selected_input(context_ref, "cycle_substrate_context_job"),
+        ]
+        input_stub_payload = {
+            "fixture_role": "selected_view_n5_input_loader_stub",
+            "schema_version": input_record.schema_version,
+            "job_id": job_id,
+            "run_id": run_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "n4_source_ref": str(n4_ref.artifact_id),
+            "context_job_ref": str(context_ref.artifact_id),
+            "profile_content_hash": profile.content_hash,
+            "candidate_id": source_candidate.candidate_id,
+        }
+        if schema_version == "v5":
+            input_dependencies.extend(
+                (
+                    selected_input(declaration_ref, "candidate_model_declaration"),
+                    selected_input(ncm_ref, "candidate_ncm_spec"),
+                )
+            )
+            input_stub_payload.update(
+                {
+                    "model_declaration_ref": str(declaration_ref.artifact_id),
+                    "ncm_ref": str(ncm_ref.artifact_id),
+                }
+            )
+        input_ref = persist_fixture_stub(
+            "n5_input",
+            "runtime.quality.candidate_simulation_n5_input",
+            producer_version="test-stub-v1",
+            inputs=tuple(input_dependencies),
+            payload=input_stub_payload,
+        )
         handoff_fields = {
             "context": context_job.context,
             "context_job_ref": context_ref,

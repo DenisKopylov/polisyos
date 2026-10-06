@@ -385,3 +385,22 @@ def test_installed_migration_requires_an_existing_checkout_for_contract_lookup(
 
     with pytest.raises(RepositoryRootUnavailableError):
         migration._resolve_migration_roots(installed_module)
+
+
+def test_installed_migration_rejects_checkout_with_malformed_sentinels(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A directory named pyproject.toml is not enough to select an installed runner root."""
+    migration = importlib.import_module("tools.ops_runners.migrations.migrate")
+    installed_module = (
+        tmp_path / "site-packages" / "tools" / "ops_runners" / "migrations" / "migrate.py"
+    )
+    malformed_checkout = tmp_path / "malformed-workspace"
+    (malformed_checkout / "pyproject.toml").mkdir(parents=True)
+    (malformed_checkout / "tools").mkdir()
+    (malformed_checkout / "src").mkdir()
+    monkeypatch.chdir(malformed_checkout)
+
+    with pytest.raises(RepositoryRootUnavailableError):
+        migration._resolve_migration_roots(installed_module)

@@ -16,9 +16,11 @@ CONTRACT_PATH = Path("ops/migrations/migration-contracts.toml")
 
 def _resolve_contract_root(repo_root: Path | None = None) -> Path:
     """Resolve an explicit workspace or an existing checkout for an installed runner."""
-    if repo_root is not None:
-        return repo_root
-    return repo_root_from(__file__, allow_cwd_fallback=True)
+    return repo_root_from(
+        __file__,
+        allow_cwd_fallback=True,
+        workspace_root=repo_root,
+    )
 
 
 @dataclass(frozen=True)

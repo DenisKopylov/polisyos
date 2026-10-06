@@ -493,3 +493,30 @@ def test_installed_migration_contract_lookup_fails_typed_outside_workspace(
 
     with pytest.raises(RepositoryRootUnavailableError):
         contract_module.validate_helper_binding("duckdb_to_postgresql")
+
+
+@pytest.mark.parametrize("malformed_pyproject", [False, True])
+def test_contract_root_resolver_validates_explicit_workspace(
+    tmp_path: Path,
+    malformed_pyproject: bool,
+) -> None:
+    """Explicit contract roots retain valid selection and reject false workspace layouts."""
+    import importlib
+
+    contract_module = importlib.import_module("tools.ops_runners.migrations.contracts")
+    if malformed_pyproject:
+        malformed_checkout = tmp_path / "malformed-workspace"
+        (malformed_checkout / "pyproject.toml").mkdir(parents=True)
+        (malformed_checkout / "tools").mkdir()
+        (malformed_checkout / "src").mkdir()
+        with pytest.raises(RepositoryRootUnavailableError):
+            contract_module.validate_helper_binding(
+                "duckdb_to_postgresql",
+                malformed_checkout,
+            )
+    else:
+        binding = contract_module.validate_helper_binding(
+            "duckdb_to_postgresql",
+            PRODUCT_ROOT,
+        )
+        assert binding.contract_path == "ops/migrations/db"

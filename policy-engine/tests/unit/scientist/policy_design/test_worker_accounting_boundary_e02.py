@@ -191,9 +191,15 @@ def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
 
     monkeypatch.setattr(gateway_client.GatewayLLMClient, "_post_json", sdk_boundary)
     observed_errors: list[dict[str, Any]] = []
+    caught_worker_errors: list[dict[str, str]] = []
     original_trace = sys.gettrace()
 
     def observe(frame: Any, event: str, arg: Any) -> Any:
+        if event == "exception" and frame.f_code in (
+            adversary.ScenarioAdversaryWorker.propose_async.__code__,
+            translator.PolicyTranslatorWorker.translate_async.__code__,
+        ):
+            caught_worker_errors.append({"type": type(arg[1]).__name__, "message": str(arg[1])})
         if event == "exception" and frame.f_code is LLMBudgetEnforcer.generate.__code__:
             error = arg[1]
             if isinstance(error, LLMAccountingError):
@@ -214,14 +220,14 @@ def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
     async def invoke_fresh_worker() -> Any:
         if worker_kind == "adversary":
             return await adversary.ScenarioAdversaryWorker(
-                adversary.ScenarioAdversaryConfig(model_name="gpt-4o")
+                adversary.ScenarioAdversaryConfig(model_name="explicit-worker-oracle-model")
             ).propose_async(
                 adversary.ScenarioAttackSurface(candidate_id="actual-worker-candidate"),
                 run_id="same-actual-worker-run",
                 budget_state=state,
             )
         return await translator.PolicyTranslatorWorker(
-            translator.PolicyTranslatorConfig(model_name="gpt-4o")
+            translator.PolicyTranslatorConfig(model_name="explicit-worker-oracle-model")
         ).translate_async(bundle)
 
     outcomes = []
@@ -249,6 +255,7 @@ def test_actual_worker_preserves_accounting_unknown_before_fresh_worker(
         "physical_calls": len(physical_rows),
         "physical_work": physical_rows,
         "actual_enforcer_errors": observed_errors,
+        "caught_worker_errors": caught_worker_errors,
         "worker_outcomes": outcomes,
         "same_budget_state": state.model_dump(mode="json"),
         "profile": "actual production raw-BudgetState worker constructors; no durable middleware injected",

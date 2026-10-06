@@ -1,0 +1,27 @@
+{
+  "schema": "policyos.e02.captured_payload_manifest.v1",
+  "runtime_candidate_sha": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+  "payloads": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-positive-complete.txt",
+      "sha256": "62de12349cfcd142f15530f2c0d882907550f11cb724c8b7b4da57038817c159",
+      "bytes": 8911
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-positive-resource.json",
+      "sha256": "d179b049f6044e6de77d5ac488c8f8d5e0be8bef33a59534018e8532ed77a2c9",
+      "bytes": 747
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-removal-complete.txt",
+      "sha256": "5e6136a8b443d260f4ad1570a82f1980a1a0d52c626339f50f41775f081a01dd",
+      "bytes": 8327
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-removal-resource.json",
+      "sha256": "25c34bedffdbe590585c092002b16b086bd9ac1a8444abaf7ac4fbe2adf83ccd",
+      "bytes": 756
+    }
+  ],
+  "scope": "Unmodified actual blueprint absent-report positive PASS; only actual no-synthetic-count property removed in memory expected FAIL with other schema/status/unknown-component markers preserved. Full earlier killed pytest outputs retained separately."
+}

@@ -1,0 +1,11 @@
+id = "2026-10-06-transfer-generations"
+title = "Publish indivisible native vector memory generations"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "Vector memory queries capture one immutable native generation. Load and add/update prepare a private index before one pointer publication; failed native mutations and caller metadata mutations preserve existing readers. Composite CAS bundles retain exact index references."
+surface_classification = "internal: internal-only"
+evidence = ["tests/unit/scientist/agent/test_vector_memory.py", "tests/unit/remediation/test_trn_02.py"]
+compatibility = "Existing default-reference vector bundles remain readable. New version 2.0 bundles preserve the selected manifest profile of their native index. Metadata is returned as independent decoded values."
+migration = "Use the returned immutable composite ArtifactRef for persistence and direct reads; no latest-generation pointer is introduced."
+limitations = "The generation publication contract is in-process. It does not establish distributed publication, institutional source authorization, production history validity or scientific revalidation."

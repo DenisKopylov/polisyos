@@ -134,6 +134,7 @@ class _BundleStore:
         self.index_ref = index_ref
 
     def get_bytes(self, artifact_id: object) -> bytes:
+        artifact_id = getattr(artifact_id, "artifact_id", artifact_id)
         if str(artifact_id) == str(self.bundle_ref.artifact_id):
             return json.dumps(
                 {

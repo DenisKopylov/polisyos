@@ -64,6 +64,10 @@ class _Node:
         self.inputs: list[dict] = []
         self.overlap = False
 
+    def execute(self, ctx, state):
+        del ctx, state
+        raise AssertionError("The actual native admission fixture must use its async provider")
+
     async def execute_async(self, ctx, state):
         self.calls += 1
         self.started.set()
@@ -160,7 +164,7 @@ async def test_native_queued_admission_preserves_slots_and_completed_prefix(
     first.release = asyncio.Event()
     nodes = [seed, first, second, third]
     hook = CASCheckpointHook(
-        store=ctx.store, run_dir=Path(ctx.store.root) / "runs" / ctx.run.manifest.run_id
+        store=ctx.store, run_dir=Path(ctx.store.root) / "runs" / ctx.run.run_manifest.run_id
     )
     executor = AsyncWorkflowExecutor(
         ctx, _registry(*nodes), max_parallelism=1, checkpoint_hook=hook

@@ -755,6 +755,7 @@ def test_program_graph_cache_binds_mutated_state_with_same_cas_refs(
 ) -> None:
     import jax.numpy as jnp
 
+    from polisyos.core.contracts.foundry import StateSnapshotRef
     from polisyos.foundry.execute._internal.snapshots import put_state_snapshot
 
     first_plan = _program_graph_plan(tmp_path)
@@ -763,6 +764,7 @@ def test_program_graph_cache_binds_mutated_state_with_same_cas_refs(
         state=first_plan.program_base_state,
         step=0,
     )
+    snapshot_ref = StateSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
     first_plan = first_plan.model_copy(update={"program_base_ref": snapshot_ref})
     changed_state = first_plan.program_base_state.replace(
         agents=first_plan.program_base_state.agents.replace(

@@ -14,7 +14,22 @@ from polisyos.foundry import uncertainty
 
 def test_forecast_exports_preserve_canonical_types_and_refuse_authority(tmp_path: Path) -> None:
     owner = importlib.import_module("polisyos.calibration.forecast_bridge")
-    for name in calibration._FORECAST_EXPORTS:
+    # Required by the real ForecastOwner caller, independent of the export table.
+    for name in (
+        "PREDICTIVE_AUTHORITY_DENIALS",
+        "REFERENCE_PROFILES",
+        "EmpiricalCalibrationContext",
+        "EmpiricalCalibrationEvidenceRef",
+        "EvidenceArtifactRef",
+        "ForecastCalibrationProfile",
+        "ForecastCandidateReceipt",
+        "ForecastCandidateReceiptRef",
+        "load_empirical_calibration_evidence",
+        "load_forecast_calibration_profile",
+        "persist_empirical_calibration_evidence",
+        "persist_forecast_candidate_receipt",
+        "produce_empirical_calibration_evidence",
+    ):
         assert getattr(calibration, name) is getattr(owner, name)
     with pytest.raises(AttributeError):
         _ = calibration.nonexistent_evidence_authority

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+import builtins
 import contextlib
 import datetime as dt
 import difflib
@@ -607,6 +608,8 @@ class _StaticExportResolver:
         self._resolved: dict[tuple[Path, str], int] = {}
         self._allowed_reads: set[tuple[Path, int]] = set()
         self._allowed_calls: set[tuple[Path, int]] = set()
+        self._allowed_operations: set[tuple[Path, int]] = set()
+        self._passive_active: set[tuple[Path, str]] = set()
 
     def _tree(self, source: Path) -> ast.Module:
         if source not in self._trees:
@@ -712,6 +715,7 @@ class _StaticExportResolver:
         if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
             left, right = self._value(source, node.left), self._value(source, node.right)
             if isinstance(left, (list, tuple)) and isinstance(right, (list, tuple)):
+                self._allowed_operations.add((source, id(node)))
                 return [*left, *right]
         if (
             isinstance(node, ast.Call)
@@ -787,16 +791,164 @@ class _StaticExportResolver:
                         changed = True
                 if not changed:
                     break
-            for node in _module_level_nodes(self._tree(source)):
-                if (
-                    isinstance(node, ast.Call)
-                    and (source, id(node)) not in self._allowed_calls
-                ):
-                    raise _UnresolvedExportDeclarationError(f"Unresolved import-time call outside finite grammar: {source}:{ast.unparse(node)}")
-                if (
-                    isinstance(node, ast.ClassDef)
-                ):
-                    raise _UnresolvedExportDeclarationError(f"Unresolved import-time class construction outside finite grammar: {source}:{node.name}")
+        audited: set[Path] = set()
+        while pending := set(self._trees) - audited:
+            for source in pending:
+                for statement in self._tree(source).body:
+                    self._audit_statement(source, statement)
+                audited.add(source)
+
+    def _refuse_effect(self, source: Path, node: ast.AST) -> None:
+        raise _UnresolvedExportDeclarationError(
+            f"Unresolved import-time {type(node).__name__} outside pure-declaration grammar: "
+            f"{source}:{ast.unparse(node)}"
+        )
+
+    def _import_source(self, source: Path, node: ast.ImportFrom | ast.Import, name: str) -> Path:
+        if isinstance(node, ast.ImportFrom):
+            info = _module_name_for_path(source)
+            module = _resolve_import_module(*info, node) if info is not None else None
+        else:
+            module = name
+        # An external import may execute arbitrary owner code. No package is
+        # granted purity by its name, including standard-library imports.
+        if module is None or not (module == "polisyos" or module.startswith("polisyos.")):
+            self._refuse_effect(source, node)
+        imported = _facade_source_for(module)
+        self._tree(imported)
+        self._read_package_initializers(module)
+        return imported
+
+    def _read_package_initializers(self, module: str) -> None:
+        parts = module.split(".")
+        for length in range(1, len(parts)):
+            initializer = SRC_ROOT.joinpath(*parts[:length], "__init__.py")
+            # Canonical namespace-package directories have no initializer. The
+            # admitted stat records this bounded absence; no loader is executed.
+            if admitted_is_file(initializer, REPO_ROOT):
+                self._tree(initializer)
+
+    def _passive_binding(self, source: Path, name: str) -> None:
+        key = (source, name)
+        if key in self._passive_active:
+            raise _UnresolvedExportDeclarationError(f"Unresolved passive binding cycle: {source}:{name}")
+        bindings = list(_symbol_binding_nodes(self._tree(source), name))
+        if not bindings and name in vars(builtins):
+            return
+        if len(bindings) != 1 or bindings[0] not in self._tree(source).body:
+            raise _UnresolvedExportDeclarationError(f"Unresolved passive binding: {source}:{name}")
+        self._passive_active.add(key)
+        try:
+            node = bindings[0]
+            if isinstance(node, (ast.Assign, ast.AnnAssign)) and node.value is not None:
+                self._audit_expression(source, node.value)
+            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                self._audit_function_header(source, node)
+            elif isinstance(node, ast.ImportFrom):
+                imported = self._import_source(source, node, "")
+                alias = next(alias for alias in node.names if (alias.asname or alias.name) == name)
+                self._passive_binding(imported, alias.name)
+            elif isinstance(node, ast.Import):
+                for alias in node.names:
+                    if (alias.asname or alias.name.split(".")[0]) == name:
+                        self._import_source(source, node, alias.name)
+            else:
+                self._refuse_effect(source, node)
+        finally:
+            self._passive_active.remove(key)
+
+    def _mapping_binding(self, source: Path, node: ast.AST) -> bool:
+        if not isinstance(node, ast.Name):
+            return False
+        bindings = list(_symbol_binding_nodes(self._tree(source), node.id))
+        if len(bindings) != 1 or bindings[0] not in self._tree(source).body:
+            return False
+        binding = bindings[0]
+        if isinstance(binding, (ast.Assign, ast.AnnAssign)):
+            return isinstance(binding.value, ast.Dict)
+        if isinstance(binding, ast.ImportFrom):
+            imported = self._import_source(source, binding, "")
+            alias = next(alias for alias in binding.names if (alias.asname or alias.name) == node.id)
+            imported_bindings = list(_symbol_binding_nodes(self._tree(imported), alias.name))
+            return len(imported_bindings) == 1 and isinstance(imported_bindings[0], (ast.Assign, ast.AnnAssign)) and isinstance(imported_bindings[0].value, ast.Dict)
+        return False
+
+    def _audit_expression(self, source: Path, node: ast.AST, *, allow_calls: bool = True) -> None:
+        # literal_eval admits only closed literal values, never owner code or
+        # foreign protocols. A malformed literal is unresolved, not executed.
+        try:
+            ast.literal_eval(node)
+        except (ValueError, TypeError):
+            pass
+        else:
+            return
+        if isinstance(node, ast.Name):
+            self._passive_binding(source, node.id)
+            return
+        if isinstance(node, (ast.List, ast.Tuple)):
+            for value in node.elts:
+                self._audit_expression(source, value, allow_calls=allow_calls)
+            return
+        if isinstance(node, ast.Dict):
+            for key, value in zip(node.keys, node.values, strict=True):
+                if key is None:
+                    if not self._mapping_binding(source, value):
+                        self._refuse_effect(source, value)
+                else:
+                    try:
+                        hash(ast.literal_eval(key))
+                    except (ValueError, TypeError):
+                        self._refuse_effect(source, key)
+                self._audit_expression(source, value, allow_calls=allow_calls)
+            return
+        if allow_calls and isinstance(node, ast.Call) and (source, id(node)) in self._allowed_calls:
+            for value in node.args:
+                self._audit_expression(source, value, allow_calls=allow_calls)
+            return
+        if allow_calls and isinstance(node, ast.BinOp) and (source, id(node)) in self._allowed_operations:
+            self._audit_expression(source, node.left, allow_calls=allow_calls)
+            self._audit_expression(source, node.right, allow_calls=allow_calls)
+            return
+        self._refuse_effect(source, node)
+
+    def _audit_function_header(self, source: Path, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
+        if node.decorator_list or node.type_params:
+            self._refuse_effect(source, node)
+        expressions = [*node.args.defaults, *node.args.kw_defaults, node.returns]
+        arguments = [*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs]
+        arguments += [arg for arg in (node.args.vararg, node.args.kwarg) if arg is not None]
+        expressions += [arg.annotation for arg in arguments]
+        for expression in expressions:
+            if expression is not None:
+                self._audit_expression(source, expression, allow_calls=False)
+        # Function bodies are deliberately outside the import-time selector.
+
+    def _audit_statement(self, source: Path, node: ast.stmt) -> None:
+        if isinstance(node, (ast.Assign, ast.AnnAssign)):
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            if not all(isinstance(target, ast.Name) for target in targets):
+                self._refuse_effect(source, node)
+            if isinstance(node, ast.AnnAssign):
+                self._audit_expression(source, node.annotation, allow_calls=False)
+            if node.value is not None:
+                self._audit_expression(source, node.value)
+        elif isinstance(node, ast.Expr):
+            self._audit_expression(source, node.value)
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            self._audit_function_header(source, node)
+        elif isinstance(node, ast.ImportFrom):
+            if any(alias.name == "*" for alias in node.names):
+                self._refuse_effect(source, node)
+            imported = self._import_source(source, node, "")
+            for alias in node.names:
+                # Named import can invoke module __getattr__ for an absent name.
+                # Only an actual passive owner binding avoids that protocol.
+                self._passive_binding(imported, alias.name)
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                self._import_source(source, node, alias.name)
+        elif not isinstance(node, ast.Pass):
+            self._refuse_effect(source, node)
 
 
 class _IncompleteExportDeclarationError(_UnresolvedExportDeclarationError):
@@ -820,7 +972,7 @@ def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | Non
     if not isinstance(targets[0], ast.Name) or targets[0].id != "__all__":
         return None
     prefix = _string_list_value(declaration.value)
-    if prefix is None:
+    if prefix is None or not isinstance(declaration.value, ast.List):
         return None
     standalone_calls = {
         id(node.value) for node in _module_level_nodes(tree)
@@ -839,6 +991,7 @@ def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | Non
             and node.func.value.id == "__all__"
             and node.func.attr == "extend"
             and len(node.args) == 1
+            and _string_list_value(node.args[0]) is not None
             and not isinstance(node.args[0], ast.Starred)
             and not node.keywords
             and node.lineno > declaration.end_lineno
@@ -867,12 +1020,24 @@ def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | Non
 def _extract_exports(tree: ast.Module, source_file: Path | None = None) -> tuple[str, ...]:
     source = source_file or SRC_ROOT / "polisyos" / "__static_exports__.py"
     resolver = _StaticExportResolver(source, tree)
+    if source_file is not None:
+        info = _module_name_for_path(source)
+        if info is not None:
+            resolver._read_package_initializers(info[0])
     if not any(_symbol_binding_nodes(tree, "__all__")):
         # Absence of a syntactic binding does not excuse reflective module effects.
         resolver.audit_consumers()
         return ()
     prefix = _literal_prefix_before_extensions(tree)
     if prefix is not None:
+        resolver._allowed_calls.update(
+            (source, id(node)) for node in _module_level_nodes(tree)
+            if isinstance(node, ast.Call)
+        )
+        try:
+            resolver.audit_consumers()
+        except _UnresolvedExportDeclarationError as exc:
+            raise _UnresolvedExportDeclarationError(str(exc), prefix) from exc
         raise _IncompleteExportDeclarationError(prefix)
     try:
         exports = resolver.resolve(source, "__all__")
@@ -957,7 +1122,11 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
         )
     export_resolution["selector"] = (
         "Declared __all__; literal sequences/mapping keys, named/imported declarations, "
-        "concatenation and sorted/list/tuple. No module execution or runtime dispatch."
+        "concatenation and sorted/list/tuple. Every read local module is audited against "
+        "a finite pure import-time declaration grammar; external imports, control/context "
+        "statements, class construction, decorated/type-parameterized function headers "
+        "and foreign attribute/subscript/operator/callback protocols remain unknown. "
+        "Function bodies are excluded. No module execution or runtime dispatch."
     )
     function_names = {node.name for node in tree.body if isinstance(node, ast.FunctionDef)}
     summary = (ast.get_docstring(tree) or "").strip().splitlines()

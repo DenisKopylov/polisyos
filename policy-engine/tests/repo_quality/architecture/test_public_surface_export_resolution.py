@@ -41,12 +41,14 @@ def test_actual_analytics_mapping_is_not_reported_as_empty() -> None:
     assert result.known_export_count == 0
     assert result.export_resolution["complete"] is False
     assert result.export_resolution["declared_export_candidates"] == sorted(ANALYTICS_FACADE_EXPORTS)
-    assert "class construction" in result.export_resolution["reason"]
+    assert "pure-declaration grammar" in result.export_resolution["reason"]
     inputs = result.export_resolution["inputs"]
     paths = {row["path"] for row in inputs if row["operation"] == "read_bytes"}
     assert paths == {
         "src/polisyos/ir/api.py",
         "src/polisyos/ir/analytics/__init__.py",
+        "src/polisyos/ir/__init__.py",
+        "src/polisyos/__init__.py",
     }
     for row in inputs:
         if row["operation"] == "read_bytes":
@@ -165,7 +167,7 @@ def test_unsupported_module_effect_is_reported_without_executing_module(
     assert result.export_count is None
     assert result.known_export_count == 0
     assert result.export_resolution["complete"] is False
-    assert "import-time call" in result.export_resolution["reason"]
+    assert "import-time Raise" in result.export_resolution["reason"]
     assert result.export_resolution["declared_export_candidates"] == ["A", "B"]
     policy = guardrails.PackagePolicy(
         module="polisyos.fixture", classification="public_experimental", facade_mode="eager_exports",
@@ -250,11 +252,11 @@ def test_direct_named_all_import_uses_same_finite_owner_reader(tmp_path: Path, m
     assert guardrails._entrypoint_inventory("polisyos.fixture").exports == ("B", "A")
 
 
-def test_conditional_extension_exposes_prefix_and_fails_complete_contract(
+def test_closed_literal_extension_exposes_prefix_and_fails_complete_contract(
     tmp_path: Path, monkeypatch,
 ) -> None:
     facade, _ = _fixture(tmp_path, monkeypatch)
-    facade.write_text('__all__ = ["Prefix"]\nif available:\n    __all__.extend(runtime_names)\n')
+    facade.write_text('__all__ = ["Prefix"]\n__all__.extend(["Added"])\n')
     policy = guardrails.PackagePolicy(
         module="polisyos.fixture", classification="public_experimental", facade_mode="eager_exports",
         owner="test-owner", readme=facade, reference_doc=facade,
@@ -346,6 +348,96 @@ def test_bindings_cannot_escape_finite_declaration_consumers(source: str) -> Non
 def test_missing_syntactic_binding_does_not_bypass_effect_audit(source: str) -> None:
     with pytest.raises(guardrails._UnresolvedExportDeclarationError, match="import-time"):
         guardrails._extract_exports(ast.parse(source))
+
+
+@pytest.mark.parametrize("effect", [
+    'def poison(f):\n    return f\n@poison\ndef decorated():\n    pass',
+    'def default(value=callback()):\n    pass',
+    'def default(value=foreign.attribute):\n    pass',
+    'def annotation(value: foreign.attribute):\n    pass',
+    'def parameterized[T: foreign.attribute]():\n    pass',
+    'ignored = foreign.attribute',
+    'ignored = foreign[0]',
+    'ignored = foreign + 1',
+    'if foreign:\n    pass',
+    'with foreign:\n    pass',
+    'ignored = [value for value in foreign]',
+    'import foreign',
+    'from foreign import value',
+    'from __future__ import annotations',
+])
+def test_import_time_profile_refuses_implicit_and_foreign_protocol_effects(effect: str) -> None:
+    source = effect + '\nM = {"StaticName": None}\n__all__ = sorted(M)\n'
+    with pytest.raises(guardrails._UnresolvedExportDeclarationError, match="pure-declaration grammar"):
+        guardrails._extract_exports(ast.parse(source))
+
+
+def test_plain_function_body_and_closed_defaults_are_outside_import_time_execution() -> None:
+    source = (
+        'DEFAULT = {"answer": 42}\n'
+        'def passive(value=DEFAULT, count: int = 1) -> str:\n'
+        '    return foreign.callback(value)\n'
+        '__all__ = ["passive"]\n'
+    )
+    assert guardrails._extract_exports(ast.parse(source)) == ("passive",)
+
+
+def test_local_import_effects_are_read_and_audited_beyond_selected_mapping(
+    tmp_path: Path, monkeypatch,
+) -> None:
+    _, mapping = _fixture(tmp_path, monkeypatch)
+    effects = mapping.with_name("effects.py")
+    mapping.write_text('from .effects import PASSIVE\nPUBLIC_NAMES = {"StaticName": None}\n')
+    effects.write_text('PASSIVE = 1\nforeign_callback()\n')
+    result = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert result.export_count is None and result.known_export_count == 0
+    assert result.export_resolution["declared_export_candidates"] == ["StaticName"]
+    assert result.export_resolution["complete"] is False
+    read = next(row for row in result.export_resolution["inputs"] if row["path"].endswith("effects.py") and row["operation"] == "read_bytes")
+    assert read["sha256"] == hashlib.sha256(effects.read_bytes()).hexdigest()
+    effects.write_text('PASSIVE = 1\n')
+    resolved = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert resolved.export_count == 1 and resolved.exports == ("StaticName",)
+
+
+def test_unproved_extension_protocol_retains_only_source_candidates(
+    tmp_path: Path, monkeypatch,
+) -> None:
+    facade, _ = _fixture(tmp_path, monkeypatch)
+    facade.write_text('__all__ = ["Prefix"]\nif available:\n    __all__.extend(runtime_names)\n')
+    result = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert result.export_count is None and result.known_export_count == 0
+    assert result.exports == ()
+    assert result.export_resolution["declared_export_candidates"] == ["Prefix"]
+
+
+def test_local_named_import_requires_actual_binding_not_module_getattr(
+    tmp_path: Path, monkeypatch,
+) -> None:
+    _, mapping = _fixture(tmp_path, monkeypatch)
+    effects = mapping.with_name("effects.py")
+    mapping.write_text('from .effects import missing\nPUBLIC_NAMES = {"StaticName": None}\n')
+    effects.write_text('def __getattr__(name):\n    return foreign_callback()\n')
+    result = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert result.export_count is None and result.known_export_count == 0
+    assert result.export_resolution["declared_export_candidates"] == ["StaticName"]
+    assert "passive binding" in result.export_resolution["reason"]
+
+
+def test_canonical_parent_initializer_effects_are_part_of_source_audit(
+    tmp_path: Path, monkeypatch,
+) -> None:
+    facade, _ = _fixture(tmp_path, monkeypatch)
+    parent = facade.parents[1] / "__init__.py"
+    parent.write_text('foreign_callback()\n')
+    result = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert result.export_count is None and result.known_export_count == 0
+    assert result.export_resolution["declared_export_candidates"] == ["Old"]
+    read = next(row for row in result.export_resolution["inputs"] if row["path"] == "src/polisyos/__init__.py" and row["operation"] == "read_bytes")
+    assert read["sha256"] == hashlib.sha256(parent.read_bytes()).hexdigest()
+    parent.write_text('__all__ = []\n')
+    resolved = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert resolved.exports == ("Old",) and resolved.export_count == 1
 
 
 def test_finite_selected_alias_chain_has_audited_consumers() -> None:

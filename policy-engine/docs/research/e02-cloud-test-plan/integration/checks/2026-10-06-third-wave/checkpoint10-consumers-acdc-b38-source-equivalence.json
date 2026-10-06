@@ -1,0 +1,25 @@
+{
+  "all_same_blob": true,
+  "b38_candidate": "4f71e8bbd95225c8d857b2123f7f2fe9fcc5071d",
+  "checkpoint10_candidate": "acdc3536f93f085d665a7b53460935525373d015",
+  "paths": [
+    {
+      "b38_candidate_blob": "e78a69642d69c21827bd73d688533ad40ca18295",
+      "checkpoint10_blob": "e78a69642d69c21827bd73d688533ad40ca18295",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "same_blob": true
+    },
+    {
+      "b38_candidate_blob": "9584c2a30ef59cd0dbdfdad1186bc0d2c9032c6f",
+      "checkpoint10_blob": "9584c2a30ef59cd0dbdfdad1186bc0d2c9032c6f",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "same_blob": true
+    },
+    {
+      "b38_candidate_blob": "29ffd7803891e5df9e6b2e97fc8f0776e40c4334",
+      "checkpoint10_blob": "29ffd7803891e5df9e6b2e97fc8f0776e40c4334",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+      "same_blob": true
+    }
+  ]
+}

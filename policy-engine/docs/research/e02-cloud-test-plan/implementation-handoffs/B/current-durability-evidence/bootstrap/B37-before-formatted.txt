@@ -1,0 +1,81 @@
+F...FFF                                                                  [100%]
+=================================== FAILURES ===================================
+__________ test_cold_record_spend_requires_bootstrap_across_processes __________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-117/test_cold_record_spend_require0')
+
+    def test_cold_record_spend_requires_bootstrap_across_processes(tmp_path: Path) -> None:
+        path = tmp_path / "budget.json"
+        result = _child(path, "spend")
+>       assert result["refused"] is True, result
+E       AssertionError: {'after': '3f0be259a8a74e167c99f221e0aa35563e37e5376420f7e632c74756255dfa4b', 'before': None, 'refused': False, 'state': {'limits': {}, 'provider_spent': {}, 'reserved': {}, 'spent': {'run': '1'}}}
+E       assert False is True
+
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:155: AssertionError
+___________ test_malformed_existing_ledger_is_not_rebootstrapped[{}] ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-117/test_malformed_existing_ledger2')
+payload = '{}'
+
+    @pytest.mark.parametrize("payload", ["", '{"schema_version":', "{}", '{"state": {}}'])
+    def test_malformed_existing_ledger_is_not_rebootstrapped(tmp_path: Path, payload: str) -> None:
+        path = tmp_path / "budget.json"
+        path.write_text(payload)
+        result = _child(path, "invalid")
+>       assert all(p["refused"] and p["bytes_unchanged"] for p in result["probes"].values()), result
+E       AssertionError: {'after': '418c4de5061533e5e89d6af92acea0877f4e05847eb282d457b3e77496534077', 'before': '44136fa355b3678a1146ad16f7e86... 'load': {'bytes_unchanged': True, 'refused': False}, 'middleware': {'bytes_unchanged': False, 'refused': False}, ...}}
+E       assert False
+E        +  where False = all(<generator object test_malformed_existing_ledger_is_not_rebootstrapped.<locals>.<genexpr> at 0x7fcf0f6ace10>)
+
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:176: AssertionError
+_____ test_malformed_existing_ledger_is_not_rebootstrapped[{"state": {}}] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-117/test_malformed_existing_ledger3')
+payload = '{"state": {}}'
+
+    @pytest.mark.parametrize("payload", ["", '{"schema_version":', "{}", '{"state": {}}'])
+    def test_malformed_existing_ledger_is_not_rebootstrapped(tmp_path: Path, payload: str) -> None:
+        path = tmp_path / "budget.json"
+        path.write_text(payload)
+        result = _child(path, "invalid")
+>       assert all(p["refused"] and p["bytes_unchanged"] for p in result["probes"].values()), result
+E       AssertionError: {'after': '011d0297fb19727b23227ae2389364e021c2577d8100912368280f4f4ba0bb0d', 'before': 'd0ec83fa0bff6a77401874451ff24... 'load': {'bytes_unchanged': True, 'refused': False}, 'middleware': {'bytes_unchanged': False, 'refused': False}, ...}}
+E       assert False
+E        +  where False = all(<generator object test_malformed_existing_ledger_is_not_rebootstrapped.<locals>.<genexpr> at 0x7fcf0f6ad080>)
+
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:176: AssertionError
+____ test_parseable_sparse_existing_snapshot_is_not_unlimited_or_rewritten _____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-117/test_parseable_sparse_existing0')
+
+    def test_parseable_sparse_existing_snapshot_is_not_unlimited_or_rewritten(tmp_path: Path) -> None:
+        path = tmp_path / "budget.json"
+        complete = _complete_snapshot(path)
+        schema = BudgetLedgerSnapshot.model_json_schema(mode="serialization")
+        failures = []
+        paths = _required_paths(complete, schema, schema.get("$defs", {}))
+        assert ("state", "limits") in paths and ("state", "spent") in paths
+        for missing in paths:
+            sparse = copy.deepcopy(complete)
+            owner = sparse
+            for component in missing[:-1]:
+                owner = owner[component]
+            del owner[missing[-1]]
+            path.write_text(json.dumps(sparse))
+            result = _child(path, "invalid")
+            if not all(p["refused"] and p["bytes_unchanged"] for p in result["probes"].values()):
+                failures.append({"missing": missing, "result": result})
+>       assert failures == [], failures
+E       AssertionError: [{'missing': ('schema_version',), 'result': {'after': '65b517031d6b5574f79b585cd4d1345b6a04df77f417d937cc4ad1433633a1b...: {'bytes_unchanged': True, 'refused': False}, 'middleware': {'bytes_unchanged': False, 'refused': False}, ...}}}, ...]
+E       assert [{'missing': ..., ...}}}, ...] == []
+E         
+E         Left contains 13 more items, first extra item: {'missing': ('schema_version',), 'result': {'after': '65b517031d6b5574f79b585cd4d1345b6a04df77f417d937cc4ad1433633a1b7...'load': {'bytes_unchanged': True, 'refused': False}, 'middleware': {'bytes_unchanged': False, 'refused': False}, ...}}}
+E         Use -v to get more diff
+
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:197: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_cold_record_spend_requires_bootstrap_across_processes
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_malformed_existing_ledger_is_not_rebootstrapped[{}]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_malformed_existing_ledger_is_not_rebootstrapped[{"state": {}}]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_parseable_sparse_existing_snapshot_is_not_unlimited_or_rewritten
+4 failed, 3 passed in 6.98s

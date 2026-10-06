@@ -1,0 +1,162 @@
+{
+  "candidate": {
+    "commit": "4f71e8bbd95225c8d857b2123f7f2fe9fcc5071d",
+    "parent": "73a055e033dad61590d3ef03b9ff44aaef2c0990",
+    "tree": "d418a555e7883599a3c8c482f5b43a6c7b6f7a50"
+  },
+  "disk": {
+    "available_gib_after_archive_before_tests": 28.216,
+    "available_gib_after_wave": 27.261,
+    "available_gib_before_archive": 28.671,
+    "available_kib_after_archive_before_tests": 29586548,
+    "available_kib_after_wave": 28585020,
+    "available_kib_before_archive": 30063968
+  },
+  "environment": {
+    "PYTEST_ADDOPTS": "",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b38-4f71/policy-engine/src",
+    "anyio": "4.12.0",
+    "httpx": "0.28.1",
+    "install_or_resolver_used": false,
+    "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "platform": "macOS darwin",
+    "psycopg": null,
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "python": "3.14.3",
+    "sqlalchemy": null
+  },
+  "integration_checkout": {
+    "branch": "codex/e02-integration",
+    "head": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "status": "clean before and after; HEAD unchanged"
+  },
+  "isolation": {
+    "archive_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b38-4f71",
+    "blob_and_mode_mismatches": 0,
+    "method": "git archive tracked source, no .git/venv/node_modules/production data; independently compared Git blob hashes and file modes for the complete candidate tree",
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b38-4f71/policy-engine",
+    "tracked_entries": 13726
+  },
+  "limits": {
+    "finding_closure": "NOT CLAIMED",
+    "postgresql_sqlalchemy_and_psycopg_not_installed_in_reused_venv": true,
+    "production_data_or_postgres_consumer_checks": "UNAVAILABLE / NOT RUN; local unit/fixture results do not prove production-backed consumer behavior"
+  },
+  "receipts": {
+    "new-b38-4f71-command.json": {
+      "bytes": 3046,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-command.json",
+      "sha256": "e80f1ce3b4659cd183e04e064bef9e65c17a83993a6b5718dda54b6d4effee6b"
+    },
+    "new-b38-4f71-preflight.json": {
+      "bytes": 4718,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-preflight.json",
+      "sha256": "e94693ef61803534c1de54fb536c2be401fe0aa785cdf9c4a2599cc348c25d2e"
+    },
+    "new-b38-4f71-process.junit.xml": {
+      "bytes": 3662,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-process.junit.xml",
+      "sha256": "e2f18faf4e64755b861d61041c49dc441e105b6a7148f5b3f068466ab9579935"
+    },
+    "new-b38-4f71-process.stderr": {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-process.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "new-b38-4f71-process.stdout": {
+      "bytes": 634,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-process.stdout",
+      "sha256": "e81c8b8547c7faf115fa11e3897fd6d1f0ab7b6871e3cb905f2feeb861bb5b6f"
+    },
+    "new-b38-4f71-proof.junit.xml": {
+      "bytes": 3914,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-proof.junit.xml",
+      "sha256": "304855c79e298a8fe7c7ef0dca230e59f04963ec5c56729e1d395cbea510ee27"
+    },
+    "new-b38-4f71-proof.stderr": {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-proof.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "new-b38-4f71-proof.stdout": {
+      "bytes": 637,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-proof.stdout",
+      "sha256": "352698985b06c26540294da60d7da7f715dd08b7cec67b33889b5623ef51fbd4"
+    },
+    "new-b38-4f71-result.json": {
+      "bytes": 9840,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-result.json",
+      "sha256": "e7b89691c49597395307e7b787c938cd9d3b150d4e9de77b971e7fc98dd06fbc"
+    },
+    "run-new-b38-4f71.py": {
+      "bytes": 5648,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/run-new-b38-4f71.py",
+      "sha256": "af3052e2b688bd06b59da5c7644d6ef18309d6c3f16d644a527dcb2a7f310a05"
+    }
+  },
+  "source_integrity": {
+    "imports": [
+      {
+        "module": "polisyos.runtime.http.services.control_plane_store",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b38-4f71/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6"
+      },
+      {
+        "module": "polisyos.runtime.http.services.control_worker",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b38-4f71/policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+        "sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c"
+      }
+    ],
+    "other_source_hashes": {
+      "release-fragments/unreleased/2026-10-06-e02-current-handler-publication.toml": "f95ea16d7aa64cc0739139eafb6f87e0a6ecdb31af623e1c4331223b830db257",
+      "tests/unit/remediation/test_dur_02_process.py": "35f48eb3182363408dbb02e4c57b4cdb01b37b6f6df4391f3753bdf975426b48",
+      "tests/unit/runtime/http/test_control_plane_store.py": "a21c740a7c4c038e3fbc1af90a45dd69d09710461a5c4ecb2cef601afb79cdb0"
+    },
+    "pre_post_hashes_stable": true
+  },
+  "task": "Bounded B38 local verification wave; findings closure not claimed",
+  "wave": {
+    "child_system_seconds": 7.868,
+    "child_user_seconds": 122.862,
+    "max_child_rss_approx_mib": 973.7,
+    "max_child_rss_bytes": 1020952576,
+    "pytest_warning": "Both commands report one PytestConfigWarning: Unknown config option cache_dir; test assertions all passed.",
+    "results": [
+      {
+        "errors": 0,
+        "failed": 0,
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-process.junit.xml",
+        "passed": 20,
+        "returncode": 0,
+        "selector": "tests/unit/remediation/test_dur_02_process.py",
+        "skipped": 0,
+        "status": "PASS",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-process.stderr",
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-process.stdout",
+        "tests": 20,
+        "wall_seconds": 115.193
+      },
+      {
+        "deselected": 39,
+        "errors": 0,
+        "failed": 0,
+        "junit": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-proof.junit.xml",
+        "passed": 20,
+        "returncode": 0,
+        "selector": "tests/unit/runtime/http/test_control_plane_store.py -k completed_proof_publication",
+        "skipped": 0,
+        "status": "PASS",
+        "stderr": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-proof.stderr",
+        "stdout": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b38-4f71-proof.stdout",
+        "tests_run": 20,
+        "wall_seconds": 20.417
+      }
+    ],
+    "sequential": true,
+    "timeout_seconds_total": 300,
+    "total_wall_seconds": 135.61
+  }
+}

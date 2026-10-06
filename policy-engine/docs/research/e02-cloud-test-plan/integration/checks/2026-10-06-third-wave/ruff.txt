@@ -1,0 +1,8 @@
+Captured source-check outputs for acdc3536f93f085d665a7b53460935525373d015.
+Cwd: policy-engine; executable: .venv/bin/python.
+python -m ruff check src/polisyos/runtime/http/services/control_plane_store.py tests/unit/remediation/test_dur_02_process.py tests/unit/runtime/http/test_control_plane_store.py
+All checks passed!
+Exit: 0
+python -m ruff format --check src/polisyos/runtime/http/services/control_plane_store.py tests/unit/remediation/test_dur_02_process.py tests/unit/runtime/http/test_control_plane_store.py
+3 files already formatted
+Exit: 0

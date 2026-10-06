@@ -13,3 +13,16 @@ public_surface_inventory_reviewed = true
 migration_docs = ["docs/reference/ir/causal-graph-cache-rows.md"]
 runbook_docs = ["docs/reference/ir/causal-graph-cache-rows.md"]
 evidence = ["tests/unit/ir/test_causal_graph_cache_rows.py", "tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py"]
+
+[[compatibility_change]]
+id = "causal-graph-detached-export-rows"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: polisyos.ir.CausalGraphModel export row properties"
+owner = "team-ir"
+version_owner = "team-ir"
+deprecation_window = "not_applicable"
+release_note = "Causal graph export readers retain tuple/plain-dict values and isolate caller mutations from cached row preparations."
+generated_client_compatibility = "declared_compatible"
+migration_docs = ["docs/reference/ir/causal-graph-cache-rows.md"]
+runbook_docs = ["docs/reference/ir/causal-graph-cache-rows.md"]

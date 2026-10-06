@@ -1649,6 +1649,7 @@ class AsyncWorkflowExecutor:
         branch = branch_state(
             state,
             write_paths=getattr(node.spec, "state_writes", ()),
+            enforce_write_scope=True,
         )
         node_state = branch.state
         node_id = str(inv.node_id)

@@ -45,6 +45,7 @@ from polisyos.scientist.orchestration.engine.executor import (
     _merge_cached_outcome_state,
 )
 from polisyos.scientist.orchestration.engine.idempotency import (
+    STATE_MUTATIONS_VERSION,
     NodeCacheEntry,
     NodeResultCache,
     compute_idempotency_key,
@@ -1038,7 +1039,7 @@ def _install_b73_left_frontier_removal() -> dict[str, Any]:
         raise AssertionError("B73 removal probe executor source origin changed")
     source_bytes = module_path.read_bytes()
     source_sha256 = hashlib.sha256(source_bytes).hexdigest()
-    if source_sha256 != ("ba199986b9ca60cd2b110af6d03ccdf679c9321426a01538ea0034e7898be66b"):
+    if source_sha256 != ("0da9f89f0a33819ad326492b9de86dc49e0ce7004ddb9c9b4ab146e93b29b603"):
         raise AssertionError("B73 removal probe executor source digest changed")
 
     source_tree = ast.parse(source_bytes.decode("utf-8"), filename=str(module_path))
@@ -1293,7 +1294,7 @@ def _assert_tier_cache_entries_bind_node_identity_and_content(
         assert outcome.state.params.get(invocation.alias) == peer_values[invocation.alias]
         # The existing cache reader verifies CAS integrity, manifest profile,
         # run binding, and the versioned replay proof including the cache key.
-        assert entry.state_mutations_version == "1.0"
+        assert entry.state_mutations_version == STATE_MUTATIONS_VERSION
         assert entry.replay_epoch == "2.1"
         assert [(op.path, op.operation, op.value) for op in entry.state_mutations] == [
             ("params." + invocation.alias, "set", peer_values[invocation.alias])
@@ -1502,7 +1503,7 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
             if remove_left_for_cut:
                 assert observed["mutation_receipt"] == {
                     "source_sha256": (
-                        "ba199986b9ca60cd2b110af6d03ccdf679c9321426a01538ea0034e7898be66b"
+                        "0da9f89f0a33819ad326492b9de86dc49e0ce7004ddb9c9b4ab146e93b29b603"
                     ),
                     "method": "AsyncWorkflowExecutor.execute",
                     "original_expression": "completed_nodes.extend(tier_completed)",

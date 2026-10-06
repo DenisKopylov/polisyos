@@ -157,6 +157,112 @@
         "warnings": []
       },
       "payload_bytes": "{\"created_at\":{\"_type\":\"datetime\",\"iso_utc\":\"2026-10-06T12:27:37Z\"},\"idempotency_key\":\"a06dbf93cf516519a2d32e294929795aa0d0a8b70d69eceae5f8d520f7fcad77\",\"journal_proof\":{\"manifest_producer\":{\"component\":\"scientist.engine.idempotency\",\"git\":null,\"version\":\"1.0.0\"},\"manifest_schema\":{\"name\":\"polisyos.scientist.orchestration.engine.NodeCacheEntry\",\"version\":\"2.0\"},\"payload_hash\":\"sha256:ccec4c813f0e0e42c71fcaf1bd4d0bccaaa1bbed2d1f16b92c9aee5f72459291\",\"replay_epoch\":\"2.1\"},\"node_id\":\"scientist.independent_sta@1.0.0\",\"outcome_payload\":{\"artifacts\":[],\"error\":null,\"events\":[],\"skip_blocker\":null,\"state\":{\"artifacts_index\":{},\"budgets\":{\"neighbor_reserved_usd\":{\"_type\":\"decimal\",\"value\":\"7\"}},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"nullable\":null,\"untouched\":\"old\",\"x\":2,\"y\":4},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_independent_STA\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null},\"status\":\"ok\"},\"outcome_ref\":null,\"replay_epoch\":\"2.1\",\"run_id\":\"R_independent_STA\",\"schema_version\":\"2.0\",\"state_mutations\":[{\"index\":null,\"operation\":\"set\",\"path\":\"params.y\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"scalar\",\"target_presence\":\"present\",\"value\":4,\"value_kind\":\"json\"},{\"index\":null,\"operation\":\"delete\",\"path\":\"params.stale\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"scalar\",\"target_presence\":\"present\",\"value\":null,\"value_kind\":\"json\"},{\"index\":null,\"operation\":\"set\",\"path\":\"params.nullable\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"scalar\",\"target_presence\":\"present\",\"value\":null,\"value_kind\":\"json\"}],\"state_mutations_version\":\"1.0\",\"tenant_context\":null}"
+    },
+    {
+      "case": "reinsert_clone_v11",
+      "producer_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "cache_ref": {
+        "artifact_id": "sha256:8bff02b321ce31db636dcfc2690e8c36c2507cd722d413475e52bb1ea9d683fb",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json"
+      },
+      "cache_sha256": "8bff02b321ce31db636dcfc2690e8c36c2507cd722d413475e52bb1ea9d683fb",
+      "manifest": {
+        "manifest_schema_version": "v3",
+        "artifact_id": "sha256:8bff02b321ce31db636dcfc2690e8c36c2507cd722d413475e52bb1ea9d683fb",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json",
+        "byte_size": 2058,
+        "created_at": "2026-10-06T12:57:14Z",
+        "artifact_schema": {
+          "name": "polisyos.scientist.orchestration.engine.NodeCacheEntry",
+          "version": "2.0"
+        },
+        "canon": {
+          "name": "polisyos.canon.json",
+          "version": "0.2.0",
+          "forbid_floats": false,
+          "forbid_nan_inf": true,
+          "exclude_none": true,
+          "max_depth": 128,
+          "sort_keys": true,
+          "separators": [
+            ",",
+            ":"
+          ],
+          "ensure_ascii": false
+        },
+        "inputs": [],
+        "producer": {
+          "component": "scientist.engine.idempotency",
+          "version": "1.0.0",
+          "git": null
+        },
+        "env": null,
+        "governance": null,
+        "tenant_context": null,
+        "same_input_closure": null,
+        "authority": null,
+        "integrity": {
+          "sha256": "8bff02b321ce31db636dcfc2690e8c36c2507cd722d413475e52bb1ea9d683fb",
+          "optional": null
+        },
+        "warnings": []
+      },
+      "payload_bytes": "{\"created_at\":{\"_type\":\"datetime\",\"iso_utc\":\"2026-10-06T12:57:14Z\"},\"idempotency_key\":\"f4e4e6620ced78e63d36c4d784a7a68eb9f1fe02275f7f526d7590e2b50c66f6\",\"journal_proof\":{\"manifest_producer\":{\"component\":\"scientist.engine.idempotency\",\"git\":null,\"version\":\"1.0.0\"},\"manifest_schema\":{\"name\":\"polisyos.scientist.orchestration.engine.NodeCacheEntry\",\"version\":\"2.0\"},\"payload_hash\":\"sha256:35296edcc1b11fe429073d693b81e33f9ec4386f5da187fb270bcedcd72ceccb\",\"replay_epoch\":\"2.1\"},\"node_id\":\"scientist.retained_reinsert@1.0.0\",\"outcome_payload\":{\"artifacts\":[],\"error\":null,\"events\":[],\"skip_blocker\":null,\"state\":{\"artifacts_index\":{},\"budgets\":{},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"rows\":[{\"v\":2},{\"v\":1}],\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_retained_v11\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null},\"status\":\"ok\"},\"outcome_ref\":null,\"replay_epoch\":\"2.1\",\"run_id\":\"R_retained_v11\",\"schema_version\":\"2.0\",\"state_mutations\":[{\"index\":0,\"operation\":\"pop\",\"path\":\"params.rows\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"list\",\"target_presence\":\"present\",\"value\":null,\"value_kind\":\"json\"},{\"index\":null,\"operation\":\"append\",\"path\":\"params.rows\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"list\",\"target_presence\":\"present\",\"value\":{\"v\":1},\"value_kind\":\"json\"}],\"state_mutations_version\":\"1.1\",\"tenant_context\":null}"
+    },
+    {
+      "case": "numeric_dict_scalar_v1",
+      "producer_sha": "1bd1fd11b683bbade5411a71b02706ea206b149d",
+      "cache_ref": {
+        "artifact_id": "sha256:a96b063ed8af05370eaaf3921f67d8afe9d359e31402fcd7fe04bd0f4f56cbcb",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json"
+      },
+      "cache_sha256": "a96b063ed8af05370eaaf3921f67d8afe9d359e31402fcd7fe04bd0f4f56cbcb",
+      "manifest": {
+        "manifest_schema_version": "v3",
+        "artifact_id": "sha256:a96b063ed8af05370eaaf3921f67d8afe9d359e31402fcd7fe04bd0f4f56cbcb",
+        "kind": "scientist.node_cache_entry",
+        "media_type": "application/json",
+        "byte_size": 1905,
+        "created_at": "2026-10-06T12:58:58Z",
+        "artifact_schema": {
+          "name": "polisyos.scientist.orchestration.engine.NodeCacheEntry",
+          "version": "2.0"
+        },
+        "canon": {
+          "name": "polisyos.canon.json",
+          "version": "0.2.0",
+          "forbid_floats": false,
+          "forbid_nan_inf": true,
+          "exclude_none": true,
+          "max_depth": 128,
+          "sort_keys": true,
+          "separators": [
+            ",",
+            ":"
+          ],
+          "ensure_ascii": false
+        },
+        "inputs": [],
+        "producer": {
+          "component": "scientist.engine.idempotency",
+          "version": "1.0.0",
+          "git": null
+        },
+        "env": null,
+        "governance": null,
+        "tenant_context": null,
+        "same_input_closure": null,
+        "authority": null,
+        "integrity": {
+          "sha256": "a96b063ed8af05370eaaf3921f67d8afe9d359e31402fcd7fe04bd0f4f56cbcb",
+          "optional": null
+        },
+        "warnings": []
+      },
+      "payload_bytes": "{\"created_at\":{\"_type\":\"datetime\",\"iso_utc\":\"2026-10-06T12:58:58Z\"},\"idempotency_key\":\"8493690ca987e696106e9885afad40aacbe22467e3a25283f55fbbbd16a18d9f\",\"journal_proof\":{\"manifest_producer\":{\"component\":\"scientist.engine.idempotency\",\"git\":null,\"version\":\"1.0.0\"},\"manifest_schema\":{\"name\":\"polisyos.scientist.orchestration.engine.NodeCacheEntry\",\"version\":\"2.0\"},\"payload_hash\":\"sha256:caa2de198de4322d08ab4eb3ccb4c674798d695b86aefe583c47a7ef3f2be439\",\"replay_epoch\":\"2.1\"},\"node_id\":\"scientist.retained_reinsert@1.0.0\",\"outcome_payload\":{\"artifacts\":[],\"error\":null,\"events\":[],\"skip_blocker\":null,\"state\":{\"artifacts_index\":{},\"budgets\":{},\"capability_manifest_ref\":null,\"causal_capability_contract_ref\":null,\"causal_method_fqn\":null,\"causal_method_params\":{},\"champion_policy_dossier_ref\":null,\"constitution_hash\":null,\"control_job_id\":null,\"critic_knowledge_base_ref\":null,\"evaluator_report_ref\":null,\"execution_plan_ref\":null,\"execution_profile\":null,\"inputs\":{},\"iteration_state_ref\":null,\"last_checkpoint_ref\":null,\"legal_candidate_pack_ref\":null,\"legal_source_pack_ref\":null,\"memory_index_ref\":null,\"method_catalog_snapshot_ref\":null,\"observational_data_ref\":null,\"params\":{\"numeric\":{\"0\":{\"v\":4}},\"untouched\":\"old\",\"x\":2},\"policy_brief_ref\":null,\"policy_option_set_ref\":null,\"policy_output_bundle_ref\":null,\"policy_request_ref\":null,\"preflight_report_ref\":null,\"reports_index\":{},\"reproducibility_manifest_ref\":null,\"run_id\":\"R_retained_v11\",\"schema_version\":\"1.3\",\"source_verification_report_ref\":null,\"verified_policy_report_ref\":null},\"status\":\"ok\"},\"outcome_ref\":null,\"replay_epoch\":\"2.1\",\"run_id\":\"R_retained_v11\",\"schema_version\":\"2.0\",\"state_mutations\":[{\"index\":null,\"operation\":\"set\",\"path\":\"params.numeric.0.v\",\"start\":null,\"step\":null,\"stop\":null,\"target_kind\":\"scalar\",\"target_presence\":\"present\",\"value\":4,\"value_kind\":\"json\"}],\"state_mutations_version\":\"1.0\",\"tenant_context\":null}"
     }
   ]
 }

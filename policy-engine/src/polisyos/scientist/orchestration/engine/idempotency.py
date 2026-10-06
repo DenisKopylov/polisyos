@@ -49,8 +49,8 @@ logger = get_logger(__name__)
 IDEMPOTENCY_CONTRACT_VERSION = "2.0"
 LEGACY_NODE_CACHE_ENTRY_SCHEMA_VERSION = "1.0"
 NODE_CACHE_ENTRY_SCHEMA_VERSION = "2.0"
-STATE_MUTATIONS_VERSION = "1.1"
-LEGACY_STATE_MUTATIONS_VERSION = "1.0"
+STATE_MUTATIONS_VERSION = "1.2"
+LEGACY_STATE_MUTATIONS_VERSIONS = frozenset({"1.0", "1.1"})
 REPLAY_EPOCH = "2.1"
 
 _IDEM_CANON = CanonSpec(
@@ -141,21 +141,28 @@ class NodeCacheEntry(BaseModel):
     created_at: datetime = Field(default_factory=lambda: utc_now(drop_microseconds=True))
 
 
-def _legacy_scalar_mutations_replayable(mutations: tuple[StateMutation, ...]) -> bool:
-    """Keep proven scalar v1 intents without reinterpreting old list ownership."""
+def _legacy_scalar_mutations_replayable(
+    mutations: tuple[StateMutation, ...], producer_state: ExperimentState
+) -> bool:
+    """Retain direct primitive intents whose parent ownership was unambiguous.
 
-    def contains_list(value: Any) -> bool:
-        if isinstance(value, (list, tuple)):
+    Old nested journals do not prove whether their producer preserved aliases.
+    Even a non-indexed scalar path can have lost another live parent, so these
+    entries must miss rather than silently reinterpret the old algorithm.
+    """
+
+    def scalar_parent(path: str) -> bool:
+        parts = path.split(".")
+        if len(parts) == 1:
             return True
-        if isinstance(value, dict):
-            return any(contains_list(child) for child in value.values())
-        return False
+        return len(parts) == 2 and isinstance(getattr(producer_state, parts[0], None), dict)
 
     return all(
         mutation.operation in {"set", "delete"}
-        and mutation.target_kind != "list"
-        and not any(part.lstrip("-").isdigit() for part in mutation.path.split("."))
-        and not contains_list(mutation.value)
+        and mutation.operation_group is None
+        and mutation.target_kind in {"missing", "scalar"}
+        and scalar_parent(mutation.path)
+        and not isinstance(mutation.value, (dict, list, tuple, set))
         for mutation in mutations
     )
 
@@ -182,6 +189,10 @@ def _journal_payload(entry: NodeCacheEntry) -> dict[str, Any]:
         payload.pop("outcome_payload", None)
     if entry.tenant_context is None:
         payload.pop("tenant_context", None)
+    if entry.state_mutations_version in LEGACY_STATE_MUTATIONS_VERSIONS:
+        for mutation in payload["state_mutations"]:
+            if mutation["operation_group"] is None:
+                mutation.pop("operation_group")
     return payload
 
 
@@ -526,6 +537,7 @@ class NodeResultCache:
             entry,
             entry_manifest=entry_manifest,
             output_aware=output_aware,
+            producer_state=decoded.state,
         )
         return entry, decoded, proof_valid
 
@@ -551,6 +563,7 @@ class NodeResultCache:
         *,
         entry_manifest: Any,
         output_aware: bool,
+        producer_state: ExperimentState,
     ) -> bool:
         """Check the versioned replay contract without trusting payload shape."""
         if entry.schema_version == NODE_CACHE_ENTRY_SCHEMA_VERSION:
@@ -560,14 +573,18 @@ class NodeResultCache:
         else:
             return False
         supported_mutations = entry.state_mutations_version == STATE_MUTATIONS_VERSION or (
-            entry.state_mutations_version == LEGACY_STATE_MUTATIONS_VERSION
-            and _legacy_scalar_mutations_replayable(entry.state_mutations)
+            entry.state_mutations_version in LEGACY_STATE_MUTATIONS_VERSIONS
+            and _legacy_scalar_mutations_replayable(entry.state_mutations, producer_state)
         )
         if (
             not supported_mutations
             or entry.replay_epoch != REPLAY_EPOCH
             or entry.journal_proof is None
         ):
+            return False
+        try:
+            mutation_journal_from_operations(entry.state_mutations)
+        except ValueError:
             return False
         proof = entry.journal_proof
         expected_producer = _cache_producer(output_aware=output_aware)

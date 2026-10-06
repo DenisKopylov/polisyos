@@ -49,6 +49,9 @@ class StateMutationJournal:
     isolated_fields: tuple[str, ...]
     isolated_paths: tuple[str, ...]
     operations: list[StateMutation] = field(default_factory=list)
+    enforce_write_scope: bool = False
+    _isolated_values: dict[int, Any] = field(default_factory=dict, repr=False, compare=False)
+    _wrapped_values: dict[int, Any] = field(default_factory=dict, repr=False, compare=False)
 
     def record(
         self,
@@ -61,6 +64,7 @@ class StateMutationJournal:
         stop: int | None = None,
         step: int | None = None,
         target: Any = _MISSING,
+        operation_group: int | None = None,
     ) -> None:
         """Append one concrete mutation to the branch journal."""
         target_presence, target_kind = _target_descriptor(target)
@@ -76,6 +80,7 @@ class StateMutationJournal:
                 step=step,
                 target_presence=target_presence,
                 target_kind=target_kind,
+                operation_group=operation_group,
             )
         )
 
@@ -138,6 +143,7 @@ class StateMutation(BaseModel):
     step: int | None = None
     target_presence: StateMutationTargetPresence = "present"
     target_kind: StateMutationTargetKind = "scalar"
+    operation_group: int | None = Field(default=None, ge=0, strict=True)
 
 
 def _mutation_value_kind(value: Any) -> StateMutationValueKind:
@@ -172,6 +178,7 @@ def branch_state(
     base_state: ExperimentState,
     *,
     write_paths: Iterable[str] = (),
+    enforce_write_scope: bool | None = None,
 ) -> BranchedState:
     """Return a branch-local state with copy-on-write isolation for *write_paths*.
 
@@ -180,7 +187,11 @@ def branch_state(
     declared path are isolated lazily by cloning only the traversed branches.
     """
 
+    source_journal = mutation_journal_for_state(base_state)
+    if enforce_write_scope is None:
+        enforce_write_scope = source_journal.enforce_write_scope if source_journal else False
     branched = _promote_to_journaled_state(base_state.model_copy(deep=False))
+    object.__setattr__(branched, _MUTATION_JOURNAL_ATTR, None)
     isolated_fields: list[str] = []
     for field_name in _TOP_LEVEL_MUTABLE_FIELDS:
         value = getattr(base_state, field_name, None)
@@ -189,13 +200,16 @@ def branch_state(
             isolated_fields.append(field_name)
 
     normalized_paths = _normalize_paths(write_paths)
+    isolation_memo: dict[int, Any] = {}
     journal = StateMutationJournal(
         isolated_fields=tuple(isolated_fields),
         isolated_paths=tuple(".".join(parts) for parts in normalized_paths),
         operations=[],
+        enforce_write_scope=enforce_write_scope,
+        _isolated_values=isolation_memo,
     )
     for parts in normalized_paths:
-        _isolate_write_path(base_state, branched, parts)
+        _isolate_write_path(base_state, branched, parts, isolation_memo)
 
     _install_mutation_tracking(branched, normalized_paths, journal)
     _attach_mutation_journal(branched, journal)
@@ -230,6 +244,7 @@ def _isolate_write_path(
     source_state: ExperimentState,
     target_state: ExperimentState,
     parts: tuple[str, ...],
+    memo: dict[int, Any],
 ) -> None:
     if not parts:
         return
@@ -241,13 +256,14 @@ def _isolate_write_path(
         return
 
     if len(parts) == 1:
-        setattr(target_state, top_level, deepcopy(source_value))
+        setattr(target_state, top_level, deepcopy(source_value, memo))
         return
 
     _ensure_isolated_container(
         source_parent=source_value,
         target_parent=target_value,
         parts=parts[1:],
+        memo=memo,
     )
 
 
@@ -256,6 +272,7 @@ def _ensure_isolated_container(
     source_parent: Any,
     target_parent: Any,
     parts: tuple[str, ...],
+    memo: dict[int, Any],
 ) -> None:
     if not parts:
         return
@@ -267,11 +284,11 @@ def _ensure_isolated_container(
 
     target_child = _get_child(target_parent, part)
     if target_child is source_child:
-        cloned = _clone_container(source_child, deep=len(parts) == 1)
+        cloned = _clone_container(source_child, deep=len(parts) == 1, memo=memo)
         _set_child(target_parent, part, cloned)
         target_child = cloned
     elif target_child is _MISSING:
-        target_child = _clone_container(source_child, deep=len(parts) == 1)
+        target_child = _clone_container(source_child, deep=len(parts) == 1, memo=memo)
         _set_child(target_parent, part, target_child)
 
     if len(parts) > 1 and _is_branchable_container(target_child):
@@ -279,6 +296,7 @@ def _ensure_isolated_container(
             source_parent=source_child,
             target_parent=target_child,
             parts=parts[1:],
+            memo=memo,
         )
 
 
@@ -312,23 +330,28 @@ def _set_child(container: Any, key: str, value: Any) -> None:
     raise TypeError(f"Cannot assign nested state field {key!r} on {type(container).__name__}")
 
 
-def _clone_container(value: Any, *, deep: bool = False) -> Any:
+def _clone_container(value: Any, *, deep: bool = False, memo: dict[int, Any]) -> Any:
+    if id(value) in memo:
+        return memo[id(value)]
     if deep:
-        return deepcopy(value)
+        return deepcopy(value, memo)
     if isinstance(value, dict):
-        return dict(value)
-    if isinstance(value, list):
-        return list(value)
-    if isinstance(value, tuple):
-        return tuple(value)
-    if isinstance(value, set):
-        return set(value)
-    if isinstance(value, BaseModel):
+        clone = dict(value)
+    elif isinstance(value, list):
+        clone = list(value)
+    elif isinstance(value, tuple):
+        clone = tuple(value)
+    elif isinstance(value, set):
+        clone = set(value)
+    elif isinstance(value, BaseModel):
         # Preserve copy-on-write behavior for nested models: clone only the
         # model shell here and let deeper path isolation materialize mutable
         # children lazily as traversal reaches them.
-        return value.model_copy(deep=False)
-    return deepcopy(value)
+        clone = value.model_copy(deep=False)
+    else:
+        clone = deepcopy(value, memo)
+    memo[id(value)] = clone
+    return clone
 
 
 def _is_branchable_container(value: Any) -> bool:
@@ -358,10 +381,19 @@ def mutation_journal_from_operations(
     operations: Iterable[StateMutation],
 ) -> StateMutationJournal:
     """Build a replay journal for operations loaded from a cache artifact."""
+    operations = list(operations)
+    groups: dict[int, dict[str, Any]] = {}
+    for operation in operations:
+        if operation.operation_group is None:
+            continue
+        intent = operation.model_dump(exclude={"path", "operation_group"})
+        previous = groups.setdefault(operation.operation_group, intent)
+        if previous != intent:
+            raise ValueError("inconsistent state mutation operation group")
     return StateMutationJournal(
         isolated_fields=(),
         isolated_paths=(),
-        operations=list(operations),
+        operations=operations,
     )
 
 
@@ -395,12 +427,29 @@ def _install_mutation_tracking(
     paths: list[tuple[str, ...]],
     journal: StateMutationJournal,
 ) -> None:
-    """Wrap only declared mutable leaves/parents with operation-recording views."""
+    """Preserve the branch's JSON graph while guarding every mutable neighbor.
+
+    Views do not expand the declared write paths.  A single memo reconciles
+    isolated descendants with aliases reached through other parents, so an
+    out-of-scope alias is checked before either location can change.
+    """
+    if journal.enforce_write_scope:
+        for field_name in _TOP_LEVEL_MUTABLE_FIELDS:
+            value = getattr(state, field_name, None)
+            if isinstance(value, dict):
+                _validate_mutation_attachment(None, value)
+                _set_path(state, (field_name,), _wrap_mutable_value(value, (field_name,), journal))
     for parts in paths:
         for length in range(1, len(parts)):
             prefix = parts[:length]
             parent = _get_path(state, prefix)
-            if isinstance(parent, list) and not isinstance(parent, _TrackedList):
+            if isinstance(parent, dict) and not isinstance(parent, _TrackedDict):
+                _set_path(
+                    state,
+                    prefix,
+                    _TrackedDict(parent, path=prefix, journal=journal, recursive=False),
+                )
+            elif isinstance(parent, list) and not isinstance(parent, _TrackedList):
                 _set_path(
                     state,
                     prefix,
@@ -502,9 +551,8 @@ class _TrackedDict(dict[str, Any]):
         dict.__init__(self)
         self._mutation_path = path
         self._mutation_journal = journal
-        self._mutation_parent = None
-        self._mutation_owner_value = self
-        self._mutation_owner_suffix = ()
+        self._mutation_owners = []
+        journal._wrapped_values[id(values)] = (values, self)
         for key, value in values.items():
             dict.__setitem__(
                 self,
@@ -515,6 +563,7 @@ class _TrackedDict(dict[str, Any]):
 
     def __setitem__(self, key: str, value: Any) -> None:
         _authorize_container_mutation(self, suffixes=((str(key),),))
+        _validate_mutation_attachment(self, value)
         previous = self.get(key, _MISSING)
         value = _normalize_artifacts_index_ref(self._mutation_path, value)
         wrapped = _wrap_mutable_value(
@@ -546,8 +595,14 @@ class _TrackedDict(dict[str, Any]):
     def update(self, *args: Any, **kwargs: Any) -> None:
         values = dict(*args, **kwargs)
         _authorize_container_mutation(self, suffixes=[(str(key),) for key in values])
+        for value in values.values():
+            _validate_mutation_attachment(self, value)
         for key, value in values.items():
             self[key] = value
+
+    def __ior__(self, values: Any) -> _TrackedDict:
+        self.update(values)
+        return self
 
     def setdefault(self, key: str, default: Any = None) -> Any:
         if key in self:
@@ -602,9 +657,7 @@ class _TrackedDict(dict[str, Any]):
         memo[id(self)] = clone
         clone._mutation_path = self._mutation_path
         clone._mutation_journal = self._mutation_journal
-        clone._mutation_parent = None
-        clone._mutation_owner_value = clone
-        clone._mutation_owner_suffix = ()
+        clone._mutation_owners = []
         dict.__init__(clone)
         for key, value in self.items():
             dict.__setitem__(clone, deepcopy(key, memo), deepcopy(value, memo))
@@ -626,9 +679,8 @@ class _TrackedList(list[Any]):
         list.__init__(self)
         self._mutation_path = path
         self._mutation_journal = journal
-        self._mutation_parent = None
-        self._mutation_owner_value = self
-        self._mutation_owner_suffix = ()
+        self._mutation_owners = []
+        journal._wrapped_values[id(values)] = (values, self)
         for index, value in enumerate(values):
             list.append(
                 self,
@@ -640,6 +692,8 @@ class _TrackedList(list[Any]):
         _authorize_container_mutation(self)
         if isinstance(index, slice):
             values = list(value)
+            for child in values:
+                _validate_mutation_attachment(self, child)
             list.__setitem__(
                 self,
                 index,
@@ -664,6 +718,7 @@ class _TrackedList(list[Any]):
                 target=self,
             )
             return
+        _validate_mutation_attachment(self, value)
         list.__setitem__(
             self,
             index,
@@ -704,6 +759,7 @@ class _TrackedList(list[Any]):
 
     def append(self, value: Any) -> None:
         _authorize_container_mutation(self)
+        _validate_mutation_attachment(self, value)
         list.append(
             self,
             _wrap_mutable_value(
@@ -724,10 +780,13 @@ class _TrackedList(list[Any]):
         _authorize_container_mutation(self)
         values_list = list(values)
         for value in values_list:
+            _validate_mutation_attachment(self, value)
+        for value in values_list:
             self.append(value)
 
     def insert(self, index: int, value: Any) -> None:
         _authorize_container_mutation(self)
+        _validate_mutation_attachment(self, value)
         list.insert(
             self,
             index,
@@ -807,9 +866,7 @@ class _TrackedList(list[Any]):
         memo[id(self)] = clone
         clone._mutation_path = self._mutation_path
         clone._mutation_journal = self._mutation_journal
-        clone._mutation_parent = None
-        clone._mutation_owner_value = clone
-        clone._mutation_owner_suffix = ()
+        clone._mutation_owners = []
         list.__init__(clone)
         for value in self:
             list.append(clone, deepcopy(value, memo))
@@ -828,9 +885,12 @@ def _bind_mutation_parent(
     if isinstance(value, (_TrackedDict, _TrackedList)):
         if value._mutation_journal is not parent._mutation_journal:
             return
-        value._mutation_parent = parent
-        value._mutation_owner_value = value if owner_value is _MISSING else owner_value
-        value._mutation_owner_suffix = suffix
+        member = value if owner_value is _MISSING else owner_value
+        if not any(
+            owner is parent and owned_value is member and owned_suffix == suffix
+            for owner, owned_value, owned_suffix in value._mutation_owners
+        ):
+            value._mutation_owners.append((parent, member, suffix))
     elif isinstance(value, tuple):
         for index, child in enumerate(value):
             _bind_mutation_parent(
@@ -848,13 +908,36 @@ def _current_mutation_paths(
     """Resolve every live location, or none for a removed descendant view."""
     if id(value) in seen:
         return []
-    parent = value._mutation_parent
-    if parent is None:
+    if not value._mutation_owners:
         return [value._mutation_path]
-    parent_paths = _current_mutation_paths(parent, seen | {id(value)})
-    members = parent.items() if isinstance(parent, dict) else enumerate(parent)
-    keys = [str(key) for key, child in members if child is value._mutation_owner_value]
-    return [(*path, key, *value._mutation_owner_suffix) for path in parent_paths for key in keys]
+    paths: list[tuple[str, ...]] = []
+    for parent, owner_value, suffix in value._mutation_owners:
+        parent_paths = _current_mutation_paths(parent, seen | {id(value)})
+        members = parent.items() if isinstance(parent, dict) else enumerate(parent)
+        keys = [str(key) for key, child in members if child is owner_value]
+        paths.extend((*path, key, *suffix) for path in parent_paths for key in keys)
+    return list(dict.fromkeys(paths))
+
+
+def _validate_mutation_attachment(
+    container: _TrackedDict | _TrackedList | None, value: Any
+) -> None:
+    """Reject a cyclic attachment before changing the finite owned JSON graph."""
+
+    def visit(child: Any, ancestors: frozenset[int]) -> None:
+        if isinstance(child, (set, bytearray)):
+            raise TypeError("state mutation journaling requires a finite JSON container graph")
+        if container is not None and child is container:
+            raise ValueError("cyclic state mutation attachment")
+        if not isinstance(child, (dict, list, tuple)):
+            return
+        if id(child) in ancestors:
+            raise ValueError("cyclic state mutation value")
+        nested = child.values() if isinstance(child, dict) else child
+        for item in nested:
+            visit(item, ancestors | {id(child)})
+
+    visit(value, frozenset())
 
 
 def _authorize_container_mutation(
@@ -863,7 +946,10 @@ def _authorize_container_mutation(
     suffixes: Iterable[tuple[str, ...]] = ((),),
 ) -> None:
     """Refuse a moved or aliased live target before changing any branch bytes."""
+    if not container._mutation_journal.enforce_write_scope:
+        return
     declared = [tuple(path.split(".")) for path in container._mutation_journal.isolated_paths]
+    suffixes = tuple(suffixes)
     paths = [(*path, *suffix) for path in _current_mutation_paths(container) for suffix in suffixes]
     unauthorized = [
         path for path in paths if not any(_is_path_prefix(write, path) for write in declared)
@@ -881,8 +967,10 @@ def _record_container_mutation(
     **kwargs: Any,
 ) -> None:
     """Journal an intent against the current live state, preserving list aliases."""
-    for path in _current_mutation_paths(container):
-        container._mutation_journal.record(path=(*path, *suffix), **kwargs)
+    paths = _current_mutation_paths(container)
+    group = len(container._mutation_journal.operations) if len(paths) > 1 else None
+    for path in paths:
+        container._mutation_journal.record(path=(*path, *suffix), operation_group=group, **kwargs)
 
 
 def _wrap_mutable_value(
@@ -892,18 +980,16 @@ def _wrap_mutable_value(
     *,
     recursive: bool = True,
 ) -> Any:
-    if isinstance(value, _TrackedDict):
-        if value._mutation_journal is journal and value._mutation_path == path:
-            return value
-        return _TrackedDict(dict(value), path=path, journal=journal, recursive=recursive)
+    value = journal._isolated_values.get(id(value), value)
+    if isinstance(value, (_TrackedDict, _TrackedList)) and value._mutation_journal is journal:
+        return value
+    existing = journal._wrapped_values.get(id(value))
+    if existing is not None and existing[0] is value:
+        return existing[1]
     if isinstance(value, dict):
         return _TrackedDict(value, path=path, journal=journal, recursive=recursive)
-    if isinstance(value, _TrackedList):
-        if value._mutation_journal is journal and value._mutation_path == path:
-            return value
-        return _TrackedList(list(value), path=path, journal=journal)
     if isinstance(value, list):
-        return _TrackedList(value, path=path, journal=journal)
+        return _TrackedList(value, path=path, journal=journal, recursive=recursive)
     if isinstance(value, tuple):
         return tuple(
             _wrap_mutable_value(item, (*path, str(index)), journal)

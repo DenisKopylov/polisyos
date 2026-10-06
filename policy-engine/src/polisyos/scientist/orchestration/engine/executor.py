@@ -1355,6 +1355,7 @@ class WorkflowExecutor:
                     branched_state = branch_state(
                         state,
                         write_paths=getattr(node.spec, "state_writes", ()),
+                        enforce_write_scope=True,
                     )
                     node_state = branched_state.state
                     set_span_attribute(

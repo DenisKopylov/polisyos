@@ -156,6 +156,14 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
     strategy = BayesianOptimizer(
         simple_space,
         BayesianConfig(n_initial=6, num_restarts=3, raw_samples=32, seed=21),
+        numerical_basis={
+            "profile": "synthetic_scalar_gp.v1",
+            "search_space_fingerprint": simple_space.sobol_space_fingerprint(),
+            "context_fingerprint": "context/run-1",
+            "metric": "score",
+            "unit": "fixture_score",
+            "direction": "minimize",
+        },
     )
     compatibility = {
         "search_space_fingerprint": simple_space.sobol_space_fingerprint(),
@@ -273,10 +281,7 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
     original_fit = strategy._fit_gp
 
     def observe_fit(x, y_bo):
-        x_rows = tuple(
-            tuple(float(value) for value in row)
-            for row in x.detach().cpu().tolist()
-        )
+        x_rows = tuple(tuple(float(value) for value in row) for row in x.detach().cpu().tolist())
         y_rows = tuple(float(row[0]) for row in y_bo.detach().cpu().tolist())
         observed_corpus.append((x_rows, y_rows))
         return original_fit(x, y_bo)
@@ -296,9 +301,7 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
     assert "warm-unbound" not in observed_ids[0]
     assert len(observed_corpus) == 1
     observed_x, observed_y = observed_corpus[0]
-    expected_by_id = {
-        evaluation.candidate_id: evaluation for evaluation in [*warm, *current]
-    }
+    expected_by_id = {evaluation.candidate_id: evaluation for evaluation in [*warm, *current]}
     expected_evaluations = [expected_by_id[candidate_id] for candidate_id in observed_ids[0]]
     expected_x = tuple(
         tuple(float(value) for value in evaluation.params_normalized)
@@ -355,8 +358,7 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
     assert strategy._model is not None
     model_before = strategy._model
     learned_before = {
-        name: parameter.detach().clone()
-        for name, parameter in model_before.named_parameters()
+        name: parameter.detach().clone() for name, parameter in model_before.named_parameters()
     }
     transform_state_before = {}
     for attribute in ("input_transform", "outcome_transform"):
@@ -372,7 +374,7 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
             params={"x": 4.0},
             score=0.25,
             space=simple_space,
-        )
+        ),
     ]
     strategy.suggest(expanded)
 
@@ -382,12 +384,10 @@ def test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation(
     assert model_train_X is not None
     model_train_X = model_train_X.reshape(-1, model_train_X.shape[-1])
     actual_train_rows = tuple(
-        tuple(float(value) for value in row)
-        for row in model_train_X.detach().cpu().tolist()
+        tuple(float(value) for value in row) for row in model_train_X.detach().cpu().tolist()
     )
     expected_train_rows = tuple(
-        tuple(float(value) for value in evaluation.params_normalized)
-        for evaluation in expanded
+        tuple(float(value) for value in evaluation.params_normalized) for evaluation in expanded
     )
     assert len(actual_train_rows) == len(expected_train_rows) == 9
     for actual_row, expected_row in zip(actual_train_rows, expected_train_rows, strict=True):

@@ -122,7 +122,13 @@ class Evaluation:
     @property
     def is_valid(self) -> bool:
         """True when evaluation is usable for surrogate training."""
-        return self.status == EvaluationStatus.SUCCESS and self.stage_a_passed
+        return (
+            self.status == EvaluationStatus.SUCCESS
+            and self.stage_a_passed is True
+            and isinstance(self.scalar_score, (int, float))
+            and not isinstance(self.scalar_score, bool)
+            and math.isfinite(self.scalar_score)
+        )
 
 
 @dataclass(slots=True)

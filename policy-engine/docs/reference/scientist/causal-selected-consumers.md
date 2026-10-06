@@ -31,11 +31,19 @@ agree with the canonical producer projection of the validated worker result.
 Point-only results retain their unavailable interval and cannot acquire an
 eligible confidence envelope through this bridge.
 
-The selected staggered DiD consumer recomputes the fixed participation target
-using both its materialized input and the actual source artifact. It reconciles
+The selected Standard and Staggered DiD consumers recompute their complete
+diagnostic basis and typed results using both materialized input and the actual
+source artifact. Changing `time_treatment`, or coherently replacing a diagnostic
+and its hash, cannot reuse a stale claim. The staggered consumer separately
+recomputes the fixed participation target. It reconciles
 the typed peer report and derived envelope against the persisted method result.
 This establishes input and output identity; its scientific interval remains
 limited to the declared independent-unit profile.
+
+`test_did_diagnostic_consumer.py` exercises genuine jobs and independent fresh CAS
+readers. A changed diagnostic window can preserve theta_sel and its entire target
+contract while failing diagnostic reconciliation. This is descriptive diagnostic
+custody, not causal-identification or evaluation authority.
 
 The defining numerical tests are
 `tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py`.

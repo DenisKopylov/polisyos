@@ -33,6 +33,7 @@ from polisyos.foundry.methods.causal import (
     PanelObservationalData,
     RDDObservationalData,
     StaggeredDifferenceInDifferences,
+    StandardDifferenceInDifferences,
 )
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
@@ -509,17 +510,25 @@ def _run_primary_causal_job(
                 raise ValueError("selected DoWhy success lacks actual worker provenance")
     else:
         result = run_job(bound_spec, cas_root=ctx.store.root, method_state=observational_data)
-    if not result.issues and (spec.method_fqn or "").split("@", 1)[0] == (
-        "causal.inference.did.staggered"
-    ):
+    did_method = (spec.method_fqn or "").split("@", 1)[0]
+    if not result.issues and did_method in {
+        "causal.inference.did.standard",
+        "causal.inference.did.staggered",
+    }:
         _reconcile_selected_causal_output(ctx=ctx, result=result)
         bound_data = _load_observational_data(ctx, state, spec.method_fqn)
-        _verify_selected_did_target(
-            result.final_state, observational_data=observational_data, params=spec.method_params
-        )
-        _verify_selected_did_target(
-            result.final_state, observational_data=bound_data, params=spec.method_params
-        )
+        for current_data in (observational_data, bound_data):
+            _verify_selected_did_diagnostics(
+                result.final_state,
+                observational_data=current_data,
+                staggered=did_method == "causal.inference.did.staggered",
+            )
+            if did_method == "causal.inference.did.staggered":
+                _verify_selected_did_target(
+                    result.final_state,
+                    observational_data=current_data,
+                    params=spec.method_params,
+                )
     return result
 
 
@@ -569,6 +578,26 @@ def _verify_selected_did_target(
         report.method_params.get(key) != value for key, value in expected.items()
     ):
         raise ValueError("selected DiD target does not bind the actual data and fixed periods")
+
+
+def _verify_selected_did_diagnostics(
+    output: Any, *, observational_data: PanelObservationalData, staggered: bool
+) -> None:
+    """Recompute the complete diagnostic basis and result at the actual reader."""
+    if not isinstance(output, dict) or "report" not in output:
+        raise ValueError("selected DiD output is missing its report")
+    report = CausalEffectReport.model_validate(output["report"])
+    if report.status is not EstimationStatus.SUCCESS and not report.diagnostics:
+        # Invalid inputs refused before producing diagnostics remain invalid.
+        return
+    owner = StaggeredDifferenceInDifferences if staggered else StandardDifferenceInDifferences
+    expected = owner._diagnostic_contract(observational_data)
+    if any(report.method_params.get(key) != value for key, value in expected.items()):
+        raise ValueError("selected DiD diagnostic basis/result does not bind current panel")
+    if [diagnostic.model_dump(mode="json") for diagnostic in report.diagnostics] != expected[
+        "diagnostic_contract"
+    ]["diagnostics"]:
+        raise ValueError("selected DiD diagnostics do not project the current panel")
 
 
 def _to_core_artifact_ref(ref: object | None) -> core_artifacts.ArtifactRef | None:

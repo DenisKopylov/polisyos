@@ -15,6 +15,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from threading import Lock
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
@@ -168,10 +169,21 @@ async def _run_checkpoint_blocking[T](
     if publication_budget is None:
         return cast("T", await run_blocking_async(func, *args, **kwargs))
     remaining = publication_budget.remaining_seconds(operation)
+    admission_lock = Lock()
+    worker_entered = False
+    wait_cancelled = False
 
     def admitted_call() -> T:
+        nonlocal worker_entered
         # A queued worker cannot enter after its original caller has expired.
-        publication_budget.require_active(operation)
+        with admission_lock:
+            if wait_cancelled:
+                raise asyncio.CancelledError(
+                    f"checkpoint wait cancelled; execution_state=not_admitted; "
+                    f"publication_operation={operation}"
+                )
+            publication_budget.require_active(operation)
+            worker_entered = True
         return func(*args, **kwargs)
 
     try:
@@ -180,6 +192,16 @@ async def _run_checkpoint_blocking[T](
             timeout_seconds=remaining,
             unbounded=remaining is None,
         )
+    except asyncio.CancelledError as exc:
+        # Close admission before reporting a queued cancellation. An admitted
+        # synchronous operation can still complete physically after this wait.
+        with admission_lock:
+            wait_cancelled = True
+            execution_state = "unknown" if worker_entered else "not_admitted"
+        raise asyncio.CancelledError(
+            f"checkpoint wait cancelled; execution_state={execution_state}; "
+            f"publication_operation={operation}"
+        ) from exc
     except TimeoutError:
         # Keep an on-time backend TimeoutError distinct from owner expiry.
         publication_budget.require_active(operation, execution_state="unknown")

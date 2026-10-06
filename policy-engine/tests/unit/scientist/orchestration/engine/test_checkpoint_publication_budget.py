@@ -186,6 +186,98 @@ async def test_cancelled_checkpoint_cannot_adopt_reused_executor_owner(tmp_path,
 
 
 @pytest.mark.asyncio
+async def test_entered_native_head_cancel_reports_unknown_and_completes_generation(
+    tmp_path, monkeypatch
+):
+    store = FileSystemCAS(tmp_path / "cas")
+    ctx, node, workflow, executor = _setup(store)
+    hook = checkpoint.CASCheckpointHook(store=store, run_dir=ctx.run.trace_path.parent)
+    executor._checkpoint_hook = hook
+    entered, release, finished = threading.Event(), threading.Event(), threading.Event()
+    original = checkpoint.os.replace
+
+    def held_replace(source, target):
+        if Path(target).name != checkpoint.CHECKPOINT_HEAD_FILENAME:
+            return original(source, target)
+        entered.set()
+        try:
+            assert release.wait(5)
+            return original(source, target)
+        finally:
+            finished.set()
+
+    monkeypatch.setattr(checkpoint.os, "replace", held_replace)
+    task = asyncio.create_task(
+        executor.execute(workflow, ExperimentState(run_id="R_deadline", params={"seed": 7}))
+    )
+    try:
+        assert await asyncio.to_thread(entered.wait, 5)
+        before = _events(ctx)
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError, match="execution_state=unknown") as failure:
+            await task
+        assert "publication_operation=checkpoint_head" in str(failure.value)
+        assert task.cancelling() == 1 and node.calls == 1
+        assert not (ctx.run.trace_path.parent / checkpoint.CHECKPOINT_HEAD_FILENAME).exists()
+        assert ctx.run.run_manifest.outputs == [] and _events(ctx) == before
+    finally:
+        release.set()
+        assert await asyncio.to_thread(finished.wait, 5)
+        for _ in range(500):
+            if (ctx.run.trace_path.parent / checkpoint.CHECKPOINT_HISTORY_FILENAME).exists():
+                break
+            await asyncio.sleep(0.002)
+    _verified_generation(store, ctx.run.trace_path.parent)
+    assert hook._sequence == 0 and not any(row["event"] == "RUN_FINALIZED" for row in _events(ctx))
+    assert ctx.run.run_manifest.outputs == []
+    assert FileSystemCAS(store.root).verify(node.refs[0]).ok
+
+
+@pytest.mark.asyncio
+async def test_queued_native_cas_cancel_reports_not_admitted_without_publication(
+    tmp_path, monkeypatch
+):
+    store, ctx, _, _, _, hook, kwargs = await _native_input(tmp_path)
+    before = {str(identity) for identity in store.iter_artifact_ids()}
+    # This private product executor has one physical slot to distinguish a real
+    # queued operation. It does not restrict cloud tests or other executor pools.
+    pool = async_tools._SharedExecutor(max_workers=1)
+    occupied, release = threading.Event(), threading.Event()
+
+    def hold_slot():
+        occupied.set()
+        assert release.wait(5)
+
+    blocker = pool.submit(hold_slot)
+    assert await asyncio.to_thread(occupied.wait, 5)
+    monkeypatch.setattr(async_tools, "_get_shared_executor", lambda: pool)
+
+    async def publish():
+        return await hook.on_node_complete_with_budget_async(
+            publication_budget=_budget(None), **kwargs
+        )
+
+    task = asyncio.create_task(publish())
+    try:
+        for _ in range(500):
+            if pool._work_queue.qsize() > 0:
+                break
+            await asyncio.sleep(0.002)
+        assert pool._work_queue.qsize() == 1
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError, match="execution_state=not_admitted") as failure:
+            await task
+        assert "publication_operation=checkpoint_artifact" in str(failure.value)
+    finally:
+        release.set()
+        await asyncio.to_thread(blocker.result, 5)
+        await asyncio.to_thread(pool.shutdown, wait=True)
+    assert {str(identity) for identity in store.iter_artifact_ids()} == before
+    assert not (ctx.run.trace_path.parent / checkpoint.CHECKPOINT_HEAD_FILENAME).exists()
+    assert not (ctx.run.trace_path.parent / checkpoint.CHECKPOINT_HISTORY_FILENAME).exists()
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("mode", ["deadline", "cancel"])
 async def test_real_head_fsync_fence_keeps_previous_generation(tmp_path, monkeypatch, mode):
     store, ctx, _, _, _, hook, kwargs = await _native_input(tmp_path)

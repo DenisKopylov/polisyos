@@ -10,19 +10,25 @@
   ],
   "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
   "implementation_commits": [
-    "0c709ea924d2b868eacf1016f5c70ff749e287a8"
+    "0c709ea924d2b868eacf1016f5c70ff749e287a8",
+    "4b8cdf8ab88006c572c2b2d0039053d5a0138f14"
   ],
-  "candidate_tree_sha": "42c3b569fdff79a03148ecb6a150904ac69019df",
+  "candidate_tree_sha": "81d0eace9b45d1a920e30a5564244c85bfc00ea8",
   "branch": "codex/e02-F-causal-api",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/19",
   "changed_paths": [
     "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
-    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+    "policy-engine/docs/reference/foundry/causal-engine-architecture.md"
   ],
   "mandatory_companions": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-gate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-independent.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-gate.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-independent-review.json"
   ],
   "baseline_cells": [
     {
@@ -92,6 +98,41 @@
       "outcome": "FAIL",
       "exit": 1,
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt"
+    },
+    {
+      "command": "UV_NO_SYNC=1 UV_PROJECT_ENVIRONMENT=/workspace/polisyos/policy-engine/.venv PYTHONPATH=src:. uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref c40d4acae1ce58b597267255026d9356565828fd",
+      "target_sha": "4b8cdf8ab88006c572c2b2d0039053d5a0138f14",
+      "environment": "Same cloudCPython3.14.2; owncandidate product cwd; shared environment read-only, UV_NO_SYNC=1; no optional docs/backend sync",
+      "input_closure": "Full actual basec40\u2192frozenHEAD product change-set6paths, native docs gate/freshness input closure not upgraded to P41 completeness",
+      "outcome": "FAIL",
+      "exit": 1,
+      "wall_s": 4.181429704000038,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-gate.txt",
+        "bytes": 990,
+        "sha256": "f011710e49f63d54cf5becafa997ee796606c6ca11e871541aeebdf07013f20f"
+      },
+      "strict_docs_build": "UNRUN after earlier commandfailure, notPASS",
+      "finding_scope": "Own foundry_docs companion resolved; globaldocsquality remainsFAILED"
+    },
+    {
+      "command": "Independent canonical load_changed_paths/build_gate_plan actualbefore/after and removeexactdocpath; native fullgate --base-ref c40d... --head-ref4b8cdf",
+      "target_sha": "4b8cdf8ab88006c572c2b2d0039053d5a0138f14",
+      "executing_party": "F/graph_scm",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-independent-review.json",
+        "bytes": 16300,
+        "sha256": "bf9d98a64cd40b62d582d6a670d46c7587c6ff4974f635759bcad2ffd3a40601"
+      },
+      "native_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-independent.txt",
+        "bytes": 1475,
+        "sha256": "9328d6b96467793b7ed817cb1e6f859ff2235567921555ba1bb5d6a5a5742efe"
+      },
+      "negative_control": "actualdocpath removal restores foundry_docs with same methodREADME input; no global rule exclusion",
+      "strict_docs_build": "UNRUN",
+      "scope": "Bounded docs-companion path predicate only; separate actual full Docs Gate remains FAIL1 and strict_docs_build UNRUN."
     }
   ],
   "property": {
@@ -126,7 +167,7 @@
     "target_sha": "0c709ea924d2b868eacf1016f5c70ff749e287a8",
     "verdict": "GO for bounded slice; no new blocking P40 class; preserve utility_judge red and external/backend limitations"
   },
-  "capability_state_or_finding_state": "limited: bounded supported-facade ABI witness and canonical documentation migration complete; LA-020 blanket closure not claimed",
+  "capability_state_or_finding_state": "limited: supported-facade ABI witness and canonical package/reference documentation complete; own bounded foundry_docs deficiency resolved, wholeDocsqualityFAILED and LA-020 blanket closure not claimed",
   "red_attribution": {
     "state": "not_established for full P41 attribution; no exclusion or inherited-green claim",
     "observed": "same utility_judge identified-versus-ambiguous ranking failure on exact slice-base and candidate; stdout bytes identical",
@@ -150,7 +191,8 @@
     "P29/P32/P33/P38: actual method path and removal control beyond names/reflection",
     "P35/P37: complete literal-caller denominator recomputed with explicit computed/external boundary",
     "P40: shared registered output-slot ABI mismatch is a separate canonical-owner slice; no local ladder repair",
-    "P41: base reproduction and observed disjointness reported without full-input attribution"
+    "P41: base reproduction and observed disjointness reported without full-input attribution",
+    "P41: Documentation delta removes only its actual foundry_docs predicate; full gate expiration red and skipped downstreamcommand UNRUN remain visible with exacttarget receipts."
   ],
   "limitations_and_next_owner": [
     "G fetches exact topic head and receipt and reruns these checks after integration; commit acceptance is separate from finding closure.",
@@ -159,6 +201,48 @@
     "Method-signature/native-output ABI mismatch (independently observed RDD signature causal_effect_report versus report/envelope) is handed to CAU canonical _common/dispatcher owner; this slice does not claim its closure.",
     "Native pydoc rendering verified; MkDocs site generation, optional DoWhy/EconML backends and real admitted-data inference are UNRUN/outside this witness. Python3.14 markers exclude those optional backends, not a positive backend witness.",
     "Class/function global FQNs pickle roundtrip verified. Result DTOs use the supported JSON reader; default pickling of immutable graph instances is not claimed.",
-    "Plugin registration/discovery belongs to C. Existing parent causal facade and _registry_boot consume the retained class identities; no plugin discovery or entrypoint mutation is made."
-  ]
+    "Plugin registration/discovery belongs to C. Existing parent causal facade and _registry_boot consume the retained class identities; no plugin discovery or entrypoint mutation is made.",
+    "CurrentAPI reference docs fullactualpath DocsGate remainsFAIL: expired freshness baseline observed10/hash459cc; strictMkDocs buildUNRUN after child failure. G/canonical docs freshness owners must resolve without treating companion coverage or prior CI reproduction as provenance exemption."
+  ],
+  "documentation_companion": {
+    "implementation_sha": "4b8cdf8ab88006c572c2b2d0039053d5a0138f14",
+    "path": "policy-engine/docs/reference/foundry/causal-engine-architecture.md",
+    "property": "Substantive current facade addresses, real override execution bridge, class/function pickle/FQNs, native pydoc, Scientist and typed JSON consumption; datedv26benchmark scope retained, no new plugin/global/backend/scientific-authority claim.",
+    "runtime_test_unchanged": "Only documentation differs from previous published baada; original runtime source/test/README bytes at0c709 unchanged. Native26PASS retained at original0c709; no repeated test represented at new docSHA.",
+    "actual_path_denominator": [
+      "docs/reference/foundry/causal-engine-architecture.md",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.json",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-abi.txt",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-consumer-ranking.txt",
+      "src/polisyos/foundry/methods/catalog/causal/README.md",
+      "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py"
+    ],
+    "negative_control": "Canonical build_gate_plan before actual5paths / after actual6paths / after-minus-exactdocpath: foundry_docs present/absent/present, independent reviewer.",
+    "whole_gate_state": "FAIL1 expiredfreshness baseline expected0/observed10/hash459cc; strict_docs_build UNRUN because canonical dispatcher stops at first failed command. No waiver renewal, skip flag, provenance exemption or P41 inherited attribution.",
+    "outputs": {
+      "api-docs-gate.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-gate.txt",
+        "bytes": 990,
+        "sha256": "f011710e49f63d54cf5becafa997ee796606c6ca11e871541aeebdf07013f20f"
+      },
+      "api-docs-independent.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-independent.txt",
+        "bytes": 1475,
+        "sha256": "9328d6b96467793b7ed817cb1e6f859ff2235567921555ba1bb5d6a5a5742efe"
+      },
+      "api-docs-gate.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-gate.json",
+        "bytes": 1944,
+        "sha256": "2a29b9155764d3a28d38cd96f1b01f847b9b4312d3fe364cfbcadb7a38b6dcd4"
+      },
+      "api-docs-independent-review.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/api-docs-independent-review.json",
+        "bytes": 16300,
+        "sha256": "bf9d98a64cd40b62d582d6a670d46c7587c6ff4974f635759bcad2ffd3a40601"
+      }
+    },
+    "independent_reviewer": "F/graph_scm",
+    "independent_target_sha": "4b8cdf8ab88006c572c2b2d0039053d5a0138f14",
+    "independent_verdict": "GO for substantive companion coverage only; whole Docs quality remains FAILED; no estimator/backend/real-data or ledger authority extension"
+  }
 }

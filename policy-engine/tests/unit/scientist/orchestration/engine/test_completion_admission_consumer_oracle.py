@@ -321,6 +321,13 @@ def test_posteffect_completion_publication_fault_blocks_live_and_fresh_consumers
     effect = failed["physical_effects"][0]
     assert effect["pid"] == failed["pid"]
     assert effect["optional_ledger_witness_error"] is None
+    staged = failed["faulted_staged_snapshots"]
+    assert staged, "the actual post-effect completion publication fault was never reached"
+    for wire in staged:
+        advanced = next(iter(wire["completion_obligations"].values()))
+        assert advanced["phase"] == "ledger_ack_unknown"
+        assert advanced["event_payload"]["kind"] == "provider"
+        assert advanced["event_payload"]["amount"] == "0.02"
     pending = failed["snapshot"]["completion_obligations"]
     assert len(pending) == 1
     assert pending == effect["admitted_records_at_effect"]

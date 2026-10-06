@@ -1,0 +1,61 @@
+from pathlib import Path
+from decimal import Decimal
+import hashlib,json,subprocess,xml.etree.ElementTree as ET
+OWN=Path('/workspace/e02-B-current-runtime');DD='dd9584728bd96f204983615216efdbc58117e713';AUTHOR='28b581626fb1567699e55fe3fc983732fb768c07';TEST='882b543ed7e9127abd777753811ff7a3a9c0857c';B='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B';E=B+'/current-unknown-cost-red-evidence/'
+def raw(s,p):return subprocess.check_output(['git','show',s+':'+p],cwd=OWN)
+def ref(s,p):
+ b=raw(s,p);return {'commit':s,'path':p,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'git_blob':subprocess.check_output(['git','rev-parse',s+':'+p],cwd=OWN,text=True).strip()}
+author=json.loads(raw(AUTHOR,B+'/current-unknown-cost-red.json'));wrapper=json.loads(raw(AUTHOR,E+'native.json'));q=json.loads(raw(AUTHOR,E+'all-case-quantities.json'));txt=raw(AUTHOR,E+'native.txt').decode();xml=ET.fromstring(raw(AUTHOR,E+'native.xml'))
+records=[json.loads(line.split('B66_ACTUAL ',1)[1]) for line in txt.splitlines() if 'B66_ACTUAL ' in line and line.split('B66_ACTUAL ',1)[1].startswith('{')]
+assert len(records)==16, len(records)
+cases=[]
+for x in xml.iter('testcase'):
+ status='ERROR' if x.find('error') is not None else 'FAIL' if x.find('failure') is not None else 'SKIP' if x.find('skipped') is not None else 'PASS';cases.append({'classname':x.get('classname'),'name':x.get('name'),'outcome':status,'failure_message':x.find('failure').get('message') if x.find('failure') is not None else None})
+assert len(cases)==16 and [{k:c[k] for k in ['classname','name','outcome']} for c in cases]==wrapper['actual_cases']
+assert {k:sum(x['outcome']==k for x in cases) for k in ['PASS','FAIL','ERROR','SKIP']}==wrapper['outcomes']=={'PASS':8,'FAIL':8,'ERROR':0,'SKIP':0}
+assert wrapper['target_source_sha']==q['target_sha']==DD and wrapper['test_sha']==q['test_sha']==TEST
+assert hashlib.sha256(raw(TEST,'policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py')).hexdigest()==wrapper['test_sha256']
+for o in wrapper['outputs']:
+ p=E+Path(o['path']).name;b=raw(AUTHOR,p);assert len(b)==o['bytes'] and hashlib.sha256(b).hexdigest()==o['sha256']
+originrefs=[]
+for o in q['source_origins']:
+ p=o['path'].split('/workspace/e02-B-current-coordination/',1)[1];r=ref(DD,p);assert r['sha256']==o['sha256'];originrefs.append({'module':o['module'],**r})
+assert len(originrefs)==8
+rows=[]
+for c,r,summarized in zip(cases,records,q['cases'],strict=True):
+ assert r['provider_calls']==len(r['actual_provider_work'])==summarized['provider_calls']==summarized['work_count']==1
+ assert r['profile']==summarized['profile'] and r['caller_cancelled']==summarized['caller_cancelled']
+ assert r['input_normalization']==summarized['input_normalization'] and r['observed_events']==summarized['observed_events'] and r['actual_acks']==summarized['actual_acks']
+ assert r['fresh_ledger_snapshot']['state']==summarized['fresh_state']
+ assert len(r['fresh_ledger_snapshot']['spend_receipts'])==summarized['receipt_count']==1
+ assert r['source_origins']==q['source_origins']
+ assert r['reserved_before_completion']==summarized['reserved_before_completion']
+ assert r['required_callback_events']==summarized['required_callback_events']==1
+ assert r['cache_entries']==summarized['cache_entries'] and r['result_exception']==summarized['result_exception']
+ assert len(r['observed_events'])==len(r['actual_acks'])==1
+ e=r['observed_events'][0];ack=r['actual_acks'][0];receipt=ack['receipts'][0]
+ assert ack['status']=='committed' and ack['durability']=='ledger' and ack['event_id']==e['event_id']
+ assert receipt['event_id']==e['event_id']+':budget:'+hashlib.sha256(b'run').hexdigest()
+ assert receipt['payload_digest']==hashlib.sha256((e['payload_digest']+':run').encode()).hexdigest()
+ assert Decimal(receipt['amount'])==Decimal(e['amount'])==Decimal(r['fresh_ledger_snapshot']['state']['spent']['run'])
+ assert r['fresh_ledger_snapshot']['spend_receipts'][receipt['event_id']]==receipt
+ assert Decimal(r['fresh_ledger_snapshot']['state']['reserved']['run'])==0
+ if c['outcome']=='FAIL':
+  assert Decimal(r['reserved_before_completion'])>0 and Decimal(e['amount'])==0 and e['cost_origin']=='estimated'
+  assert r['input_normalization']['cost_usd'] is None
+  if r['profile']=='none-response': assert r['result_exception']=='AttributeError' and r['cache_entries']==0
+  else:assert r['input_normalization']['response_type']=='GatewayLLMResponse' and r['result_exception'] is None and r['cache_entries']==1
+ elif r['profile']=='reported-positive':assert Decimal(e['amount'])==Decimal('.02') and e['cost_origin']=='reported'
+ elif r['profile']=='reported-zero':assert Decimal(e['amount'])==0 and e['cost_origin']=='reported'
+ elif r['profile']=='priced-free-usage':assert Decimal(e['amount'])==0 and e['cost_origin']=='estimated'
+ else:assert r['profile']=='priced-known-usage' and Decimal(e['amount'])>0 and e['cost_origin']=='estimated'
+ rows.append({'native_case':c,'profile':r['profile'],'caller_cancelled':r['caller_cancelled'],'physical_provider_work':r['actual_provider_work'],'input_normalization':r['input_normalization'],'reserved_before_completion':r['reserved_before_completion'],'event':e,'actual_ack':ack,'fresh_readback':{'state':r['fresh_ledger_snapshot']['state'],'receipt':receipt},'cache_entries':r['cache_entries'],'result_exception':r['result_exception'],'grade':'malformed_completed_response_separately_bounded' if r['profile']=='none-response' else 'actual_successfully_decoded_unknown_amount_escape' if c['outcome']=='FAIL' else 'actual_known_cost_control'})
+idx=json.loads(raw(AUTHOR,E+'index.json')); indexrefs=[]
+for x in idx.get('files',idx.get('refs',idx.get('outputs',[]))):
+ p=x['path'];p=p if p.startswith('policy-engine/') else E+p;r=ref(AUTHOR,p)
+ assert r['sha256']==x['sha256'] and r['bytes']==x['bytes'];indexrefs.append(r)
+source_card='policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md';lines=raw(DD,source_card).decode().splitlines(keepends=True);card=''.join(lines[1688:1708]);assert card.startswith('## B66.')
+baseline=json.loads(Path('/tmp/e02-run-B66-baseline-query.json').read_text());assert len(baseline['cells'])==9
+extra=['policy-engine/src/polisyos/core/observability/pricing.py','policy-engine/src/polisyos/core/llm/README.md','policy-engine/src/polisyos/scientist/orchestration/llm/README.md','policy-engine/src/polisyos/scientist/orchestration/llm/factory.py']
+d={'reviewed_source_sha':DD,'reviewed_source_tree':'7bf4be4a117762c8d37d4babcc214a2b28c2113e','author_handoff_ref':ref(AUTHOR,B+'/current-unknown-cost-red.json'),'test_input_ref':ref(TEST,'policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py'),'author_actual_complete_refs':[ref(AUTHOR,E+x) for x in ['native.txt','native.xml','native.json','run-native.source.txt','all-case-quantities.json','index.json']],'author_index_shape_keys':list(idx),'author_index_recomputed_refs':indexrefs,'full_actual_case_denominator':16,'independent_quantities_join_rows':rows,'independently_recomputed_counts':wrapper['outcomes'],'all16_actual_origins_eight_source_module_refs':originrefs,'source_contract_refs':[ref(DD,p) for p in extra],'canonical_criterion':{**ref(DD,source_card),'line_start':1689,'line_end':1708,'full_card_utf8':card,'full_card_sha256':hashlib.sha256(card.encode()).hexdigest()},'baseline_navigation':{'cells':baseline['cells'],'routes':baseline['finding_routes'],'basis':baseline['finding_basis'],'matching_cells':baseline['matching_cells'],'shared_full_job_environment_input_closure':{'ref':ref('1f944c4324c675e7566f750b15695360c1b27c81',B+'/current-required-audit-settlement-independent-evidence/baseline-source-context.json'),'field':'source_job_contexts','note':'The same7received source jobs/environment/manifest headers apply to exact9B66route cells. This pointer shares source metadata only; B65card/runtime is not claimed as B66proof.'}},'source_test_review_verdict':'PASS finite oracle premise/source/custody; DD native resultFAIL8 preserved, no production closure','defining_positive_vs_unknown_rule':'costNone/rawNone alone is not unknown if actual trusted reported usage with configured pricing establishes an estimate; explicit reported zero and configured free usage remain legitimate. Six decoded absent/invalid/default telemetry cases have no trusted usage/cost yet ACKknown0/cache1.','source_scope':'Full defining test and full source chain response/settlement/Traced/enforcer/ledger/middleware/pricing/Gateway/cache were read. Optional spans/metrics are test stubs; effectful settlement observer calls original actual method. This is not a live network/invoice proof or production dataset test.','runtime_by_reviewer':False,'root_mutations':False,'closure_ids':[]}
+Path('/tmp/e02-B66-foreign-review/audit.json').write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n');print(json.dumps({'audit_bytes':Path('/tmp/e02-B66-foreign-review/audit.json').stat().st_size,'counts':wrapper['outcomes'],'successful_decoded_unknown':sum(x['grade']=='actual_successfully_decoded_unknown_amount_escape' for x in rows),'separate_malformed_None':sum(x['grade']=='malformed_completed_response_separately_bounded' for x in rows),'origin_rows':len(originrefs),'index_refs':len(indexrefs)}))

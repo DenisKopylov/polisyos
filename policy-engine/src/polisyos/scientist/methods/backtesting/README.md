@@ -46,6 +46,12 @@ and `.candidate_receipt_ref` refer to separate CAS artifacts; neither is a
 cast of the owner result or a verifier admission. Without configuration the
 existing predictive-only, bridge-pending result remains available.
 
+The ForecastOwner execution request v2 requires explicit `target_unit`,
+`target_scale=source_native` and a resolved canonical DataSchema reference for
+the source. Legacy v1 artifacts retain their replay contract. This configured
+ETS producer is separate from the native Scientist/Foundry trajectory producer
+described below; neither contract grants new forecast, causal or trust authority.
+
 Row identity is the source snapshot digest, metric and zero-based source
 position. The bounded producer consumes one contiguous training/holdout split
 and one univariate ETS method. Declared temporal roles are preserved; source

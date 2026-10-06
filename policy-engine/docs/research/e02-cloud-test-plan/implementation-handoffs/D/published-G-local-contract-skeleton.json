@@ -234,7 +234,12 @@
     "bytes": 176452,
     "sha256": "fb6f8d6fd8e7ebaea6df25c469429cfe9d1f314a4e62caa6dbce514f164e76ad"
   },
-  "predicate_basis": "consumer_contract_proposal; actual local source/receipt bytes independently reconciled; unknown combined-source predicates not_established",
+  "predicate_basis": "not_established",
   "optional_profile_extension_scope": "Unreceived optional profile/extensions are recorded as null outside new mandatory canonical criteria. Owner-declared fiscal unit/profile input does not require a new cryptographic signature.",
-  "metadata_correction": "Append-only terminology and pointer-target clarification only; corrected accounting byte binding replaces the prior reference. Production, tests, runtime outputs and unknown upstream minrefs are unchanged."
+  "metadata_correction": "Append-only terminology and pointer-target clarification only; corrected accounting byte binding replaces the prior reference. Production, tests, runtime outputs and unknown upstream minrefs are unchanged.",
+  "predicate_scope": "consumer_contract_proposal; actual local source/receipt bytes independently reconciled; unknown combined-source predicates not_established",
+  "local_Git_byte_assertion": {
+    "predicate_basis": "independently_reconciled",
+    "predicate_scope": "Actual pinned local source and accounting receipt Git bytes/hash/length were independently reconciled. This subordinate assertion does not establish combined/local acceptance, runtime invocation, authority or criterion closure."
+  }
 }

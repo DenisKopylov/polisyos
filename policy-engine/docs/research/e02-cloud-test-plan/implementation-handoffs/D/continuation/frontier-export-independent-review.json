@@ -1,0 +1,83 @@
+{
+  "schema": "policyos.e02.D.independent-review.v1",
+  "reviewer": "numerical_oracle",
+  "unit": "D",
+  "slice": "ordinary-frontier-quantity-export",
+  "review_verdict": "PASS within the bounded quantity transport property",
+  "closure_ids": [],
+  "implementation": {
+    "source": "50b74c312a11d7a712969ca147a94013c5857125",
+    "tree": "da0ee32a1f471d88e9ac1719f1686c2ac5779ee6",
+    "style_successor": "6923f970df02c2fac1aff3be9fc81eaecdcb0bcc",
+    "style_tree": "6879dc648f78ff61cb591b0d9f4e841ca1f70090",
+    "transport": "3fdf0e7a90f0b9f26218e1fad865f111dd068109",
+    "baseline_with_identical_tests": "887391aac65ff59aedac6ad0b46352d00852ef9e"
+  },
+  "original_criterion": {
+    "id": "B111@OPT-01",
+    "acceptance_sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65",
+    "text": "**Приёмка.** Перестановки не меняют конечный фронт; invalid сохраняет причину; reference point и hypervolume конечны или явно недоступны; генезис и смена чемпиона не публикуют неопределённое число. Проверить реальный CAS и существующие upstream guards, не дублируя их несовместимыми кодами.",
+    "binding": "frontier-export-independent-binding-output.json#/original_criterion",
+    "scope": "This delta preserves producer availability and reason through the ordinary report and actual CAS. Other permutation, frontier admission, genesis and champion-change properties use their separate source-bound evidence; this five-case proof does not establish them."
+  },
+  "source_review": {
+    "complete_implementation_delta_read": true,
+    "complete_test_delta_read": true,
+    "release_fragment_read": true,
+    "existing_report_and_persist_load_paths_read": true,
+    "changed_behavior": "PolicyArtifactBuilder._build_frontier_report projects every existing snapshot.hypervolume_assessments entry with model_dump(mode=json) into the existing metadata map alongside the unchanged scalar map.",
+    "scientific_values": "No hypervolume calculation, reference policy, coordinate basis, direction, eligibility, source membership or champion rule changes.",
+    "schema": "Existing PolicyFrontierReport.metadata accepts the additive JSON mapping; no new top-level field or schema version is introduced. Existing persistence and fresh-store loading carry that mapping.",
+    "style_delta": "The later unrelated existing ArtifactRef expression only changes formatting. Independently parsed whole-module ASTs match implementation and style successor exactly.",
+    "test_integrity": "Entire test file bytes are identical at baseline, implementation and style successor. The declared five inputs and assertions were not weakened."
+  },
+  "deciding_runtime": {
+    "execution_owner": "root",
+    "reviewer_backend_runs": 0,
+    "baseline": {
+      "PASS": 0,
+      "FAIL": 5,
+      "ERROR": 0,
+      "SKIP": 0,
+      "reason": "All five complete failures occur at fresh CAS report metadata lookup: KeyError hypervolume_assessments, after scalar and producer value/reason assertions succeed.",
+      "wall_seconds": 174.40555214881897
+    },
+    "implementation": {
+      "PASS": 5,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "wall_seconds": 49.765860080718994
+    },
+    "cases": [
+      {"points": [[2.0]], "reference": [0.0], "expected_value": 2.0, "reason": null},
+      {"points": [[0.0]], "reference": [0.0], "expected_value": 0.0, "reason": null},
+      {"points": [], "reference": [0.0], "expected_value": null, "reason": "no_usable_inputs"},
+      {"points": "one huge integer 10**400", "reference": [0.0], "expected_value": null, "reason": "invalid_numeric_input"},
+      {"points": [[1.0]], "reference": [true], "expected_value": null, "reason": "invalid_reference_point"}
+    ],
+    "actual_consumer_chain": "compute_hypervolume_assessed -> typed ParetoRegistrySnapshot -> registry filesystem write -> new registry reader -> actual PolicyArtifactBuilder._build_frontier_report -> persist_policy_frontier_report -> new FileSystemCAS -> load_policy_frontier_report",
+    "assertions": "Expected producer scalar/reason plus equality of the complete original typed assessment model_dump at fresh report readback. Source feasible hashes remain empty and global frontier remains empty in every case.",
+    "negative_control": "Actual prechange consumer with all producer markers/scalars and identical tests loses the full assessment in all five cases. The sole behavioral implementation delta adds the missing projection. No separate removal execution is inferred.",
+    "backend": "CPython3.14.7 locked environment; actual torch/botorch/gpytorch/SALib module-loaded flags false in both complete sessions. This is native exact 1D/empty/invalid transport, not a GP fit or higher-dimensional geometry replay."
+  },
+  "evidence_review": {
+    "complete_baseline_and_positive_outputs_read": true,
+    "harness_and_origin_plugin_read": true,
+    "lossless_payload_members_verified": 10,
+    "compressed_and_uncompressed_hashes_verified": true,
+    "loaded_product_module_hashes_against_actual_Git_verified": {"baseline": 1133, "positive": 1133},
+    "source_tree_before_after_sha_verified": true,
+    "junit_complete_counts_verified": true,
+    "independent_verifier": "build-frontier-export-independent.py.txt",
+    "complete_deciding_binding_output": "frontier-export-independent-binding-output.json"
+  },
+  "limitations": [
+    "The fixture constructs a typed snapshot directly and writes it through the existing registry filesystem boundary. It does not invoke registry.update or prove upstream candidate admission, ranking, a complete feasible source universe, an A provider or promotion authority.",
+    "The five-case comparison does not replace the independently designed box-union geometry oracle or full original B111 acceptance evidence.",
+    "Actual command captures have no added CPU/thread/process/test-worker limits. They use default pytest tmp-path retention; the review makes no universal transient-preservation claim and performs no deletion.",
+    "The capture records matching HEAD before/after and hashes every loaded product module; it does not capture git status after the runs. This review does not invent a captured clean-status assertion.",
+    "First harness path/format preparation issues remain described in the author handoff; the decoded bundle transfers the deciding red and green runs, not complete output for those earlier startup preparations.",
+    "Whole repository B04/B19/B23 and other quality gates are not made PASS by this bounded source/transport review. Finding closure and G acceptance remain separate."
+  ]
+}

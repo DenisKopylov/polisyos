@@ -1,0 +1,211 @@
+{
+  "schema": "policyos.e02.D.independent-binding-review.v1",
+  "reviewer": "numerical_oracle",
+  "transport": "3fdf0e7a90f0b9f26218e1fad865f111dd068109",
+  "transport_tree": "21df4ad9ac4192b29990545d52588e2f037f4ee9",
+  "payload_sha256": "c9ea18e6a2a0cd42ee2eacde899d72b48448959aaca2e28c5e97f79a66ec64a1",
+  "payload_bytes": 139957,
+  "uncompressed_sha256": "31170faf24dc591d6dbc26b9608ae1f6c84fa5ca85f71340cc78fa053fdd3554",
+  "members": [
+    {
+      "name": "baseline/complete.txt",
+      "bytes": 14156,
+      "sha256": "d1bef9c3f0a489ac560171e2d10d5162b14dd3a7c18a865120d63d5cb19c5a8f",
+      "result": "MATCH"
+    },
+    {
+      "name": "baseline/run.json",
+      "bytes": 991,
+      "sha256": "6fb6c3b98871af2376d10b1d6dbf7149bc65a39ebe69412b1663cc0896d21e1a",
+      "result": "MATCH"
+    },
+    {
+      "name": "baseline/junit.xml",
+      "bytes": 14258,
+      "sha256": "3ca34445db26dc4e317300041f7d69993b06799fb2817e244fcfbb89c9644b59",
+      "result": "MATCH"
+    },
+    {
+      "name": "baseline/origins.json",
+      "bytes": 431397,
+      "sha256": "5328ef1a2049a71a64c2e6b55c2e801afe6bad34c6e713efd0da5af63c393113",
+      "result": "MATCH"
+    },
+    {
+      "name": "positive/complete.txt",
+      "bytes": 99,
+      "sha256": "5ed1e36f741332a0eb72be2bba71fb46d14c9bcccde71e6cd20858c48d9699ee",
+      "result": "MATCH"
+    },
+    {
+      "name": "positive/run.json",
+      "bytes": 991,
+      "sha256": "1011a1a874c70947dad33b66deac56b9c13603d0ab0f0ea27f543822109e9260",
+      "result": "MATCH"
+    },
+    {
+      "name": "positive/junit.xml",
+      "bytes": 1155,
+      "sha256": "50bbd37e1ce106e0d22968824c8e7d86de457a4d0a4ec182bb603cff8600b3f3",
+      "result": "MATCH"
+    },
+    {
+      "name": "positive/origins.json",
+      "bytes": 431397,
+      "sha256": "33bd6a21865f681dc914e4a09c3adaff35fe818c97a88d37ef1bfc8a2c7cacf9",
+      "result": "MATCH"
+    },
+    {
+      "name": "harness/run.py",
+      "bytes": 1393,
+      "sha256": "298d55253a6e2749c9b31a84ddf5bc94bf6f4ee5ceb78b2a9afb54392e931707",
+      "result": "MATCH"
+    },
+    {
+      "name": "harness/e02_frontier_origins.py",
+      "bytes": 1183,
+      "sha256": "19589624c8874fd4e2cd15c2daa3c1669112e29b72d76b9e0fb5de92bd00c8e1",
+      "result": "MATCH"
+    }
+  ],
+  "runs": [
+    {
+      "scope": "baseline",
+      "source": "887391aac65ff59aedac6ad0b46352d00852ef9e",
+      "tree": "e888e18971670680a912487d0cedced751175897",
+      "loaded_product_module_bindings": 1133,
+      "loaded_product_module_result": "MATCH",
+      "backend_loaded": {
+        "torch": false,
+        "botorch": false,
+        "gpytorch": false,
+        "SALib": false
+      },
+      "tests": 5,
+      "PASS": 0,
+      "FAIL": 5,
+      "ERROR": 0,
+      "SKIP": 0,
+      "wall_seconds": 174.40555214881897,
+      "exit_code": 1,
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_frontier_origins",
+        "tests/unit/scientist/policy_design/test_phase_b_output.py::test_frontier_quantity_assessment_survives_ordinary_export_and_cas",
+        "--junitxml=/workspace/e02-D3-receipts/frontier-quantity-export/junit.xml"
+      ],
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D3-receipts/frontier-quantity-export:/workspace/e02-D-published-root/policy-engine/src:/workspace/e02-D-published-root/policy-engine",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "before_after_source": "MATCH",
+      "status_after_not_captured": true
+    },
+    {
+      "scope": "positive",
+      "source": "50b74c312a11d7a712969ca147a94013c5857125",
+      "tree": "da0ee32a1f471d88e9ac1719f1686c2ac5779ee6",
+      "loaded_product_module_bindings": 1133,
+      "loaded_product_module_result": "MATCH",
+      "backend_loaded": {
+        "torch": false,
+        "botorch": false,
+        "gpytorch": false,
+        "SALib": false
+      },
+      "tests": 5,
+      "PASS": 5,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "wall_seconds": 49.765860080718994,
+      "exit_code": 0,
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_frontier_origins",
+        "tests/unit/scientist/policy_design/test_phase_b_output.py::test_frontier_quantity_assessment_survives_ordinary_export_and_cas",
+        "--junitxml=/workspace/e02-D3-receipts/frontier-quantity-export/junit.xml"
+      ],
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-D3-receipts/frontier-quantity-export:/workspace/e02-D-published-root/policy-engine/src:/workspace/e02-D-published-root/policy-engine",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "before_after_source": "MATCH",
+      "status_after_not_captured": true
+    }
+  ],
+  "source_bindings": {
+    "output_implementation_sha256": "6bda57d89815794a8a1f80a22fb0e0be33c12a7248e8da21e3071e125db6f0a3",
+    "output_style_sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598",
+    "output_style_whole_module_ast_equal": true,
+    "test_sha256": "4d1af6aacf51da0fde4811144103d8f50d2ca64344ca4472e67841817894b05e",
+    "test_bytes_base_implementation_style_equal": true,
+    "implementation_tree": "da0ee32a1f471d88e9ac1719f1686c2ac5779ee6",
+    "style_tree": "6879dc648f78ff61cb591b0d9f4e841ca1f70090"
+  },
+  "original_criterion": {
+    "id": "B111@OPT-01",
+    "finding_id": "B111",
+    "criterion_card": "OPT-01",
+    "canonical_closure_owner": "OPT-01",
+    "role": "canonical_owner",
+    "task_anchor": "D.md#bundle-opt-01",
+    "original_fragment": {
+      "document_key": "B_r19",
+      "lines": [
+        2939,
+        2954
+      ],
+      "byte_offset": 659049,
+      "bytes": 4145,
+      "sha256": "534be6222dccd944bb884e893436c32d82eef90be857ad763412d9df270c6245"
+    },
+    "canonical_content": {
+      "text": "**Приёмка.** Перестановки не меняют конечный фронт; invalid сохраняет причину; reference point и hypervolume конечны или явно недоступны; генезис и смена чемпиона не публикуют неопределённое число. Проверить реальный CAS и существующие upstream guards, не дублируя их несовместимыми кодами.",
+      "byte_offset": 662708,
+      "bytes": 484,
+      "sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65"
+    },
+    "canonical_card_pointer": "/canonical_cards/OPT-01",
+    "evidence_keys": [
+      "original_243_delta",
+      "canonical_17",
+      "current_142",
+      "root_final_two"
+    ],
+    "command_outcome_pointer": "/canonical_command_outcomes/OPT-01",
+    "missing_input_pointer": "/findings/5/unreceived_inputs_or_APIs",
+    "original_acceptance_binding": {
+      "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+      "criterion_occurrence_id": "B111@OPT-01",
+      "canonical_card": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "bytes": 20853,
+        "sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e"
+      }
+    },
+    "previous_disposition": "limited",
+    "continuation": {
+      "state": "in_progress",
+      "writer": "search_owner",
+      "implementation_sha": null,
+      "tree_sha": null,
+      "runtime_property": null,
+      "consumer": null,
+      "output_refs": [],
+      "independent_review": null,
+      "residual": "FinalOPT01 receives75PASS including raw-CAS malformed/nonfinite consumer fixtures. Current3f38 native-controller10+fiscal30 independently receives40PASS; former425 controller/service differences are resolved by actual current execution for these inputs. A assessment eligibility/denominator/scientific basis remains unreceived.",
+      "finding_verdict": "not_adjudicated",
+      "accepted_in_G": false
+    }
+  },
+  "execution": "stdlib Git/payload/XML/AST verification only; no backend or pytest run"
+}

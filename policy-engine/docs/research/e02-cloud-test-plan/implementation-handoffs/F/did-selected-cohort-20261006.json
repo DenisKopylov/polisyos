@@ -1,0 +1,3184 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "did-selected-cohort-20261006",
+  "closure_ids": [
+    "B204",
+    "B205",
+    "B206",
+    "B207",
+    "B208",
+    "B209",
+    "LA-016"
+  ],
+  "bundle_ids": [
+    "CAU-01",
+    "CAU-02",
+    "CAU-05"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+    "c7d33a223e467964c589f61c8b097eb9175335c5",
+    "0a25f3afee4c12ba8079c781618229589ef8af75",
+    "cebe94d8134a4652bbfc1ae4d74ec6403940ced5"
+  ],
+  "candidate_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+  "candidate_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+  "branch": "codex/e02-F-cau-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/benchmarks/interference/policy_did_interference.py",
+    "policy-engine/benchmarks/natural_experiments/policy_natural_experiments.py",
+    "policy-engine/release-fragments/unreleased/2026-10-06-did-selected-cohort.toml",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+    "policy-engine/tests/unit/remediation/test_cau_02.py",
+    "policy-engine/tests/unit/remediation/test_cau_05.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P067",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "call_pass": "2",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "19.28",
+      "rss_kib": "496184",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "184",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F02-P048",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_cau_01.py",
+      "state": "PASS",
+      "collected": "17",
+      "calls": "17",
+      "call_pass": "17",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "10.06",
+      "rss_kib": "524036",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "176",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F05-P090",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "call_pass": "2",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "31.01",
+      "rss_kib": "628584",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "500",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P061",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "call_pass": "2",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "30.868278741836548",
+      "rss_kib": "665444.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "67",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F08-P052",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_cau_01.py",
+      "state": "PASS",
+      "collected": "17",
+      "calls": "17",
+      "call_pass": "17",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "37.09377861022949",
+      "rss_kib": "705800",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "175",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F10-P069",
+      "job": "F10",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "call_pass": "2",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "36.24",
+      "rss_kib": "661456",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F10.txt",
+      "source_line": "189",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F13-P057",
+      "job": "F13",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_cau_01.py",
+      "state": "PASS",
+      "collected": "17",
+      "calls": "17",
+      "call_pass": "17",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "10.0",
+      "rss_kib": "689620",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F13.txt",
+      "source_line": "184",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F15-P080",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "call_pass": "2",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "12.13",
+      "rss_kib": "659328",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "235",
+      "extra_json": "{\"reason\":\"null\"}"
+    },
+    {
+      "id": "F03-P090",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_cau_02.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "19.17",
+      "rss_kib": "489504.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "220",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F08-P091",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_cau_02.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "44.117334842681885",
+      "rss_kib": "627144",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "214",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F15-P104",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_cau_02.py",
+      "state": "PASS",
+      "collected": "8",
+      "calls": "8",
+      "call_pass": "8",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "19.55",
+      "rss_kib": "655032",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "259",
+      "extra_json": "{\"reason\":\"null\"}"
+    },
+    {
+      "id": "F01-P115",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_cau_05.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "14.33",
+      "rss_kib": "494304",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "232",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F04-P069",
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_registration.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "call_pass": "2",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.567",
+      "rss_kib": "489384",
+      "receipt_status": "valid_reconciled_parent",
+      "source_file": "received/F04.txt",
+      "source_line": "279",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F09-P117",
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_cau_05.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "30.62",
+      "rss_kib": "657340",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F09.txt",
+      "source_line": "233",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F14-P136",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_cau_05.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "22.14862304000053",
+      "rss_kib": "656800",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "486",
+      "extra_json": "{}"
+    }
+  ],
+  "baseline_role": "Source-reported historical compact navigation,15unique cells/5SHAs; no raw archive admitted, no old PASS promoted to this candidate. Full F failures and per-ID/cell queries performed; all7 IDs assessed independently.",
+  "checks": [
+    {
+      "id": "red",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+        "tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "target_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+      "source_before": {
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Slice-base tracked source with original new tests copied as exact-byte inputs; no old ignored evidence admitted.",
+      "outcome": "FAIL",
+      "exit": 1,
+      "summary": "24 FAILED/1 PASS aggregate on exact baseline owner with captured original new-test inputs; aggregate is not a count of independent behavioral classes.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red.stdout.txt.json",
+        "bytes": 89224,
+        "sha256": "300be981e6dd866fbd56850e187a78447b4fc266ea32b889cf5dec64d8e1af0c",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/red.stdout.txt",
+        "original_bytes": 87963,
+        "original_sha256": "0cad0c44b8d56cc3e54e6343f5a3928033285b817e07239b74b9774549487260",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/red.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red.json"
+    },
+    {
+      "id": "published-native",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+        "tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+        "tests/unit/remediation/test_cau_02.py",
+        "tests/unit/remediation/test_cau_05.py",
+        "tests/unit/remediation/test_cau_01.py",
+        "tests/unit/foundry/methods/catalog/causal/test_did.py",
+        "-k",
+        "not seeded_serial_panel_null_coverage"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+      "target_tree_sha": "1d082fb1ff1a3f9f006e51712cc91efa736fc47f",
+      "source_before": {
+        "sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "tree": "1d082fb1ff1a3f9f006e51712cc91efa736fc47f",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Complete six targeted method/test files on 0a25; includes original standard/remediation consumers and new actual benchmark helpers. Warnings: cache_dir pytest config and empty warnings arrays; no absent-backend PASS.",
+      "outcome": "PASS",
+      "exit": 0,
+      "summary": "73 passed, 1 MC deselected, 0 skipped, 10 real warnings.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.stdout.txt.json",
+        "bytes": 3274,
+        "sha256": "7899ef1094b316fef1d3f9d309f4cd2d07d4628a0b52e389112cd8f82816cd0c",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-native.stdout.txt",
+        "original_bytes": 3070,
+        "original_sha256": "5954e97d9ba660006ad445c12b76d501aed94387db632566407036b9b8ceade0",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-native.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.json"
+    },
+    {
+      "id": "head-caller-native",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+        "-k",
+        "maintained_benchmark",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "target_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "source_before": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Actual CLI import paths in fresh subprocesses; dedicated standard numerical path, not class-name/reflection proxy.",
+      "outcome": "PASS",
+      "exit": 0,
+      "summary": "Two genuine maintained benchmark callers produce hand ATT=3 with historical aggregate producer poisoned.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-native.stdout.txt.json",
+        "bytes": 808,
+        "sha256": "f69e02050654bad249c38ce137c3a93905575454dff8c6b36c9f13a15b10927f",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-caller-native.stdout.txt",
+        "original_bytes": 633,
+        "original_sha256": "1d794416f59c8e47102295ac448bf1c176e8244cfba11718801a103366d4f3c2",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-native.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-caller-native.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-native.json"
+    },
+    {
+      "id": "head-dgp",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py::test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "target_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "source_before": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Known synthetic unbalanced multi-cohort DGP, 400 independent units, AR(.6) within-unit outcomes, fixed target/B399/PCG64 seeds 73000..73159; shift0 vs1.5, same multiplier seeds; 99.5% binomial bounds, not real-data identification.",
+      "outcome": "PASS",
+      "exit": 0,
+      "summary": "160 iid-unit serial-panel repetitions; null-size, null-CI coverage, alternative-CI coverage and power measured with prespecified bounds.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-dgp.stdout.txt.json",
+        "bytes": 913,
+        "sha256": "772f72ad229465507b379d94503b1abb7041b93fd013db963a0333b14d078f06",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-dgp.stdout.txt",
+        "original_bytes": 737,
+        "original_sha256": "f4d638dd03697877638c1931bd75344baaec7ce5204783c0c1638fa97b6d455a",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-dgp.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-dgp.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-dgp.json"
+    },
+    {
+      "id": "final-cell-oracle",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-c",
+        "import importlib.util,json,numpy as np; path=\"tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py\"; spec=importlib.util.spec_from_file_location(\"oracle_fixture\",path); mod=importlib.util.module_from_spec(spec); spec.loader.exec_module(mod); data=mod._panel(); report=mod._run(data); actual={(row[\"cohort\"],row[\"period\"]):row[\"att\"] for row in report.method_params[\"cell_estimates\"]}; expected={(2,2):1.,(2,3):2.,(2,4):3.,(2,5):4.,(4,4):8.,(4,5):10.}; assert actual.keys()==expected.keys(); assert all(abs(actual[k]-expected[k])<1e-12 for k in expected); print(json.dumps({\"outcome\":\"PASS\",\"cells\":[{\"cohort\":k[0],\"period\":k[1],\"actual\":actual[k],\"hand_oracle\":v} for k,v in expected.items()],\"theta_sel\":report.point_estimate,\"standard_error\":report.standard_error,\"scope\":\"known admitted synthetic fixture, no empirical identification claim\"}))"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+      "target_tree_sha": "82edaa3a3c8413c211e3b6aa9bc1bc3ba32aa059",
+      "source_before": {
+        "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "tree": "82edaa3a3c8413c211e3b6aa9bc1bc3ba32aa059",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "12-unit unbalanced cohorts (2 units at g2,4 at g4,6 never), fixed post horizons; outcome/cell inputs contained in actual test.",
+      "outcome": "PASS",
+      "exit": 0,
+      "summary": "All six actual public ATT(g,t) cells agree with hand contrasts; theta_sel41/6 and estimated-share ratio influence SE1.3271848978.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-cell-oracle.stdout.txt.json",
+        "bytes": 787,
+        "sha256": "3ce6367034befd3fba142631aafe2786b2809e014e8d8e2527009559f3ee2009",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-cell-oracle.stdout.txt",
+        "original_bytes": 561,
+        "original_sha256": "a82f5441bc4cfb1aec7e8b3d24e62342bf7a4c9a764002f90c4d83009aef0719",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-cell-oracle.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-cell-oracle.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-cell-oracle.json"
+    },
+    {
+      "id": "final-removal-share",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/cau/removal-probe.py",
+        "share"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+      "target_tree_sha": "82edaa3a3c8413c211e3b6aa9bc1bc3ba32aa059",
+      "source_before": {
+        "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "tree": "82edaa3a3c8413c211e3b6aa9bc1bc3ba32aa059",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Isolated process changes actual canonical function code only; canonical source hashes/metadata preserved; complete deciding assertion stdout committed.",
+      "outcome": "FAIL",
+      "exit": 1,
+      "summary": "Removing only cohort-share ratio IF makes native unequal-followup analytic derivative/SE assertion FAIL while marker/profile names remain. Expected behavioral removal rejection, not a product-candidate failure.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-share.stdout.txt.json",
+        "bytes": 3511,
+        "sha256": "f4d46a65840f8b2f515c8ce07a179d36b6236b6789ae965f853be9be53e1fa91",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-share.stdout.txt",
+        "original_bytes": 3269,
+        "original_sha256": "120357b583116e97808253a3267f887f71253c2a76bab2fdd1aa8d9bc5049f0c",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-share.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-share.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-share.json"
+    },
+    {
+      "id": "final-removal-uncentered",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/cau/removal-probe.py",
+        "uncentered"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+      "target_tree_sha": "82edaa3a3c8413c211e3b6aa9bc1bc3ba32aa059",
+      "source_before": {
+        "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "tree": "82edaa3a3c8413c211e3b6aa9bc1bc3ba32aa059",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Isolated process changes actual canonical function code only; canonical source hashes/metadata preserved; complete deciding assertion stdout committed.",
+      "outcome": "FAIL",
+      "exit": 1,
+      "summary": "Moving centered null law around the observed estimate makes native law/CI/p oracle FAIL while success/profile markers remain. Expected behavioral removal rejection, not a product-candidate failure.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-uncentered.stdout.txt.json",
+        "bytes": 3095,
+        "sha256": "54971bc67a05bd5730021179832d590e1e0e1ffb340c1a1f5b7fe45c823a8878",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-uncentered.stdout.txt",
+        "original_bytes": 2872,
+        "original_sha256": "93fd7d2dbcda4093f78a5a1c99bb0096b9d6de8f46923e5b5db2b1ec737027bf",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-uncentered.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-uncentered.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-uncentered.json"
+    },
+    {
+      "id": "final-removal-no-pre",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/cau/standard-removal.py",
+        "no_pre_guard"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+      "target_tree_sha": "82edaa3a3c8413c211e3b6aa9bc1bc3ba32aa059",
+      "source_before": {
+        "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "tree": "82edaa3a3c8413c211e3b6aa9bc1bc3ba32aa059",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Isolated process changes actual canonical function code only; canonical source hashes/metadata preserved; complete deciding assertion stdout committed.",
+      "outcome": "FAIL",
+      "exit": 1,
+      "summary": "Removing actual standard zero-pre admission guard makes original B204 selector FAIL. Expected behavioral removal rejection, not a product-candidate failure.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-no-pre.stdout.txt.json",
+        "bytes": 3251,
+        "sha256": "43ed9091c1ff240e79d26de335664dbb638bb8da03639840e68b96a0636cf465",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-no-pre.stdout.txt",
+        "original_bytes": 3011,
+        "original_sha256": "e9470c3944b2bb57077a2cea74dc1d81618b1c30cf2ce86dda8520da87909043",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-no-pre.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-no-pre.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-no-pre.json"
+    },
+    {
+      "id": "final-removal-cluster",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/cau/standard-removal.py",
+        "cluster_as_hc1"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+      "target_tree_sha": "82edaa3a3c8413c211e3b6aa9bc1bc3ba32aa059",
+      "source_before": {
+        "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "tree": "82edaa3a3c8413c211e3b6aa9bc1bc3ba32aa059",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Isolated process changes actual canonical function code only; canonical source hashes/metadata preserved; complete deciding assertion stdout committed.",
+      "outcome": "FAIL",
+      "exit": 1,
+      "summary": "Substituting HC1 for CR0 makes independent real Statsmodels cluster oracle FAIL. Expected behavioral removal rejection, not a product-candidate failure.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-cluster.stdout.txt.json",
+        "bytes": 3477,
+        "sha256": "f5c883a953513aa11ea4dcafc2d115afc1a750dfbfd3dae1d70506427c10f022",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-cluster.stdout.txt",
+        "original_bytes": 3230,
+        "original_sha256": "728ac8e76a8f4485aab1b2ce3cff1ef3bb98cbfc6ee64691c41e4addc9a69c8d",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-cluster.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-cluster.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-cluster.json"
+    },
+    {
+      "id": "final-removal-critical",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/cau/standard-removal.py",
+        "fixed_95_critical"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+      "target_tree_sha": "82edaa3a3c8413c211e3b6aa9bc1bc3ba32aa059",
+      "source_before": {
+        "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "tree": "82edaa3a3c8413c211e3b6aa9bc1bc3ba32aa059",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Isolated process changes actual canonical function code only; canonical source hashes/metadata preserved; complete deciding assertion stdout committed.",
+      "outcome": "FAIL",
+      "exit": 1,
+      "summary": "Substituting fixed95 critical value makes actual requested-level interval selector FAIL. Expected behavioral removal rejection, not a product-candidate failure.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-critical.stdout.txt.json",
+        "bytes": 2826,
+        "sha256": "cb2e52c5d2c463e582e3453527cf0468dfd2b6e0770fd6f6e0a0d2d5ddab99b0",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-critical.stdout.txt",
+        "original_bytes": 2593,
+        "original_sha256": "c8dcefe99c1f3336ea49b7c45bec27cc7d5c751a73f3e79954eb26334ff2d46c",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-critical.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-critical.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-critical.json"
+    },
+    {
+      "id": "published-benchmark-removal",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/cau/benchmark-retirement-removal.py"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+      "target_tree_sha": "1d082fb1ff1a3f9f006e51712cc91efa736fc47f",
+      "source_before": {
+        "sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "tree": "1d082fb1ff1a3f9f006e51712cc91efa736fc47f",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Two maintained Python benchmark helper functions, genuine typed PanelObservationalData and actual native owner; process-local binding removal only.",
+      "outcome": "FAIL",
+      "exit": 1,
+      "summary": "Both actual caller bindings switched back to the historical producer are rejected; before removal both genuine calls produce ATT3. Expected removal exit1.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-removal.stdout.txt.json",
+        "bytes": 1060,
+        "sha256": "2fc90d56aaf580fc5b05e08c56767f0d6ea369047fc44d1aa2e7351e74e2c5eb",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-removal.stdout.txt",
+        "original_bytes": 826,
+        "original_sha256": "b940e746fe4bbc697d0d1be3da48dba6922ead4d20eab5da36433ab466505f65",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-removal.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-removal.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-removal.json"
+    },
+    {
+      "id": "published-benchmark-interference",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "benchmarks/interference/policy_did_interference.py",
+        "--quiet",
+        "--json",
+        "/workspace/e02-F-20261006-receipts/cau/published-benchmark-interference-report.json"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+      "target_tree_sha": "1d082fb1ff1a3f9f006e51712cc91efa736fc47f",
+      "source_before": {
+        "sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "tree": "1d082fb1ff1a3f9f006e51712cc91efa736fc47f",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Full original benchmark DGP/params/scoring preserved; no synthetic calibrated-coverage claim from its smoke score.",
+      "outcome": "PASS",
+      "exit": 0,
+      "summary": "3/3 cases pass, exit0.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-interference.stdout.txt.json",
+        "bytes": 2399,
+        "sha256": "f20b168560cf41d1bd4d12da08ef2279b6811f93a8cbed254c88f68d8b3890ff",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-interference.stdout.txt",
+        "original_bytes": 2046,
+        "original_sha256": "7a96b7d4853154684151e57d1b448936f387fc4295c383d8d714a814f198fb53",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-interference.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-interference.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-interference.json"
+    },
+    {
+      "id": "published-benchmark-natural",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "benchmarks/natural_experiments/policy_natural_experiments.py",
+        "--quiet",
+        "--json",
+        "/workspace/e02-F-20261006-receipts/cau/published-benchmark-natural-report.json"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+      "target_tree_sha": "1d082fb1ff1a3f9f006e51712cc91efa736fc47f",
+      "source_before": {
+        "sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "tree": "1d082fb1ff1a3f9f006e51712cc91efa736fc47f",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Full original benchmark DGP/params/scoring preserved. Known mismatch introduced by honest diagnostic cannot be relabeled PASS; exact before-cutover c7d vs after-cutover typed outputs equal. No slice-base inheritance claim.",
+      "outcome": "FAIL",
+      "exit": 1,
+      "summary": "2/3 cases pass; clean_rollout fails because checker demands passed pretrend with2pre periods, actual diagnostic not_testable.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-natural.stdout.txt.json",
+        "bytes": 2443,
+        "sha256": "53210f12c958912a042bdfcc9a6709571cefe93876cef6d0a3b2b3b96e803bfe",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-natural.stdout.txt",
+        "original_bytes": 2088,
+        "original_sha256": "b67eb3069ebaaf329b6cfd415c627bbb73499e3d4b86db1d92e98bff0de0dae1",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-natural.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-natural.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-natural.json"
+    },
+    {
+      "id": "historical-consumers",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/unit/foundry/methods/test_foundry_v2_domains.py::test_foundry_v2_registry_excludes_removed_wrapper_fqns",
+        "tests/unit/foundry/validation/test_method_quality.py::test_builds_method_report_from_actual_execution_outputs_with_foundry_refs",
+        "tests/unit/foundry/validation/test_method_quality.py::test_execution_report_selects_causal_method_after_execution",
+        "tests/unit/remediation/test_frc_02_s10.py::test_raw_causal_effect_report_remains_non_positive_characterization",
+        "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_serious_nl_pipeline_persists_foundry_method_report_from_final_state"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+      "target_tree_sha": "24c600a88679ae469dce568d13a2629f6b638ca9",
+      "source_before": {
+        "sha": "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+        "tree": "24c600a88679ae469dce568d13a2629f6b638ca9",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "fc0d896e86ffb346381bbcc95b81d24c84e1a351",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Five exact native registry/report-reader/HTTP selectors. No guessed catalog path, no fixture/database replacement; historical labels in persisted report-reader tests preserved. Missing canonical local production input remains G/C admission-bound.",
+      "outcome": "FAIL",
+      "exit": 1,
+      "summary": "4 PASS/1 FAIL; HTTP materialization fails in DatasetCatalogStore before causal consumer: configured production catalog unreadable.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-historical-consumers.stdout.txt.json",
+        "bytes": 9990,
+        "sha256": "92e1859d7515b54ed7bb3ef5eee8c64fab8ad2080a1c074c56539413b602ccb2",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/historical-consumers.stdout.txt",
+        "original_bytes": 9416,
+        "original_sha256": "84de826600433791e32c55c4a09290861c0800f4a7886b56b5d383b577b5b5e4",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-historical-consumers.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/historical-consumers.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-historical-consumers.json"
+    },
+    {
+      "id": "invocation-base",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_production_invocation.py",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/workspace/e02-F-20261006-receipts/cau/invocation-base-recomputed.json"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "target_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+      "source_before": {
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Exact immutable slice-base198 complete source-derived diagnostic attempted; no inherited-red classification or disjoint denominator claim.",
+      "outcome": "UNRUN",
+      "exit": -9,
+      "summary": "Exit-9, ~243s, no deciding native raw receipt; killed before completion.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-invocation-base.stdout.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/invocation-base.stdout.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-invocation-base.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/invocation-base.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-invocation-base.json"
+    },
+    {
+      "id": "head-invocation",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_production_invocation.py",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/workspace/e02-F-20261006-receipts/cau/head-invocation-recomputed.json"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "target_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "source_before": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Exact final implementation vs immutable base; complete tracked src/tools/tests Python mapping and pyproject entries recomputed. Huge raw retained locally with hash and exact receiver rerun below.",
+      "outcome": "FAIL",
+      "exit": 3,
+      "summary": "Native static diagnostic exit3: partial UNRESOLVED, not runtime non-invocation/PASS.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-invocation.stdout.txt.json",
+        "bytes": 1670,
+        "sha256": "479a639f3abe3fb5055394575e43369e680d68eb048744de397e8b6504d27fbc",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-invocation.stdout.txt",
+        "original_bytes": 1453,
+        "original_sha256": "49e30fee90c2265f76bb4da94b45ffcad5cd0451a6e61a0332bf17ee1d2616c7",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-invocation.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-invocation.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-invocation.json"
+    },
+    {
+      "id": "head-benchmark-lint",
+      "command": [
+        "python3",
+        "/workspace/e02-F-20261006-receipts/cau/benchmark-lint-diagnostic.py"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "target_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "source_before": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Complete benchmark source files at198 and final HEAD; no broad lint PASS or exclusions/waivers.",
+      "outcome": "PASS",
+      "exit": 0,
+      "summary": "Exact full two-file baseline and final diagnostic code/message lists equal after accounting for two added import lines; original5+2 lint diagnostics remain FAIL.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-benchmark-lint.stdout.txt.json",
+        "bytes": 14235,
+        "sha256": "43946a53c8923e8f977260776c7473294ec1270f870a68b7a8f74204bc88134c",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-benchmark-lint.stdout.txt",
+        "original_bytes": 12027,
+        "original_sha256": "e25372e5277f408eca59bb1c07344034b25ebf8a042c5cfafad27ed5261dbe0b",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-benchmark-lint.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-benchmark-lint.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-benchmark-lint.json"
+    },
+    {
+      "id": "head-caller-census",
+      "command": [
+        "python3",
+        "/workspace/e02-F-20261006-receipts/cau/caller-census.py"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "target_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "source_before": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Tracked md/yml/json/py/toml/yaml/txt complete paths, actualroles classified separately from runtime checks; external production plans not admitted.",
+      "outcome": "PASS",
+      "exit": 0,
+      "summary": "Full tracked source/text census and all6441 Python ASTs read; no decode/parse errors; maintained legacy benchmark imports removed.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-census.stdout.txt.json",
+        "bytes": 888,
+        "sha256": "3d64f5cd3c8f5dfec1b7e354f20dc4595d98a12b0f72e86adf40044630e0f925",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-caller-census.stdout.txt",
+        "original_bytes": 678,
+        "original_sha256": "ad6d940e9b13f4768abf6901ed282ad4dee3e8981f2df441e6e1f95313a87cb7",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-census.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-caller-census.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-census.json"
+    },
+    {
+      "id": "head-style",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/foundry/methods/catalog/causal/did.py",
+        "tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+        "tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+        "tests/unit/remediation/test_cau_02.py",
+        "tests/unit/remediation/test_cau_05.py"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "target_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "source_before": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Actual five complete numerical/test source paths; benchmark full lint separately remains red.",
+      "outcome": "PASS",
+      "exit": 0,
+      "summary": "Ruff check passes on own numerical module and four changed method tests.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-style.stdout.txt.json",
+        "bytes": 182,
+        "sha256": "5285b2b8c9618968dfb0439fc1b0f7e74afb4ff56ec36867709cd0b7ce9d23d9",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-style.stdout.txt",
+        "original_bytes": 19,
+        "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-style.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-style.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-style.json"
+    },
+    {
+      "id": "head-format",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/foundry/methods/catalog/causal/did.py",
+        "tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+        "tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+        "tests/unit/remediation/test_cau_02.py",
+        "tests/unit/remediation/test_cau_05.py",
+        "benchmarks/interference/policy_did_interference.py",
+        "benchmarks/natural_experiments/policy_natural_experiments.py"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "target_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "source_before": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Actual owner/tests and two benchmark modules, no format suppression.",
+      "outcome": "PASS",
+      "exit": 0,
+      "summary": "Ruff format check passes on seven complete owned changed Python paths.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-format.stdout.txt.json",
+        "bytes": 189,
+        "sha256": "bb0fa7243b9f38244f6ad601d0a9042e2170dc9526a78b61be20f3130680eaa1",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-format.stdout.txt",
+        "original_bytes": 26,
+        "original_sha256": "0321fffcb91606a42c0a19d8c1121d5c544379d663821fce616c71a7bb62f6b5",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-format.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-format.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-format.json"
+    },
+    {
+      "id": "head-release-gate",
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "tools/ops_runners/release/check_compatibility_release_gates.py",
+        "--repo-root",
+        ".",
+        "--fail-on-contract-errors",
+        "--breaking-class",
+        "python-public-api"
+      ],
+      "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+      "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+      "target_tree_sha": "a2ed0a07151263cd747cff5ec410643e326620a9",
+      "source_before": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "tree": "a2ed0a07151263cd747cff5ec410643e326620a9",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_after": {
+        "sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+        "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "environment": {
+        "PYTHONPATH": "src:.:tools",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "thread_cpu_quotas": "none"
+      },
+      "environment_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "input_closure": "Canonical whole-policy/whole-fragments gate with python-public-api breaking class; exact head, no baseline/exception changes.",
+      "outcome": "FAIL",
+      "exit": 1,
+      "summary": "Full compatibility release gate result preserved; own breaking fragment is reviewed separately, broad gate not promoted.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-release-gate.stdout.txt.json",
+        "bytes": 1564,
+        "sha256": "9b07092ff4155582cacbd7471cddb92f5db02ef07ab7cce6edcd6daecf769c52",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-release-gate.stdout.txt",
+        "original_bytes": 1280,
+        "original_sha256": "0a685f431454f4fb6ac606933d8fa4718a88cbbf0a2d1f951854198a1f659018",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-release-gate.stderr.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-release-gate.stderr.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      },
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-release-gate.json"
+    }
+  ],
+  "per_finding": {
+    "B204": {
+      "property": "Native standard contrast refuses zero-pre and preserves hand ATT3; inadequate pretrend is not_testable, nonrejection has no identification authority.",
+      "selectors": [
+        "test_cau_01_standard_did_rejects_zero_pre_period",
+        "test_insufficient_pretrend_is_not_testable_never_passed",
+        "test_zero_pretrend_nonrejection_does_not_identify_parallel_trends",
+        "test_differential_pretrend_is_evidence_of_violation"
+      ],
+      "checks": [
+        "published-native",
+        "final-removal-no-pre"
+      ],
+      "negative": "Actual zero-pre guard removal rejected; differential pretrend status violation, insufficient periods never passed.",
+      "limits": "Real untreated parallel trends not established by data or pretrend p.",
+      "criterion_refs": [
+        {
+          "criterion_id": "B204",
+          "document": "B_r19",
+          "lines": [
+            5094,
+            5105
+          ],
+          "sha256": "4604b95f70da45f417834b0b73cce792ba92c2709c35021952fc50cccb3e655a",
+          "card": "CAU-01"
+        }
+      ],
+      "method_decision": "F-M3",
+      "native_outcome": "PASS_BOUNDED",
+      "finding_state": "limited_pending_G_replay_and_real_input_authority",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator."
+    },
+    "B205": {
+      "property": "Requested HC1/large-independent-unit CR0 are actual numerical covariance procedures with real Statsmodels parity; duplicated same-unit periods cannot become new cluster information.",
+      "selectors": [
+        "test_independent_statsmodels_covariance_on_group_labelled_design",
+        "test_cau_01_cluster_covariance_stable_under_duplicate_periods",
+        "test_cau_01_statsmodels_cluster_reference"
+      ],
+      "checks": [
+        "published-native",
+        "final-removal-cluster"
+      ],
+      "negative": "HC1 substituted for CR0 rejected by actual independent covariance oracle; unsupported identity/profile refused.",
+      "limits": "CR0-normal asymptotic algebra is not small-cluster nominal coverage; RDD covariance owned by separate lane.",
+      "criterion_refs": [
+        {
+          "criterion_id": "B205",
+          "document": "B_r19",
+          "lines": [
+            5106,
+            5119
+          ],
+          "sha256": "ac0680b5d70af76383c9aac15ab1c58437abd9118b0c7dba427dfe837ba3d5dc",
+          "card": "CAU-01"
+        }
+      ],
+      "method_decision": "F-M3",
+      "native_outcome": "PASS_BOUNDED",
+      "finding_state": "limited_pending_G_replay_and_real_input_authority",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator."
+    },
+    "B206": {
+      "property": "Standard native requested normal quantile changes actual CI width, preserves95% computation and refuses invalid confidence.",
+      "selectors": [
+        "test_cau_01_confidence_level_changes_did_interval",
+        "test_cau_01_did_95_interval_matches_normal_critical_value_and_preserves_point",
+        "test_cau_01_invalid_did_confidence_level_fails_closed"
+      ],
+      "checks": [
+        "published-native",
+        "final-removal-critical"
+      ],
+      "negative": "Hard-coded95 quantile rejected at genuine requested-level selector.",
+      "limits": "Standard interval construction only; no whole-method nominal coverage or independent RDD repair claim.",
+      "criterion_refs": [
+        {
+          "criterion_id": "B206",
+          "document": "B_r19",
+          "lines": [
+            5120,
+            5131
+          ],
+          "sha256": "f405d3e2327c1cc0d64e6de308412c81eebe210af6ae5968af830b7e032fa0a1",
+          "card": "CAU-01"
+        }
+      ],
+      "method_decision": "F-M3",
+      "native_outcome": "PASS_BOUNDED",
+      "finding_state": "limited_pending_G_replay_and_real_input_authority",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator."
+    },
+    "B207": {
+      "property": "Selected participation theta_sel has fixed within-cohort averages and estimated share ratio IF; shared iid Mammen draws apply once per independent panel unit across all cells.",
+      "selectors": [
+        "test_unequal_followup_selected_target_and_ratio_influence",
+        "test_staggered_bootstrap_resamples_panel_units_not_att_cells",
+        "test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds"
+      ],
+      "checks": [
+        "published-native",
+        "head-dgp",
+        "final-cell-oracle",
+        "final-removal-share"
+      ],
+      "negative": "Removing estimated-share IF rejected by independent finite derivative; unique-unit/timing/fixed-target invalid requests refuse.",
+      "limits": "Known synthetic pointwise iid/large-unit profile; no official external did runtime witness, small-G or admitted real-data identification.",
+      "criterion_refs": [
+        {
+          "criterion_id": "B207",
+          "document": "B_r19",
+          "lines": [
+            5132,
+            5145
+          ],
+          "sha256": "5b23dffbebbbaafe40934fedd710b77b0143fffb0073bbf58d1c5ca57d6ad6ca",
+          "card": "CAU-02"
+        }
+      ],
+      "method_decision": "F-M5",
+      "native_outcome": "PASS_BOUNDED",
+      "finding_state": "limited_pending_G_replay_and_real_input_authority",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator."
+    },
+    "B208": {
+      "property": "One centered studentized scalar law drives +1 p and finite-B closed CI inversion, with canonical integer tail decision at endpoints.",
+      "selectors": [
+        "test_same_centered_studentized_law_drives_null_test_and_interval",
+        "test_closed_interval_endpoints_and_adjacent_nulls_share_integer_decision",
+        "test_seeded_serial_panel_null_coverage_and_alternative_binomial_bounds"
+      ],
+      "checks": [
+        "published-native",
+        "head-dgp",
+        "final-removal-uncentered"
+      ],
+      "negative": "Uncentered law rejected; independent reviewer tests24 endpoints/nextafter floats at4confidencelevels; p=alpha remains accepted as closedCI endpoint.",
+      "limits": "Binomial simulation bounds for fixed known DGP only; finiteB resolution typedrefusal, degenerate IF point-only, no simultaneous intervals.",
+      "criterion_refs": [
+        {
+          "criterion_id": "B208",
+          "document": "B_r19",
+          "lines": [
+            5146,
+            5157
+          ],
+          "sha256": "2df281351c22b1e79c6b0400c5ca6ccb312fc43666fd3ebc9e4e66031381d78d",
+          "card": "CAU-02"
+        }
+      ],
+      "method_decision": "F-M5",
+      "native_outcome": "PASS_BOUNDED",
+      "finding_state": "limited_pending_G_replay_and_real_input_authority",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator."
+    },
+    "B209": {
+      "property": "Control support obeys timing>t+anticipation, strict integer timing/anticipation and complete fixed eligible cell target; no silent dropped cohort/cell.",
+      "selectors": [
+        "test_staggered_anticipation_excludes_already_affected_not_yet_controls",
+        "test_staggered_zero_anticipation_preserves_not_yet_treated_characterization",
+        "test_staggered_zero_start_cohort_is_not_silently_omitted",
+        "test_staggered_missing_baseline_refusal_survives_persisted_consumer_readback",
+        "test_fixed_eligible_periods_change_target_and_binding"
+      ],
+      "checks": [
+        "published-native",
+        "final-cell-oracle"
+      ],
+      "negative": "Affected g=t+a control exclusion, invalida/timing/baseline/support refused; changedE changes estimand and target binding.",
+      "limits": "Synthetic requested anticipation is assumed; real empirical anticipation window/parallel trends require admitted data/authority.",
+      "criterion_refs": [
+        {
+          "criterion_id": "B209",
+          "document": "B_r19",
+          "lines": [
+            5158,
+            5169
+          ],
+          "sha256": "b774fd7cd4f1653c0771ee5e20e7d3ee990c14bb47cc698b284e581ac75cc44f",
+          "card": "CAU-02"
+        }
+      ],
+      "method_decision": "F-M5",
+      "native_outcome": "PASS_BOUNDED",
+      "finding_state": "limited_pending_G_replay_and_real_input_authority",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator."
+    },
+    "LA-016": {
+      "property": "Independent dedicated metadata, default-registry retirement and exact old-slot historical replay; maintained two real benchmark callers migrated to dedicated standard owner.",
+      "selectors": [
+        "test_actual_registry_retirement_old_slots_dispatch_and_fresh_cas",
+        "test_dedicated_metadata_and_estimator_survive_legacy_metadata_replacement",
+        "test_maintained_benchmark_callers_execute_dedicated_owner",
+        "test_cau_05_legacy_staggered_slots_match_dedicated_request"
+      ],
+      "checks": [
+        "published-native",
+        "head-caller-native",
+        "head-caller-census",
+        "published-benchmark-removal"
+      ],
+      "negative": "Real stale FQN resolution fails; metadata poison preserves dedicated calculation; retired-producer poison and caller-binding removal discriminate live caller dependency.",
+      "limits": "Direct-import historical adapter intentionally retained; full original class retirement and external frozen-plan/supported-import census remain limited pending G. Metadata/runtime ownership already present on base is verified, not claimed wholly newly implemented.",
+      "criterion_refs": [
+        {
+          "criterion_id": "LA-016",
+          "document": "LA_r09",
+          "lines": [
+            513,
+            539
+          ],
+          "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+          "card": "CAU-01"
+        },
+        {
+          "criterion_id": "LA-016",
+          "document": "LA_r09",
+          "lines": [
+            513,
+            539
+          ],
+          "sha256": "21aad31f6591c55749e29ede4b3db2933dd99ad76733ca1c77718c8688945555",
+          "card": "CAU-05"
+        }
+      ],
+      "method_decision": "F-M4",
+      "native_outcome": "PASS_BOUNDED",
+      "finding_state": "limited_pending_G_replay_and_real_input_authority",
+      "criterion_source": "Original card blocks and method decisions; generic coverage paraphrases for B208/B209/LA-016 are not substituted for source discriminator."
+    }
+  },
+  "property": {
+    "statement": "Native fixed-target selected-cohort scalar estimation and joint unit-level inference, dedicated standard diagnostic/covariance ownership and real maintained caller retirement.",
+    "runtime_path": [
+      "producer: dedicated Standard/StaggeredDifferenceInDifferences.pure_step, actual registered dispatcher/job method",
+      "artifact: native CausalEffectReport + envelope; real report JSON and FileSystemCAS serialization",
+      "bridge: canonical components/io dematerializer and report persist/load",
+      "consumer: fresh CAS report reader, actual registry stale-route resolution and maintained benchmark helper; full scientist node owned by root separate",
+      "surface: report denotes descriptive/known synthetic finite inference profile; identification on real data is out of admitted cloud scope"
+    ],
+    "proxy_divergence": "Correct method/profile/success strings survive removal of ratio IF or centered null law while genuine numerical oracle fails. A raw report alias mismatch alone is not an ABI falsifier because canonical dematerializer translates/projects slots. Natural benchmark pretrend passed flag can diverge from whether a test was possible.",
+    "negative_controls": [
+      "five canonical numerical/admission removal controls",
+      "fixed eligibility/timing/support refusal controls",
+      "actual maintained caller retired-producer binding removal",
+      "independent endpoint/nextafter and row-permutation controls"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "scientific_profile_verified_bounded; original full finding closure limited/held pending G replay, authority/input admission and root whole-node composition",
+  "source_equivalence_for_retained_checks": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "sha256": "5b35566ab38d121c43146edf809b9f3194030db950e953b660e0715450538f20",
+      "identical_to": "c7d33a223e467964c589f61c8b097eb9175335c5"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cau_02.py",
+      "sha256": "4bb3e9426fb615fe0d1757bf84b1b90522ace4720a5f0e6422fbc65f638e7ee6",
+      "identical_to": "c7d33a223e467964c589f61c8b097eb9175335c5"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cau_05.py",
+      "sha256": "0520e32c0b6484e8b84d3caa8f1a7ebc10227a3483f06e1dba83b1d677cac55b",
+      "identical_to": "c7d33a223e467964c589f61c8b097eb9175335c5"
+    }
+  ],
+  "whole_caller_census": {
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-caller-census-final.json",
+      "bytes": 697101,
+      "sha256": "3622fe887f88b4bc52a367f35842eef8d5bb6fb5cf9cc230cc75c239febec99f",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/caller-census-final.json",
+      "original_bytes": 697101,
+      "original_sha256": "3622fe887f88b4bc52a367f35842eef8d5bb6fb5cf9cc230cc75c239febec99f",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    "denominator": {
+      ".md": 2146,
+      ".yml": 71,
+      ".json": 2954,
+      ".py": 6441,
+      ".toml": 265,
+      ".yaml": 85,
+      ".txt": 108
+    },
+    "python_AST_parse_errors": [],
+    "decode_errors": [],
+    "correction": "Earlier src-only no-import statement did not cover full runnable caller denominator. Full tracked census found two live benchmark callers; both now migrated. Historical adapter/replay/source cards/structural baselines remain explicit. Source role exceptions: policy_design layer3_g2 old slots belong to structural_time_series; MSME runner old slots occur in refusal prose."
+  },
+  "independent_review": {
+    "reviewer": "F/economics",
+    "target_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+    "verdict": "GO_bounded_corrected_inversion",
+    "native_passed": 53,
+    "independent_endpoint_cases": 24,
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-independent-review-corrected.json",
+      "bytes": 3060,
+      "sha256": "8b77fe0c6761b17217c2dc0167a27c0c2afaa3d906eb78945cd2403ab48087e2",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-independent-review-corrected.json",
+      "original_bytes": 3060,
+      "original_sha256": "8b77fe0c6761b17217c2dc0167a27c0c2afaa3d906eb78945cd2403ab48087e2",
+      "encoding": "identity",
+      "category": "independent_review"
+    },
+    "correction_history": "Reviewer first exposed p=.05 versus1-.95 floating endpoint inconsistency; actual method fixed in c7. Reviewer bool-vs-numpybool identity setup error also retained/qualified, not a product defect. Small final companion delta review appended separately if ready."
+  },
+  "mandatory_invocation_diagnostic": {
+    "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "exit": 3,
+    "status": "UNRESOLVED",
+    "coverage": "partial",
+    "summary": {
+      "status": "UNRESOLVED",
+      "coverage": "partial",
+      "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+      "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+      "unmeasured": [
+        "HTTP router dispatch",
+        "dependency injection/container dispatch",
+        "event-bus dispatch",
+        "registered callback invocation",
+        "deferred lambda/coroutine execution and generator resumption",
+        "reflection and dynamic receiver/factory resolution",
+        "runtime execution, persisted business receipts, and gate substance"
+      ],
+      "uninvoked_meaning": "No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.",
+      "regressions": [],
+      "new_unresolved_by_construction": [
+        "polisyos.foundry.methods.catalog.causal.did.StaggeredDifferenceInDifferences.target_contract"
+      ],
+      "unresolved_by_construction_count": 9192,
+      "unresolved_receiver_call_count": 139743,
+      "receipt": "/workspace/e02-F-20261006-receipts/cau/head-invocation-recomputed.json",
+      "runtime_invocation_established": false
+    },
+    "denominator": {
+      "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+      "current_files": 5906,
+      "base_files": 5904,
+      "source_files": 2698,
+      "current_sha256": "07e832d34eab491a4ad0dbe7c764debef85f9f0f6748611bd46e24672763823e",
+      "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5"
+    },
+    "raw": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/head-invocation-recomputed.json",
+      "bytes": 170897469,
+      "sha256": "34a2b2db25750de680e3357011cce9d4f82abd033f850edf691c3dcd8455b5d1",
+      "receiver_deciding_bytes": "not_established_unless_exact_receiver_rerun_or_explicit_lossless_transfer"
+    },
+    "G_rerun": "cd policy-engine && PYTHONPATH=src:.:tools python tools/quality/validation/check_production_invocation.py --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt <G-ignored-path>/did-invocation.json on exact cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "base_run_status": "UNRUN/killed exit-9; therefore no inherited-red classification or disjoint proof. New target_contract static unresolved is not waivered or treated as dynamic consumer absence."
+  },
+  "full_compatibility_gate": {
+    "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "status": "contract_errors",
+    "contract_error_count": 2,
+    "contract_errors": [
+      {
+        "check": "public-surface-review",
+        "detail": "",
+        "message": "python public API change requires public_surface_inventory_reviewed=true",
+        "severity": "error",
+        "subject": "/workspace/e02-F-cau-20261006/policy-engine/release-fragments/unreleased/2026-08-27-lex-intervention-ownership.toml:lex-intervention-execution-ownership"
+      },
+      {
+        "check": "public-surface-review",
+        "detail": "",
+        "message": "python public API change requires public_surface_inventory_reviewed=true",
+        "severity": "error",
+        "subject": "/workspace/e02-F-cau-20261006/policy-engine/release-fragments/unreleased/2026-09-13-acquisition-movement.toml:native-chronology-positive-custody"
+      }
+    ],
+    "own_fragment_contract_errors": [],
+    "inherited_status": "not_established; no exact-base full-policy replay provided",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-release-gate.stdout.txt.json",
+      "bytes": 1564,
+      "sha256": "9b07092ff4155582cacbd7471cddb92f5db02ef07ab7cce6edcd6daecf769c52",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-release-gate.stdout.txt",
+      "original_bytes": 1280,
+      "original_sha256": "0a685f431454f4fb6ac606933d8fa4718a88cbbf0a2d1f951854198a1f659018",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    }
+  },
+  "final_independent_review": {
+    "reviewer": "F/economics",
+    "target_sha": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "verdict": "GO_bounded_final_append",
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-final-append-independent-review.json",
+      "bytes": 4496,
+      "sha256": "9b29a97aa880de3adcb24f03089dcadf281c892027c04bf987b24ba2f5be52f1",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-final-append-independent-review.json",
+      "original_bytes": 4496,
+      "original_sha256": "9b29a97aa880de3adcb24f03089dcadf281c892027c04bf987b24ba2f5be52f1",
+      "encoding": "identity",
+      "category": "independent_review"
+    },
+    "native_MC_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-final-append-mc.txt.json",
+      "bytes": 1574,
+      "sha256": "44ea96c810de2b4130f2017d720111a8c9ec67e8c0068a33b596b3a8ee9cac41",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-final-append-mc.txt",
+      "original_bytes": 1394,
+      "original_sha256": "e84c954920a1ae2d65093b7b713a6fae0959be7de87297dc96b458c2ae300aa7",
+      "encoding": "utf8-json-string",
+      "category": "independent_review"
+    },
+    "actual_maintained_caller_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-final-append-caller-controls.txt.json",
+      "bytes": 2903,
+      "sha256": "0278d4c1bf07dfe286827223fdce25d18d2e643694ace42c83680a04c5e5d74a",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-final-append-caller-controls.txt",
+      "original_bytes": 2546,
+      "original_sha256": "fa5d90b61e02540c26a23ae4207ae925b2c2a525294ef67893e278b36a01532f",
+      "encoding": "utf8-json-string",
+      "category": "independent_review"
+    },
+    "scope": "Independent exacthead MC1PASS plus actual five benchmarkcase replay with historicaladapter poisoned:4checkerPASS and naturalclean honest not_testable checkerFAIL. No stale nativePASS relabeled."
+  },
+  "root_consumer_dependency": {
+    "owner": "F/root (then G integration)",
+    "runtime_dependency_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+    "runtime_module_unchanged": true,
+    "status": "not_established_pending_final_root_receipt",
+    "scope": "Actual run_causal_evaluation→registered JobSpec→CAS→fresh consumer with independent target recomputation and full worker result/envelope projection binding is a disjoint root slice. Prior93eed31 is not final consumer closure. Exact production-node positive authority remains UNRUN."
+  },
+  "limitations_and_next_owner": [
+    {
+      "owner": "G/F root",
+      "remaining": "Fetch exact topic head and handoff; review final delta, integrate disjoint root consumer and run actual public node/job/CAS controls on composed SHA. Do not accept raw alias-only diagnostics as consumer failure."
+    },
+    {
+      "owner": "G local/C dataset catalog owner",
+      "remaining": "Admit canonical DatasetCatalogStore configured production catalog identity for exact HTTP test_serious_nl_pipeline_persists_foundry_method_report_from_final_state; cloud failure catalog_fetch_source_unreadable occurred before estimator consumer. Do not guess a local path or replace full production inputs."
+    },
+    {
+      "owner": "G",
+      "remaining": "Original four-base current-head replay not executed here; historical compact PASS cells are not admission. Current numerical DGP checks do not identify untreated real-world parallel trends or anticipation."
+    },
+    {
+      "owner": "G/runtime-quality owner",
+      "remaining": "Whole production_invocation partialUNRESOLVED exit3 persists; source-derived full raw bytes not established receiver-side until rerun/transfer. Base diagnostic was killed, no inherited-red explanation. No governance bypass or scanner weakening."
+    },
+    {
+      "owner": "G/release+docs owners",
+      "remaining": "Whole compatibility gate actualFAIL retained; broader architecture/docs/repository gates and new-head CI not established by targeted native suites. Own intentional sameFQN scientific behavior classified breaking in releasefragment; root owns general migration/docs/gates."
+    },
+    {
+      "owner": "F/CAU owner then G",
+      "remaining": "Natural-experiments smoke score actualFAIL2/3: prior DGP only2preperiods and scoring requires passed. DGP/score left unchanged under exact lease; do not weaken honest pretrend diagnostics to turn score green."
+    },
+    {
+      "owner": "G/F causal/backend owners",
+      "remaining": "Python3.14 DoWhy/EconML marker exclusions remain non-witnesses; no parallel shim. Statsmodels native HC1/CR0 comparison is real installed package only. No finite small-cluster, simultaneous-band or unrestricted profile claim."
+    },
+    {
+      "owner": "G/public import and plan owners",
+      "remaining": "LA-016 full class retirement held: direct-import replay adapter intentionally remains, outside-cloud production plans/importers not admitted. Current default registry retirement and maintained two callers measured, old report labels remain historically readable."
+    }
+  ],
+  "artifact_manifest": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-benchmark-base-interference.json",
+      "bytes": 1373,
+      "sha256": "f2603a184c4db4aa63da43fb2e548a0cf36b14e1b5720eea97881b2e2cec1862",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/benchmark-base-interference.json",
+      "original_bytes": 1373,
+      "original_sha256": "f2603a184c4db4aa63da43fb2e548a0cf36b14e1b5720eea97881b2e2cec1862",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-benchmark-base-interference.stdout.txt.json",
+      "bytes": 2394,
+      "sha256": "7892ddd65ba702a82d40fc7d673152493e4f0e7de7c745a0fc4462130b606973",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/benchmark-base-interference.stdout.txt",
+      "original_bytes": 2041,
+      "original_sha256": "a2a8f2fd5aa8133cd888bf1a83e6a8f159eb36981ad94faf911db32b7fe51f07",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-benchmark-base-interference.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/benchmark-base-interference.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-benchmark-base-natural.json",
+      "bytes": 1368,
+      "sha256": "fed6d45c64b19624e1710a4d0533bcd620c0ad0c865cd0ac5fa5aacb69e42c1c",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/benchmark-base-natural.json",
+      "original_bytes": 1368,
+      "original_sha256": "fed6d45c64b19624e1710a4d0533bcd620c0ad0c865cd0ac5fa5aacb69e42c1c",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-benchmark-base-natural.stdout.txt.json",
+      "bytes": 2438,
+      "sha256": "0919afeccf531e63e8e07562f25f03fc15b7a46d67b7f916d9b65960cb7629c1",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/benchmark-base-natural.stdout.txt",
+      "original_bytes": 2083,
+      "original_sha256": "e6d4a2ab547f51075f8c61c17ab7ee5cd485bf4c0b2d78e8e7620cd91d81c199",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-benchmark-base-natural.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/benchmark-base-natural.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red.json",
+      "bytes": 1414,
+      "sha256": "77e385eba479e5665c8d12acdaab721e63f54b77666ba4b407e1a08804a12b17",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/red.json",
+      "original_bytes": 1414,
+      "original_sha256": "77e385eba479e5665c8d12acdaab721e63f54b77666ba4b407e1a08804a12b17",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red.stdout.txt.json",
+      "bytes": 89224,
+      "sha256": "300be981e6dd866fbd56850e187a78447b4fc266ea32b889cf5dec64d8e1af0c",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/red.stdout.txt",
+      "original_bytes": 87963,
+      "original_sha256": "0cad0c44b8d56cc3e54e6343f5a3928033285b817e07239b74b9774549487260",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/red.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-native.json",
+      "bytes": 1683,
+      "sha256": "64278e6afb0b7ee85a5899ea16464eb3b25ddf66ad6434b4e763c49b0e2466eb",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-native.json",
+      "original_bytes": 1683,
+      "original_sha256": "64278e6afb0b7ee85a5899ea16464eb3b25ddf66ad6434b4e763c49b0e2466eb",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-native.stdout.txt.json",
+      "bytes": 3193,
+      "sha256": "74ba18d00c70a389799838dbb5ea6f2861522cb8f1f7e0271bd4f419e86442a1",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-native.stdout.txt",
+      "original_bytes": 2990,
+      "original_sha256": "5d36e946a40e998fb51e96362e2712e74891eff4f19de56a76ab98b36c83db6b",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-native.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-native.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-dgp.json",
+      "bytes": 1424,
+      "sha256": "61013957af82f812c1aa2b544cbad9f22528c7cb83f6eb3bc8e24f64ee9df80a",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-dgp.json",
+      "original_bytes": 1424,
+      "original_sha256": "61013957af82f812c1aa2b544cbad9f22528c7cb83f6eb3bc8e24f64ee9df80a",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-dgp.stdout.txt.json",
+      "bytes": 885,
+      "sha256": "2ace5034733cdd289cf72e1ea3b1994999647279924e7d89c893787d137a40da",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-dgp.stdout.txt",
+      "original_bytes": 709,
+      "original_sha256": "01b48d8accbcffd10967dbd0442fe6260f0f7478349b2106d3d4d0e707548eb2",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-dgp.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-dgp.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-cell-oracle.json",
+      "bytes": 2101,
+      "sha256": "d4bb81b207ed32284bc5227ea232367bd151a1399823332f94fd17ba9e26816f",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-cell-oracle.json",
+      "original_bytes": 2101,
+      "original_sha256": "d4bb81b207ed32284bc5227ea232367bd151a1399823332f94fd17ba9e26816f",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-cell-oracle.stdout.txt.json",
+      "bytes": 787,
+      "sha256": "3ce6367034befd3fba142631aafe2786b2809e014e8d8e2527009559f3ee2009",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-cell-oracle.stdout.txt",
+      "original_bytes": 561,
+      "original_sha256": "a82f5441bc4cfb1aec7e8b3d24e62342bf7a4c9a764002f90c4d83009aef0719",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-cell-oracle.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-cell-oracle.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-share.json",
+      "bytes": 1260,
+      "sha256": "ebfa1399f82d60f9102640f18dd7bbe1bd882652ce027b8be8fa689d908b948f",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-share.json",
+      "original_bytes": 1260,
+      "original_sha256": "ebfa1399f82d60f9102640f18dd7bbe1bd882652ce027b8be8fa689d908b948f",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-share.stdout.txt.json",
+      "bytes": 3511,
+      "sha256": "f4d46a65840f8b2f515c8ce07a179d36b6236b6789ae965f853be9be53e1fa91",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-share.stdout.txt",
+      "original_bytes": 3269,
+      "original_sha256": "120357b583116e97808253a3267f887f71253c2a76bab2fdd1aa8d9bc5049f0c",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-share.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-share.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-uncentered.json",
+      "bytes": 1275,
+      "sha256": "65dfc2cb202299bc3dcc185de311ff7af990f0ab5519c1519bc0ab99666bc274",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-uncentered.json",
+      "original_bytes": 1275,
+      "original_sha256": "65dfc2cb202299bc3dcc185de311ff7af990f0ab5519c1519bc0ab99666bc274",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-uncentered.stdout.txt.json",
+      "bytes": 3095,
+      "sha256": "54971bc67a05bd5730021179832d590e1e0e1ffb340c1a1f5b7fe45c823a8878",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-uncentered.stdout.txt",
+      "original_bytes": 2872,
+      "original_sha256": "93fd7d2dbcda4093f78a5a1c99bb0096b9d6de8f46923e5b5db2b1ec737027bf",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-uncentered.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-uncentered.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-no-pre.json",
+      "bytes": 1273,
+      "sha256": "a33f99b6255af39ea14d3b7438f21a6b4812f7d4c4b20032cc6b592b43d5823e",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-no-pre.json",
+      "original_bytes": 1273,
+      "original_sha256": "a33f99b6255af39ea14d3b7438f21a6b4812f7d4c4b20032cc6b592b43d5823e",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-no-pre.stdout.txt.json",
+      "bytes": 3251,
+      "sha256": "43ed9091c1ff240e79d26de335664dbb638bb8da03639840e68b96a0636cf465",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-no-pre.stdout.txt",
+      "original_bytes": 3011,
+      "original_sha256": "e9470c3944b2bb57077a2cea74dc1d81618b1c30cf2ce86dda8520da87909043",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-no-pre.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-no-pre.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-cluster.json",
+      "bytes": 1276,
+      "sha256": "eb890da0c5e16a7d85c60830242712bede37158d5c8a537ac8800377c78ba4ed",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-cluster.json",
+      "original_bytes": 1276,
+      "original_sha256": "eb890da0c5e16a7d85c60830242712bede37158d5c8a537ac8800377c78ba4ed",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-cluster.stdout.txt.json",
+      "bytes": 3477,
+      "sha256": "f5c883a953513aa11ea4dcafc2d115afc1a750dfbfd3dae1d70506427c10f022",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-cluster.stdout.txt",
+      "original_bytes": 3230,
+      "original_sha256": "728ac8e76a8f4485aab1b2ce3cff1ef3bb98cbfc6ee64691c41e4addc9a69c8d",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-cluster.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-cluster.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-critical.json",
+      "bytes": 1282,
+      "sha256": "f55e3dffe703cedc16222fbacdc5bef6d74662603cd9e0e824617318df533e18",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-critical.json",
+      "original_bytes": 1282,
+      "original_sha256": "f55e3dffe703cedc16222fbacdc5bef6d74662603cd9e0e824617318df533e18",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-critical.stdout.txt.json",
+      "bytes": 2826,
+      "sha256": "cb2e52c5d2c463e582e3453527cf0468dfd2b6e0770fd6f6e0a0d2d5ddab99b0",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-critical.stdout.txt",
+      "original_bytes": 2593,
+      "original_sha256": "c8dcefe99c1f3336ea49b7c45bec27cc7d5c751a73f3e79954eb26334ff2d46c",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-critical.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-critical.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-historical-consumers.json",
+      "bytes": 1912,
+      "sha256": "d930fc0a98823af2afca9dcedb03044279890121ede39293ff80a4d6196064b3",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/historical-consumers.json",
+      "original_bytes": 1912,
+      "original_sha256": "d930fc0a98823af2afca9dcedb03044279890121ede39293ff80a4d6196064b3",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-historical-consumers.stdout.txt.json",
+      "bytes": 9990,
+      "sha256": "92e1859d7515b54ed7bb3ef5eee8c64fab8ad2080a1c074c56539413b602ccb2",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/historical-consumers.stdout.txt",
+      "original_bytes": 9416,
+      "original_sha256": "84de826600433791e32c55c4a09290861c0800f4a7886b56b5d383b577b5b5e4",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-historical-consumers.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/historical-consumers.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-invocation-base.json",
+      "bytes": 1395,
+      "sha256": "3b121577d036e361f125544a69c8ab9ef2a5a41dbfcc1bb9af6d7eb2daa0e66c",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/invocation-base.json",
+      "original_bytes": 1395,
+      "original_sha256": "3b121577d036e361f125544a69c8ab9ef2a5a41dbfcc1bb9af6d7eb2daa0e66c",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-invocation-base.stdout.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/invocation-base.stdout.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-invocation-base.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/invocation-base.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-invocation.json",
+      "bytes": 1400,
+      "sha256": "0fbc0f6ac7efaf04e47182b8315868445f64a45b0de6f3d6fb095565a4066e7e",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-invocation.json",
+      "original_bytes": 1400,
+      "original_sha256": "0fbc0f6ac7efaf04e47182b8315868445f64a45b0de6f3d6fb095565a4066e7e",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-invocation.stdout.txt.json",
+      "bytes": 1671,
+      "sha256": "7809e2e5ad97be4b20b661b141940f2eace45faf2109c9f270f9083e846831f2",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-invocation.stdout.txt",
+      "original_bytes": 1454,
+      "original_sha256": "ef4e7d9d10d3de2caabb15b0734889af70bcb8c0e555404cb08c093cca3d03f3",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-invocation.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-invocation.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.json",
+      "bytes": 1690,
+      "sha256": "030b934d0fd9e38a2c4218693bfb1d9f12ebf8f10cecc20cadf7a1d6a5af918c",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-native.json",
+      "original_bytes": 1690,
+      "original_sha256": "030b934d0fd9e38a2c4218693bfb1d9f12ebf8f10cecc20cadf7a1d6a5af918c",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.stdout.txt.json",
+      "bytes": 3274,
+      "sha256": "7899ef1094b316fef1d3f9d309f4cd2d07d4628a0b52e389112cd8f82816cd0c",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-native.stdout.txt",
+      "original_bytes": 3070,
+      "original_sha256": "5954e97d9ba660006ad445c12b76d501aed94387db632566407036b9b8ceade0",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-native.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-interference.json",
+      "bytes": 1389,
+      "sha256": "ff516644c5d080a920b096dde1fac74ae475c6c7823663364b86960f2fc0ba3b",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-interference.json",
+      "original_bytes": 1389,
+      "original_sha256": "ff516644c5d080a920b096dde1fac74ae475c6c7823663364b86960f2fc0ba3b",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-interference.stdout.txt.json",
+      "bytes": 2399,
+      "sha256": "f20b168560cf41d1bd4d12da08ef2279b6811f93a8cbed254c88f68d8b3890ff",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-interference.stdout.txt",
+      "original_bytes": 2046,
+      "original_sha256": "7a96b7d4853154684151e57d1b448936f387fc4295c383d8d714a814f198fb53",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-interference.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-interference.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-natural.json",
+      "bytes": 1382,
+      "sha256": "88d50fa666c57d6415bdc802559160d64d56e99a4e76d73ebdda8ff8abbec91d",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-natural.json",
+      "original_bytes": 1382,
+      "original_sha256": "88d50fa666c57d6415bdc802559160d64d56e99a4e76d73ebdda8ff8abbec91d",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-natural.stdout.txt.json",
+      "bytes": 2443,
+      "sha256": "53210f12c958912a042bdfcc9a6709571cefe93876cef6d0a3b2b3b96e803bfe",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-natural.stdout.txt",
+      "original_bytes": 2088,
+      "original_sha256": "b67eb3069ebaaf329b6cfd415c627bbb73499e3d4b86db1d92e98bff0de0dae1",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-natural.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-natural.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-removal.json",
+      "bytes": 1277,
+      "sha256": "ddc8b179207c683670cb4d281dc6baeda3fbe95f6228286eb3f09b55a2d69108",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-removal.json",
+      "original_bytes": 1277,
+      "original_sha256": "ddc8b179207c683670cb4d281dc6baeda3fbe95f6228286eb3f09b55a2d69108",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-removal.stdout.txt.json",
+      "bytes": 1060,
+      "sha256": "2fc90d56aaf580fc5b05e08c56767f0d6ea369047fc44d1aa2e7351e74e2c5eb",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-removal.stdout.txt",
+      "original_bytes": 826,
+      "original_sha256": "b940e746fe4bbc697d0d1be3da48dba6922ead4d20eab5da36433ab466505f65",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-removal.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-removal.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-lint.json",
+      "bytes": 1215,
+      "sha256": "7bc32505a9eb99636f3b15d108c62abc9a7012586172b0b9c1672912f8b4a7d3",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-lint.json",
+      "original_bytes": 1215,
+      "original_sha256": "7bc32505a9eb99636f3b15d108c62abc9a7012586172b0b9c1672912f8b4a7d3",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-lint.stdout.txt.json",
+      "bytes": 16008,
+      "sha256": "f05f52fa3115ab48bb1fcf8f30f2855b6755862d5d71e0314bfa064f6b5286e3",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-lint.stdout.txt",
+      "original_bytes": 13606,
+      "original_sha256": "8aea7b0866eac905aff32e3485d64c9b16a1807579680031e3d99b9f7dcbf8d8",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-lint.stderr.txt.json",
+      "bytes": 1236,
+      "sha256": "e0e44de87accc1061c18539cda5783698dc205d7793d563300e2f9d37280bc90",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-lint.stderr.txt",
+      "original_bytes": 1065,
+      "original_sha256": "6107cd0e0409887d0513b15997014463a1a89c3e3e48ae5e1200e7553abaecc1",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-invocation.json",
+      "bytes": 1413,
+      "sha256": "d10b8a6e8ddec305ec787220a0645d1e5bac4da47944aaf9a912609faf3e38f8",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-invocation.json",
+      "original_bytes": 1413,
+      "original_sha256": "d10b8a6e8ddec305ec787220a0645d1e5bac4da47944aaf9a912609faf3e38f8",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-invocation.stdout.txt.json",
+      "bytes": 1675,
+      "sha256": "e1ff80e6d95430b5d64baad5180cedebcd2fdbe1845b2650c6e06716f887ae88",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-invocation.stdout.txt",
+      "original_bytes": 1458,
+      "original_sha256": "cd05c0096ec49428ecca2ac5cbf1552e8bd13154b64dbce4d01566da79fb438a",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-invocation.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-invocation.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-dgp.json",
+      "bytes": 1421,
+      "sha256": "d8aca3f0146df712405108b88d832dd58f7a4e53f9d47c0f53e760b52a374731",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-dgp.json",
+      "original_bytes": 1421,
+      "original_sha256": "d8aca3f0146df712405108b88d832dd58f7a4e53f9d47c0f53e760b52a374731",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-dgp.stdout.txt.json",
+      "bytes": 913,
+      "sha256": "772f72ad229465507b379d94503b1abb7041b93fd013db963a0333b14d078f06",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-dgp.stdout.txt",
+      "original_bytes": 737,
+      "original_sha256": "f4d638dd03697877638c1931bd75344baaec7ce5204783c0c1638fa97b6d455a",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-dgp.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-dgp.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-native.json",
+      "bytes": 1396,
+      "sha256": "4373f5b78b6e02df8a576187ea9758363f79889d34a6381b309197480346adf0",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-caller-native.json",
+      "original_bytes": 1396,
+      "original_sha256": "4373f5b78b6e02df8a576187ea9758363f79889d34a6381b309197480346adf0",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-native.stdout.txt.json",
+      "bytes": 808,
+      "sha256": "f69e02050654bad249c38ce137c3a93905575454dff8c6b36c9f13a15b10927f",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-caller-native.stdout.txt",
+      "original_bytes": 633,
+      "original_sha256": "1d794416f59c8e47102295ac448bf1c176e8244cfba11718801a103366d4f3c2",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-native.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-caller-native.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-invocation.json",
+      "bytes": 1398,
+      "sha256": "ef9612cf404265a01d192bc5af3eee26f80953c3c027a523cae2f067afc5ffeb",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-invocation.json",
+      "original_bytes": 1398,
+      "original_sha256": "ef9612cf404265a01d192bc5af3eee26f80953c3c027a523cae2f067afc5ffeb",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-invocation.stdout.txt.json",
+      "bytes": 1670,
+      "sha256": "479a639f3abe3fb5055394575e43369e680d68eb048744de397e8b6504d27fbc",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-invocation.stdout.txt",
+      "original_bytes": 1453,
+      "original_sha256": "49e30fee90c2265f76bb4da94b45ffcad5cd0451a6e61a0332bf17ee1d2616c7",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-invocation.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-invocation.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-benchmark-lint.json",
+      "bytes": 1201,
+      "sha256": "5f37e843e57b0fb85d1baaaf86e379edaa9f8ad55ec7fd31deb223a114adddc6",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-benchmark-lint.json",
+      "original_bytes": 1201,
+      "original_sha256": "5f37e843e57b0fb85d1baaaf86e379edaa9f8ad55ec7fd31deb223a114adddc6",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-benchmark-lint.stdout.txt.json",
+      "bytes": 14235,
+      "sha256": "43946a53c8923e8f977260776c7473294ec1270f870a68b7a8f74204bc88134c",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-benchmark-lint.stdout.txt",
+      "original_bytes": 12027,
+      "original_sha256": "e25372e5277f408eca59bb1c07344034b25ebf8a042c5cfafad27ed5261dbe0b",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-benchmark-lint.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-benchmark-lint.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-census.json",
+      "bytes": 1186,
+      "sha256": "bbf70eb0e5b5395c6fb6bf69fb96b4c71c1bb9fd56eaff8d535b824547afde39",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-caller-census.json",
+      "original_bytes": 1186,
+      "original_sha256": "bbf70eb0e5b5395c6fb6bf69fb96b4c71c1bb9fd56eaff8d535b824547afde39",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-census.stdout.txt.json",
+      "bytes": 888,
+      "sha256": "3d64f5cd3c8f5dfec1b7e354f20dc4595d98a12b0f72e86adf40044630e0f925",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-caller-census.stdout.txt",
+      "original_bytes": 678,
+      "original_sha256": "ad6d940e9b13f4768abf6901ed282ad4dee3e8981f2df441e6e1f95313a87cb7",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-census.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-caller-census.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-style.json",
+      "bytes": 1515,
+      "sha256": "310d8453ba7346978dab7f6bf5d9627ecc9553d6e9aa8b30535c2bdedb110ac9",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-style.json",
+      "original_bytes": 1515,
+      "original_sha256": "310d8453ba7346978dab7f6bf5d9627ecc9553d6e9aa8b30535c2bdedb110ac9",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-style.stdout.txt.json",
+      "bytes": 182,
+      "sha256": "5285b2b8c9618968dfb0439fc1b0f7e74afb4ff56ec36867709cd0b7ce9d23d9",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-style.stdout.txt",
+      "original_bytes": 19,
+      "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-style.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-style.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-format.json",
+      "bytes": 1659,
+      "sha256": "abb92c2dd0894d65d9a627e25758980f51198e6fa4dd292be0cd1d590b25f167",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-format.json",
+      "original_bytes": 1659,
+      "original_sha256": "abb92c2dd0894d65d9a627e25758980f51198e6fa4dd292be0cd1d590b25f167",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-format.stdout.txt.json",
+      "bytes": 189,
+      "sha256": "bb0fa7243b9f38244f6ad601d0a9042e2170dc9526a78b61be20f3130680eaa1",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-format.stdout.txt",
+      "original_bytes": 26,
+      "original_sha256": "0321fffcb91606a42c0a19d8c1121d5c544379d663821fce616c71a7bb62f6b5",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-format.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-format.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-release-gate.json",
+      "bytes": 1362,
+      "sha256": "71b6026c66f2c88bb6f5193bc0f37fc1fa99d33adc786e6f18ecea6c56fa8442",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-release-gate.json",
+      "original_bytes": 1362,
+      "original_sha256": "71b6026c66f2c88bb6f5193bc0f37fc1fa99d33adc786e6f18ecea6c56fa8442",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-release-gate.stdout.txt.json",
+      "bytes": 1564,
+      "sha256": "9b07092ff4155582cacbd7471cddb92f5db02ef07ab7cce6edcd6daecf769c52",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-release-gate.stdout.txt",
+      "original_bytes": 1280,
+      "original_sha256": "0a685f431454f4fb6ac606933d8fa4718a88cbbf0a2d1f951854198a1f659018",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-release-gate.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-release-gate.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.json",
+      "bytes": 1664,
+      "sha256": "8d738e5b3fe182509d33d0d3c723ea9916cf28342a141da867aab894736ad5bf",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/environment.json",
+      "original_bytes": 1664,
+      "original_sha256": "8d738e5b3fe182509d33d0d3c723ea9916cf28342a141da867aab894736ad5bf",
+      "encoding": "identity",
+      "category": "execution_receipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stdout.txt.json",
+      "bytes": 1507,
+      "sha256": "62fb5e40e7c66112f3a7eab63e97846fcdf4e92a813183f63901bd57adecb83c",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/environment.stdout.txt",
+      "original_bytes": 1247,
+      "original_sha256": "1903e411fcf1f2ff161b5877faa61fac17bfcc96f28ab2f16fff2751d70d59a7",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-environment.stderr.txt.json",
+      "bytes": 161,
+      "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/environment.stderr.txt",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "utf8-json-string",
+      "category": "complete_stream"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-baseline-navigation.json",
+      "bytes": 60275,
+      "sha256": "58787666035eaa7ac2cd7ae3242ac495e8f85faf80e9562953caad9eab38d616",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/baseline-navigation.json",
+      "original_bytes": 60275,
+      "original_sha256": "58787666035eaa7ac2cd7ae3242ac495e8f85faf80e9562953caad9eab38d616",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-F-failures-query.json",
+      "bytes": 19253,
+      "sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/F-failures-query.json",
+      "original_bytes": 19253,
+      "original_sha256": "23a1055d9986961c3130b79f72aa924bec7788f4f5c0670eb49caa1e3b139201",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-caller-census-final.json",
+      "bytes": 697101,
+      "sha256": "3622fe887f88b4bc52a367f35842eef8d5bb6fb5cf9cc230cc75c239febec99f",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/caller-census-final.json",
+      "original_bytes": 697101,
+      "original_sha256": "3622fe887f88b4bc52a367f35842eef8d5bb6fb5cf9cc230cc75c239febec99f",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-did-caller-census-base.json",
+      "bytes": 1036134,
+      "sha256": "98659b2594a027a46b0e389a1154b838696ccb5d5f01c1a8f413a3bd30ecfb24",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/did-caller-census-base.json",
+      "original_bytes": 1036134,
+      "original_sha256": "98659b2594a027a46b0e389a1154b838696ccb5d5f01c1a8f413a3bd30ecfb24",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-benchmark-parity.json",
+      "bytes": 1213,
+      "sha256": "381877143aac47204c6a8d50ac7f9b8c43a1ce2301189025f37664416b53e0d8",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/benchmark-parity.json",
+      "original_bytes": 1213,
+      "original_sha256": "381877143aac47204c6a8d50ac7f9b8c43a1ce2301189025f37664416b53e0d8",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-benchmark-base-interference-report.json",
+      "bytes": 30415,
+      "sha256": "d7e369bb3016cf73a396a4356cfb3add99f70dcdee237b7b9009d870efa39e40",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/benchmark-base-interference-report.json",
+      "original_bytes": 30415,
+      "original_sha256": "d7e369bb3016cf73a396a4356cfb3add99f70dcdee237b7b9009d870efa39e40",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-benchmark-base-natural-report.json",
+      "bytes": 21516,
+      "sha256": "9f419a2d1d3d3528696c1175c08088caeaa31b807ae57e11dcd170e094d99e41",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/benchmark-base-natural-report.json",
+      "original_bytes": 21516,
+      "original_sha256": "9f419a2d1d3d3528696c1175c08088caeaa31b807ae57e11dcd170e094d99e41",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-interference-report.json",
+      "bytes": 30408,
+      "sha256": "544266e035d2c89e09d762efc9061e63ffe5eb6b301ae106a0f8f3012cb3efa9",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-interference-report.json",
+      "original_bytes": 30408,
+      "original_sha256": "544266e035d2c89e09d762efc9061e63ffe5eb6b301ae106a0f8f3012cb3efa9",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-natural-report.json",
+      "bytes": 21525,
+      "sha256": "13c399bce00a5ed6cff65d1b93ec7ddcb4d7e186b5878a4406f7c152d229d8f7",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-natural-report.json",
+      "original_bytes": 21525,
+      "original_sha256": "13c399bce00a5ed6cff65d1b93ec7ddcb4d7e186b5878a4406f7c152d229d8f7",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red-tests-inputs.json",
+      "bytes": 408,
+      "sha256": "8d7872904efb9886175e0cff5dc89fe1b696ec3c38f254e92016db727886ee44",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/red-tests-inputs.json",
+      "original_bytes": 408,
+      "original_sha256": "8d7872904efb9886175e0cff5dc89fe1b696ec3c38f254e92016db727886ee44",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red-source-test_did_selected_participation.py",
+      "bytes": 8157,
+      "sha256": "3bee5aff415498259754335ab0347e3b1d400da28c0427b2b4be509df1377405",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/red-source-test_did_selected_participation.py",
+      "original_bytes": 8157,
+      "original_sha256": "3bee5aff415498259754335ab0347e3b1d400da28c0427b2b4be509df1377405",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red-source-test_did_diagnostics_ownership.py",
+      "bytes": 6526,
+      "sha256": "f750f8a50223ae7cdc6406df490376ec89bb8095a88a84b547a8d72955f57111",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/red-source-test_did_diagnostics_ownership.py",
+      "original_bytes": 6526,
+      "original_sha256": "f750f8a50223ae7cdc6406df490376ec89bb8095a88a84b547a8d72955f57111",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-run-check.py",
+      "bytes": 1471,
+      "sha256": "13a76b8f3a18c4a68c728bdb19375a82f66380b47c7e7f37b4af11c4ec830aca",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/run-check.py",
+      "original_bytes": 1471,
+      "original_sha256": "13a76b8f3a18c4a68c728bdb19375a82f66380b47c7e7f37b4af11c4ec830aca",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-removal-probe.py",
+      "bytes": 1769,
+      "sha256": "babcce050ea3f4dcf91a433aff27da57c5b61ca59b64d8cc947b0ccf0f4bba29",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/removal-probe.py",
+      "original_bytes": 1769,
+      "original_sha256": "babcce050ea3f4dcf91a433aff27da57c5b61ca59b64d8cc947b0ccf0f4bba29",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-standard-removal.py",
+      "bytes": 1377,
+      "sha256": "4802548c02fe0b1a414ca6ede79ead35ab7e7765ca768fcdc2c9c6615e94f17e",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/standard-removal.py",
+      "original_bytes": 1377,
+      "original_sha256": "4802548c02fe0b1a414ca6ede79ead35ab7e7765ca768fcdc2c9c6615e94f17e",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-caller-census.py",
+      "bytes": 3101,
+      "sha256": "d660474da44f137fe8167a72801d812aacf9a97af2ae68c6263a82ef851d4dc2",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/caller-census.py",
+      "original_bytes": 3101,
+      "original_sha256": "d660474da44f137fe8167a72801d812aacf9a97af2ae68c6263a82ef851d4dc2",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-benchmark-retirement-removal.py",
+      "bytes": 1754,
+      "sha256": "b54d0f8a57b5a4f6e912fc7a53cc22154cabc49bfdaf6e52af80c2a23a9d9d53",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/benchmark-retirement-removal.py",
+      "original_bytes": 1754,
+      "original_sha256": "b54d0f8a57b5a4f6e912fc7a53cc22154cabc49bfdaf6e52af80c2a23a9d9d53",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-benchmark-lint-diagnostic.py",
+      "bytes": 1742,
+      "sha256": "ce3c46da3c8384601fd57ca397c91e70de3bd9f09ee36f9073617a6ffc008c7a",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/benchmark-lint-diagnostic.py",
+      "original_bytes": 1742,
+      "original_sha256": "ce3c46da3c8384601fd57ca397c91e70de3bd9f09ee36f9073617a6ffc008c7a",
+      "encoding": "identity",
+      "category": "full_navigation_or_reproducible_control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-independent-review-corrected.json",
+      "bytes": 3060,
+      "sha256": "8b77fe0c6761b17217c2dc0167a27c0c2afaa3d906eb78945cd2403ab48087e2",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-independent-review-corrected.json",
+      "original_bytes": 3060,
+      "original_sha256": "8b77fe0c6761b17217c2dc0167a27c0c2afaa3d906eb78945cd2403ab48087e2",
+      "encoding": "identity",
+      "category": "independent_review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-independent-native-corrected.txt.json",
+      "bytes": 11149,
+      "sha256": "800f01bcbbe2bd704dfd0941fc0d85755215b06285d469dab12c11e810d3f944",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-independent-native-corrected.txt",
+      "original_bytes": 10889,
+      "original_sha256": "b26ce1fa0d7529ca235b30406f8862ad6c076d958ae83012ff44ce40baaaeaad",
+      "encoding": "utf8-json-string",
+      "category": "independent_review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-independent-endpoint-controls.json",
+      "bytes": 538,
+      "sha256": "596d0a9f610da8f6600cc4efbe869891e79ae6be88c11484de255e42b518202e",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-independent-endpoint-controls.json",
+      "original_bytes": 538,
+      "original_sha256": "596d0a9f610da8f6600cc4efbe869891e79ae6be88c11484de255e42b518202e",
+      "encoding": "identity",
+      "category": "independent_review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-independent-endpoint-controls.txt.json",
+      "bytes": 4093,
+      "sha256": "56f082981f3b6e7a58f5d7dbe891587f2e54ab9513f322e778763df28cf6a5c2",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-independent-endpoint-controls.txt",
+      "original_bytes": 3626,
+      "original_sha256": "5a88a1ad61ff3fac607a8898775ccf58a68b010176981b8ec62a500af5687087",
+      "encoding": "utf8-json-string",
+      "category": "independent_review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-independent-controls.txt.json",
+      "bytes": 860,
+      "sha256": "abb47e56e0240681933528b0f5aa7e8a9e9810c6f7d06eff8ee50fa149412edd",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-independent-controls.txt",
+      "original_bytes": 658,
+      "original_sha256": "a28e3285199d5a8a42f83e312987cf7e78f2ac8b22af2861aeba3a1153694b80",
+      "encoding": "utf8-json-string",
+      "category": "independent_review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-independent-controls-corrected.txt.json",
+      "bytes": 437,
+      "sha256": "a9f3ab82e5e1c1a054cb9878aca1fb49994a0d4558b80748b5f051718728ba0c",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-independent-controls-corrected.txt",
+      "original_bytes": 267,
+      "original_sha256": "e0c85d1164efefa1a9b1c1df424b87249720c128c39f9bc906e25330dd0b7e88",
+      "encoding": "utf8-json-string",
+      "category": "independent_review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-independent-review.json",
+      "bytes": 2285,
+      "sha256": "d54eda5e59d8749358ff1b95f815b64b1a6110e2f58956e93aae85da8ada7c21",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-independent-review.json",
+      "original_bytes": 2285,
+      "original_sha256": "d54eda5e59d8749358ff1b95f815b64b1a6110e2f58956e93aae85da8ada7c21",
+      "encoding": "identity",
+      "category": "independent_review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-final-append-independent-review.json",
+      "bytes": 4496,
+      "sha256": "9b29a97aa880de3adcb24f03089dcadf281c892027c04bf987b24ba2f5be52f1",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-final-append-independent-review.json",
+      "original_bytes": 4496,
+      "original_sha256": "9b29a97aa880de3adcb24f03089dcadf281c892027c04bf987b24ba2f5be52f1",
+      "encoding": "identity",
+      "category": "independent_review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-final-append-mc.txt.json",
+      "bytes": 1574,
+      "sha256": "44ea96c810de2b4130f2017d720111a8c9ec67e8c0068a33b596b3a8ee9cac41",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-final-append-mc.txt",
+      "original_bytes": 1394,
+      "original_sha256": "e84c954920a1ae2d65093b7b713a6fae0959be7de87297dc96b458c2ae300aa7",
+      "encoding": "utf8-json-string",
+      "category": "independent_review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-final-append-caller-controls.txt.json",
+      "bytes": 2903,
+      "sha256": "0278d4c1bf07dfe286827223fdce25d18d2e643694ace42c83680a04c5e5d74a",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-final-append-caller-controls.txt",
+      "original_bytes": 2546,
+      "original_sha256": "fa5d90b61e02540c26a23ae4207ae925b2c2a525294ef67893e278b36a01532f",
+      "encoding": "utf8-json-string",
+      "category": "independent_review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau_append_controls_final.py",
+      "bytes": 2458,
+      "sha256": "eac765a05d78b2db00ffbed770154cb3b9dbb481cc7734e512b4fc15f74ed9ca",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau_append_controls_final.py",
+      "original_bytes": 2458,
+      "original_sha256": "eac765a05d78b2db00ffbed770154cb3b9dbb481cc7734e512b4fc15f74ed9ca",
+      "encoding": "identity",
+      "category": "independent_review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-cau-append-independent-review.json",
+      "bytes": 5003,
+      "sha256": "19cf9b5d37156a25636f1334e4cf1a20c16d5e0373572f9579c9b0372545e34e",
+      "original_scratch_path": "/workspace/e02-F-20261006-receipts/economics/cau-append-independent-review.json",
+      "original_bytes": 5003,
+      "original_sha256": "19cf9b5d37156a25636f1334e4cf1a20c16d5e0373572f9579c9b0372545e34e",
+      "encoding": "identity",
+      "category": "independent_review"
+    }
+  ]
+}

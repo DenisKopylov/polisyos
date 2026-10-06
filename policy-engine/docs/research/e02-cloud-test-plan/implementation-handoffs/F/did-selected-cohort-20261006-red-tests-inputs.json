@@ -1,0 +1,10 @@
+{
+  "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py": {
+    "bytes": 8157,
+    "sha256": "3bee5aff415498259754335ab0347e3b1d400da28c0427b2b4be509df1377405"
+  },
+  "policy-engine/tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py": {
+    "bytes": 6526,
+    "sha256": "f750f8a50223ae7cdc6406df490376ec89bb8095a88a84b547a8d72955f57111"
+  }
+}

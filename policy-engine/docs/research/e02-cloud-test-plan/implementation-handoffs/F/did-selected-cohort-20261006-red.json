@@ -1,0 +1,44 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+    "tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "source_before": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_after": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "exit": 1,
+  "duration_seconds": 18.16159200668335,
+  "maxrss_kib": 644824,
+  "environment": {
+    "PYTHONPATH": "src:.:tools",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "thread_cpu_quotas": "none"
+  },
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/red.stdout.txt",
+      "bytes": 87963,
+      "sha256": "0cad0c44b8d56cc3e54e6343f5a3928033285b817e07239b74b9774549487260"
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/cau/red.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

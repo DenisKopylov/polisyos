@@ -1,0 +1,42 @@
+"""Run the parent-authorized exact final stress probe plan sequentially."""
+from pathlib import Path
+import hashlib
+import json
+import os
+import resource
+import subprocess
+import time
+
+OUT = Path(__file__).parent
+PLAN = json.loads((OUT / "command-plan.json").read_text())
+OWN = Path("/workspace/e02-D-published-funnel")
+
+def write(path, value):
+    path.write_text(json.dumps(value, indent=2) + "\n")
+
+def census():
+    return {key: Path("/sys/fs/cgroup", key).read_text() for key in ("memory.current", "memory.max", "memory.events", "cpu.max")}
+
+raw = subprocess.check_output(["git", "show", PLAN["wrapper_input"]["source_sha"] + ":" + PLAN["wrapper_input"]["path"]], cwd=OWN)
+assert hashlib.sha256(raw).hexdigest() == PLAN["wrapper_input"]["sha256"]
+assert Path(PLAN["commands"][0]["argv"][2]).read_bytes() == raw
+summaries = []
+write(OUT / "batch-start.json", {"source": PLAN["source"], "tree": PLAN["tree"], "start_time_ns": time.time_ns(), "exclusive_window": "parent explicitly released root broad child", "added_limits": False})
+for entry in PLAN["commands"]:
+    directory = Path(entry["output"])
+    assert not (directory / "complete.stdout.txt").exists()
+    env = {**os.environ, **entry["environment"]}
+    started = time.monotonic()
+    write(directory / "parent-before.json", {"time_ns": time.time_ns(), "resources": census(), "argv": entry["argv"], "env_overrides": entry["environment"]})
+    with (directory / "complete.stdout.txt").open("wb") as stdout, (directory / "complete.stderr.txt").open("wb") as stderr:
+        proc = subprocess.Popen(entry["argv"], cwd=entry["cwd"], env=env, stdout=stdout, stderr=stderr)
+        write(directory / "process.json", {"pid": proc.pid, "start_time_ns": time.time_ns(), "mode": entry["mode"]})
+        returncode = proc.wait()
+    result = json.loads((directory / "result.json").read_text()) if (directory / "result.json").exists() else None
+    after = {"mode": entry["mode"], "family": entry["family"], "returncode": returncode, "wall_seconds": time.monotonic() - started,
+             "resources": census(), "time_ns": time.time_ns(), "wrapper_result": result, "maxrss_KiB_cumulative_child_max": resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss}
+    write(directory / "parent-after.json", after)
+    summaries.append(after)
+    write(OUT / "batch-progress.json", summaries)
+    print(json.dumps({"family": entry["family"], "mode": entry["mode"], "returncode": returncode, "wall_seconds": after["wall_seconds"], "wrapper_result_present": result is not None}), flush=True)
+write(OUT / "batch-complete.json", {"source": PLAN["source"], "end_time_ns": time.time_ns(), "results": summaries})

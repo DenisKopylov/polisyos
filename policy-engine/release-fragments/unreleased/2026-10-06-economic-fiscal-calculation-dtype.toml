@@ -1,0 +1,28 @@
+id = "2026-10-06-economic-fiscal-calculation-dtype"
+title = "Retain fiscal source precision until the calculation dtype is known"
+type = "fixed"
+component = "foundry"
+owner = "team-policyos-runtime"
+summary = "Native tax and subsidy kernels materialize rates at the receiving income dtype before calculating paired fiscal patches."
+compatibility = "The public rate field stays a scalar JAX array for scalar input. Default x64-disabled Python rates stay float32; x64 Python and explicit float64 rates now retain float64 instead of forced float32. Explicit float32 inputs retain their supplied precision. All 24 default x64-disabled float32 control outputs retain exact bytes. X64 subsidy sector weights no longer widen minimum-float32 patches and sums: ten lower/integer control profiles change dtype and eight totals change by reduction rounding. This numerical delta is explicit."
+surface_classification = "public_stable: polisyos.foundry"
+change_class = "python-public-api"
+migration = "Consumers that require float32 rate storage should supply an explicit float32 rate array. Consumers of native patches should use the receiving income calculation dtype. No schema, registry, parameter artifact or monetary-rounding migration."
+api = "Existing fiscal names, constructor arguments, JAX array rate field, PatchMap slot IDs, masks, units and random-key law are retained. The x64 source rate dtype change is explicit."
+limitations = "Finite native CPU profiles do not establish real-data calibration, a welfare objective, production authority or G acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/foundry/fiscal-calculation-dtype.md"]
+evidence = ["tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py", "tests/unit/foundry/mechanisms/test_fiscal.py", "tests/unit/foundry/mechanisms/test_gradients.py", "tests/unit/foundry/runtime/test_jit_stability.py"]
+
+[[compatibility_change]]
+id = "fiscal-rate-source-precision"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.foundry"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "With x64 enabled, native fiscal rate arrays preserve the supplied source precision; arithmetic, sector weights, patches and sums use the receiving income dtype with minimum float32. The x64 subsidy widening/reduction correction is explicit; default x64-disabled float32 output bytes and the economic equations are retained."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/foundry/fiscal-calculation-dtype.md"]

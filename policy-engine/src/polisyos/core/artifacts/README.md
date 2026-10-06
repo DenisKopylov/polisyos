@@ -43,6 +43,12 @@ environment fingerprints.
   bytes and one locally checked blob snapshot. Verification, private-stage checks and the
   audit report derive size, digest and metadata from that pair. The audit builder requires
   this optional `VerifiedSnapshotArtifactStore` port instead of composing separate reads.
+- failed verification reports retain the digest and size of any safely acquired blob and
+  the digest of acquired manifest bytes, including malformed or mismatched metadata.
+  These are measurements of the refused read, not verified artifact admission. Reports
+  normalize integrity reasons without reopening repaired files; errors before a safe
+  blob read carry no invented digest or size. Verified reads and signature consumers
+  continue to refuse the original validation failure.
 - signature batches: results retain exact selected references and disclose `state`,
   `admitted`, `finished`, `inventory_exhausted` and `abort_reason`. Local failures keep the
   other item results. `require_complete_valid(required_refs)` reconciles every distinct

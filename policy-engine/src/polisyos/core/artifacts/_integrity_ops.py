@@ -65,6 +65,50 @@ class VerifiedArtifactSnapshot:
         )
 
 
+@dataclass(frozen=True)
+class _ArtifactSnapshotReadResult:
+    """Retain local read measurements even when the pair cannot be admitted."""
+
+    data: bytes | None = None
+    manifest_bytes: bytes | None = None
+    actual_sha256_hex: str | None = None
+    manifest_profile_sha256: str | None = None
+    error: Exception | None = None
+    error_detail: str | None = None
+
+    def require_verified(self) -> VerifiedArtifactSnapshot:
+        """Emit verified bytes only after validation, preserving the original refusal."""
+        if self.error is not None:
+            raise self.error
+        if self.data is None or self.manifest_bytes is None or self.actual_sha256_hex is None:
+            raise RuntimeError("Incomplete artifact snapshot read")
+        return VerifiedArtifactSnapshot(
+            data=self.data,
+            manifest_bytes=self.manifest_bytes,
+            actual_sha256_hex=self.actual_sha256_hex,
+            byte_size=len(self.data),
+        )
+
+    def verification_report(self, artifact_id: ArtifactID) -> VerificationReport:
+        """Project acquired bytes without another filesystem operation or blob hash."""
+        if self.error is None:
+            return self.require_verified().verification_report(artifact_id)
+        return VerificationReport(
+            ok=False,
+            artifact_id=str(artifact_id),
+            expected_sha256_hex=artifact_id.hex,
+            actual_sha256_hex=self.actual_sha256_hex,
+            byte_size=len(self.data) if self.data is not None else None,
+            error=_normalize_verification_error(self.error_detail or type(self.error).__name__),
+            manifest_sha256=(
+                hashlib.sha256(self.manifest_bytes).hexdigest()
+                if self.manifest_bytes is not None
+                else None
+            ),
+            manifest_profile_sha256=self.manifest_profile_sha256,
+        )
+
+
 def validate_manifest_identity(
     artifact_id: ArtifactID,
     manifest: ArtifactManifest,

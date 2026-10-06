@@ -1,0 +1,56 @@
+{
+  "schema": "policyos.e02.numeric_verification_plan.v1",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+  "implementation_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
+  "test_commit_sha": "443f346f5cf33f37175fc8e4dfe61d1060bc07f5",
+  "test_commit_tree_sha": "2fba3a9d2f78d96471eaf45b66b04054ad3a6bc8",
+  "test_file_blob_sha": "30786ba124a172e19502d1e196ec503e9b0a90cd",
+  "admission": {
+    "resource": "exclusive CPU/JAX numerical slot",
+    "granted_by": "parent task root",
+    "granted_at_utc": "2026-10-06 15:46:28 UTC",
+    "other_numeric_jobs_launched": 0,
+    "scope": "one bounded pytest child process only"
+  },
+  "runner": "A Python subprocess wrapper will execute exactly the argv below, capture full stdout/stderr bytes, record UTC and monotonic elapsed time, and enforce a 1500-second child timeout.",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos/policy-engine",
+  "argv": [
+    "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "addopts=",
+    "-q",
+    "-c",
+    "pytest.ini",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/plg03-numerical-controls-20261006/pytest-tmp",
+    "tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact",
+    "tests/unit/remediation/test_plg_03.py::test_true_zero_gradient_native_update_and_facade_result_are_honest"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "JAX_PLATFORMS": "cpu",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "PYTHONPATH": "src"
+  },
+  "timeout_seconds": 1500,
+  "selected_criteria": [
+    "one actual Economics .train call updates the policy, persists and freshly reloads it, and the actual public run consumer uses it",
+    "post-training evaluation config and seeded run continuation/reset behavior are read back through the facade and state snapshots",
+    "the native PPO objective has independently observed zero gradients on a mathematically exact zero objective; actual Optax trainer leaves parameters/actions unchanged",
+    "the actual facade returns typed bridge_pending/training_update_not_observed and does not publish to tenant CAS when the optimizer produces no update"
+  ],
+  "constraints": [
+    "No production source, pyproject, lockfile, dependency, or training contract edits.",
+    "No broad 17-test rerun, full suite, GPU, package installation, production data, or shared database.",
+    "The zero objective uses zero rewards, zero critic output, value_coef=0, and entropy_coef=0; it does not fake optimizer/delta markers.",
+    "Historical TrainingResult compatibility remains unrun without a real historical input; cross-call checkpoint/resume is not claimed without an owner-ratified typed profile.",
+    "LA-023 remains held overall pending Product-owner scope decision and remaining original-scope verification."
+  ]
+}

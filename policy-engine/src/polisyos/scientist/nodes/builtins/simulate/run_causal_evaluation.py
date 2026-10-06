@@ -48,7 +48,7 @@ from polisyos.pdc import (
     EvaluationExecutionContext,
     evaluation_safety_consumer_admission_is_verified,
 )
-from polisyos.scientist.compute.job_spec import JobSpec
+from polisyos.scientist.compute.job_spec import JobResult, JobSpec
 from polisyos.scientist.compute.runner import run_job
 from polisyos.scientist.evidence.claims.projections import project_causal_effect_claims
 from polisyos.scientist.evidence.claims.validators import is_claim_spine_enabled
@@ -400,6 +400,91 @@ def _append_input_ref(
     refs.append(core_artifacts.InputRef(artifact_id=str(artifact_id), role=role))
 
 
+def _run_primary_causal_job(
+    *,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    spec: JobSpec,
+    observational_data: Any,
+) -> JobResult:
+    """Bind the already-admitted input around the existing method runner.
+
+    The evaluator calls this only after its separate EvalSafety admission.
+    Resolving a CAS source here establishes numerical input identity, not
+    evaluation permission, identification or real-world provenance.
+    """
+    source = _to_core_artifact_ref(state.observational_data_ref)
+    if source is None:
+        raise ValueError("primary causal job requires its actual observational source")
+    is_dowhy = (spec.method_fqn or "").split("@", 1)[0] == (
+        "causal.inference.dowhy_identify_estimate"
+    )
+    role = "dowhy_observational_data" if is_dowhy else "causal_observational_data"
+    refs = dict(spec.input_refs)
+    if role in refs and refs[role] != source:
+        raise ValueError("primary causal job source reference mismatch")
+    refs[role] = source
+    bound_spec = spec.model_copy(update={"input_refs": refs})
+    if is_dowhy:
+        from polisyos.foundry.methods.catalog.causal._dowhy_worker import (
+            worker_execution_context,
+        )
+
+        with worker_execution_context(store=ctx.store, source_ref=source):
+            result = run_job(bound_spec, cas_root=ctx.store.root, method_state=observational_data)
+        if not result.issues and spec.method_params.get("execution_profile", "dowhy-014") == (
+            "dowhy-014"
+        ):
+            from polisyos.foundry.methods.catalog.causal._dowhy_worker import (
+                validate_persisted_worker_response,
+            )
+
+            if result.method_result_ref is None:
+                raise ValueError("selected DoWhy job has no persisted result")
+            saved = from_canonical_bytes(ctx.store.get_bytes(result.method_result_ref))
+            report = CausalEffectReport.model_validate(saved["report"])
+            offered = CausalEffectReport.model_validate(result.final_state["report"])
+            if report != offered:
+                raise ValueError("selected DoWhy persisted/offered report mismatch")
+            response = report.metadata.get("worker")
+            if response is not None:
+                validate_persisted_worker_response(
+                    response=response,
+                    state=observational_data,
+                    store=ctx.store,
+                    source_ref=source,
+                )
+            elif report.status is EstimationStatus.SUCCESS:
+                raise ValueError("selected DoWhy success lacks actual worker provenance")
+    else:
+        result = run_job(bound_spec, cas_root=ctx.store.root, method_state=observational_data)
+    if not result.issues and (spec.method_fqn or "").split("@", 1)[0] == (
+        "causal.inference.did.staggered"
+    ):
+        _verify_selected_did_target(
+            result.final_state, observational_data=observational_data, params=spec.method_params
+        )
+    return result
+
+
+def _verify_selected_did_target(
+    output: Any, *, observational_data: PanelObservationalData, params: dict[str, Any]
+) -> None:
+    """Recompute the selected scalar's identity at its consuming boundary."""
+    from polisyos.foundry.methods.catalog.causal.did import StaggeredDifferenceInDifferences
+
+    if not isinstance(output, dict) or "report" not in output:
+        raise ValueError("selected DiD output is missing its report")
+    report = CausalEffectReport.model_validate(output["report"])
+    if report.status is not EstimationStatus.SUCCESS:
+        return
+    expected = StaggeredDifferenceInDifferences.target_contract(observational_data, params)
+    if report.estimand != "theta_sel" or any(
+        report.method_params.get(key) != value for key, value in expected.items()
+    ):
+        raise ValueError("selected DiD target does not bind the actual data and fixed periods")
+
+
 def _to_core_artifact_ref(ref: object | None) -> core_artifacts.ArtifactRef | None:
     if ref is None:
         return None
@@ -522,7 +607,9 @@ def _output_identity(value: object) -> str:
     return "sha256:" + sha256(to_canonical_bytes(value, CanonSpec(forbid_floats=False))).hexdigest()
 
 
-def _load_output_contract_json(ctx: ExecutionContext, ref: core_artifacts.ArtifactRef) -> dict[str, Any]:
+def _load_output_contract_json(
+    ctx: ExecutionContext, ref: core_artifacts.ArtifactRef
+) -> dict[str, Any]:
     ref = core_artifacts.ArtifactRef.model_validate(ref)
     if not ctx.store.verify(ref.artifact_id).ok:
         raise ValueError("output_contract_cas_integrity_failed")
@@ -597,7 +684,9 @@ def _causal_output_refusal(
     evidence_ref = core_artifacts.ArtifactRef.model_validate(
         state.artifacts_index[ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF]
     )
-    report_ref = core_artifacts.ArtifactRef.model_validate(state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF])
+    report_ref = core_artifacts.ArtifactRef.model_validate(
+        state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF]
+    )
     source = _load_output_contract_json(ctx, result_ref)
     _load_output_contract_json(ctx, evidence_ref)
     report = CausalEffectReport.model_validate(_load_output_contract_json(ctx, report_ref))
@@ -688,13 +777,17 @@ def _causal_output_refusal(
     )
 
 
-def _persist_output_refusal(ctx: ExecutionContext, refusal: NodeOutputRefusal) -> core_artifacts.ArtifactRef:
+def _persist_output_refusal(
+    ctx: ExecutionContext, refusal: NodeOutputRefusal
+) -> core_artifacts.ArtifactRef:
     return ctx.store.put_json(
         refusal.model_dump(mode="json"),
         core_artifacts.PutOptions(
             kind="scientist.node_output_refusal",
             media_type="application/json",
-            schema=core_artifacts.SchemaInfo(name="polisyos.scientist.NodeOutputRefusal", version="1.0"),
+            schema=core_artifacts.SchemaInfo(
+                name="polisyos.scientist.NodeOutputRefusal", version="1.0"
+            ),
             producer=core_artifacts.ProducerInfo(
                 component=refusal.node_id, version="polisyos.scientist.causal_output.v1"
             ),
@@ -721,7 +814,9 @@ def materialize_causal_output_contract(
     dispositions: list[NodeOutputDisposition] = []
     for output_key in _SPEC.produces:
         if output_key in output_state.artifacts_index:
-            ref = core_artifacts.ArtifactRef.model_validate(output_state.artifacts_index[output_key])
+            ref = core_artifacts.ArtifactRef.model_validate(
+                output_state.artifacts_index[output_key]
+            )
             if ref not in current:
                 raise ValueError(f"output_not_emitted_current_attempt:{output_key}")
             dispositions.append(
@@ -803,7 +898,9 @@ class RunCausalEvaluationNode:
             if (
                 manifest.kind != "scientist.node_output_refusal"
                 or manifest.artifact_schema
-                != core_artifacts.SchemaInfo(name="polisyos.scientist.NodeOutputRefusal", version="1.0")
+                != core_artifacts.SchemaInfo(
+                    name="polisyos.scientist.NodeOutputRefusal", version="1.0"
+                )
                 or manifest.producer
                 != core_artifacts.ProducerInfo(
                     component=expected.node_id, version="polisyos.scientist.causal_output.v1"
@@ -889,11 +986,19 @@ class RunCausalEvaluationNode:
             seed=seed,
             input_refs=method_job_input_refs,
         )
-        result = run_job(
-            spec,
-            cas_root=ctx.store.root,
-            method_state=observational_data,
-        )
+        try:
+            result = _run_primary_causal_job(
+                ctx=ctx, state=state, spec=spec, observational_data=observational_data
+            )
+        except (OSError, KeyError, TypeError, ValueError) as exc:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
+                    message=f"Causal method input/result binding failed: {exc}",
+                ),
+            )
         if result.issues:
             return NodeOutcome(
                 status="fail",

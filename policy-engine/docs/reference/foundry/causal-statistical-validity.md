@@ -71,3 +71,43 @@ calibration evidence fails.
 ```bash
 uv run pytest tests/unit/foundry/validation/test_causal_validity.py tests/unit/scientist/validation/test_policy_grounding_matrix.py -q
 ```
+
+## Selected runtime profiles
+
+The family table above describes the historical offline benchmark contract;
+its labels do not establish the current estimator's inference law. The selected
+staggered DiD target is `theta_sel = sum_g pi_g mean_{t in E_g} ATT(g,t)`.
+`E_g` is fixed before fitting from each admitted cohort's post-periods and the
+declared study horizon. `pi_g` is the estimated ever-treated cohort share; its
+ratio influence term is part of the scalar unit influence function. Missing
+cells, unsupported controls, insufficient bootstrap resolution or a degenerate
+unit score do not produce successful inference. Anticipation excludes contaminated
+controls; the input binds dense panel rows, unique unit IDs and treatment timing.
+
+One iid Mammen multiplier per independent panel unit is shared across every
+cell. The scalar centered studentized null test and closed pointwise interval
+use the same finite-B-plus-one tail law. Consumers use `null_rejected` and the
+integer `minimum_accepted_tail_count` against `null_tail_count`; the reported
+`significance_level` is the exact decimal confidence-level complement. Recomputing
+a decision from binary floating subtraction `p < 1 - confidence_level` can disagree
+at a discrete endpoint. This is a large-independent-unit asymptotic profile,
+without a small-cluster coverage or simultaneous-band guarantee. Synthetic
+recovery does not identify parallel trends on an admitted real population.
+
+The causal evaluator resolves the actual observational CAS source around its
+existing MethodJob runner. For `dowhy_identify_estimate`, the parent binds this
+source to the selected Python3.12/DoWhy0.14 worker; Python3.14 reads its persisted
+strict response. The canonical output dematerializer projects historical
+`report`/`envelope` ports to declared report/result/uncertainty slots. Raw dispatch
+monitor warnings about these historical ports remain separate diagnostics.
+The selected DiD consumer independently recomputes the target/data binding.
+
+These numerical bindings grant no evaluation permission. The production node's
+existing EvalSafety admission remains mandatory. Its current non-simulation
+contract requires independently grounded real-world inputs and Runtime-issued
+authority; a synthetic DGP cannot be relabelled to satisfy it. Numerical
+MethodJob/CAS witnesses and blocked admission controls therefore do not establish
+a successful production-node evaluation. The unavailable exact local admission
+and source inputs are handed to G separately. TMLE's candidate/limited result
+remains its own typed numerical profile; no successful causal report or interval
+is manufactured for an unavailable EIF interval.

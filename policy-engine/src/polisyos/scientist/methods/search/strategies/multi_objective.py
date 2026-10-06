@@ -45,6 +45,10 @@ from polisyos.scientist.methods.search.strategies.types import (
 logger = get_logger(__name__)
 
 
+class _InvalidReferencePointError(ValueError):
+    """The configured or derived float64 reference cannot be admitted."""
+
+
 @dataclass(slots=True)
 class MOConfig:
     """Configuration for multi-objective BO."""
@@ -140,23 +144,27 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         if not self._botorch_ready:
             return self._random_candidate(source="random_no_botorch")
 
+        train_set = self._select_training_subset(evaluations)
+        if len(train_set) >= max(3, len(self._objective_names)):
+            self._reference_point_values([self._objective_vector(row) for row in train_set])
         with self._arbiter.acquire("torch"):
             soft, hard = self._arbiter.enforce_limits()
             if hard:
                 return self._random_candidate(source="random_hard_limit")
-            train_set = self._select_training_subset(evaluations)
             if len(train_set) < max(3, len(self._objective_names)):
                 return self._random_candidate(source="random_insufficient_data")
             try:
                 X, Y = self._prepare_training_data(train_set)
-                self._fit_model_list(X, Y)
                 self._update_ref_point(Y)
+                self._fit_model_list(X, Y)
                 candidate, acq_value = self._optimize_ehvi(soft_limit=soft, batch_size=1)
                 return self._tensor_to_candidate(
                     candidate.squeeze(0),
                     source="ehvi",
                     acquisition_value=float(acq_value.squeeze().item()),
                 )
+            except _InvalidReferencePointError:
+                raise
             except Exception as exc:
                 logger.warning("MO optimization failed; random fallback: {}", exc)
                 return self._random_candidate(source="random_fallback")
@@ -187,13 +195,15 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         if not self._botorch_ready:
             return [self._random_candidate(source="random_no_botorch") for _ in range(batch_size)]
 
+        train_set = self._select_training_subset(evaluations)
+        if len(train_set) >= max(3, len(self._objective_names)):
+            self._reference_point_values([self._objective_vector(row) for row in train_set])
         with self._arbiter.acquire("torch"):
             soft, hard = self._arbiter.enforce_limits()
             if hard:
                 return [
                     self._random_candidate(source="random_hard_limit") for _ in range(batch_size)
                 ]
-            train_set = self._select_training_subset(evaluations)
             if len(train_set) < max(3, len(self._objective_names)):
                 return [
                     self._random_candidate(source="random_insufficient_data")
@@ -201,13 +211,15 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 ]
             try:
                 X, Y = self._prepare_training_data(train_set)
-                self._fit_model_list(X, Y)
                 self._update_ref_point(Y)
+                self._fit_model_list(X, Y)
                 candidates, _ = self._optimize_ehvi(soft_limit=soft, batch_size=batch_size)
                 return [
                     self._tensor_to_candidate(candidates[idx], source="batch_qehvi")
                     for idx in range(batch_size)
                 ]
+            except _InvalidReferencePointError:
+                raise
             except Exception as exc:
                 logger.warning("MO batch optimization failed; random fallback: {}", exc)
                 return [
@@ -273,7 +285,12 @@ class MOBayesianOptimizer(BaseSearchStrategy):
             with self._arbiter.acquire("torch"):
                 if self._ref_point is None:
                     Y = self._torch.tensor(points, dtype=self._torch.float64, device=self._device)
-                    self._update_ref_point(Y)
+                    try:
+                        self._update_ref_point(Y)
+                    except _InvalidReferencePointError:
+                        result = compute_hypervolume_assessed([], ())
+                        self._last_hypervolume_result = result
+                        return result
                 reference = tuple(self._ref_point.detach().cpu().tolist())
                 result = compute_hypervolume_assessed(points, reference)
         self._last_hypervolume_result = result
@@ -451,24 +468,38 @@ class MOBayesianOptimizer(BaseSearchStrategy):
         if self._config.ref_point is not None:
             reference = _finite_vector(self._config.ref_point)
             if reference is None or len(reference) != len(self._objective_names):
-                raise ValueError("invalid_reference_point")
+                raise _InvalidReferencePointError("invalid_reference_point")
             return reference, None
         offset = finite_real_scalar(self._config.ref_point_offset)
         if offset is None:
-            raise ValueError("invalid_reference_point")
+            raise _InvalidReferencePointError("invalid_reference_point")
         return None, offset
 
-    def _update_ref_point(self, Y) -> None:
+    def _reference_point_values(self, points: list[list[float]]) -> tuple[float, ...]:
+        """Admit geometry before tensors, model fitting, or fallback generation."""
         reference, configured_offset = self._reference_configuration()
         if reference is not None:
-            self._ref_point = self._torch.tensor(reference, dtype=self._torch.float64)
-            if self._device != "cpu":
-                self._ref_point = self._ref_point.to(self._device)
-            return
-        worst = Y.min(dim=0).values
-        best = Y.max(dim=0).values
-        offset = configured_offset * (best - worst).abs()
-        self._ref_point = worst - offset
+            return reference
+        if not points or configured_offset is None:
+            raise _InvalidReferencePointError("invalid_reference_point")
+        values: list[float] = []
+        for index in range(len(self._objective_names)):
+            worst = min(point[index] for point in points)
+            best = max(point[index] for point in points)
+            span = finite_real_scalar(best - worst)
+            if span is None:
+                raise _InvalidReferencePointError("invalid_reference_point")
+            value = finite_real_scalar(worst - configured_offset * span)
+            if value is None:
+                raise _InvalidReferencePointError("invalid_reference_point")
+            values.append(value)
+        return tuple(values)
+
+    def _update_ref_point(self, Y) -> None:
+        reference = self._reference_point_values(Y.detach().cpu().tolist())
+        self._ref_point = self._torch.tensor(
+            reference, dtype=self._torch.float64, device=self._device
+        )
 
     def _optimize_ehvi(self, soft_limit: bool, batch_size: int):
         assert self._model is not None

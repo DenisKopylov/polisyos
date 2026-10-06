@@ -51,8 +51,34 @@ before comparing or stopping; replacing null with zero changes the meaning.
 Supported exact dimensions are1–4; the optional3/4D profile is locked CPUfloat64
 BoTorch0.16.1/Torch2.10.0 dominated partitioning. Other profiles are unavailable.
 
+Positive contributing boxes that compute to zero in float64 now carry null and
+`nonzero_derived_hypervolume_underflow`. This distinguishes loss of a positive
+quantity from genuine boundary/outside-reference zero. The supported profile
+uses float64 arithmetic and does not promise arbitrary precision or recover
+every value lost by intermediate rounding. Non-finite derived volume retains
+its existing unavailable diagnostic. Front membership and original input
+coverage are independent of either quantity limitation.
+
+The native MO reference reader also checks the finite representability of its
+derived axis spans and reference values before model construction/fitting.
+Single and batch suggestion raise `ValueError("invalid_reference_point")` for
+this unsupported arithmetic profile; generic random fallback cannot turn it into
+an apparently successful optimization. The indicator API carries the same
+refusal as null plus an unavailable assessment. Keep original inputs and choose
+an independently justified supported coordinate/reference basis; this is not
+permission to rescale units or change the reference policy silently.
+The refusal includes an overflowing intermediate axis span even when an exact
+real-number rearrangement could produce a finite final reference. It declares
+the supported float64 arithmetic boundary, not mathematical impossibility.
+
+Paired axis reindexing moves policies and their definition versions together.
+Persisted coordinate IDs, values and reference keys remain bound to their full
+metric/split/direction/unit/version tuple. Labels are cosmetic; an unpaired
+definition version or stale ID refuses comparison/readback.
+
 ```bash
 python -m pytest -q tests/unit/scientist/methods/autotune/test_hypervolume_profile.py tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py tests/unit/scientist/methods/search/test_frontier_quantity_readback.py
+python -m pytest -q tests/unit/scientist/methods/autotune/test_hypervolume_representability.py tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py
 ```
 
 The external A producer/exporter and eligible/feasible/unknown denominator packet

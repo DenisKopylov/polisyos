@@ -181,6 +181,7 @@ class HypervolumeAssessment(BaseModel):
     reason: (
         Literal[
             "non_finite_derived_hypervolume",
+            "nonzero_derived_hypervolume_underflow",
             "catalog_union_not_recomputed",
             "invalid_numeric_input",
             "invalid_reference_point",
@@ -345,6 +346,11 @@ def compute_hypervolume_assessed(
             return unavailable("backend_computation_failed", backend)
     if not math.isfinite(value):
         return unavailable("non_finite_derived_hypervolume", backend)
+    # Strictly positive side lengths establish positive geometric volume
+    # independently of the float64 product. Zero here is a range/computation
+    # loss, not the exact empty/boundary quantity represented above.
+    if contributing and value == 0.0:
+        return unavailable("nonzero_derived_hypervolume_underflow", backend)
     return HypervolumeResult(
         value=value,
         reference_point=ref,

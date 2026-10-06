@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--base",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "--receipt",
+    "/workspace/e02-F-20261006-receipts/lex/invocation.json"
+  ],
+  "cwd": "/workspace/e02-F-lex-20261006/policy-engine",
+  "source_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+  "tree": "2bbbc8856020ca5d0a80aeeaee7e612594fd0edc",
+  "status": "",
+  "exit": 0,
+  "wall_s": 287.7004627760034,
+  "pythonpath": "/workspace/e02-F-lex-20261006/policy-engine/src:/workspace/e02-F-lex-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/lex/production-invocation.stdout",
+      "sha256": "f10b54fea7aeb696b1fb1d7e5e06b5457c53708eccf1218e2a0b1b7b6ad98c6e",
+      "bytes": 1339
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/lex/production-invocation.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

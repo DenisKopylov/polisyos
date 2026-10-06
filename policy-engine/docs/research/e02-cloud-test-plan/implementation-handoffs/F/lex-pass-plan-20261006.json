@@ -1,0 +1,461 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "lex-pass-plan-deduplication",
+  "branch": "codex/e02-F-lex-20261006",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+  "implementation_tree": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
+  "findings": [
+    "LA-017"
+  ],
+  "footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-lex-pass-plan-deduplication.toml",
+    "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+    "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py"
+  ],
+  "full_diff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/implementation.patch",
+  "check": "PASS",
+  "finding_outcome": "limited",
+  "finding_closure": false,
+  "decisions": [
+    {
+      "id": "LA-017",
+      "criterion": "Original LEX-01 card LA_r09 L540-570 sha2566d9ba04eca544917e9fce398fa9fce7a17ef81b1ae7f44216d74892c35ed072c: preserve norm diff, issue keys, pass configuration, report refs and candidate topic semantics through actual consumers.",
+      "criterion_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LEX-01.md",
+      "producer": "NormImpactAnalyzer with actual expr_ast LegalPass",
+      "artifact": "lex.norm_diff + lex.norm_impact_report schema1.0 in FileSystemCAS",
+      "bridge": "canonical analyzer admission used by real CLI lex impact",
+      "consumer": "CAS fresh-process NormImpactReport/NormDiff reader and render_impact_markdown",
+      "oracle": "one independently defined legal check produces exactly one blocker for synthetic income=2/floor1→3; duplicate plans equal unique-plan report IDs, content and transitions",
+      "positive_result": "24 targeted checks PASS zero skips/errors on final00a6eda; earlier independent reviewer16PASS plus repeated/nonconsecutive40-entry/unknown/empty controls with identical runtime/test blobs; final fresh-process persisted content readback PASS.",
+      "negative": "base and remove-dedupe-keep-markers each3FAIL; unknown IDs still refused; identical policy produces no transitions.",
+      "check": "PASS",
+      "outcome": "limited",
+      "limitation": "Duplicate dispatch is fixed and does not alone close the complete LA-017 migration/caller/corpus criterion. Synthetic ExprAST establishes neither current law nor causal effects; CLI default stub is transport/schema only.",
+      "next_owner": "F/G for complete supported caller/corpus compatibility; local Lex source owner only for any current-law authority claim.",
+      "code_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+      "tree_sha": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3"
+    }
+  ],
+  "p38": {
+    "property": "one pass reference identifies one execution per comparison",
+    "divergence": "same legal/legal plan previously preserved valid report fields but duplicated blockers",
+    "predicate_label": "recomputed"
+  },
+  "p40": "deduplicate the complete supported dispatch plan at admission, including nonconsecutive repeated IDs; no per-report count patch",
+  "p41": {
+    "inherited_failure": "not_claimed",
+    "attribution": "not_established",
+    "baseline": "new defining tests executed against exact unchanged mechanism198; this is a defect discriminator, not inherited-red exclusion"
+  },
+  "review": {
+    "agent": "economics",
+    "result": "GO",
+    "source_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+    "receipt": "lex-pass-plan-receipts/lex-independent-review.json",
+    "final_release_metadata_delta": "00a6eda only corrects release compatibility classification; exact runtime+test blob IDs unchanged from independently reviewed6fb; final24tests/freshreader replayed at00a6eda."
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/baseline-duplicate.exit.json",
+      "sha256": "4a196f0f46625ac5d4c935194493c51874073bf006fb2ddada500b575cf91520",
+      "bytes": 126
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/baseline-duplicate.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/baseline-duplicate.stdout",
+      "sha256": "179599059d3907185cf5a650a6e07597435e30aa638c86550e0bc0d0e5514505",
+      "bytes": 5268
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/committed-targeted.json",
+      "sha256": "51ab9b058bb2c85a4eae7e3ea865d9680a39a80668fe21822efffb763e7860b8",
+      "bytes": 1144
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/committed-targeted.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/committed-targeted.stdout",
+      "sha256": "f6e1a58054a9ec907eb5cdb1c8c5514982d89df5e67067aec5f0467ab458e306",
+      "bytes": 100
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-fresh-reader.json",
+      "sha256": "5d65cedb2684fc395b02b075b2bd7e0af7752f3636dc9316fd0f2856c8d32ab3",
+      "bytes": 1137
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-fresh-reader.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-fresh-reader.stdout",
+      "sha256": "ee1424fdba56a9e7910d767da221ba13ce2c0f7843d7aac6a0a7f6cb7870325f",
+      "bytes": 327
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-targeted-harness-path-error.json",
+      "sha256": "8f3dd3ff6532718e293b0f95859683c5dd630bf900e16492ad17764c35c26e31",
+      "bytes": 1307
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-targeted-harness-path-error.stderr",
+      "sha256": "50a0efabf31dd98ba2a860cd93f151f32bf1a7ba4b3947001c2a1e2ea3b1c700",
+      "bytes": 88
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-targeted-harness-path-error.stdout",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "bytes": 1
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-targeted.json",
+      "sha256": "f6f4d3743fade7922855c76da654d4d1a51601d34919b6abc34f2d58f1804e5b",
+      "bytes": 1343
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-targeted.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-targeted.stdout",
+      "sha256": "066f8b726ac9969bad8d4d131790842a74792062196a0e6e9dbe7d1a84f65b70",
+      "bytes": 100
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/format.json",
+      "sha256": "00d9403ceaf4c3e56ce3cfeb43c9e887398c2b88db19c554b8245b41a3de532f",
+      "bytes": 1012
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/format.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/format.stdout",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "bytes": 26
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/fresh-reader.json",
+      "sha256": "06c33ed7cf7a41fda4186c4b051cfe2cd88536c2e367a83e33b02e862b50cf6c",
+      "bytes": 919
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/fresh-reader.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/fresh-reader.stdout",
+      "sha256": "ee1424fdba56a9e7910d767da221ba13ce2c0f7843d7aac6a0a7f6cb7870325f",
+      "bytes": 327
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/fresh_reader.py",
+      "sha256": "e666ba10f8d8d852b9d1bba4a1a0a6aa2683724d4ed58b0fff22105a9d00df4a",
+      "bytes": 2048
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/implementation.patch",
+      "sha256": "cff3aa0211801c162ccb219214fd5234db3306bb7278010044ba55100bde806a",
+      "bytes": 5562
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/invocation.json.gz",
+      "sha256": "96a58b7844d8c5ffead202a675f1e38a1b7cbf518462b5707f2e9279d2533167",
+      "bytes": 5984903,
+      "encoding": "gzip",
+      "uncompressed_sha256": "d16fa36adb3b71bb614d972ee4eda98a1b8e600759bf3d895827806f5ba4be81",
+      "uncompressed_bytes": 170873422,
+      "diagnostic_only": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/lex-independent-controls.txt",
+      "sha256": "f48938c120e0d168b50cbae6cb0db037a028477445fe80a26e8680c310d9f2be",
+      "bytes": 960
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/lex-independent-native.txt",
+      "sha256": "7c7b761ec8b77896c4ee5a2a8926569e2e4ca88dec3c2def4605a63831bf249c",
+      "bytes": 1457
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/lex-independent-review.json",
+      "sha256": "04b405339b02ad6744632d0f7ea99ef6b7405d010a009f57243c31b02ac03325",
+      "bytes": 1678
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/lint.json",
+      "sha256": "885648d857030f03d09bee82b2bc13fa955786dc5fb2a37c2b180da83a4a52ac",
+      "bytes": 991
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/lint.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/lint.stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/production-invocation.json",
+      "sha256": "71d1609dda4c22e8156c39667f2751eea7f6ab68494c5d0ae072e9df1b93fa8f",
+      "bytes": 1081
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/production-invocation.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/production-invocation.stdout",
+      "sha256": "f10b54fea7aeb696b1fb1d7e5e06b5457c53708eccf1218e2a0b1b7b6ad98c6e",
+      "bytes": 1339
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/removal.json",
+      "sha256": "e2f774ffa768c5e722eadb6f26190fbc8befff8b3e7138d5de4a7a54e56493c6",
+      "bytes": 577
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/removal.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/removal.stdout",
+      "sha256": "ae561577b79aae803ebcef4ccfecdb444f7f73adba08917b02337f625823e2c7",
+      "bytes": 5386
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/targeted.exit.json",
+      "sha256": "3fcf365c70bf262b9592ec1998f4c4609c36c75d846b67c5e86d7c9f03f07176",
+      "bytes": 11
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/targeted.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/targeted.stdout",
+      "sha256": "34961ed4707ef5b2a93aa71dff831a825620a993e697f629d3c087073c4e0581",
+      "bytes": 100
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/worktree-create.json",
+      "sha256": "c13299b0a575dbd38fd6b2e1c53688c4d0fc479c9b8b6a4866db4dd23d8130b9",
+      "bytes": 111626
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/worktree-resume.json",
+      "sha256": "49e970643a8a2028dbcd9655492b35d4bda77aa7c09318f8a5dcf76fcef95e8d",
+      "bytes": 117536
+    }
+  ],
+  "unavailable_inputs": [
+    "No admitted current-law corpus, effective-time/authority proof or source issuer is present in cloud; not needed for the synthetic duplicate-execution property."
+  ],
+  "local_rerun": {
+    "owner": "G with local Lex source owner",
+    "candidate_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+    "purpose": "If asserting current-law/report-corpus applicability, bind immutable baseline/candidate NormPack refs, actual legal backend/profile, jurisdiction/effective-time and issuer/custody proof, then run existing lex impact consumer read-only; retain source-bound topic limitations.",
+    "check": "UNRUN",
+    "command_not_constructed_reason": "Local input refs and actual admitted law/backend profile are unavailable; no guessed paths or runnable placeholders."
+  },
+  "cleanup_candidates": [
+    "/workspace/e02-F-20261006-receipts/lex/property-removal-source",
+    "/workspace/e02-F-20261006-receipts/lex/fresh-reader-cas"
+  ],
+  "cleanup_policy": "No ordinary Trash in cloud; candidates listed, no permanent deletion. Code, useful documentation and deciding receipts preserved.",
+  "closure_ids": [],
+  "bundle_ids": [
+    "LEX-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "6fb011374d8ec60780cf6acd0259de724d73ced5",
+    "00a6eda114b903bc5abe86902cd8372426f739a1"
+  ],
+  "candidate_tree_sha": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/48",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-lex-pass-plan-deduplication.toml",
+    "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+    "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py"
+  ],
+  "baseline_cells": [],
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "limited",
+  "limitations_and_next_owner": [
+    "Duplicate dispatch is fixed and does not alone close the complete LA-017 migration/caller/corpus criterion. Synthetic ExprAST establishes neither current law nor causal effects; CLI default stub is transport/schema only. F/G for complete supported caller/corpus compatibility; local Lex source owner only for any current-law authority claim."
+  ],
+  "property": {
+    "statement": "one pass reference identifies one execution per comparison",
+    "runtime_path": [
+      "NormImpactAnalyzer with actual expr_ast LegalPass",
+      "lex.norm_diff + lex.norm_impact_report schema1.0 in FileSystemCAS",
+      "canonical analyzer admission used by real CLI lex impact",
+      "CAS fresh-process NormImpactReport/NormDiff reader and render_impact_markdown"
+    ],
+    "proxy_divergence": "same legal/legal plan previously preserved valid report fields but duplicated blockers",
+    "negative_controls": [
+      "base and remove-dedupe-keep-markers each3FAIL; unknown IDs still refused; identical policy produces no transitions."
+    ]
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/lex/legal_evaluation/test_impact_diff.py",
+        "tests/unit/remediation/test_lex_01.py",
+        "tests/unit/lex/simulator",
+        "tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py"
+      ],
+      "target_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+      "environment": "baseline Python3.14.7 app frozen lint/test/runtime/research profile",
+      "input_closure": "known synthetic ExprAST norm/fact fixtures; no admitted current-law input",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/committed-targeted.stdout"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/lex/fresh_reader.py"
+      ],
+      "target_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+      "environment": "baseline Python3.14.7 app frozen lint/test/runtime/research profile",
+      "input_closure": "known synthetic ExprAST norm/fact fixtures; no admitted current-law input",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/fresh-reader.stdout"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-c",
+        "import polisyos.lex.legal_evaluation.impact_diff as owner;print(\"ORIGIN=\"+owner.__file__);import pytest;raise SystemExit(pytest.main([\"-o\",\"addopts=\",\"-q\",\"tests/unit/lex/legal_evaluation/test_impact_diff.py\",\"-k\",\"duplicate\"]))"
+      ],
+      "target_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+      "environment": "baseline Python3.14.7 app frozen lint/test/runtime/research profile",
+      "input_closure": "known synthetic ExprAST norm/fact fixtures; no admitted current-law input",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/removal.stdout"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/lex/legal_evaluation/impact_diff.py",
+        "tests/unit/lex/legal_evaluation/test_impact_diff.py"
+      ],
+      "target_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+      "environment": "baseline Python3.14.7 app frozen lint/test/runtime/research profile",
+      "input_closure": "known synthetic ExprAST norm/fact fixtures; no admitted current-law input",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/lint.stdout"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/lex/legal_evaluation/impact_diff.py",
+        "tests/unit/lex/legal_evaluation/test_impact_diff.py"
+      ],
+      "target_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+      "environment": "baseline Python3.14.7 app frozen lint/test/runtime/research profile",
+      "input_closure": "known synthetic ExprAST norm/fact fixtures; no admitted current-law input",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/format.stdout"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/workspace/e02-F-20261006-receipts/lex/invocation.json"
+      ],
+      "target_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+      "environment": "baseline Python3.14.7 app frozen lint/test/runtime/research profile",
+      "input_closure": "known synthetic ExprAST norm/fact fixtures; no admitted current-law input",
+      "outcome": "UNRUN",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/production-invocation.stdout",
+      "limitations": "Diagnostic partialstatic report exit0 does not establish runtime invocation; no inherited red asserted."
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/lex/legal_evaluation/test_impact_diff.py",
+        "tests/unit/remediation/test_lex_01.py",
+        "tests/unit/lex/simulator",
+        "tests/integration/lex_ir_foundry/test_normpack_factlog_method_bridge.py"
+      ],
+      "target_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+      "target_tree": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
+      "environment": "baseline Python3.14.7, frozen app lint/test/runtime/research",
+      "input_closure": "known synthetic legal checks; exact source paths via own PYTHONPATH",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-targeted.stdout"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/lex/fresh_reader.py"
+      ],
+      "target_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
+      "target_tree": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
+      "environment": "baseline Python3.14.7, frozen app lint/test/runtime/research",
+      "input_closure": "known synthetic legal checks; exact source paths via own PYTHONPATH",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-fresh-reader.stdout"
+    }
+  ],
+  "harness_errors": [
+    {
+      "check": "ERROR",
+      "outcome": "not_established",
+      "reason": "Initial final-targeted invocation used an absent guessed test path; no product was exercised. Actual recorded selector rerun24PASS.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-targeted-harness-path-error.stderr"
+    }
+  ],
+  "publication_readback_before_receipt_append": {
+    "head": "5ab0d966810fddf1f792b587ea163974285e95b3",
+    "reason": "Full implementation diff now includes the release metadata commit. Prior numeric witnesses are unchanged; this append changes receipts only."
+  },
+  "related_finding_ids": [
+    "LA-017"
+  ],
+  "closure_scope": "No full LA-017 closure; the verified duplicate-pass consumer property is a bounded component of the original criterion."
+}

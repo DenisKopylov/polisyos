@@ -1,0 +1,1 @@
+{"passes": ["legal"], "blockers": 1, "diff_ref": "sha256:24712918f551a8ea2be47e7e7609fd41ce992e69048bd2fe9e1702b8ef3af3e6", "topics": ["compliance_cost"], "authority": "synthetic topic/compliance comparison only", "reader_origin": "/workspace/e02-F-lex-20261006/policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py"}

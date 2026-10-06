@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "src/polisyos/lex/legal_evaluation/impact_diff.py",
+    "tests/unit/lex/legal_evaluation/test_impact_diff.py"
+  ],
+  "cwd": "/workspace/e02-F-lex-20261006/policy-engine",
+  "source_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+  "tree": "2bbbc8856020ca5d0a80aeeaee7e612594fd0edc",
+  "status": "",
+  "exit": 0,
+  "wall_s": 0.15138853299140465,
+  "pythonpath": "/workspace/e02-F-lex-20261006/policy-engine/src:/workspace/e02-F-lex-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/lex/format.stdout",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "bytes": 26
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/lex/format.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

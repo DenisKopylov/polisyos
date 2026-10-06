@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-F-20261006-receipts/lex/fresh_reader.py"
+  ],
+  "cwd": "/workspace/e02-F-lex-20261006/policy-engine",
+  "source_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+  "tree": "2bbbc8856020ca5d0a80aeeaee7e612594fd0edc",
+  "status": "",
+  "exit": 0,
+  "wall_s": 45.49053103700862,
+  "pythonpath": "/workspace/e02-F-lex-20261006/policy-engine/src:/workspace/e02-F-lex-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/lex/fresh-reader.stdout",
+      "sha256": "ee1424fdba56a9e7910d767da221ba13ce2c0f7843d7aac6a0a7f6cb7870325f",
+      "bytes": 327
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/lex/fresh-reader.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

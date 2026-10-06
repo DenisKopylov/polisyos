@@ -1,0 +1,96 @@
+ORIGIN=/workspace/e02-F-20261006-receipts/lex/property-removal-source/src/polisyos/lex/legal_evaluation/impact_diff.py
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_____ test_duplicate_pass_plan_preserves_single_execution_report[passes0] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-39/test_duplicate_pass_plan_prese0')
+passes = ('legal', 'legal')
+
+    @pytest.mark.parametrize(
+        "passes", [("legal", "legal"), ("legal", "safety", "legal", "safety")]
+    )
+    def test_duplicate_pass_plan_preserves_single_execution_report(
+        tmp_path: Path, passes: tuple[str, ...]
+    ) -> None:
+        """Duplicate plan entries cannot manufacture additional compliance blockers."""
+        cas = FileSystemCAS(tmp_path / "cas")
+        canonical = tuple(dict.fromkeys(passes))
+        old_pack, new_pack = _pack("pack.old", 1), _pack("pack.new", 3)
+        expected = NormImpactAnalyzer(cas, passes=canonical, legal_backend="expr_ast").analyze(
+            old_pack, new_pack, context={"income": 2}
+        )
+        actual = NormImpactAnalyzer(cas, passes=passes, legal_backend="expr_ast").analyze(
+            old_pack, new_pack, context={"income": 2}
+        )
+        persisted = _read_report(FileSystemCAS(tmp_path / "cas"), actual)
+>       assert persisted.new_blockers == 1
+E       AssertionError: assert 2 == 1
+E        +  where 2 = NormImpactReport(schema_version='1.0', report_id='lex.impact_report.sha256_8b77a61f2bcfe4de58e20d0786ead0ffc5b93d9900d...on_packet_ref=None, cas_artifact_id=None, metadata={'new_issues_total': 2, 'old_issues_total': 0, 'profile': 'strict'}).new_blockers
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:118: AssertionError
+_____ test_duplicate_pass_plan_preserves_single_execution_report[passes1] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-39/test_duplicate_pass_plan_prese1')
+passes = ('legal', 'safety', 'legal', 'safety')
+
+    @pytest.mark.parametrize(
+        "passes", [("legal", "legal"), ("legal", "safety", "legal", "safety")]
+    )
+    def test_duplicate_pass_plan_preserves_single_execution_report(
+        tmp_path: Path, passes: tuple[str, ...]
+    ) -> None:
+        """Duplicate plan entries cannot manufacture additional compliance blockers."""
+        cas = FileSystemCAS(tmp_path / "cas")
+        canonical = tuple(dict.fromkeys(passes))
+        old_pack, new_pack = _pack("pack.old", 1), _pack("pack.new", 3)
+        expected = NormImpactAnalyzer(cas, passes=canonical, legal_backend="expr_ast").analyze(
+            old_pack, new_pack, context={"income": 2}
+        )
+        actual = NormImpactAnalyzer(cas, passes=passes, legal_backend="expr_ast").analyze(
+            old_pack, new_pack, context={"income": 2}
+        )
+        persisted = _read_report(FileSystemCAS(tmp_path / "cas"), actual)
+>       assert persisted.new_blockers == 1
+E       AssertionError: assert 2 == 1
+E        +  where 2 = NormImpactReport(schema_version='1.0', report_id='lex.impact_report.sha256_9cb27756300cfbd689e291901e34023cba971f0d2cb...on_packet_ref=None, cas_artifact_id=None, metadata={'new_issues_total': 2, 'old_issues_total': 0, 'profile': 'strict'}).new_blockers
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:118: AssertionError
+_________ test_cli_duplicate_pass_plan_is_canonical_after_persistence __________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-39/test_cli_duplicate_pass_plan_i0')
+capsys = <_pytest.capture.CaptureFixture object at 0x7fb6c97dfa10>
+
+    def test_cli_duplicate_pass_plan_is_canonical_after_persistence(tmp_path: Path, capsys) -> None:
+        """The actual CLI consumer uses the admitted unique pass sequence."""
+        paths = [tmp_path / "old.json", tmp_path / "new.json"]
+        for path, pack in zip(paths, [_pack("pack.old", 1), _pack("pack.new", 3)], strict=True):
+            path.write_text(pack.model_dump_json(), encoding="utf-8")
+        code = main(
+            [
+                "lex",
+                "impact",
+                *(str(p) for p in paths),
+                "--passes",
+                "legal,legal,safety,legal,safety",
+                "--format",
+                "json",
+                "--cas-root",
+                str(tmp_path / "cas"),
+            ]
+        )
+        assert code == 0
+        report = NormImpactReport.model_validate(json.loads(capsys.readouterr().out))
+        persisted = _read_report(FileSystemCAS(tmp_path / "cas"), report)
+>       assert persisted.passes_executed == ["legal", "safety"]
+E       AssertionError: assert ['legal', 'le...al', 'safety'] == ['legal', 'safety']
+E         
+E         At index 1 diff: 'legal' != 'safety'
+E         Left contains 3 more items, first extra item: 'safety'
+E         Use -v to get more diff
+
+tests/unit/lex/legal_evaluation/test_impact_diff.py:148: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_duplicate_pass_plan_preserves_single_execution_report[passes0]
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_duplicate_pass_plan_preserves_single_execution_report[passes1]
+FAILED tests/unit/lex/legal_evaluation/test_impact_diff.py::test_cli_duplicate_pass_plan_is_canonical_after_persistence
+3 failed, 12 deselected in 2.11s

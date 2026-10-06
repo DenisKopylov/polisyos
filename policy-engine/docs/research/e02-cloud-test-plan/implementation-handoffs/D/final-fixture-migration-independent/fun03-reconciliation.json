@@ -1,0 +1,218 @@
+{
+  "schema": "e02-D.fixture-independent-reconciliation.v1",
+  "reviewed_implementation": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+  "reviewed_tree": "17ce701ed5093953d1e08415da1b5c1e6943f5d0",
+  "reviewed_receipt": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+  "source_inputs": [
+    {
+      "source_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+      "path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+      "git_blob": "29b58f452610d32f3783d88939ca7623d9028e5a",
+      "bytes": 26008,
+      "sha256": "3121bfade5befa9b6175ae8adf66690c18258a37610255a62156752efb0f81eb"
+    },
+    {
+      "source_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "git_blob": "faf42563f125eb535716e3c09317794df60ab118",
+      "bytes": 26876,
+      "sha256": "6c1dd5799fc792851ca614d5f49a821dc291f2ab52b9e185329109639a2b29f2"
+    },
+    {
+      "source_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "git_blob": "a5d97c881ffb1f56d770f0d77b0f39729f1c089e",
+      "bytes": 2541,
+      "sha256": "3c8eae482bae140471b79f6c021601f379718e904c00f1feb47bb125e0fc773f"
+    },
+    {
+      "source_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "git_blob": "5154ebfe71891ca5a3046a05e0b03cb79a755a4a",
+      "bytes": 13409,
+      "sha256": "31d00ab5bd721d4f3d63e7581df74a49bc87e91f548ed7bb61d4c9770d730c19"
+    },
+    {
+      "source_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "git_blob": "05fee06efff94d756bea1c163d698d38e24fb03d",
+      "bytes": 53528,
+      "sha256": "693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff"
+    },
+    {
+      "source_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+      "git_blob": "c14f3425a40d71ae28278157b9e2293f657c6cb1",
+      "bytes": 52536,
+      "sha256": "c67b2f09acca9922950454019e95fa99162a2cc8f775c7ba9c44553ec5349f59"
+    },
+    {
+      "source_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "git_blob": "0b6832cd6ee46e09a10f3bbdc8972bcbaad22f81",
+      "bytes": 94709,
+      "sha256": "4690eec13c13bf594c5f8fddfbd6284738ef3e7c131a650e6c042dba31e9dc3b"
+    }
+  ],
+  "baseline_test": {
+    "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+    "git_blob": "f513cb6a5c40921af317c943990bc2a287be4661",
+    "bytes": 24835,
+    "sha256": "6a85585b3dc9c9c99eee7e18f7a3e96e8c23da6991bb4c94fbd35ff89be8e096"
+  },
+  "receipt_identity": {
+    "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration.json",
+    "git_blob": "caff11da605e4bf99f9483bd48d6de6569585e99",
+    "bytes": 15992,
+    "sha256": "c5e96eb747dfcc9a8966ac3c90295c53ebb9530d2ead0046272c5fcd2f259180"
+  },
+  "full_diff_changed_paths": [
+    "M\tpolicy-engine/tests/unit/remediation/test_fun_03.py"
+  ],
+  "full_src_denominator": {
+    "prefix": "policy-engine/src/",
+    "file_type": "all tracked tree blobs under source prefix",
+    "count": 2910,
+    "base_count": 2910,
+    "path_sets_equal": true,
+    "complete_diff_empty": true
+  },
+  "function_ast_audit": {
+    "scope": "Every top-level function in entire changed test file, AST without locations",
+    "baseline_count": 18,
+    "candidate_count": 18,
+    "unchanged": [
+      "_artifact_ref",
+      "_envelope",
+      "_stage",
+      "_stage_result",
+      "_uncertainty_level",
+      "test_empty_tracker_has_one_explicit_not_established_routing_state",
+      "test_level6_degradation_preflight_reads_existing_payload_without_runner",
+      "test_level6_owner_recheck_happens_before_effectful_runner",
+      "test_orchestrator_honors_persisted_no_promotion_projection_without_tracker",
+      "test_persisted_empty_report_fails_closed_over_stale_normal_mode",
+      "test_production_owner_recheck_requires_explicit_write_permission",
+      "test_run_policy_blueprint_execute_caps_promotion_after_real_l4_candidate_work",
+      "test_same_scope_refinement_is_current_while_history_keeps_unknown_risk",
+      "test_scope_identity_prevents_cross_scope_continuation",
+      "test_statistically_bad_tracker_is_observed_drift_not_empty_state"
+    ],
+    "changed_existing": [
+      "_install_actual_runtime_node_dependencies"
+    ],
+    "added": [
+      "test_level6_normal_path_bool_preflight_cannot_admit_runner_effects",
+      "test_run_policy_blueprint_execute_refuses_bool_admission_after_real_l4_work"
+    ],
+    "removed": [
+      "test_level6_normal_path_calls_runner_after_owner_recheck",
+      "test_run_policy_blueprint_execute_rechecks_owner_at_commit"
+    ]
+  },
+  "complete_receipt_output_bindings": [
+    {
+      "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935.txt",
+      "git_blob": "706a55ae6bb6ea1169b3d33082ef89d5cc981b28",
+      "bytes": 634,
+      "sha256": "ce30af50c864f42e8aecb5fe574f6cdf58e7af9d0171b8457d4b87cc76db9678"
+    },
+    {
+      "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935.xml",
+      "git_blob": "c93d55e4d6212141c54c0251793818dfee28b01a",
+      "bytes": 8648,
+      "sha256": "68ad14ba4e08d64f82c4b400f337c54ed4d503e70401d945d8ce167c8ae75a0a"
+    },
+    {
+      "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935-result.json",
+      "git_blob": "6a262e8e9133c383bdc617421218e6ab8b78aa55",
+      "bytes": 1287,
+      "sha256": "1c20c540c88a4bc002c3b0b73438a9c78b22524d56b07461318dfb5fbdc8c47c"
+    },
+    {
+      "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/native-intermediate.txt",
+      "git_blob": "ae378345ec6f374bc064137091d81a61f8a75692",
+      "bytes": 3232,
+      "sha256": "760936074963662fa31347d9458a1b90ec24a9f5318eaa9fc27821bd9d18c6f9"
+    },
+    {
+      "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/guard-removal.txt",
+      "git_blob": "c177a2ade305830f1a71a590f30a97d4a187e90d",
+      "bytes": 5528,
+      "sha256": "d34e3ddd3f44661ca8cdef7ddd45f98af2ca944c251b2f6a50b991b891a7563f"
+    },
+    {
+      "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/guard-removal-result.json",
+      "git_blob": "0debdc8eff7e2fdb64ed75fba7db1fc4a4be1012",
+      "bytes": 390,
+      "sha256": "9779553e87e70de0d04209d4a95982f87497d1d280b3172890c4b2314a065c2c"
+    },
+    {
+      "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/fun03_guard_removal.py.txt",
+      "git_blob": "366ee907e0869f0ead175014b72c4d599b0aea72",
+      "bytes": 1849,
+      "sha256": "800f0c9e0f992cc7be1fbfc1017d9c4cb266ca386bb010a4aff6e9c2abb41762"
+    }
+  ],
+  "complete_original_red_bindings": [
+    {
+      "source_sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/complete.txt",
+      "git_blob": "06314a68730ef45ce35b922d70a256d2acece681",
+      "bytes": 11470,
+      "sha256": "b22ab673644a51f84342371ec9125ece4ce50dd51eb0af972d71d0bf9adcb75f"
+    },
+    {
+      "source_sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/result.json",
+      "git_blob": "72c9eecbb34dc32d6d3c8e2e96c37a00f259d254",
+      "bytes": 5301,
+      "sha256": "4aaa6c4e50dc50085a0f22984674b878e4930244d1c8a32eb70ea8b990ffa81a"
+    },
+    {
+      "source_sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/events.jsonl.txt",
+      "git_blob": "c9e9f58a0d6e6a6ab9a4436f813420c3c15764b2",
+      "bytes": 96899,
+      "sha256": "f27a650818595791547423f91661e47f5094752ca7eaf8fdb900c246e42f702e"
+    },
+    {
+      "source_sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/junit.xml",
+      "git_blob": "7cf70e06c360487d18aa57c51bac200e7a0437be",
+      "bytes": 12657,
+      "sha256": "691e5f3ec316aca04a59b6aa7e74cfc7296e84a7ef36009dc9c41a2f72492f38"
+    },
+    {
+      "source_sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/environment.json",
+      "git_blob": "e35bf48fdbee02d51d2614fc51b752fdc623ffe8",
+      "bytes": 6955,
+      "sha256": "02a24226ed889c3696b259b98d768c95d45863ab54bd5173bbd41b9a014675b7"
+    }
+  ],
+  "junit_reconciliation": {
+    "file": {
+      "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935.xml",
+      "git_blob": "c93d55e4d6212141c54c0251793818dfee28b01a",
+      "bytes": 8648,
+      "sha256": "68ad14ba4e08d64f82c4b400f337c54ed4d503e70401d945d8ce167c8ae75a0a"
+    },
+    "testcases": 52,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "runtime_jobs_by_reviewer": 0,
+  "unresolved": "Independent runtime replay belongs to root; no validtypedpromotion/commit/revocationpositive inferred."
+}

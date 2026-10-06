@@ -1,0 +1,262 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "D",
+  "slice": "final-fixture-migration-independent",
+  "reviewer": "/root/gp_witness",
+  "review_lane": {
+    "branch": "codex/e02-D-published-champion",
+    "payload_source_sha": "462053fb9ffafa427e1508d74d3f13efd320add5",
+    "payload_tree_sha": "8a1801b898677de13ce349da2d515675dee0e1bd"
+  },
+  "review_target": "Immutable final FUN03 and OPT01 test-only migrations, full diffs and source-bound author runtime evidence; no production implementation re-review or capability closure.",
+  "runtime_product_base": {
+    "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree_sha": "f3763c0911f1f80d8c5ee049667045a594fb55c2"
+  },
+  "verdict": {
+    "test_only_delta": "ACCEPT_WITH_EXPLICIT_LIMITS",
+    "specification": "PARTIAL",
+    "engineering_quality_of_changed_test_delta": "No blocking finding within declared fixture scope.",
+    "runtime_acceptance_by_this_reviewer": "UNRUN",
+    "capability_closure": "PARTIAL_OPEN",
+    "blockers": []
+  },
+  "requirement_evidence": [
+    {
+      "requirement": "No production changes/new subsystem",
+      "result": "PASS_STATIC",
+      "evidence": "Full policy-engine/src tracked-tree denominator recomputed separately for both implementation commits: 2910 blobs each, same paths, zero complete source diff versus243."
+    },
+    {
+      "requirement": "FUN03 preserves refusal of raw boolean promotion authority",
+      "result": "PASS_REVIEWED_AUTHOR_EVIDENCE",
+      "evidence": "Real Level6 guard/native L4 path reviewed; normal legacy bool runner/writer calls remain zero, bridge_missing is explicit. Guard-removal invokes actual runner while retaining refusal markers; both migrated tests fail at callback effects."
+    },
+    {
+      "requirement": "FUN03 uses actual existing Scheduler API",
+      "result": "PASS_STATIC_AND_REVIEWED_AUTHOR_EVIDENCE",
+      "evidence": "Partial scheduler double replaced by PredictiveVOIScheduler; native test exercises actual prioritize path through controlled backend. No new API/fake scheduler subsystem."
+    },
+    {
+      "requirement": "FUN03 no valid typed promotion or serialized revocation claim",
+      "result": "PASS_REVIEW_SCOPE",
+      "evidence": "Two obsolete bool-positive tests intentionally renamed/replaced by negatives; read-only prepared result is not protected effect authority; native guard-removal writer0 does not establish typed permit or revocation serialization."
+    },
+    {
+      "requirement": "OPT01 preserves original downstream predicates and strict raw CAS refusal",
+      "result": "PASS_STATIC_AND_REVIEWED_AUTHOR_EVIDENCE",
+      "evidence": "All98 original Assert ASTs identical; five setups/signatures change; _cas_eval adds actual healthy CAS round-trip then native malformed raw admission refusal and explicitly post-validation metric-dict mutation."
+    },
+    {
+      "requirement": "Full actual output/raw payload/origin binding",
+      "result": "PASS_RECONCILIATION",
+      "evidence": "All13 OPT evidence-manifest files independently recomputed from immutable Git bytes. Complete canonical/removal outputs read; four origins per run match exact candidate Git blobs; six raw payloads per run reconstruct same SHA256/byte_size as actual malformed CAS refs and manifest integrity. Full source and baseline rows are explicit in reconciliation JSON."
+    },
+    {
+      "requirement": "Do not overstate individual negative discriminator",
+      "result": "PARTIAL_EXPLICIT",
+      "evidence": "OPT removal4FAIL/1PASS. Membership-only test passes zero-imputation because repaired points remain dominated; four other original consumer assertions fail. No five-negative/full-predicate closure."
+    },
+    {
+      "requirement": "Independent final composed runtime replay",
+      "result": "UNRUN_BY_REVIEWER_ROOT_OWNED",
+      "evidence": "This reviewer executed no pytest/backend/runtime jobs. Author outputs52 and75 are reviewed and hash-bound; root final composed replays remain separately source-bound root evidence."
+    }
+  ],
+  "reviewed_targets": [
+    {
+      "bundle": "FUN-03",
+      "finding_ids": [
+        "B164"
+      ],
+      "implementation_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+      "implementation_tree_sha": "17ce701ed5093953d1e08415da1b5c1e6943f5d0",
+      "author_receipt": {
+        "source_sha": "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration.json",
+        "git_blob": "caff11da605e4bf99f9483bd48d6de6569585e99",
+        "bytes": 15992,
+        "sha256": "c5e96eb747dfcc9a8966ac3c90295c53ebb9530d2ead0046272c5fcd2f259180"
+      },
+      "test_identity": {
+        "source_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+        "path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+        "git_blob": "29b58f452610d32f3783d88939ca7623d9028e5a",
+        "bytes": 26008,
+        "sha256": "3121bfade5befa9b6175ae8adf66690c18258a37610255a62156752efb0f81eb"
+      },
+      "baseline_test_identity": {
+        "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+        "git_blob": "f513cb6a5c40921af317c943990bc2a287be4661",
+        "bytes": 24835,
+        "sha256": "6a85585b3dc9c9c99eee7e18f7a3e96e8c23da6991bb4c94fbd35ff89be8e096"
+      },
+      "source_denominator": {
+        "prefix": "policy-engine/src/",
+        "file_type": "all tracked tree blobs under source prefix",
+        "count": 2910,
+        "base_count": 2910,
+        "path_sets_equal": true,
+        "complete_diff_empty": true
+      },
+      "author_runtime_counts": {
+        "canonical": {
+          "tests": 52,
+          "passed": 52,
+          "failed": 0,
+          "errors": 0,
+          "skips": 0
+        },
+        "guard_removal": {
+          "tests": 2,
+          "failed": 2
+        },
+        "original_red": {
+          "tests": 52,
+          "passed": 50,
+          "failed": 2
+        }
+      },
+      "boundary": "Negative technical fixture only. Valid typed permit issuer/verifier/serialized commit and revoke-positive remain bridge_missing/unestablished."
+    },
+    {
+      "bundle": "OPT-01",
+      "finding_ids": [
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ],
+      "implementation_sha": "c3fe956011df8185c226155b86488294fe16143e",
+      "implementation_tree_sha": "6a8be9c4e7d98dc42dd8244d25e8f72c6a1c7cf4",
+      "author_receipt": {
+        "source_sha": "ddfee523bda85ac599e22cc6a3aa4ea490e43413",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-opt01-fixture-migration.json",
+        "git_blob": "5cac9a7c21fafba40ada39b5c952a7f96d4fd13a",
+        "bytes": 11661,
+        "sha256": "946183032e7032995651b8dfa854e0138846ba1a729b0a14f0d0f630315f0861"
+      },
+      "author_evidence_manifest": {
+        "source_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/manifest.json",
+        "git_blob": "210ce6a82199b53da67a7e198843328f0385847c",
+        "bytes": 3529,
+        "sha256": "fb8b11b07ef34026cff8901516ccf34a8cc3b4614e5acad9dd04a65daf01246b"
+      },
+      "test_identity": {
+        "source_sha": "c3fe956011df8185c226155b86488294fe16143e",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+        "git_blob": "2d09a2d861db5b2ce496443acf9d97718d5c417b",
+        "bytes": 36283,
+        "sha256": "a540ee70dec0ad20d0960208eccdc2ec0441e40140f368ae0fc9b3b3090b6129"
+      },
+      "baseline_test_identity": {
+        "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+        "git_blob": "08d35ba1eb3705bc4677b247307ca533c3294b3d",
+        "bytes": 31589,
+        "sha256": "0a4d3ac2e6559cc898f74833852e6c094cc4d6335e87fffb75c97391b2c1963e"
+      },
+      "source_denominator": {
+        "prefix": "policy-engine/src/",
+        "file_type": "all tracked tree blobs under source prefix",
+        "count": 2910,
+        "base_count": 2910,
+        "path_sets_equal": true,
+        "complete_diff_empty": true
+      },
+      "author_runtime_counts": {
+        "canonical": {
+          "tests": 75,
+          "passed": 75,
+          "failed": 0,
+          "errors": 0,
+          "skips": 0
+        },
+        "remove_property": {
+          "tests": 5,
+          "passed": 1,
+          "failed": 4,
+          "errors": 0,
+          "skips": 0
+        },
+        "original_red": {
+          "tests": 75,
+          "passed": 70,
+          "failed": 5,
+          "errors": 0,
+          "skips": 0
+        }
+      },
+      "boundary": "Raw malformed CAS native typed read is refused. Explicit downstream mutable-input stress is not successful malformed DTO admission or authority-grade Pareto/promotion proof."
+    }
+  ],
+  "non_blocking_observations": [
+    {
+      "severity": "Low",
+      "confidence": "High",
+      "test": "TestParetoFront.test_non_finite_and_missing_metrics_are_excluded_from_numeric_front",
+      "status": "retained_existing_predicate_boundary_not_introduced_by_migration",
+      "observed": "Passes exact child unusable-vector->all-zero property removal because resulting points remain dominated. Other4 migrated tests fail actual original consumer predicates.",
+      "disposition": "Retain disclosed bounded evidence; no new mutation ladder/assertion change requested."
+    }
+  ],
+  "open_scope": [
+    "FUN03 B164: raw True permission is not write authority; owner-issued typed permit issuer/verifier and revoke-serialized commit bridge remain absent/unestablished. Controlled native fixture is not deployed factory/provider billing proof.",
+    "OPT01 B111: live eligible denominator/provider/export and A supplier boundary remain held/open. Candidate_only synthetic suite/first-policy fixture comparison context establishes custody only; no institutional/scientific/metric-unit source authority.",
+    "Original frozen243 17-command FAIL and full backend/CI resource-blocked or unrun gates remain their actual outcomes. Fixture migrations do not retrospectively convert those outputs into PASS.",
+    "Known unsupported-schema tests are part of author canonical75 and preserve their existing scope; no new broad reader/version/authority closure inferred by this test-only review.",
+    "No independent full/runtime PASS is claimed by this reviewer; root owns exact composed runtime replay and final aggregation."
+  ],
+  "review_actions": {
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "operations": [
+      "Git immutable object reads/full diffs",
+      "stdlib AST comparison",
+      "stdlib XML testcase/count reconciliation",
+      "SHA256/size/blob reconciliation of complete raw files",
+      "stdlib JSON reconstruction of actual CAS payload hashes",
+      "source code and full moderate output review"
+    ],
+    "backend_imports": false,
+    "pytest_jobs": 0,
+    "source_or_test_edits": false,
+    "new_checkout_or_worktree": false,
+    "cleanup": false,
+    "cpu_or_process_caps": false,
+    "overlay_consumers_or_writers": false
+  },
+  "payload_files": [
+    {
+      "source_sha": "462053fb9ffafa427e1508d74d3f13efd320add5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-fixture-migration-independent/fun03-reconciliation.json",
+      "git_blob": "ead5e0a1c75d0c050246c5ca2483cf273b5c0a5f",
+      "bytes": 10550,
+      "sha256": "17d3fb3019efc73449bbb51299c190d5cb72f2ef4f65c0761324186b33b9145d"
+    },
+    {
+      "source_sha": "462053fb9ffafa427e1508d74d3f13efd320add5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-fixture-migration-independent/opt01-reconciliation.json",
+      "git_blob": "c428e90d340c0bae6a689e12904c613497f3869e",
+      "bytes": 86785,
+      "sha256": "08eb8bfecdf5f5ce7abbdb806dd886075393a1f881ce8473d17514737d36b03d"
+    },
+    {
+      "source_sha": "462053fb9ffafa427e1508d74d3f13efd320add5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-fixture-migration-independent/review.txt",
+      "git_blob": "c86ab1db21abe3e62152e9577f88a8d344934340",
+      "bytes": 5508,
+      "sha256": "65f69037a6d92948173221eb7af3de8299da6fc78242f705955f2c65a49161ea"
+    }
+  ],
+  "related_skill": {
+    "name": "codex-engineering-guardrails:code-verification",
+    "source": "skill://plugins_6a5e5049eb3081918cee0e291cd2e5cc/code-verification/SKILL.md"
+  },
+  "publication_note": "Docs-only normal publication follows this payload checkpoint. Exact review receipt SHA is reported after commit and remote readback; no self-referential receipt hash."
+}

@@ -3,6 +3,18 @@
   "unit": "F",
   "slice": "scm-source-bound-20261006",
   "closure_ids": [
+    "B215",
+    "B216",
+    "B217",
+    "B219",
+    "B220",
+    "B221",
+    "B222",
+    "B223",
+    "B224",
+    "B225"
+  ],
+  "related_finding_ids": [
     "B214",
     "B215",
     "B216",

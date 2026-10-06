@@ -79,7 +79,8 @@ def _hash_file(path: Path) -> str | None:
 
 def _safe_run(cmd: Sequence[str]) -> str | None:
     try:
-        result = subprocess.run(
+        # Private callers supply fixed Git subcommands and path operands without a shell.
+        result = subprocess.run(  # noqa: S603
             list(cmd),
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,

@@ -196,7 +196,7 @@ timestamps
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 134 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 489 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 492 |
 | `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `eager_exports` | 25 |
 | `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 106 |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 5 |
@@ -354,7 +354,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (489)</summary>
+<details><summary>Entrypoint exports (492)</summary>
 
 ```text
 *_CHRONOLOGY_EXPORTS
@@ -457,6 +457,9 @@ CompileReportRef
 CompileRequest
 CompileResult
 ComplianceIssue
+ConditionalSimulationInteractionEvidence
+ConditionalSimulationObservation
+ConditionalSimulationValueProjection
 ConnectorInfo
 ConnectorsListResponse
 ContinuationBranch

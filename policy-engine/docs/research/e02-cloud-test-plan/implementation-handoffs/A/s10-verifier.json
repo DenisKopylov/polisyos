@@ -2,7 +2,8 @@
   "schema": "policyos.e02.implementation_handoff.v1",
   "unit": "A",
   "slice": "s10-verifier",
-  "closure_ids": ["B16"],
+  "closure_ids": [],
+  "finding_ids": ["B16"],
   "bundle_ids": ["EMP-01"],
   "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
   "implementation_commits": [

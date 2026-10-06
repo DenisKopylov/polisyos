@@ -1,0 +1,92 @@
+{
+  "check": "PASS",
+  "scientific_runtime_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+  "metadata_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+  "delta_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-scm-schema-catalog-version.toml"
+  ],
+  "unchanged_source_paths": 9,
+  "fragment_only_semantic_delta": "compatibility_change[0].impact migration -> breaking",
+  "source_refs": [
+    {
+      "source_path": "policy-engine/docs/reference/ir/schema-catalog.md",
+      "scientific_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 1641843,
+      "sha256": "8cb5795e0a5c2228b83267b8231aafdd30124b409418e63edf3fa0ce21d572cb",
+      "scientific_bytes_unchanged": true
+    },
+    {
+      "source_path": "policy-engine/docs/reference/schemas.md",
+      "scientific_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 29376,
+      "sha256": "914dc3f70a4044ac4a70b7859270ca9b4d6e5247cb0603320b3c957ef586bc22",
+      "scientific_bytes_unchanged": true
+    },
+    {
+      "source_path": "policy-engine/release-fragments/unreleased/2026-10-06-scm-schema-catalog-version.toml",
+      "scientific_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 2011,
+      "sha256": "eefa64331fb42dcfde9727b3420b283777a79d7deb103d3a57b470d5c35cbb7e",
+      "scientific_bytes_unchanged": false
+    },
+    {
+      "source_path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "scientific_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 52447,
+      "sha256": "0fa78f82d255b20801be81c7d739714e4e9f0f2b17bd2675be1448c3f6b44617",
+      "scientific_bytes_unchanged": true
+    },
+    {
+      "source_path": "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+      "scientific_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 15243,
+      "sha256": "e0709ef298134086b4f57c279ac1cdd5cb173afaf1b8577a458bccca31387df4",
+      "scientific_bytes_unchanged": true
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "scientific_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 9400,
+      "sha256": "a936c74eb1a43b632639468da0dfc7d9bca50b3bd63e97b9fb64960d24902725",
+      "scientific_bytes_unchanged": true
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "scientific_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 14857,
+      "sha256": "9ab530f92781aae2f00bb0151858ccca41a2c0bc93b94c0bc2da1dfaf503f6fa",
+      "scientific_bytes_unchanged": true
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+      "scientific_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 4619,
+      "sha256": "4cb64745aa35507563c3b5fe18095f6d18eeea36ff4089295c3198a44798b1f2",
+      "scientific_bytes_unchanged": true
+    },
+    {
+      "source_path": "policy-engine/tests/unit/ir/test_structural_causal_model_contract.py",
+      "scientific_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 3517,
+      "sha256": "21410938f015718a1e655ba1db046552b41de2abf3ca8c6fb23549fd0f244b90",
+      "scientific_bytes_unchanged": true
+    },
+    {
+      "source_path": "policy-engine/tests/unit/ir/test_structural_causal_model_versions.py",
+      "scientific_sha": "eaf9d0e0ee2dae728351cbb3dfc333474c88931b",
+      "current_sha": "e94a40e78416b7392edf96f1f24c7846a808c8d0",
+      "bytes": 6732,
+      "sha256": "3f7fa0a0b9e20935954ee7f368c8d4e89380ee192424828638370c4f4b82ad8a",
+      "scientific_bytes_unchanged": true
+    }
+  ]
+}

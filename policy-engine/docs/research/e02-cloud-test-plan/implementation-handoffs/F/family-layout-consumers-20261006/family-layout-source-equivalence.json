@@ -1,0 +1,63 @@
+{
+  "source": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+  "slice_base": "ad8f0f7532022014c028d74d872c93fe3349d220",
+  "unchanged_source_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/families.py",
+      "git_blob": "82b0dfa3b8b1bc34e038f37e567562f8bed2c6d0",
+      "bytes": 3839,
+      "sha256": "f2d93bcbf6af0623f2d3b7290cb6dddcf3b776ef235ee37072fb26e3686cd019",
+      "byte_equal_to_admitted_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/mechanisms/design.py",
+      "git_blob": "a00264c882eef6ce1e01db271454fb36371b07a1",
+      "bytes": 742,
+      "sha256": "40d35c0a867710d15a9b447370da4eda1be211eb6fc4336067f1160fc2b3f25e",
+      "byte_equal_to_admitted_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/verification/ic/service.py",
+      "git_blob": "c248f5e1c7fa1ec91aafbf3fef960a335d85580d",
+      "bytes": 87657,
+      "sha256": "8c29a0639c5ccadefd69cda575e690bbb846bc3a770dcd0f2345ef9df049497d",
+      "byte_equal_to_admitted_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/mechanism_design.py",
+      "git_blob": "c4f27c281dad325194cfe7c458fe396b13ae5a5e",
+      "bytes": 30226,
+      "sha256": "40a58363f5b019c0b01153872c9f784fcc19909692e1b40c3a84a8c691cd8123",
+      "byte_equal_to_admitted_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py",
+      "git_blob": "d80a17cd92b0127b85abd4e48bb4ed271283efae",
+      "bytes": 17693,
+      "sha256": "7608e9476321519fe9f8a024dc483caf909d97cefb185a7ec491fc21651bbe07",
+      "byte_equal_to_admitted_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+      "git_blob": "1d656cc5b6643f6378f8dc54f4cc4272895cb6b8",
+      "bytes": 18445,
+      "sha256": "6f24e435089d0c7d0cbb3b52fde1e2cb8f3b042c41f6b69adb37bb91620d4c81",
+      "byte_equal_to_admitted_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/layout.py",
+      "git_blob": "a48ecff22baec80ddaf8d2939417f48086a00555",
+      "bytes": 350,
+      "sha256": "fb528428135bf40ddf36336bbdac7043b049d4ef9bf7e954ada1c9727100a69b",
+      "byte_equal_to_admitted_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/compiler/layout.py",
+      "git_blob": "a732c7945a25c09de05ee0a7be8f1a8ec8c90fe3",
+      "bytes": 220,
+      "sha256": "d0f981b9d24ed767107a9238f5bc9a16c6f5b45ed533a01adf0c35e52cd6f1b7",
+      "byte_equal_to_admitted_base": true
+    }
+  ],
+  "scope": "Native family/layout definitions, canonical callers, IR certificate implementations unchanged; continuation changes test callers/documentation only, with new real consumer evidence. No copied source."
+}

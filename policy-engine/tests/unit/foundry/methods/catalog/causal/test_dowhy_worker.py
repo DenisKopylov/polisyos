@@ -177,7 +177,8 @@ assert list(report.confidence_interval)==worker['result']['interval']
 envelope=report.to_uncertainty_envelope()
 assert not envelope.gate_eligible
 assert envelope.metadata['gate_eligibility_reason']=='causal_identification_admission_not_established'
-assert envelope.confidence_level==.95 and list(envelope.ci)==worker['result']['interval']
+assert envelope.confidence_level==.95
+assert envelope.confidence_interval==tuple(envelope.numeric_policy.canonicalize(value) for value in worker['result']['interval'])
 print(json.dumps({'python':sys.version,'report':report.model_dump(mode='json')},sort_keys=True))
 """
     fresh = subprocess.run(

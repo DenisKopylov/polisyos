@@ -145,6 +145,17 @@ class MethodOutputMonitor:
         ``array_keys`` identifies declared vector/matrix/tensor slots, so
         even an untyped empty sequence in those slots remains an empty-array
         anomaly. Identical flags visible in both views are emitted once.
+
+        Args:
+            slot_outputs: Canonical values produced by backend dematerialization.
+            raw_output: Backend payload, including aliases and diagnostic sidecars.
+            expected_keys: Declared slot names to validate against canonical keys.
+            array_keys: Declared vector, matrix, and tensor slot names whose empty
+                sequences must retain numeric empty-output diagnostics.
+
+        Returns:
+            Existing typed key and numeric anomaly flags, deduplicated when an
+            identical flag occurs in both views.
         """
         numeric_slots = {
             key: np.asarray(value)

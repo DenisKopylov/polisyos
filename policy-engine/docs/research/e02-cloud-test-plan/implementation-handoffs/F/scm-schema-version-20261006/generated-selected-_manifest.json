@@ -1,0 +1,29 @@
+{
+  "compatibility": {
+    "breaking_change_requires_fragment": "true",
+    "compatibility_class": "persisted-artifact-format",
+    "deprecation_window": "2 minor releases",
+    "release_fragment_change_class": "persisted-artifact-format",
+    "version_owner": "team-ir"
+  },
+  "content_hash": "1a36386b8ec6c3887ddbb6d69f9518b3027de2f76c6c6446df8b954c42c56791",
+  "generated_at": "2026-10-06T15:56:10+00:00",
+  "generator_version": "1.0.0",
+  "models": {
+    "structural_causal_model_spec": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.ir.analytics.structural_causal_model.StructuralCausalModelSpec",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "structural_causal_model_spec.schema.json",
+      "schema_version": "1.1",
+      "sha256_full": "699017daf1e4e5b848c24489197dd839eda9a34012cdf9a81146b78f62675ee5",
+      "sha256_semantic": "8ce5963b79c8be7dcf7e3a8493242023a8fcf990db72d364f0d80eec0bdf1613",
+      "version_field": "schema_version"
+    }
+  },
+  "module": "ir",
+  "pydantic_version": "2.12.5",
+  "python_version": "3.14.7"
+}

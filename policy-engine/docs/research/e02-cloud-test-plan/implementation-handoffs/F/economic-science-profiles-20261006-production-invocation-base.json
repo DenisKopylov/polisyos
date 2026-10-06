@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "tools/quality/validation/check_production_invocation.py",
+    "--base",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "--receipt",
+    "/workspace/e02-F-20261006-receipts/economics/production-invocation-base-report.json"
+  ],
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "head": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "head_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "source_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_diff_bytes": 0,
+  "pythonpath": "src:tools:.",
+  "start_unix": 1791279596.5119524,
+  "wall_seconds": 259.9096505641937,
+  "maximum_child_rss_kib": 8313072,
+  "returncode": 0,
+  "output": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/production-invocation-base.txt",
+    "bytes": 1368,
+    "sha256": "8f563ff7d2dd64dc9865613ec2472920258e84d2a041d3190b82415f56fe28f7"
+  }
+}

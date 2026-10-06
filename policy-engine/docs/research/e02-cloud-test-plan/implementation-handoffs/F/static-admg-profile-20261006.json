@@ -151,7 +151,7 @@
       ],
       "target_sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
       "environment": {
-        "python": "3.14.2",
+        "python": "3.14; exact patch version not captured in original execution record",
         "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
         "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
         "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
@@ -174,7 +174,7 @@
       ],
       "target_sha": "bf335dd687c313fda9001fa3bb1365df6bc5ae1f",
       "environment": {
-        "python": "3.14.2",
+        "python": "3.14; exact patch version not captured in original execution record",
         "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
         "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
         "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
@@ -216,7 +216,7 @@
       ],
       "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
       "environment": {
-        "python": "3.14.2",
+        "python": "3.14; exact patch version not captured in original execution record",
         "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
         "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
         "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
@@ -253,7 +253,7 @@
       ],
       "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
       "environment": {
-        "python": "3.14.2",
+        "python": "3.14; exact patch version not captured in original execution record",
         "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
         "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
         "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
@@ -277,7 +277,7 @@
       ],
       "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
       "environment": {
-        "python": "3.14.2",
+        "python": "3.14; exact patch version not captured in original execution record",
         "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
         "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
         "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
@@ -301,7 +301,7 @@
       ],
       "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
       "environment": {
-        "python": "3.14.2",
+        "python": "3.14; exact patch version not captured in original execution record",
         "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
         "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
         "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
@@ -329,7 +329,7 @@
       ],
       "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
       "environment": {
-        "python": "3.14.2",
+        "python": "3.14; exact patch version not captured in original execution record",
         "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
         "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
         "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
@@ -359,7 +359,7 @@
       ],
       "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
       "environment": {
-        "python": "3.14.2",
+        "python": "3.14; exact patch version not captured in original execution record",
         "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
         "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
         "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
@@ -382,7 +382,7 @@
       ],
       "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
       "environment": {
-        "python": "3.14.2",
+        "python": "3.14; exact patch version not captured in original execution record",
         "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
         "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
         "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
@@ -416,7 +416,7 @@
       ],
       "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
       "environment": {
-        "python": "3.14.2",
+        "python": "3.14; exact patch version not captured in original execution record",
         "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
         "PYTHONPATH": "/workspace/e02-F-graph-20261006/policy-engine/src:/workspace/e02-F-graph-20261006/policy-engine",
         "cwd": "/workspace/e02-F-graph-20261006/policy-engine",
@@ -447,7 +447,7 @@
         "tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py"
       ],
       "target_sha": "5182825c190aa403bee765e339a119bb53e805e0",
-      "environment": "root independent reviewer; same genuine Python3.14.2 readonly application interpreter; ownsrc imports",
+      "environment": "root independent reviewer; same genuine Python3.14; original exact patch version not captured readonly application interpreter; ownsrc imports",
       "input_closure": "entire unique static-profile consumer file,559 tests/no skip/error",
       "outcome": "PASS",
       "exit_code": 0,
@@ -864,9 +864,37 @@
         "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "original_path": "/tmp/e02-F-continuation-20261006/root-review-graph/stderr",
         "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/current-runtime-identity.json",
+        "bytes": 988,
+        "sha256": "1a2c5b5855f0ac6e06a2cfae2c0d427c0fe5fdc7a79d5b86bce3a0475f2cd746",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/current-runtime-identity.json",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/current-runtime-identity.stdout.txt",
+        "bytes": 1480,
+        "sha256": "57b00ed382d1f3277d64ccd6da4b1cc074932acb02cafd086b35054b76bd0b94",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/current-runtime-identity.stdout.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/current-runtime-identity.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/current-runtime-identity.stderr.txt",
+        "encoding": "raw"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/probe-readonly-runtime.py",
+        "bytes": 1119,
+        "sha256": "0b60f2dc17a3f8d0e648f43cff6ca6608141000be10862a9ade11c233add8a29",
+        "original_path": "/tmp/e02-F-continuation-20261006/graph/probe-readonly-runtime.py",
+        "encoding": "raw"
       }
     ],
-    "companion_count": 41,
+    "companion_count": 45,
     "all_moderate_deciding_bytes_committed": true,
     "original_failure_and_removal_bytes_preserved": true,
     "root_independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/independent-root.receipt.json"
@@ -906,5 +934,19 @@
       "state": "limited",
       "detail": "Full production inputs remainlocal; generic finite graph properties do not require their transfer. Any intrinsically real-data authority criterion needs local exactcandidate run."
     }
-  ]
+  ],
+  "environment_identity_correction": {
+    "previous_ref": {
+      "bytes": 46902,
+      "sha256": "2cdf4c62fbe6f1470f50d7497f67d6964ba5ce30dfd0589b62fdc2b67dd0c43a",
+      "artifact_git_ref": "c225e0d125ab9978ccf7b54022564811dfd0e293"
+    },
+    "original_reported_patch_version": "3.14.2",
+    "original_patch_version_check": "UNRUN",
+    "reason": "Prior-session patch version was hardcoded without a native version measurement. Original execution records preserve argv/interpreter/source/output; exact patch version is not retroactively established.",
+    "current_observed_readonly_application_version": "3.14.7",
+    "current_probe_source_sha": "6f95f55ca7d9c5cd9489256a354a27da058b46b9",
+    "current_probe": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/static-admg-profile-20261006/current-runtime-identity.stdout.txt",
+    "raw_original_source_checks_counts_unchanged": true
+  }
 }

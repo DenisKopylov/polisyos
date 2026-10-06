@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261006/foundry/schema-review/replay_final_fragment.py", line 88, in <module>
+    main()
+  File "/tmp/e02-F-continuation-20261006/foundry/schema-review/replay_final_fragment.py", line 52, in main
+    assert old_fragment['compatibility_change']['impact'] == 'migration'
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+TypeError: list indices must be integers or slices, not str

@@ -1,0 +1,231 @@
+{
+  "source": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+  "tree": "d1b9a51e9ac48bf79251a53a0478cad7305da41a",
+  "environment": {
+    "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "numpy": "2.3.5",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "scipy": "1.16.3",
+      "scikit-learn": "1.8.0",
+      "statsmodels": "0.14.6",
+      "pytest": "9.0.2",
+      "pymc": "not_installed",
+      "dowhy": "not_installed",
+      "econml": "not_installed"
+    },
+    "thread_environment": {
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "XLA_FLAGS": null
+    },
+    "cloud_quota_introduced": false
+  },
+  "changed_paths": [
+    "policy-engine/docs/reference/foundry/state.md",
+    "policy-engine/tests/unit/foundry/mechanisms/test_mechanism_design.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py"
+  ],
+  "source_inputs": [
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/docs/reference/foundry/state.md",
+      "bytes": 4810,
+      "sha256": "008b08d202406a570cc837a2c6f78c6f68bedcefb59057b7d0cdd269ba3a90a9"
+    },
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/tests/unit/foundry/mechanisms/test_mechanism_design.py",
+      "bytes": 947,
+      "sha256": "7f9cfc895b5abad2df04e9a53289e1a353b8ffbafb0e75b3ce4c373ed14144a9"
+    },
+    {
+      "path": "/workspace/e02-F-fry-20261006/policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py",
+      "bytes": 11681,
+      "sha256": "3abfcab5247de83372f956d0974a86a12c3d2cf30826cbcbc6821bd78fc00555"
+    }
+  ],
+  "checks": [
+    {
+      "name": "family-layout-frozen-native",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py",
+        "tests/unit/foundry/methods/catalog/mechanism/test_families.py",
+        "tests/unit/foundry/mechanisms/test_mechanism_design.py",
+        "tests/unit/foundry/contracts/test_layout.py",
+        "tests/unit/foundry/compile/test_trinity_compiler.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra",
+        "--basetemp",
+        "/tmp/e02-F-continuation-20261006/foundry/family-layout-frozen-tmp"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py tests/unit/foundry/methods/catalog/mechanism/test_families.py tests/unit/foundry/mechanisms/test_mechanism_design.py tests/unit/foundry/contracts/test_layout.py tests/unit/foundry/compile/test_trinity_compiler.py -o addopts= -q -ra --basetemp /tmp/e02-F-continuation-20261006/foundry/family-layout-frozen-tmp",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "wall_seconds": 14.911826210998697,
+      "exit_code": 0,
+      "outcome": "PASS",
+      "expected_exit": 0,
+      "deciding_expectation_met": true,
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "input_closure": "Frozen source and committed synthetic migration consumers; no real data or authority admission.",
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/family-layout-frozen-native.stdout.txt",
+        "bytes": 99,
+        "sha256": "364bf2ceda7fac9cd1a8f3c782e2cdcdad38b0f8e69214486a3e19382a2cff1c"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/family-layout-frozen-native.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output": "/tmp/e02-F-continuation-20261006/foundry/family-layout-frozen-native.stdout.txt"
+    },
+    {
+      "name": "family-removal-catalog_is_ic",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/family_layout_removal_replay.py",
+        "catalog_is_ic"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/family_layout_removal_replay.py catalog_is_ic",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "wall_seconds": 12.27071597801114,
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_exit": 1,
+      "deciding_expectation_met": true,
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "input_closure": "Frozen source and committed synthetic migration consumers; no real data or authority admission.",
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/family-removal-catalog_is_ic.stdout.txt",
+        "bytes": 4061,
+        "sha256": "2946c9523db5acf2f8b2930214db5c8fd47053459febaf1219a119246e62d06e"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/family-removal-catalog_is_ic.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output": "/tmp/e02-F-continuation-20261006/foundry/family-removal-catalog_is_ic.stdout.txt"
+    },
+    {
+      "name": "family-removal-family_owner",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/family_layout_removal_replay.py",
+        "family_owner"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/family_layout_removal_replay.py family_owner",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "wall_seconds": 12.351280061993748,
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_exit": 1,
+      "deciding_expectation_met": true,
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "input_closure": "Frozen source and committed synthetic migration consumers; no real data or authority admission.",
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/family-removal-family_owner.stdout.txt",
+        "bytes": 4641,
+        "sha256": "6dc9bbc7d2b11478af72ea29ec0e9bd678f67a6bea0f3de4242460ab1bd38fc5"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/family-removal-family_owner.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output": "/tmp/e02-F-continuation-20261006/foundry/family-removal-family_owner.stdout.txt"
+    },
+    {
+      "name": "family-removal-layout_paths",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-F-continuation-20261006/foundry/family_layout_removal_replay.py",
+        "layout_paths"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python /tmp/e02-F-continuation-20261006/foundry/family_layout_removal_replay.py layout_paths",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "wall_seconds": 11.683231290997355,
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "expected_exit": 1,
+      "deciding_expectation_met": true,
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "input_closure": "Frozen source and committed synthetic migration consumers; no real data or authority admission.",
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/family-removal-layout_paths.stdout.txt",
+        "bytes": 4783,
+        "sha256": "d0d463e8db769eae217723cc05bfc89cdf1e634d7bc71046392159d58b02d271"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/family-removal-layout_paths.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "output": "/tmp/e02-F-continuation-20261006/foundry/family-removal-layout_paths.stdout.txt"
+    },
+    {
+      "name": "family-layout-docs-backend",
+      "argv": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "mkdocs",
+        "--version"
+      ],
+      "command": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python -m mkdocs --version",
+      "cwd": "/workspace/e02-F-fry-20261006/policy-engine",
+      "target_sha": "7f05b6259e0c78fac81a0baa4bff41e648a9d771",
+      "wall_seconds": 0.019784829011769034,
+      "exit_code": 1,
+      "outcome": "ERROR",
+      "expected_exit": 1,
+      "deciding_expectation_met": true,
+      "environment": {
+        "interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "src:tools",
+        "shared_venv_read_only": true
+      },
+      "input_closure": "Frozen source and committed synthetic migration consumers; no real data or authority admission.",
+      "stdout": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/family-layout-docs-backend.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-F-continuation-20261006/foundry/family-layout-docs-backend.stderr.txt",
+        "bytes": 90,
+        "sha256": "5e97e0b26312eba3d14f18e4f1f143e24d1006a552cb46877794b7e912132873"
+      },
+      "output": "/tmp/e02-F-continuation-20261006/foundry/family-layout-docs-backend.stdout.txt"
+    }
+  ],
+  "native_and_removal_expectations_met": true,
+  "docs_build": "UNRUN: MkDocs unavailable in admitted readonly application environment; preflight ERROR is not PASS."
+}

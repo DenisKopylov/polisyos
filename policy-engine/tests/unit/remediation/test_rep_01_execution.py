@@ -439,6 +439,7 @@ def test_built_wheel_replay_abi_imports_from_fresh_site_packages(tmp_path: Path)
     outside_checkout.mkdir()
     code = f"""
 import importlib
+import inspect
 import sys
 from pathlib import Path
 
@@ -451,7 +452,11 @@ assert tuple(runtime.__all__) == {ROOT_EXPORTS!r}
 assert "polisyos.scientist.replay.deterministic" not in sys.modules
 assert "polisyos.runtime.replay" not in sys.modules
 canonical = importlib.import_module("polisyos.scientist.replay.deterministic")
-assert runtime.ReplayPlan is canonical.ReplayPlan
+for name in {ROOT_EXPORTS!r}:
+    runtime_export = getattr(runtime, name)
+    canonical_export = getattr(canonical, name)
+    assert runtime_export is canonical_export, name
+    assert inspect.signature(runtime_export) == inspect.signature(canonical_export), name
 compatibility = importlib.import_module("polisyos.runtime.replay")
 expected = {COMPATIBILITY_EXPORTS!r}
 assert tuple(compatibility.__all__) == expected

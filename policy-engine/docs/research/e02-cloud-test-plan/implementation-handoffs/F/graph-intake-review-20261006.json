@@ -190,14 +190,36 @@
       "sha256": "b454548fb4248e555f9711c24d2340d41567f7c02085d1bf1ad3f734c43b1fcb"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-native.stdout.txt.json",
+      "path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-native.stdout.txt",
       "bytes": 620,
-      "sha256": "482890e95120afc4462bb1c392a2b6da58865e2d714c4089634bef284fb3051d"
+      "sha256": "482890e95120afc4462bb1c392a2b6da58865e2d714c4089634bef284fb3051d",
+      "encoding": "identity-original-utf8",
+      "transport": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-native.stdout.txt.json",
+        "bytes": 803,
+        "sha256": "611879b33c47486ea0285aca81884d8ad66e7bcd9b5a80e932c64dd668be9783",
+        "encoding": "utf8-json-string",
+        "decoded_field": "raw_stdout_or_stderr",
+        "decoded_utf8_bytes": 620,
+        "decoded_utf8_sha256": "482890e95120afc4462bb1c392a2b6da58865e2d714c4089634bef284fb3051d",
+        "decoding": "JSON.parse transport; UTF-8 encode raw_stdout_or_stderr without newline normalization"
+      }
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-native.stderr.txt.json",
+      "path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-native.stderr.txt",
       "bytes": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity-original-utf8",
+      "transport": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-native.stderr.txt.json",
+        "bytes": 169,
+        "sha256": "6378059be8bea449883bd393348d205778b602adc9717f4c8e6fe91a980d29a3",
+        "encoding": "utf8-json-string",
+        "decoded_field": "raw_stdout_or_stderr",
+        "decoded_utf8_bytes": 0,
+        "decoded_utf8_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "decoding": "JSON.parse transport; UTF-8 encode raw_stdout_or_stderr without newline normalization"
+      }
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-control.json",
@@ -205,14 +227,36 @@
       "sha256": "70faaf07fdde1ee19a08b2ca6f4c1d682ad97d681a0e859658bef2a31cab6a80"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-control.stdout.txt.json",
+      "path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-control.stdout.txt",
       "bytes": 689,
-      "sha256": "e5f1a1576576d429267e83614abcf61ae8b44c82c5d413bd97fdb2029e5d676c"
+      "sha256": "e5f1a1576576d429267e83614abcf61ae8b44c82c5d413bd97fdb2029e5d676c",
+      "encoding": "identity-original-utf8",
+      "transport": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-control.stdout.txt.json",
+        "bytes": 863,
+        "sha256": "71e3c5e8107600b8410b2267d2636d1306b90a6bffc69aaff8686047d991ef4b",
+        "encoding": "utf8-json-string",
+        "decoded_field": "raw_stdout_or_stderr",
+        "decoded_utf8_bytes": 689,
+        "decoded_utf8_sha256": "e5f1a1576576d429267e83614abcf61ae8b44c82c5d413bd97fdb2029e5d676c",
+        "decoding": "JSON.parse transport; UTF-8 encode raw_stdout_or_stderr without newline normalization"
+      }
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-control.stderr.txt.json",
+      "path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-control.stderr.txt",
       "bytes": 1217,
-      "sha256": "136bf8466aaa41556efe0b54ef8c94cda5d861735c0a15d8f55e6379d5dc7f5f"
+      "sha256": "136bf8466aaa41556efe0b54ef8c94cda5d861735c0a15d8f55e6379d5dc7f5f",
+      "encoding": "identity-original-utf8",
+      "transport": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-control.stderr.txt.json",
+        "bytes": 1404,
+        "sha256": "b4dc20c0526ffaa9479ccac89b887a2338c470f871fbd7e3e8c743c848122413",
+        "encoding": "utf8-json-string",
+        "decoded_field": "raw_stdout_or_stderr",
+        "decoded_utf8_bytes": 1217,
+        "decoded_utf8_sha256": "136bf8466aaa41556efe0b54ef8c94cda5d861735c0a15d8f55e6379d5dc7f5f",
+        "decoding": "JSON.parse transport; UTF-8 encode raw_stdout_or_stderr without newline normalization"
+      }
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-probe.py",
@@ -225,14 +269,36 @@
       "sha256": "09f0baca663a55bfc2a71c9603cf92eeb947015e635691a54ba1eb8c39383a98"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-corrected-control.stdout.txt.json",
+      "path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-corrected-control.stdout.txt",
       "bytes": 2981,
-      "sha256": "37605c4866052826db02167bacfa0031ab2c2105a9f533a2bbda26f063906d8f"
+      "sha256": "37605c4866052826db02167bacfa0031ab2c2105a9f533a2bbda26f063906d8f",
+      "encoding": "identity-original-utf8",
+      "transport": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-corrected-control.stdout.txt.json",
+        "bytes": 3331,
+        "sha256": "541e4a1d1fce91a67f807a8c6225d425a8a610e9c0aefa45f4330389e6b959db",
+        "encoding": "utf8-json-string",
+        "decoded_field": "raw_stdout_or_stderr",
+        "decoded_utf8_bytes": 2981,
+        "decoded_utf8_sha256": "37605c4866052826db02167bacfa0031ab2c2105a9f533a2bbda26f063906d8f",
+        "decoding": "JSON.parse transport; UTF-8 encode raw_stdout_or_stderr without newline normalization"
+      }
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-corrected-control.stderr.txt.json",
+      "path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-corrected-control.stderr.txt",
       "bytes": 2058,
-      "sha256": "90ddd4c58cf8afcd324871a174fd7472c6afbee9fea0e9b19794eb420628fab3"
+      "sha256": "90ddd4c58cf8afcd324871a174fd7472c6afbee9fea0e9b19794eb420628fab3",
+      "encoding": "identity-original-utf8",
+      "transport": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-corrected-control.stderr.txt.json",
+        "bytes": 2262,
+        "sha256": "0280d87d6809865324a135173f389ff4025e7f313fd769cbe697249cc9763546",
+        "encoding": "utf8-json-string",
+        "decoded_field": "raw_stdout_or_stderr",
+        "decoded_utf8_bytes": 2058,
+        "decoded_utf8_sha256": "90ddd4c58cf8afcd324871a174fd7472c6afbee9fea0e9b19794eb420628fab3",
+        "decoding": "JSON.parse transport; UTF-8 encode raw_stdout_or_stderr without newline normalization"
+      }
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-corrected-probe.py",
@@ -245,14 +311,36 @@
       "sha256": "7a7a6f8ebc430f22fe1349f807070e6c736015eeee32eea41ce0b8d49cbd1d73"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-control.stdout.txt.json",
+      "path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-final-control.stdout.txt",
       "bytes": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "encoding": "identity-original-utf8",
+      "transport": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-control.stdout.txt.json",
+        "bytes": 169,
+        "sha256": "6378059be8bea449883bd393348d205778b602adc9717f4c8e6fe91a980d29a3",
+        "encoding": "utf8-json-string",
+        "decoded_field": "raw_stdout_or_stderr",
+        "decoded_utf8_bytes": 0,
+        "decoded_utf8_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "decoding": "JSON.parse transport; UTF-8 encode raw_stdout_or_stderr without newline normalization"
+      }
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-control.stderr.txt.json",
+      "path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-final-control.stderr.txt",
       "bytes": 193,
-      "sha256": "960ce18b9c067c22a91d8267c36f310d29bacdabea3796be6ede08546cdb7253"
+      "sha256": "960ce18b9c067c22a91d8267c36f310d29bacdabea3796be6ede08546cdb7253",
+      "encoding": "identity-original-utf8",
+      "transport": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-control.stderr.txt.json",
+        "bytes": 365,
+        "sha256": "27a957b1a7428473784cb0bc57bcf4c3259f82782285d546df80411030d2cd37",
+        "encoding": "utf8-json-string",
+        "decoded_field": "raw_stdout_or_stderr",
+        "decoded_utf8_bytes": 193,
+        "decoded_utf8_sha256": "960ce18b9c067c22a91d8267c36f310d29bacdabea3796be6ede08546cdb7253",
+        "decoding": "JSON.parse transport; UTF-8 encode raw_stdout_or_stderr without newline normalization"
+      }
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-native-control.json",
@@ -260,14 +348,36 @@
       "sha256": "06a591c05ec4156485d4f044f0a7423cf12c0645958553192321dab5c732b476"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-native-control.stdout.txt.json",
+      "path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-final-native-control.stdout.txt",
       "bytes": 6979,
-      "sha256": "956855be311d7022671b7b7deeee30b191fd03b46ae184df1f0da230489bd919"
+      "sha256": "956855be311d7022671b7b7deeee30b191fd03b46ae184df1f0da230489bd919",
+      "encoding": "identity-original-utf8",
+      "transport": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-native-control.stdout.txt.json",
+        "bytes": 7759,
+        "sha256": "b7c7ec2d3a7ef90e8a221cd63fc9658545cc3a13c161b0dec8d558590d96cba3",
+        "encoding": "utf8-json-string",
+        "decoded_field": "raw_stdout_or_stderr",
+        "decoded_utf8_bytes": 6979,
+        "decoded_utf8_sha256": "956855be311d7022671b7b7deeee30b191fd03b46ae184df1f0da230489bd919",
+        "decoding": "JSON.parse transport; UTF-8 encode raw_stdout_or_stderr without newline normalization"
+      }
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-native-control.stderr.txt.json",
+      "path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-final-native-control.stderr.txt",
       "bytes": 857,
-      "sha256": "cefbc1d6b133d4a28a80a105e163ec341b797572821e4ed3fd08a8e0be09dc42"
+      "sha256": "cefbc1d6b133d4a28a80a105e163ec341b797572821e4ed3fd08a8e0be09dc42",
+      "encoding": "identity-original-utf8",
+      "transport": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-native-control.stderr.txt.json",
+        "bytes": 1036,
+        "sha256": "766adc2009b339468ba4b89418454af9e28c1a546fca6318ef202c1479e0938c",
+        "encoding": "utf8-json-string",
+        "decoded_field": "raw_stdout_or_stderr",
+        "decoded_utf8_bytes": 857,
+        "decoded_utf8_sha256": "cefbc1d6b133d4a28a80a105e163ec341b797572821e4ed3fd08a8e0be09dc42",
+        "decoding": "JSON.parse transport; UTF-8 encode raw_stdout_or_stderr without newline normalization"
+      }
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-probe.py",
@@ -580,5 +690,82 @@
       "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-native-control.json",
       "summary": "Complete observation probe ran rc0; semantic intake predicates FAIL as individually classified above"
     }
-  ]
+  ],
+  "original_artifact_reference_correction": {
+    "correction_count": 10,
+    "source_implementation_unchanged": "cebe94d8134a4652bbfc1ae4d74ec6403940ced5",
+    "reason": "Ten original stdout/stderr references previously used the encoded transport path with decoded raw bytes/hash. They now identify actual original scratch bytes and explicitly bind their committed lossless JSON transport. The artifact_manifest continues to bind transport bytes/hash separately. Original raw bytes/hash, deciding outputs, source and outcomes are unchanged.",
+    "mappings": [
+      {
+        "prior_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-native.stdout.txt.json",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-native.stdout.txt",
+        "committed_transport_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-native.stdout.txt.json",
+        "original_bytes": 620,
+        "original_sha256": "482890e95120afc4462bb1c392a2b6da58865e2d714c4089634bef284fb3051d"
+      },
+      {
+        "prior_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-native.stderr.txt.json",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-native.stderr.txt",
+        "committed_transport_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-native.stderr.txt.json",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "prior_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-control.stdout.txt.json",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-control.stdout.txt",
+        "committed_transport_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-control.stdout.txt.json",
+        "original_bytes": 689,
+        "original_sha256": "e5f1a1576576d429267e83614abcf61ae8b44c82c5d413bd97fdb2029e5d676c"
+      },
+      {
+        "prior_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-control.stderr.txt.json",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-control.stderr.txt",
+        "committed_transport_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-control.stderr.txt.json",
+        "original_bytes": 1217,
+        "original_sha256": "136bf8466aaa41556efe0b54ef8c94cda5d861735c0a15d8f55e6379d5dc7f5f"
+      },
+      {
+        "prior_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-corrected-control.stdout.txt.json",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-corrected-control.stdout.txt",
+        "committed_transport_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-corrected-control.stdout.txt.json",
+        "original_bytes": 2981,
+        "original_sha256": "37605c4866052826db02167bacfa0031ab2c2105a9f533a2bbda26f063906d8f"
+      },
+      {
+        "prior_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-corrected-control.stderr.txt.json",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-corrected-control.stderr.txt",
+        "committed_transport_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-corrected-control.stderr.txt.json",
+        "original_bytes": 2058,
+        "original_sha256": "90ddd4c58cf8afcd324871a174fd7472c6afbee9fea0e9b19794eb420628fab3"
+      },
+      {
+        "prior_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-control.stdout.txt.json",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-final-control.stdout.txt",
+        "committed_transport_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-control.stdout.txt.json",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "prior_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-control.stderr.txt.json",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-final-control.stderr.txt",
+        "committed_transport_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-control.stderr.txt.json",
+        "original_bytes": 193,
+        "original_sha256": "960ce18b9c067c22a91d8267c36f310d29bacdabea3796be6ede08546cdb7253"
+      },
+      {
+        "prior_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-native-control.stdout.txt.json",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-final-native-control.stdout.txt",
+        "committed_transport_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-native-control.stdout.txt.json",
+        "original_bytes": 6979,
+        "original_sha256": "956855be311d7022671b7b7deeee30b191fd03b46ae184df1f0da230489bd919"
+      },
+      {
+        "prior_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-native-control.stderr.txt.json",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/reconcile-intake-final-native-control.stderr.txt",
+        "committed_transport_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006-reconcile-intake-final-native-control.stderr.txt.json",
+        "original_bytes": 857,
+        "original_sha256": "cefbc1d6b133d4a28a80a105e163ec341b797572821e4ed3fd08a8e0be09dc42"
+      }
+    ]
+  }
 }

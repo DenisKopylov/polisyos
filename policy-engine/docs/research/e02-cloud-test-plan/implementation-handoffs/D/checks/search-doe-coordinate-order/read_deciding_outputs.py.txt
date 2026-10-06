@@ -1,0 +1,58 @@
+"""Verify and read the lossless measurement bundle without extracting files."""
+
+import argparse
+import base64
+import gzip
+import hashlib
+import json
+from pathlib import Path
+import sys
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def verify(header_path):
+    header_path = Path(header_path)
+    header = json.loads(header_path.read_text())
+    compressed = header_path.with_name(Path(header["bundle_path"]).name).read_bytes()
+    assert len(compressed) == header["compressed_bytes"]
+    assert digest(compressed) == header["compressed_sha256"]
+    raw = gzip.decompress(compressed)
+    assert len(raw) == header["uncompressed_json_bytes"]
+    assert digest(raw) == header["uncompressed_json_sha256"]
+    bundle = json.loads(raw)
+    assert bundle["candidate_sha"] == header["candidate_sha"]
+    expected = {record["name"]: record for record in header["members"]}
+    assert len(expected) == len(header["members"]) == header["member_count"]
+    actual = {}
+    total = 0
+    for record in bundle["members"]:
+        name = record["name"]
+        assert name not in actual
+        data = base64.b64decode(record["data_base64"], validate=True)
+        assert {key: value for key, value in record.items() if key != "data_base64"} == expected[name]
+        assert len(data) == record["raw_bytes"]
+        assert digest(data) == record["raw_sha256"]
+        actual[name] = data
+        total += len(data)
+    assert set(actual) == set(expected)
+    assert total == header["raw_member_byte_total"]
+    return header, actual
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--header", required=True)
+    parser.add_argument("--member", help="Exact member name; print original bytes to stdout")
+    args = parser.parse_args()
+    header, members = verify(args.header)
+    if args.member is not None:
+        sys.stdout.buffer.write(members[args.member])
+    else:
+        print(json.dumps({"verified_members": len(members), "raw_bytes": sum(map(len, members.values())), "compressed_sha256": header["compressed_sha256"]}))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,538 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "doe-exploratory-coordinate-order-continuation",
+  "closure_ids": [],
+  "finding_ids": [],
+  "related_finding_ids": [
+    "B100",
+    "B112",
+    "B113",
+    "B127"
+  ],
+  "related_finding_scope": "Upstream E B100 consumer dependency and D OPT-02 canonical coordinate/proposal/checkpoint boundary; no finding acceptance or closure is asserted. Existing institutional/source residuals stay held/open.",
+  "bundle_ids": [
+    "OPT-02"
+  ],
+  "slice_base_sha": "8873a2bf936c0040bd7e45df2b1108603fb3daad",
+  "slice_base_tree": "e560014e63a8b58fc6e54776f57a78b57b81b8d2",
+  "implementation_commits": [
+    "18321a109efd539f798ff9c3d7dae2f09bddea57",
+    "3cedc980a3350ed7e091b26ad4fb87e3bf1e68ba",
+    "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+    "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61"
+  ],
+  "candidate_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+  "candidate_tree_sha": "e2d788db3917bbade79ae024fb52481fda0521b0",
+  "branch": "codex/e02-D-published-search",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/how-to/search-exploratory-coordinate-order.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-exploratory-coordinate-order.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+    "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py"
+  ],
+  "changed_path_sha256": {
+    "policy-engine/docs/how-to/search-exploratory-coordinate-order.md": "337c090f80f1077d3463343b16a26cbb75d630fae7912dcb6f1038727a942270",
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-exploratory-coordinate-order.toml": "f12476d1f9bd955195543b1db5b813d37b866aceb4656d07ee6a40a48f41845a",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a",
+    "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98",
+    "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py": "15c36e5b510be10cbfb9b08cacedb38b2daecddd3550b1f80965ae8ccc0a18cb",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py": "1c71cd158bee77610026fb2f9eda36200064d81dc885d4b12f47451b9b7d50e2"
+  },
+  "baseline_cells": [],
+  "baseline_note": "Original D/OPT-02 and E geometry receipts remain their own exact source/env lineages. No P41 inherited-red waiver or historical PASS is promoted to current candidate. This new explicit ordering port was absent on slice-base; historical183 and corrective runs are all included.",
+  "dependencies": [
+    {
+      "unit": "E",
+      "packet_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-block-replay-20261006/D-consumer-packet.md",
+      "producer_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+      "producer_tree": "8dcd5c26a4868e1b055a54a6cd53365e9d5890f3",
+      "root_adoption_sha": "a843d963cf5f245035f32a6abd74f72206302c46",
+      "root_adoption_tree": "99de141d53077313bdaac61b0168702fd3b53015",
+      "normal_merge_sha": "8873a2bf936c0040bd7e45df2b1108603fb3daad",
+      "scope": "Exact approved11 E source/test/companions adopted by root; existing SALib producer/receipt reader reused. No new numerical estimator or population-law authority."
+    },
+    {
+      "unit": "B",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "scope": "Existing canonical get_verified_snapshot supplies one immutable verified byte+manifest pair; actual producer reference selects existing artifact_manifest_profile_sha256. No second integrity verifier."
+    },
+    {
+      "unit": "D",
+      "owner": "gp_witness",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "status": "separate_pending_dependency",
+      "scope": "Default SearchLoopSpec metadata activation, canonical typed-codec technical projection, sensitivity_analysis manifest input lineage are sole runtime writer scope. This receipt proves explicit resolved-adapter/custom-codec composition only."
+    }
+  ],
+  "environment": {
+    "name": "D-locked-DOE-real-backend",
+    "python": "3.14.7",
+    "interpreter": "/workspace/e02-D-doe-env/bin/python",
+    "versions": {
+      "torch": "2.10.0",
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1",
+      "SALib": "1.5.2",
+      "multiprocess": "0.70.19",
+      "dill": "0.4.1",
+      "numpy": "2.3.5",
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5"
+    },
+    "actual_runtime_versions_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-affected-four/junit.native.json",
+    "root_provisioning_receipt": {
+      "path": "/workspace/e02-D3-receipts/doe-environment/provision.json",
+      "sha256": "4597f650e105af4db2113715b72f6cb8dfc0db0b6608892a9dce5d9fd1af627f"
+    },
+    "profile": "Complete repository pytest.ini retained except -o addopts=; runner adds importlib, strict markers, fresh nonexistent UUID basetemp, JUnit, -rA and external measurement-only plugin. No thread/process/time cap; stdlib-only parent. Shared tokenizer cache path is recorded in every run metadata.",
+    "missing_backend_profile": "Standard importorskip SALib/Torch/BoTorch/GPyTorch is UNRUN, never numerical PASS; prior locked-without-SALib readiness remains separate."
+  },
+  "inputs": {
+    "bounds": [
+      {
+        "name": "x",
+        "lower": -2.0,
+        "upper": 2.0,
+        "unit": "metres",
+        "distribution": "uniform"
+      },
+      {
+        "name": "z",
+        "lower": 10.0,
+        "upper": 20.0,
+        "unit": "seconds",
+        "distribution": "uniform"
+      }
+    ],
+    "evaluator": "100*dominant_parameter + other_parameter, dominant=x or z; synthetic analytic fixture, no institutional input claim",
+    "native_generator": {
+      "seed": 31,
+      "metric": "score",
+      "direction": "minimize",
+      "compare_split": "selection",
+      "existing_native_algorithm": "Sobol cold-start / unchanged Bayesian optimizer",
+      "fitted_model": null
+    },
+    "DOE": {
+      "method": "morris for physical/order/restore/defaultLoop, Sobol for seed/law/index/schema content negatives",
+      "seed": 31,
+      "morris_trajectories": 8,
+      "morris_actual_evaluator_rows_per_analysis": 24,
+      "sobol_complete_blocks": 32,
+      "sobol_input_law": "independent experimental declaration",
+      "sobol_actual_evaluator_rows_per_analysis": 192,
+      "units": "metres, seconds; declared synthetic domain, not institutionally verified"
+    },
+    "source": {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py",
+      "sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "sha256": "1c71cd158bee77610026fb2f9eda36200064d81dc885d4b12f47451b9b7d50e2"
+    },
+    "CAS": "Actual FileSystemCAS; fresh reopen, selected full manifest reference and actual source blob mutation; test source reconstructs complete deterministic input closure, fixtures preserved at original fresh basetemps in run metadata."
+  },
+  "checks": [
+    {
+      "id": "183-first40",
+      "target_sha": "18321a109efd539f798ff9c3d7dae2f09bddea57",
+      "target_tree": "b37f1086f5141f9823d8429cf4875e6c1053fef0",
+      "command": "Exact argv in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/183-first40/run.json#/argv",
+      "outcome": "FAIL",
+      "returncode": 1,
+      "counts": {
+        "tests": 40,
+        "failure": 7,
+        "error": 0,
+        "skip": 0,
+        "pass": 33
+      },
+      "wall_seconds": 16.454988794997917,
+      "source_after": "18321a109efd539f798ff9c3d7dae2f09bddea57",
+      "status_after": "",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/183-first40/complete.txt",
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/183-first40/run.json",
+      "instrument_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/183-first40/run.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-own16-killed/native_observer.py"
+      ],
+      "note": null,
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/183-first40/run.json#/argv"
+    },
+    {
+      "id": "3ced-union43-killed",
+      "target_sha": "3cedc980a3350ed7e091b26ad4fb87e3bf1e68ba",
+      "target_tree": "1963323ba82bb2623afac450f0f766fced9b6ef2",
+      "command": "Exact argv in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-union43-killed/run.json#/argv",
+      "outcome": "ERROR",
+      "returncode": -9,
+      "counts": null,
+      "wall_seconds": 22.480848136998247,
+      "source_after": "3cedc980a3350ed7e091b26ad4fb87e3bf1e68ba",
+      "status_after": "",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-union43-killed/complete.txt",
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-union43-killed/run.json",
+      "instrument_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-union43-killed/run.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-own16-killed/native_observer.py"
+      ],
+      "note": "No complete verdict; noJUnit/no sessionfinish origins",
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-union43-killed/run.json#/argv"
+    },
+    {
+      "id": "3ced-own16-killed",
+      "target_sha": "3cedc980a3350ed7e091b26ad4fb87e3bf1e68ba",
+      "target_tree": "1963323ba82bb2623afac450f0f766fced9b6ef2",
+      "command": "Exact argv in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-own16-killed/run.json#/argv",
+      "outcome": "ERROR",
+      "returncode": -9,
+      "counts": null,
+      "wall_seconds": 85.45253516099183,
+      "source_after": "3cedc980a3350ed7e091b26ad4fb87e3bf1e68ba",
+      "status_after": "",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-own16-killed/complete.txt",
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-own16-killed/run.json",
+      "instrument_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-own16-killed/run.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-own16-killed/native_observer.py"
+      ],
+      "note": "No complete verdict; noJUnit/no sessionfinish origins",
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-own16-killed/run.json#/argv"
+    },
+    {
+      "id": "3ced-fixture-red",
+      "target_sha": "3cedc980a3350ed7e091b26ad4fb87e3bf1e68ba",
+      "target_tree": "1963323ba82bb2623afac450f0f766fced9b6ef2",
+      "command": "Exact argv in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-fixture-red/run.json#/argv",
+      "outcome": "FAIL",
+      "returncode": 1,
+      "counts": {
+        "tests": 1,
+        "failure": 1,
+        "error": 0,
+        "skip": 0,
+        "pass": 0
+      },
+      "wall_seconds": 24.046972761992947,
+      "source_after": "3cedc980a3350ed7e091b26ad4fb87e3bf1e68ba",
+      "status_after": "",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-fixture-red/complete.txt",
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-fixture-red/run.json",
+      "instrument_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-removal-two/run.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-affected-four/native_observer.py"
+      ],
+      "note": null,
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/3ced-fixture-red/run.json#/argv"
+    },
+    {
+      "id": "944-fixture-successor",
+      "target_sha": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+      "target_tree": "e445d7d1ff0e065579a337e9aa7b94bb972ca76d",
+      "command": "Exact argv in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-fixture-successor/run.json#/argv",
+      "outcome": "PASS",
+      "returncode": 0,
+      "counts": {
+        "tests": 1,
+        "failure": 0,
+        "error": 0,
+        "skip": 0,
+        "pass": 1
+      },
+      "wall_seconds": 23.84672435700486,
+      "source_after": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+      "status_after": "",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-fixture-successor/complete.txt",
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-fixture-successor/run.json",
+      "instrument_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-removal-two/run.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-affected-four/native_observer.py"
+      ],
+      "note": null,
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-fixture-successor/run.json#/argv"
+    },
+    {
+      "id": "944-native-positive",
+      "target_sha": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+      "target_tree": "e445d7d1ff0e065579a337e9aa7b94bb972ca76d",
+      "command": "Exact argv in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-native-positive/run.json#/argv",
+      "outcome": "PASS",
+      "returncode": 0,
+      "counts": {
+        "tests": 3,
+        "failure": 0,
+        "error": 0,
+        "skip": 0,
+        "pass": 3
+      },
+      "wall_seconds": 63.57401642999321,
+      "source_after": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+      "status_after": "",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-remaining/native-positive/complete.txt",
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-remaining/native-positive/run.json",
+      "instrument_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-removal-two/run.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-affected-four/native_observer.py"
+      ],
+      "note": null,
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-remaining/native-positive/run.json#/argv"
+    },
+    {
+      "id": "944-native-negative",
+      "target_sha": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+      "target_tree": "e445d7d1ff0e065579a337e9aa7b94bb972ca76d",
+      "command": "Exact argv in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-native-negative/run.json#/argv",
+      "outcome": "FAIL",
+      "returncode": 1,
+      "counts": {
+        "tests": 12,
+        "failure": 1,
+        "error": 0,
+        "skip": 0,
+        "pass": 11
+      },
+      "wall_seconds": 15.100513566008885,
+      "source_after": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+      "status_after": "",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-remaining/native-negative/complete.txt",
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-remaining/native-negative/run.json",
+      "instrument_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-removal-two/run.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-affected-four/native_observer.py"
+      ],
+      "note": null,
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-remaining/native-negative/run.json#/argv"
+    },
+    {
+      "id": "944-E-consumers-killed",
+      "target_sha": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+      "target_tree": "e445d7d1ff0e065579a337e9aa7b94bb972ca76d",
+      "command": "Exact argv in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-E-consumers-killed/run.json#/argv",
+      "outcome": "ERROR",
+      "returncode": -9,
+      "counts": null,
+      "wall_seconds": 123.57077242599917,
+      "source_after": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+      "status_after": "",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-remaining/affected-E-consumers/complete.txt",
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-remaining/affected-E-consumers/run.json",
+      "instrument_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-removal-two/run.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-affected-four/native_observer.py"
+      ],
+      "note": "No complete verdict; noJUnit/no sessionfinish origins",
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/944-remaining/affected-E-consumers/run.json#/argv"
+    },
+    {
+      "id": "9fb-affected-four",
+      "target_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "target_tree": "e2d788db3917bbade79ae024fb52481fda0521b0",
+      "command": "Exact argv in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-affected-four/run.json#/argv",
+      "outcome": "PASS",
+      "returncode": 0,
+      "counts": {
+        "tests": 4,
+        "failure": 0,
+        "error": 0,
+        "skip": 0,
+        "pass": 4
+      },
+      "wall_seconds": 23.804831000001286,
+      "source_after": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "status_after": "",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-affected-four/complete.txt",
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-affected-four/run.json",
+      "instrument_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-removal-two/run.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-affected-four/native_observer.py"
+      ],
+      "note": null,
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-affected-four/run.json#/argv"
+    },
+    {
+      "id": "9fb-removal-two",
+      "target_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "target_tree": "e2d788db3917bbade79ae024fb52481fda0521b0",
+      "command": "Exact argv in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-removal-two/run.json#/argv",
+      "outcome": "FAIL",
+      "returncode": 1,
+      "counts": {
+        "tests": 2,
+        "failure": 2,
+        "error": 0,
+        "skip": 0,
+        "pass": 0
+      },
+      "wall_seconds": 24.678101883997442,
+      "source_after": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "status_after": "",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-removal-two/complete.txt",
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-removal-two/run.json",
+      "instrument_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-removal-two/run.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-removal-two/native_observer.py"
+      ],
+      "note": "FAIL_AS_REQUIRED: child-only property removal",
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-removal-two/run.json#/argv"
+    },
+    {
+      "id": "9fb-ruff-check",
+      "target_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "command": "Exact argv in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-quality/ruff-check.json#/argv",
+      "outcome": "PASS",
+      "returncode": 0,
+      "wall_seconds": 0.08223572401038837,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-quality/ruff-check.txt",
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-quality/ruff-check.json",
+      "note": null,
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-quality/ruff-check.json#/argv"
+    },
+    {
+      "id": "9fb-ruff-format",
+      "target_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "command": "Exact argv in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-quality/ruff-format.json#/argv",
+      "outcome": "PASS",
+      "returncode": 0,
+      "wall_seconds": 0.04416417999891564,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-quality/ruff-format.txt",
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-quality/ruff-format.json",
+      "note": null,
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-quality/ruff-format.json#/argv"
+    },
+    {
+      "id": "9fb-release",
+      "target_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "command": "Exact argv in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-quality/release.json#/argv",
+      "outcome": "ERROR",
+      "returncode": 1,
+      "wall_seconds": 0.06993722899642307,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-quality/release.txt",
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-quality/release.json",
+      "note": "Harness startup missing PYTHONPATH; corrected configured run follows",
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-quality/release.json#/argv"
+    },
+    {
+      "id": "9fb-release-configured",
+      "target_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "command": "Exact argv in policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-quality/release-configured.json#/argv",
+      "outcome": "PASS",
+      "returncode": 0,
+      "wall_seconds": 0.11557305000314955,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-quality/release-configured.txt",
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-quality/release-configured.json",
+      "note": null,
+      "command_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz!/9fb-quality/release-configured.json#/argv"
+    }
+  ],
+  "evidence_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.header.json",
+  "origin_reconciliation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/source-origin-reconciliation.json",
+  "capture_deviations": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/capture-deviations.txt",
+  "property": {
+    "statement": "Before native activity, complete recomputed DOE ranking can explicitly permute the existing native coordinate assignment, bound to full physical bounds/unit/distribution and selected CAS receipt; same source restores/revalidates the same policy, unresolved/forged/changed evidence refuses before native proposal or state mutation.",
+    "runtime_path": [
+      "SensitivityBridge actual evaluator/SALib producer",
+      "persisted full DOE receipt and selected actual manifest profile",
+      "B canonical immutable snapshot -> existing E recomputing reader",
+      "SensitivityAwareCandidateGenerator.from_artifact -> BGC.configure_sensitivity_order",
+      "existing native SearchSpace/Sobol proposal",
+      "explicit resolved-adapter SearchLoopSpec/customCodec -> SearchLoopRunner -> native service/controller",
+      "persisted candidate FileSystemCAS fresh readback; generator checkpoint exact full ref/config"
+    ],
+    "proxy_divergence": "Keeping recomputed analysis, full ref, IDs, ranking/metadata, reader and policy while restoring original native Space/optimizer leaves marker checks valid but removes the physical proposal effect. Both native physical assignment and actual persisted-loop assertions fail. The first183 forged-content tests were masked by absent manifest selection;3ced selects valid profiles so seed/law/index/schema gates execute. Independent full183 review additionally shows all five new native-basis mismatch controls and five E legacy _BaseGenerator fake-receipt controls also stopped at the unselected-ref gate in183. These14 historical PASS cells are profile-refusal-only, not evidence of their named basis/content property.",
+    "negative_controls": [
+      "Full native bounds/unit/distribution/name/unknown-unit mismatch; no proposal/model mutation",
+      "Integrity-valid but forged seed/law/index/schema receipt selected with its actual manifest profile",
+      "Same ref actual blob corruption before generation and checkpoint restore",
+      "Absent/forged selected manifest profile typed refusal",
+      "Same configured source idempotence vs changed source after activity refusal",
+      "Child-only remove native coordinate permutation while retaining all source/analysis/policy/metadata markers"
+    ],
+    "current_deciding_scope": "Exact9fb current4 affected cases PASS/0skip, actual canonical DOEreader/BGC/native Sobol/defaultLoop/customCodec/CAS paths observed; child-only2 removal cases FAIL_AS_REQUIRED. Historical9443 positivesPASS plus12negative11PASS1FAIL retained separately; the single unresolved-ref error boundary is corrected and current4 includes that exact negative. There is no claimed fresh current16/43 blanket verdict. Three E consumer cases were SIGKILL/UNRUN before any verdict, not inherited or waived."
+  },
+  "predicate_basis": "recomputed",
+  "predicate_scope_annotation": "Complete synthetic experimental receipt geometry/result and native physical assignment are recomputed; selected CAS bytes/manifest and listed actual module origins independently reconciled. Unit meaning, evaluator institutional provenance, population law and production/deployment authorization are not established. No authority-grade effect/promotion signature is emitted.",
+  "predicate_boundaries": {
+    "experimental_row_shape/geometry/numerical_result": "recomputed",
+    "physical_order_and_executed_candidate": "recomputed",
+    "CAS_byte_manifest_identity_and_listed_source_origins": "independently_reconciled",
+    "declared_experimental_unit_and_evaluator_law": "consumer_asserted",
+    "production_population_law/institutional_source_authorization/deployment": "not_established"
+  },
+  "capability_state_or_finding_state": "bounded_explicit_composition_verified; default_spec_metadata_activation_and_typed_codec_dependency_pending_runtime_owner; affected_legacy_E_consumer_execution_UNRUN; zero new closures",
+  "limitations_and_next_owner": [
+    {
+      "owner": "gp_witness/root",
+      "state": "consumer_missing_in_this_candidate",
+      "remaining": "Compose default SearchLoopSpec analysis_ref/order_profile/purpose activation and default typed-codec projection with actual sensitivity_analysis manifest lineage; run affected ordinary default consumer. Explicit custom-codec positive does not settle that boundary."
+    },
+    {
+      "owner": "root/E independent reviewer",
+      "state": "verification_missing_execution_ERROR_UNRUN",
+      "remaining": "Exact three affected E/legacy reader selectors in944-E-consumers-killed/run.json need a completed source-bound runtime result; actual123.57s SIGKILL/empty output/noJUnit remains ERROR/UNRUN. No broad43/GP26 replay is inferred."
+    },
+    {
+      "owner": "E/G accountable source owners",
+      "state": "held/open",
+      "remaining": "Actual production evaluator provenance, units, input law, source/owner context and deployment eligibility remain separately supplied decisions. Uniform continuous non-log candidate experiment profile does not authorize population independence or causal effects."
+    },
+    {
+      "owner": "G",
+      "state": "closure_pending",
+      "remaining": "Per-finding acceptance and integration belong to canonical ledger owners; closure_ids empty. Existing A quantity/denominator/export and all other D held residuals are unchanged."
+    }
+  ],
+  "pattern_pass": {
+    "P01/P02": "Actual explicit producer->CAS->reader->native proposal->persisted consumer demonstrated; default metadata/typed-codec dependency named.",
+    "P29/P37/P38": "Marker-retaining actual ordering removal fails; predicate scope declared; outputs/JUnit/innerchild returncode govern verdict, not outer capture exit.",
+    "P40": "Missing/forged receipt remains same existing content-bound intake class; a single canonical reader boundary normalizes any unresolved source ref before native activity. No per-profile or per-value ladder.",
+    "P41": "All original failures/resource errors retained; no inherited-red exclusion or environmental PASS."
+  },
+  "transport": {
+    "implementation_remote_readback_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+    "receipt_publication": "Separate append-only receipt commit follows implementation; remote receipt SHA will be read back after normal own-topic push."
+  },
+  "check_binding_note": "Every command_ref resolves to the complete original argv/cwd/environment/selector hashes in the tracked run metadata; instrumentation code is referenced by content digest. Counts derive from actual inner child/JUnit, never capture-parent status. Historical inputs are their exact source hashes, not current source by inference.",
+  "evidence_denominator": {
+    "all_original_captured_files": 81,
+    "all_raw_members_transferred": 81,
+    "raw_member_byte_total": 392440,
+    "excluded": [],
+    "source_or_fixture_archive": false,
+    "originals_retained": true
+  },
+  "historical_scope_corrections": {
+    "target_sha": "18321a109efd539f798ff9c3d7dae2f09bddea57",
+    "actual_tally": "33PASS/7FAIL",
+    "profile_refusal_only_case_classes": [
+      "five new test_actual_native_basis_mismatch_refuses_before_proposal variants",
+      "four new test_integrity_valid_forged_receipt_refuses_before_native_change variants",
+      "five E test_content_valid_fake_receipt_refuses_at_actual_consumer variants with legacy _BaseGenerator"
+    ],
+    "profile_refusal_only_total": 14,
+    "deciding_successors": "944 full-selected content/basis controls11PASS plus actual profile mismatch failure;9fb exact profile correction/current4PASS. Historical E legacy consumer positives remain ERROR/UNRUN until completed runtime."
+  },
+  "evidence_storage": {
+    "kind": "lossless_deciding_output_bundle",
+    "header": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.header.json",
+    "bundle": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz",
+    "decoder": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/read_deciding_outputs.py.txt",
+    "locator_syntax": "bundle_path!/member_name#/optional_JSON_pointer; these are exact compressed member locators, not standalone Git files. Header binds all raw hashes and sizes.",
+    "normal_hooks_preserved": true,
+    "compressed_sha256": "eafd3e366a8a0de23ecc34dde53c18b3e02479bd84b3813281a0b24b5c528b15",
+    "raw_members": 81,
+    "raw_bytes": 392440
+  },
+  "metadata_capacity_preservation": {
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/index-v4-preservation.json",
+    "operation": "Root-admitted native Git index v4 prefix compression only",
+    "source_HEAD_branch_staged_entries_flags_status_identity_unchanged": true,
+    "old_index_retained": true,
+    "cleanup_or_source_archive": false
+  }
+}

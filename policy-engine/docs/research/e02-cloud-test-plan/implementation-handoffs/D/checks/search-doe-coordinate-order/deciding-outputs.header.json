@@ -1,0 +1,584 @@
+{
+  "schema": "policyos.e02.lossless_deciding_output_header.v1",
+  "purpose": "Lossless transport only of81 new untracked measurement output/helper files; no tracked source/test or fixture/environment copy",
+  "candidate_sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+  "candidate_tree": "e2d788db3917bbade79ae024fb52481fda0521b0",
+  "encoding": "gzip JSON; each raw member is base64 encoded",
+  "bundle_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.json.gz",
+  "compressed_sha256": "eafd3e366a8a0de23ecc34dde53c18b3e02479bd84b3813281a0b24b5c528b15",
+  "compressed_bytes": 93134,
+  "uncompressed_json_sha256": "678c57e34e30fbea1bbbf568a414a572f6ec3e6c84f2869eee25c86515c8135a",
+  "uncompressed_json_bytes": 559154,
+  "member_count": 81,
+  "raw_member_byte_total": 392440,
+  "members": [
+    {
+      "name": "183-first40/complete.txt",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-final-a79526d4d8e9422794d3d9b3a0243bf8/complete.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/183-first40/complete.txt",
+      "raw_sha256": "da836ca66460f5a4519094830b825ee3cdf9c65d7f278225b7754190b55562d5",
+      "raw_bytes": 23935
+    },
+    {
+      "name": "183-first40/junit.native.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-final-a79526d4d8e9422794d3d9b3a0243bf8/junit.native.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/183-first40/junit.native.json",
+      "raw_sha256": "096e8b1eeece57e7f7ff39a403200f6b833a4a9c583a03248e8702388c6c485e",
+      "raw_bytes": 5763
+    },
+    {
+      "name": "183-first40/junit.xml",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-final-a79526d4d8e9422794d3d9b3a0243bf8/junit.xml",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/183-first40/junit.xml",
+      "raw_sha256": "7d3ba8234f1d51bddd6e1b2e7ee44f2b3bca63097b057a6cd8ee3e140ade4a59",
+      "raw_bytes": 25526
+    },
+    {
+      "name": "183-first40/native_observer.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-final-a79526d4d8e9422794d3d9b3a0243bf8/native_observer.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/29feacb55c252890d5ea77e92f060c45623ae347beca88999c2828c41d53c9e4.py.txt",
+      "raw_sha256": "29feacb55c252890d5ea77e92f060c45623ae347beca88999c2828c41d53c9e4",
+      "raw_bytes": 3165
+    },
+    {
+      "name": "183-first40/run.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-final-a79526d4d8e9422794d3d9b3a0243bf8/run.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/183-first40/run.json",
+      "raw_sha256": "9bd741382e65b1c19f119c9dbdc7763f20b4f743223446cb72905664b53ccfc9",
+      "raw_bytes": 3216
+    },
+    {
+      "name": "183-first40/run.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-final-a79526d4d8e9422794d3d9b3a0243bf8/run.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/45b3b0fe15f4a85c25108d4acd0138800cf5ec5d12d2a50a285ed01893e1d87c.py.txt",
+      "raw_sha256": "45b3b0fe15f4a85c25108d4acd0138800cf5ec5d12d2a50a285ed01893e1d87c",
+      "raw_bytes": 2364
+    },
+    {
+      "name": "3ced-union43-killed/complete.txt",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-selected-final-3e3671132edf4134bfa4763cec4e1922/complete.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-union43-killed/complete.txt",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "name": "3ced-union43-killed/native_observer.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-selected-final-3e3671132edf4134bfa4763cec4e1922/native_observer.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/29feacb55c252890d5ea77e92f060c45623ae347beca88999c2828c41d53c9e4.py.txt",
+      "raw_sha256": "29feacb55c252890d5ea77e92f060c45623ae347beca88999c2828c41d53c9e4",
+      "raw_bytes": 3165
+    },
+    {
+      "name": "3ced-union43-killed/run.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-selected-final-3e3671132edf4134bfa4763cec4e1922/run.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-union43-killed/run.json",
+      "raw_sha256": "800b646d8b6175cbf0fe537e3ef8ee28caecaba84ab189fc9a6ff83d85eef4e5",
+      "raw_bytes": 3475
+    },
+    {
+      "name": "3ced-union43-killed/run.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-selected-final-3e3671132edf4134bfa4763cec4e1922/run.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/430a8a34fee8cb2d474847860ed4ba5401e3eeeed878d0a4c350349ecf5084fe.py.txt",
+      "raw_sha256": "430a8a34fee8cb2d474847860ed4ba5401e3eeeed878d0a4c350349ecf5084fe",
+      "raw_bytes": 2373
+    },
+    {
+      "name": "3ced-own16-killed/complete.txt",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-port-final-ed175c0a44684a69a20fd6d1dbec6d2e/complete.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-own16-killed/complete.txt",
+      "raw_sha256": "fb3a85cd297aacb976a843a7a21df19eec92701e4e67a41d1a406e0498c7d307",
+      "raw_bytes": 12
+    },
+    {
+      "name": "3ced-own16-killed/native_observer.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-port-final-ed175c0a44684a69a20fd6d1dbec6d2e/native_observer.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/29feacb55c252890d5ea77e92f060c45623ae347beca88999c2828c41d53c9e4.py.txt",
+      "raw_sha256": "29feacb55c252890d5ea77e92f060c45623ae347beca88999c2828c41d53c9e4",
+      "raw_bytes": 3165
+    },
+    {
+      "name": "3ced-own16-killed/run.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-port-final-ed175c0a44684a69a20fd6d1dbec6d2e/run.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-own16-killed/run.json",
+      "raw_sha256": "399ceb76ac083bdfa86564c4fe96ae9b15f4f8c3927de2bccb2f110d01fdb52a",
+      "raw_bytes": 3056
+    },
+    {
+      "name": "3ced-own16-killed/run.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-port-final-ed175c0a44684a69a20fd6d1dbec6d2e/run.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/10c46a21d006c730ecd479fc6a219724c3dbea57df1fcfd7fb821c1abd427ec3.py.txt",
+      "raw_sha256": "10c46a21d006c730ecd479fc6a219724c3dbea57df1fcfd7fb821c1abd427ec3",
+      "raw_bytes": 2242
+    },
+    {
+      "name": "3ced-fixture-red/complete.txt",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-precise-0f7098036f33468d8d8d478b3f455a26/complete.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-fixture-red/complete.txt",
+      "raw_sha256": "fcc56f3610775d32e35668bb6aa527fd5613f5d19e13a909b9f6b4382a7c66ce",
+      "raw_bytes": 4032
+    },
+    {
+      "name": "3ced-fixture-red/events.jsonl",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-precise-0f7098036f33468d8d8d478b3f455a26/events.jsonl",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-fixture-red/events.jsonl",
+      "raw_sha256": "719c92acacde53deb98737ba5125fa817323f790dfb39e7cedbafb499dad3d50",
+      "raw_bytes": 8257
+    },
+    {
+      "name": "3ced-fixture-red/junit.native.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-precise-0f7098036f33468d8d8d478b3f455a26/junit.native.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-fixture-red/junit.native.json",
+      "raw_sha256": "49760940d224a5b7cb5d130f00dab0f1524e4d4b94eb6ba1eb6af3517d3000a2",
+      "raw_bytes": 6430
+    },
+    {
+      "name": "3ced-fixture-red/junit.xml",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-precise-0f7098036f33468d8d8d478b3f455a26/junit.xml",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-fixture-red/junit.xml",
+      "raw_sha256": "7afd59e772a15481644431d112550ad9a0b79e79fbf48c4a096040b709e4d98d",
+      "raw_bytes": 4359
+    },
+    {
+      "name": "3ced-fixture-red/native_observer.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-precise-0f7098036f33468d8d8d478b3f455a26/native_observer.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/984580c19066b9e05761e6c7be75cef7bf0f2f2ddd3248392e61325b63aea6e9.py.txt",
+      "raw_sha256": "984580c19066b9e05761e6c7be75cef7bf0f2f2ddd3248392e61325b63aea6e9",
+      "raw_bytes": 3521
+    },
+    {
+      "name": "3ced-fixture-red/run.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-precise-0f7098036f33468d8d8d478b3f455a26/run.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-fixture-red/run.json",
+      "raw_sha256": "cb7358df805be9e18e5124c93c54b599652edafac79425b5ad413f7a5a6cf256",
+      "raw_bytes": 3190
+    },
+    {
+      "name": "3ced-fixture-red/run.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-precise-0f7098036f33468d8d8d478b3f455a26/run.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/88e9b0217b6832f1ff576476b51c21703cc20bc8ba8e68ca1ad2393c4b811181.py.txt",
+      "raw_sha256": "88e9b0217b6832f1ff576476b51c21703cc20bc8ba8e68ca1ad2393c4b811181",
+      "raw_bytes": 2135
+    },
+    {
+      "name": "944-fixture-successor/complete.txt",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-typed-codec-73679308336d473d9b5dc0d8576818ad/complete.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-fixture-successor/complete.txt",
+      "raw_sha256": "dda527b649c0c4564bdeb94ca224ad5e6f2527d5f5d2c59f9d6d3d6e2f1ecad3",
+      "raw_bytes": 411
+    },
+    {
+      "name": "944-fixture-successor/events.jsonl",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-typed-codec-73679308336d473d9b5dc0d8576818ad/events.jsonl",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-fixture-successor/events.jsonl",
+      "raw_sha256": "6954a4deb0bb6e7d367627cfef20381673126178888e022fa73610882fde0dc7",
+      "raw_bytes": 5379
+    },
+    {
+      "name": "944-fixture-successor/junit.native.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-typed-codec-73679308336d473d9b5dc0d8576818ad/junit.native.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-fixture-successor/junit.native.json",
+      "raw_sha256": "b8790f0ad56c6041e339fa964d9f84b9f5c4fd302353ab0756a6426576813962",
+      "raw_bytes": 6818
+    },
+    {
+      "name": "944-fixture-successor/junit.xml",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-typed-codec-73679308336d473d9b5dc0d8576818ad/junit.xml",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-fixture-successor/junit.xml",
+      "raw_sha256": "364ddb3d18949a2c652ca2e16e63060fafa4d9572a2e082a39d2dd2a1c295477",
+      "raw_bytes": 432
+    },
+    {
+      "name": "944-fixture-successor/native_observer.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-typed-codec-73679308336d473d9b5dc0d8576818ad/native_observer.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/984580c19066b9e05761e6c7be75cef7bf0f2f2ddd3248392e61325b63aea6e9.py.txt",
+      "raw_sha256": "984580c19066b9e05761e6c7be75cef7bf0f2f2ddd3248392e61325b63aea6e9",
+      "raw_bytes": 3521
+    },
+    {
+      "name": "944-fixture-successor/run.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-typed-codec-73679308336d473d9b5dc0d8576818ad/run.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-fixture-successor/run.json",
+      "raw_sha256": "a5c1fec993d9c798aa9ddeb0c18d18e3f410db05f76c59d66025224c4fd75c2c",
+      "raw_bytes": 3197
+    },
+    {
+      "name": "944-fixture-successor/run.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-typed-codec-73679308336d473d9b5dc0d8576818ad/run.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/88e9b0217b6832f1ff576476b51c21703cc20bc8ba8e68ca1ad2393c4b811181.py.txt",
+      "raw_sha256": "88e9b0217b6832f1ff576476b51c21703cc20bc8ba8e68ca1ad2393c4b811181",
+      "raw_bytes": 2135
+    },
+    {
+      "name": "944-remaining/affected-E-consumers/complete.txt",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/affected-E-consumers/complete.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-E-consumers-killed/complete.txt",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0
+    },
+    {
+      "name": "944-remaining/affected-E-consumers/native_observer.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/affected-E-consumers/native_observer.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/984580c19066b9e05761e6c7be75cef7bf0f2f2ddd3248392e61325b63aea6e9.py.txt",
+      "raw_sha256": "984580c19066b9e05761e6c7be75cef7bf0f2f2ddd3248392e61325b63aea6e9",
+      "raw_bytes": 3521
+    },
+    {
+      "name": "944-remaining/affected-E-consumers/run.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/affected-E-consumers/run.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-E-consumers-killed/run.json",
+      "raw_sha256": "6d6671dff622c3cb139c6234a96826e5eb4ec9f8c215504d4cc562232b1c2a3f",
+      "raw_bytes": 3821
+    },
+    {
+      "name": "944-remaining/affected-E-consumers/run.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/affected-E-consumers/run.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/88e9b0217b6832f1ff576476b51c21703cc20bc8ba8e68ca1ad2393c4b811181.py.txt",
+      "raw_sha256": "88e9b0217b6832f1ff576476b51c21703cc20bc8ba8e68ca1ad2393c4b811181",
+      "raw_bytes": 2135
+    },
+    {
+      "name": "944-remaining/affected-E-consumers.parent.txt",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/affected-E-consumers.parent.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-remaining-capture-parent/affected-E-consumers.parent.txt",
+      "raw_sha256": "0dd406ef26e5a666e4d4cf0265e1a166bf32b29cb5032832d2e71c447e1f9ad1",
+      "raw_bytes": 354
+    },
+    {
+      "name": "944-remaining/inputs.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/inputs.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-remaining-capture-parent/inputs.json",
+      "raw_sha256": "5bf8ccf1702f486230465d6075b442f4d5058198f3abca4c05b9127a02853dcc",
+      "raw_bytes": 1492
+    },
+    {
+      "name": "944-remaining/native-negative/complete.txt",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-negative/complete.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-native-negative/complete.txt",
+      "raw_sha256": "730565e4fa4f4bed723b09f49535a5f805e26351f390d1e17388b59315193ad6",
+      "raw_bytes": 5549
+    },
+    {
+      "name": "944-remaining/native-negative/events.jsonl",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-negative/events.jsonl",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-native-negative/events.jsonl",
+      "raw_sha256": "58f4f1bead3bced5ff91988745b1903104edd78105e97263ec306a3aed14e93e",
+      "raw_bytes": 82670
+    },
+    {
+      "name": "944-remaining/native-negative/junit.native.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-negative/junit.native.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-native-negative/junit.native.json",
+      "raw_sha256": "c5074a1713e6183147a6fe778446dcee1df575cb6f3c6c0aa8df6ae278db0fde",
+      "raw_bytes": 6958
+    },
+    {
+      "name": "944-remaining/native-negative/junit.xml",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-negative/junit.xml",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-native-negative/junit.xml",
+      "raw_sha256": "1c3113ef0dbdb1f393923763c57f7e323c18d8f1c8b5da330d9baf53753610fb",
+      "raw_bytes": 6078
+    },
+    {
+      "name": "944-remaining/native-negative/native_observer.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-negative/native_observer.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/984580c19066b9e05761e6c7be75cef7bf0f2f2ddd3248392e61325b63aea6e9.py.txt",
+      "raw_sha256": "984580c19066b9e05761e6c7be75cef7bf0f2f2ddd3248392e61325b63aea6e9",
+      "raw_bytes": 3521
+    },
+    {
+      "name": "944-remaining/native-negative/run.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-negative/run.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-native-negative/run.json",
+      "raw_sha256": "4070c64d04573ac03cc7cc102369e4dbd057dbadca164d75de78180e1ca732f4",
+      "raw_bytes": 4290
+    },
+    {
+      "name": "944-remaining/native-negative/run.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-negative/run.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/88e9b0217b6832f1ff576476b51c21703cc20bc8ba8e68ca1ad2393c4b811181.py.txt",
+      "raw_sha256": "88e9b0217b6832f1ff576476b51c21703cc20bc8ba8e68ca1ad2393c4b811181",
+      "raw_bytes": 2135
+    },
+    {
+      "name": "944-remaining/native-negative.parent.txt",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-negative.parent.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-remaining-capture-parent/native-negative.parent.txt",
+      "raw_sha256": "eb81dfb5b26a9ca1ad7100622db0952df09f366476284a91fe09288ca0deb6f9",
+      "raw_bytes": 2153
+    },
+    {
+      "name": "944-remaining/native-positive/complete.txt",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-positive/complete.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-native-positive/complete.txt",
+      "raw_sha256": "bcc9bb1345fe3d8c99d73d36dcc38efe82114963beebdadb15bd90007f2bdf0d",
+      "raw_bytes": 711
+    },
+    {
+      "name": "944-remaining/native-positive/events.jsonl",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-positive/events.jsonl",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-native-positive/events.jsonl",
+      "raw_sha256": "84fbd3606c58d0c97f54932320594b1f4e4c2edcdb8d2aac879c3dd3a30249de",
+      "raw_bytes": 21651
+    },
+    {
+      "name": "944-remaining/native-positive/junit.native.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-positive/junit.native.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-native-positive/junit.native.json",
+      "raw_sha256": "0ce08a1ab7bbe582854d93b8e3c70fdb8eea860cc3875b4741fba79904a67c3f",
+      "raw_bytes": 7085
+    },
+    {
+      "name": "944-remaining/native-positive/junit.xml",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-positive/junit.xml",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-native-positive/junit.xml",
+      "raw_sha256": "1865412fa31be54de7a32d299169fb97cc9b073a882961476d1bc661ffe29acc",
+      "raw_bytes": 798
+    },
+    {
+      "name": "944-remaining/native-positive/native_observer.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-positive/native_observer.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/984580c19066b9e05761e6c7be75cef7bf0f2f2ddd3248392e61325b63aea6e9.py.txt",
+      "raw_sha256": "984580c19066b9e05761e6c7be75cef7bf0f2f2ddd3248392e61325b63aea6e9",
+      "raw_bytes": 3521
+    },
+    {
+      "name": "944-remaining/native-positive/run.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-positive/run.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-native-positive/run.json",
+      "raw_sha256": "58a0aa42d552fb596b96d0b5caa168d4e67340d4b368904c2b2ba3d96cddd81b",
+      "raw_bytes": 3961
+    },
+    {
+      "name": "944-remaining/native-positive/run.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-positive/run.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/88e9b0217b6832f1ff576476b51c21703cc20bc8ba8e68ca1ad2393c4b811181.py.txt",
+      "raw_sha256": "88e9b0217b6832f1ff576476b51c21703cc20bc8ba8e68ca1ad2393c4b811181",
+      "raw_bytes": 2135
+    },
+    {
+      "name": "944-remaining/native-positive.parent.txt",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/native-positive.parent.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-remaining-capture-parent/native-positive.parent.txt",
+      "raw_sha256": "9cda4151815570cce6ba273c00003a2b7d85b68dc55e02ec30638a78310809f1",
+      "raw_bytes": 1063
+    },
+    {
+      "name": "944-remaining/run_all.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-remaining-15d9284f32cc448189b7a44b56f415ae/run_all.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/944-remaining-capture-parent/run_all.py",
+      "raw_sha256": "18a996cfe52ab7ce3822752f9b08600836f2f282b8024ce14afbc0d111ab04b3",
+      "raw_bytes": 321
+    },
+    {
+      "name": "9fb-affected-four/complete.txt",
+      "original_path": "/dev/shm/e02-search-doe-resolution-cd532ae6cbf247f89a9e5ac3dc675314/complete.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-affected-four/complete.txt",
+      "raw_sha256": "e8415711e6b478b46966964f587b93a0f43d0a1b9374f68168c846ef7189592c",
+      "raw_bytes": 932
+    },
+    {
+      "name": "9fb-affected-four/events.jsonl",
+      "original_path": "/dev/shm/e02-search-doe-resolution-cd532ae6cbf247f89a9e5ac3dc675314/events.jsonl",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-affected-four/events.jsonl",
+      "raw_sha256": "50b61bc798f7879a6f90a947bdd7dbc4aeec99cba789838fa4a3e648ce9778eb",
+      "raw_bytes": 21372
+    },
+    {
+      "name": "9fb-affected-four/junit.native.json",
+      "original_path": "/dev/shm/e02-search-doe-resolution-cd532ae6cbf247f89a9e5ac3dc675314/junit.native.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-affected-four/junit.native.json",
+      "raw_sha256": "2ae382986333f86334e72ec60b8a1630d76809a896d6133b4cc9f2e281042f63",
+      "raw_bytes": 6826
+    },
+    {
+      "name": "9fb-affected-four/junit.xml",
+      "original_path": "/dev/shm/e02-search-doe-resolution-cd532ae6cbf247f89a9e5ac3dc675314/junit.xml",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-affected-four/junit.xml",
+      "raw_sha256": "a87d1a795dc168f721f14bdd2ef737fe48472146b7d5394c38fe9540a474c31b",
+      "raw_bytes": 1052
+    },
+    {
+      "name": "9fb-affected-four/native_observer.py",
+      "original_path": "/dev/shm/e02-search-doe-resolution-cd532ae6cbf247f89a9e5ac3dc675314/native_observer.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/984580c19066b9e05761e6c7be75cef7bf0f2f2ddd3248392e61325b63aea6e9.py.txt",
+      "raw_sha256": "984580c19066b9e05761e6c7be75cef7bf0f2f2ddd3248392e61325b63aea6e9",
+      "raw_bytes": 3521
+    },
+    {
+      "name": "9fb-affected-four/run.json",
+      "original_path": "/dev/shm/e02-search-doe-resolution-cd532ae6cbf247f89a9e5ac3dc675314/run.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-affected-four/run.json",
+      "raw_sha256": "f64f35637fee322fcd138acfb59034e254972cece02c190122437bfb835ba2f5",
+      "raw_bytes": 3890
+    },
+    {
+      "name": "9fb-affected-four/run.py",
+      "original_path": "/dev/shm/e02-search-doe-resolution-cd532ae6cbf247f89a9e5ac3dc675314/run.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/88e9b0217b6832f1ff576476b51c21703cc20bc8ba8e68ca1ad2393c4b811181.py.txt",
+      "raw_sha256": "88e9b0217b6832f1ff576476b51c21703cc20bc8ba8e68ca1ad2393c4b811181",
+      "raw_bytes": 2135
+    },
+    {
+      "name": "9fb-removal-two/complete.txt",
+      "original_path": "/dev/shm/e02-search-doe-removal-e035cbe3ef3e4f3e8474d80985112876/complete.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-removal-two/complete.txt",
+      "raw_sha256": "5b6e22c0edbb62457def989062480faf5fc9b06f6537cea6f703e3ffdbb47a3b",
+      "raw_bytes": 4790
+    },
+    {
+      "name": "9fb-removal-two/events.jsonl",
+      "original_path": "/dev/shm/e02-search-doe-removal-e035cbe3ef3e4f3e8474d80985112876/events.jsonl",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-removal-two/events.jsonl",
+      "raw_sha256": "d74d0829d260f378e5afafabf47877db2ed4b3b3a0b1a1052d3eb8c3e3a343ff",
+      "raw_bytes": 14515
+    },
+    {
+      "name": "9fb-removal-two/junit.native.json",
+      "original_path": "/dev/shm/e02-search-doe-removal-e035cbe3ef3e4f3e8474d80985112876/junit.native.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-removal-two/junit.native.json",
+      "raw_sha256": "fe533d058831cf1312d89def345f10e4c0c98d75e234ea6cdcc598bf87ce1e47",
+      "raw_bytes": 6436
+    },
+    {
+      "name": "9fb-removal-two/junit.xml",
+      "original_path": "/dev/shm/e02-search-doe-removal-e035cbe3ef3e4f3e8474d80985112876/junit.xml",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-removal-two/junit.xml",
+      "raw_sha256": "1f6e4dd7c2c49a610836df70349211d641ef9e5ef57e4cc2a0eb13386ee5b5fa",
+      "raw_bytes": 5149
+    },
+    {
+      "name": "9fb-removal-two/native_observer.py",
+      "original_path": "/dev/shm/e02-search-doe-removal-e035cbe3ef3e4f3e8474d80985112876/native_observer.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/0215654c62e783d9da01d8170ebf208972726173d0e29f2d73739f68146e3dfb.py.txt",
+      "raw_sha256": "0215654c62e783d9da01d8170ebf208972726173d0e29f2d73739f68146e3dfb",
+      "raw_bytes": 4701
+    },
+    {
+      "name": "9fb-removal-two/removal-markers.jsonl",
+      "original_path": "/dev/shm/e02-search-doe-removal-e035cbe3ef3e4f3e8474d80985112876/removal-markers.jsonl",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-removal-two/removal-markers.jsonl",
+      "raw_sha256": "072e9f313fbc7b72937d742af279bd43f7833e1c24a886183f60c271e2df9edb",
+      "raw_bytes": 3240
+    },
+    {
+      "name": "9fb-removal-two/run.json",
+      "original_path": "/dev/shm/e02-search-doe-removal-e035cbe3ef3e4f3e8474d80985112876/run.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-removal-two/run.json",
+      "raw_sha256": "8ebf5be82cb47c9d95f0022b86885282610b87d55b55beaf5fa871a5bd36ceb9",
+      "raw_bytes": 3518
+    },
+    {
+      "name": "9fb-removal-two/run.py",
+      "original_path": "/dev/shm/e02-search-doe-removal-e035cbe3ef3e4f3e8474d80985112876/run.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/88e9b0217b6832f1ff576476b51c21703cc20bc8ba8e68ca1ad2393c4b811181.py.txt",
+      "raw_sha256": "88e9b0217b6832f1ff576476b51c21703cc20bc8ba8e68ca1ad2393c4b811181",
+      "raw_bytes": 2135
+    },
+    {
+      "name": "3ced-quality/release-gate.py",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-quality-3ced/release-gate.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/c9d57328d887c2006f0b9a1a22c7907f98533c5506f69d9b5e5e7d83752cebbb.py.txt",
+      "raw_sha256": "c9d57328d887c2006f0b9a1a22c7907f98533c5506f69d9b5e5e7d83752cebbb",
+      "raw_bytes": 989
+    },
+    {
+      "name": "3ced-quality/release-gate.txt",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-quality-3ced/release-gate.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-quality/release-gate.txt",
+      "raw_sha256": "c8de66d0083fdb890f3ab7ecb7e1ad7cb4cb135e94cf62d9b52c0fd37819a269",
+      "raw_bytes": 37
+    },
+    {
+      "name": "3ced-quality/ruff-check.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-quality-3ced/ruff-check.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-quality/ruff-check.json",
+      "raw_sha256": "21325d0178b9b2ce2f0ef38552bedb1f3589e2d9b77b3d15ae998d4bed693d15",
+      "raw_bytes": 547
+    },
+    {
+      "name": "3ced-quality/ruff-check.txt",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-quality-3ced/ruff-check.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-quality/ruff-check.txt",
+      "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "raw_bytes": 19
+    },
+    {
+      "name": "3ced-quality/ruff-format.json",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-quality-3ced/ruff-format.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-quality/ruff-format.json",
+      "raw_sha256": "08050bd67f205c918694b8b119a7fb167392757b1098374a34f6829e9b8dfabd",
+      "raw_bytes": 563
+    },
+    {
+      "name": "3ced-quality/ruff-format.txt",
+      "original_path": "/workspace/e02-D2-receipts/search-doe-quality-3ced/ruff-format.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/3ced-quality/ruff-format.txt",
+      "raw_sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+      "raw_bytes": 26
+    },
+    {
+      "name": "9fb-quality/release-configured.json",
+      "original_path": "/dev/shm/e02-search-doe-quality-ca4c5df761c64c6f8f95266855d193c8/release-configured.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-quality/release-configured.json",
+      "raw_sha256": "32bb7ff31892af9bf7991f465ba5f805849a01db4815b5502de2f221629b66f1",
+      "raw_bytes": 607
+    },
+    {
+      "name": "9fb-quality/release-configured.txt",
+      "original_path": "/dev/shm/e02-search-doe-quality-ca4c5df761c64c6f8f95266855d193c8/release-configured.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-quality/release-configured.txt",
+      "raw_sha256": "c8de66d0083fdb890f3ab7ecb7e1ad7cb4cb135e94cf62d9b52c0fd37819a269",
+      "raw_bytes": 37
+    },
+    {
+      "name": "9fb-quality/release-gate.py",
+      "original_path": "/dev/shm/e02-search-doe-quality-ca4c5df761c64c6f8f95266855d193c8/release-gate.py",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/instruments/c9d57328d887c2006f0b9a1a22c7907f98533c5506f69d9b5e5e7d83752cebbb.py.txt",
+      "raw_sha256": "c9d57328d887c2006f0b9a1a22c7907f98533c5506f69d9b5e5e7d83752cebbb",
+      "raw_bytes": 989
+    },
+    {
+      "name": "9fb-quality/release.json",
+      "original_path": "/dev/shm/e02-search-doe-quality-ca4c5df761c64c6f8f95266855d193c8/release.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-quality/release.json",
+      "raw_sha256": "0b1a5bd168fd23188784ba08df778dfd806ded139b3bcbcd24c413c20a6620ce",
+      "raw_bytes": 565
+    },
+    {
+      "name": "9fb-quality/release.txt",
+      "original_path": "/dev/shm/e02-search-doe-quality-ca4c5df761c64c6f8f95266855d193c8/release.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-quality/release.txt",
+      "raw_sha256": "e4d555b45f1d2e972bfa5f02723ec6ad39864fac41c1da3bee35b3a79d734412",
+      "raw_bytes": 851
+    },
+    {
+      "name": "9fb-quality/ruff-check.json",
+      "original_path": "/dev/shm/e02-search-doe-quality-ca4c5df761c64c6f8f95266855d193c8/ruff-check.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-quality/ruff-check.json",
+      "raw_sha256": "2a5ca369475687a9c24bedc865e549e0de86342085a14c351f0af31e79563767",
+      "raw_bytes": 870
+    },
+    {
+      "name": "9fb-quality/ruff-check.txt",
+      "original_path": "/dev/shm/e02-search-doe-quality-ca4c5df761c64c6f8f95266855d193c8/ruff-check.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-quality/ruff-check.txt",
+      "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "raw_bytes": 19
+    },
+    {
+      "name": "9fb-quality/ruff-format.json",
+      "original_path": "/dev/shm/e02-search-doe-quality-ca4c5df761c64c6f8f95266855d193c8/ruff-format.json",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-quality/ruff-format.json",
+      "raw_sha256": "ce071e4ae860e2768d4adedbc6fe8e6cf559e9b6bfa96121977a6ea793a345bc",
+      "raw_bytes": 886
+    },
+    {
+      "name": "9fb-quality/ruff-format.txt",
+      "original_path": "/dev/shm/e02-search-doe-quality-ca4c5df761c64c6f8f95266855d193c8/ruff-format.txt",
+      "virtual_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/9fb-quality/ruff-format.txt",
+      "raw_sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+      "raw_bytes": 26
+    }
+  ],
+  "admission": "Root explicitly allowed only this new deciding-output evidence transport; original capture files remain retained. Native indexv4 old backup and completeentries/flags/HEAD/branch/status preservation receipt is separate; no permanentcleanup."
+}

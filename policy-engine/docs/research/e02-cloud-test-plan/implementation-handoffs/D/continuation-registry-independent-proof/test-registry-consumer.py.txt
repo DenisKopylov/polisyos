@@ -133,8 +133,9 @@ def custody_oracle(root, item, result, reads):
                 {k: v for k, v in row.candidate.items() if k != "candidate_hash"}
             )
             subject = parsed.candidate_hash()
-            assert row.policy_evaluation.candidate_id == parsed.candidate_id
-            assert row.policy_evaluation.metadata["candidate_hash"] == subject
+            vector = PolicyEvaluationVector.model_validate(row.policy_evaluation)
+            assert vector.candidate_id == parsed.candidate_id
+            assert vector.metadata["candidate_hash"] == subject
             evaluated.add(subject)
     assert len(evaluated) == 1
     assert set(snapshot.entries) == evaluated == structured

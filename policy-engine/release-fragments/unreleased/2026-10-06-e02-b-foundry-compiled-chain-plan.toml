@@ -11,6 +11,6 @@ surface_classification = "internal: polisyos.foundry.methods.artifacts and Metho
 migration = "Persist CompiledChainPlan.from_chain with store_compiled_chain_plan, then reopen with load_compiled_chain_plan and the stable current registry. Advisory captured warnings do not replace current strict structural validation."
 limitations = "Cold structural restoration selects current implementation code. It does not attest historical source, reproduce checkpoint prefixes or cached results, grant execution permission, or establish scientific validity. Arbitrary Python and nonfinite parameter values are unsupported."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/foundry/methods/artifacts/README.md", "src/polisyos/foundry/methods/components/README.md"]
 runbook_docs = []

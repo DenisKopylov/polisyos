@@ -1,0 +1,89 @@
+{
+  "candidate_sha": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "candidate_tree": "498ff43267dfceaacdeb8de92b1e79cb38a44316",
+  "branch": "codex/e02-integration",
+  "status_before": {
+    "branch": "codex/e02-integration",
+    "head": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+    "tree": "498ff43267dfceaacdeb8de92b1e79cb38a44316",
+    "porcelain": ""
+  },
+  "status_after": {
+    "branch": "codex/e02-integration",
+    "head": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+    "tree": "498ff43267dfceaacdeb8de92b1e79cb38a44316",
+    "porcelain": ""
+  },
+  "candidate_import_preflight": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/tools/cli.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src/polisyos/common/async_tools.py"
+  ],
+  "checks": [
+    {
+      "name": "architecture-guardrails",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "candidate_sha": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+      "candidate_tree": "498ff43267dfceaacdeb8de92b1e79cb38a44316",
+      "branch": "codex/e02-integration",
+      "checkout": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+      "candidate_import_preflight": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/tools/cli.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "timeout_seconds": 240,
+      "started_at_utc": "2026-10-06T08:55:25.814145+00:00",
+      "wall_seconds": 167.917,
+      "timed_out": false,
+      "return_code": 1,
+      "outcome": "FAIL",
+      "log": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/results/clean-candidate-architecture-guardrails.out.log",
+      "log_sha256": "1034c2072a1896ab6585c82da55fb88f0841b37a5cb68f41d9541d6549ef8a0c",
+      "log_bytes": 115260,
+      "status_after": {
+        "branch": "codex/e02-integration",
+        "head": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+        "tree": "498ff43267dfceaacdeb8de92b1e79cb38a44316",
+        "porcelain": ""
+      },
+      "tracked_log": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/main-publication-20261006/clean-candidate-architecture-guardrails.out.log"
+    },
+    {
+      "name": "runtime-api-contract",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/polisyos-tools",
+        "runtime",
+        "check-runtime-api-contract"
+      ],
+      "candidate_sha": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+      "candidate_tree": "498ff43267dfceaacdeb8de92b1e79cb38a44316",
+      "branch": "codex/e02-integration",
+      "checkout": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+      "candidate_import_preflight": [
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/tools/cli.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src/polisyos/common/async_tools.py"
+      ],
+      "timeout_seconds": 180,
+      "started_at_utc": "2026-10-06T08:58:13.733750+00:00",
+      "wall_seconds": 34.713,
+      "timed_out": false,
+      "return_code": 1,
+      "outcome": "FAIL",
+      "log": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-main-publication-20261006/results/clean-candidate-runtime-api-contract.out.log",
+      "log_sha256": "6f636d86124c79258f99d6e6ab70ab980eea78dd45e6ddd7158824446d491d76",
+      "log_bytes": 13135,
+      "status_after": {
+        "branch": "codex/e02-integration",
+        "head": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+        "tree": "498ff43267dfceaacdeb8de92b1e79cb38a44316",
+        "porcelain": ""
+      },
+      "tracked_log": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/main-publication-20261006/clean-candidate-runtime-api-contract.out.log"
+    }
+  ],
+  "receipt_note": "Red candidate gate evidence; attribution not_established. Complete deciding stdout retained adjacent; duplicate output tails omitted from metadata."
+}

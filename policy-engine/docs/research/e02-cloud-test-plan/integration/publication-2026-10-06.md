@@ -5,6 +5,13 @@
 а не E02 closeout, production promotion или утверждение CI-green.
 Старые записи `main_publication: not_authorized` остаются историческими снимками.
 
+Код и пакет решений опубликованы fast-forward в обе remote refs — `main` и
+`codex/e02-integration` — на `1ddcd7b3905e52c0d19db091823a64830139fa64`,
+tree `498ff43267dfceaacdeb8de92b1e79cb38a44316`. После push выполнен fetch
+и readback remote main. История не переписана; обычные hooks не отключались.
+[Шесть промптов продолжения](../execution-prompts/continuation-2026-10-06/README.md)
+добавлены следующим append-only коммитом в ту же опубликованную историю.
+
 ## Код и приёмка
 
 Проверенный source: `1c0a87b385d65aa17f63b26157295976c4029ea3`,
@@ -51,12 +58,22 @@ public-stable `NormImpactAnalyzer` сохраняет явный пустой pl
 - Workspace admission G после Trash-only переноса stale admin и Finder
   metadata — `admitted`, complete verdict, без findings/unresolved inputs.
 
-Два общих guard-команды ещё требуют отдельного pinned receipt.
+[Exact clean guard receipt](checks/main-publication-20261006/clean-candidate-guardrails.json)
+фиксирует candidate `1ddcd7b` / tree `498ff432`, неизменённые branch/status/tree
+до и после двух команд, полные соседние outputs и их SHA256:
+
+- Architecture guardrails — FAIL, exit 1, 167.917 s: 151 deep-import creep
+  instances, baseline drift и drift generated OpenAPI/trust-posture outputs.
+- Runtime API contract — FAIL, exit 1, 34.713 s: generated OpenAPI drift,
+  включая confidence-ledger projection/source hashes и dependency count.
+
+Эти результаты относятся к чистому кандидату. Атрибуция red —
+`not_established`; inherited verdict без P41 replay не заявляется.
 Первый architecture run пересёкся с намеренной правкой шести docs издателем;
 он не является проверкой immutable `1c0` и не доказывает tool-caused mutation.
-Его red не объявлен inherited или product regression. Exact clean rerun
-фиксируется отдельно. Общий дорогой E02 replay и data-dependent closeout
-остаются после исполнения A–F и общего source freeze.
+Общий дорогой E02 replay и data-dependent closeout остаются после исполнения
+A–F и общего source freeze. Последующие prompt/docs companions не превращают
+этот receipt в проверку другого полного tree; product source не меняется.
 
 ## CI и границы публикации
 
@@ -71,7 +88,21 @@ bounded checkpoint как новую рабочую базу с явно нез�
 [Standard](https://github.com/DenisKopylov/polisyos/actions/runs/37317558363).
 Наблюдались schema/OpenAPI drift, docs freshness/import-policy, catalog-source,
 coverage и directory-health ошибки. Это baseline observations, не результаты
-нового кандидата и не P41 inherited verdict. Новый main push запускает свои CI.
+нового кандидата и не P41 inherited verdict.
+
+После main push на `1ddcd7b` наблюдаются новые exact-head runs:
+[Fast](https://github.com/DenisKopylov/polisyos/actions/runs/37439934478) — FAILED,
+[Canary](https://github.com/DenisKopylov/polisyos/actions/runs/37439934444) — FAILED;
+[Standard](https://github.com/DenisKopylov/polisyos/actions/runs/37439934467) и
+[Core release gate](https://github.com/DenisKopylov/polisyos/actions/runs/37439934469)
+на момент snapshot ещё выполнялись. Это отдельные результаты опубликованного
+checkpoint; их причина не объявляется inherited. Fast сообщил устаревшие
+`feedback_solve_result.schema.json`/`_manifest.json`, 21 import-policy violation
+и expired docs freshness baseline (10 observed / 0 expected); unit suite
+после import gate не выполнялась. Canary остановился до scorecard: отсутствовал
+требуемый short-lived service-principal token. Это недоступный run prerequisite,
+не доказательство поведения продукта. Следующий docs/prompt push имеет
+собственный HEAD и собственные CI results.
 
 Исходный VM raw pack отсутствует; grade results остаётся
 `transfer_and_navigation_only`. Organization DOCX не передан, поэтому его

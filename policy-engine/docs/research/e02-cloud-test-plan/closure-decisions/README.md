@@ -15,6 +15,10 @@ G-local provenance: ссылки в этом пакете на ignored `policy-e
 
 ## Файлы для передачи владельцам
 
+[Шесть готовых промптов продолжения A–F](../execution-prompts/continuation-2026-10-06/README.md) доступны в опубликованной main-базе.
+[Publication record](../integration/publication-2026-10-06.md) фиксирует checks и ограничения этой публикации.
+
+
 | Исполнитель | Документ | Основное решение |
 | --- | --- | --- |
 | A, локально | [A](A.md) | Замкнуть served цикл, changed-basis re-entry, N5/N8 custody, acquisition, empirical/forecast и replay. |

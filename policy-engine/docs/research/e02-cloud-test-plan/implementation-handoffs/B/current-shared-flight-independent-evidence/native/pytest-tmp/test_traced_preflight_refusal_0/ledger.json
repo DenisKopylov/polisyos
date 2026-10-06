@@ -1,0 +1,217 @@
+{
+  "schema_version": "1.2",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "ledger:44ef263f76802939",
+  "revision": 14,
+  "updated_at": "2026-10-06T21:28:46.866610Z",
+  "last_writer": {
+    "host_id": "b878f4efbdfc",
+    "writer_id": "b878f4efbdfc:527731:ledger.json",
+    "pid": 527731
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.830187Z"
+    },
+    {
+      "revision": 1,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.831608Z"
+    },
+    {
+      "revision": 2,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.834221Z"
+    },
+    {
+      "revision": 3,
+      "operation": "settle_spend",
+      "key": "run",
+      "amount": "0.02",
+      "applied_amount": "0.02",
+      "provider": "local-fsync-provider",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.835615Z"
+    },
+    {
+      "revision": 4,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.838161Z"
+    },
+    {
+      "revision": 5,
+      "operation": "release",
+      "key": "run",
+      "amount": "0.00015000000000000001",
+      "applied_amount": "0.00015000000000000001",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.839497Z"
+    },
+    {
+      "revision": 6,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.840632Z"
+    },
+    {
+      "revision": 7,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.846003Z"
+    },
+    {
+      "revision": 8,
+      "operation": "abort_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.849230Z"
+    },
+    {
+      "revision": 9,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.853682Z"
+    },
+    {
+      "revision": 10,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.857763Z"
+    },
+    {
+      "revision": 11,
+      "operation": "settle_spend",
+      "key": "run",
+      "amount": "0.02",
+      "applied_amount": "0.02",
+      "provider": "local-fsync-provider",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.859630Z"
+    },
+    {
+      "revision": 12,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.862945Z"
+    },
+    {
+      "revision": 13,
+      "operation": "release",
+      "key": "run",
+      "amount": "0.00015000000000000001",
+      "applied_amount": "0.00015000000000000001",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.864981Z"
+    },
+    {
+      "revision": 14,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:527731:ledger.json",
+        "pid": 527731
+      },
+      "committed_at": "2026-10-06T21:28:46.866606Z"
+    }
+  ],
+  "state": {
+    "limits": {
+      "run": {
+        "key": "run",
+        "max_usd": "10"
+      }
+    },
+    "spent": {
+      "run": "0.04"
+    },
+    "provider_spent": {
+      "local-fsync-provider": "0.04"
+    },
+    "reserved": {
+      "run": "0"
+    }
+  },
+  "spend_receipts": {
+    "llm-producer:e110758ad2ce428e9901c53b20d574df:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {
+      "event_id": "llm-producer:e110758ad2ce428e9901c53b20d574df:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+      "payload_digest": "e3116d1b46b0304decffb1c19cf3637408da7af8ac6a2f6c617ed29048e72ac9",
+      "key": "run",
+      "amount": "0.02",
+      "provider": "local-fsync-provider",
+      "revision": 3,
+      "committed_at": "2026-10-06T21:28:46.835316Z"
+    },
+    "llm-producer:c2bd3a64daf647f4b33341e4e47cc3ff:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be": {
+      "event_id": "llm-producer:c2bd3a64daf647f4b33341e4e47cc3ff:budget:acba25512100f80b56fc3ccd14c65be55d94800cda77585c5f41a887e398f9be",
+      "payload_digest": "4e4bdd9a7ebcf55dd8e1c83009ff42ef95b6681341fde432887d71f56ea3ac93",
+      "key": "run",
+      "amount": "0.02",
+      "provider": "local-fsync-provider",
+      "revision": 11,
+      "committed_at": "2026-10-06T21:28:46.859118Z"
+    }
+  },
+  "completion_obligations": {}
+}

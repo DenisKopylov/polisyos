@@ -83,6 +83,58 @@ def admit_sampling_support(envelopes: Mapping[str, UncertaintyEnvelope]) -> None
                 admit_float32_range(support)
 
 
+@dataclass(frozen=True)
+class SamplingBudgetPlan:
+    """Freeze the computational draw plan separately from configured intent."""
+
+    configured_requested_count: int
+    effective_draw_count: int
+    declared_maximum: int | None
+    minimum_draw_count: int
+    replica_count: int
+    sampling_method: str
+
+
+def admit_sampling_budget(
+    requested: int,
+    *,
+    method: str,
+    replicas: int,
+    minimum: int,
+    declared_maximum: int | None,
+) -> SamplingBudgetPlan:
+    """Freeze equal QMC replicas/full Sobol nets without exceeding an explicit cap."""
+    if (
+        any(type(value) is not int or value <= 0 for value in [requested, replicas, minimum])
+        or method not in {"random", "sobol", "halton"}
+        or (
+            declared_maximum is not None
+            and (type(declared_maximum) is not int or declared_maximum < requested)
+        )
+    ):
+        raise ValueError("computational sampling budget is not admissible")
+    effective = requested
+    if method != "random":
+        per_replica = (
+            requested // replicas
+            if declared_maximum is not None
+            else math.ceil(requested / replicas)
+        )
+        if per_replica <= 0:
+            raise ValueError("computational sampling budget cannot fund every replica")
+        if method == "sobol":
+            exponent = (
+                per_replica.bit_length() - 1
+                if declared_maximum is not None
+                else (per_replica - 1).bit_length()
+            )
+            per_replica = 1 << exponent
+        effective = replicas * per_replica
+    if effective < minimum or (declared_maximum is not None and effective > declared_maximum):
+        raise ValueError("computational sampling budget is below the admitted minimum")
+    return SamplingBudgetPlan(requested, effective, declared_maximum, minimum, replicas, method)
+
+
 class BoundedIIDMeanPlan(BaseModel):
     """Plan only a bounded IID mean using independent pilot and main draws."""
 
@@ -121,6 +173,8 @@ class BoundedIIDMeanCertificate(BaseModel):
     delta_main: float
     pilot_stream: int
     main_stream: int
+    declared_maximum: int = Field(gt=0)
+    computational_budget_scope: Literal["main_only", "pilot_and_main"]
     predicate_basis: Literal["recomputed"] = "recomputed"
     authority_scope: Literal["declared_mathematical_input_law_only"] = (
         "declared_mathematical_input_law_only"
@@ -292,6 +346,20 @@ def verify_mean_certificate(envelope: UncertaintyEnvelope) -> BoundedIIDMeanCert
         "quantile_01": float(np.percentile(expected_main, 1)),
         "quantile_99": float(np.percentile(expected_main, 99)),
     }
+    expected_budget = {
+        "basis": "declared_computational_budget_only",
+        "budget_scope": certificate.computational_budget_scope,
+        "declared_maximum": certificate.declared_maximum,
+        "pilot_draw_count": plan.pilot_samples,
+        "frozen_main_draw_count": count,
+        "total_stochastic_draw_count": plan.pilot_samples + count,
+        "nominal_evaluator_calls": 0,
+    }
+    bounded_count = (
+        plan.pilot_samples + count
+        if certificate.computational_budget_scope == "pilot_and_main"
+        else count
+    )
     if (
         not isinstance(advertised_interval, (list, tuple))
         or len(advertised_interval) != 2
@@ -303,6 +371,8 @@ def verify_mean_certificate(envelope: UncertaintyEnvelope) -> BoundedIIDMeanCert
         or envelope.metadata.get("mc_n_failed") != 0
         or envelope.metadata.get("mc_seed") != certificate.mc_seed
         or envelope.metadata.get("mc_sampling_method") != "random"
+        or envelope.metadata.get("sampling_budget") != expected_budget
+        or bounded_count > certificate.declared_maximum
         or not math.isclose(
             envelope.metadata.get("mc_std", -1), float(np.std(expected_main)), abs_tol=1e-12
         )

@@ -39,6 +39,7 @@ from .protocol import PropagationResult
 from .sampling_admission import (
     BoundedIIDMeanCertificate,
     admit_bounded_mean_response,
+    admit_sampling_budget,
     admit_sampling_support,
     frozen_bernstein_budget,
     joint_carrier_digest,
@@ -433,14 +434,35 @@ class MonteCarloPropagator:
         # Legacy adaptive settings no longer authorize optional peeking. Without
         # an admitted bounded mean target, execute the declared maximum once.
         adaptive = self._config.adaptive_stopping.model_copy(update={"enabled": False})
-        n_samples = (
+        configured_requested_count = (
             self._config.adaptive_stopping.max_samples
             if self._config.adaptive_stopping.enabled
             else self._config.mc_n_samples
         )
-        if self._config.mc_sampling_method == "sobol":
-            replicas = self._config.mc_qmc_replicates if self._config.mc_qmc_scramble else 1
-            n_samples = replicas * _next_power_of_two(math.ceil(n_samples / replicas))
+        try:
+            budget = admit_sampling_budget(
+                configured_requested_count,
+                method=self._config.mc_sampling_method,
+                replicas=(self._config.mc_qmc_replicates if self._config.mc_qmc_scramble else 1),
+                minimum=max(
+                    self._config.mc_min_valid_samples,
+                    self._config.adaptive_stopping.min_samples
+                    if self._config.adaptive_stopping.enabled
+                    else 1,
+                ),
+                declared_maximum=(
+                    self._config.adaptive_stopping.max_samples
+                    if self._config.adaptive_stopping.enabled
+                    else None
+                ),
+            )
+        except ValueError:
+            return _unknown_joint_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure="sampling_budget_not_admitted",
+            )
+        n_samples = budget.effective_draw_count
 
         batch_size = min(self._config.mc_batch_size, n_samples)
 
@@ -516,7 +538,30 @@ class MonteCarloPropagator:
             ),
             parametric_fit_names=_parametric_fit_names(input_envelopes),
         )
-        return results
+        budget_metadata = {
+            **budget.__dict__,
+            "basis": "declared_computational_budget_only",
+            "certificate": False,
+            "authority_scope": "computational_intent_display_only",
+            "nominal_evaluator_calls": 1,
+        }
+        return [
+            PropagationResult(
+                item.metric_id,
+                item.envelope.model_copy(
+                    update={
+                        "metadata": {
+                            **item.envelope.metadata,
+                            "sampling_budget": budget_metadata,
+                        }
+                    }
+                ),
+                item.input_envelopes_used,
+                item.method_used,
+                {**item.diagnostics, "sampling_budget": budget_metadata},
+            )
+            for item in results
+        ]
 
     def _propagate_bounded_mean(
         self, simulation_fn, nominal_params, input_envelopes, output_metric_ids, empirical_spec
@@ -536,6 +581,14 @@ class MonteCarloPropagator:
                 input_param_names=names,
                 failure="bounded_iid_mean_law_not_admitted",
             )
+        explicit_budget = self._config.adaptive_stopping.enabled
+        maximum = self._config.adaptive_stopping.max_samples
+        if explicit_budget and plan.pilot_samples >= maximum:
+            return _unknown_joint_results(
+                output_metric_ids,
+                input_param_names=names,
+                failure="frozen_budget_exceeds_declared_maximum",
+            )
         # Independent child streams are selected before the pilot. Main stream
         # generation never consumes, pools, or conditionally retries pilot draws.
         children = np.random.SeedSequence(self._config.mc_seed).spawn(2)
@@ -546,7 +599,7 @@ class MonteCarloPropagator:
             dtype=np.float64,
         )
         upper, frozen_count = frozen_bernstein_budget(pilot, plan)
-        if frozen_count > self._config.adaptive_stopping.max_samples:
+        if frozen_count + (plan.pilot_samples if explicit_budget else 0) > maximum:
             return _unknown_joint_results(
                 output_metric_ids,
                 input_param_names=names,
@@ -609,6 +662,8 @@ class MonteCarloPropagator:
             delta_main=plan.delta_main,
             pilot_stream=pilot_seed,
             main_stream=main_seed,
+            declared_maximum=maximum,
+            computational_budget_scope="pilot_and_main" if explicit_budget else "main_only",
         )
         envelope = result.envelope.model_copy(
             update={
@@ -621,6 +676,15 @@ class MonteCarloPropagator:
                         max(0.0, main_mean - plan.absolute_error),
                         min(1.0, main_mean + plan.absolute_error),
                     ],
+                    "sampling_budget": {
+                        "basis": "declared_computational_budget_only",
+                        "budget_scope": "pilot_and_main" if explicit_budget else "main_only",
+                        "declared_maximum": maximum,
+                        "pilot_draw_count": plan.pilot_samples,
+                        "frozen_main_draw_count": frozen_count,
+                        "total_stochastic_draw_count": plan.pilot_samples + frozen_count,
+                        "nominal_evaluator_calls": 0,
+                    },
                 },
             }
         )

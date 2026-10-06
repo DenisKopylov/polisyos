@@ -1,0 +1,134 @@
+{
+  "schema": "e02-independent-native-execution-v1",
+  "mode": "native-corrected",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "--tb=short",
+    "/tmp/e02-F-continuation-20261006/cau/tmle-review/test_independent_tmle_projection.py"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "E02_TMLE_SOURCE_ROOT": "/workspace/e02-F-tmle-20261006/policy-engine"
+  },
+  "source_begin": {
+    "sha": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d",
+    "tree": "e035bb5cdf9bde154fe08bcb72a0341cfeb2a970",
+    "files": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+        "bytes": 31756,
+        "sha256": "d8d0057a48beb6cbbfb1659890af37f3e8ed78303e49ffaa0df514610689b331",
+        "git_blob": "06fa2013eae4b8232ba0680da2fabdadd6a8a962"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "bytes": 59964,
+        "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+        "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "bytes": 76429,
+        "sha256": "c7c6e0d382ce4d671ff1c783726a422464873bf7b3d93a602109f919222b7af7",
+        "git_blob": "9a0447fa7a66b45e045352377abe8e2855268781"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py",
+        "bytes": 14029,
+        "sha256": "55c54291cf8af4c65a8435aec1a52b269ce58e90c6f3992ada090dac6d0224a2",
+        "git_blob": "e5714350fbc1149ae2cdd94241c568580bf51e4b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/components/io.py",
+        "bytes": 7890,
+        "sha256": "11fd5a3c49d0beb745d3007cb123671c9a53981f1856c1c1591ad909fcb6a621",
+        "git_blob": "ef58fdce69de184765575024b25934daf317c927"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "bytes": 29575,
+        "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd",
+        "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb"
+      }
+    ]
+  },
+  "source_end": {
+    "sha": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d",
+    "tree": "e035bb5cdf9bde154fe08bcb72a0341cfeb2a970",
+    "files": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+        "bytes": 31756,
+        "sha256": "d8d0057a48beb6cbbfb1659890af37f3e8ed78303e49ffaa0df514610689b331",
+        "git_blob": "06fa2013eae4b8232ba0680da2fabdadd6a8a962"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "bytes": 59964,
+        "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+        "git_blob": "96a9006df3f35174c549cf57b2d6b6927fbe556a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "bytes": 76429,
+        "sha256": "c7c6e0d382ce4d671ff1c783726a422464873bf7b3d93a602109f919222b7af7",
+        "git_blob": "9a0447fa7a66b45e045352377abe8e2855268781"
+      },
+      {
+        "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py",
+        "bytes": 14029,
+        "sha256": "55c54291cf8af4c65a8435aec1a52b269ce58e90c6f3992ada090dac6d0224a2",
+        "git_blob": "e5714350fbc1149ae2cdd94241c568580bf51e4b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/components/io.py",
+        "bytes": 7890,
+        "sha256": "11fd5a3c49d0beb745d3007cb123671c9a53981f1856c1c1591ad909fcb6a621",
+        "git_blob": "ef58fdce69de184765575024b25934daf317c927"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "bytes": 29575,
+        "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd",
+        "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb"
+      }
+    ]
+  },
+  "exit_code": 0,
+  "elapsed_seconds": 17.023786067962646,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/native-corrected.stdout.txt",
+    "bytes": 130624,
+    "sha256": "89da523cd8c3c32705ed056ce9f16598692db3365832253cb020e350cfb78418"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/native-corrected.stderr.txt",
+    "bytes": 1032,
+    "sha256": "3df2df5ce34f9389529ab0b33f49f439e01086d09427be6408b0010ed4b6bdab"
+  },
+  "replayer": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/run_review.py",
+    "bytes": 3628,
+    "sha256": "976cb5f31aaa65098868fa0b64aae21154f2ba69d535b0ee8af31bb76e0d62cf"
+  },
+  "independent_selector": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/test_independent_tmle_projection.py",
+    "bytes": 7652,
+    "sha256": "90afbbedd632c237e6d285fb2c62f8258a8dda4fda47e879112c9b3d0a95c1b0"
+  },
+  "removal_script": {
+    "path": "/tmp/e02-F-continuation-20261006/cau/tmle-review/removal.py",
+    "bytes": 2337,
+    "sha256": "14a60651526e917d0c772b4ef8283d24cccbb56b4fa42acdd6742c6a49925465"
+  }
+}

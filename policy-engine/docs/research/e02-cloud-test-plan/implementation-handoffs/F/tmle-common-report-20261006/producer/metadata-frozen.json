@@ -1,0 +1,19 @@
+{
+  "source_sha": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d",
+  "source_tree": "e035bb5cdf9bde154fe08bcb72a0341cfeb2a970",
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-F-continuation-20261006/tmle-common-report/check_metadata_v2.py"
+  ],
+  "cwd": "/workspace/e02-F-tmle-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-F-tmle-20261006/policy-engine/src:/workspace/e02-F-tmle-20261006/policy-engine/tools",
+    "TMPDIR": "/tmp",
+    "inherited_environment": true,
+    "artificial_cloud_quota": false
+  },
+  "exit_code": 0,
+  "wall_seconds": 2.0317301000031875,
+  "output": "/tmp/e02-F-continuation-20261006/tmle-common-report/metadata-frozen.stdout.txt",
+  "stderr": "/tmp/e02-F-continuation-20261006/tmle-common-report/metadata-frozen.stderr.txt"
+}

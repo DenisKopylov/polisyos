@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/replay.py", line 87, in <module>
+    main()
+  File "/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/replay.py", line 29, in main
+    assert git(ROOT, "rev-parse", "HEAD").decode().strip() == SOURCE
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

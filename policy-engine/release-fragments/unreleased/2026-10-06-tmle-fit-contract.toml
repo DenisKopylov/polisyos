@@ -1,0 +1,12 @@
+id = "2026-10-06-tmle-fit-contract"
+title = "Bind nuisance reuse and expose conditional bounded-outcome TMLE inference"
+type = "fixed"
+component = "foundry-causal"
+owner = "team-foundry"
+summary = "Nuisance reuse validates the complete data and statistical fit basis, isolates immutable readers, and refreshes diagnostic-only requests. Binary or bounded outcomes use genuine logistic targeting. Every fold runs serially inside its admitted outer worker job."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.foundry.methods.catalog.causal.tmle_core and treatment_effects.TMLEEstimator"
+compatibility = "Caller keys are namespaces rather than fit identities. Cached prediction arrays cannot be made writable; reader header and metadata edits do not affect later hits. Externally supplied nuisance bundles require a matching issued core still present in the controlled cache. TMLE confidence bounds are nullable and no longer receive heuristic fold-count or overlap widening."
+migration = "Copy prediction arrays before editing. Refit when data, model, fold, seed or calibration split changes; do not assert provenance with a caller key. Handle null confidence bounds and preserve candidate/limited status, gate_eligible=false, inference_limitations and consumer_asserted assumptions. Use the regular_iid profile only with independently admitted identification, sampling and positivity assumptions. Requested parallel folds are executed serially under existing outer job admission; no global CPU, BLAS, thread or process quota is established."
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py", "docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006.json"]
+limitations = "The known randomized synthetic DGP pilot is not a real-data coverage guarantee. Production MethodJob/RunCausalEvaluation admission remains pending the integrated consumer witness. Observed positivity failure, trimmed targets, unsupported inference profiles and unconverged targeting emit limited results without a confidence interval."

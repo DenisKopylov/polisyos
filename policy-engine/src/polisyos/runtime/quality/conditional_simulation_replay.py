@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
 from polisyos.runtime.quality.candidate_simulation import (
     CandidateSimulationExecutionV5,
     CandidateSimulationN5InputV5,

@@ -39,6 +39,8 @@ from polisyos.core.canon import (
 from polisyos.core.contracts import (
     CapabilityDiscoveryRequest,
     CapabilityDiscoveryResponse,
+    ConditionalSimulationObservation,
+    ConditionalSimulationValueProjection,
     SearchRequest,
 )
 from polisyos.core.contracts.control import (
@@ -86,10 +88,6 @@ from polisyos.core.contracts.decision_validity import (
     DecisionTriggerRecord,
     DecisionTriggerType,
     DecisionValidityStatus,
-)
-from polisyos.core.contracts.runtime import (
-    ConditionalSimulationObservation,
-    ConditionalSimulationValueProjection,
 )
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.security import AccessScope, clear_tenant_context, tenant_scope

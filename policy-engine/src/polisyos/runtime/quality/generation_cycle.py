@@ -62,7 +62,7 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.artifacts.manifest import artifact_ref_identity_key
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
-from polisyos.core.contracts.runtime import ConditionalSimulationInteractionEvidence
+from polisyos.core.contracts import ConditionalSimulationInteractionEvidence
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
     ValueOuterSet,

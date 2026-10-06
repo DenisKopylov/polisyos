@@ -24,8 +24,10 @@ from polisyos.foundry.execute.executor import (
 )
 from polisyos.foundry.methods.catalog.causal import ensure_causal_methods_registered
 from polisyos.foundry.methods.catalog.causal.protocols import NCMQueryData
-from polisyos.foundry.methods.catalog.simulation import ensure_simulation_methods_registered
-from polisyos.foundry.methods.catalog.simulation.dynamics import StockFlowSystemDynamicsEstimator
+from polisyos.foundry.methods.catalog.simulation import (
+    StockFlowSystemDynamicsEstimator,
+    ensure_simulation_methods_registered,
+)
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.ir.analytics.ncm import NCMSpec  # noqa: TC001 - Pydantic validates at runtime.
 from polisyos.pdc import gy_content_hash, gy_recorded_content_hash

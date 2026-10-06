@@ -347,6 +347,114 @@ def test_join_summary_is_bounded_and_matches_independent_relational_oracle(
     assert none_composer.get_last_merge_summary().total_conflicts == 0
 
 
+def test_join_summary_repeated_row_key_ties_keep_stream_occurrence_order() -> None:
+    """Real JOIN summary sampling resolves equal row-key ranks by input occurrence."""
+    row_count = 80
+    event_ids = [f"event-{index:03d}" for index in range(row_count)]
+    source_a = pd.DataFrame(
+        {"join_key": [7] * row_count, "event_id": event_ids, "value": list(range(row_count))}
+    )
+    source_b = pd.DataFrame({"join_key": [7], "value": [1000]})
+    meta_a = _source_metadata("repeat_key_a", trust_level=TrustLevel.HIGH)
+    meta_b = _source_metadata("repeat_key_b", trust_level=TrustLevel.HIGH)
+    audit_seed = "fed02-repeat-key-sample"
+    tie_seed = "fed02-repeat-key-resolver"
+
+    # Row identity for JOIN conflicts is only the shared join key. The
+    # independent rank oracle therefore expects equal ranks, and uses the
+    # already ordered input occurrence as the final tie-breaker. It does not
+    # claim that those audit records have stable identities under permutation.
+    def digest(payload: dict[str, object]) -> int:
+        encoded = json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
+        return int(hashlib.sha256(encoded).hexdigest(), 16)
+
+    # Use the actual DataFrame scalar so stdlib JSON serialization models the
+    # dtype-bound value that the resolver receives (NumPy scalar -> "7").
+    row_key = {"join_key": source_a["join_key"].iloc[0]}
+    source_ranks = {
+        source_id: digest(
+            {
+                "seed": tie_seed,
+                "source_id": source_id,
+                "row_key": row_key,
+                "column": "value",
+            }
+        )
+        for source_id in (meta_a.connector_id, meta_b.connector_id)
+    }
+    expected_source = min(source_ranks, key=source_ranks.get)
+    expected_values = (
+        list(range(row_count)) if expected_source == meta_a.connector_id else [1000] * row_count
+    )
+    sample_rank = digest(
+        {
+            "seed": audit_seed,
+            "row_key": row_key,
+            "column": "value",
+            "source_a": meta_a.connector_id,
+            "source_b": meta_b.connector_id,
+            "policy": ConflictPolicy.TRUST_HIGHEST.value,
+        }
+    )
+    occurrence_ranks = [(sample_rank, ordinal) for ordinal in range(row_count)]
+    expected_occurrences = [ordinal for _, ordinal in sorted(occurrence_ranks)]
+    assert len({rank for rank, _ in occurrence_ranks}) == 1
+
+    def compose(audit_level: AuditLevel, *, cap: int):
+        request = _compose_request(
+            CompositionStrategy.JOIN,
+            audit_level=audit_level,
+            join_keys=["join_key"],
+            join_how="left",
+            join_validate="many_to_one",
+            join_max_rows=row_count,
+            audit_sample_size=cap,
+            audit_max_entries=cap,
+            audit_seed=audit_seed,
+            tie_breaker_seed=tie_seed,
+        )
+        composer = _composer()
+        frame, merge_log = composer.compose(
+            sources=[(source_a, meta_a), (source_b, meta_b)],
+            strategy=request.strategy,
+            request=request,
+        )
+        return composer, frame, merge_log
+
+    summary_runs = []
+    for cap in (1, 3):
+        composer, frame, merge_log = compose(AuditLevel.SUMMARY, cap=cap)
+        summary = composer.get_last_merge_summary()
+        assert summary is not None
+        assert len(frame) == row_count
+        assert frame["event_id"].tolist() == event_ids
+        assert frame["value"].tolist() == expected_values
+        assert summary.sample_seed == audit_seed
+        assert summary.total_conflicts == row_count
+        assert summary.by_policy == {ConflictPolicy.TRUST_HIGHEST.value: row_count}
+        assert summary.by_conflict_type == {"duplicate_column": row_count}
+        assert summary.by_column == {"value": row_count}
+        assert summary.by_source_pair == {
+            f"{meta_a.connector_id}->{meta_b.connector_id}": row_count
+        }
+        assert len(merge_log) == cap
+        assert [entry.row_key for entry in merge_log] == [row_key] * cap
+        assert [entry.source_a_value for entry in merge_log] == expected_occurrences[:cap]
+        assert summary.sample_entries == merge_log
+        summary_runs.append(frame)
+
+    full_composer, full_frame, full_log = compose(AuditLevel.FULL, cap=row_count)
+    none_composer, none_frame, none_log = compose(AuditLevel.NONE, cap=0)
+
+    pd.testing.assert_frame_equal(summary_runs[0], summary_runs[1])
+    pd.testing.assert_frame_equal(summary_runs[0], full_frame)
+    pd.testing.assert_frame_equal(summary_runs[0], none_frame)
+    assert len(full_log) == row_count
+    assert none_log == []
+    assert full_composer.get_last_merge_summary().total_conflicts == row_count
+    assert none_composer.get_last_merge_summary().total_conflicts == 0
+
+
 def test_union_summary_measures_active_detail_liveness_and_transient_list_mutant(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

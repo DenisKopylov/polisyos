@@ -712,7 +712,12 @@ def test_unsupported_coupling_is_gated_not_summed(
     graph_kind: str,
     expected_blocker: str,
 ) -> None:
-    request = _request().model_copy(update={"coupling_graph": _coupling_graph(graph_kind)})
+    request = _request().model_copy(
+        update={
+            "coupling_graph": _coupling_graph(graph_kind),
+            "horizon": HorizonSpec(start=0, end=0),
+        }
+    )
 
     result = JointSimulationHorizonController().run(request)
 
@@ -774,7 +779,12 @@ def test_supported_shared_resource_runs_on_coupled_engine_with_gate_receipt() ->
 
 
 def test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation() -> None:
-    request = _request().model_copy(update={"coupling_graph": _coupling_graph("feedback")})
+    request = _request().model_copy(
+        update={
+            "coupling_graph": _coupling_graph("feedback"),
+            "horizon": HorizonSpec(start=0, end=0),
+        }
+    )
 
     result = JointSimulationHorizonController.for_contract_testing(
         disable_coupling_gate=True

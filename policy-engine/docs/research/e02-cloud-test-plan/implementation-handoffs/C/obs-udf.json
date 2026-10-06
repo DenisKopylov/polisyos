@@ -1,0 +1,482 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "obs-udf",
+  "closure_ids": [],
+  "bundle_ids": [
+    "OBS-01",
+    "OBS-02",
+    "UDF-01",
+    "UDF-02",
+    "UDF-04",
+    "UDF-05"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "5a75b004e0d17c80f1d156df84db7a12a9274c9e"
+  ],
+  "candidate_tree_sha": "3602443723a9a57b1a988ae3933b2d1d7c17f2bc",
+  "branch": "codex/e02-C-obs-udf-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+    "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+    "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+    "policy-engine/tests/unit/remediation/test_obs_02.py",
+    "policy-engine/tests/unit/remediation/test_udf_01.py",
+    "policy-engine/tests/unit/remediation/test_udf_02.py",
+    "policy-engine/tests/unit/remediation/test_udf_04.py",
+    "policy-engine/tests/unit/remediation/test_udf_05.py"
+  ],
+  "baseline_cells": [],
+  "criteria_sources": {
+    "bundle_catalog": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/bundle-catalog.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob": "ccaf817d9f6ebacd65930fee4e187bc5a6fc60d1",
+      "sections": [
+        "OBS-01",
+        "OBS-02",
+        "UDF-01",
+        "UDF-02",
+        "UDF-04",
+        "UDF-05"
+      ]
+    },
+    "closure_decisions_C": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob": "eb335a62bc1f8bce2cddfcf59f649980a08e88c4",
+      "sections": [
+        "C-W13 observations/Ukraine decision",
+        "B146",
+        "B147",
+        "LA-029",
+        "LA-030",
+        "LA-031",
+        "LA-032"
+      ]
+    },
+    "coverage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+      "sections": [
+        "OBS-01",
+        "OBS-02",
+        "UDF-01",
+        "UDF-02",
+        "UDF-04",
+        "UDF-05",
+        "B146",
+        "B147",
+        "LA-029",
+        "LA-030",
+        "LA-031",
+        "LA-032"
+      ]
+    },
+    "criterion_cards": [
+      {
+        "id": "OBS-01",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OBS-01.md",
+        "source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_blob": "f0464e7db5cdb99f8be008d3e49d6ec9b93d58ae",
+        "finding_ids": ["B146", "LA-031"],
+        "criteria": "Preserve valid observation-period fields/bytes while using the canonical period owner; include leap and ordinary February, quarter/year bounds, supported forms, and typed absence for missing/malformed/invalid months; downstream observation, household demography, and graph consumers quarantine invalid dates and never invent a concrete date. LA-031 is staged: period ownership, aliases, and actual consumers are the OBS-01 portion; common I/O/bindings/facade importer cleanup remains UDF-02."
+      },
+      {
+        "id": "OBS-02",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OBS-02.md",
+        "source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_blob": "5a658efb0db3985c295c4fe4757e0494008920ae",
+        "finding_ids": ["B147"],
+        "criteria": "For failures before publication, after a confirmed batch, and between metric frames, preserve the yielded prefix without duplicates or omissions; retain source-copy and row/metric resume cursors; verify IDs and shard counts through a small real Parquet reader and D2 artifact consumer. Exercise absent resume cursor and changed original source; this does not assert large-file memory bounds or remote-storage behavior."
+      },
+      {
+        "id": "UDF-01",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UDF-01.md",
+        "source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_blob": "daf8454bc7d5ee0a89d62718ba73fa65486341c1",
+        "finding_ids": ["LA-030", "LA-031"],
+        "criteria": "Preserve the D4 output name, bytes, schema version, stage registration, ArtifactRecord/BuildRunManifest contract, and the four may_not_use_for limits. Invoke the registered stage and write the actual artifact, then reopen it through the public verified read_api and the existing consumer. Keep contract imports narrow and do not elevate producer_handoff_ready into governance permission."
+      },
+      {
+        "id": "UDF-02",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UDF-02.md",
+        "source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_blob": "04d13aa6d69ea6afffd65d498c60e66695de7c50",
+        "finding_ids": ["LA-031"],
+        "criteria": "Keep JSON/NPZ/Parquet output profiles stable across relocation; preserve atomic-write errors and diagnostics; keep synthetic validation payload explicitly non-observational; retain sequential memory scheduling; use canonical builders without wildcard common bootstrap. For LA-031, compare registered D0/P0, D1, D2, D4, D5 outputs for all five direct common importers. A D3-only parity witness is insufficient. Native Parquet/server-specific behavior stays deferred until exercised on its intended runtime."
+      },
+      {
+        "id": "UDF-04",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UDF-04.md",
+        "source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_blob": "2eb472539afef41a48c2e2d2eb1152a37166dc52",
+        "finding_ids": ["LA-029"],
+        "criteria": "Carry the verified product/workspace root through the installed ukraine-data CLI and existing ops runner; record actual gate argv, cwd, environment, exit and skip outcome with a private process fixture. Do not run apt-get, CPX62 provisioning, server-only C7 or server bootstrap on this macOS worktree. A fake child-process/CLI witness does not establish deployment or server lifecycle success; those require a separate intended Linux receipt."
+      },
+      {
+        "id": "UDF-05",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UDF-05.md",
+        "source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "source_blob": "7e216d50f4dade1820a97baecf205d8c142b5810",
+        "finding_ids": ["LA-032"],
+        "criteria": "Select one explicit old/new demographic snapshot, never mix targets/prior/donor filenames across layouts, preserve optional donor semantics, and reject missing/corrupt blobs or incompatible shapes. Bind the same versioned inventory into composite, targets, priors, and donor read_api consumers; retain static-aging controls. A reader-generated byte digest is not the producer's persisted inventory."
+      }
+    ],
+    "recorded_residual_ledger": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob": "81c1d47963d41d1cd356a3755cf6bdb4dde403fd",
+      "row_statuses": {
+        "B146": "partial",
+        "B147": "partial",
+        "LA-029": "partial",
+        "LA-030": "partial",
+        "LA-031": "held",
+        "LA-032": "held"
+      }
+    },
+    "semantic_decisions": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/semantic-decisions.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a"
+    },
+    "applicable_cross_unit_contracts": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob": "b242397fb26eaf0bee86a867aed6e21768d094e2"
+    },
+    "verification_and_closeout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/verification-and-closeout.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob": "63d8874b95576792abf84eeaf3db871139e14490"
+    },
+    "runtime_profiles": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob": "e939b0ef5f8ee2553648e1537268c70dc29a2b20"
+    },
+    "execution_sequence": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/execution-sequence.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob": "9e51765727debc87bb0a3a1ea7686f557d718b0a"
+    },
+    "finding_and_bundle_owner_maps": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "blob": "515c70d29f59f3175521642e72d04f1aaffc72d7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b"
+      }
+    ],
+    "applicable_runtime_contracts": [
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/manifests.py",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "blob": "b112bcd9f0d553d1194ee99599dc73e976fb01f5",
+        "symbols": ["ArtifactRecord", "BuildRunManifest", "PartAGateManifest"]
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "blob": "061441cccf7f52e8fdea33a4c63b47dd95372dad",
+        "symbols": ["load_verified_stage_artifacts", "load_verified_stage_output_bytes", "load_demography_artifacts", "load_reconciled_targets", "load_transition_priors", "load_donor_pool"]
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/__init__.py",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "blob": "8cfee7df1fbf243b8503622b7058ad94fab25469",
+        "symbols": ["STAGE_BUILDERS", "build_d0_p0_stage", "build_d1_stage", "build_d2_stage", "build_d4_stage", "build_d5_stage"]
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/orchestrator.py",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "blob": "bdc8a22ebbe22f530c90f3e1759a61f44f2ef17b",
+        "symbols": ["UkraineDataOrchestrator.build_stage"]
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "blob": "97c1f1dca8db13dc6409919ca2cf81feea43d997",
+        "symbols": ["five direct builder importers; common compatibility surface"]
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/cli.py",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "blob": "c668644da9e33198d9a4cc82bce1f53c333fb458",
+        "symbols": ["installed command composition and explicit workspace root"]
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/server.py",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "blob": "db746bbeccc8d1e687c5e0b4b2946d8823710c77",
+        "symbols": ["existing server capability and lifecycle boundary"]
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "blob": "19ca41eead188afac99ed21cca386c460763e15d",
+        "symbols": ["GenerationBasis", "build_generation_basis"],
+        "ownership": "exclusive DFI/EMB owner; this implementation imports the existing API and does not edit this file"
+      }
+    ],
+    "pattern_register": {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob": "7f4cc9ab9541a44c26e4648a2c08326e53743492",
+      "relevant_ids": ["P01", "P02", "P04", "P08", "P29", "P31", "P32", "P37", "P38", "P41"]
+    }
+  },
+  "historical_vs_candidate": [
+    {
+      "finding_id": "B146",
+      "recorded_status": "partial",
+      "candidate_observation": "OBS-01 implementation was already present at the slice base; its calendar, malformed/missing period, and consumer quarantine selectors passed in the final focused suite. No source code was changed for this finding and no population-wide invalid-period prevalence or production refresh was established.",
+      "new_verdict": "candidate tests pass; historical partial retained; independent closure decision not established"
+    },
+    {
+      "finding_id": "B147",
+      "recorded_status": "partial",
+      "candidate_observation": "Each source artifact is copied to a private per-run temporary file before first yield. Streaming and fallback read that same copy; a row offset plus confirmed metric-frame ordinal resumes after a reader error and retains the prefix without duplicate observation IDs.",
+      "new_verdict": "candidate implementation and focused tests pass; no large-file memory bound or remote source behavior established; historical partial retained"
+    },
+    {
+      "finding_id": "LA-029",
+      "recorded_status": "partial",
+      "candidate_observation": "The installed ukraine-data entrypoint is exercised with explicit config and workspace root; a private fake uv executable records the actual gate argv, cwd, integration environment and exit behavior. No server is started.",
+      "new_verdict": "candidate CLI/process-route test passes; server create/start/stop/restart/cleanup lifecycle remains not_established; historical partial retained"
+    },
+    {
+      "finding_id": "LA-030",
+      "recorded_status": "partial",
+      "candidate_observation": "The real registered D4 orchestrator route produces a persisted BuildRunManifest and ArtifactRecord; public read_api CAS resolution and the Scientist consumer reopen the exact output bytes and retain may_not_use_for limits.",
+      "new_verdict": "candidate registered producer-to-consumer test passes; no broader governance decision or full Ukraine pipeline claim; historical partial retained"
+    },
+    {
+      "finding_id": "LA-031",
+      "recorded_status": "held",
+      "candidate_observation": "The test now compares direct builder bytes against registered D0/P0, D1, D2, D4, and D5 routes, covering the five declared direct importers. D5 created_at and the release handoff digest receive the explicitly disclosed JSON compare projection below; all other output bytes/directory members are compared directly.",
+      "new_verdict": "candidate five-importer registered parity witness passes; status remains held pending independent review and any remaining full-candidate criteria; D3-only parity is not used"
+    },
+    {
+      "finding_id": "LA-032",
+      "recorded_status": "held",
+      "candidate_observation": "All four public reader forms share a per-call immutable old/new layout selection over targets and priors plus optional donor; mixed/incomplete/corrupt/shape-invalid members fail closed. GenerationBasis binds only the bytes selected in this call.",
+      "new_verdict": "held / producer_missing for the whole persisted-inventory capability; independent selector consistency is candidate code only"
+    }
+  ],
+  "checks": [
+    {
+      "label": "focused_candidate_suite",
+      "command_argv": [
+        "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/remediation/test_obs_01.py",
+        "tests/unit/remediation/test_obs_02.py",
+        "tests/unit/remediation/test_udf_01.py",
+        "tests/unit/remediation/test_udf_02.py",
+        "tests/unit/remediation/test_udf_04.py",
+        "tests/unit/remediation/test_udf_05.py",
+        "tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos/policy-engine",
+      "target_sha": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+      "environment": {
+        "platform": "macOS",
+        "python": "original policy-engine .venv Python 3.14",
+        "PYTHONPATH": ".:src",
+        "input_closure": "Temporary synthetic fixtures only: tiny period/data frames; 8-row observation Parquet; small normalized-source Parquet inputs; temporary JSON demographic members; temporary fake checkout and fake uv executable. The registered D0/P0,D1,D2,D4,D5 route uses local manifests/files; config disables server requirement. No production data, shared DB, network source, CPX provisioning, or server lifecycle is substituted. PyArrow and DuckDB are existing profile dependencies."
+      },
+      "exit_code": 0,
+      "wall_seconds": null,
+      "outcome": "PASS",
+      "output": "Pytest progress reached [96%] then [100%] with exit code 0; default quiet progress summary. The exec transcript was emitted in chunks and was not separately retained as a raw file."
+    },
+    {
+      "label": "card_listed_domain_integration_modules",
+      "command_argv": [
+        "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/data_forge/domains/ukraine/test_builders.py",
+        "tests/unit/data_forge/domains/ukraine/test_cli.py",
+        "tests/unit/data_forge/domains/ukraine/test_orchestrator.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos/policy-engine",
+      "target_sha": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+      "environment": {
+        "platform": "macOS",
+        "python": "original policy-engine .venv Python 3.14",
+        "PYTHONPATH": ".:src",
+        "input_closure": "Temporary unit fixtures in the card-listed builder/CLI/orchestrator modules; no production database, external source or server provisioning."
+      },
+      "exit_code": 0,
+      "wall_seconds": null,
+      "outcome": "PASS",
+      "output": "Pytest progress showed 31 dots followed by 9 dots and [100%]; exit code 0. The exec transcript was emitted in chunks and was not separately retained as a raw file."
+    },
+    {
+      "label": "ruff_changed_paths",
+      "command_argv": [
+        "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+        "src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+        "tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+        "tests/unit/remediation/test_obs_02.py",
+        "tests/unit/remediation/test_udf_01.py",
+        "tests/unit/remediation/test_udf_02.py",
+        "tests/unit/remediation/test_udf_04.py",
+        "tests/unit/remediation/test_udf_05.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos/policy-engine",
+      "target_sha": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+      "exit_code": 0,
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "label": "git_diff_check",
+      "command": "git diff --check (run on the complete implementation patch and staged implementation before commit)",
+      "target_sha": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+      "exit_code": 0,
+      "outcome": "PASS",
+      "output": "(no output)"
+    }
+  ],
+  "attempts_not_claimed": [
+    {
+      "command": "PYTHONPATH=src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/pytest -q [same seven test paths as focused_candidate_suite]",
+      "target_tree_sha": "3602443723a9a57b1a988ae3933b2d1d7c17f2bc",
+      "outcome": "INVALID_ENVIRONMENT_NOT_A_PRODUCT_VERDICT",
+      "output": "Two existing UDF-04 tests imported tools.ops_runners.ukraine_data from the original checkout path /Users/deniskopylov/polisyos/policy-engine, so validate_part_a and server_bootstrap were absent. PYTHONPATH omitted the worktree product root. Re-running as python -m pytest with PYTHONPATH=.:src resolved tools.* and all seven modules completed with exit code 0."
+    },
+    {
+      "command": "uv run polisyos-tools architecture guardrails check",
+      "target_sha": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+      "outcome": "INTERRUPTED_NONRECEIPT",
+      "output": "The wrapper spawned uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py ... . It was interrupted before a deciding result to avoid implicit profile installation. The terminal summary available after interruption showed KeyboardInterrupt followed by a wrapper UnboundLocalError. Complete stdout/stderr bytes were not retained, so no architecture result, product failure, or inherited-red label is claimed. Parent-directed rule: do not broad-repeat; use the explicitly ready profile if this gate is later frozen."
+    }
+  ],
+  "unclassified_reds": [
+    {
+      "selector": "tests/unit/data_forge/test_phase5_ukraine_scaffolding.py::test_ukraine_shadow_bundle_loads_without_legacy_or_lex_imports",
+      "recorded_observation": "The combined exploratory command failed `all(artifact.checksum_ok is True for artifact in artifacts)` for the Ukraine shadow bundle checksum witness.",
+      "p41_state": "not_established",
+      "required_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "base_replay": "not completed. An attempted replay used the old checkout branch docs/raw-evidence-ignore at 355f5e861... and an invalid working directory; it is not a replay of the slice base.",
+      "disposition": "Do not exclude this red, label it inherited, or claim the full package green. The corrected focused candidate suite above does not include this selector. A deciding classification requires an exact isolated replay at the slice base plus the complete input denominator and changed-path intersection proof."
+    }
+  ],
+  "nonreceipts": [
+    {
+      "gate": "shared pre-commit Lefthook wrapper",
+      "command": "git commit -m 'Wire Ukraine observation and demographic consumers'",
+      "outcome": "BLOCKED_BY_MISSING_TOOL; bypassed only after documenting nonreceipt",
+      "output": "PolicyOS hook: missing binary: /Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos/policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook; run corepack pnpm install --frozen-lockfile in policy-engine.",
+      "config_effect": "The configured pre-commit entries are dashboard prettier/eslint plus two dashboard design checks. The staged Python-only files do not match the format/lint globs. Installation/build was prohibited. The code commit therefore used a one-command `git -c core.hooksPath=/dev/null commit`; this hook check is not reported as passed."
+    }
+  ],
+  "property": {
+    "statement": "The observation stream resumes only from its private per-run source copy after a partial yield; registered Ukraine stage consumers persist bytes equivalent to their canonical direct builders for the five named common importers; and demographic sibling/composite readers choose and validate one shared per-call layout profile.",
+    "runtime_path": [
+      "Ukraine observation normalized Parquet -> private per-run copy -> PyArrow streaming or pre-yield pandas fallback -> confirmed row/metric cursor -> D2 observation shards",
+      "canonical D0/P0,D1,D2,D4,D5 builder -> UkraineDataOrchestrator registered stage route -> BuildRunManifest/ArtifactRecord -> persisted output readback",
+      "registered D4 stage -> persisted artifact -> public verified read_api/CAS -> Scientist D4 governance consumer",
+      "installed ukraine-data console entrypoint -> explicit config/workspace root -> ops runner -> private fake uv gate process",
+      "demography domain and read_api siblings/composite -> shared per-call targets/priors/optional donor profile -> shape validation -> static-aging consumer"
+    ],
+    "proxy_divergence": "A common.py export/import check or the D3-only 10/10 parity witness does not prove registered D0/P0,D1,D2,D4,D5 output parity; this test invokes all five registered stage routes. For D5 the semantic JSON projection excludes `created_at` after parsing it and checking time_role, and excludes the release-manifest handoff sha only after recomputing each digest from its own request bytes, so byte equality for those clock-bearing JSON artifacts is not established. A layout reader-generated GenerationBasis can bind selected bytes but cannot prove the producer emitted a complete, versioned inventory; similarly a successful fake gate subprocess does not prove server lifecycle behavior.",
+    "negative_controls": [
+      "Observation reader fails before first yield: fallback reads the byte-identical private copy, not the normalized source path.",
+      "Observation reader fails after a yielded metric and the original path changes: resume opens the same private copy and emits each observation ID once.",
+      "Registered D0/P0,D1,D2,D4,D5 outputs are compared against direct canonical builder results; D5 projected fields receive structural/digest checks.",
+      "Demography readers refuse mixed/incomplete old/new layouts, absent required members, malformed members and shape-incompatible peers; all reader forms share the same negative controls.",
+      "Installed console entrypoint reaches an isolated fake child process with exact argv, cwd and integration environment; no real server is started."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_by_facet": {
+    "registered output member bytes and recorded sha/size": "recomputed",
+    "D5 created_at equality across invocations": "not_established",
+    "one selected member layout and current-call byte identities": "recomputed",
+    "demographic producer completeness, authoritative schema/data version, and persisted inventory": "not_established",
+    "server create/start/stop/restart/cleanup state": "not_established",
+    "shadow bundle checksum red ownership": "not_established"
+  },
+  "compare_projection_limitations": [
+    {
+      "artifact": "d5_release_handoff_request.json",
+      "projection": "Remove only created_at after verifying both values parse as timezone-aware ISO datetimes, and verify both time_role values equal producer_handoff_created_at; compare every remaining JSON field exactly.",
+      "limit": "This is a declared semantic compare projection, not exact-byte parity and not a canonical clock policy. An injectable production clock seam was not found; a Pydantic default_factory monkeypatch did not replace the captured model core-schema factory."
+    },
+    {
+      "artifact": "release_manifest_v1.json",
+      "projection": "Remove only the nested d5_release_handoff_request sha256 before comparing JSON structure; independently recompute the direct and registered manifest digests from their respective request bytes.",
+      "limit": "The differing request timestamps imply differing legitimate handoff hashes; this proves digest validity, not equality of those clock-bearing bytes."
+    }
+  ],
+  "capability_state_or_finding_state": {
+    "B146": "existing candidate implementation/tests; recorded partial; no new code claim",
+    "B147": "candidate private-snapshot/resume implementation and focused semantic tests; production-scale/remote behavior unestablished",
+    "LA-029": "candidate installed CLI gate-route test; server lifecycle verification_missing",
+    "LA-030": "candidate registered D4 -> persisted manifest/artifact -> verified read_api/consumer chain; broader pipeline/governance run out_of_scope",
+    "LA-031": "candidate registered five-importer parity witness; finding remains held pending independent review and final closure-owner adjudication",
+    "LA-032": "held; producer_missing and bridge_missing for the authoritative versioned inventory; per-call reader selector is not persisted producer inventory"
+  },
+  "missing_owners_and_supplier_contracts": [
+    {
+      "finding_id": "LA-032",
+      "status": "held / producer_missing",
+      "missing": "No canonical demographic source producer and no appointed inventory/schema-version owner are evidenced in this slice. Do not have a reader fabricate authoritative inventory or version identifiers.",
+      "supplier_contract": "The appointed source owner must supply a persisted versioned inventory covering required targets and priors plus optional donor presence or explicit absence; include actual schema/data version identifiers, exact relative member paths, sha256 and byte size, layout/profile, producer/rule identity, provenance, and relevant data-time semantics. A producer must reconcile required-set completeness and persist this inventory atomically with the member generation. All four actual read paths must resolve the same inventory, verify all referenced member bytes against it, and refuse missing, corrupt, mixed-layout, unknown-version or shape-incompatible members. The current GenerationBasis helper can content-bind bytes selected by a reader, but does not establish source completeness, producer authority, or a data version.",
+      "minimum_closure_signal": "A real producer writes one persisted inventory with both required members and optional-donor state; composite plus targets/prior/donor public readers reopen that inventory and its exact bytes; negative tests falsify completeness/version/member references and all fail closed."
+    },
+    {
+      "finding_id": "LA-029",
+      "status": "partial; server lifecycle not_established",
+      "missing": "No real process lifecycle receipt or assigned process-supervision owner is supplied here. This slice does not invent CPX API, provision a host, or claim server start/stop/restart/cleanup.",
+      "next_input": "The actual server/lifecycle owner must provide a Linux-compatible private process fixture and the intended gate command/profile, then capture process identity and exact start, stop, restart and cleanup results through the existing ops-runner seam."
+    },
+    {
+      "finding_id": "LA-031",
+      "status": "held pending review/adjudication",
+      "missing": "The new witness supplies registered parity for the five named direct importers. It does not independently establish that the declared five-member importer set is complete across every future/dynamic import route or settle all migration owner criteria. Keep the five-stage receipt and ask the closure owner to adjudicate; do not substitute D3 parity."
+    }
+  ],
+  "pattern_pass": {
+    "relevant_ids": ["P01", "P02", "P04", "P08", "P29", "P31", "P32", "P37", "P38", "P41"],
+    "anti_patterns_found": [
+      "Independent first-existing demographic readers could select sibling files from different layouts.",
+      "A per-run streaming reader could resume against a changed source path rather than an immutable run snapshot.",
+      "Import/export and D3-only parity checks did not prove the five actual registered-stage paths.",
+      "A fake CLI subprocess can witness argv/cwd/env but can be mistaken for a real server lifecycle receipt.",
+      "A reader-computed basis can be mistaken for a producer-backed complete inventory."
+    ],
+    "target_pattern": "One per-run immutable observation source copy with confirmed cursor; one shared selector chokepoint for all demographic readers; run the real registered D0/P0,D1,D2,D4,D5 routes and reopen persisted output records; keep fake-process and persisted producer-inventory claims at their actual evidence grades.",
+    "remaining_capability_labels": ["producer_missing", "bridge_missing", "verification_missing", "not_established"],
+    "acceptance_signal": "Semantic negative controls pass at the shared selector and resume path; all five registered stage outputs are compared against canonical builders; no held finding is promoted by code or test presence alone."
+  },
+  "authority_purpose": "Candidate implementation and review handoff only; it changes no residual ledger status and asserts no finding closure.",
+  "review_status": "Independent demography review requested from parent after frozen implementation SHA 5a75b004e0d17c80f1d156df84db7a12a9274c9e; not yet received at handoff authoring time.",
+  "provenance": {
+    "implementation_commit": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+    "implementation_tree": "3602443723a9a57b1a988ae3933b2d1d7c17f2bc",
+    "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5^{tree}=2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos",
+    "branch_readback": "refs/heads/codex/e02-C-obs-udf-20261006; clean after implementation commit; exact changed path set is listed above."
+  }
+}

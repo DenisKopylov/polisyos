@@ -16,6 +16,9 @@ from polisyos.data_forge.domains.catalog.registry import (
     default_catalog_source_registry_path,
     load_catalog_source_registry,
 )
+from polisyos.data_forge.domains.catalog.selection import (
+    resolve_catalog_source_dependencies,
+)
 from polisyos.data_forge.domains.catalog.source_modules import (
     CORE_CATALOG_SOURCE_MODULES,
     CatalogSourceModuleSpec,
@@ -128,6 +131,16 @@ def test_source_selection_rejects_duplicate_module_identities() -> None:
 
     with pytest.raises(CatalogSelectionError, match="duplicate_source_identity"):
         select_catalog_source_modules((module, module))
+
+
+def test_dependency_resolution_uses_registered_row_for_selected_identity() -> None:
+    registered = _module("dependent", seed_from="missing")
+    selected_copy = _module("dependent")
+
+    _assert_typed_dependency_failure(
+        lambda: resolve_catalog_source_dependencies((registered,), (selected_copy,)),
+        expected_code="dependency_missing",
+    )
 
 
 def test_registry_selection_fails_closed_for_disabled_mandatory_seed() -> None:

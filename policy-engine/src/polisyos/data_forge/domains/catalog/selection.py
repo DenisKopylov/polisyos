@@ -104,6 +104,7 @@ def resolve_catalog_source_dependencies(
             ",".join(missing_selected),
         )
     selected_ids = set(selected_by_id)
+    registered_selection = tuple(by_id[source_id] for source_id in selected_by_id)
 
     def resolve_seed(module: _CatalogSeedSourceT, path: tuple[str, ...]) -> None:
         seed_id = module.seed_from
@@ -126,7 +127,7 @@ def resolve_catalog_source_dependencies(
         selected_ids.add(seed_module.source_id)
         resolve_seed(seed_module, (*path, seed_id))
 
-    for module in selected_by_id.values():
+    for module in registered_selection:
         resolve_seed(module, (module.source_id,))
     return tuple(module for module in modules if module.source_id in selected_ids)
 

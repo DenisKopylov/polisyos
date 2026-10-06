@@ -1,0 +1,111 @@
+{
+  "schema": "policyos.e02.single_native_replay.v1",
+  "target_source_sha": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+  "target_tree_sha": "9beb525a5dfd68a610ceb719d4f5b802c3da0e2c",
+  "observed_root_head_before": "bbb93ce688ff8242902e5601ca720c1a5dc5f86d",
+  "observed_root_head_after": "bbb93ce688ff8242902e5601ca720c1a5dc5f86d",
+  "full_runtime_input_byte_equivalence_paths": [
+    "policy-engine/src",
+    "policy-engine/tests",
+    "policy-engine/pytest.ini",
+    "policy-engine/pyproject.toml",
+    "policy-engine/uv.lock"
+  ],
+  "test_lane_sha": "37e16cbb9fa3bc914a76882c28abfb4f01c612bc",
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py::test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+    "--basetemp",
+    "/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/pytest",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/pytest-cache",
+    "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/cohort.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "environment": {
+    "PATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:/workspace/e02-B-coordination/.polisyos/e02-B/node22/node_modules/node/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine:/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+    "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+    "UV_NO_SYNC": "1",
+    "POLISYOS_METRICS_PORT": "0",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+    "E02_B_COHORT_INVENTORY_PATH": null
+  },
+  "all_cap_names_absent": [
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "BLIS_NUM_THREADS"
+  ],
+  "source_test_bindings": [
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "sha256": "c33325ff111015a1fac83658b2b5a5bed6c12de984e73f370df05747e0ccf493",
+      "bytes": 17286
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002",
+      "bytes": 102653
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078",
+      "bytes": 7518
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+      "bytes": 11846
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271",
+      "bytes": 79312
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "bytes": 1021
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "target_source": "4e7a4924e6466e1b4eaa39b504435a1243aeb90b",
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "bytes": 9664
+    }
+  ],
+  "source_test_unchanged": true,
+  "exit_code": 0,
+  "wall_s": 13.198886559010134,
+  "cases": [
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+      "time": "0.972",
+      "state": "PASS"
+    }
+  ],
+  "stdout": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/stdout.txt",
+    "sha256": "a68cdc653c7c4ba3b2d9f064e9b93c305be1b95efade8882ccea5ee1e3da17be",
+    "bytes": 1525
+  },
+  "junit": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/deadline-cohort-investigation/native/cohort.xml",
+    "sha256": "af7c7869753f686e38b71e7b88fe49b08f55759e832cb42cfadb12db6174e4f9",
+    "bytes": 464
+  },
+  "qualification": "One unmodified native input in unique own-lane scratch; root production/test/config bytes exactly4e before/after, observed later docs-only root HEAD separate. Same installed environment. Does not replace the original whole-cohort FAIL or reproduce its scheduler/load history."
+}

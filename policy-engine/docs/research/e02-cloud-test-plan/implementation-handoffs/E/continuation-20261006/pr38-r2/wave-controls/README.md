@@ -1,6 +1,6 @@
 # E02 final common-wave preparation
 
-No numerical/gate wave has been run by this preparation. The observed source is ec042402ec91fbdcb51006852e29fe67f38d9452, not the final freeze.
+This document began as a planning snapshot of ec042402ec91fbdcb51006852e29fe67f38d9452. The actual first attempt on 5e3e3727685132f270a3a07b9f63dd962a88cd96 ended with 1,086 PASS / 3 FAIL / 351 ERROR; all setup ERRORs were independently reconciled to the missing numeric basetemp parent. The native parent repair and canonical consumer facade correction are independently reviewed. Historical planning counts below remain separate from the actual denominator derived by each frozen plan.
 
 `plan_wave.py` reconciles the prior tracked110-path six-family manifest with every required continuation test and later committed owned test delta. Proposed native denominator120: PCL10, DDM16, BKT/FRC25, CAL/welfare29, MC25, DOE14, ControlPlaneStore companion1. Two source-bound A CAS/status test packets add2 input files to the BKT/FRC job (122 total file inputs). Actual parametrized cases are determined by frozen JUnit; old1125 cases and G59 consumer cases are historical counts.
 
@@ -23,3 +23,7 @@ The numerical basetemp parent is created once, exclusively, before the importer 
 Static invocation compares with the original E continuation baseline198076863e143dea9f89f02734b13d50dae3eed5 for consistent proxy denominator; it establishes no runtime non-invocation or inherited-red waiver. Its potentially171MB complete raw JSON remains under ignored raw/; publish only the complete moderate stdout, exact input/source denominator, hash/size custody, and necessary deciding summary. Code acceptance/finding closure, historical ledger labels and per-check outcomes remain separate.
 
 No permanent deletion is performed. Existing output/basetemp paths are refused so pytest cannot remove prior evidence. After deciding receipts, root may move only repeatable fixtures/environments with no active users to native Trash; if unavailable, list exact candidates. Preserve useful code/docs and unique evidence.
+
+## Moderate evidence publication
+
+`collect_wave.py` is the independently reviewed v4 collector. Run it only after terminal completion, using the exact frozen candidate, existing wave root, a fresh publication root and the public standalone source-freeze receipt. It recomputes actual receipt/stdout/JUnit identities and counts, copies complete moderate evidence, and leaves large raw/private configuration bytes outside Git with hash/size custody. Public-role admission checks full source-path components before copying, including external freeze receipts, so changing the admitted parent cannot hide raw/private or symlink roles. Exact module/file labels and lawful anonymous-source matching bind A packet outcomes; conflicting labels remain explicitly unclassified and cannot produce complete attribution. Present-but-fake, corrupted count/path and effective predicate-removal controls are preserved in the author/independent packets. Collector completeness is an evidence-binding result; numerical/gate outcomes and finding verdicts remain separate.

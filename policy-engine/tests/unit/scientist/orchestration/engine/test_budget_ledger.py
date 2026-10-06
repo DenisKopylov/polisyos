@@ -81,9 +81,11 @@ def test_actual_above_estimate_and_unlimited_key_are_fully_charged(tmp_path, key
     assert state.spent == {key: Decimal("2")}
     assert state.remaining(key) == (Decimal("2.5") if key == "run" else None)
     assert state.provider_spent == {"provider-a": Decimal("2")}
-    assert state.reserved[key] == Decimal("0.5")
-    assert middleware.release_safe(key, Decimal("0.5")) == Decimal("0.5")
-    assert middleware.budget_state.reserved[key] == 0
+    reserved = Decimal("0.5") if key == "run" else Decimal("0")
+    # Existing unlimited-key reserve is admitted without creating capacity.
+    assert state.reserved.get(key, 0) == reserved
+    assert middleware.release_safe(key, Decimal("0.5")) == reserved
+    assert middleware.budget_state.reserved.get(key, 0) == 0
     assert middleware.budget_state.remaining(key) == (Decimal("3") if key == "run" else None)
 
 

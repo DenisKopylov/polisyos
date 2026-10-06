@@ -603,7 +603,7 @@ def test_propagate_welfare_node_persists_channel_decomposition_artifact(tmp_path
     assert artifact.total_vector == (0.52,)
 
 
-def test_propagate_welfare_node_supports_delta_and_dependence_sampling(tmp_path) -> None:
+def test_propagate_welfare_metadata_copula_does_not_admit_joint_law(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_welfare_delta")
@@ -686,12 +686,13 @@ def test_propagate_welfare_node_supports_delta_and_dependence_sampling(tmp_path)
     assert outcome.status == "ok"
 
     bundle = load_welfare_bundle(store, outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF])
-    assert bundle.credible_interval is not None
+    # Labels and a matrix do not establish a served joint input law.
+    assert bundle.credible_interval is None
     assert bundle.sample_bundle_ref is None
     assert bundle.diagnostics["credible_method"] == "delta"
-    assert bundle.diagnostics["dependence_applied"] is True
-    assert bundle.diagnostics["dependence_sampling"]["strategy"].startswith("gaussian_copula")
-    assert "dependence_structure_present_but_not_applied" not in bundle.warnings
+    assert bundle.diagnostics["dependence_applied"] is False
+    assert bundle.diagnostics["limitation_codes"] == ["welfare_joint_law_not_established"]
+    assert "dependence_structure_present_but_not_applied" in bundle.warnings
 
 
 def test_propagate_welfare_uses_typed_normal_scale_independent_of_display_level(
@@ -995,7 +996,7 @@ def test_propagate_welfare_uses_typed_normal_scale_independent_of_display_level(
         store,
         mixed_outcome.state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF],
     )
-    assert mixed_bundle.status.value == "degraded"
+    assert mixed_bundle.status.value == "partial"
     assert "input_uncertainty_not_gate_eligible" in mixed_bundle.warnings
     assert "dependence_assumed_independent" in mixed_bundle.warnings
 

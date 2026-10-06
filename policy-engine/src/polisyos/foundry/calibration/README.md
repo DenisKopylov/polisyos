@@ -74,6 +74,17 @@ edge. The welfare consumer uses this reader; a byte-identical Funnel artifact
 cannot substitute for a Foundry calibration report. Historical v1 serialization
 keeps its original projection.
 
+The welfare Monte Carlo consumer persists every requested draw outcome in the
+configured CAS, including input content, stable draw indices, successful channel
+values and terminal failure reasons. Fresh readback reconciles all counts, input
+hashes, ordered sample arrays and the outcome lineage. If any channel is undefined,
+all success-only moments and intervals are explicitly conditional diagnostics;
+no unconditional credible interval is emitted. A missing multivariate law remains
+unknown before drawing. The bounded joint path uses the calibration report-owned
+coordinate covariance and projection; dependence labels or marginal envelopes
+alone cannot supply another joint law. These checks do not establish producer
+provenance, source truth, Calibrator authority or gate eligibility.
+
 - [../uncertainty/README.md](../uncertainty/README.md) for downstream
   uncertainty propagation.
 

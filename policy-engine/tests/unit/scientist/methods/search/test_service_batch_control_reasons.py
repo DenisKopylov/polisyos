@@ -307,9 +307,12 @@ def test_async_generator_rollback_refusal_blocks_publication_and_preserves_origi
 
 class _FailingCheckpointCAS(FileSystemCAS):
     fail_checkpoint = False
+    failed_checkpoint_writes = 0
 
     def put_json(self, *args, **kwargs):
         if self.fail_checkpoint:
+            self.failed_checkpoint_writes += 1
+            print("actual_failed_checkpoint_write", self.failed_checkpoint_writes)
             raise OSError("actual failure checkpoint publication refused")
         return super().put_json(*args, **kwargs)
 
@@ -328,6 +331,10 @@ def test_failure_checkpoint_io_refusal_retains_original_batch_reason_and_last_ac
     assert _partial(service) == port.accepted_view
     assert service._failure == f"ValueError: {original}"
     assert service._publication_blocked is True
+    assert store.failed_checkpoint_writes == 1
+    with pytest.raises(ValueError, match="reopen_last_acknowledged_ref"):
+        service.ask(None, None, {})
+    assert store.failed_checkpoint_writes == 1
     assert store.get_bytes(port.accepted_ref) == port.accepted_bytes
     observer = _service(FileSystemCAS(tmp_path / "cas"), ["empty", "signal"], original)
     observer.restore(service.checkpoint_ref)

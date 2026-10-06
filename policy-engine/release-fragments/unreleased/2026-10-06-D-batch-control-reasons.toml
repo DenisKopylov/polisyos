@@ -1,0 +1,24 @@
+id = "2026-10-06-D-batch-control-reasons"
+title = "Retain asynchronous empty-batch cancellation and acknowledged state"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "python-public-api"
+surface_classification = "public_stable"
+summary = "The existing NativeSearchService ask rollback and failed-run boundaries explicitly handle asyncio.CancelledError while rethrowing the original object. A failed generator rollback or secondary failure-checkpoint publication blocks further publication and requires the last acknowledged reference."
+compatibility = "Existing empty exhaustion/transient transitions, standard refusal/cancellation reasons, Bayesian numerical fallback and checkpoint schema2 are preserved. No new cancellation API or scientific fallback policy."
+migration = "When publication rollback or failure checkpoint writing is unavailable, reconstruct the same configured public service and restore the last acknowledged reference. No relabelled checkpoint migration."
+evidence = ["tests/unit/scientist/methods/search/test_service_batch_control_reasons.py"]
+limitations = "A failed rollback does not establish that the live cursor was restored; an I/O-failed failure checkpoint does not establish durable failure publication. Local producer settlement fixtures do not certify external billing authority."
+
+[[compatibility_change]]
+id = "D-native-empty-batch-control-cleanup"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_stable: polisyos.scientist.NativeSearchService"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Original control reasons survive asynchronous rollback and secondary checkpoint failures; unavailable publication requires fresh last-acknowledged-reference recovery."
+migration_docs = ["docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/batch-control-reasons.md"]
+runbook_docs = ["docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/batch-control-reasons.md"]

@@ -1,0 +1,13 @@
+{
+  "schema": "D.selected_dependency_adoption.v1",
+  "root_source_sha": "d72c92c7f48189574c740f2ee42e4f9430895896",
+  "root_source_tree": "d933dac5a892ceda1c322149bc8df922b4160eff",
+  "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+  "selected_root_blob": "1f5dbec29500d1014098805e752d92a27072e729",
+  "selected_root_bytes": 45505,
+  "selected_root_sha256": "44e3d754ff360641c3921f5c99d77592960ead0a3c04e9ffc7b7674ef1bf2f06",
+  "old_leaf_sha256": "1c822301ed87e8008661c0d0ff558dfc15dab2d437de069636b313da987e9428",
+  "exact_root_blob_equals_reviewed_6fe": true,
+  "narrow_actual_root_delta": "Stdlib asyncio import; three existing ask/restore/run guards explicitly include asyncio.CancelledError beside Exception. Failedrun failure-checkpoint publication has the same protected boundary, blocks publication on failure and bare-rethrows the original cause. No BaseException-wide swallow or BGC numerical fallback change.",
+  "authority": "Root narrow sole service.py lease after actuald72/testd8965PASS1FAIL; selected exact rootblob adoption, not source archive/tree copy."
+}

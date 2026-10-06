@@ -1,0 +1,76 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "transfer-default-basis-read-only-review",
+  "closure_ids": [],
+  "source_sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+  "tree_sha": "dccf1ce0f5c3c6107b78b60bc2a73bba30327e64",
+  "read_only": true,
+  "source_identities": {
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py": {
+      "git_blob_sha1": "099aeb4d70b5e9725670945f636b5c09e0df0e6b",
+      "raw_file_sha256": "552486be6ec29c2ca9812f4f6afc58e7ef4d7ce6cb25c1c83a0b7bc6554a8baa"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py": {
+      "git_blob_sha1": "ed9db38c5193a3ba3671f6378d1baad0b839c247",
+      "raw_file_sha256": "1feadfaa836580cc26c551cd75a607396402dc718f96e3b3aca4d681932a2df3"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py": {
+      "git_blob_sha1": "e3eb54a04c0121c548fb31fb6a7dc6d9c7504578",
+      "raw_file_sha256": "d2d1d6ba7ac45a473a2a185410d0e0b132eb72582fc4796dcb639b24e835adb7"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/lessons.py": {
+      "git_blob_sha1": "627f270d6fd81c46b02b1006145e293d088edf98",
+      "raw_file_sha256": "749f17bcda4c65e8094e3e7cd0a8bedbb04897e129f8cbe222a56f6b170584ac"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py": {
+      "git_blob_sha1": "0963066824070b40fbe3d999d61d553b02728ec9",
+      "raw_file_sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py": {
+      "git_blob_sha1": "eaac632c22b3a9371884548fb14d4bb5af287a88",
+      "raw_file_sha256": "eb42bb8709756ba14f7e5ecdbaf4b7e30d204b3bb776fc545f9c50a641d9e8c3"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py": {
+      "git_blob_sha1": "b56ea23f882c30656c570ea57ce73a643a369673",
+      "raw_file_sha256": "a2a8df9800a7bd173c5930deeaa22fc0b5a453bf2d842fef162d36886218f48f"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py": {
+      "git_blob_sha1": "8491843135fa4d9f54d5176464a812f2285a8b3c",
+      "raw_file_sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6"
+    }
+  },
+  "constructor_census": {
+    "method": "Parse every tracked archived src Python module with actual Python3.14 AST; count literal Name/Attribute constructor calls with the four exact names. Dynamic aliases/external callers are outside this lexical census. No parse failures ignored.",
+    "python_files_parsed": 2698,
+    "calls": {
+      "NumericTransferBasis": [],
+      "WarmStartBridge": [],
+      "TransferLearningManager": [],
+      "BayesianCandidateGenerator": []
+    }
+  },
+  "default_receiver": {
+    "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "lines": [
+      163,
+      164,
+      175,
+      180,
+      181,
+      196,
+      209,
+      212
+    ],
+    "behavior": "Constructor defaults bridge and fingerprint to None. An explicit pair obtains target_basis and supplies the same CAS reader to optimizer before loading rows. Without that pair the default receiver supplies no transferred numerical basis or admission callback.",
+    "institutional_basis": "No default constructor path found issuing independent data/model/evaluator/split/metric/unit/direction/owner authorization. The technical profile accepts caller-declared full refs and verifies bytes/declared identity; it does not appoint an institutional issuer."
+  },
+  "actual_configured_seam": "The3 real workflow cases explicitly configure manager+bridge+target;2 cases fit native GP and restore state,1 incompatible origin stays discovery. This is an executed conditional caller, not proof of a default deployed production composition.",
+  "remaining_owner_inputs": [
+    "Actual execution/data owner declares permitted tenant and training split, and supplies the original candidate/evaluation/history plus complete numerical basis.",
+    "Transfer metadata issuer supplies an owner-bound live generation record for B134.",
+    "Lesson producer/revalidation owner supplies actual new empirical grounds/version/time for B137."
+  ],
+  "negative": "Missing target basis cannot be bootstrapped from a first source row; origin mismatch stays ANN discovery and does not construct a native GP.",
+  "scope": "No production source writes or foreign factory fixes are part of this review."
+}

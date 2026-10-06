@@ -1,0 +1,169 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "reviewer": "/root/dur_probe (different author from CMP)",
+  "finding_id": "B74",
+  "target_sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+  "target_tree_sha": "22374e2a7480ab580e2192b066555ae47d1312c6",
+  "slice_base_sha": "2e42b6bd057b501988dc0a61f2e74aa1a79f4496",
+  "public_CAS_seam_sha": "06231bcfb0370a592db4be0ebff5b26b763e4c9c",
+  "own_DUR_source_sha": "4f71e8bbd95225c8d857b2123f7f2fe9fcc5071d",
+  "own_DUR_receipt_sha": "a2cf53bbff6c2786deeaa031575f97ed22d413de",
+  "source_identity": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+      "source_sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+      "sha256": "d7fc8d9efc3fbaafc209cf8f3da2e3bb9c92d576c14854b7dbe736e545627e12",
+      "actual_path": "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py",
+      "source_sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+      "sha256": "cfafabb1d101e35d44f51b4a5f36794339a498e64677ccd3a08f577a8f06d9af",
+      "actual_path": "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/artifacts/_fingerprint.py"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest_profile.py",
+      "source_sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+      "sha256": "aa7ee9af617c1adc338a21a5b0186d41a690e6b86f2a0810ae9b5a7ee4ff7ce5",
+      "actual_path": "/workspace/e02-B-current-composition/policy-engine/src/polisyos/core/artifacts/manifest_profile.py"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+      "source_sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+      "sha256": "8169b1724c380e4c9974c91e359b0f4e470f46f028d229393480bb4140fd67b3",
+      "actual_path": "/workspace/e02-B-current-composition/policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py"
+    }
+  ],
+  "verdict": "FAIL (one material same-class source identity escape)",
+  "specification_verdict": "PARTIAL: real ref/scope/source class pinning implemented; actual class helper source is not part of the persisted identity",
+  "engineering_verdict": "FAIL: strict resume silently uses stale completed prefix after actual helper behavior changes",
+  "finding": {
+    "severity": "high",
+    "confidence": "high",
+    "bucket": "P40 same source-identity closure class deeper, not a new class",
+    "location": "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py:807",
+    "property": "The current actual implementation identity must refuse a prior checkpoint when the same owning class changes the helper implementation actually called by pure_step.",
+    "implementation_proxy": "Inspected class source + four entrypoint callback sources; vars(class) excludes callable and staticmethod/classmethod/property attributes, so the actually called helper replacement is omitted.",
+    "actual_countercase": "Inspectable same HelperSource uses scale staticmethod. Original cold+unchanged resume total7; assign another inspectable immutable scale function while retaining class identity/ABI/all actual CAS refs/request. Actual cold total10, strict resume total7/history_complete=true with only consumer suffix dispatched and old pointer bytes unchanged.",
+    "consequence": "Persisted completed prefix and original history are acknowledged under stale source identity rather than recomputed/refused.",
+    "smallest_direction": "Widen generic owning-class attribute source closure for actual supported function/method descriptors, recursively binding their immutable captures and bases; unsupported descriptors/callables must be a named strict refusal rather than silently skipped. Do not whitelist helper names.",
+    "source_or_fix_edits": "none (author CMP owns fix)"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/review-b74/probe.py /workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/review-b74/actual-helper-c639-final c639295e25a602869c6c28754cd43fd856aa05cf",
+      "target_sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "source_checkout": "/workspace/e02-B-current-composition",
+        "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src",
+        "no_new_worktree": true,
+        "no_source_or_test_edits": true,
+        "no_artificial_process_quota": true
+      },
+      "input_closure": "Actual unchanged canonical source/hash asserted before imports; inspectable independent class in committed driver, native two-node required edge registry, real MethodDispatcher NumPy arithmetic, actual FileSystemCAS input/config/origin/dependency/cache refs and immutable generation checkpoint. Only one class helper attribute replaced in memory; all request/refs/checkpoint bytes unchanged.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe-c639.txt",
+        "sha256": "8ddecff7141df53c8e23238e0f16fb40eb00703ffe1dfbdb381b3a20bb885fb1",
+        "bytes": 4653
+      },
+      "driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe.py",
+        "sha256": "0364238f32260449173af2688099e754c5f27d0d65f1c25a6acfed1d52a2b08b",
+        "bytes": 4146
+      }
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/foundry/methods/backends/test_checkpoint_identity.py -k 'exact_selected or actual_cas_identity or protected_checkpoint or registry_change_during or operational_checkpoint' --basetemp=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/review-b74/native-c639 --junitxml=/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/review-b74/native-c639.xml",
+      "target_sha": "c639295e25a602869c6c28754cd43fd856aa05cf",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "source_checkout": "/workspace/e02-B-current-composition",
+        "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src",
+        "no_new_worktree": true,
+        "no_source_or_test_edits": true,
+        "no_artificial_process_quota": true,
+        "cwd": "/workspace/e02-B-current-composition/policy-engine"
+      },
+      "input_closure": "Exact native identity file c639, complete15 selected cases (15 deselected); real CAS/profile/tenant/cold-resume identity and registry replacement class pinning. This is not the whole119-case suite. Native full stdout+XML retained.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "actual_cases": 15,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/native-c639.txt",
+        "sha256": "d06b6f58949e02ebff77725eb92aa6bcb5662accb5ef6a1690ae39fbbb94fe3c",
+        "bytes": 114
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/native-c639.xml",
+        "sha256": "a4f95756a07712fb1c62e351bccf3b50a52438f679c1c730e9a45075f3e647b9",
+        "bytes": 2975
+      }
+    }
+  ],
+  "review_matrix": [
+    {
+      "requirement": "Exact declared Ref content/hash/kind/media/profile readback",
+      "result": "PASS for selected15 native cases + source read; actualget_bytes/get_manifest recompute integrity and canonical CAS profile at everycold/resume admission"
+    },
+    {
+      "requirement": "Actual tenant/cell permission",
+      "result": "PASS selected negative2 native scope cases with guarded store; declaration grants no permission"
+    },
+    {
+      "requirement": "Declared config/origin/dependency/cache identity",
+      "result": "PASS selected native changes refuse before suffix; actualrefs independent premises, no claim they decode caller initial_state"
+    },
+    {
+      "requirement": "Actual selected methods pinned before producer mutates registry",
+      "result": "PASS selected native registry-replacement control records actualusedclasses and suffix arithmetic"
+    },
+    {
+      "requirement": "State/frontier/original history/context same immutable generation",
+      "result": "PASS actual persisted pointer/snapshot and native cold\u2192resume history readback"
+    },
+    {
+      "requirement": "Generic owning class source closure",
+      "result": "FAIL meaningful helper callable countercase"
+    },
+    {
+      "requirement": "Served/A route/Scientist restoration or allbackends",
+      "result": "OUT_OF_SCOPE; no such claim"
+    }
+  ],
+  "limitations": [
+    "Finite JSON/non-objectNumPy checkpoint codec, inspectable class/function/source-capture and actualNumPy arithmetic profile. No A route, served system, external mutable effect, backend-universal or formalB74closure claim.",
+    "Baseline comparison by exact immutable source diff; old2e42 does not implement the strict artifact context API, so no fake apples-to-apples baseline runtime claim.",
+    "Actual author-provided composition writer checkout already root admitted; reviewer creates no helper/worktree and modifies no source/test. Own root-admitted DUR topic stores only the compact review evidence.",
+    "No full119-wave repetition, no inheritedred attribution. Source actor is free to fix after this frozen actual packet; successor must rerun identical actual probe on new source."
+  ],
+  "closure_ids": [],
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/native-c639.txt",
+      "sha256": "d06b6f58949e02ebff77725eb92aa6bcb5662accb5ef6a1690ae39fbbb94fe3c",
+      "bytes": 114
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/native-c639.xml",
+      "sha256": "a4f95756a07712fb1c62e351bccf3b50a52438f679c1c730e9a45075f3e647b9",
+      "bytes": 2975
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe-c639.txt",
+      "sha256": "8ddecff7141df53c8e23238e0f16fb40eb00703ffe1dfbdb381b3a20bb885fb1",
+      "bytes": 4653
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/b74-review/probe.py",
+      "sha256": "0364238f32260449173af2688099e754c5f27d0d65f1c25a6acfed1d52a2b08b",
+      "bytes": 4146
+    }
+  ],
+  "replay_contract": "Same committed probe.py accepts successor source SHA as argv2. Only source target/basetemp inputs change; class arithmetic, actualCAS/chain/registry/request/control assertions remain identical."
+}

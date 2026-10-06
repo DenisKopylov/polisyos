@@ -48,7 +48,7 @@
 - [x] Implement the smallest CLI using Git's tracked, nonignored-untracked, and ignored path queries plus `measure_file_reads` / `measured_read_bytes`; keep Git/subprocess and dynamic-import limits explicit in the output.
 - [x] Test and include the repository's present text/resource suffixes and no-suffix configuration names, including owner TSV, policy, serialized `.blob`, log, CSS, templates, patches, Cypher, fixtures, and `.env.example`; prove each selected input contributes the expected FQN/resource evidence.
 - [x] Re-run the focused tests and inspect every output field on a fixture.
-- [ ] Run the complete local text-input census at the post-selector-fix implementation SHA; the earlier census at `248cf935` was superseded when the text-type denominator expanded.
+- [x] Run the complete census at implementation `8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35`: 13,604 selected UTF-8 inputs / 13,672 tracked paths, 0 untracked, 979 ignored, 0 unreadable/unsupported, 68 excluded known binaries, and 876 loader sites (559 literal / 317 unresolved). FQN/text/resource hit counts: LA-005 147, LA-006 21, LA-026 125, LA-027 157. Full output: `raw/schema-fqn-census-final.json@1bb60dcf846b8c1fd702ecf3099c7094a8be648c437b9eca6c0b988ade4602c8`.
 
 ### Task 2: Exercise canonical Foundry and Data Forge consumers
 
@@ -59,7 +59,8 @@
 - [x] Compare the full canonical Foundry runtime registry to an independent ID/class-path fixture; resolve every registered runtime class and dispatch a mechanism through `MethodDispatcher`.
 - [x] Assert exact tombstone FQN import failure and absence of the source-package resource; never recreate it in product source.
 - [x] Run DFK schema/evolution/migration, the registry/runner witness, and real agent-sim mechanism/world consumer selectors (31 passed).
-- [ ] The existing unified Foundry runtime consumer selector was run in the combined suite (33 passed, 1 failed): `test_simulation_methods_dispatch_and_agent_sim_bridge_runs` expects `not_available`, while the runtime returns `diagnostic_attached`. Its test and Foundry source inputs are unchanged from the slice base, but an exact base replay was unavailable under the one-worktree lease; classify this failure `not_established` under P41 and leave that separate consumer assertion untouched.
+- [ ] The exact frozen-commit combined selector run collected 52 tests (50 passed, 2 failed). The unified Foundry consumer `test_simulation_methods_dispatch_and_agent_sim_bridge_runs` expects `not_available`, while runtime returns `diagnostic_attached`; exact base replay is unavailable under the one-worktree lease, so P41 provenance is `not_established`.
+- [ ] Phase-8 and Foundry hygiene companions collected 17 tests (16 passed, 1 failed): `test_phase8_fabric_and_foundry_use_data_forge_read_api_only` finds `literature_prior.py` importing `polisyos.data_forge.domains.academic.knowledge.skg_query`. This path is outside the DFK write set; exact base replay is unavailable, so P41 provenance is `not_established`.
 - [x] Do not add a registry, DTO migration, generator, or alias retirement to make the tests pass.
 
 ### Task 3: Record the census and four separate verdicts
@@ -67,11 +68,11 @@
 **Files:**
 - Create `docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-handoff.json` after the implementation commit.
 
-- [ ] Run the source census at the exact implementation commit and retain the complete output separately if it is too large for the tracked receipt.
-- [ ] Record the build configuration and leave built wheel/sdist results `UNRUN` until an authorized environment slot is available.
-- [ ] Include each finding’s source criteria, exact owner role and unresolved Git-backed decision, measured evidence, missing input, capability label, and independent finding verdict.
-- [ ] Re-read the receipt from the branch after writing it; commit it separately from implementation.
+- [x] Run the source census at the exact implementation commit and retain the complete output separately at the cited ignored `raw/` path.
+- [x] Record build configuration (`hatchling>=1.27.0`, wheel `src/polisyos` + `tools`; source bytes include `pyproject.toml`/`hatch.toml`) and leave wheel/sdist `UNRUN` for the parent-owned archive slot.
+- [x] Include each finding's source criteria, exact owner role and unresolved Git-backed decision, measured evidence, missing input, capability label, and independent finding verdict in `schema-fqn-census-handoff.json`.
+- [x] Re-read the receipt from the branch after writing it; commit it separately from implementation.
 
 ## Verification
 
-Run the focused DFK and canonical consumer tests with the original read-only environment and this worktree on `PYTHONPATH`. Run Ruff and the relevant architecture/import guardrails. Do not run the full DFK archive-building command or any install/build operation until the parent releases the environment slot.
+Focused DFK/schema/agent-simulator selectors pass 31/31 on the frozen implementation SHA; full selected consumer suite and companion outcomes are listed above. Ruff and `git diff --check` pass. Architecture guardrails ran at the frozen SHA and exited 2 with 151 deep-import findings plus generated OpenAPI and trust-claim snapshot drift; complete output is `raw/architecture-guardrails-final.log@57a1107531375bdae7f78efa9cc2c595b8b4873ea882beeb0a1f42ed0cd05deb`. A slice-base replay is unavailable, so P41 source attribution stays `not_established`. Do not run the full DFK archive-building command or any install/build operation until the parent releases the environment slot.

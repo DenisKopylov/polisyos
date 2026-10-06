@@ -1,0 +1,397 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "schema-fqn-census",
+  "closure_ids": ["LA-005", "LA-006", "LA-026", "LA-027"],
+  "bundle_ids": ["DFK-01"],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "d432d7d76a0dd7bef6bb9ebbc812cc817ae934ef",
+    "248cf935cad4a28a4fdd59fc419223cbd10644c9",
+    "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35"
+  ],
+  "candidate_tree_sha": "ec6137a453d3aafdfd46e1c6304e4cf3a9de3da5",
+  "branch": "codex/e02-C-schema-20261006",
+  "pull_request": null,
+  "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-handoff.json",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/schema-fqn-census-plan.md",
+    "policy-engine/tests/unit/remediation/test_dfk_01.py",
+    "policy-engine/tools/quality/validation/schema_fqn_census.py"
+  ],
+  "baseline_cells": [],
+  "baseline_query": {
+    "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --unit C --failures-only --limit 30",
+    "target_sha": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+    "outcome": "PASS",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/baseline-C-failures.json@a88c3dc6b80a1a8d65870040bfef51363f0a3f3cdbcf421c95f9f200a6100512",
+    "finding_routes_for_slice": [],
+    "limitations": [
+      "The query returned 9 source-reported failure cells, none routed to these four DFK-01 findings.",
+      "The baseline is compact text-only, not a normalized event census; no raw archives were received."
+    ]
+  },
+  "source_refs": {
+    "coverage_decisions": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_oid": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a"
+    },
+    "closure_C": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_oid": "eb335a62bc1f8bce2cddfcf59f649980a08e88c4"
+    },
+    "semantic_decisions": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/semantic-decisions.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_oid": "432a2c10ee56ab0b60c94fdd8a6b834fd512627a"
+    },
+    "source_criteria": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_oid": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    "DFK_01_card": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DFK-01.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_oid": "a8fe5f2061473e70a52f7c6a4233422542af499c"
+    },
+    "finding_owner_rows": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_oid": "515c70d29f59f3175521642e72d04f1aaffc72d7"
+    },
+    "bundle_owner_rows": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_oid": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b"
+    },
+    "execution_handoff_protocol": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_oid": "b9f1a717049d9e30f68bf291e3f8321013abf83e"
+    },
+    "G97_C_canon_merge": {
+      "commit": "97c85fae2d4505ec8248540d98b9556296244208",
+      "tree": "e77c0741d3b19acb43e07a0de2bdb97c8fa98ee3",
+      "merge_base_ancestor_of_slice_base": true,
+      "note": "This commit merged the C canonical IR adapter slice. It is not the source revision for C closure-decision documents, which are cited above at the slice base."
+    }
+  },
+  "main_acceptance_boundary": {
+    "pinned_main_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "G97_canon_commit_is_ancestor": true,
+    "DFK_paths_changed_between_G97_and_base": [],
+    "base_state": {
+      "present": [
+        "policy-engine/src/polisyos/foundry/domain/schema.py",
+        "policy-engine/src/polisyos/data_forge/kernel/schemas/codegen.py",
+        "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+        "policy-engine/src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py"
+      ],
+      "absent": [
+        "policy-engine/src/polisyos/foundry/domain/mechanisms/",
+        "policy-engine/src/polisyos/foundry/domain/mechanisms/__init__.py",
+        "policy-engine/src/polisyos/foundry/domain/mechanisms/README.md"
+      ]
+    },
+    "interpretation": "No DFK-01 source/test change from the C-canon merge through the pinned main base; that merge carries the unrelated canonical IR adapter slice. This topic branch's three implementation commits are not main-accepted changes."
+  },
+  "source_census": {
+    "command": "<C163 private Python 3.14> policy-engine/tools/quality/validation/schema_fqn_census.py --repo-root policy-engine",
+    "target_sha": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+    "outcome": "PASS",
+    "result": "complete_for_selected_local_text_inputs",
+    "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/schema-fqn-census-final.json@1bb60dcf846b8c1fd702ecf3099c7094a8be648c437b9eca6c0b988ade4602c8",
+    "output_bytes": 6060355,
+    "denominator": {
+      "tracked_git_paths": 13672,
+      "nonignored_untracked_paths": 0,
+      "ignored_git_paths": 979,
+      "selected_text_paths": 13604,
+      "successfully_read_and_utf8_decoded": 13604,
+      "excluded_known_binary_paths": 68,
+      "ignored_candidate_text_paths_not_read": 13,
+      "unreadable_paths": 0,
+      "unsupported_or_ambiguous_inputs": 0,
+      "selected_worktree_changes": []
+    },
+    "fqn_matches": [
+      {
+        "finding_id": "LA-005",
+        "fqn": "polisyos.foundry.domain.schema",
+        "occurrences": 147,
+        "unique_paths": 35,
+        "serialized_or_text_reference": 31,
+        "resource_path_reference": 116,
+        "source_path_hits": 0
+      },
+      {
+        "finding_id": "LA-006",
+        "fqn": "polisyos.foundry.domain.mechanisms",
+        "occurrences": 21,
+        "unique_paths": 6,
+        "serialized_or_text_reference": 18,
+        "resource_path_reference": 3,
+        "source_path_hits": 0
+      },
+      {
+        "finding_id": "LA-026",
+        "fqn": "polisyos.data_forge.kernel.schemas.codegen",
+        "occurrences": 125,
+        "unique_paths": 34,
+        "serialized_or_text_reference": 18,
+        "resource_path_reference": 107,
+        "source_path_hits": 0
+      },
+      {
+        "finding_id": "LA-027",
+        "fqn": "polisyos.data_forge.kernel.pipeline.schemas",
+        "occurrences": 157,
+        "unique_paths": 37,
+        "serialized_or_text_reference": 12,
+        "resource_path_reference": 145,
+        "source_path_hits": 0
+      }
+    ],
+    "dynamic_loader_scan": {
+      "recognized_sites": 876,
+      "literal_target_sites": 559,
+      "unresolved_nonliteral_target_sites": 317,
+      "exact_target_literal_sites": {
+        "polisyos.foundry.domain.schema": ["tests/unit/remediation/test_dfk_01.py"],
+        "polisyos.foundry.domain.mechanisms": [
+          "tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+          "tests/unit/remediation/test_dfk_01.py"
+        ],
+        "polisyos.data_forge.kernel.schemas.codegen": ["tests/unit/remediation/test_dfk_01.py"],
+        "polisyos.data_forge.kernel.pipeline.schemas": ["tests/unit/remediation/test_dfk_01.py"]
+      }
+    },
+    "package_configuration": {
+      "inputs": ["policy-engine/pyproject.toml", "policy-engine/hatch.toml"],
+      "build_backend": "hatchling.build",
+      "build_requirement": "hatchling>=1.27.0",
+      "wheel_packages": ["src/polisyos", "tools"],
+      "wheel_force_include": {
+        "architecture/production_quality/method_catalog_dependency_digest_domains.toml": "polisyos/foundry/methods/catalog/_resources/method_catalog_dependency_digest_domains.toml"
+      },
+      "sdist_include": [
+        "architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+        "src/polisyos",
+        "benchmarks",
+        "docs",
+        "ops",
+        "schemas",
+        "tools",
+        "CHANGELOG.md",
+        "README.md",
+        "ruff.toml",
+        "mypy.ini",
+        "basedpyright.toml",
+        "pytest.ini",
+        "mutmut.cfg",
+        "pyproject.toml",
+        "hatch.toml"
+      ],
+      "wheel": "UNRUN",
+      "sdist": "UNRUN"
+    },
+    "interpretation_limits": [
+      "The hit totals count FQN/resource strings, not semantic caller counts; target hit paths are source/tests/tools/docs/config/reference evidence, not an external ABI census.",
+      "The census does not classify direct ast.Import nodes separately; exact literal FQNs still appear in the byte/text hit category.",
+      "Static AST cannot resolve 317 nonliteral loader arguments or arbitrary runtime dispatch.",
+      "Ignored paths are named but not read; 13 ignored candidate text files remain outside the selected read set.",
+      "68 known binary paths are enumerated and excluded; no source-text absence claim is derived from them.",
+      "Wheel/sdist build and membership, installed clients, external checkouts/registries, and network-visible consumers are not established.",
+      "No negative removal mutant was run against a built archive."
+    ]
+  },
+  "canonical_consumers": {
+    "foundry_registry": {
+      "source": "policy-engine/src/polisyos/foundry/_registry.py",
+      "real_lookup": "MECHANISM_REGISTRY -> get_mechanism_descriptor -> descriptor.mechanism_class and MethodRegistry.get(method_fqn)",
+      "independent_runtime_id_class_path_fixture": {
+        "adaptive_agent": ["mechanism.runtime.adaptive_agent@1.0.0", "polisyos.foundry.agent_sim.agents:AdaptiveAgentMechanism"],
+        "income_tax": ["mechanism.runtime.income_tax@1.0.0", "polisyos.foundry.execute.mechanisms:IncomeTax"],
+        "labor_market": ["mechanism.runtime.labor_market@1.0.0", "polisyos.foundry.execute.mechanisms:LaborMarketMechanism"],
+        "queue": ["mechanism.runtime.queue@1.0.0", "polisyos.foundry.execute.queue:QueueMechanism"],
+        "tax_subsidy": ["mechanism.runtime.tax_subsidy@1.0.0", "polisyos.foundry.execute.mechanisms:TaxSubsidy"]
+      },
+      "execution_witness": "MethodDispatcher dispatches mechanism.runtime.income_tax@1.0.0 with rate 0.2; independently expected agents.income deltas are [-20, -20, 0] for incomes [100, 100, 100] with active [true, true, false]; returned mechanism_type is income_tax.",
+      "runtime_result_artifact": "result.patches['agents.income'][0].delta"
+    },
+    "agent_sim_world": {
+      "test": "PureExecutor.run with canonical TaxationMechanism(progressive_factor=0.0), incomes [100, 200], tax rate 0.1 -> [90, 180], tax collected 30, time_step 1.",
+      "selectors": [
+        "tests/unit/foundry/agent_sim/test_executor.py",
+        "tests/unit/foundry/agent_sim/test_mechanisms.py",
+        "tests/unit/foundry/agent_sim/world/test_seed_worlds.py"
+      ]
+    },
+    "data_forge_schema": {
+      "canonical_owner": "polisyos.data_forge.kernel.schemas",
+      "tested_behaviors": ["SchemaRegistry register/get/latest/list_versions", "schema evolution compatibility and rule override", "SchemaMigrationRegistry plan_path/apply"],
+      "preserved_identity_alias": "polisyos.data_forge.kernel.pipeline.schemas re-exports CompatibilityMode, SchemaRegistry, and SchemaVersion as identical objects",
+      "compatibility_only_descriptor": "polisyos.data_forge.kernel.schemas.codegen.GeneratedSchemaModule remains importable with module_name, schema_id, schema_version; no generator or canonical export was introduced."
+    }
+  },
+  "checks": [
+    {
+      "command": "<C163 private Python 3.14> -m pytest -q --tb=short tests/unit/remediation/test_dfk_01.py tests/unit/foundry/agent_sim/test_executor.py tests/unit/foundry/agent_sim/test_mechanisms.py tests/unit/foundry/agent_sim/world/test_seed_worlds.py",
+      "target_sha": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+      "environment": "macOS local worktree; reused existing private C163 Python 3.14 venv; worktree src and tools on PYTHONPATH; no install/build",
+      "input_closure": "DFK canonical schema/evolution/migration/import/resource/census tests plus Foundry registry/runner and agent-sim executor/mechanism/world selectors",
+      "outcome": "PASS",
+      "summary": "31 passed",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/dfk-simulator-suite-final.log@1b8f208de3636df279448e40805982570c4351601ce5723301928feea7d343cf"
+    },
+    {
+      "command": "<C163 private Python 3.14> -m pytest -q --tb=short tests/unit/remediation/test_dfk_01.py tests/unit/foundry/methods/test_foundry_v2_unified_runtime.py tests/unit/foundry/agent_sim/test_executor.py tests/unit/foundry/agent_sim/test_mechanisms.py tests/unit/foundry/agent_sim/world/test_seed_worlds.py tests/unit/data_forge/test_phase8_shim_sunset.py tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+      "target_sha": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+      "environment": "macOS local worktree; reused existing private C163 Python 3.14 venv; worktree src and tools on PYTHONPATH; no install/build",
+      "input_closure": "All DFK, Foundry runtime, simulator/world, Phase-8 shim, and no-compat-facade companion selectors in one process",
+      "outcome": "FAIL",
+      "summary": "52 collected: 50 passed, 2 failed. Failures are the unified ABM diagnostic expectation and the Phase-8 read-API-only scan finding literature_prior.py -> polisyos.data_forge.domains.academic.knowledge.skg_query.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/final-focused-consumer-suite.log@24b1c178509841726ff1d28b8c81df1f395205cc8071b8cd93f40c21d6208edc",
+      "P41": "not_established: no exact slice-base replay was available under the one-worktree/no-new-checkout lease. Do not classify either failure as inherited or introduced."
+    },
+    {
+      "command": "<C163 private Python 3.14> -m pytest -q --tb=short tests/unit/data_forge/test_phase8_shim_sunset.py tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+      "target_sha": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+      "environment": "macOS local worktree; reused existing private C163 Python 3.14 venv",
+      "input_closure": "Named DFK Phase-8 companion and Foundry no-compat-facade tests",
+      "outcome": "FAIL",
+      "summary": "17 collected: 16 passed, 1 failed at test_phase8_fabric_and_foundry_use_data_forge_read_api_only; violation names src/polisyos/foundry/methods/catalog/causal/literature_prior.py -> polisyos.data_forge.domains.academic.knowledge.skg_query.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/dfk-companion-suite.log@6d42dd249f4427725ef63f076c049679ab35ef076ef69f06223efe3afe3b2a87",
+      "P41": "not_established: no exact slice-base replay was available under the one-worktree/no-new-checkout lease."
+    },
+    {
+      "command": "<C163 private Python 3.14> -m ruff check policy-engine/tests/unit/remediation/test_dfk_01.py policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "target_sha": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+      "environment": "existing private C163 Python 3.14 venv",
+      "input_closure": "Both changed Python files",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "command": "git diff --check",
+      "target_sha": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+      "environment": "local worktree",
+      "input_closure": "Implementation diff through the frozen implementation commit",
+      "outcome": "PASS",
+      "output": "exit 0; no output"
+    },
+    {
+      "command": "<C163 private Python 3.14> -m tools.cli architecture guardrails check",
+      "target_sha": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+      "environment": "macOS local worktree; reused existing private C163 Python 3.14 venv; no install/build",
+      "input_closure": "Repository architecture manifests, import baselines, generated snapshot checks",
+      "outcome": "FAIL",
+      "summary": "Exit 2; 151 deep-import-creep findings and two generated-output mismatches (runtime OpenAPI snapshot and trust-claim posture register).",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/architecture-guardrails-final.log@57a1107531375bdae7f78efa9cc2c595b8b4873ea882beeb0a1f42ed0cd05deb",
+      "P41": "not_established: exact slice-base replay and full input-denominator intersection proof were not run. Changed paths do not include any printed deep-import source path or either mismatched generated output."
+    },
+    {
+      "command": "Wheel and sdist build/member/resource/dynamic-loader census",
+      "target_sha": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+      "environment": "parent-controlled local archive audit slot",
+      "input_closure": "Hatch wheel/sdist selection and actual archive contents",
+      "outcome": "UNRUN",
+      "output": "Parent/root owns this audit after its environment slot is released; census configuration bytes are recorded but do not prove archive membership."
+    }
+  ],
+  "property": {
+    "statement": "The local DFK FQN family is measured across the complete selected Git-visible text/resource set while compatibility surfaces stay intact pending their semantic owners; LA-006 additionally proves source absence and dispatches real mechanisms through existing canonical consumers.",
+    "runtime_path": [
+      "Foundry MECHANISM_REGISTRY maps five runtime IDs to existing class paths",
+      "get_mechanism_descriptor resolves each class and its MethodRegistry method",
+      "MethodDispatcher dispatches income_tax and returns an agents.income patch",
+      "PureExecutor.run consumes canonical TaxationMechanism and updates simulated state"
+    ],
+    "proxy_divergence": "An FQN text hit is not an active runtime caller: 450 occurrences include historical documents, tests and tooling, while this slice changes no product module. The full Foundry registry fixture plus actual MethodDispatcher/PureExecutor effect is the runtime discriminator; package archive membership and external ABI support remain distinct, unmeasured predicates.",
+    "negative_controls": [
+      "Exact polisyos.foundry.domain.mechanisms import raises ModuleNotFoundError; source path and importlib.resources mechanism entry are absent.",
+      "Census fixture proves the new text/resource file families are actually selected and produce their expected target hits; it failed before the selector extension and passed after.",
+      "Census fixtures preserve partial status for missing tracked input and reject an outside-root symlink instead of turning either into a zero-hit result.",
+      "Full expected five-ID registry equality and independent income-tax delta oracle prevent constructor-only success."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_by_check": {
+    "local_git_path_and_byte_census": "recomputed",
+    "Foundry_runtime_ID_to_class_map": "independently_reconciled",
+    "MethodDispatcher_and_PureExecutor_effects": "recomputed",
+    "public_API_support_and_sunset_authority": "not_established",
+    "wheel_sdist_membership": "not_established",
+    "external_consumers": "not_established",
+    "unified_runtime_and_architecture_failure_attribution": "not_established"
+  },
+  "capability_state_or_finding_state": "LA-005=held/verification_missing; LA-006=limited/verification_missing (archive boundary); LA-026=held/verification_missing; LA-027=held/verification_missing",
+  "findings": [
+    {
+      "id": "LA-005",
+      "criterion": {
+        "source": "LA_r09_original.md lines 198-224",
+        "criterion_sha256": "ec6ce93b380334ba9e5d13e13ce8ecf637afd057b99008b3aa1b462d29194266",
+        "owner_row": "finding-owners.tsv:231, C/P37/DFK-01/DFK-01/historical held",
+        "coverage": "closure_now=not_adjudicated; historical and Appendix C state=held"
+      },
+      "verdict": "held",
+      "capability_label": "verification_missing",
+      "evidence": "147 literal/resource/text occurrences over 35 selected paths; no selected target-hit path is under src/. Compatibility import/identity and all three DTO fields remain tested. Full local census does not establish external supported-API status.",
+      "decision_required_from": "Public-surface owner: decide whether polisyos.foundry.domain.schema is in the supported allowlist; do not claim external zero or require permanent external-zero census.",
+      "missing_input": "The named public-surface owner ruling. Only if support is affirmatively asserted, obtain the relevant shipped-version/import/persisted-identity evidence; if retirement is ratified, parent archive output is needed for package membership."
+    },
+    {
+      "id": "LA-006",
+      "criterion": {
+        "source": "LA_r09_original.md lines 225-253",
+        "criterion_sha256": "4bc6fa503bce03a1516620c492168088242d61e0ba90697a9377480c13d189fe",
+        "owner_row": "finding-owners.tsv:232, C/P37/DFK-01/DFK-01/historical partial",
+        "coverage": "Appendix C separately says closed_bounded; closure_now=not_adjudicated; source capability label=semantic_test_missing"
+      },
+      "verdict": "limited",
+      "capability_label": "verification_missing",
+      "evidence": "The banned source namespace is already absent at the pinned main base; exact import, source-directory, and package-resource absence now have a negative test. The complete runtime-ID registry fixture resolves all five class/method paths and dispatches income_tax through MethodDispatcher; agent-sim executes through PureExecutor. Census records 21 exact text/resource occurrences across 6 paths, with literal loader sites confined to the two negative tests.",
+      "missing_input": "Parent-owned wheel/sdist member/resource and dynamic-discovery results. Hatch configuration alone does not prove the retired directory cannot be recreated in an archive. The 317 unresolved nonliteral loader sites are a repository-wide static boundary, not evidence that a target is absent at runtime."
+    },
+    {
+      "id": "LA-026",
+      "criterion": {
+        "source": "LA_r09_original.md lines 1372-1417",
+        "criterion_sha256": "48da21eccebfe89cf7cc0ed9dba75b26752d06f78625f92088e3cb9ebc88fa1a",
+        "owner_row": "finding-owners.tsv:252, C/P37/DFK-01/DFK-01/historical held",
+        "coverage": "closure_now=not_adjudicated; Appendix C state=held"
+      },
+      "verdict": "held",
+      "capability_label": "verification_missing",
+      "evidence": "125 literal/resource/text occurrences across 34 selected paths; no target-hit path is under src/. Existing canonical registry/evolution/migration behavior is exercised. GeneratedSchemaModule remains the compatibility-only three-string descriptor and is not exported by canonical schemas; no code generator or new internal caller was added.",
+      "decision_required_from": "Data Forge schema owner: decide whether GeneratedSchemaModule has an intended producer/consumer contract or supported external FQN.",
+      "missing_input": "Owner intent/ABI ruling. If retirement is ratified, obtain parent wheel/sdist/resource and dynamic-payload checks. External release/import evidence is required only after an affirmative supported-API assertion."
+    },
+    {
+      "id": "LA-027",
+      "criterion": {
+        "source": "LA_r09_original.md lines 1418-1465",
+        "criterion_sha256": "a78cbc850be0ec8fdbec3076613780d16dfc169517f5f1568f42a6a80cd3e8ce",
+        "owner_row": "finding-owners.tsv:253, C/P37/DFK-01/DFK-01/historical held",
+        "coverage": "closure_now=not_adjudicated; Appendix C state=held"
+      },
+      "verdict": "held",
+      "capability_label": "verification_missing",
+      "evidence": "157 literal/resource/text occurrences across 37 selected paths; no target-hit path is under src/. Existing tests prove CompatibilityMode, SchemaRegistry and SchemaVersion remain identical objects across pipeline.schemas and kernel.schemas, and exercise canonical schema evolution/migration.",
+      "decision_required_from": "Data Forge schema and active-plan owners: confirm canonical-path intent and set any compatibility support-window end.",
+      "missing_input": "The named owner support-window ruling. Do not remove the identity alias or add new imports; after an admitted sunset, obtain parent archive/dynamic-loader negative checks."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Parent/root owns wheel/sdist generation and actual member/resource/dynamic discovery after the archive environment slot; do not infer contents from hatch.toml.",
+    "Semantic authority remains with public-surface, Data Forge schema, and active-plan owners named in the decision table; no person or support policy was invented.",
+    "Census selection covers all 13,604 selected local UTF-8 text/resource inputs; ignored files are named but unread, 68 binaries are excluded, arbitrary nonliteral loaders remain unresolved, and external clients are not observed.",
+    "The unified runtime and Phase-8 guardrail test failures plus architecture guardrail failures remain candidate observations with P41 provenance not_established; they are outside the DFK write set and were not repaired here.",
+    "Keep early DTO and GeneratedSchemaModule compatibility surfaces and the identity alias; do not create codegen, delete ABI, or add a new schema owner."
+  ]
+}

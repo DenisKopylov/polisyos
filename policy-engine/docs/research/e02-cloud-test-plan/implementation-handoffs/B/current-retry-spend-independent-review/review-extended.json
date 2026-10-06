@@ -1,0 +1,56 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "B EXE writer; RUN author different",
+  "target_sha": "f04e3b80e910ad3cbbbf8262ed58bec69e3d57e8",
+  "target_tree": "e8eec30999454c74e4d3fd3c89ffdefee5660561",
+  "target_source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+  "target_source_sha256": "dec60e1e0e36cf0483f501eab4d4b15429e204c997e88cbc23022fe3aa82a0a3",
+  "other_source_sha": "8b7ddbc8bba371ed7e4de20e9ef1cc5aed6ede38",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "_build/current-execution-state/failed_spend_f04_extended.py"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "POLISYOS_METRICS_PORT": "0",
+    "clock_info": "namespace(implementation='clock_gettime(CLOCK_MONOTONIC)', monotonic=True, adjustable=False, resolution=1e-09)"
+  },
+  "input_closure": {
+    "other_source_paths": "git ls-tree -r --name-only 89e2faad985250b02853a94718a126bdabc07641; policy-engine/src/**/*.py actual bytes",
+    "candidate_retry_override": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py@f04e3b80e910ad3cbbbf8262ed58bec69e3d57e8",
+    "fixture_inputs": "Known state-budget llm_spent_usd 5 + failed2 + success1 =8, first provider raises retryable TimeoutError on time; ordinary failed params excluded",
+    "thread_platform_branch_forced": true,
+    "scratch": "per route isolated real FileSystemCAS/run/actual attempt log, no production dataset",
+    "source_manifest_qualification": "Original full manifest covers prior89 source. Extended actual8b tracked source has only checkpoint B71 delta outside retry probe path; preserved Git source8b is authoritative. No reused manifest hash claims exact8b."
+  },
+  "outcome": "FAIL: six physical private-state routes (five finite and unbounded async-to-sync) lose failed2; two unbounded direct controls preserve failed2",
+  "finding_ids": [
+    "B39",
+    "B40"
+  ],
+  "limitations": [
+    "Retry-only immutable source imported from Git, not candidate whole-tree runtime admission",
+    "Explicitly forced non-fork capability for actual thread/future path",
+    "Known typed state mutation does not establish vendor financial billing authority or unknown cancelled provider spend"
+  ],
+  "objects": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/observations-extended.json",
+      "sha256": "c9ad13914a0779d568b217cba2e179e12f6637fcf602bbc720c5107e9ae3c0b4",
+      "bytes": 8458
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/output-extended.txt",
+      "sha256": "c9ad13914a0779d568b217cba2e179e12f6637fcf602bbc720c5107e9ae3c0b4",
+      "bytes": 8458
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/probe-extended.py",
+      "sha256": "37298dae70faa4a1d8d9b812d489ea341942167492aa038e533abd42dcad8fb6",
+      "bytes": 5690
+    }
+  ]
+}

@@ -37,6 +37,7 @@ from ._atomic_write import (
 )
 from ._integrity_ops import (
     ArtifactIntegrityError,
+    _ArtifactSnapshotReadResult,
 )
 from ._integrity_ops import (
     VerificationReport as VerificationReport,
@@ -2543,21 +2544,7 @@ class FileSystemCAS:
             )
 
         def verify_snapshot() -> VerificationReport:
-            try:
-                return self._load_verified_snapshot(ref or aid).verification_report(aid)
-            except (OSError, RuntimeError, TypeError, ValueError) as exc:
-                blob, _ = self._paths(aid)
-                manifest_path = self._manifest_path_for_ref(aid, profile_sha256)
-                error = (
-                    "blob missing"
-                    if not blob.exists()
-                    else "manifest missing"
-                    if not manifest_path.exists()
-                    else str(exc)
-                )
-                return VerificationReport(
-                    ok=False, artifact_id=str(aid), expected_sha256_hex=aid.hex, error=error
-                )
+            return self._load_snapshot_read_result(ref or aid).verification_report(aid)
 
         if not self._hpc_enabled or self._tracer is None:
             return verify_snapshot()
@@ -2587,20 +2574,14 @@ class FileSystemCAS:
         aid, profile_sha256, ref = _artifact_reference(artifact_id)
         blob, _ = self._paths(aid)
         manifest = self._manifest_path_for_ref(aid, profile_sha256)
-        try:
-            snapshot = self._snapshot_from_paths(
-                aid,
-                blob=staging_root / blob.relative_to(self.root),
-                manifest_path=staging_root / manifest.relative_to(self.root),
-                profile_sha256=profile_sha256,
-                ref=ref,
-            )
-        except (OSError, RuntimeError, TypeError, ValueError) as exc:
-            self._record_integrity_failure(reason=type(exc).__name__)
-            return VerificationReport(
-                ok=False, artifact_id=str(aid), expected_sha256_hex=aid.hex, error=str(exc)
-            )
-        return snapshot.verification_report(aid)
+        result = self._snapshot_read_result_from_paths(
+            aid,
+            blob=staging_root / blob.relative_to(self.root),
+            manifest_path=staging_root / manifest.relative_to(self.root),
+            profile_sha256=profile_sha256,
+            ref=ref,
+        )
+        return result.verification_report(aid)
 
     def _prepare_import_destination(self, path: Path, *, member: str) -> None:
         """Create safe parent components and reject symlinked CAS paths."""
@@ -4285,6 +4266,13 @@ class FileSystemCAS:
         artifact_id: ArtifactID | ArtifactRef,
     ) -> _VerifiedArtifactSnapshot:
         """Load one owned, integrity-checked bytes/manifest snapshot."""
+        return self._load_snapshot_read_result(artifact_id).require_verified()
+
+    def _load_snapshot_read_result(
+        self,
+        artifact_id: ArtifactID | ArtifactRef,
+    ) -> _ArtifactSnapshotReadResult:
+        """Capture an owned pair under the calling verify/verified-snapshot lease."""
         aid, profile_sha256, ref = _artifact_reference(artifact_id)
         self._require_blob_owner(aid, operation="verify")
         if profile_sha256 is None:
@@ -4297,7 +4285,7 @@ class FileSystemCAS:
             )
         blob, _default_manifest = self._paths(aid)
         manifest_path = self._manifest_path_for_ref(aid, profile_sha256)
-        return self._snapshot_from_paths(
+        return self._snapshot_read_result_from_paths(
             aid,
             blob=blob,
             manifest_path=manifest_path,
@@ -4305,7 +4293,7 @@ class FileSystemCAS:
             ref=ref,
         )
 
-    def _snapshot_from_paths(
+    def _snapshot_read_result_from_paths(
         self,
         aid: ArtifactID,
         *,
@@ -4313,36 +4301,58 @@ class FileSystemCAS:
         manifest_path: Path,
         profile_sha256: str | None,
         ref: ArtifactRef | None,
-    ) -> _VerifiedArtifactSnapshot:
-        """Prepare one locally hashed pair for live and private-stage consumers."""
-        manifest_bytes = self._read_cas_file_no_follow(
-            manifest_path,
-            member="manifest",
-        )
-        data = self._read_cas_file_no_follow(blob, member="blob")
-        manifest = ArtifactManifest.model_validate_json(manifest_bytes)
-        if profile_sha256 is not None and (
-            self._manifests.profile_sha256(manifest) != profile_sha256
-        ):
-            raise ArtifactIntegrityError(f"Selected manifest profile mismatch for {aid}")
-        if ref is not None and (ref.kind != manifest.kind or ref.media_type != manifest.media_type):
-            raise ArtifactIntegrityError(
-                f"Artifact reference type does not match selected manifest for {aid}"
-            )
-        actual_sha256_hex = content_hash(data)
+    ) -> _ArtifactSnapshotReadResult:
+        """Capture acquired bytes once before validating live or private-stage pairs."""
+        data = None
+        manifest_bytes = None
+        actual_sha256_hex = None
+        actual_profile_sha256 = None
+        member = "blob"
+        parsing_manifest = False
         try:
+            data = self._read_cas_file_no_follow(blob, member=member)
+            actual_sha256_hex = content_hash(data)
+            member = "manifest"
+            manifest_bytes = self._read_cas_file_no_follow(manifest_path, member=member)
+            parsing_manifest = True
+            manifest = ArtifactManifest.model_validate_json(manifest_bytes)
+            parsing_manifest = False
+            actual_profile_sha256 = self._manifests.profile_sha256(manifest)
+            if profile_sha256 is not None and actual_profile_sha256 != profile_sha256:
+                raise ArtifactIntegrityError(f"Selected manifest profile mismatch for {aid}")
+            if ref is not None and (
+                ref.kind != manifest.kind or ref.media_type != manifest.media_type
+            ):
+                raise ArtifactIntegrityError(
+                    f"Artifact reference type does not match selected manifest for {aid}"
+                )
             _validate_read_integrity_with_digest(
                 aid,
                 data=data,
                 manifest=manifest,
                 actual_sha256_hex=actual_sha256_hex,
             )
-        except ArtifactIntegrityError as exc:
-            self._record_integrity_failure(reason=type(exc).__name__)
-            raise
-        return _VerifiedArtifactSnapshot(
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            if isinstance(exc, ArtifactIntegrityError):
+                self._record_integrity_failure(reason=type(exc).__name__)
+            detail = (
+                f"{member} missing"
+                if isinstance(exc, FileNotFoundError)
+                else f"manifest invalid: {exc}"
+                if parsing_manifest
+                else str(exc)
+            )
+            return _ArtifactSnapshotReadResult(
+                data=data,
+                manifest_bytes=manifest_bytes,
+                actual_sha256_hex=actual_sha256_hex,
+                manifest_profile_sha256=actual_profile_sha256,
+                error=exc,
+                error_detail=detail,
+            )
+        return _ArtifactSnapshotReadResult(
             data=data,
             manifest_bytes=manifest_bytes,
             actual_sha256_hex=actual_sha256_hex,
-            byte_size=len(data),
+            manifest_profile_sha256=actual_profile_sha256,
         )

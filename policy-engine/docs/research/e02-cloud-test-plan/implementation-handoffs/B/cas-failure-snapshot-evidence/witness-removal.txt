@@ -1,0 +1,730 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-current-cas-generation/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-current-cas-generation/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, hypothesis-6.151.2, anyio-4.12.0, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, jaxtyping-0.3.4
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 12 items
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[corrupt-sha256 mismatch] FAILED [  8%]
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[same_size-sha256 mismatch] FAILED [ 16%]
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_size-byte_size mismatch] FAILED [ 25%]
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_profile-Selected manifest profile mismatch] FAILED [ 33%]
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[invalid_manifest-manifest invalid:] FAILED [ 41%]
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_integrity-manifest integrity mismatch] FAILED [ 50%]
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_ref_type-Artifact reference type] FAILED [ 58%]
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_report_cannot_reread_operator_repaired_bytes[False] FAILED [ 66%]
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_report_cannot_reread_operator_repaired_bytes[True] FAILED [ 75%]
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_pre_read_failure_cannot_invent_blob_measurements PASSED [ 83%]
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot FAILED [ 91%]
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_actual_chronology_reader_classifies_observed_corruption_as_rejected FAILED [100%]
+
+=================================== FAILURES ===================================
+_ test_failed_selected_snapshot_retains_actual_measurements_and_refusal[corrupt-sha256 mismatch] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal-pytest/test_failed_selected_snapshot_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f503c1ac3e0>
+damage = 'corrupt', reason = 'sha256 mismatch'
+
+    @pytest.mark.parametrize(
+        ("damage", "reason"),
+        [
+            ("corrupt", "sha256 mismatch"),
+            ("same_size", "sha256 mismatch"),
+            ("wrong_size", "byte_size mismatch"),
+            ("wrong_profile", "Selected manifest profile mismatch"),
+            ("invalid_manifest", "manifest invalid:"),
+            ("wrong_integrity", "manifest integrity mismatch"),
+            ("wrong_ref_type", "Artifact reference type"),
+        ],
+    )
+    def test_failed_selected_snapshot_retains_actual_measurements_and_refusal(
+        tmp_path, monkeypatch, damage, reason
+    ):
+        store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+        store.put_bytes(b"original", PutOptions(kind="default", media_type="text/plain"))
+        ref = store.put_bytes(b"original", PutOptions(kind="selected", media_type="text/plain"))
+        assert ref.manifest_profile_sha256 is not None
+        blob, _ = store._paths(ref.artifact_id)
+        manifest = store.get_manifest(ref)
+        selected = store._manifest_path_for_ref(ref.artifact_id, ref.manifest_profile_sha256)
+        if damage in {"corrupt", "same_size"}:
+            blob.write_bytes(b"tampered!!!" if damage == "corrupt" else b"ORIGINAL")
+        elif damage in {"wrong_size", "wrong_integrity"}:
+            changes = {"byte_size": 100}
+            if damage == "wrong_integrity":
+                changes = {"integrity": manifest.integrity.model_copy(update={"sha256": "a" * 64})}
+            manifest = manifest.model_copy(update=changes)
+            profile = artifact_manifest_profile_sha256(manifest)
+            ref = ref.model_copy(update={"manifest_profile_sha256": profile})
+            selected = store._manifest_path_for_ref(ref.artifact_id, profile)
+            selected.write_bytes(store._manifests.to_bytes(manifest))
+        elif damage == "wrong_profile":
+            selected.write_bytes(
+                store._manifests.to_bytes(manifest.model_copy(update={"kind": "foreign-profile"}))
+            )
+        elif damage == "invalid_manifest":
+            selected.write_bytes(b"{}")
+        else:
+            ref = ref.model_copy(update={"kind": "foreign-type"})
+        actual_data = blob.read_bytes()
+        manifest_bytes = selected.read_bytes()
+        actual_read = store._read_cas_file_no_follow
+        actual_hash = store_module.content_hash
+        reads, hashes = [], []
+    
+        def read(path, *, member, max_bytes=None):
+            reads.append(member)
+            return actual_read(path, member=member, max_bytes=max_bytes)
+    
+        def hash_bytes(data):
+            hashes.append(data)
+            return actual_hash(data)
+    
+        monkeypatch.setattr(store, "_read_cas_file_no_follow", read)
+        monkeypatch.setattr(store_module, "content_hash", hash_bytes)
+        report = store.verify(ref)
+        assert not report.ok
+>       assert report.actual_sha256_hex == hashlib.sha256(actual_data).hexdigest()
+E       AssertionError: assert None == '7639c57f7e72e6fdcaea85b206be123eb7c1b297eab37f429d8647e451df7d2f'
+E        +  where None = VerificationReport(ok=False, artifact_id='sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', expected_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', actual_sha256_hex=None, byte_size=None, error='sha256 mismatch', manifest_sha256='7fc2380279d795c0829a222e2f15b5f3cef3f81a63203f6776b9a6b6be5e99e8', manifest_profile_sha256='sha256:14072c45a53ead3d4c9cda01fa83d2866331a1cd9d67827da2681369477ce1fa').actual_sha256_hex
+E        +  and   '7639c57f7e72e6fdcaea85b206be123eb7c1b297eab37f429d8647e451df7d2f' = <built-in method hexdigest of _hashlib.HASH object at 0x7f503d89adb0>()
+E        +    where <built-in method hexdigest of _hashlib.HASH object at 0x7f503d89adb0> = <sha256 _hashlib.HASH object @ 0x7f503d89adb0>.hexdigest
+E        +      where <sha256 _hashlib.HASH object @ 0x7f503d89adb0> = <built-in function openssl_sha256>(b'tampered!!!')
+E        +        where <built-in function openssl_sha256> = hashlib.sha256
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:80: AssertionError
+_ test_failed_selected_snapshot_retains_actual_measurements_and_refusal[same_size-sha256 mismatch] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal-pytest/test_failed_selected_snapshot_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f503c1ac640>
+damage = 'same_size', reason = 'sha256 mismatch'
+
+    @pytest.mark.parametrize(
+        ("damage", "reason"),
+        [
+            ("corrupt", "sha256 mismatch"),
+            ("same_size", "sha256 mismatch"),
+            ("wrong_size", "byte_size mismatch"),
+            ("wrong_profile", "Selected manifest profile mismatch"),
+            ("invalid_manifest", "manifest invalid:"),
+            ("wrong_integrity", "manifest integrity mismatch"),
+            ("wrong_ref_type", "Artifact reference type"),
+        ],
+    )
+    def test_failed_selected_snapshot_retains_actual_measurements_and_refusal(
+        tmp_path, monkeypatch, damage, reason
+    ):
+        store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+        store.put_bytes(b"original", PutOptions(kind="default", media_type="text/plain"))
+        ref = store.put_bytes(b"original", PutOptions(kind="selected", media_type="text/plain"))
+        assert ref.manifest_profile_sha256 is not None
+        blob, _ = store._paths(ref.artifact_id)
+        manifest = store.get_manifest(ref)
+        selected = store._manifest_path_for_ref(ref.artifact_id, ref.manifest_profile_sha256)
+        if damage in {"corrupt", "same_size"}:
+            blob.write_bytes(b"tampered!!!" if damage == "corrupt" else b"ORIGINAL")
+        elif damage in {"wrong_size", "wrong_integrity"}:
+            changes = {"byte_size": 100}
+            if damage == "wrong_integrity":
+                changes = {"integrity": manifest.integrity.model_copy(update={"sha256": "a" * 64})}
+            manifest = manifest.model_copy(update=changes)
+            profile = artifact_manifest_profile_sha256(manifest)
+            ref = ref.model_copy(update={"manifest_profile_sha256": profile})
+            selected = store._manifest_path_for_ref(ref.artifact_id, profile)
+            selected.write_bytes(store._manifests.to_bytes(manifest))
+        elif damage == "wrong_profile":
+            selected.write_bytes(
+                store._manifests.to_bytes(manifest.model_copy(update={"kind": "foreign-profile"}))
+            )
+        elif damage == "invalid_manifest":
+            selected.write_bytes(b"{}")
+        else:
+            ref = ref.model_copy(update={"kind": "foreign-type"})
+        actual_data = blob.read_bytes()
+        manifest_bytes = selected.read_bytes()
+        actual_read = store._read_cas_file_no_follow
+        actual_hash = store_module.content_hash
+        reads, hashes = [], []
+    
+        def read(path, *, member, max_bytes=None):
+            reads.append(member)
+            return actual_read(path, member=member, max_bytes=max_bytes)
+    
+        def hash_bytes(data):
+            hashes.append(data)
+            return actual_hash(data)
+    
+        monkeypatch.setattr(store, "_read_cas_file_no_follow", read)
+        monkeypatch.setattr(store_module, "content_hash", hash_bytes)
+        report = store.verify(ref)
+        assert not report.ok
+>       assert report.actual_sha256_hex == hashlib.sha256(actual_data).hexdigest()
+E       AssertionError: assert None == '962f85a27854336f3286ad54b49321f62525043b5f3508b2ecc887fdd6e7550e'
+E        +  where None = VerificationReport(ok=False, artifact_id='sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', expected_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', actual_sha256_hex=None, byte_size=None, error='sha256 mismatch', manifest_sha256='7fc2380279d795c0829a222e2f15b5f3cef3f81a63203f6776b9a6b6be5e99e8', manifest_profile_sha256='sha256:14072c45a53ead3d4c9cda01fa83d2866331a1cd9d67827da2681369477ce1fa').actual_sha256_hex
+E        +  and   '962f85a27854336f3286ad54b49321f62525043b5f3508b2ecc887fdd6e7550e' = <built-in method hexdigest of _hashlib.HASH object at 0x7f503d898130>()
+E        +    where <built-in method hexdigest of _hashlib.HASH object at 0x7f503d898130> = <sha256 _hashlib.HASH object @ 0x7f503d898130>.hexdigest
+E        +      where <sha256 _hashlib.HASH object @ 0x7f503d898130> = <built-in function openssl_sha256>(b'ORIGINAL')
+E        +        where <built-in function openssl_sha256> = hashlib.sha256
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:80: AssertionError
+_ test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_size-byte_size mismatch] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal-pytest/test_failed_selected_snapshot_2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f503b85a570>
+damage = 'wrong_size', reason = 'byte_size mismatch'
+
+    @pytest.mark.parametrize(
+        ("damage", "reason"),
+        [
+            ("corrupt", "sha256 mismatch"),
+            ("same_size", "sha256 mismatch"),
+            ("wrong_size", "byte_size mismatch"),
+            ("wrong_profile", "Selected manifest profile mismatch"),
+            ("invalid_manifest", "manifest invalid:"),
+            ("wrong_integrity", "manifest integrity mismatch"),
+            ("wrong_ref_type", "Artifact reference type"),
+        ],
+    )
+    def test_failed_selected_snapshot_retains_actual_measurements_and_refusal(
+        tmp_path, monkeypatch, damage, reason
+    ):
+        store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+        store.put_bytes(b"original", PutOptions(kind="default", media_type="text/plain"))
+        ref = store.put_bytes(b"original", PutOptions(kind="selected", media_type="text/plain"))
+        assert ref.manifest_profile_sha256 is not None
+        blob, _ = store._paths(ref.artifact_id)
+        manifest = store.get_manifest(ref)
+        selected = store._manifest_path_for_ref(ref.artifact_id, ref.manifest_profile_sha256)
+        if damage in {"corrupt", "same_size"}:
+            blob.write_bytes(b"tampered!!!" if damage == "corrupt" else b"ORIGINAL")
+        elif damage in {"wrong_size", "wrong_integrity"}:
+            changes = {"byte_size": 100}
+            if damage == "wrong_integrity":
+                changes = {"integrity": manifest.integrity.model_copy(update={"sha256": "a" * 64})}
+            manifest = manifest.model_copy(update=changes)
+            profile = artifact_manifest_profile_sha256(manifest)
+            ref = ref.model_copy(update={"manifest_profile_sha256": profile})
+            selected = store._manifest_path_for_ref(ref.artifact_id, profile)
+            selected.write_bytes(store._manifests.to_bytes(manifest))
+        elif damage == "wrong_profile":
+            selected.write_bytes(
+                store._manifests.to_bytes(manifest.model_copy(update={"kind": "foreign-profile"}))
+            )
+        elif damage == "invalid_manifest":
+            selected.write_bytes(b"{}")
+        else:
+            ref = ref.model_copy(update={"kind": "foreign-type"})
+        actual_data = blob.read_bytes()
+        manifest_bytes = selected.read_bytes()
+        actual_read = store._read_cas_file_no_follow
+        actual_hash = store_module.content_hash
+        reads, hashes = [], []
+    
+        def read(path, *, member, max_bytes=None):
+            reads.append(member)
+            return actual_read(path, member=member, max_bytes=max_bytes)
+    
+        def hash_bytes(data):
+            hashes.append(data)
+            return actual_hash(data)
+    
+        monkeypatch.setattr(store, "_read_cas_file_no_follow", read)
+        monkeypatch.setattr(store_module, "content_hash", hash_bytes)
+        report = store.verify(ref)
+        assert not report.ok
+>       assert report.actual_sha256_hex == hashlib.sha256(actual_data).hexdigest()
+E       AssertionError: assert None == '0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5'
+E        +  where None = VerificationReport(ok=False, artifact_id='sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', expected_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', actual_sha256_hex=None, byte_size=None, error='byte_size mismatch', manifest_sha256='2bff57fe79cb846b8413e9e7f4b2632ff457d95609b9560233139b477effa7c7', manifest_profile_sha256='sha256:14072c45a53ead3d4c9cda01fa83d2866331a1cd9d67827da2681369477ce1fa').actual_sha256_hex
+E        +  and   '0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5' = <built-in method hexdigest of _hashlib.HASH object at 0x7f503d899030>()
+E        +    where <built-in method hexdigest of _hashlib.HASH object at 0x7f503d899030> = <sha256 _hashlib.HASH object @ 0x7f503d899030>.hexdigest
+E        +      where <sha256 _hashlib.HASH object @ 0x7f503d899030> = <built-in function openssl_sha256>(b'original')
+E        +        where <built-in function openssl_sha256> = hashlib.sha256
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:80: AssertionError
+_ test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_profile-Selected manifest profile mismatch] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal-pytest/test_failed_selected_snapshot_3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f503b778160>
+damage = 'wrong_profile', reason = 'Selected manifest profile mismatch'
+
+    @pytest.mark.parametrize(
+        ("damage", "reason"),
+        [
+            ("corrupt", "sha256 mismatch"),
+            ("same_size", "sha256 mismatch"),
+            ("wrong_size", "byte_size mismatch"),
+            ("wrong_profile", "Selected manifest profile mismatch"),
+            ("invalid_manifest", "manifest invalid:"),
+            ("wrong_integrity", "manifest integrity mismatch"),
+            ("wrong_ref_type", "Artifact reference type"),
+        ],
+    )
+    def test_failed_selected_snapshot_retains_actual_measurements_and_refusal(
+        tmp_path, monkeypatch, damage, reason
+    ):
+        store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+        store.put_bytes(b"original", PutOptions(kind="default", media_type="text/plain"))
+        ref = store.put_bytes(b"original", PutOptions(kind="selected", media_type="text/plain"))
+        assert ref.manifest_profile_sha256 is not None
+        blob, _ = store._paths(ref.artifact_id)
+        manifest = store.get_manifest(ref)
+        selected = store._manifest_path_for_ref(ref.artifact_id, ref.manifest_profile_sha256)
+        if damage in {"corrupt", "same_size"}:
+            blob.write_bytes(b"tampered!!!" if damage == "corrupt" else b"ORIGINAL")
+        elif damage in {"wrong_size", "wrong_integrity"}:
+            changes = {"byte_size": 100}
+            if damage == "wrong_integrity":
+                changes = {"integrity": manifest.integrity.model_copy(update={"sha256": "a" * 64})}
+            manifest = manifest.model_copy(update=changes)
+            profile = artifact_manifest_profile_sha256(manifest)
+            ref = ref.model_copy(update={"manifest_profile_sha256": profile})
+            selected = store._manifest_path_for_ref(ref.artifact_id, profile)
+            selected.write_bytes(store._manifests.to_bytes(manifest))
+        elif damage == "wrong_profile":
+            selected.write_bytes(
+                store._manifests.to_bytes(manifest.model_copy(update={"kind": "foreign-profile"}))
+            )
+        elif damage == "invalid_manifest":
+            selected.write_bytes(b"{}")
+        else:
+            ref = ref.model_copy(update={"kind": "foreign-type"})
+        actual_data = blob.read_bytes()
+        manifest_bytes = selected.read_bytes()
+        actual_read = store._read_cas_file_no_follow
+        actual_hash = store_module.content_hash
+        reads, hashes = [], []
+    
+        def read(path, *, member, max_bytes=None):
+            reads.append(member)
+            return actual_read(path, member=member, max_bytes=max_bytes)
+    
+        def hash_bytes(data):
+            hashes.append(data)
+            return actual_hash(data)
+    
+        monkeypatch.setattr(store, "_read_cas_file_no_follow", read)
+        monkeypatch.setattr(store_module, "content_hash", hash_bytes)
+        report = store.verify(ref)
+        assert not report.ok
+>       assert report.actual_sha256_hex == hashlib.sha256(actual_data).hexdigest()
+E       AssertionError: assert None == '0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5'
+E        +  where None = VerificationReport(ok=False, artifact_id='sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', expected_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', actual_sha256_hex=None, byte_size=None, error='Selected manifest profile mismatch for sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', manifest_sha256='fd27ef01543ea560d0455c18f2ad0ca8c2dba726d14939941fe6746289e1d814', manifest_profile_sha256='sha256:b6a88064968f5547c9f95865fec54ebae95543664de59b38c5b4cb5525c04986').actual_sha256_hex
+E        +  and   '0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5' = <built-in method hexdigest of _hashlib.HASH object at 0x7f503d1de830>()
+E        +    where <built-in method hexdigest of _hashlib.HASH object at 0x7f503d1de830> = <sha256 _hashlib.HASH object @ 0x7f503d1de830>.hexdigest
+E        +      where <sha256 _hashlib.HASH object @ 0x7f503d1de830> = <built-in function openssl_sha256>(b'original')
+E        +        where <built-in function openssl_sha256> = hashlib.sha256
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:80: AssertionError
+_ test_failed_selected_snapshot_retains_actual_measurements_and_refusal[invalid_manifest-manifest invalid:] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal-pytest/test_failed_selected_snapshot_4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f503b7789e0>
+damage = 'invalid_manifest', reason = 'manifest invalid:'
+
+    @pytest.mark.parametrize(
+        ("damage", "reason"),
+        [
+            ("corrupt", "sha256 mismatch"),
+            ("same_size", "sha256 mismatch"),
+            ("wrong_size", "byte_size mismatch"),
+            ("wrong_profile", "Selected manifest profile mismatch"),
+            ("invalid_manifest", "manifest invalid:"),
+            ("wrong_integrity", "manifest integrity mismatch"),
+            ("wrong_ref_type", "Artifact reference type"),
+        ],
+    )
+    def test_failed_selected_snapshot_retains_actual_measurements_and_refusal(
+        tmp_path, monkeypatch, damage, reason
+    ):
+        store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+        store.put_bytes(b"original", PutOptions(kind="default", media_type="text/plain"))
+        ref = store.put_bytes(b"original", PutOptions(kind="selected", media_type="text/plain"))
+        assert ref.manifest_profile_sha256 is not None
+        blob, _ = store._paths(ref.artifact_id)
+        manifest = store.get_manifest(ref)
+        selected = store._manifest_path_for_ref(ref.artifact_id, ref.manifest_profile_sha256)
+        if damage in {"corrupt", "same_size"}:
+            blob.write_bytes(b"tampered!!!" if damage == "corrupt" else b"ORIGINAL")
+        elif damage in {"wrong_size", "wrong_integrity"}:
+            changes = {"byte_size": 100}
+            if damage == "wrong_integrity":
+                changes = {"integrity": manifest.integrity.model_copy(update={"sha256": "a" * 64})}
+            manifest = manifest.model_copy(update=changes)
+            profile = artifact_manifest_profile_sha256(manifest)
+            ref = ref.model_copy(update={"manifest_profile_sha256": profile})
+            selected = store._manifest_path_for_ref(ref.artifact_id, profile)
+            selected.write_bytes(store._manifests.to_bytes(manifest))
+        elif damage == "wrong_profile":
+            selected.write_bytes(
+                store._manifests.to_bytes(manifest.model_copy(update={"kind": "foreign-profile"}))
+            )
+        elif damage == "invalid_manifest":
+            selected.write_bytes(b"{}")
+        else:
+            ref = ref.model_copy(update={"kind": "foreign-type"})
+        actual_data = blob.read_bytes()
+        manifest_bytes = selected.read_bytes()
+        actual_read = store._read_cas_file_no_follow
+        actual_hash = store_module.content_hash
+        reads, hashes = [], []
+    
+        def read(path, *, member, max_bytes=None):
+            reads.append(member)
+            return actual_read(path, member=member, max_bytes=max_bytes)
+    
+        def hash_bytes(data):
+            hashes.append(data)
+            return actual_hash(data)
+    
+        monkeypatch.setattr(store, "_read_cas_file_no_follow", read)
+        monkeypatch.setattr(store_module, "content_hash", hash_bytes)
+        report = store.verify(ref)
+        assert not report.ok
+>       assert report.actual_sha256_hex == hashlib.sha256(actual_data).hexdigest()
+E       AssertionError: assert None == '0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5'
+E        +  where None = VerificationReport(ok=False, artifact_id='sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', expected_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', actual_sha256_hex=None, byte_size=None, error='manifest invalid: 5 validation errors for ArtifactManifest\nartifact_id\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nkind\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nmedia_type\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nbyte_size\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nintegrity\n  Field required [type=missing, input_value={}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing', manifest_sha256='44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', manifest_profile_sha256=None).actual_sha256_hex
+E        +  and   '0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5' = <built-in method hexdigest of _hashlib.HASH object at 0x7f503d1dc670>()
+E        +    where <built-in method hexdigest of _hashlib.HASH object at 0x7f503d1dc670> = <sha256 _hashlib.HASH object @ 0x7f503d1dc670>.hexdigest
+E        +      where <sha256 _hashlib.HASH object @ 0x7f503d1dc670> = <built-in function openssl_sha256>(b'original')
+E        +        where <built-in function openssl_sha256> = hashlib.sha256
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:80: AssertionError
+_ test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_integrity-manifest integrity mismatch] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal-pytest/test_failed_selected_snapshot_5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f503b6eac50>
+damage = 'wrong_integrity', reason = 'manifest integrity mismatch'
+
+    @pytest.mark.parametrize(
+        ("damage", "reason"),
+        [
+            ("corrupt", "sha256 mismatch"),
+            ("same_size", "sha256 mismatch"),
+            ("wrong_size", "byte_size mismatch"),
+            ("wrong_profile", "Selected manifest profile mismatch"),
+            ("invalid_manifest", "manifest invalid:"),
+            ("wrong_integrity", "manifest integrity mismatch"),
+            ("wrong_ref_type", "Artifact reference type"),
+        ],
+    )
+    def test_failed_selected_snapshot_retains_actual_measurements_and_refusal(
+        tmp_path, monkeypatch, damage, reason
+    ):
+        store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+        store.put_bytes(b"original", PutOptions(kind="default", media_type="text/plain"))
+        ref = store.put_bytes(b"original", PutOptions(kind="selected", media_type="text/plain"))
+        assert ref.manifest_profile_sha256 is not None
+        blob, _ = store._paths(ref.artifact_id)
+        manifest = store.get_manifest(ref)
+        selected = store._manifest_path_for_ref(ref.artifact_id, ref.manifest_profile_sha256)
+        if damage in {"corrupt", "same_size"}:
+            blob.write_bytes(b"tampered!!!" if damage == "corrupt" else b"ORIGINAL")
+        elif damage in {"wrong_size", "wrong_integrity"}:
+            changes = {"byte_size": 100}
+            if damage == "wrong_integrity":
+                changes = {"integrity": manifest.integrity.model_copy(update={"sha256": "a" * 64})}
+            manifest = manifest.model_copy(update=changes)
+            profile = artifact_manifest_profile_sha256(manifest)
+            ref = ref.model_copy(update={"manifest_profile_sha256": profile})
+            selected = store._manifest_path_for_ref(ref.artifact_id, profile)
+            selected.write_bytes(store._manifests.to_bytes(manifest))
+        elif damage == "wrong_profile":
+            selected.write_bytes(
+                store._manifests.to_bytes(manifest.model_copy(update={"kind": "foreign-profile"}))
+            )
+        elif damage == "invalid_manifest":
+            selected.write_bytes(b"{}")
+        else:
+            ref = ref.model_copy(update={"kind": "foreign-type"})
+        actual_data = blob.read_bytes()
+        manifest_bytes = selected.read_bytes()
+        actual_read = store._read_cas_file_no_follow
+        actual_hash = store_module.content_hash
+        reads, hashes = [], []
+    
+        def read(path, *, member, max_bytes=None):
+            reads.append(member)
+            return actual_read(path, member=member, max_bytes=max_bytes)
+    
+        def hash_bytes(data):
+            hashes.append(data)
+            return actual_hash(data)
+    
+        monkeypatch.setattr(store, "_read_cas_file_no_follow", read)
+        monkeypatch.setattr(store_module, "content_hash", hash_bytes)
+        report = store.verify(ref)
+        assert not report.ok
+>       assert report.actual_sha256_hex == hashlib.sha256(actual_data).hexdigest()
+E       AssertionError: assert None == '0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5'
+E        +  where None = VerificationReport(ok=False, artifact_id='sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', expected_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', actual_sha256_hex=None, byte_size=None, error='manifest integrity mismatch', manifest_sha256='f7c642072331db75d187482443aa382535921631b8cfee2f28a603822b0b08fe', manifest_profile_sha256='sha256:14072c45a53ead3d4c9cda01fa83d2866331a1cd9d67827da2681369477ce1fa').actual_sha256_hex
+E        +  and   '0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5' = <built-in method hexdigest of _hashlib.HASH object at 0x7f503d1dca30>()
+E        +    where <built-in method hexdigest of _hashlib.HASH object at 0x7f503d1dca30> = <sha256 _hashlib.HASH object @ 0x7f503d1dca30>.hexdigest
+E        +      where <sha256 _hashlib.HASH object @ 0x7f503d1dca30> = <built-in function openssl_sha256>(b'original')
+E        +        where <built-in function openssl_sha256> = hashlib.sha256
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:80: AssertionError
+_ test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_ref_type-Artifact reference type] _
+
+tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal-pytest/test_failed_selected_snapshot_6')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f503b6eb550>
+damage = 'wrong_ref_type', reason = 'Artifact reference type'
+
+    @pytest.mark.parametrize(
+        ("damage", "reason"),
+        [
+            ("corrupt", "sha256 mismatch"),
+            ("same_size", "sha256 mismatch"),
+            ("wrong_size", "byte_size mismatch"),
+            ("wrong_profile", "Selected manifest profile mismatch"),
+            ("invalid_manifest", "manifest invalid:"),
+            ("wrong_integrity", "manifest integrity mismatch"),
+            ("wrong_ref_type", "Artifact reference type"),
+        ],
+    )
+    def test_failed_selected_snapshot_retains_actual_measurements_and_refusal(
+        tmp_path, monkeypatch, damage, reason
+    ):
+        store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+        store.put_bytes(b"original", PutOptions(kind="default", media_type="text/plain"))
+        ref = store.put_bytes(b"original", PutOptions(kind="selected", media_type="text/plain"))
+        assert ref.manifest_profile_sha256 is not None
+        blob, _ = store._paths(ref.artifact_id)
+        manifest = store.get_manifest(ref)
+        selected = store._manifest_path_for_ref(ref.artifact_id, ref.manifest_profile_sha256)
+        if damage in {"corrupt", "same_size"}:
+            blob.write_bytes(b"tampered!!!" if damage == "corrupt" else b"ORIGINAL")
+        elif damage in {"wrong_size", "wrong_integrity"}:
+            changes = {"byte_size": 100}
+            if damage == "wrong_integrity":
+                changes = {"integrity": manifest.integrity.model_copy(update={"sha256": "a" * 64})}
+            manifest = manifest.model_copy(update=changes)
+            profile = artifact_manifest_profile_sha256(manifest)
+            ref = ref.model_copy(update={"manifest_profile_sha256": profile})
+            selected = store._manifest_path_for_ref(ref.artifact_id, profile)
+            selected.write_bytes(store._manifests.to_bytes(manifest))
+        elif damage == "wrong_profile":
+            selected.write_bytes(
+                store._manifests.to_bytes(manifest.model_copy(update={"kind": "foreign-profile"}))
+            )
+        elif damage == "invalid_manifest":
+            selected.write_bytes(b"{}")
+        else:
+            ref = ref.model_copy(update={"kind": "foreign-type"})
+        actual_data = blob.read_bytes()
+        manifest_bytes = selected.read_bytes()
+        actual_read = store._read_cas_file_no_follow
+        actual_hash = store_module.content_hash
+        reads, hashes = [], []
+    
+        def read(path, *, member, max_bytes=None):
+            reads.append(member)
+            return actual_read(path, member=member, max_bytes=max_bytes)
+    
+        def hash_bytes(data):
+            hashes.append(data)
+            return actual_hash(data)
+    
+        monkeypatch.setattr(store, "_read_cas_file_no_follow", read)
+        monkeypatch.setattr(store_module, "content_hash", hash_bytes)
+        report = store.verify(ref)
+        assert not report.ok
+>       assert report.actual_sha256_hex == hashlib.sha256(actual_data).hexdigest()
+E       AssertionError: assert None == '0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5'
+E        +  where None = VerificationReport(ok=False, artifact_id='sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', expected_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', actual_sha256_hex=None, byte_size=None, error='Artifact reference type does not match selected manifest for sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', manifest_sha256='7fc2380279d795c0829a222e2f15b5f3cef3f81a63203f6776b9a6b6be5e99e8', manifest_profile_sha256='sha256:14072c45a53ead3d4c9cda01fa83d2866331a1cd9d67827da2681369477ce1fa').actual_sha256_hex
+E        +  and   '0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5' = <built-in method hexdigest of _hashlib.HASH object at 0x7f503d1dfe90>()
+E        +    where <built-in method hexdigest of _hashlib.HASH object at 0x7f503d1dfe90> = <sha256 _hashlib.HASH object @ 0x7f503d1dfe90>.hexdigest
+E        +      where <sha256 _hashlib.HASH object @ 0x7f503d1dfe90> = <built-in function openssl_sha256>(b'original')
+E        +        where <built-in function openssl_sha256> = hashlib.sha256
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:80: AssertionError
+_______ test_failed_report_cannot_reread_operator_repaired_bytes[False] ________
+
+tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal-pytest/test_failed_report_cannot_rere0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f503b7cd400>
+staged = False
+
+    @pytest.mark.parametrize("staged", [False, True])
+    def test_failed_report_cannot_reread_operator_repaired_bytes(tmp_path, monkeypatch, staged):
+        store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+        ref = store.put_bytes(b"original", PutOptions(kind="snapshot", media_type="text/plain"))
+        blob, manifest = store._paths(ref.artifact_id)
+        root = store.root
+        if staged:
+            root = store.root / ".probe-stage"
+            staged_blob = root / blob.relative_to(store.root)
+            staged_manifest = root / manifest.relative_to(store.root)
+            staged_blob.parent.mkdir(parents=True)
+            staged_blob.write_bytes(blob.read_bytes())
+            staged_manifest.write_bytes(manifest.read_bytes())
+            blob = staged_blob
+        damaged = b"old damaged snapshot"
+        blob.write_bytes(damaged)
+        actual_read = store._read_cas_file_no_follow
+        actual_hash = store_module.content_hash
+        reads, hashes = [], []
+    
+        def read_then_repair(path, *, member, max_bytes=None):
+            data = actual_read(path, member=member, max_bytes=max_bytes)
+            reads.append(member)
+            if member == "blob":
+                blob.write_bytes(b"original")
+            return data
+    
+        def hash_bytes(data):
+            hashes.append(data)
+            return actual_hash(data)
+    
+        monkeypatch.setattr(store, "_read_cas_file_no_follow", read_then_repair)
+        monkeypatch.setattr(store_module, "content_hash", hash_bytes)
+        report = store._verify_staged_artifact(ref, root) if staged else store.verify(ref)
+        assert not report.ok and report.error == "sha256 mismatch"
+>       assert report.actual_sha256_hex == hashlib.sha256(damaged).hexdigest()
+E       AssertionError: assert None == '2ad5ddfa1c27d45f12fdc6e9fca5e5e17cf77fcd5ddfd7bf451964007de89d9e'
+E        +  where None = VerificationReport(ok=False, artifact_id='sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', expected_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', actual_sha256_hex=None, byte_size=None, error='sha256 mismatch', manifest_sha256='aaa44f1320ee98c9a5962682126a38fba6b4e80bdf13dbf57cb4f729824325f7', manifest_profile_sha256='sha256:66b19acc4c21aa0b493884eb327099ace16709e9555a7384846e77eae79c50c3').actual_sha256_hex
+E        +  and   '2ad5ddfa1c27d45f12fdc6e9fca5e5e17cf77fcd5ddfd7bf451964007de89d9e' = <built-in method hexdigest of _hashlib.HASH object at 0x7f503d1df1b0>()
+E        +    where <built-in method hexdigest of _hashlib.HASH object at 0x7f503d1df1b0> = <sha256 _hashlib.HASH object @ 0x7f503d1df1b0>.hexdigest
+E        +      where <sha256 _hashlib.HASH object @ 0x7f503d1df1b0> = <built-in function openssl_sha256>(b'old damaged snapshot')
+E        +        where <built-in function openssl_sha256> = hashlib.sha256
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:127: AssertionError
+________ test_failed_report_cannot_reread_operator_repaired_bytes[True] ________
+
+tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal-pytest/test_failed_report_cannot_rere1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f503b7ceb70>
+staged = True
+
+    @pytest.mark.parametrize("staged", [False, True])
+    def test_failed_report_cannot_reread_operator_repaired_bytes(tmp_path, monkeypatch, staged):
+        store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+        ref = store.put_bytes(b"original", PutOptions(kind="snapshot", media_type="text/plain"))
+        blob, manifest = store._paths(ref.artifact_id)
+        root = store.root
+        if staged:
+            root = store.root / ".probe-stage"
+            staged_blob = root / blob.relative_to(store.root)
+            staged_manifest = root / manifest.relative_to(store.root)
+            staged_blob.parent.mkdir(parents=True)
+            staged_blob.write_bytes(blob.read_bytes())
+            staged_manifest.write_bytes(manifest.read_bytes())
+            blob = staged_blob
+        damaged = b"old damaged snapshot"
+        blob.write_bytes(damaged)
+        actual_read = store._read_cas_file_no_follow
+        actual_hash = store_module.content_hash
+        reads, hashes = [], []
+    
+        def read_then_repair(path, *, member, max_bytes=None):
+            data = actual_read(path, member=member, max_bytes=max_bytes)
+            reads.append(member)
+            if member == "blob":
+                blob.write_bytes(b"original")
+            return data
+    
+        def hash_bytes(data):
+            hashes.append(data)
+            return actual_hash(data)
+    
+        monkeypatch.setattr(store, "_read_cas_file_no_follow", read_then_repair)
+        monkeypatch.setattr(store_module, "content_hash", hash_bytes)
+        report = store._verify_staged_artifact(ref, root) if staged else store.verify(ref)
+        assert not report.ok and report.error == "sha256 mismatch"
+>       assert report.actual_sha256_hex == hashlib.sha256(damaged).hexdigest()
+E       AssertionError: assert None == '2ad5ddfa1c27d45f12fdc6e9fca5e5e17cf77fcd5ddfd7bf451964007de89d9e'
+E        +  where None = VerificationReport(ok=False, artifact_id='sha256:0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', expected_sha256_hex='0682c5f2076f099c34cfdd15a9e063849ed437a49677e6fcc5b4198c76575be5', actual_sha256_hex=None, byte_size=None, error='sha256 mismatch', manifest_sha256='aaa44f1320ee98c9a5962682126a38fba6b4e80bdf13dbf57cb4f729824325f7', manifest_profile_sha256='sha256:66b19acc4c21aa0b493884eb327099ace16709e9555a7384846e77eae79c50c3').actual_sha256_hex
+E        +  and   '2ad5ddfa1c27d45f12fdc6e9fca5e5e17cf77fcd5ddfd7bf451964007de89d9e' = <built-in method hexdigest of _hashlib.HASH object at 0x7f503d1dda70>()
+E        +    where <built-in method hexdigest of _hashlib.HASH object at 0x7f503d1dda70> = <sha256 _hashlib.HASH object @ 0x7f503d1dda70>.hexdigest
+E        +      where <sha256 _hashlib.HASH object @ 0x7f503d1dda70> = <built-in function openssl_sha256>(b'old damaged snapshot')
+E        +        where <built-in function openssl_sha256> = hashlib.sha256
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:127: AssertionError
+_______ test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot _______
+
+tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal-pytest/test_valid_signature_cannot_ad0')
+
+    def test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot(tmp_path):
+        store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+        data = b"signed original"
+        ref = store.put_bytes(data, PutOptions(kind="signed", media_type="text/plain"))
+        manifest = store.get_manifest(ref).model_copy(update={"byte_size": len(data) + 1})
+        profile = artifact_manifest_profile_sha256(manifest)
+        ref = ref.model_copy(update={"manifest_profile_sha256": profile})
+        manifest_bytes = store._manifests.to_bytes(manifest)
+        store._manifest_path_for_ref(ref.artifact_id, profile).write_bytes(manifest_bytes)
+        pair = KeyPair.generate()
+        signer = Ed25519Signer.from_pem(pair.private_pem())
+        verifier = Ed25519Verifier()
+        verifier.add_trusted_key(pair.public_key, key_id=pair.key_id)
+        signature = signer.sign(ref.artifact_id, data, manifest_bytes)
+        assert verifier.verify(ref.artifact_id, data, manifest_bytes, signature).ok
+        store._sig_path(ref.artifact_id, profile).write_text(signature.model_dump_json())
+        result = store.verify_signature(ref, verifier)
+        assert not result.ok and result.status.value == "error"
+        report = store.verify(ref)
+        assert not report.ok and report.error == "byte_size mismatch"
+>       assert report.actual_sha256_hex == hashlib.sha256(data).hexdigest()
+E       AssertionError: assert None == 'caf40f1ffba32d37a4a085c51492c4a9c386c26c93241462bae648b2243e72df'
+E        +  where None = VerificationReport(ok=False, artifact_id='sha256:caf40f1ffba32d37a4a085c51492c4a9c386c26c93241462bae648b2243e72df', expected_sha256_hex='caf40f1ffba32d37a4a085c51492c4a9c386c26c93241462bae648b2243e72df', actual_sha256_hex=None, byte_size=None, error='byte_size mismatch', manifest_sha256='83418a614bdf52e024a2f6c7c6699951e807d291ffff05edb5ef0c47788ac3b1', manifest_profile_sha256='sha256:321bd3c63e68cb276b3ce32a672f0357aa42a49fb64f53291ed0b705e127473d').actual_sha256_hex
+E        +  and   'caf40f1ffba32d37a4a085c51492c4a9c386c26c93241462bae648b2243e72df' = <built-in method hexdigest of _hashlib.HASH object at 0x7f503d1de610>()
+E        +    where <built-in method hexdigest of _hashlib.HASH object at 0x7f503d1de610> = <sha256 _hashlib.HASH object @ 0x7f503d1de610>.hexdigest
+E        +      where <sha256 _hashlib.HASH object @ 0x7f503d1de610> = <built-in function openssl_sha256>(b'signed original')
+E        +        where <built-in function openssl_sha256> = hashlib.sha256
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:164: AssertionError
+___ test_actual_chronology_reader_classifies_observed_corruption_as_rejected ___
+
+tmp_path = PosixPath('/workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal-pytest/test_actual_chronology_reader_0')
+
+    def test_actual_chronology_reader_classifies_observed_corruption_as_rejected(tmp_path):
+        store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
+        ref = store.put_bytes(
+            b"original proof bytes",
+            PutOptions(
+                kind="core.chronology.full_prefix.bundle", media_type="application/octet-stream"
+            ),
+        )
+        damaged = b"damaged proof bytes"
+        store._paths(ref.artifact_id)[0].write_bytes(damaged)
+        digest = "sha256:" + hashlib.sha256(b"scope").hexdigest()
+        domain = contract.ChronologyProofDomain(
+            format=contract.FULL_PREFIX_FORMAT,
+            profile=contract.FULL_PREFIX_PROFILE,
+            proof_domain="conformance",
+            family="snapshot-fixture",
+            scope_ref=digest,
+            authority_purpose="publication",
+        )
+        query = contract.NativeChronologyQuery(
+            domain=domain, requested_cutoff_ref=digest, requested_query_context_ref=digest
+        )
+        result = ChronologyProofArtifactReader(store=store).load_and_verify(
+            query=query,
+            bundle_ref=ref,
+            expected_domain=domain,
+            expected_prefix=None,
+            expected_bundle_content_hash=str(ref.artifact_id),
+        )
+>       assert isinstance(result, contract.ChronologyPersistenceStoreIntegrityMismatch)
+E       AssertionError: assert False
+E        +  where False = isinstance(ChronologyProofArtifactNotEstablished(status='not_established', code='chronology_proof_artifact_not_established', query=NativeChronologyQuery(domain=ChronologyProofDomain(format='polisyos.chronology.full-prefix.v1', profile='full_prefix_canon_json_0_2_0_sha256_256_v1', proof_domain='conformance', family='snapshot-fixture', scope_ref='sha256:5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33', authority_purpose='publication'), requested_cutoff_ref='sha256:5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33', requested_query_context_ref='sha256:5f161c9149882e0e10124bc5dd5c11f0fbe8ec452edd52bcec76b01e9252cb33'), bundle_ref=ArtifactRef(artifact_id=ArtifactID(root='sha256:5a5500bfa4b1dd614479ffbdf1f73ba292f22974b30d623aa6c0d111f8fdbf9e'), kind='core.chronology.full_prefix.bundle', media_type='application/octet-stream', manifest_profile_sha256=None)), <class 'polisyos.core.contracts.chronology.ChronologyPersistenceStoreIntegrityMismatch'>)
+E        +    where <class 'polisyos.core.contracts.chronology.ChronologyPersistenceStoreIntegrityMismatch'> = contract.ChronologyPersistenceStoreIntegrityMismatch
+
+tests/unit/core/artifacts/test_verification_failure_snapshot_report.py:197: AssertionError
+- generated xml file: /workspace/e02-B-current-cas-generation/.polisyos/e02-B-current/raw/b152-failure-witness/witness-removal.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[corrupt-sha256 mismatch]
+FAILED tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[same_size-sha256 mismatch]
+FAILED tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_size-byte_size mismatch]
+FAILED tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_profile-Selected manifest profile mismatch]
+FAILED tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[invalid_manifest-manifest invalid:]
+FAILED tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_integrity-manifest integrity mismatch]
+FAILED tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_ref_type-Artifact reference type]
+FAILED tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_report_cannot_reread_operator_repaired_bytes[False]
+FAILED tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_failed_report_cannot_reread_operator_repaired_bytes[True]
+FAILED tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot
+FAILED tests/unit/core/artifacts/test_verification_failure_snapshot_report.py::test_actual_chronology_reader_classifies_observed_corruption_as_rejected
+======================== 11 failed, 1 passed in 21.37s =========================

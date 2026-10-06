@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 import math
 from collections.abc import Mapping
@@ -13,7 +15,11 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.scientist.methods.search.strategies.space import (
     SearchSpace as NativeSearchSpace,
 )
-from polisyos.scientist.methods.search.strategies.types import ParameterBounds, ParameterType
+from polisyos.scientist.methods.search.strategies.types import (
+    ParameterBounds,
+    ParameterType,
+    StrategyState,
+)
 
 from .models import BenchmarkEvaluation, BenchmarkSplit, MetricDirection
 
@@ -174,6 +180,9 @@ class BayesianCandidateGenerator:
         self._optimizer: Any = None
         self._botorch_available = False
         self._warm_evals: list[Any] = []
+        self._activity_started = False
+        self._history_digests: list[str] = []
+        self._resume_history_required = False
         if (warm_start_bridge is None) != (warm_start_fingerprint is None):
             raise ValueError("Warm-start bridge and configured target fingerprint must be paired")
         numerical_basis = None
@@ -223,16 +232,150 @@ class BayesianCandidateGenerator:
         if self._optimizer is not None:
             self._optimizer.warm_start(evaluations)
 
+    def configure_transfer(self, bridge: Any, fingerprint: Any) -> None:
+        """Bind the owner-paired transfer reader before any generator activity.
+
+        Construct and admit a fresh receiver first. A failed basis or CAS
+        admission leaves this generator's previous optimizer and RNG untouched.
+        """
+        if self._activity_started or self._warm_evals or self._history_digests:
+            raise ValueError("Transfer must be configured before warm/history/generation")
+        replacement = BayesianCandidateGenerator(
+            self._search_space,
+            primary_metric=self._primary_metric,
+            direction=self._direction,
+            compare_split=self._compare_split,
+            n_initial=self._n_initial,
+            seed=self._seed,
+            warm_start_bridge=bridge,
+            warm_start_fingerprint=fingerprint,
+        )
+        self._optimizer = replacement._optimizer
+        self._botorch_available = replacement._botorch_available
+        self._warm_evals = replacement._warm_evals
+
+    def _checkpoint_config(self) -> dict[str, Any]:
+        return {
+            "primary_metric": self._primary_metric,
+            "direction": self._direction.value,
+            "compare_split": self._compare_split.value,
+            "space": self._search_space.sobol_space_fingerprint() if self._search_space else None,
+            "n_initial": self._n_initial,
+            "seed": self._seed,
+            "numerical_basis": getattr(self._optimizer, "_basis_payload", None),
+        }
+
+    @staticmethod
+    def _json_bytes(value: Any) -> bytes:
+        try:
+            return json.dumps(value, sort_keys=True, allow_nan=False).encode("utf-8")
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise ValueError("Generator checkpoint requires finite JSON data") from exc
+
+    @classmethod
+    def _history_row_digest(cls, evaluation: Any) -> str:
+        """Bind converted numerical inputs; service custody owns the raw history.
+
+        Conversion-generated timestamps and wall durations do not define a GP
+        observation. Missing/nonfinite scores remain unavailable, never zero.
+        """
+        scalar = evaluation.scalar_score
+        record = {
+            "candidate_id": evaluation.candidate_id,
+            "params": evaluation.params,
+            "params_normalized": evaluation.params_normalized,
+            "scalar_score": scalar if math.isfinite(scalar) else None,
+            "stage_a_passed": evaluation.stage_a_passed,
+            "status": evaluation.status.value,
+            "provenance_ref": evaluation.provenance_ref,
+            "identity": {
+                key: evaluation.metadata[key]
+                for key in _IDENTITY_KEYS
+                | {
+                    "numeric_transfer_basis",
+                    "candidate_ref",
+                    "evaluation_ref",
+                    "transfer_history_ref",
+                    "source_row_index",
+                }
+                if key in evaluation.metadata
+            },
+        }
+        return hashlib.sha256(cls._json_bytes(record)).hexdigest()
+
+    def get_state(self) -> dict[str, Any]:
+        """Return a versioned wrapper plus the actual native strategy artifact."""
+        if self._optimizer is None:
+            raise ValueError("Generator checkpoint requires a native strategy receiver")
+        return {
+            "schema_version": "bayesian_candidate_generator.v1",
+            "config": self._checkpoint_config(),
+            "native_backend_available": self._botorch_available,
+            "activity_started": self._activity_started,
+            "history_digests": list(self._history_digests),
+            "strategy_state": json.loads(self._optimizer.get_state().to_artifact()),
+        }
+
+    def set_state(self, state: dict[str, Any]) -> None:
+        """Validate wrapper identity before the native atomic model/RNG restore."""
+        fields = {
+            "schema_version",
+            "config",
+            "native_backend_available",
+            "activity_started",
+            "history_digests",
+            "strategy_state",
+        }
+        if type(state) is not dict or set(state) != fields:
+            raise ValueError("Generator checkpoint fields are incomplete or unknown")
+        if state["schema_version"] != "bayesian_candidate_generator.v1":
+            raise ValueError("Unsupported generator checkpoint schema")
+        if self._json_bytes(state["config"]) != self._json_bytes(self._checkpoint_config()):
+            raise ValueError("Generator checkpoint metric/split/space/configuration changed")
+        if type(state["native_backend_available"]) is not bool or (
+            state["native_backend_available"] != self._botorch_available
+        ):
+            raise ValueError("Generator checkpoint native backend availability changed")
+        if type(state["activity_started"]) is not bool:
+            raise ValueError("Generator activity flag must be boolean")
+        digests = state["history_digests"]
+        if not isinstance(digests, list) or any(
+            not isinstance(item, str)
+            or len(item) != 64
+            or any(c not in "0123456789abcdef" for c in item)
+            for item in digests
+        ):
+            raise ValueError("Generator converted-history binding is invalid")
+        if digests and not state["activity_started"]:
+            raise ValueError("Generator history cannot precede activity")
+        if self._optimizer is None:
+            raise ValueError("Generator checkpoint requires a native strategy receiver")
+        native = StrategyState.from_artifact(self._json_bytes(state["strategy_state"]))
+        self._optimizer.set_state(native)
+        self._activity_started = state["activity_started"]
+        self._history_digests = list(digests)
+        self._resume_history_required = True
+        self._warm_evals = list(self._optimizer._warm_evals)
+
     def generate(
         self,
         history: list[Any],
         current_best: dict[str, Any] | None,
         context: dict[str, Any],
     ) -> dict[str, Any]:
+        self._activity_started = True
         if not self._botorch_available or self._optimizer is None:
             return self._fallback_generate(history, current_best, context)
 
         evals = self._history_to_evaluations(history)
+        digests = [self._history_row_digest(evaluation) for evaluation in evals]
+        if (
+            self._resume_history_required
+            and digests[: len(self._history_digests)] != self._history_digests
+        ):
+            raise ValueError("Generator resume history differs from checkpoint numerical inputs")
+        self._history_digests = digests
+        self._resume_history_required = False
         try:
             candidate = self._optimizer.suggest(evals)
             return candidate.to_dict()

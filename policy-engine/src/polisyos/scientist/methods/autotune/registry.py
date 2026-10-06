@@ -435,7 +435,7 @@ class ChampionRegistry:
             (
                 name
                 for name in policy.required_guardrails
-                if not bool(evaluation.guardrails.get(name))
+                if evaluation.guardrails.get(name) is not True
             ),
             None,
         )

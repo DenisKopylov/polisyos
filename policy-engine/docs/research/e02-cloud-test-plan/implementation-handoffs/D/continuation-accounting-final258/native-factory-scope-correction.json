@@ -1,0 +1,217 @@
+{
+  "schema": "policyos.e02.D.append_only_accounting_metadata_correction.v1",
+  "kind": "exact_existing_native_factory_and_scan_publication",
+  "target": {
+    "source_sha": "3b10a1d42ef97a716d9f4843f4fd71a289c9bba5",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+    "git_blob": "adc82dcdb7ead904acd99aba8af3dde82d5d7221",
+    "sha256": "702638d85dacaddcb6a7952a4c0a279897f08b23840e15a7d8af8beacb506bc4"
+  },
+  "previous_handoff": {
+    "source_sha": "aad42a1dd4c8136e07ad7a9f6b2ea25e36a353b2",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/handoff.json",
+    "sha256": "5d83ad3417157f8286a00f43a947613c1782c5f4f99a64728bd8659504ff6dfd"
+  },
+  "runtime_candidate": {
+    "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+  },
+  "corrections": [
+    {
+      "finding_id": "LA-014",
+      "target_json_pointer": "/findings/43/separate_task_scope/original_native_factory_state",
+      "old_value": "Current15/scan owner-reported; exact Git-bound final payload pending",
+      "replacement_value": "PROVIDED_BOUNDED_NATIVE_FACTORY15_AND_COMPLETE2701_CALLER_SCAN_WITH_COMMITTED_SOURCE_QUALIFIED_OUTPUTS; final258 composed predicates remainUNRUN.",
+      "native_receipt_ref": {
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+        "git_blob": "0c3b85ad03ef7742b1801b4b1ff3a6707046542e",
+        "bytes": 143526,
+        "sha256": "f103ac31caa046763fda31b3d62af79ccf1b4d04b4a03617ddfa537f0eb44d44"
+      },
+      "payload_refs": [
+        {
+          "source_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-6fe-positive-complete.txt.gz",
+          "blob": "f72aaeeb512fa85716d510d3b9a8814f8039c490",
+          "bytes": 51810,
+          "sha256": "9d2bebc44bc0172df3a90dc5478d3245ed0403661ee059a9ceeadc3e479cb858"
+        },
+        {
+          "source_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-6fe-positive-junit.xml.gz",
+          "blob": "bd19c33d480a661ac34824b03da01f488b679f11",
+          "bytes": 719,
+          "sha256": "15c71243938415d91b594a60173d201d23fd51ad7e0b8b5c938c9df9950462a5"
+        },
+        {
+          "source_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-final-caller-inventory.json.gz",
+          "blob": "1e577110d5b38fa95068f18f1844288ef7743d3f",
+          "bytes": 4212,
+          "sha256": "03c9e410d8a64e837cd1f87d6f3b7a49b7cda51e999feaf84e13bdd597d72b87"
+        }
+      ]
+    },
+    {
+      "finding_id": "LA-015",
+      "target_json_pointer": "/findings/44/separate_task_scope/original_native_factory_state",
+      "old_value": "Current15/scan owner-reported; exact Git-bound final payload pending",
+      "replacement_value": "PROVIDED_BOUNDED_NATIVE_FACTORY15_AND_COMPLETE2701_CALLER_SCAN_WITH_COMMITTED_SOURCE_QUALIFIED_OUTPUTS; final258 composed predicates remainUNRUN.",
+      "native_receipt_ref": {
+        "source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-factory.json",
+        "git_blob": "0c3b85ad03ef7742b1801b4b1ff3a6707046542e",
+        "bytes": 143526,
+        "sha256": "f103ac31caa046763fda31b3d62af79ccf1b4d04b4a03617ddfa537f0eb44d44"
+      },
+      "payload_refs": [
+        {
+          "source_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-6fe-positive-complete.txt.gz",
+          "blob": "f72aaeeb512fa85716d510d3b9a8814f8039c490",
+          "bytes": 51810,
+          "sha256": "9d2bebc44bc0172df3a90dc5478d3245ed0403661ee059a9ceeadc3e479cb858"
+        },
+        {
+          "source_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-6fe-positive-junit.xml.gz",
+          "blob": "bd19c33d480a661ac34824b03da01f488b679f11",
+          "bytes": 719,
+          "sha256": "15c71243938415d91b594a60173d201d23fd51ad7e0b8b5c938c9df9950462a5"
+        },
+        {
+          "source_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-final-caller-inventory.json.gz",
+          "blob": "1e577110d5b38fa95068f18f1844288ef7743d3f",
+          "bytes": 4212,
+          "sha256": "03c9e410d8a64e837cd1f87d6f3b7a49b7cda51e999feaf84e13bdd597d72b87"
+        }
+      ]
+    }
+  ],
+  "exact_native_scope": {
+    "implementation_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+    "implementation_tree": "ae90a66a882ee9b434cd21554043d887056d75b2",
+    "evidence_commit": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+    "complete_positive": {
+      "cases": 15,
+      "PASS": 15,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "scope": "11 actualMorris/default typed/ref/resume/tamper plus4 retainedSequence factory/failure/pending/order/stopped publicfresh-read cases; no GP model-fit claim."
+    },
+    "finite_caller_scan": {
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "tracked_Python_denominator": 2701,
+      "symbol_reference_count": 74,
+      "exact_matched_paths": 21,
+      "scope": "finite tracked known callers only; dynamic external consumers not inferred absent; no entire search framework removed",
+      "inventory_payload_ref": {
+        "source_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-final-caller-inventory.json.gz",
+        "blob": "1e577110d5b38fa95068f18f1844288ef7743d3f",
+        "bytes": 4212,
+        "sha256": "03c9e410d8a64e837cd1f87d6f3b7a49b7cda51e999feaf84e13bdd597d72b87"
+      }
+    },
+    "later_optional_profile": {
+      "source_sha": "9de48387c01e7437f31093829610bb461fa3defe",
+      "source_tree": "2147a817db5e70d960bf8ba8ffe611a5eabb9bf7",
+      "actual_positive": "one actual default proposal/evaluator/CAS/publicresume PASS, not new15 rerun",
+      "controlled_missing_backend": "optional BoTorch import oneSKIP/UNRUN, exit5; no numericalPASS",
+      "profile_validation_ref": {
+        "source_sha": "e53d39db817d90cc69bd7cbbb47321761d951d5f",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/profile-validation.json",
+        "blob": "a401a60a6fc1eded7f65ad4970c94d2adf6a6a72",
+        "bytes": 16392,
+        "sha256": "8e9e7e668fab6c10ac649c3d720feb3cb29774256f381c9514792957d6b32404"
+      }
+    }
+  },
+  "independent_accounting_checks": {
+    "predicate_basis": "independently_reconciled",
+    "recorded_source_receipt_bytes_and_sha256_MATCH": true,
+    "three_deciding_payload_raw_and_encoded_bindings": [
+      {
+        "reference": {
+          "source_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-6fe-positive-complete.txt.gz",
+          "blob": "f72aaeeb512fa85716d510d3b9a8814f8039c490",
+          "bytes": 51810,
+          "sha256": "9d2bebc44bc0172df3a90dc5478d3245ed0403661ee059a9ceeadc3e479cb858"
+        },
+        "encoded_bytes": 51810,
+        "encoded_sha256": "9d2bebc44bc0172df3a90dc5478d3245ed0403661ee059a9ceeadc3e479cb858",
+        "decoded_bytes": 212239,
+        "decoded_sha256": "d64610b7138d39fbe52df2903ac59b1f2069bfdb3702ab297ae98ba7368c3f42",
+        "declared_MATCH": true,
+        "JUnit": null
+      },
+      {
+        "reference": {
+          "source_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-6fe-positive-junit.xml.gz",
+          "blob": "bd19c33d480a661ac34824b03da01f488b679f11",
+          "bytes": 719,
+          "sha256": "15c71243938415d91b594a60173d201d23fd51ad7e0b8b5c938c9df9950462a5"
+        },
+        "encoded_bytes": 719,
+        "encoded_sha256": "15c71243938415d91b594a60173d201d23fd51ad7e0b8b5c938c9df9950462a5",
+        "decoded_bytes": 3084,
+        "decoded_sha256": "a3c3c089c59eaa89bcd736d1fbafec80148e9ef42d58d907864ec770ec20077a",
+        "declared_MATCH": true,
+        "JUnit": {
+          "cases": 15,
+          "failures": 0,
+          "errors": 0,
+          "skips": 0
+        }
+      },
+      {
+        "reference": {
+          "source_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-final-caller-inventory.json.gz",
+          "blob": "1e577110d5b38fa95068f18f1844288ef7743d3f",
+          "bytes": 4212,
+          "sha256": "03c9e410d8a64e837cd1f87d6f3b7a49b7cda51e999feaf84e13bdd597d72b87"
+        },
+        "encoded_bytes": 4212,
+        "encoded_sha256": "03c9e410d8a64e837cd1f87d6f3b7a49b7cda51e999feaf84e13bdd597d72b87",
+        "decoded_bytes": 22041,
+        "decoded_sha256": "18e2965e32cad7812f8d2197bc0ad86437cb61ea47066a8256d9756cb7b50801",
+        "declared_MATCH": true,
+        "JUnit": null
+      }
+    ],
+    "parsed_actual_JUnit15PASS": true,
+    "parsed_complete_inventory_scope2701": true,
+    "backend_execution_here": false
+  },
+  "distinct_remaining_scope": "The existing HierarchicalPolicySearchAdapter constructs HierarchicalSearchCoordinator, not a remaining SearchController full-loop caller. Foreign A initial_context/default provider/evaluation-basis contracts stay separately requested; they are not an uncommitted/unfixed D native factory payload or institutional prerequisite for the original finite scan.",
+  "accepted_combined_predicate": {
+    "predicate_basis": "not_established",
+    "state": "Final258100 waveERROR/SIGKILL with1249 recorded IDsUNRUN, zero observedtestphases, noJUnit; no formal acceptance."
+  },
+  "unchanged": {
+    "original46_criterion_texts_and_bindings": true,
+    "all45_finding_dispositions": true,
+    "distribution": {
+      "OPEN_VERIFICATION_PENDING": 39,
+      "HELD_ORIGINAL_POSITIVE_INPUT": 5,
+      "OPEN_CURRENT_UPSTREAM_FAIL": 1
+    },
+    "formal_closed": 0,
+    "accepted_in_G": false,
+    "LA015_CTL01_supplier_companion_only": true,
+    "LA015_closure_owner": "SRV-03",
+    "historical_ledger_and_handoff_bytes": true,
+    "runtime_outputs_and_source_pins": true,
+    "source_test_paths": true
+  },
+  "closure_ids": [],
+  "source_or_test_changes": [],
+  "backend_runs": 0,
+  "metadata_only": true
+}

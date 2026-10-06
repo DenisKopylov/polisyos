@@ -563,7 +563,7 @@ def _g2_forecast_request(**overrides: object) -> Any:
 def _runtime_method_candidate(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
         "method_id": "causal.did.runtime",
-        "method_fqn": "causal.did.difference_in_differences@1.0.0",
+        "method_fqn": "causal.inference.did.standard@1.0.0",
         "method_family": "causal_effect_estimation",
         "method_expectations": ["causal_effect_estimation", "uncertainty"],
         "truthfulness_status": "runtime_consistent",
@@ -597,7 +597,7 @@ def _runtime_method_candidate(**overrides: object) -> dict[str, object]:
         "missingness_handling": {"status": "pass", "strategy": "complete_case"},
         "sensitivity": {"status": "pass", "robustness": "moderate"},
         "transportability_limits": {"target_population": "wartime_msmes"},
-        "specification_space": {"primary": "two_way_fixed_effects"},
+        "specification_space": {"primary": "standard_2x2_did"},
         "method_result_refs": {"method_result_ref": _sha("4")},
         "limitation_refs": {"method_limitation_ref": _sha("5")},
         "validity_surfaces": {

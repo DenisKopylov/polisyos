@@ -295,5 +295,70 @@
     "source_or_cas_changes": [],
     "git_mutations": [],
     "only_output_written": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/s10-supplier-review/latest-upstream363e.json"
+  },
+  "g53_source_current_addendum": {
+    "scope": "Exact upstream refresh from the reviewed G integration head; source contract objects are byte-identical to G 363.",
+    "g_ref": {
+      "commit": "53b309019913b938909d6dc0fc13f8edb409f368",
+      "tree": "747b718b03ab93e1dea03c50338ef8514a962cc4",
+      "parent": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "is_docs_only_child_of_363": true,
+      "delta_denominator": {
+        "all_paths": 15,
+        "policy_engine_src_paths": 0,
+        "policy_engine_tests_paths": 0
+      },
+      "source_or_test_change": false
+    },
+    "g_changed_review_records": {
+      "B_owner_actions": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/B-current-owner-actions-2026-10-06.md@a07ee01c8452ecbcacdf03d5a200aebcb2b5bdd0",
+      "E_owner_actions": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-r2-owner-actions-2026-10-06.md@72b607feb7a4c4f9bdf8f4e7a6c53a541819557e",
+      "fifth_wave": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-06-fifth-wave.md@c8916344cc4c066bc0cab78112fde25f5de87207",
+      "finding": "These new G records cover B execution-state scope and other B/E bounded owner actions. They introduce no B66 producer admission, cost meter, or A/forecast bridge. The B/E intake record remains review evidence, not source integration or finding closure."
+    },
+    "b66_exact_source_and_ledger": {
+      "producer_candidate": {
+        "commit": "126024b95fcac6400f5afc29a60596b88cdd5212",
+        "candidate_branch": "origin/codex/e02-B-current-adapters",
+        "is_ancestor_of_g53": false,
+        "settlement_event_source": "policy-engine/src/polisyos/core/llm/settlement.py@c2c631442a3ecf7587425445565d723598eaba81",
+        "budget_enforcer_source": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py@ac98ed93e6c48d8f409f10e37d8133bd676a0569",
+        "candidate_behavior": "LLMProducerEvent is typed with cost_origin reported/estimated/reuse and derives a payload digest over the origin and event details. LLMBudgetEnforcer._settle_event sends provider events to BudgetMiddleware.settle_spend_safe and validates the returned receipt; it retains/reconciles uncertain settlements. The producer uses provider cost_usd when present and estimates otherwise; this is provider-reported/estimated evidence, not invoice reconciliation.",
+        "candidate_limit": "The BudgetLedgerSpendReceipt does not carry an explicit cost_origin field; preserve the producer event alongside the ledger receipt. Cache reuse is typed zero-cost/no-provider-spend and is not an external billing fact."
+      },
+      "g53_tree": {
+        "settlement_module": "policy-engine/src/polisyos/core/llm/settlement.py is absent from the G53 tree.",
+        "budget_enforcer_blob": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py@a9495ddede391755196189929ee02c10f75364cd",
+        "candidate_budget_enforcer_blob": "ac98ed93e6c48d8f409f10e37d8133bd676a0569",
+        "finding": "The B66 event producer code is not present in the current G tree; the same-path budget enforcer is a different blob."
+      },
+      "g_admission": {
+        "checkpoint": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-09.json@7b5fe3a434db2eb62c35a86549bbc18a62f5c4cd",
+        "accepted_candidate": "2c52e1fe747627b227b5695e578b800cb7eade8b (B37 durable local ledger only)",
+        "ledger_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-settlement.json@84193b699b74713e0099ffe2d3a4423f44668256",
+        "decision": "GO_bounded_local_ledger; finding_closure=false; B66 candidate 126024b95fcac6400f5afc29a60596b88cdd5212 is not admitted by G09 or G53."
+      },
+      "current_canonical_receiver": {
+        "budget_ledger_blob": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py@48908cebc44656fc6b22105d8d7a99d3acf915b6",
+        "budget_middleware_blob": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py@4dcf43321044bd9bf9a0c579417af8ba29344945",
+        "api": "BudgetMiddleware.settle_spend_safe(event_id, key, amount: Decimal, payload_digest, provider=None) -> BudgetLedgerSpendReceipt; resolve_spend_safe(event_id) reads the durable receipt.",
+        "bridge_assessment": "The canonical ledger is a compatible, idempotent receiver for a producer-supplied event tuple. It does not measure cost or create the producer event; amount and digest come from its caller. Thus the receiver interface can support a producer bridge, but G53 contains the ledger only, not the B66 producer-to-ledger path."
+      }
+    },
+    "a_and_s10_consumer_state": {
+      "a_budget_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review.json at A review snapshot 3bd5dc0d9f0385fe2662024e173c7f75e25798db; B11 is limited/bridge_missing. The reviewed served run path constructs a new in-memory BudgetState from run_budget_usd and does not connect an admitted producer event to a durable ledger consumer. This is the A consumer gap, distinct from G’s ledger capability.",
+      "forecast_source_blobs": {
+        "forecast_owner": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py@e9302eb353ab7be6b03f4812ab9b473fb9555f64",
+        "forecast_bridge": "policy-engine/src/polisyos/calibration/forecast_bridge.py@db07beb895ca7c2262bcd945d3940bc46e008590"
+      },
+      "s10_finding": "No B66/BudgetMiddleware settlement call exists in these E forecasting blobs. E supplies empirical predictive calibration evidence; it is not a provider-cost producer. A served run/job bridge remains unimplemented in the cited A snapshot and must not be inferred from G’s ledger or the separate B66 candidate."
+    },
+    "actions_taken": {
+      "tests_run": [],
+      "numerical_runs": [],
+      "source_or_cas_changes": [],
+      "git_mutations": [],
+      "only_output_written": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/s10-supplier-review/latest-upstream363e.json"
+    }
   }
 }

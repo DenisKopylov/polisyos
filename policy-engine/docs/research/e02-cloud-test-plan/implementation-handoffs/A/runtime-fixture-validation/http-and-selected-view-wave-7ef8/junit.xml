@@ -1,0 +1,2457 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="55" time="26.872" timestamp="2026-10-06T19:21:41.369360+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.http.test_core_only_runs_api" name="test_runs_api_emits_only_core_run_source_kind" time="0.863" /><testcase classname="tests.unit.runtime.http.test_core_only_runs_api" name="test_run_details_payload_has_no_legacy_artifact_paths" time="0.587" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_run_index_generation_invalidates_cached_active_status" time="0.599" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current" time="0.667" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_hidden_runs_sse_channels_emit_versioned_contracts" time="0.635" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_runs_sse_emission_rejects_marker_complete_malformed_payload" time="0.001" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_runs_sse_timeout_emits_a_versioned_strict_contract" time="0.001" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_runs_sse_exit_consumes_producer_terminality_not_status_text" time="0.001" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_runs_sse_does_not_exit_on_completed_looking_status_without_terminal_fact[non_terminal]" time="0.001" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_runs_sse_does_not_exit_on_completed_looking_status_without_terminal_fact[not_established]" time="0.001" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_runs_sse_final_encoder_rejects_malformed_timeout_data" time="0.000" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_runs_sse_snapshot_and_timeout_share_final_data_encoder" time="0.001" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_runs_sse_keepalive_comment_bypasses_data_encoder" time="0.001" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_list_runs_returns_only_core_sources" time="0.608" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_run_terminality_is_producer_owned_and_novel_status_labels_stay_opaque" time="0.740" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_unknown_run_terminality_cannot_be_read_as_non_terminal" time="0.599" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record0-core_run_trace_record_invalid]" time="0.587" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record1-core_run_terminality_fact_conflict]" time="0.595" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record2-core_run_terminality_fact_conflict]" time="0.616" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record3-core_run_finalized_without_terminality]" time="0.617" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_ref]" time="0.609" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_terminal_fact_requires_a_resolved_owner_manifest_ref[unresolvable_ref]" time="0.596" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_terminal_fact_requires_a_resolved_owner_manifest_ref[wrong_media_ref]" time="0.644" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_schema_provenance]" time="0.608" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_terminal_fact_requires_a_resolved_owner_manifest_ref[producer_mismatch]" time="0.644" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_terminal_fact_requires_a_resolved_owner_manifest_ref[environment_mismatch]" time="0.658" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_terminal_fact_requires_a_resolved_owner_manifest_ref[registry_lineage_mismatch]" time="0.655" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_terminal_fact_requires_a_resolved_owner_manifest_ref[duplicate_manifest_refs]" time="0.708" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_terminal_fact_manifest_scope_must_match_started_owner" time="0.626" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact" time="0.631" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_foreign_finalize_journal_cannot_sign_or_clear_another_run" time="0.585" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_finalize_recovery_refuses_journal_without_owner_start" time="0.607" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_finalize_recovery_refuses_same_run_with_substituted_scope" time="0.679" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_finalize_recovery_refuses_ambiguous_started_owner" time="0.647" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_finalize_recovery_refuses_invalid_journal_envelope[non_mapping]" time="0.595" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_finalize_recovery_refuses_invalid_journal_envelope[missing_version]" time="0.607" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_finalize_recovery_refuses_invalid_journal_envelope[future_version]" time="0.595" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_finalize_recovery_requires_exact_manifest_ref_metadata" time="0.615" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs" time="0.629" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_cached_active_run_observes_journal_only_finalize_recovery" time="0.628" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_finalize_keeps_journal_when_required_local_trace_write_fails" time="0.655" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_finalize_isolates_optional_audit_emit_and_close_failures" time="0.628" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_recovery_rebinds_unlinked_terminal_event_to_its_manifest" time="0.613" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_get_run_details_returns_normalized_payload" time="0.582" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_list_runs_cursor_pagination" time="0.590" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_list_runs_applies_server_side_query_filter_before_pagination" time="0.569" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_evaluate_feedback_endpoint_persists_monitoring_report" time="0.689" /><testcase classname="tests.unit.runtime.http.test_runs_api" name="test_reissue_endpoint_fails_closed_without_durable_control_plane" time="0.855" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v3]" time="0.052" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v4]" time="0.030"><failure message="polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:1111111111111111111111111111111111111111111111111111111111111111 payload is not readable by tenant tenant-execution-roundtrip/cell-execution-roundtrip for write input:n5_input">schema_version = 'v4', view_profile_case = 'a'
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-and-selected-view-wave-7ef8/basetemp/test_candidate_simulation_exec1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1470ea6d0&gt;
+
+    @pytest.mark.parametrize("schema_version", ["v3", "v4", "v5"])
+    @pytest.mark.parametrize("view_profile_case", ["a", "f"])
+    def test_candidate_simulation_execution_versions_roundtrip_selected_views(
+        schema_version,
+        view_profile_case,
+        tmp_path,
+        monkeypatch,
+    ):
+        """Selected-view replay joins a candidate profile to a persisted context owner.
+    
+        V4/V5 bind a typed candidate profile to the real context-job CAS owner.
+        The N5 input/source/result loaders remain unit-controlled stubs, so this
+        test does not claim complete N4/N5 producer capability.
+        """
+        from decimal import Decimal
+        from types import SimpleNamespace
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.ir.analytics.interventions import (
+            InterventionContext,
+            NodeIntervention,
+            QueryTarget,
+            VariableAssignment,
+            identification_plan_for_intervention,
+        )
+        from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+        from polisyos.ir.governance.schedule import ScheduleSpec
+        from polisyos.ir.governance.selector_expr import SelectorPredicate
+        from polisyos.ir.model_layer.types import SelectorOperator
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateScenarioN5Config,
+            CandidateScenarioSetToRule,
+            CandidateSimulationContextHandoff,
+            CandidateSimulationContextInputs,
+            CandidateSimulationExecutionV3,
+            CandidateSimulationExecutionV4,
+            CandidateSimulationExecutionV5,
+            CandidateSimulationN5InputV3,
+            CandidateSimulationN5InputV4,
+            CandidateSimulationN5InputV5,
+            CandidateSimulationScenarioProfile,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+            build_cycle_substrate_context,
+            cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
+        )
+        from polisyos.runtime.quality.design_problem import (
+            DESIGN_PROBLEM_V2_SCHEMA_VERSION,
+            DesignProblem,
+        )
+        from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+            N4CandidateScenarioSourceRecordV2,
+        )
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            InterventionAtomBinding,
+            build_intervention_atom_binding,
+            derive_candidate_scenario_atom,
+            intervention_atom_target_selector_ref,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+        from polisyos.runtime.quality.world_model_record import (
+            resolve_intervention_atom_world_binding,
+        )
+        from tests.unit.runtime.quality.test_cycle_substrate import (
+            _authenticated_tenant_scope,
+            _cycle_context,
+            _registry,
+            _TestCurrentJobExecutionOwner,
+            _world_record,
+        )
+        from tests.unit.runtime.quality.test_generation_cycle import _problem
+        from tests.unit.runtime.quality.test_intervention_atom_binding import _linked
+    
+        def ref(artifact_token, kind):
+            return ArtifactRef(
+                artifact_id="sha256:" + artifact_token * 64,
+                kind=kind,
+                media_type="application/json",
+                manifest_profile_sha256="sha256:" + view_profile_case * 64,
+            )
+    
+        job_id = f"job-{schema_version}-execution"
+        run_id = f"run-{schema_version}-execution"
+        tenant_id = "tenant-execution-roundtrip"
+        cell_id = "cell-execution-roundtrip"
+        n4_kind = (
+            "runtime.generation_source_handoff"
+            if schema_version == "v3"
+            else "runtime.quality.n4_candidate_scenario_source"
+        )
+        n4_ref = ref("2", n4_kind)
+        result_ref = ref("6", "polisyos.runtime.joint_simulation_result")
+    
+        input_types = {
+            "v3": CandidateSimulationN5InputV3,
+            "v4": CandidateSimulationN5InputV4,
+            "v5": CandidateSimulationN5InputV5,
+        }
+        execution_types = {
+            "v3": CandidateSimulationExecutionV3,
+            "v4": CandidateSimulationExecutionV4,
+            "v5": CandidateSimulationExecutionV5,
+        }
+    
+        context_hash = "sha256:" + "8" * 64
+        profile_hash = "sha256:" + "9" * 64
+        world_hash = "sha256:" + "b" * 64
+        input_ref = ref("1", "runtime.quality.candidate_simulation_n5_input")
+        context_ref = ref("3", "runtime.quality.cycle_substrate_context_job")
+        declaration_ref = ref(
+            "4", "runtime.quality.candidate_simulation_model_declaration"
+        )
+        ncm_ref = ref("5", "ir.ncm_spec")
+        materialization = SimpleNamespace(
+            context_hash=context_hash,
+            world_model_record_hash=world_hash,
+            derived_n5_atom=SimpleNamespace(
+                content_hash="sha256:" + "c" * 64,
+                intervention_id=f"n5-{schema_version}",
+            ),
+            problem_ref="sha256:" + "d" * 64,
+        )
+        profile = SimpleNamespace(
+            profile_id=f"profile-{schema_version}",
+            content_hash=profile_hash,
+        )
+        input_fields = {
+            "n4_source_ref": n4_ref,
+            "context_job_ref": context_ref,
+            "job_id": job_id,
+            "run_id": run_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "profile": profile,
+            "profile_config_ref": (
+                f"runtime-config:candidate-simulation/{profile.profile_id}@{profile.content_hash}"
+            ),
+            "materialization": materialization,
+            "original_candidate_id": f"candidate-{schema_version}",
+            "original_candidate_hash": "sha256:" + "e" * 64,
+            "original_n4_atom_hash": "sha256:" + "e" * 64,
+        }
+        if schema_version == "v5":
+            input_fields.update(
+                {
+                    "model_declaration_ref": declaration_ref,
+                    "ncm_ref": ncm_ref,
+                }
+            )
+        if schema_version == "v3":
+            input_record = input_types[schema_version].model_construct(**input_fields)
+            handoff = CandidateSimulationContextHandoff.model_construct(
+                context=SimpleNamespace(content_hash=context_hash),
+                context_job_ref=context_ref,
+                profile=profile,
+                profile_config_ref=input_record.profile_config_ref,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                model_declaration_ref=declaration_ref,
+                ncm_ref=ncm_ref,
+            )
+            simulation = SimulationPortObservation(
+                candidate_id=input_record.original_candidate_id,
+                status="joint_simulated",
+                simulation_ref="sha256:" + "f" * 64,
+                simulation_result_ref=result_ref,
+                k_world_ref_before=world_hash,
+                k_world_ref_after=world_hash,
+            )
+            repository = GenerationSourceRepository(
+                FileSystemCAS(tmp_path / f"execution-{schema_version}-cas")
+            )
+    
+        if schema_version in {"v4", "v5"}:
+            # Keep the generic policy problem, N2 action, and WMR slot set coherent.
+            # This typed atom is a unit input for selected-view replay only; the
+            # N4/N5 source and result records below remain controlled projections.
+            problem_payload = _problem(f"selected_view_{schema_version}").model_dump(
+                mode="json"
+            )
+            problem_payload["schema_version"] = DESIGN_PROBLEM_V2_SCHEMA_VERSION
+            problem_payload["candidate_lever_space"] = {
+                "allowed_operator_kinds": ["adaptive_agent"],
+                "candidate_levers": [
+                    {
+                        "lever_id": "adaptive_income",
+                        "operator_kind": "adaptive_agent",
+                        "instrument": "Adaptive income policy",
+                        "target_slot": "agents.income",
+                    }
+                ],
+            }
+            problem = DesignProblem.model_validate(problem_payload)
+            problem_ref = cycle_job_design_problem_ref(problem)
+            registry = _registry(problem.domain)
+            world = _world_record(
+                problem.domain,
+                registry,
+                region_or_jurisdiction=problem.jurisdiction_time.region,
+                policy_slot_ids=("agents.income", "firm_survival"),
+            )
+            source_context = _cycle_context(
+                domain=problem.domain,
+                lever_id="adaptive_income",
+                instrument="Adaptive income policy",
+                target_concept=problem.outcome_of_interest.target_variable,
+                registry=registry,
+                world_model_record=world,
+                design_problem_ref=problem_ref,
+            )
+            intervention = InterventionSpec(
+                intervention_id=f"selected_view_{schema_version}_adaptive_income",
+                kind="adaptive_agent",
+                target=SelectorPredicate(
+                    field="id",
+                    operator=SelectorOperator.EQUALS,
+                    value="all",
+                ),
+                schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                params={
+                    "learning_rate": Decimal("0.01"),
+                    "action_space": {"affects": ["agents.income"], "type": "continuous"},
+                    "observation_space": ["agents.income"],
+                    "utility": "improve_firm_survival",
+                    "stochastic": False,
+                },
+            )
+            policy_spec = PolicySpec(
+                policy_id=f"selected_view_{schema_version}_policy",
+                problem_frame_ref=problem_ref,
+                interventions=[intervention],
+            )
+            policy_spec_ref = gy_content_hash(policy_spec.model_dump(mode="json"))
+            causal_intervention = NodeIntervention(
+                assignments=(
+                    VariableAssignment(
+                        variable="agents.income",
+                        value_expr="adaptive_policy_action",
+                    ),
+                )
+            )
+            selector_ref = intervention_atom_target_selector_ref(intervention)
+            atom = build_intervention_atom_binding(
+                problem_frame_ref=problem_ref,
+                policy_spec_ref=policy_spec_ref,
+                intervention=intervention,
+                linked_intervention=_linked(intervention),
+                causal_intervention=causal_intervention,
+                query_target=QueryTarget(
+                    outcome_variables=(problem.outcome_of_interest.target_variable,),
+                    conditioning=(),
+                    functional=problem.outcome_of_interest.estimand,
+                ),
+                identification_plan=identification_plan_for_intervention(
+                    causal_intervention
+                ),
+                causal_context=InterventionContext(
+                    source_domain=problem.domain,
+                    target_domain=problem.domain,
+                    selection_diagram_ref=selector_ref,
+                    assumptions=("selected_view_unit_candidate_only",),
+                ),
+                world_model_record_ref=world.world_model_record_id,
+                producer_ref="tests.unit.runtime.quality.test_generation_source.selected_view",
+                provenance_refs=(problem_ref, policy_spec_ref, source_context.content_hash),
+                operator_proof_type_map={"adaptive_agent": "node"},
+                mechanism_variable_map={"adaptive_agent": ("agents.income",)},
+                estimand_metric_id=problem.outcome_of_interest.metric_id,
+                target_population=problem.jurisdiction_time.region,
+            )
+            assert type(atom) is InterventionAtomBinding
+            assert atom.target_world_slots == ("agents.income",)
+            assert resolve_intervention_atom_world_binding(atom, world).world_model_record_id == (
+                world.world_model_record_id
+            )
+            source_candidate = SimpleNamespace(
+                candidate_id="candidate_" + atom.content_hash.removeprefix("sha256:")[:16],
+                atom=atom,
+            )
+            target_world_slot = atom.target_world_slots[0]
+            outcome_variable = problem.outcome_of_interest.target_variable
+            parameter_id = "learning_rate"
+            assert parameter_id in atom.direct_effect_bundle.params
+            target_binding = source_context.world_model_record.slot_binding(target_world_slot)
+            unit_id = (
+                target_binding.unit
+                if target_binding and target_binding.unit
+                else "synthetic_score"
+            )
+    
+            store = FileSystemCAS(
+                tmp_path / f"execution-{schema_version}-cas",
+                ownership_enforced=True,
+                ownership_requires_scope=True,
+            )
+            repository = GenerationSourceRepository(store)
+    
+            def in_scope(operation, *args, **kwargs):
+                with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
+                    return operation(*args, **kwargs)
+    
+            def hashed_model(model_type, payload):
+                draft = model_type.model_construct(
+                    **payload,
+                    content_hash="sha256:" + "0" * 64,
+                )
+                return model_type.model_validate(
+                    {
+                        **payload,
+                        "content_hash": gy_content_hash(
+                            draft.model_dump(mode="json", exclude={"content_hash"})
+                        ),
+                    }
+                )
+    
+            context = build_cycle_substrate_context(
+                design_problem_ref=problem_ref,
+                domain=source_context.domain,
+                substrate_registry=source_context.substrate_registry,
+                selected_registry_entry_hashes=source_context.selected_registry_entry_hashes,
+                world_model_record=source_context.world_model_record,
+                intervention_substrate=source_context.intervention_substrate,
+                candidate_levers=source_context.candidate_levers,
+                transport_context=source_context.transport_context,
+                source_pack_content_hash=source_context.source_pack_content_hash,
+                substrate_input_content_hash=source_context.substrate_input_content_hash,
+            )
+            context_inputs = CandidateSimulationContextInputs(
+                substrate_registry=context.substrate_registry,
+                selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+                world_model_record=context.world_model_record,
+                intervention_substrate=context.intervention_substrate,
+                candidate_levers=context.candidate_levers,
+                transport_context=context.transport_context,
+                source_pack_content_hash=context.source_pack_content_hash,
+                substrate_input_content_hash=context.substrate_input_content_hash,
+            )
+            rule = CandidateScenarioSetToRule(
+                operator_kind=atom.operator_kind.trinity_kind,
+                parameter_id=parameter_id,
+                target_world_slot=target_world_slot,
+                unit_id=unit_id,
+                minimum=0,
+                maximum=1,
+            )
+            n5 = CandidateScenarioN5Config(
+                budget_ref=f"budget://selected-view/{schema_version}",
+                horizon=HorizonSpec(start=0, end=0, step=1),
+                baseline_state={target_world_slot: 0.0, outcome_variable: 0.0},
+                seed=7,
+                replications=2,
+            )
+            profile = hashed_model(
+                CandidateSimulationScenarioProfile,
+                {
+                    "profile_id": f"profile-{schema_version}",
+                    "profile_selection_ref": cycle_job_profile_selection_ref(problem),
+                    "context_inputs": context_inputs,
+                    "rule": rule,
+                    "n5": n5,
+                    "limitations": (
+                        "scenario_only",
+                        "real_profile_not_established",
+                        "real_time_not_established",
+                        "grounding_not_established",
+                        "s8_blocked",
+                        "n9_not_admitted",
+                    ),
+                },
+            )
+            profile_config_ref = candidate_simulation_profile_ref(profile)
+            owner = CycleSubstrateContextArtifactOwner(
+                store=store,
+                control_store=_TestCurrentJobExecutionOwner(job_id, run_id),
+            )
+            context_ref = in_scope(
+                owner.persist_for_current_job,
+                context,
+                problem=problem,
+            )
+            context_job = in_scope(
+                owner.resolve_historical_job_artifact,
+                context_ref,
+                problem=problem,
+                expected_job_id=job_id,
+                expected_run_id=run_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+            )
+            assert (
+                context_job.job_id,
+                context_job.run_id,
+                context_job.tenant_id,
+                context_job.cell_id,
+                context_job.design_problem_ref,
+            ) == (job_id, run_id, tenant_id, cell_id, problem_ref)
+            assert context_job.problem == problem
+            assert context_job.context.content_hash == context.content_hash
+            assert (
+                context_job.context.world_model_record.world_model_record_id
+                == profile.context_inputs.world_model_record.world_model_record_id
+            )
+            assert (
+                context_job.context.world_model_record.content_hash
+                == profile.context_inputs.world_model_record.content_hash
+            )
+            declaration_ref = ref("4", "runtime.quality.candidate_simulation_model_declaration")
+            # The two cases keep the same NCM bytes/ArtifactID and vary only the
+            # selected manifest-profile hash, which this unit test preserves.
+            ncm_ref = ref("5", "ir.ncm_spec")
+            other_view_suffix = "f" if view_profile_case == "a" else "a"
+            other_ncm_ref = ArtifactRef(
+                artifact_id=ncm_ref.artifact_id,
+                kind=ncm_ref.kind,
+                media_type=ncm_ref.media_type,
+                manifest_profile_sha256="sha256:" + other_view_suffix * 64,
+            )
+            assert other_ncm_ref.artifact_id == ncm_ref.artifact_id
+            assert other_ncm_ref.manifest_profile_sha256 != ncm_ref.manifest_profile_sha256
+    
+            context_hash = context_job.context.content_hash
+            world_hash = context_job.context.world_model_record.content_hash
+            profile_hash = profile.content_hash
+            candidate_id = source_candidate.candidate_id
+            materialization = SimpleNamespace(
+                profile_hash=profile_hash,
+                problem_ref=problem_ref,
+                context_hash=context_hash,
+                context_job_ref=context_ref,
+                world_model_record_hash=world_hash,
+                n4_source_ref=n4_ref,
+                candidate_id=candidate_id,
+                original_candidate_hash=atom.content_hash,
+                original_atom_hash=atom.content_hash,
+                derived_n5_atom=derive_candidate_scenario_atom(
+                    atom,
+                    target_world_slot=target_world_slot,
+                    value=rule.maximum,
+                ),
+            )
+            input_fields = {
+                "profile": profile,
+                "profile_config_ref": profile_config_ref,
+                "n4_source_ref": n4_ref,
+                "context_job_ref": context_ref,
+                "job_id": job_id,
+                "run_id": run_id,
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+                "original_candidate_id": candidate_id,
+                "original_candidate_hash": atom.content_hash,
+                "original_n4_atom_hash": atom.content_hash,
+                "outcome_variable": outcome_variable,
+                "materialization": materialization,
+                "n5": profile.n5,
+            }
+            if schema_version == "v5":
+                input_fields.update(
+                    {
+                        "model_declaration_ref": declaration_ref,
+                        "ncm_ref": ncm_ref,
+                    }
+                )
+            # The N5 input loader is intentionally a unit stub below. Keep its
+            # returned object typed while making the persisted context owner the
+            # only authority-backed artifact in this fixture.
+            input_record = input_types[schema_version].model_construct(**input_fields)
+            handoff_fields = {
+                "context": context_job.context,
+                "context_job_ref": context_ref,
+                "profile": profile,
+                "profile_config_ref": profile_config_ref,
+                "job_id": job_id,
+                "run_id": run_id,
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+            }
+            if schema_version == "v5":
+                handoff_fields.update(
+                    {
+                        "model_declaration_ref": declaration_ref,
+                        "ncm_ref": ncm_ref,
+                    }
+                )
+            handoff = (
+                CandidateSimulationContextHandoff.model_construct(**handoff_fields)
+                if schema_version == "v5"
+                else CandidateSimulationContextHandoff(**handoff_fields)
+            )
+            source_v1 = SimpleNamespace(
+                context_job_ref=context_ref,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                context_hash=context_hash,
+                world_model_record_hash=world_hash,
+                cycle_problem_ref=problem_ref,
+                problem=problem,
+                profile=profile,
+                profile_config_ref=profile_config_ref,
+                candidate=source_candidate,
+                world_model_record_id=context_job.context.world_model_record.world_model_record_id,
+            )
+            if schema_version == "v5":
+                source_v2 = N4CandidateScenarioSourceRecordV2.model_construct(
+                    source_record=source_v1,
+                    model_declaration_ref=declaration_ref,
+                    ncm_ref=ncm_ref,
+                    world_model_record_id=context_job.context.world_model_record.world_model_record_id,
+                )
+            simulation = SimulationPortObservation(
+                candidate_id=input_record.original_candidate_id,
+                status="joint_simulated",
+                simulation_ref="sha256:" + "f" * 64,
+                simulation_result_ref=result_ref,
+                k_world_ref_before=world_hash,
+                k_world_ref_after=world_hash,
+            )
+    
+        def load_input(selected_ref):
+            if schema_version != "v3":
+                assert selected_ref == input_ref
+                assert (
+                    input_record.context_job_ref,
+                    input_record.job_id,
+                    input_record.run_id,
+                    input_record.tenant_id,
+                    input_record.cell_id,
+                    input_record.materialization.world_model_record_hash,
+                ) == (
+                    context_ref,
+                    job_id,
+                    run_id,
+                    tenant_id,
+                    cell_id,
+                    world_hash,
+                )
+            return input_record
+    
+        monkeypatch.setattr(
+            repository,
+            f"_load_candidate_simulation_input_{schema_version}",
+            load_input,
+        )
+    
+&gt;       execution_ref = in_scope(
+            getattr(
+                repository,
+                f"persist_candidate_simulation_execution_{schema_version}",
+            ),
+            input_ref=input_ref,
+            simulation=simulation,
+            handoff=handoff,
+        ) if schema_version != "v3" else getattr(
+            repository, f"persist_candidate_simulation_execution_{schema_version}"
+        )(
+            input_ref=input_ref,
+            simulation=simulation,
+            handoff=handoff,
+        )
+
+tests/unit/runtime/quality/test_generation_source.py:2732: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_generation_source.py:2485: in in_scope
+    return operation(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/generation_source.py:2269: in persist_candidate_simulation_execution_v4
+    return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:973: in _require_blob_owner
+    self._ownership_index.require_blob_reader(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.ownership.ArtifactOwnershipIndex object at 0x14781bbb0&gt;
+artifact_id = ArtifactID(root='sha256:1111111111111111111111111111111111111111111111111111111111111111')
+
+    def require_blob_reader(
+        self,
+        artifact_id: ArtifactID | str,
+        *,
+        tenant_id: str,
+        cell_id: str | None = None,
+        operation: str = "read",
+    ) -&gt; None:
+        """Fail closed unless the tenant may read this blob's payload bytes."""
+        aid = _coerce_artifact_id(artifact_id)
+        if self.is_blob_readable_by(aid, tenant_id=tenant_id, cell_id=cell_id):
+            return
+        normalized_tenant = _normal_tenant_id(tenant_id)
+        normalized_cell = _normal_cell_id(cell_id)
+&gt;       raise ArtifactOwnershipError(
+            f"Artifact {aid} payload is not readable by tenant "
+            f"{_owner_label(normalized_tenant, normalized_cell)} for {operation}"
+        )
+E       polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:1111111111111111111111111111111111111111111111111111111111111111 payload is not readable by tenant tenant-execution-roundtrip/cell-execution-roundtrip for write input:n5_input
+
+src/polisyos/core/artifacts/ownership.py:1172: ArtifactOwnershipError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v5]" time="0.027"><failure message="polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:1111111111111111111111111111111111111111111111111111111111111111 payload is not readable by tenant tenant-execution-roundtrip/cell-execution-roundtrip for write input:n5_input">schema_version = 'v5', view_profile_case = 'a'
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-and-selected-view-wave-7ef8/basetemp/test_candidate_simulation_exec2')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x146e24280&gt;
+
+    @pytest.mark.parametrize("schema_version", ["v3", "v4", "v5"])
+    @pytest.mark.parametrize("view_profile_case", ["a", "f"])
+    def test_candidate_simulation_execution_versions_roundtrip_selected_views(
+        schema_version,
+        view_profile_case,
+        tmp_path,
+        monkeypatch,
+    ):
+        """Selected-view replay joins a candidate profile to a persisted context owner.
+    
+        V4/V5 bind a typed candidate profile to the real context-job CAS owner.
+        The N5 input/source/result loaders remain unit-controlled stubs, so this
+        test does not claim complete N4/N5 producer capability.
+        """
+        from decimal import Decimal
+        from types import SimpleNamespace
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.ir.analytics.interventions import (
+            InterventionContext,
+            NodeIntervention,
+            QueryTarget,
+            VariableAssignment,
+            identification_plan_for_intervention,
+        )
+        from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+        from polisyos.ir.governance.schedule import ScheduleSpec
+        from polisyos.ir.governance.selector_expr import SelectorPredicate
+        from polisyos.ir.model_layer.types import SelectorOperator
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateScenarioN5Config,
+            CandidateScenarioSetToRule,
+            CandidateSimulationContextHandoff,
+            CandidateSimulationContextInputs,
+            CandidateSimulationExecutionV3,
+            CandidateSimulationExecutionV4,
+            CandidateSimulationExecutionV5,
+            CandidateSimulationN5InputV3,
+            CandidateSimulationN5InputV4,
+            CandidateSimulationN5InputV5,
+            CandidateSimulationScenarioProfile,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+            build_cycle_substrate_context,
+            cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
+        )
+        from polisyos.runtime.quality.design_problem import (
+            DESIGN_PROBLEM_V2_SCHEMA_VERSION,
+            DesignProblem,
+        )
+        from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+            N4CandidateScenarioSourceRecordV2,
+        )
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            InterventionAtomBinding,
+            build_intervention_atom_binding,
+            derive_candidate_scenario_atom,
+            intervention_atom_target_selector_ref,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+        from polisyos.runtime.quality.world_model_record import (
+            resolve_intervention_atom_world_binding,
+        )
+        from tests.unit.runtime.quality.test_cycle_substrate import (
+            _authenticated_tenant_scope,
+            _cycle_context,
+            _registry,
+            _TestCurrentJobExecutionOwner,
+            _world_record,
+        )
+        from tests.unit.runtime.quality.test_generation_cycle import _problem
+        from tests.unit.runtime.quality.test_intervention_atom_binding import _linked
+    
+        def ref(artifact_token, kind):
+            return ArtifactRef(
+                artifact_id="sha256:" + artifact_token * 64,
+                kind=kind,
+                media_type="application/json",
+                manifest_profile_sha256="sha256:" + view_profile_case * 64,
+            )
+    
+        job_id = f"job-{schema_version}-execution"
+        run_id = f"run-{schema_version}-execution"
+        tenant_id = "tenant-execution-roundtrip"
+        cell_id = "cell-execution-roundtrip"
+        n4_kind = (
+            "runtime.generation_source_handoff"
+            if schema_version == "v3"
+            else "runtime.quality.n4_candidate_scenario_source"
+        )
+        n4_ref = ref("2", n4_kind)
+        result_ref = ref("6", "polisyos.runtime.joint_simulation_result")
+    
+        input_types = {
+            "v3": CandidateSimulationN5InputV3,
+            "v4": CandidateSimulationN5InputV4,
+            "v5": CandidateSimulationN5InputV5,
+        }
+        execution_types = {
+            "v3": CandidateSimulationExecutionV3,
+            "v4": CandidateSimulationExecutionV4,
+            "v5": CandidateSimulationExecutionV5,
+        }
+    
+        context_hash = "sha256:" + "8" * 64
+        profile_hash = "sha256:" + "9" * 64
+        world_hash = "sha256:" + "b" * 64
+        input_ref = ref("1", "runtime.quality.candidate_simulation_n5_input")
+        context_ref = ref("3", "runtime.quality.cycle_substrate_context_job")
+        declaration_ref = ref(
+            "4", "runtime.quality.candidate_simulation_model_declaration"
+        )
+        ncm_ref = ref("5", "ir.ncm_spec")
+        materialization = SimpleNamespace(
+            context_hash=context_hash,
+            world_model_record_hash=world_hash,
+            derived_n5_atom=SimpleNamespace(
+                content_hash="sha256:" + "c" * 64,
+                intervention_id=f"n5-{schema_version}",
+            ),
+            problem_ref="sha256:" + "d" * 64,
+        )
+        profile = SimpleNamespace(
+            profile_id=f"profile-{schema_version}",
+            content_hash=profile_hash,
+        )
+        input_fields = {
+            "n4_source_ref": n4_ref,
+            "context_job_ref": context_ref,
+            "job_id": job_id,
+            "run_id": run_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "profile": profile,
+            "profile_config_ref": (
+                f"runtime-config:candidate-simulation/{profile.profile_id}@{profile.content_hash}"
+            ),
+            "materialization": materialization,
+            "original_candidate_id": f"candidate-{schema_version}",
+            "original_candidate_hash": "sha256:" + "e" * 64,
+            "original_n4_atom_hash": "sha256:" + "e" * 64,
+        }
+        if schema_version == "v5":
+            input_fields.update(
+                {
+                    "model_declaration_ref": declaration_ref,
+                    "ncm_ref": ncm_ref,
+                }
+            )
+        if schema_version == "v3":
+            input_record = input_types[schema_version].model_construct(**input_fields)
+            handoff = CandidateSimulationContextHandoff.model_construct(
+                context=SimpleNamespace(content_hash=context_hash),
+                context_job_ref=context_ref,
+                profile=profile,
+                profile_config_ref=input_record.profile_config_ref,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                model_declaration_ref=declaration_ref,
+                ncm_ref=ncm_ref,
+            )
+            simulation = SimulationPortObservation(
+                candidate_id=input_record.original_candidate_id,
+                status="joint_simulated",
+                simulation_ref="sha256:" + "f" * 64,
+                simulation_result_ref=result_ref,
+                k_world_ref_before=world_hash,
+                k_world_ref_after=world_hash,
+            )
+            repository = GenerationSourceRepository(
+                FileSystemCAS(tmp_path / f"execution-{schema_version}-cas")
+            )
+    
+        if schema_version in {"v4", "v5"}:
+            # Keep the generic policy problem, N2 action, and WMR slot set coherent.
+            # This typed atom is a unit input for selected-view replay only; the
+            # N4/N5 source and result records below remain controlled projections.
+            problem_payload = _problem(f"selected_view_{schema_version}").model_dump(
+                mode="json"
+            )
+            problem_payload["schema_version"] = DESIGN_PROBLEM_V2_SCHEMA_VERSION
+            problem_payload["candidate_lever_space"] = {
+                "allowed_operator_kinds": ["adaptive_agent"],
+                "candidate_levers": [
+                    {
+                        "lever_id": "adaptive_income",
+                        "operator_kind": "adaptive_agent",
+                        "instrument": "Adaptive income policy",
+                        "target_slot": "agents.income",
+                    }
+                ],
+            }
+            problem = DesignProblem.model_validate(problem_payload)
+            problem_ref = cycle_job_design_problem_ref(problem)
+            registry = _registry(problem.domain)
+            world = _world_record(
+                problem.domain,
+                registry,
+                region_or_jurisdiction=problem.jurisdiction_time.region,
+                policy_slot_ids=("agents.income", "firm_survival"),
+            )
+            source_context = _cycle_context(
+                domain=problem.domain,
+                lever_id="adaptive_income",
+                instrument="Adaptive income policy",
+                target_concept=problem.outcome_of_interest.target_variable,
+                registry=registry,
+                world_model_record=world,
+                design_problem_ref=problem_ref,
+            )
+            intervention = InterventionSpec(
+                intervention_id=f"selected_view_{schema_version}_adaptive_income",
+                kind="adaptive_agent",
+                target=SelectorPredicate(
+                    field="id",
+                    operator=SelectorOperator.EQUALS,
+                    value="all",
+                ),
+                schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                params={
+                    "learning_rate": Decimal("0.01"),
+                    "action_space": {"affects": ["agents.income"], "type": "continuous"},
+                    "observation_space": ["agents.income"],
+                    "utility": "improve_firm_survival",
+                    "stochastic": False,
+                },
+            )
+            policy_spec = PolicySpec(
+                policy_id=f"selected_view_{schema_version}_policy",
+                problem_frame_ref=problem_ref,
+                interventions=[intervention],
+            )
+            policy_spec_ref = gy_content_hash(policy_spec.model_dump(mode="json"))
+            causal_intervention = NodeIntervention(
+                assignments=(
+                    VariableAssignment(
+                        variable="agents.income",
+                        value_expr="adaptive_policy_action",
+                    ),
+                )
+            )
+            selector_ref = intervention_atom_target_selector_ref(intervention)
+            atom = build_intervention_atom_binding(
+                problem_frame_ref=problem_ref,
+                policy_spec_ref=policy_spec_ref,
+                intervention=intervention,
+                linked_intervention=_linked(intervention),
+                causal_intervention=causal_intervention,
+                query_target=QueryTarget(
+                    outcome_variables=(problem.outcome_of_interest.target_variable,),
+                    conditioning=(),
+                    functional=problem.outcome_of_interest.estimand,
+                ),
+                identification_plan=identification_plan_for_intervention(
+                    causal_intervention
+                ),
+                causal_context=InterventionContext(
+                    source_domain=problem.domain,
+                    target_domain=problem.domain,
+                    selection_diagram_ref=selector_ref,
+                    assumptions=("selected_view_unit_candidate_only",),
+                ),
+                world_model_record_ref=world.world_model_record_id,
+                producer_ref="tests.unit.runtime.quality.test_generation_source.selected_view",
+                provenance_refs=(problem_ref, policy_spec_ref, source_context.content_hash),
+                operator_proof_type_map={"adaptive_agent": "node"},
+                mechanism_variable_map={"adaptive_agent": ("agents.income",)},
+                estimand_metric_id=problem.outcome_of_interest.metric_id,
+                target_population=problem.jurisdiction_time.region,
+            )
+            assert type(atom) is InterventionAtomBinding
+            assert atom.target_world_slots == ("agents.income",)
+            assert resolve_intervention_atom_world_binding(atom, world).world_model_record_id == (
+                world.world_model_record_id
+            )
+            source_candidate = SimpleNamespace(
+                candidate_id="candidate_" + atom.content_hash.removeprefix("sha256:")[:16],
+                atom=atom,
+            )
+            target_world_slot = atom.target_world_slots[0]
+            outcome_variable = problem.outcome_of_interest.target_variable
+            parameter_id = "learning_rate"
+            assert parameter_id in atom.direct_effect_bundle.params
+            target_binding = source_context.world_model_record.slot_binding(target_world_slot)
+            unit_id = (
+                target_binding.unit
+                if target_binding and target_binding.unit
+                else "synthetic_score"
+            )
+    
+            store = FileSystemCAS(
+                tmp_path / f"execution-{schema_version}-cas",
+                ownership_enforced=True,
+                ownership_requires_scope=True,
+            )
+            repository = GenerationSourceRepository(store)
+    
+            def in_scope(operation, *args, **kwargs):
+                with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
+                    return operation(*args, **kwargs)
+    
+            def hashed_model(model_type, payload):
+                draft = model_type.model_construct(
+                    **payload,
+                    content_hash="sha256:" + "0" * 64,
+                )
+                return model_type.model_validate(
+                    {
+                        **payload,
+                        "content_hash": gy_content_hash(
+                            draft.model_dump(mode="json", exclude={"content_hash"})
+                        ),
+                    }
+                )
+    
+            context = build_cycle_substrate_context(
+                design_problem_ref=problem_ref,
+                domain=source_context.domain,
+                substrate_registry=source_context.substrate_registry,
+                selected_registry_entry_hashes=source_context.selected_registry_entry_hashes,
+                world_model_record=source_context.world_model_record,
+                intervention_substrate=source_context.intervention_substrate,
+                candidate_levers=source_context.candidate_levers,
+                transport_context=source_context.transport_context,
+                source_pack_content_hash=source_context.source_pack_content_hash,
+                substrate_input_content_hash=source_context.substrate_input_content_hash,
+            )
+            context_inputs = CandidateSimulationContextInputs(
+                substrate_registry=context.substrate_registry,
+                selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+                world_model_record=context.world_model_record,
+                intervention_substrate=context.intervention_substrate,
+                candidate_levers=context.candidate_levers,
+                transport_context=context.transport_context,
+                source_pack_content_hash=context.source_pack_content_hash,
+                substrate_input_content_hash=context.substrate_input_content_hash,
+            )
+            rule = CandidateScenarioSetToRule(
+                operator_kind=atom.operator_kind.trinity_kind,
+                parameter_id=parameter_id,
+                target_world_slot=target_world_slot,
+                unit_id=unit_id,
+                minimum=0,
+                maximum=1,
+            )
+            n5 = CandidateScenarioN5Config(
+                budget_ref=f"budget://selected-view/{schema_version}",
+                horizon=HorizonSpec(start=0, end=0, step=1),
+                baseline_state={target_world_slot: 0.0, outcome_variable: 0.0},
+                seed=7,
+                replications=2,
+            )
+            profile = hashed_model(
+                CandidateSimulationScenarioProfile,
+                {
+                    "profile_id": f"profile-{schema_version}",
+                    "profile_selection_ref": cycle_job_profile_selection_ref(problem),
+                    "context_inputs": context_inputs,
+                    "rule": rule,
+                    "n5": n5,
+                    "limitations": (
+                        "scenario_only",
+                        "real_profile_not_established",
+                        "real_time_not_established",
+                        "grounding_not_established",
+                        "s8_blocked",
+                        "n9_not_admitted",
+                    ),
+                },
+            )
+            profile_config_ref = candidate_simulation_profile_ref(profile)
+            owner = CycleSubstrateContextArtifactOwner(
+                store=store,
+                control_store=_TestCurrentJobExecutionOwner(job_id, run_id),
+            )
+            context_ref = in_scope(
+                owner.persist_for_current_job,
+                context,
+                problem=problem,
+            )
+            context_job = in_scope(
+                owner.resolve_historical_job_artifact,
+                context_ref,
+                problem=problem,
+                expected_job_id=job_id,
+                expected_run_id=run_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+            )
+            assert (
+                context_job.job_id,
+                context_job.run_id,
+                context_job.tenant_id,
+                context_job.cell_id,
+                context_job.design_problem_ref,
+            ) == (job_id, run_id, tenant_id, cell_id, problem_ref)
+            assert context_job.problem == problem
+            assert context_job.context.content_hash == context.content_hash
+            assert (
+                context_job.context.world_model_record.world_model_record_id
+                == profile.context_inputs.world_model_record.world_model_record_id
+            )
+            assert (
+                context_job.context.world_model_record.content_hash
+                == profile.context_inputs.world_model_record.content_hash
+            )
+            declaration_ref = ref("4", "runtime.quality.candidate_simulation_model_declaration")
+            # The two cases keep the same NCM bytes/ArtifactID and vary only the
+            # selected manifest-profile hash, which this unit test preserves.
+            ncm_ref = ref("5", "ir.ncm_spec")
+            other_view_suffix = "f" if view_profile_case == "a" else "a"
+            other_ncm_ref = ArtifactRef(
+                artifact_id=ncm_ref.artifact_id,
+                kind=ncm_ref.kind,
+                media_type=ncm_ref.media_type,
+                manifest_profile_sha256="sha256:" + other_view_suffix * 64,
+            )
+            assert other_ncm_ref.artifact_id == ncm_ref.artifact_id
+            assert other_ncm_ref.manifest_profile_sha256 != ncm_ref.manifest_profile_sha256
+    
+            context_hash = context_job.context.content_hash
+            world_hash = context_job.context.world_model_record.content_hash
+            profile_hash = profile.content_hash
+            candidate_id = source_candidate.candidate_id
+            materialization = SimpleNamespace(
+                profile_hash=profile_hash,
+                problem_ref=problem_ref,
+                context_hash=context_hash,
+                context_job_ref=context_ref,
+                world_model_record_hash=world_hash,
+                n4_source_ref=n4_ref,
+                candidate_id=candidate_id,
+                original_candidate_hash=atom.content_hash,
+                original_atom_hash=atom.content_hash,
+                derived_n5_atom=derive_candidate_scenario_atom(
+                    atom,
+                    target_world_slot=target_world_slot,
+                    value=rule.maximum,
+                ),
+            )
+            input_fields = {
+                "profile": profile,
+                "profile_config_ref": profile_config_ref,
+                "n4_source_ref": n4_ref,
+                "context_job_ref": context_ref,
+                "job_id": job_id,
+                "run_id": run_id,
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+                "original_candidate_id": candidate_id,
+                "original_candidate_hash": atom.content_hash,
+                "original_n4_atom_hash": atom.content_hash,
+                "outcome_variable": outcome_variable,
+                "materialization": materialization,
+                "n5": profile.n5,
+            }
+            if schema_version == "v5":
+                input_fields.update(
+                    {
+                        "model_declaration_ref": declaration_ref,
+                        "ncm_ref": ncm_ref,
+                    }
+                )
+            # The N5 input loader is intentionally a unit stub below. Keep its
+            # returned object typed while making the persisted context owner the
+            # only authority-backed artifact in this fixture.
+            input_record = input_types[schema_version].model_construct(**input_fields)
+            handoff_fields = {
+                "context": context_job.context,
+                "context_job_ref": context_ref,
+                "profile": profile,
+                "profile_config_ref": profile_config_ref,
+                "job_id": job_id,
+                "run_id": run_id,
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+            }
+            if schema_version == "v5":
+                handoff_fields.update(
+                    {
+                        "model_declaration_ref": declaration_ref,
+                        "ncm_ref": ncm_ref,
+                    }
+                )
+            handoff = (
+                CandidateSimulationContextHandoff.model_construct(**handoff_fields)
+                if schema_version == "v5"
+                else CandidateSimulationContextHandoff(**handoff_fields)
+            )
+            source_v1 = SimpleNamespace(
+                context_job_ref=context_ref,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                context_hash=context_hash,
+                world_model_record_hash=world_hash,
+                cycle_problem_ref=problem_ref,
+                problem=problem,
+                profile=profile,
+                profile_config_ref=profile_config_ref,
+                candidate=source_candidate,
+                world_model_record_id=context_job.context.world_model_record.world_model_record_id,
+            )
+            if schema_version == "v5":
+                source_v2 = N4CandidateScenarioSourceRecordV2.model_construct(
+                    source_record=source_v1,
+                    model_declaration_ref=declaration_ref,
+                    ncm_ref=ncm_ref,
+                    world_model_record_id=context_job.context.world_model_record.world_model_record_id,
+                )
+            simulation = SimulationPortObservation(
+                candidate_id=input_record.original_candidate_id,
+                status="joint_simulated",
+                simulation_ref="sha256:" + "f" * 64,
+                simulation_result_ref=result_ref,
+                k_world_ref_before=world_hash,
+                k_world_ref_after=world_hash,
+            )
+    
+        def load_input(selected_ref):
+            if schema_version != "v3":
+                assert selected_ref == input_ref
+                assert (
+                    input_record.context_job_ref,
+                    input_record.job_id,
+                    input_record.run_id,
+                    input_record.tenant_id,
+                    input_record.cell_id,
+                    input_record.materialization.world_model_record_hash,
+                ) == (
+                    context_ref,
+                    job_id,
+                    run_id,
+                    tenant_id,
+                    cell_id,
+                    world_hash,
+                )
+            return input_record
+    
+        monkeypatch.setattr(
+            repository,
+            f"_load_candidate_simulation_input_{schema_version}",
+            load_input,
+        )
+    
+&gt;       execution_ref = in_scope(
+            getattr(
+                repository,
+                f"persist_candidate_simulation_execution_{schema_version}",
+            ),
+            input_ref=input_ref,
+            simulation=simulation,
+            handoff=handoff,
+        ) if schema_version != "v3" else getattr(
+            repository, f"persist_candidate_simulation_execution_{schema_version}"
+        )(
+            input_ref=input_ref,
+            simulation=simulation,
+            handoff=handoff,
+        )
+
+tests/unit/runtime/quality/test_generation_source.py:2732: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_generation_source.py:2485: in in_scope
+    return operation(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/generation_source.py:2374: in persist_candidate_simulation_execution_v5
+    return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:973: in _require_blob_owner
+    self._ownership_index.require_blob_reader(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.ownership.ArtifactOwnershipIndex object at 0x1473496d0&gt;
+artifact_id = ArtifactID(root='sha256:1111111111111111111111111111111111111111111111111111111111111111')
+
+    def require_blob_reader(
+        self,
+        artifact_id: ArtifactID | str,
+        *,
+        tenant_id: str,
+        cell_id: str | None = None,
+        operation: str = "read",
+    ) -&gt; None:
+        """Fail closed unless the tenant may read this blob's payload bytes."""
+        aid = _coerce_artifact_id(artifact_id)
+        if self.is_blob_readable_by(aid, tenant_id=tenant_id, cell_id=cell_id):
+            return
+        normalized_tenant = _normal_tenant_id(tenant_id)
+        normalized_cell = _normal_cell_id(cell_id)
+&gt;       raise ArtifactOwnershipError(
+            f"Artifact {aid} payload is not readable by tenant "
+            f"{_owner_label(normalized_tenant, normalized_cell)} for {operation}"
+        )
+E       polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:1111111111111111111111111111111111111111111111111111111111111111 payload is not readable by tenant tenant-execution-roundtrip/cell-execution-roundtrip for write input:n5_input
+
+src/polisyos/core/artifacts/ownership.py:1172: ArtifactOwnershipError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v3]" time="0.010" /><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v4]" time="0.027"><failure message="polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:1111111111111111111111111111111111111111111111111111111111111111 payload is not readable by tenant tenant-execution-roundtrip/cell-execution-roundtrip for write input:n5_input">schema_version = 'v4', view_profile_case = 'f'
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-and-selected-view-wave-7ef8/basetemp/test_candidate_simulation_exec4')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1470c0980&gt;
+
+    @pytest.mark.parametrize("schema_version", ["v3", "v4", "v5"])
+    @pytest.mark.parametrize("view_profile_case", ["a", "f"])
+    def test_candidate_simulation_execution_versions_roundtrip_selected_views(
+        schema_version,
+        view_profile_case,
+        tmp_path,
+        monkeypatch,
+    ):
+        """Selected-view replay joins a candidate profile to a persisted context owner.
+    
+        V4/V5 bind a typed candidate profile to the real context-job CAS owner.
+        The N5 input/source/result loaders remain unit-controlled stubs, so this
+        test does not claim complete N4/N5 producer capability.
+        """
+        from decimal import Decimal
+        from types import SimpleNamespace
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.ir.analytics.interventions import (
+            InterventionContext,
+            NodeIntervention,
+            QueryTarget,
+            VariableAssignment,
+            identification_plan_for_intervention,
+        )
+        from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+        from polisyos.ir.governance.schedule import ScheduleSpec
+        from polisyos.ir.governance.selector_expr import SelectorPredicate
+        from polisyos.ir.model_layer.types import SelectorOperator
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateScenarioN5Config,
+            CandidateScenarioSetToRule,
+            CandidateSimulationContextHandoff,
+            CandidateSimulationContextInputs,
+            CandidateSimulationExecutionV3,
+            CandidateSimulationExecutionV4,
+            CandidateSimulationExecutionV5,
+            CandidateSimulationN5InputV3,
+            CandidateSimulationN5InputV4,
+            CandidateSimulationN5InputV5,
+            CandidateSimulationScenarioProfile,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+            build_cycle_substrate_context,
+            cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
+        )
+        from polisyos.runtime.quality.design_problem import (
+            DESIGN_PROBLEM_V2_SCHEMA_VERSION,
+            DesignProblem,
+        )
+        from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+            N4CandidateScenarioSourceRecordV2,
+        )
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            InterventionAtomBinding,
+            build_intervention_atom_binding,
+            derive_candidate_scenario_atom,
+            intervention_atom_target_selector_ref,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+        from polisyos.runtime.quality.world_model_record import (
+            resolve_intervention_atom_world_binding,
+        )
+        from tests.unit.runtime.quality.test_cycle_substrate import (
+            _authenticated_tenant_scope,
+            _cycle_context,
+            _registry,
+            _TestCurrentJobExecutionOwner,
+            _world_record,
+        )
+        from tests.unit.runtime.quality.test_generation_cycle import _problem
+        from tests.unit.runtime.quality.test_intervention_atom_binding import _linked
+    
+        def ref(artifact_token, kind):
+            return ArtifactRef(
+                artifact_id="sha256:" + artifact_token * 64,
+                kind=kind,
+                media_type="application/json",
+                manifest_profile_sha256="sha256:" + view_profile_case * 64,
+            )
+    
+        job_id = f"job-{schema_version}-execution"
+        run_id = f"run-{schema_version}-execution"
+        tenant_id = "tenant-execution-roundtrip"
+        cell_id = "cell-execution-roundtrip"
+        n4_kind = (
+            "runtime.generation_source_handoff"
+            if schema_version == "v3"
+            else "runtime.quality.n4_candidate_scenario_source"
+        )
+        n4_ref = ref("2", n4_kind)
+        result_ref = ref("6", "polisyos.runtime.joint_simulation_result")
+    
+        input_types = {
+            "v3": CandidateSimulationN5InputV3,
+            "v4": CandidateSimulationN5InputV4,
+            "v5": CandidateSimulationN5InputV5,
+        }
+        execution_types = {
+            "v3": CandidateSimulationExecutionV3,
+            "v4": CandidateSimulationExecutionV4,
+            "v5": CandidateSimulationExecutionV5,
+        }
+    
+        context_hash = "sha256:" + "8" * 64
+        profile_hash = "sha256:" + "9" * 64
+        world_hash = "sha256:" + "b" * 64
+        input_ref = ref("1", "runtime.quality.candidate_simulation_n5_input")
+        context_ref = ref("3", "runtime.quality.cycle_substrate_context_job")
+        declaration_ref = ref(
+            "4", "runtime.quality.candidate_simulation_model_declaration"
+        )
+        ncm_ref = ref("5", "ir.ncm_spec")
+        materialization = SimpleNamespace(
+            context_hash=context_hash,
+            world_model_record_hash=world_hash,
+            derived_n5_atom=SimpleNamespace(
+                content_hash="sha256:" + "c" * 64,
+                intervention_id=f"n5-{schema_version}",
+            ),
+            problem_ref="sha256:" + "d" * 64,
+        )
+        profile = SimpleNamespace(
+            profile_id=f"profile-{schema_version}",
+            content_hash=profile_hash,
+        )
+        input_fields = {
+            "n4_source_ref": n4_ref,
+            "context_job_ref": context_ref,
+            "job_id": job_id,
+            "run_id": run_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "profile": profile,
+            "profile_config_ref": (
+                f"runtime-config:candidate-simulation/{profile.profile_id}@{profile.content_hash}"
+            ),
+            "materialization": materialization,
+            "original_candidate_id": f"candidate-{schema_version}",
+            "original_candidate_hash": "sha256:" + "e" * 64,
+            "original_n4_atom_hash": "sha256:" + "e" * 64,
+        }
+        if schema_version == "v5":
+            input_fields.update(
+                {
+                    "model_declaration_ref": declaration_ref,
+                    "ncm_ref": ncm_ref,
+                }
+            )
+        if schema_version == "v3":
+            input_record = input_types[schema_version].model_construct(**input_fields)
+            handoff = CandidateSimulationContextHandoff.model_construct(
+                context=SimpleNamespace(content_hash=context_hash),
+                context_job_ref=context_ref,
+                profile=profile,
+                profile_config_ref=input_record.profile_config_ref,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                model_declaration_ref=declaration_ref,
+                ncm_ref=ncm_ref,
+            )
+            simulation = SimulationPortObservation(
+                candidate_id=input_record.original_candidate_id,
+                status="joint_simulated",
+                simulation_ref="sha256:" + "f" * 64,
+                simulation_result_ref=result_ref,
+                k_world_ref_before=world_hash,
+                k_world_ref_after=world_hash,
+            )
+            repository = GenerationSourceRepository(
+                FileSystemCAS(tmp_path / f"execution-{schema_version}-cas")
+            )
+    
+        if schema_version in {"v4", "v5"}:
+            # Keep the generic policy problem, N2 action, and WMR slot set coherent.
+            # This typed atom is a unit input for selected-view replay only; the
+            # N4/N5 source and result records below remain controlled projections.
+            problem_payload = _problem(f"selected_view_{schema_version}").model_dump(
+                mode="json"
+            )
+            problem_payload["schema_version"] = DESIGN_PROBLEM_V2_SCHEMA_VERSION
+            problem_payload["candidate_lever_space"] = {
+                "allowed_operator_kinds": ["adaptive_agent"],
+                "candidate_levers": [
+                    {
+                        "lever_id": "adaptive_income",
+                        "operator_kind": "adaptive_agent",
+                        "instrument": "Adaptive income policy",
+                        "target_slot": "agents.income",
+                    }
+                ],
+            }
+            problem = DesignProblem.model_validate(problem_payload)
+            problem_ref = cycle_job_design_problem_ref(problem)
+            registry = _registry(problem.domain)
+            world = _world_record(
+                problem.domain,
+                registry,
+                region_or_jurisdiction=problem.jurisdiction_time.region,
+                policy_slot_ids=("agents.income", "firm_survival"),
+            )
+            source_context = _cycle_context(
+                domain=problem.domain,
+                lever_id="adaptive_income",
+                instrument="Adaptive income policy",
+                target_concept=problem.outcome_of_interest.target_variable,
+                registry=registry,
+                world_model_record=world,
+                design_problem_ref=problem_ref,
+            )
+            intervention = InterventionSpec(
+                intervention_id=f"selected_view_{schema_version}_adaptive_income",
+                kind="adaptive_agent",
+                target=SelectorPredicate(
+                    field="id",
+                    operator=SelectorOperator.EQUALS,
+                    value="all",
+                ),
+                schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                params={
+                    "learning_rate": Decimal("0.01"),
+                    "action_space": {"affects": ["agents.income"], "type": "continuous"},
+                    "observation_space": ["agents.income"],
+                    "utility": "improve_firm_survival",
+                    "stochastic": False,
+                },
+            )
+            policy_spec = PolicySpec(
+                policy_id=f"selected_view_{schema_version}_policy",
+                problem_frame_ref=problem_ref,
+                interventions=[intervention],
+            )
+            policy_spec_ref = gy_content_hash(policy_spec.model_dump(mode="json"))
+            causal_intervention = NodeIntervention(
+                assignments=(
+                    VariableAssignment(
+                        variable="agents.income",
+                        value_expr="adaptive_policy_action",
+                    ),
+                )
+            )
+            selector_ref = intervention_atom_target_selector_ref(intervention)
+            atom = build_intervention_atom_binding(
+                problem_frame_ref=problem_ref,
+                policy_spec_ref=policy_spec_ref,
+                intervention=intervention,
+                linked_intervention=_linked(intervention),
+                causal_intervention=causal_intervention,
+                query_target=QueryTarget(
+                    outcome_variables=(problem.outcome_of_interest.target_variable,),
+                    conditioning=(),
+                    functional=problem.outcome_of_interest.estimand,
+                ),
+                identification_plan=identification_plan_for_intervention(
+                    causal_intervention
+                ),
+                causal_context=InterventionContext(
+                    source_domain=problem.domain,
+                    target_domain=problem.domain,
+                    selection_diagram_ref=selector_ref,
+                    assumptions=("selected_view_unit_candidate_only",),
+                ),
+                world_model_record_ref=world.world_model_record_id,
+                producer_ref="tests.unit.runtime.quality.test_generation_source.selected_view",
+                provenance_refs=(problem_ref, policy_spec_ref, source_context.content_hash),
+                operator_proof_type_map={"adaptive_agent": "node"},
+                mechanism_variable_map={"adaptive_agent": ("agents.income",)},
+                estimand_metric_id=problem.outcome_of_interest.metric_id,
+                target_population=problem.jurisdiction_time.region,
+            )
+            assert type(atom) is InterventionAtomBinding
+            assert atom.target_world_slots == ("agents.income",)
+            assert resolve_intervention_atom_world_binding(atom, world).world_model_record_id == (
+                world.world_model_record_id
+            )
+            source_candidate = SimpleNamespace(
+                candidate_id="candidate_" + atom.content_hash.removeprefix("sha256:")[:16],
+                atom=atom,
+            )
+            target_world_slot = atom.target_world_slots[0]
+            outcome_variable = problem.outcome_of_interest.target_variable
+            parameter_id = "learning_rate"
+            assert parameter_id in atom.direct_effect_bundle.params
+            target_binding = source_context.world_model_record.slot_binding(target_world_slot)
+            unit_id = (
+                target_binding.unit
+                if target_binding and target_binding.unit
+                else "synthetic_score"
+            )
+    
+            store = FileSystemCAS(
+                tmp_path / f"execution-{schema_version}-cas",
+                ownership_enforced=True,
+                ownership_requires_scope=True,
+            )
+            repository = GenerationSourceRepository(store)
+    
+            def in_scope(operation, *args, **kwargs):
+                with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
+                    return operation(*args, **kwargs)
+    
+            def hashed_model(model_type, payload):
+                draft = model_type.model_construct(
+                    **payload,
+                    content_hash="sha256:" + "0" * 64,
+                )
+                return model_type.model_validate(
+                    {
+                        **payload,
+                        "content_hash": gy_content_hash(
+                            draft.model_dump(mode="json", exclude={"content_hash"})
+                        ),
+                    }
+                )
+    
+            context = build_cycle_substrate_context(
+                design_problem_ref=problem_ref,
+                domain=source_context.domain,
+                substrate_registry=source_context.substrate_registry,
+                selected_registry_entry_hashes=source_context.selected_registry_entry_hashes,
+                world_model_record=source_context.world_model_record,
+                intervention_substrate=source_context.intervention_substrate,
+                candidate_levers=source_context.candidate_levers,
+                transport_context=source_context.transport_context,
+                source_pack_content_hash=source_context.source_pack_content_hash,
+                substrate_input_content_hash=source_context.substrate_input_content_hash,
+            )
+            context_inputs = CandidateSimulationContextInputs(
+                substrate_registry=context.substrate_registry,
+                selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+                world_model_record=context.world_model_record,
+                intervention_substrate=context.intervention_substrate,
+                candidate_levers=context.candidate_levers,
+                transport_context=context.transport_context,
+                source_pack_content_hash=context.source_pack_content_hash,
+                substrate_input_content_hash=context.substrate_input_content_hash,
+            )
+            rule = CandidateScenarioSetToRule(
+                operator_kind=atom.operator_kind.trinity_kind,
+                parameter_id=parameter_id,
+                target_world_slot=target_world_slot,
+                unit_id=unit_id,
+                minimum=0,
+                maximum=1,
+            )
+            n5 = CandidateScenarioN5Config(
+                budget_ref=f"budget://selected-view/{schema_version}",
+                horizon=HorizonSpec(start=0, end=0, step=1),
+                baseline_state={target_world_slot: 0.0, outcome_variable: 0.0},
+                seed=7,
+                replications=2,
+            )
+            profile = hashed_model(
+                CandidateSimulationScenarioProfile,
+                {
+                    "profile_id": f"profile-{schema_version}",
+                    "profile_selection_ref": cycle_job_profile_selection_ref(problem),
+                    "context_inputs": context_inputs,
+                    "rule": rule,
+                    "n5": n5,
+                    "limitations": (
+                        "scenario_only",
+                        "real_profile_not_established",
+                        "real_time_not_established",
+                        "grounding_not_established",
+                        "s8_blocked",
+                        "n9_not_admitted",
+                    ),
+                },
+            )
+            profile_config_ref = candidate_simulation_profile_ref(profile)
+            owner = CycleSubstrateContextArtifactOwner(
+                store=store,
+                control_store=_TestCurrentJobExecutionOwner(job_id, run_id),
+            )
+            context_ref = in_scope(
+                owner.persist_for_current_job,
+                context,
+                problem=problem,
+            )
+            context_job = in_scope(
+                owner.resolve_historical_job_artifact,
+                context_ref,
+                problem=problem,
+                expected_job_id=job_id,
+                expected_run_id=run_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+            )
+            assert (
+                context_job.job_id,
+                context_job.run_id,
+                context_job.tenant_id,
+                context_job.cell_id,
+                context_job.design_problem_ref,
+            ) == (job_id, run_id, tenant_id, cell_id, problem_ref)
+            assert context_job.problem == problem
+            assert context_job.context.content_hash == context.content_hash
+            assert (
+                context_job.context.world_model_record.world_model_record_id
+                == profile.context_inputs.world_model_record.world_model_record_id
+            )
+            assert (
+                context_job.context.world_model_record.content_hash
+                == profile.context_inputs.world_model_record.content_hash
+            )
+            declaration_ref = ref("4", "runtime.quality.candidate_simulation_model_declaration")
+            # The two cases keep the same NCM bytes/ArtifactID and vary only the
+            # selected manifest-profile hash, which this unit test preserves.
+            ncm_ref = ref("5", "ir.ncm_spec")
+            other_view_suffix = "f" if view_profile_case == "a" else "a"
+            other_ncm_ref = ArtifactRef(
+                artifact_id=ncm_ref.artifact_id,
+                kind=ncm_ref.kind,
+                media_type=ncm_ref.media_type,
+                manifest_profile_sha256="sha256:" + other_view_suffix * 64,
+            )
+            assert other_ncm_ref.artifact_id == ncm_ref.artifact_id
+            assert other_ncm_ref.manifest_profile_sha256 != ncm_ref.manifest_profile_sha256
+    
+            context_hash = context_job.context.content_hash
+            world_hash = context_job.context.world_model_record.content_hash
+            profile_hash = profile.content_hash
+            candidate_id = source_candidate.candidate_id
+            materialization = SimpleNamespace(
+                profile_hash=profile_hash,
+                problem_ref=problem_ref,
+                context_hash=context_hash,
+                context_job_ref=context_ref,
+                world_model_record_hash=world_hash,
+                n4_source_ref=n4_ref,
+                candidate_id=candidate_id,
+                original_candidate_hash=atom.content_hash,
+                original_atom_hash=atom.content_hash,
+                derived_n5_atom=derive_candidate_scenario_atom(
+                    atom,
+                    target_world_slot=target_world_slot,
+                    value=rule.maximum,
+                ),
+            )
+            input_fields = {
+                "profile": profile,
+                "profile_config_ref": profile_config_ref,
+                "n4_source_ref": n4_ref,
+                "context_job_ref": context_ref,
+                "job_id": job_id,
+                "run_id": run_id,
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+                "original_candidate_id": candidate_id,
+                "original_candidate_hash": atom.content_hash,
+                "original_n4_atom_hash": atom.content_hash,
+                "outcome_variable": outcome_variable,
+                "materialization": materialization,
+                "n5": profile.n5,
+            }
+            if schema_version == "v5":
+                input_fields.update(
+                    {
+                        "model_declaration_ref": declaration_ref,
+                        "ncm_ref": ncm_ref,
+                    }
+                )
+            # The N5 input loader is intentionally a unit stub below. Keep its
+            # returned object typed while making the persisted context owner the
+            # only authority-backed artifact in this fixture.
+            input_record = input_types[schema_version].model_construct(**input_fields)
+            handoff_fields = {
+                "context": context_job.context,
+                "context_job_ref": context_ref,
+                "profile": profile,
+                "profile_config_ref": profile_config_ref,
+                "job_id": job_id,
+                "run_id": run_id,
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+            }
+            if schema_version == "v5":
+                handoff_fields.update(
+                    {
+                        "model_declaration_ref": declaration_ref,
+                        "ncm_ref": ncm_ref,
+                    }
+                )
+            handoff = (
+                CandidateSimulationContextHandoff.model_construct(**handoff_fields)
+                if schema_version == "v5"
+                else CandidateSimulationContextHandoff(**handoff_fields)
+            )
+            source_v1 = SimpleNamespace(
+                context_job_ref=context_ref,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                context_hash=context_hash,
+                world_model_record_hash=world_hash,
+                cycle_problem_ref=problem_ref,
+                problem=problem,
+                profile=profile,
+                profile_config_ref=profile_config_ref,
+                candidate=source_candidate,
+                world_model_record_id=context_job.context.world_model_record.world_model_record_id,
+            )
+            if schema_version == "v5":
+                source_v2 = N4CandidateScenarioSourceRecordV2.model_construct(
+                    source_record=source_v1,
+                    model_declaration_ref=declaration_ref,
+                    ncm_ref=ncm_ref,
+                    world_model_record_id=context_job.context.world_model_record.world_model_record_id,
+                )
+            simulation = SimulationPortObservation(
+                candidate_id=input_record.original_candidate_id,
+                status="joint_simulated",
+                simulation_ref="sha256:" + "f" * 64,
+                simulation_result_ref=result_ref,
+                k_world_ref_before=world_hash,
+                k_world_ref_after=world_hash,
+            )
+    
+        def load_input(selected_ref):
+            if schema_version != "v3":
+                assert selected_ref == input_ref
+                assert (
+                    input_record.context_job_ref,
+                    input_record.job_id,
+                    input_record.run_id,
+                    input_record.tenant_id,
+                    input_record.cell_id,
+                    input_record.materialization.world_model_record_hash,
+                ) == (
+                    context_ref,
+                    job_id,
+                    run_id,
+                    tenant_id,
+                    cell_id,
+                    world_hash,
+                )
+            return input_record
+    
+        monkeypatch.setattr(
+            repository,
+            f"_load_candidate_simulation_input_{schema_version}",
+            load_input,
+        )
+    
+&gt;       execution_ref = in_scope(
+            getattr(
+                repository,
+                f"persist_candidate_simulation_execution_{schema_version}",
+            ),
+            input_ref=input_ref,
+            simulation=simulation,
+            handoff=handoff,
+        ) if schema_version != "v3" else getattr(
+            repository, f"persist_candidate_simulation_execution_{schema_version}"
+        )(
+            input_ref=input_ref,
+            simulation=simulation,
+            handoff=handoff,
+        )
+
+tests/unit/runtime/quality/test_generation_source.py:2732: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_generation_source.py:2485: in in_scope
+    return operation(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/generation_source.py:2269: in persist_candidate_simulation_execution_v4
+    return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:973: in _require_blob_owner
+    self._ownership_index.require_blob_reader(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.ownership.ArtifactOwnershipIndex object at 0x14734a210&gt;
+artifact_id = ArtifactID(root='sha256:1111111111111111111111111111111111111111111111111111111111111111')
+
+    def require_blob_reader(
+        self,
+        artifact_id: ArtifactID | str,
+        *,
+        tenant_id: str,
+        cell_id: str | None = None,
+        operation: str = "read",
+    ) -&gt; None:
+        """Fail closed unless the tenant may read this blob's payload bytes."""
+        aid = _coerce_artifact_id(artifact_id)
+        if self.is_blob_readable_by(aid, tenant_id=tenant_id, cell_id=cell_id):
+            return
+        normalized_tenant = _normal_tenant_id(tenant_id)
+        normalized_cell = _normal_cell_id(cell_id)
+&gt;       raise ArtifactOwnershipError(
+            f"Artifact {aid} payload is not readable by tenant "
+            f"{_owner_label(normalized_tenant, normalized_cell)} for {operation}"
+        )
+E       polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:1111111111111111111111111111111111111111111111111111111111111111 payload is not readable by tenant tenant-execution-roundtrip/cell-execution-roundtrip for write input:n5_input
+
+src/polisyos/core/artifacts/ownership.py:1172: ArtifactOwnershipError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v5]" time="0.027"><failure message="polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:1111111111111111111111111111111111111111111111111111111111111111 payload is not readable by tenant tenant-execution-roundtrip/cell-execution-roundtrip for write input:n5_input">schema_version = 'v5', view_profile_case = 'f'
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/http-and-selected-view-wave-7ef8/basetemp/test_candidate_simulation_exec5')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x14631e2e0&gt;
+
+    @pytest.mark.parametrize("schema_version", ["v3", "v4", "v5"])
+    @pytest.mark.parametrize("view_profile_case", ["a", "f"])
+    def test_candidate_simulation_execution_versions_roundtrip_selected_views(
+        schema_version,
+        view_profile_case,
+        tmp_path,
+        monkeypatch,
+    ):
+        """Selected-view replay joins a candidate profile to a persisted context owner.
+    
+        V4/V5 bind a typed candidate profile to the real context-job CAS owner.
+        The N5 input/source/result loaders remain unit-controlled stubs, so this
+        test does not claim complete N4/N5 producer capability.
+        """
+        from decimal import Decimal
+        from types import SimpleNamespace
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef
+        from polisyos.ir.analytics.interventions import (
+            InterventionContext,
+            NodeIntervention,
+            QueryTarget,
+            VariableAssignment,
+            identification_plan_for_intervention,
+        )
+        from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+        from polisyos.ir.governance.schedule import ScheduleSpec
+        from polisyos.ir.governance.selector_expr import SelectorPredicate
+        from polisyos.ir.model_layer.types import SelectorOperator
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateScenarioN5Config,
+            CandidateScenarioSetToRule,
+            CandidateSimulationContextHandoff,
+            CandidateSimulationContextInputs,
+            CandidateSimulationExecutionV3,
+            CandidateSimulationExecutionV4,
+            CandidateSimulationExecutionV5,
+            CandidateSimulationN5InputV3,
+            CandidateSimulationN5InputV4,
+            CandidateSimulationN5InputV5,
+            CandidateSimulationScenarioProfile,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+            build_cycle_substrate_context,
+            cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
+        )
+        from polisyos.runtime.quality.design_problem import (
+            DESIGN_PROBLEM_V2_SCHEMA_VERSION,
+            DesignProblem,
+        )
+        from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+            N4CandidateScenarioSourceRecordV2,
+        )
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            InterventionAtomBinding,
+            build_intervention_atom_binding,
+            derive_candidate_scenario_atom,
+            intervention_atom_target_selector_ref,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+        from polisyos.runtime.quality.world_model_record import (
+            resolve_intervention_atom_world_binding,
+        )
+        from tests.unit.runtime.quality.test_cycle_substrate import (
+            _authenticated_tenant_scope,
+            _cycle_context,
+            _registry,
+            _TestCurrentJobExecutionOwner,
+            _world_record,
+        )
+        from tests.unit.runtime.quality.test_generation_cycle import _problem
+        from tests.unit.runtime.quality.test_intervention_atom_binding import _linked
+    
+        def ref(artifact_token, kind):
+            return ArtifactRef(
+                artifact_id="sha256:" + artifact_token * 64,
+                kind=kind,
+                media_type="application/json",
+                manifest_profile_sha256="sha256:" + view_profile_case * 64,
+            )
+    
+        job_id = f"job-{schema_version}-execution"
+        run_id = f"run-{schema_version}-execution"
+        tenant_id = "tenant-execution-roundtrip"
+        cell_id = "cell-execution-roundtrip"
+        n4_kind = (
+            "runtime.generation_source_handoff"
+            if schema_version == "v3"
+            else "runtime.quality.n4_candidate_scenario_source"
+        )
+        n4_ref = ref("2", n4_kind)
+        result_ref = ref("6", "polisyos.runtime.joint_simulation_result")
+    
+        input_types = {
+            "v3": CandidateSimulationN5InputV3,
+            "v4": CandidateSimulationN5InputV4,
+            "v5": CandidateSimulationN5InputV5,
+        }
+        execution_types = {
+            "v3": CandidateSimulationExecutionV3,
+            "v4": CandidateSimulationExecutionV4,
+            "v5": CandidateSimulationExecutionV5,
+        }
+    
+        context_hash = "sha256:" + "8" * 64
+        profile_hash = "sha256:" + "9" * 64
+        world_hash = "sha256:" + "b" * 64
+        input_ref = ref("1", "runtime.quality.candidate_simulation_n5_input")
+        context_ref = ref("3", "runtime.quality.cycle_substrate_context_job")
+        declaration_ref = ref(
+            "4", "runtime.quality.candidate_simulation_model_declaration"
+        )
+        ncm_ref = ref("5", "ir.ncm_spec")
+        materialization = SimpleNamespace(
+            context_hash=context_hash,
+            world_model_record_hash=world_hash,
+            derived_n5_atom=SimpleNamespace(
+                content_hash="sha256:" + "c" * 64,
+                intervention_id=f"n5-{schema_version}",
+            ),
+            problem_ref="sha256:" + "d" * 64,
+        )
+        profile = SimpleNamespace(
+            profile_id=f"profile-{schema_version}",
+            content_hash=profile_hash,
+        )
+        input_fields = {
+            "n4_source_ref": n4_ref,
+            "context_job_ref": context_ref,
+            "job_id": job_id,
+            "run_id": run_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "profile": profile,
+            "profile_config_ref": (
+                f"runtime-config:candidate-simulation/{profile.profile_id}@{profile.content_hash}"
+            ),
+            "materialization": materialization,
+            "original_candidate_id": f"candidate-{schema_version}",
+            "original_candidate_hash": "sha256:" + "e" * 64,
+            "original_n4_atom_hash": "sha256:" + "e" * 64,
+        }
+        if schema_version == "v5":
+            input_fields.update(
+                {
+                    "model_declaration_ref": declaration_ref,
+                    "ncm_ref": ncm_ref,
+                }
+            )
+        if schema_version == "v3":
+            input_record = input_types[schema_version].model_construct(**input_fields)
+            handoff = CandidateSimulationContextHandoff.model_construct(
+                context=SimpleNamespace(content_hash=context_hash),
+                context_job_ref=context_ref,
+                profile=profile,
+                profile_config_ref=input_record.profile_config_ref,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                model_declaration_ref=declaration_ref,
+                ncm_ref=ncm_ref,
+            )
+            simulation = SimulationPortObservation(
+                candidate_id=input_record.original_candidate_id,
+                status="joint_simulated",
+                simulation_ref="sha256:" + "f" * 64,
+                simulation_result_ref=result_ref,
+                k_world_ref_before=world_hash,
+                k_world_ref_after=world_hash,
+            )
+            repository = GenerationSourceRepository(
+                FileSystemCAS(tmp_path / f"execution-{schema_version}-cas")
+            )
+    
+        if schema_version in {"v4", "v5"}:
+            # Keep the generic policy problem, N2 action, and WMR slot set coherent.
+            # This typed atom is a unit input for selected-view replay only; the
+            # N4/N5 source and result records below remain controlled projections.
+            problem_payload = _problem(f"selected_view_{schema_version}").model_dump(
+                mode="json"
+            )
+            problem_payload["schema_version"] = DESIGN_PROBLEM_V2_SCHEMA_VERSION
+            problem_payload["candidate_lever_space"] = {
+                "allowed_operator_kinds": ["adaptive_agent"],
+                "candidate_levers": [
+                    {
+                        "lever_id": "adaptive_income",
+                        "operator_kind": "adaptive_agent",
+                        "instrument": "Adaptive income policy",
+                        "target_slot": "agents.income",
+                    }
+                ],
+            }
+            problem = DesignProblem.model_validate(problem_payload)
+            problem_ref = cycle_job_design_problem_ref(problem)
+            registry = _registry(problem.domain)
+            world = _world_record(
+                problem.domain,
+                registry,
+                region_or_jurisdiction=problem.jurisdiction_time.region,
+                policy_slot_ids=("agents.income", "firm_survival"),
+            )
+            source_context = _cycle_context(
+                domain=problem.domain,
+                lever_id="adaptive_income",
+                instrument="Adaptive income policy",
+                target_concept=problem.outcome_of_interest.target_variable,
+                registry=registry,
+                world_model_record=world,
+                design_problem_ref=problem_ref,
+            )
+            intervention = InterventionSpec(
+                intervention_id=f"selected_view_{schema_version}_adaptive_income",
+                kind="adaptive_agent",
+                target=SelectorPredicate(
+                    field="id",
+                    operator=SelectorOperator.EQUALS,
+                    value="all",
+                ),
+                schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                params={
+                    "learning_rate": Decimal("0.01"),
+                    "action_space": {"affects": ["agents.income"], "type": "continuous"},
+                    "observation_space": ["agents.income"],
+                    "utility": "improve_firm_survival",
+                    "stochastic": False,
+                },
+            )
+            policy_spec = PolicySpec(
+                policy_id=f"selected_view_{schema_version}_policy",
+                problem_frame_ref=problem_ref,
+                interventions=[intervention],
+            )
+            policy_spec_ref = gy_content_hash(policy_spec.model_dump(mode="json"))
+            causal_intervention = NodeIntervention(
+                assignments=(
+                    VariableAssignment(
+                        variable="agents.income",
+                        value_expr="adaptive_policy_action",
+                    ),
+                )
+            )
+            selector_ref = intervention_atom_target_selector_ref(intervention)
+            atom = build_intervention_atom_binding(
+                problem_frame_ref=problem_ref,
+                policy_spec_ref=policy_spec_ref,
+                intervention=intervention,
+                linked_intervention=_linked(intervention),
+                causal_intervention=causal_intervention,
+                query_target=QueryTarget(
+                    outcome_variables=(problem.outcome_of_interest.target_variable,),
+                    conditioning=(),
+                    functional=problem.outcome_of_interest.estimand,
+                ),
+                identification_plan=identification_plan_for_intervention(
+                    causal_intervention
+                ),
+                causal_context=InterventionContext(
+                    source_domain=problem.domain,
+                    target_domain=problem.domain,
+                    selection_diagram_ref=selector_ref,
+                    assumptions=("selected_view_unit_candidate_only",),
+                ),
+                world_model_record_ref=world.world_model_record_id,
+                producer_ref="tests.unit.runtime.quality.test_generation_source.selected_view",
+                provenance_refs=(problem_ref, policy_spec_ref, source_context.content_hash),
+                operator_proof_type_map={"adaptive_agent": "node"},
+                mechanism_variable_map={"adaptive_agent": ("agents.income",)},
+                estimand_metric_id=problem.outcome_of_interest.metric_id,
+                target_population=problem.jurisdiction_time.region,
+            )
+            assert type(atom) is InterventionAtomBinding
+            assert atom.target_world_slots == ("agents.income",)
+            assert resolve_intervention_atom_world_binding(atom, world).world_model_record_id == (
+                world.world_model_record_id
+            )
+            source_candidate = SimpleNamespace(
+                candidate_id="candidate_" + atom.content_hash.removeprefix("sha256:")[:16],
+                atom=atom,
+            )
+            target_world_slot = atom.target_world_slots[0]
+            outcome_variable = problem.outcome_of_interest.target_variable
+            parameter_id = "learning_rate"
+            assert parameter_id in atom.direct_effect_bundle.params
+            target_binding = source_context.world_model_record.slot_binding(target_world_slot)
+            unit_id = (
+                target_binding.unit
+                if target_binding and target_binding.unit
+                else "synthetic_score"
+            )
+    
+            store = FileSystemCAS(
+                tmp_path / f"execution-{schema_version}-cas",
+                ownership_enforced=True,
+                ownership_requires_scope=True,
+            )
+            repository = GenerationSourceRepository(store)
+    
+            def in_scope(operation, *args, **kwargs):
+                with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
+                    return operation(*args, **kwargs)
+    
+            def hashed_model(model_type, payload):
+                draft = model_type.model_construct(
+                    **payload,
+                    content_hash="sha256:" + "0" * 64,
+                )
+                return model_type.model_validate(
+                    {
+                        **payload,
+                        "content_hash": gy_content_hash(
+                            draft.model_dump(mode="json", exclude={"content_hash"})
+                        ),
+                    }
+                )
+    
+            context = build_cycle_substrate_context(
+                design_problem_ref=problem_ref,
+                domain=source_context.domain,
+                substrate_registry=source_context.substrate_registry,
+                selected_registry_entry_hashes=source_context.selected_registry_entry_hashes,
+                world_model_record=source_context.world_model_record,
+                intervention_substrate=source_context.intervention_substrate,
+                candidate_levers=source_context.candidate_levers,
+                transport_context=source_context.transport_context,
+                source_pack_content_hash=source_context.source_pack_content_hash,
+                substrate_input_content_hash=source_context.substrate_input_content_hash,
+            )
+            context_inputs = CandidateSimulationContextInputs(
+                substrate_registry=context.substrate_registry,
+                selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+                world_model_record=context.world_model_record,
+                intervention_substrate=context.intervention_substrate,
+                candidate_levers=context.candidate_levers,
+                transport_context=context.transport_context,
+                source_pack_content_hash=context.source_pack_content_hash,
+                substrate_input_content_hash=context.substrate_input_content_hash,
+            )
+            rule = CandidateScenarioSetToRule(
+                operator_kind=atom.operator_kind.trinity_kind,
+                parameter_id=parameter_id,
+                target_world_slot=target_world_slot,
+                unit_id=unit_id,
+                minimum=0,
+                maximum=1,
+            )
+            n5 = CandidateScenarioN5Config(
+                budget_ref=f"budget://selected-view/{schema_version}",
+                horizon=HorizonSpec(start=0, end=0, step=1),
+                baseline_state={target_world_slot: 0.0, outcome_variable: 0.0},
+                seed=7,
+                replications=2,
+            )
+            profile = hashed_model(
+                CandidateSimulationScenarioProfile,
+                {
+                    "profile_id": f"profile-{schema_version}",
+                    "profile_selection_ref": cycle_job_profile_selection_ref(problem),
+                    "context_inputs": context_inputs,
+                    "rule": rule,
+                    "n5": n5,
+                    "limitations": (
+                        "scenario_only",
+                        "real_profile_not_established",
+                        "real_time_not_established",
+                        "grounding_not_established",
+                        "s8_blocked",
+                        "n9_not_admitted",
+                    ),
+                },
+            )
+            profile_config_ref = candidate_simulation_profile_ref(profile)
+            owner = CycleSubstrateContextArtifactOwner(
+                store=store,
+                control_store=_TestCurrentJobExecutionOwner(job_id, run_id),
+            )
+            context_ref = in_scope(
+                owner.persist_for_current_job,
+                context,
+                problem=problem,
+            )
+            context_job = in_scope(
+                owner.resolve_historical_job_artifact,
+                context_ref,
+                problem=problem,
+                expected_job_id=job_id,
+                expected_run_id=run_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+            )
+            assert (
+                context_job.job_id,
+                context_job.run_id,
+                context_job.tenant_id,
+                context_job.cell_id,
+                context_job.design_problem_ref,
+            ) == (job_id, run_id, tenant_id, cell_id, problem_ref)
+            assert context_job.problem == problem
+            assert context_job.context.content_hash == context.content_hash
+            assert (
+                context_job.context.world_model_record.world_model_record_id
+                == profile.context_inputs.world_model_record.world_model_record_id
+            )
+            assert (
+                context_job.context.world_model_record.content_hash
+                == profile.context_inputs.world_model_record.content_hash
+            )
+            declaration_ref = ref("4", "runtime.quality.candidate_simulation_model_declaration")
+            # The two cases keep the same NCM bytes/ArtifactID and vary only the
+            # selected manifest-profile hash, which this unit test preserves.
+            ncm_ref = ref("5", "ir.ncm_spec")
+            other_view_suffix = "f" if view_profile_case == "a" else "a"
+            other_ncm_ref = ArtifactRef(
+                artifact_id=ncm_ref.artifact_id,
+                kind=ncm_ref.kind,
+                media_type=ncm_ref.media_type,
+                manifest_profile_sha256="sha256:" + other_view_suffix * 64,
+            )
+            assert other_ncm_ref.artifact_id == ncm_ref.artifact_id
+            assert other_ncm_ref.manifest_profile_sha256 != ncm_ref.manifest_profile_sha256
+    
+            context_hash = context_job.context.content_hash
+            world_hash = context_job.context.world_model_record.content_hash
+            profile_hash = profile.content_hash
+            candidate_id = source_candidate.candidate_id
+            materialization = SimpleNamespace(
+                profile_hash=profile_hash,
+                problem_ref=problem_ref,
+                context_hash=context_hash,
+                context_job_ref=context_ref,
+                world_model_record_hash=world_hash,
+                n4_source_ref=n4_ref,
+                candidate_id=candidate_id,
+                original_candidate_hash=atom.content_hash,
+                original_atom_hash=atom.content_hash,
+                derived_n5_atom=derive_candidate_scenario_atom(
+                    atom,
+                    target_world_slot=target_world_slot,
+                    value=rule.maximum,
+                ),
+            )
+            input_fields = {
+                "profile": profile,
+                "profile_config_ref": profile_config_ref,
+                "n4_source_ref": n4_ref,
+                "context_job_ref": context_ref,
+                "job_id": job_id,
+                "run_id": run_id,
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+                "original_candidate_id": candidate_id,
+                "original_candidate_hash": atom.content_hash,
+                "original_n4_atom_hash": atom.content_hash,
+                "outcome_variable": outcome_variable,
+                "materialization": materialization,
+                "n5": profile.n5,
+            }
+            if schema_version == "v5":
+                input_fields.update(
+                    {
+                        "model_declaration_ref": declaration_ref,
+                        "ncm_ref": ncm_ref,
+                    }
+                )
+            # The N5 input loader is intentionally a unit stub below. Keep its
+            # returned object typed while making the persisted context owner the
+            # only authority-backed artifact in this fixture.
+            input_record = input_types[schema_version].model_construct(**input_fields)
+            handoff_fields = {
+                "context": context_job.context,
+                "context_job_ref": context_ref,
+                "profile": profile,
+                "profile_config_ref": profile_config_ref,
+                "job_id": job_id,
+                "run_id": run_id,
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+            }
+            if schema_version == "v5":
+                handoff_fields.update(
+                    {
+                        "model_declaration_ref": declaration_ref,
+                        "ncm_ref": ncm_ref,
+                    }
+                )
+            handoff = (
+                CandidateSimulationContextHandoff.model_construct(**handoff_fields)
+                if schema_version == "v5"
+                else CandidateSimulationContextHandoff(**handoff_fields)
+            )
+            source_v1 = SimpleNamespace(
+                context_job_ref=context_ref,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                context_hash=context_hash,
+                world_model_record_hash=world_hash,
+                cycle_problem_ref=problem_ref,
+                problem=problem,
+                profile=profile,
+                profile_config_ref=profile_config_ref,
+                candidate=source_candidate,
+                world_model_record_id=context_job.context.world_model_record.world_model_record_id,
+            )
+            if schema_version == "v5":
+                source_v2 = N4CandidateScenarioSourceRecordV2.model_construct(
+                    source_record=source_v1,
+                    model_declaration_ref=declaration_ref,
+                    ncm_ref=ncm_ref,
+                    world_model_record_id=context_job.context.world_model_record.world_model_record_id,
+                )
+            simulation = SimulationPortObservation(
+                candidate_id=input_record.original_candidate_id,
+                status="joint_simulated",
+                simulation_ref="sha256:" + "f" * 64,
+                simulation_result_ref=result_ref,
+                k_world_ref_before=world_hash,
+                k_world_ref_after=world_hash,
+            )
+    
+        def load_input(selected_ref):
+            if schema_version != "v3":
+                assert selected_ref == input_ref
+                assert (
+                    input_record.context_job_ref,
+                    input_record.job_id,
+                    input_record.run_id,
+                    input_record.tenant_id,
+                    input_record.cell_id,
+                    input_record.materialization.world_model_record_hash,
+                ) == (
+                    context_ref,
+                    job_id,
+                    run_id,
+                    tenant_id,
+                    cell_id,
+                    world_hash,
+                )
+            return input_record
+    
+        monkeypatch.setattr(
+            repository,
+            f"_load_candidate_simulation_input_{schema_version}",
+            load_input,
+        )
+    
+&gt;       execution_ref = in_scope(
+            getattr(
+                repository,
+                f"persist_candidate_simulation_execution_{schema_version}",
+            ),
+            input_ref=input_ref,
+            simulation=simulation,
+            handoff=handoff,
+        ) if schema_version != "v3" else getattr(
+            repository, f"persist_candidate_simulation_execution_{schema_version}"
+        )(
+            input_ref=input_ref,
+            simulation=simulation,
+            handoff=handoff,
+        )
+
+tests/unit/runtime/quality/test_generation_source.py:2732: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_generation_source.py:2485: in in_scope
+    return operation(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/generation_source.py:2374: in persist_candidate_simulation_execution_v5
+    return self.store.put_bytes(canon.to_canonical_bytes(record, _SOURCE_CANON), options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:2382: in put_bytes
+    self._require_input_owners(opts)
+src/polisyos/core/artifacts/store.py:1122: in _require_input_owners
+    self._require_blob_owner(
+src/polisyos/core/artifacts/store.py:973: in _require_blob_owner
+    self._ownership_index.require_blob_reader(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.ownership.ArtifactOwnershipIndex object at 0x14734aad0&gt;
+artifact_id = ArtifactID(root='sha256:1111111111111111111111111111111111111111111111111111111111111111')
+
+    def require_blob_reader(
+        self,
+        artifact_id: ArtifactID | str,
+        *,
+        tenant_id: str,
+        cell_id: str | None = None,
+        operation: str = "read",
+    ) -&gt; None:
+        """Fail closed unless the tenant may read this blob's payload bytes."""
+        aid = _coerce_artifact_id(artifact_id)
+        if self.is_blob_readable_by(aid, tenant_id=tenant_id, cell_id=cell_id):
+            return
+        normalized_tenant = _normal_tenant_id(tenant_id)
+        normalized_cell = _normal_cell_id(cell_id)
+&gt;       raise ArtifactOwnershipError(
+            f"Artifact {aid} payload is not readable by tenant "
+            f"{_owner_label(normalized_tenant, normalized_cell)} for {operation}"
+        )
+E       polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:1111111111111111111111111111111111111111111111111111111111111111 payload is not readable by tenant tenant-execution-roundtrip/cell-execution-roundtrip for write input:n5_input
+
+src/polisyos/core/artifacts/ownership.py:1172: ArtifactOwnershipError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_generation_source" name="test_synthetic_cg2_contract_mechanism_remains_non_promotable" time="0.137" /></testsuite></testsuites>

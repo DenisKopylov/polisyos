@@ -1,0 +1,68 @@
+{
+  "command_argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+    "-u",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "-vv",
+    "--durations=0",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-5642/basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/selected-view-wave-5642/junit.xml",
+    "tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+  "candidate_sha": "5642b366a023a74df3c4d33206272c1462f49351",
+  "candidate_tree_sha": "e5474654e9d201f1c8629ba42ffe43e660b84568",
+  "status_before": "## codex/e02-A-n5-verify-current",
+  "input_paths": {
+    "src/polisyos/runtime/quality/generation_cycle.py": {
+      "sha256": "60e869db7967a8a66a46b1abb92f0fbdeb786e37f72427d854c6c0b9ab3db46f",
+      "git_blob": "9d152183179bf98e5d0f70aa3669cf7ca4f6e191"
+    },
+    "src/polisyos/runtime/quality/joint_simulation_horizon.py": {
+      "sha256": "f45db503361176a1bd8313b4835f93172e904d739e0430341f5cde88fa8ac9a9",
+      "git_blob": "db398c4c857680c7c78464abc0828488543e5c2b"
+    },
+    "src/polisyos/core/contracts/runtime.py": {
+      "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+      "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+    },
+    "src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+      "sha256": "96a5c9a4b4777694b8583d0d929a63ed03c28965a50fb1ff12e0702d4882e7eb",
+      "git_blob": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e"
+    },
+    "tests/unit/runtime/quality/test_generation_source.py": {
+      "sha256": "23fb0e1dfe5250abbdacf8b41b611ea5c430fdd22f39c51aa2cc0fe37e6584f9",
+      "git_blob": "8d4a1dae9a6563e125f0566bbb48ebaa82861a8c"
+    }
+  },
+  "interpreter_literal": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+  "interpreter_prefix": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv",
+  "interpreter_target_identity_only": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+  "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "packages": {
+    "pytest": "9.0.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "pydantic": "2.12.5"
+  },
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+    "JAX_PLATFORMS": "cpu",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "timeout_seconds": 300,
+  "timeout_basis": "Prior related 19-case wave 82.35s; new cubic witness 28.82s.",
+  "exit_code": 0,
+  "wall_seconds": 18.986608249950223,
+  "status_after": "## codex/e02-A-n5-verify-current"
+}

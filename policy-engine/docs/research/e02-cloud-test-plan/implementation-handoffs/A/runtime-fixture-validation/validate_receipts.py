@@ -20,7 +20,7 @@ A_HANDOFF = REPO / "policy-engine/docs/research/e02-cloud-test-plan/implementati
 REPORT_PATH = A_HANDOFF / "runtime-fixture-validation.json"
 MANIFEST_PATH = A_HANDOFF / "runtime-fixture-validation/source-hashes.json"
 SUMMARY = re.compile(
-    r"(?P<failed>\d+) failed,\s*(?P<passed>\d+) passed"
+    r"(?:(?P<failed>\d+) failed,\s*)?(?P<passed>\d+) passed"
     r"(?:,\s*\d+ warnings?)?(?:,\s*(?P<errors>\d+) errors?)?"
 )
 
@@ -116,7 +116,7 @@ def main() -> int:
         match = summaries[-1]
         stdout_totals = {
             "passed": int(match.group("passed")),
-            "failed": int(match.group("failed")),
+            "failed": int(match.group("failed") or 0),
             "error": int(match.group("errors") or 0),
         }
         expected_totals = {

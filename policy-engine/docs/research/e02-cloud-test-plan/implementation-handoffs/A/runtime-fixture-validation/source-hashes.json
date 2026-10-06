@@ -3,8 +3,8 @@
   "unit": "A",
   "slice": "runtime-fixture-validation",
   "fixture_base_sha": "b5e1f973ed9bce3e8dbb53321fb386156ef5d01c",
-  "candidate_sha": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
-  "candidate_tree_sha": "fe5b13795ecd9f2bff0d4c9d3ad189682d94d366",
+  "candidate_sha": "5642b366a023a74df3c4d33206272c1462f49351",
+  "candidate_tree_sha": "e5474654e9d201f1c8629ba42ffe43e660b84568",
   "fixture_implementation_commits": [
     {
       "sha": "09ebd740e57c52a8f0801b04d3e81634b67307b8",
@@ -83,6 +83,48 @@
           "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py"
         }
       ]
+    },
+    {
+      "sha": "b1f80bc6bbe171476593b16c58a88b9f61c8c6b2",
+      "tree_sha": "45fef5a74bd791300cf6c614c480bdca44ca57d9",
+      "parent_shas": [
+        "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c"
+      ],
+      "subject": "test(runtime): preserve owner scope across direct service restart and recovery",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py"
+        }
+      ]
+    },
+    {
+      "sha": "7ef8b1cf58d392b0e2685cd1cae84349a934c154",
+      "tree_sha": "11300b27e6af5740731fbe44173a557f49483c13",
+      "parent_shas": [
+        "b1f80bc6bbe171476593b16c58a88b9f61c8c6b2"
+      ],
+      "subject": "test(runtime): use coherent candidate-only V2 replay inputs and retain CG2 refusal",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py"
+        }
+      ]
+    },
+    {
+      "sha": "5642b366a023a74df3c4d33206272c1462f49351",
+      "tree_sha": "e5474654e9d201f1c8629ba42ffe43e660b84568",
+      "parent_shas": [
+        "46fd154241e9987402c98027f6341a94cfe74959"
+      ],
+      "subject": "test(runtime): persist scoped dependency stubs and real sibling CAS views",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py"
+        }
+      ]
     }
   ],
   "fixture_source_path_census": {
@@ -113,15 +155,15 @@
     },
     {
       "path": "policy-engine/tests/unit/runtime/http/test_runs_api.py",
-      "git_blob_at_candidate": "0f2b01018aef68a65bba2ff36bf60c294862ddb7",
-      "sha256_at_candidate": "611b596479a3e7deb0c82c6417cb10484f75dd3fa9d8551d041a7ea7609ba7ad",
-      "bytes_at_candidate": 60211
+      "git_blob_at_candidate": "29ba4eab2aefc127f2604ef47f8abdc6fa8edf61",
+      "sha256_at_candidate": "dd66370ce4b374479319a99692163e172760ca7a749c5e820123ed7e63dbeeb1",
+      "bytes_at_candidate": 60251
     },
     {
       "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
-      "git_blob_at_candidate": "806792e05fb0c67f7d2ae437380b7792833b6d85",
-      "sha256_at_candidate": "06b1d4bf059359f627a394725f66aef2a8d741aa8edd95148d3c975184e74562",
-      "bytes_at_candidate": 119329
+      "git_blob_at_candidate": "8d4a1dae9a6563e125f0566bbb48ebaa82861a8c",
+      "sha256_at_candidate": "23fb0e1dfe5250abbdacf8b41b611ea5c430fdd22f39c51aa2cc0fe37e6584f9",
+      "bytes_at_candidate": 128134
     }
   ],
   "source_facade_dependency": {
@@ -170,12 +212,18 @@
     ]
   },
   "latest_test_only_commit": {
-    "sha": "781f9baa3b64aeec7c88c970e4a6c7f9f6aecd3c",
-    "tree_sha": "fe5b13795ecd9f2bff0d4c9d3ad189682d94d366",
+    "sha": "5642b366a023a74df3c4d33206272c1462f49351",
+    "tree_sha": "e5474654e9d201f1c8629ba42ffe43e660b84568",
     "parent_shas": [
-      "b422361e3425e6b21a40e889dbaceea3c8354bc8"
+      "46fd154241e9987402c98027f6341a94cfe74959"
     ],
-    "subject": "test(runtime): scope run lifecycle CAS fixtures to their served owner"
+    "subject": "test(runtime): persist scoped dependency stubs and real sibling CAS views",
+    "changed_paths": [
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py"
+      }
+    ]
   },
   "note": "Fixture test/support path census and b422 product-source dependency are separate. The report has one byte-exact local copy of each retained wave file; this manifest does not duplicate those outputs."
 }

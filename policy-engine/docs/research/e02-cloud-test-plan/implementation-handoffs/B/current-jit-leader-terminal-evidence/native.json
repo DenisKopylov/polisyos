@@ -1,0 +1,46 @@
+{
+  "harness_state": "EXECUTED",
+  "command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "--noconftest",
+    "-q",
+    "-s",
+    "/workspace/e02-B-current-adapters/policy-engine/tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+    "--rootdir=/workspace/e02-B-current-coordination/policy-engine",
+    "--basetemp=/tmp/e02-B-current-adapters-b50-native-a8/fixtures",
+    "-o",
+    "cache_dir=/tmp/e02-B-current-adapters-b50-native-a8/pytest-cache",
+    "--junitxml=/tmp/e02-B-current-adapters-b50-native-a8/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+  "source_tree": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+  "source_after": "456f34938731b1ef11555d8333d011d3552574ec",
+  "implementation_sha": "a8af9d0fcdc55436f008f065941ed1cfa5069502",
+  "actual_exit_code": 0,
+  "wall_seconds": 2.431042479001917,
+  "peak_rss_kib": 270044,
+  "environment": {
+    "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "compiler_file": "/workspace/e02-B-current-coordination/policy-engine/src/polisyos/foundry/methods/compiler/__init__.py",
+    "compiler_sha256": "0d44e8e789c34c37160e6d4de77fbc1f3b0daae5e6f0381a20ef16211e573029",
+    "fixture_storage": "/tmp/e02-B-current-adapters-b50-native-a8/fixtures",
+    "fixture_storage_profile": "separate /tmp mount; kernel/flight property, not durability"
+  },
+  "outputs": [
+    {
+      "path": "/tmp/e02-B-current-adapters-b50-native-a8/native.txt",
+      "size_bytes": 2278,
+      "sha256": "db049d62ed416e1cd7ba89dc965c4fae31f00a190358c03a0858000e0570c27d"
+    },
+    {
+      "path": "/tmp/e02-B-current-adapters-b50-native-a8/native.xml",
+      "size_bytes": 645,
+      "sha256": "6eea89305c4bba4754e606a428547ffc764ec5cbd07ea8357a28965f3e20020f"
+    }
+  ]
+}

@@ -164,6 +164,8 @@ class AsyncWorkflowExecutor:
         self._workflow_timeout_s = workflow_timeout_s
         self._workflow_deadline: float | None = None
         self._workflow_publication_operation: str | None = None
+        self._workflow_task: asyncio.Task[Any] | None = None
+        self._workflow_cancelling = 0
         self._budget_middleware = budget_middleware
         self._merge_conflict_policy = merge_conflict_policy
         self._compensation_hook = compensation_hook
@@ -189,6 +191,10 @@ class AsyncWorkflowExecutor:
         self._cache_seed_owner = seed_owner
         self._cache = None
         self._workflow_publication_operation = None
+        self._workflow_task = asyncio.current_task()
+        self._workflow_cancelling = (
+            self._workflow_task.cancelling() if self._workflow_task is not None else 0
+        )
         workflow_started = time.perf_counter()
         self._workflow_deadline = (
             workflow_started + self._workflow_timeout_s
@@ -1617,6 +1623,7 @@ class AsyncWorkflowExecutor:
         tier_index: int = 0,
     ) -> tuple[NodeOutcome, int, bool, ArtifactRef | None]:
         """Execute a single node with cache, retry, timeout, metrics."""
+        self._guard_workflow_admission(operation=f"node.{alias}", execution_state="not_admitted")
         try:
             node = bind_node_params(self._registry.get(inv.node_id), inv.params)
         except NodeBindError as exc:
@@ -1764,6 +1771,7 @@ class AsyncWorkflowExecutor:
                     )
 
         if cached_outcome is not None:
+            self._guard_workflow_admission(operation=f"node.{alias}", execution_state="unknown")
             try:
                 merged_cached_state = _merge_cached_outcome_state(
                     alias=alias,
@@ -1840,6 +1848,7 @@ class AsyncWorkflowExecutor:
                     retry_stats=retry_stats,
                 )
                 outcome = NodeOutcome.model_validate(raw_outcome)
+                self._guard_workflow_admission(operation=f"node.{alias}", execution_state="unknown")
             except NodeTimeoutError as exc:
                 self._ctx.logger.error("Node %s timed out", alias)
                 error = NodeError.for_timeout(message=str(exc), timeout_s=node_timeout_s)
@@ -1891,6 +1900,9 @@ class AsyncWorkflowExecutor:
                         outcome=outcome,
                         timeout_seconds=self._remaining_deadline_seconds(cache_deadline),
                         deadline_monotonic=cache_deadline,
+                    )
+                    self._guard_workflow_admission(
+                        operation=f"node.{alias}.cache", execution_state="unknown"
                     )
                     self._ctx.run.emit(
                         f"scientist.node.{alias}",
@@ -2002,6 +2014,7 @@ class AsyncWorkflowExecutor:
                 )
 
         _log_node_events(self._ctx.logger, alias, outcome.events)
+        self._guard_workflow_admission(operation=f"node.{alias}", execution_state="unknown")
         status_event = {"ok": "NODE_OK", "skip": "NODE_SKIP", "fail": "NODE_FAIL"}[outcome.status]
         self._ctx.run.emit(
             f"scientist.node.{alias}",
@@ -2252,7 +2265,19 @@ class AsyncWorkflowExecutor:
             return None
 
     def _guard_workflow_admission(self, *, operation: str, execution_state: str) -> None:
-        """Refuse publication/admission after the original workflow deadline."""
+        """Refuse admission after the original owner deadline or cancellation.
+
+        Native hooks/providers may suppress their awaited CancelledError. The
+        invocation's original task baseline remains the owner predicate; a
+        fresh per-operation baseline would silently reauthorize publication.
+        """
+        if (
+            self._workflow_task is not None
+            and self._workflow_task.cancelling() > self._workflow_cancelling
+        ):
+            raise asyncio.CancelledError(
+                f"Workflow owner cancelled during {operation}; execution_state={execution_state}"
+            )
         if self._workflow_deadline is not None and time.perf_counter() >= self._workflow_deadline:
             raise WorkflowTimeoutError(
                 f"Workflow deadline expired during {operation}",

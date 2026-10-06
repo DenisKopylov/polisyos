@@ -1038,7 +1038,7 @@ def _install_b73_left_frontier_removal() -> dict[str, Any]:
         raise AssertionError("B73 removal probe executor source origin changed")
     source_bytes = module_path.read_bytes()
     source_sha256 = hashlib.sha256(source_bytes).hexdigest()
-    if source_sha256 != ("fd65b5971cbca7c6ad6d755770cd801dc592ffd622224aee4947a37ce2eae0b5"):
+    if source_sha256 != ("ba199986b9ca60cd2b110af6d03ccdf679c9321426a01538ea0034e7898be66b"):
         raise AssertionError("B73 removal probe executor source digest changed")
 
     source_tree = ast.parse(source_bytes.decode("utf-8"), filename=str(module_path))
@@ -1132,7 +1132,7 @@ def _install_b73_left_frontier_removal() -> dict[str, Any]:
     )
     ast.fix_missing_locations(compiled_module)
     namespace = dict(executor_module.__dict__)
-    exec(
+    exec(  # noqa: S102 - hash-pinned native AST property-removal control
         compile(compiled_module, filename=str(module_path), mode="exec"),
         namespace,
     )
@@ -1502,7 +1502,7 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
             if remove_left_for_cut:
                 assert observed["mutation_receipt"] == {
                     "source_sha256": (
-                        "fd65b5971cbca7c6ad6d755770cd801dc592ffd622224aee4947a37ce2eae0b5"
+                        "ba199986b9ca60cd2b110af6d03ccdf679c9321426a01538ea0034e7898be66b"
                     ),
                     "method": "AsyncWorkflowExecutor.execute",
                     "original_expression": "completed_nodes.extend(tier_completed)",

@@ -377,3 +377,53 @@ async def test_entered_mutable_publication_is_unacknowledged_unknown_not_rollbac
         assert not any(event.get("event") == "RUN_FINALIZED" for event in _events(ctx))
     assert node.calls == 1
     assert FileSystemCAS(store.root).verify(node.refs[0]).ok
+
+
+@pytest.mark.asyncio
+async def test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication(tmp_path):
+    from polisyos.scientist.orchestration.engine.checkpoint import (
+        CASCheckpointHook,
+        resolve_latest_checkpoint,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    ctx, node, workflow, executor = _setup(store)
+    entered = asyncio.Event()
+    real = CASCheckpointHook(store=store, run_dir=ctx.run.trace_path.parent)
+    completed = []
+
+    class SuppressingHook:
+        async def on_node_complete_async(self, **kwargs):
+            entered.set()
+            try:
+                await asyncio.Event().wait()
+            except asyncio.CancelledError:
+                completed.append("cancelled")
+            result = await asyncio.to_thread(real.on_node_complete, **kwargs)
+            completed.append("physically_completed")
+            return result
+
+    executor._checkpoint_hook = SuppressingHook()
+    task = asyncio.create_task(
+        executor.execute(workflow, ExperimentState(run_id="R_deadline", params={"seed": 7}))
+    )
+    await asyncio.wait_for(entered.wait(), 5)
+    before = _events(ctx)
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError, match="execution_state=unknown"):
+        await task
+    assert task.cancelling() == 1
+    assert completed == ["cancelled", "physically_completed"]
+    assert node.calls == 1
+    assert _events(ctx) == before
+    assert ctx.run.run_manifest.outputs == []
+    reopened = FileSystemCAS(store.root)
+    resolved = resolve_latest_checkpoint(reopened, "R_deadline")
+    assert resolved is not None
+    head, dto = resolved
+    assert reopened.verify(head.checkpoint_ref).ok
+    assert dto.metadata.completed_nodes == ["compute"]
+    assert dto.state["params"] == {"seed": 7, "result": 14}
+    assert len(dto.metadata.cache_entry_refs) == 1
+    assert reopened.verify(dto.metadata.cache_entry_refs[0]).ok
+    assert reopened.verify(node.refs[0]).ok

@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import json
 import logging
+import time
+from datetime import UTC, datetime
 
 import duckdb
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -208,7 +211,7 @@ def test_existing_bundle_is_revalidated_for_changed_request(tmp_path) -> None:
 
 
 def test_matching_bundle_reuses_without_reinvoking_selector(tmp_path, monkeypatch) -> None:
-    """A valid same-request CAS bundle is reused without selecting again."""
+    """A valid request-bound bundle replays when no current SKG source is requested."""
     ctx = _build_ctx(tmp_path, run_id="R_phase15_reuse")
     db_path = tmp_path / "skg.duckdb"
     _seed_skg(db_path)
@@ -246,10 +249,99 @@ def test_matching_bundle_reuses_without_reinvoking_selector(tmp_path, monkeypatc
         "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterSelector",
         fail_if_selected,
     )
-    replay = node.execute(ctx, first.state.model_copy(deep=True))
+    replay_state = first.state.model_copy(deep=True)
+    replay_state.params.pop("skg_db_path")
+    replay_state.params.pop("skg_index_dir")
+    first_cas_ref = ArtifactRef.model_validate(first_ref.model_dump(mode="json"))
+    assert FileSystemCAS(ctx.store.root).verify(first_cas_ref).ok
+    replay = node.execute(ctx, replay_state)
 
     assert replay.status == "ok"
     assert replay.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] == first_ref
+
+
+def test_current_skg_source_reselects_unbound_bundle_and_refuses_missing_source(
+    tmp_path, monkeypatch
+) -> None:
+    """Current reads cannot inherit a v1 bundle's absent selector-read binding."""
+    from polisyos.scientist.nodes.builtins.causal import resolve_parameters
+
+    ctx = _build_ctx(tmp_path, run_id="R_phase15_current_source")
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg(db_path)
+    graph_ref = persist_causal_graph_model(
+        ctx.store, CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[])
+    )
+    state = ExperimentState(
+        run_id="R_phase15_current_source",
+        artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+        params={
+            "target_context": {
+                "context_id": "UA",
+                "income_level": "lower_middle",
+                "institutional_quality": 0.4,
+                "post_communist": True,
+            },
+            "required_parameters": ["fiscal_multiplier"],
+            "skg_db_path": str(db_path),
+            "skg_index_dir": str(tmp_path / "idx"),
+            "domain": "fiscal",
+        },
+    )
+    node = ResolveParametersNode()
+    first_before = datetime.now(UTC).replace(microsecond=0)
+    first = node.execute(ctx, state)
+    first_after = datetime.now(UTC)
+    assert first.status == "ok"
+    first_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    first_bundle = load_context_adaptive_parameter_bundle(ctx.store, first_ref)
+    selected = []
+    original_select = resolve_parameters.ParameterSelector.select_for_context
+
+    def observe_select(self, **kwargs):
+        selected.append(kwargs)
+        return original_select(self, **kwargs)
+
+    monkeypatch.setattr(resolve_parameters.ParameterSelector, "select_for_context", observe_select)
+    # Source253 explicitly generates a fresh second-resolution selection time.
+    # Separate calls across that boundary; identity equality is not the oracle.
+    time.sleep(1.05)
+    second_before = datetime.now(UTC).replace(microsecond=0)
+    second = node.execute(ctx, first.state.model_copy(deep=True))
+    second_after = datetime.now(UTC)
+    assert second.status == "ok"
+    assert len(selected) == 1
+    assert selected[0]["parameter_name"] == "fiscal_multiplier"
+    assert selected[0]["target_context"] == first_bundle.target_context
+    second_ref = second.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    second_bundle = load_context_adaptive_parameter_bundle(ctx.store, second_ref)
+    assert first_bundle.model_dump(exclude={"selection_timestamp"}) == second_bundle.model_dump(
+        exclude={"selection_timestamp"}
+    )
+    first_time = datetime.fromisoformat(first_bundle.selection_timestamp)
+    second_time = datetime.fromisoformat(second_bundle.selection_timestamp)
+    assert first_time.tzinfo == second_time.tzinfo == UTC
+    assert first_before <= first_time <= first_after
+    assert second_before <= second_time <= second_after
+    assert second_time > first_time
+    assert second_ref.artifact_id != first_ref.artifact_id
+    reopened = FileSystemCAS(ctx.store.root)
+    for ref in (first_ref, second_ref):
+        cas_ref = ArtifactRef.model_validate(ref.model_dump(mode="json"))
+        assert reopened.verify(cas_ref).ok
+        manifest = reopened.get_manifest(cas_ref)
+        assert manifest.kind == "ir.context_adaptive_parameter_bundle"
+        assert manifest.artifact_schema.name == "ir.context_adaptive_parameter_bundle"
+        assert manifest.artifact_schema.version == "1.0"
+        assert [(edge.role, str(edge.artifact_id)) for edge in manifest.inputs] == [
+            ("causal_graph", str(graph_ref.artifact_id))
+        ]
+    missing = first.state.model_copy(deep=True)
+    missing.params["skg_db_path"] = str(tmp_path / "missing.duckdb")
+    refused = node.execute(ctx, missing)
+    assert refused.status == "skip"
+    assert len(selected) == 1
+    assert reopened.verify(ArtifactRef.model_validate(first_ref.model_dump(mode="json"))).ok
 
 
 def test_changed_domain_invalidates_bundle_and_idempotency_key(tmp_path) -> None:

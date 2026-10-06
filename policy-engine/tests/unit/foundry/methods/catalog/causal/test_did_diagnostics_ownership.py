@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+import json
+import os
+import subprocess
+import sys
 from dataclasses import replace
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -158,3 +163,54 @@ def test_dedicated_metadata_and_estimator_survive_legacy_metadata_replacement(mo
     assert after.point_estimate == before.point_estimate
     assert after.assumptions == before.assumptions
     assert "legacy_poison" not in StandardDifferenceInDifferences.metadata.assumptions
+
+
+@pytest.mark.parametrize(
+    ("module_name", "runner_name", "report_key"),
+    [
+        ("benchmarks.interference.policy_did_interference", "_runner_did", "artifact"),
+        (
+            "benchmarks.natural_experiments.policy_natural_experiments",
+            "_runner_standard_did",
+            "report",
+        ),
+    ],
+)
+def test_maintained_benchmark_callers_execute_dedicated_owner(module_name, runner_name, report_key):
+    # Pytest also owns a tests/.../benchmarks package. Execute the actual CLI caller's
+    # fresh import path to avoid that test-package collision, without replacing the caller.
+    product_root = Path(__file__).resolve().parents[6]
+    child = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            """
+import importlib, sys, numpy as np
+from polisyos.foundry.methods.catalog.causal.did import DifferenceInDifferences
+from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
+def retired_adapter(*args, **kwargs):
+    raise AssertionError('Maintained benchmark called the historical aggregate adapter')
+DifferenceInDifferences.pure_step = retired_adapter
+module = importlib.import_module(sys.argv[1])
+outcome = np.tile(np.arange(5, dtype=float), (8, 1))
+outcome[:3, 3:] += 3.0
+data = PanelObservationalData(outcome=outcome, treatment=np.array([1,1,1,0,0,0,0,0]),
+                             time_treatment=3, unit_ids=np.arange(8))
+report = getattr(module, sys.argv[2])(data, seed=19)[sys.argv[3]]
+print(report.model_dump_json())
+""",
+            module_name,
+            runner_name,
+            report_key,
+        ],
+        cwd=product_root,
+        env={**os.environ, "PYTHONPATH": str(product_root / "src")},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert child.returncode == 0, child.stdout + child.stderr
+    report = json.loads(child.stdout)
+    assert report["point_estimate"] == pytest.approx(3.0)
+    assert report["method_params"]["staggered"] is False
+    assert report["method_params"]["covariance_procedure"] == "hc1"

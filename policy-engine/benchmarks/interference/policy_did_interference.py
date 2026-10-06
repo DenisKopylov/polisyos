@@ -39,7 +39,7 @@ from benchmarks.reporting import (  # noqa: E402
     print_preflight,
 )
 from benchmarks.runtime import BenchmarkMode, resolve_mode  # noqa: E402
-from polisyos.foundry.methods.catalog.causal.did import DifferenceInDifferences  # noqa: E402
+from polisyos.foundry.methods.catalog.causal.did import StandardDifferenceInDifferences  # noqa: E402
 from polisyos.foundry.methods.catalog.causal.interference import (
     identify_interference_effect,  # noqa: E402
 )
@@ -127,7 +127,7 @@ def _build_interference_graph() -> CausalGraphModel:
 
 
 def _runner_did(data: PanelObservationalData, *, seed: int) -> dict[str, Any]:
-    result = DifferenceInDifferences.pure_step(
+    result = StandardDifferenceInDifferences.pure_step(
         data, {"confidence_level": 0.95, "__rng__": np.random.default_rng(seed)}
     )
     return {

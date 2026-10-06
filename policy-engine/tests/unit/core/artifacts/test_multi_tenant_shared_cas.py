@@ -575,7 +575,8 @@ def test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    source = FileSystemCAS(tmp_path / "source")
+    # Admit genuine same-owner producer bytes before exercising durable import faults.
+    source = FileSystemCAS(tmp_path / "source").for_tenant("tenant-exact-view")
     payload = b"exact-view imports must publish through the CAS owner transaction"
     source_ref = source.put_bytes(payload, _options())
     manifest_bytes = source.get_manifest_bytes(source_ref)

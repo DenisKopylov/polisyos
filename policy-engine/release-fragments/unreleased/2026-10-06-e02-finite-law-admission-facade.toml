@@ -1,0 +1,16 @@
+id = "2026-10-06-e02-finite-law-admission-facade"
+title = "Expose canonical finite law admission for sampling consumers"
+type = "added"
+component = "foundry-uncertainty"
+owner = "E"
+summary = "Sampling consumers can reuse the canonical represented-weight, CDF-support and half-open uniform-domain checks through the existing Foundry uncertainty facade."
+change_class = "python-public-api"
+surface_classification = "public_stable"
+compatibility = "Three additive identity-preserving exports; no IR wire or source-law authority change."
+migration = "Use the package facade for finite empirical sampling admission."
+limitations = "Joint-law and source admission remain separate; unsupported or collapsed finite laws refuse."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+evidence = ["tests/unit/calibration/test_evidence_facades.py"]
+migration_docs = ["src/polisyos/foundry/uncertainty/README.md"]
+runbook_docs = []

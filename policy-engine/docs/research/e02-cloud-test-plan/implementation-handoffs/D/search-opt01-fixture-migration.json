@@ -1,0 +1,167 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "search-opt01-fixture-migration",
+  "closure_ids": [],
+  "finding_ids": [
+    "B108",
+    "B109",
+    "B110",
+    "B111"
+  ],
+  "bundle_ids": [
+    "OPT-01"
+  ],
+  "slice_base_sha": "bf97a6db7fade4321b8c5954c0ce30a7c44875e3",
+  "slice_base_tree": "9152c0c77144d1a8f28f898d50a59c35ca639c9f",
+  "root_product_base_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "root_product_base_tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+  "implementation_commits": [
+    "c3fe956011df8185c226155b86488294fe16143e"
+  ],
+  "candidate_tree_sha": "6a8be9c4e7d98dc42dd8244d25e8f72c6a1c7cf4",
+  "evidence_commit_sha": "977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+  "branch": "codex/e02-D-published-search",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py"
+  ],
+  "production_changes": [],
+  "full_delta": "git diff bf97a6db7fade4321b8c5954c0ce30a7c44875e3 c3fe956011df8185c226155b86488294fe16143e -- policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+  "baseline_cells": [],
+  "original_red": {
+    "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "source_tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "evidence_sha": "262749db1965726ee02c1e7618db99493eceb1fe",
+    "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/07-OPT-01/complete.txt@262749db1965726ee02c1e7618db99493eceb1fe",
+    "outcome": "FAIL",
+    "passed": 70,
+    "failed": 5,
+    "failure_boundary": "The strict BenchmarkEvaluation producer refused NaN/Inf before five original intended downstream consumer predicates could execute. The full 17-command original result remains737 PASS/7 FAIL; no inherited-red/P41 waiver and no retrospective replacement."
+  },
+  "checks": [
+    {
+      "name": "canonical",
+      "outcome": "PASS",
+      "target_sha": "c3fe956011df8185c226155b86488294fe16143e",
+      "target_tree": "6a8be9c4e7d98dc42dd8244d25e8f72c6a1c7cf4",
+      "command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py -ra",
+      "argv_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/canonical/result.json@977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "runner_added_arguments": [
+        "-o addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "fresh nonexistent UUID --basetemp",
+        "--junitxml",
+        "-rA"
+      ],
+      "measurement_bootstrap": "External observer through pytest.main; both actual child argv and equivalent python -m pytest argv retained. No test or production edits during execution.",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/canonical/complete.txt@977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "output_sha256": "dc37eedef7a3e454db7b375ad7f427b4778a85ac508d05ce50b0551c8bebadf6",
+      "junit_counts": {
+        "tests": 75,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 75
+      },
+      "wall_seconds": 14.773083886990207,
+      "source_before_after": "Same immutable c3fe956 SHA/tree, clean tracked files; product source equals root243.",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/environment.json@977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "negative_disposition": "Six raw malformed CAS controls refuse native typed admission, while healthy positives and preserved downstream mutable-input assertions execute."
+    },
+    {
+      "name": "remove_property",
+      "outcome": "FAIL",
+      "target_sha": "c3fe956011df8185c226155b86488294fe16143e",
+      "target_tree": "6a8be9c4e7d98dc42dd8244d25e8f72c6a1c7cf4",
+      "command": "Five unchanged migrated Pareto tests with child-only unusable-coordinate\u2192zero property removal; exact argv/patch bootstrap in result.json and capture.py.txt.",
+      "argv_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/remove_property/result.json@977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "runner_added_arguments": [
+        "-o addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "fresh nonexistent UUID --basetemp",
+        "--junitxml",
+        "-rA"
+      ],
+      "measurement_bootstrap": "External observer through pytest.main; both actual child argv and equivalent python -m pytest argv retained. No test or production edits during execution.",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/remove_property/complete.txt@977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "output_sha256": "a5b7abb053c5af0529d24d37412c3dddda3f7082f8906fc3908b59be3ab2f1d7",
+      "junit_counts": {
+        "tests": 5,
+        "failed": 4,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 1
+      },
+      "wall_seconds": 14.357302142001572,
+      "source_before_after": "Same immutable c3fe956 SHA/tree, clean tracked files; product source equals root243.",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/environment.json@977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "negative_disposition": "Expected aggregate FAIL discriminator, not a product failure: four original predicates reject the removed finite-coordinate/omission property. One membership-only predicate still passes because zeroed inputs are dominated."
+    },
+    {
+      "name": "ruff-check",
+      "command": "/workspace/e02-D-locked-env/bin/python -m ruff check tests/unit/scientist/methods/autotune/test_pareto.py",
+      "target_sha": "c3fe956011df8185c226155b86488294fe16143e",
+      "outcome": "PASS",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/ruff-check.txt@977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "version": "0.14.10"
+    },
+    {
+      "name": "ruff-format",
+      "command": "/workspace/e02-D-locked-env/bin/python -m ruff format --check tests/unit/scientist/methods/autotune/test_pareto.py",
+      "target_sha": "c3fe956011df8185c226155b86488294fe16143e",
+      "outcome": "PASS",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/ruff-format.txt@977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+      "version": "0.14.10"
+    }
+  ],
+  "property": {
+    "statement": "Preserve all original Pareto predicates after strict primitive intake: healthy finite typed evaluations round-trip through real CAS; exact malformed raw metric payloads retain the original full candidate/suite/comparison/manifest identity and are refused by the native typed CAS reader; then explicitly post-validation mutable-input stress tests complete finite membership, omission/schema state, dominance refusal, and duplicate input positions.",
+    "runtime_path": [
+      "persist_benchmark_suite/persist_mutation_artifact",
+      "persist_benchmark_evaluation",
+      "FileSystemCAS.put_bytes/get_bytes/get_manifest",
+      "load_model_artifact(BenchmarkEvaluation): controlled ValidationError for raw NaN/Inf",
+      "already validated evaluation.holdout_metrics mutation using exact decoded raw values",
+      "ParetoPromoter.compute_front/is_dominated: original assertions unchanged"
+    ],
+    "original_predicates": "All existing Assert ASTs byte-equivalent as AST; exactly five existing test setup/signature bodies changed, one shared _cas_eval added. Other existing functions have identical AST. Formatting-only hunks retained under Ruff0.14.10. Recomputed by capture metadata.",
+    "negative_controls": [
+      "Six actual raw malformed metric CAS payloads; full payload/ref/manifest bytes represented in complete.txt, refs remain content-addressed and all other context fields/manifest inputs/schema/producer are asserted unchanged.",
+      "Child-only zero imputation drops unusable-coordinate omission metadata while strict reader and refs remain intact: four failures, one pass."
+    ],
+    "proxy_divergence": "Successful BenchmarkEvaluation construction alone never exercises downstream omission. Conversely the old membership-only nonfinite test passes zero-imputation when repaired points are dominated; the other four original predicates fail this mutation. Suite-level negative evidence does not establish each individual test as a complete discriminator."
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_scope": "Synthetic numerical fixture admission and downstream mutable-input behavior only; no authority-grade promotion, institutional source authorization, production-history truth or deployment verdict.",
+  "capability_state_or_finding_state": "Bounded test-fixture migration verified; OPT-01 production A supplier/export/independent denominator remains held/open, no finding closure.",
+  "source_environment_inputs": {
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "pytest": "9.0.2",
+    "torch_distribution": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "backend_note": "Versions are distribution metadata for this Pareto test delta, not a new GP numerical acceptance claim. Four actual Pareto/models/CAS/canonical module origins are Git-verified inside both deciding children.",
+    "inputs_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/inputs.json@977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+    "manifest_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/manifest.json@977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+    "helper_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/capture.py.txt@977c447e84f84e01ec1ebfefc0fee2e2f6c6a477",
+    "limits_added": false,
+    "parent_backend_imports": false,
+    "source_archives_or_worktrees_added": false,
+    "explicit_deletion": false,
+    "basetemps": "Fresh nonexistent UUID paths; no global framework/temp retention claim."
+  },
+  "limitations_and_next_owner": [
+    "A owns the live eligible denominator/provider and export path; this fixture supplies no production run/tenant/cell-bound provider and applies no foreign A patch. Existing B109/B111 dependency remains held/open.",
+    "The malformed object is not successfully loaded as a typed BenchmarkEvaluation. Mutable-input stress occurs only after a separate healthy native round-trip; no model_construct/model_validate bypass or successful malformed CAS ingestion claim.",
+    "Candidate-only synthetic comparison context and copied test provenance establish technical custody/ref identity only; institutional authorization, metric units/source law, evaluator adequacy and real-history applicability remain not_established.",
+    "Original root243 17-command FAIL and prior wide child SIGKILL remain their actual verdicts. This targeted test-only PASS is not broad/global/closure acceptance.",
+    "G/root independently review the full test delta and execute the final literal OPT01/FUN03 commands after composition."
+  ]
+}

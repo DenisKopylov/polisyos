@@ -2,9 +2,7 @@
   "schema": "policyos.e02.implementation_handoff.v1",
   "unit": "A",
   "slice": "compiler-full",
-  "closure_ids": [
-    "LA-045"
-  ],
+  "closure_ids": [],
   "bundle_ids": [
     "REQ-01"
   ],
@@ -25,9 +23,10 @@
   ],
   "test_source_sha256": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830",
   "decision": {
-    "state": "bounded_acceptance_for_LA-045_compatibility_and_retirement_witness",
-    "basis": "The source ancestor already removed the eight private helpers; the installed wheel exercises the surviving public compiler behavior and verifies these names do not resolve through direct module, dynamic fromlist, or package facade lookup.",
+    "state": "limited",
+    "basis": "Bounded compatibility witness is positive; complete LA-045 closure is not asserted because computed/dynamic and external caller classes remain unresolved.",
     "not_claimed": [
+      "full LA-045 closure",
       "full REQ-01 or LA-046 closure",
       "runtime source-admission approval by a production capability resolver",
       "universal absence of internal, external, generated, non-Python, or dynamically assembled callers"
@@ -70,7 +69,8 @@
     "warning": "record_property is incompatible with pytest junit_family='xunit2'; non-failing.",
     "wheel_sha256": "fcf6fdcba77630799a2dbdacab1ac9c2ce6286605675992f0c44da74635c2231",
     "successful_environment": "CPython 3.14.0; pinned uv 0.9.21; root-owned policy-engine/.venv explicitly borrowed for pytest and dependency purelib/platlib; fresh target venv installs wheel with --no-deps, and imported polisyos modules are asserted to originate in the wheel.",
-    "command": "env UV_OFFLINE=1 UV_PYTHON_DOWNLOADS=never /opt/homebrew/bin/uvx --offline uv==0.9.21 run --no-project --python /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/remediation/test_req_01_installed.py::test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers -vv --basetemp=<receipt>/pytest-basetemp --junitxml=<receipt>/wheel-smoke-junit.xml"
+    "command": "env UV_OFFLINE=1 UV_PYTHON_DOWNLOADS=never /opt/homebrew/bin/uvx --offline uv==0.9.21 run --no-project --python /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/remediation/test_req_01_installed.py::test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers -vv --basetemp=<receipt>/pytest-basetemp --junitxml=<receipt>/wheel-smoke-junit.xml",
+    "typed_outcome": "PASS"
   },
   "build_backend_environment_error": {
     "state": "environment_error_before_product_path",
@@ -78,7 +78,8 @@
     "classification": "toolchain/cache ERROR, not a product regression",
     "recovery": "A genuine backend was provisioned with pinned uv 0.9.21 via uvx --offline uv==0.9.21 while the nested build had network enabled; the successful installed-wheel test then built and installed offline.",
     "source_or_lock_changes": false,
-    "output_capture_path": "compiler-full/offline-backend-error.capture.json"
+    "output_capture_path": "compiler-full/offline-backend-error.capture.json",
+    "typed_outcome": "ERROR"
   },
   "tracked_python_census": {
     "predicate": "No statically resolved retired-compiler caller in the complete tracked .py/.pyi Git tree at the pinned slice base.",
@@ -211,5 +212,146 @@
     "numerical_tests": "not run",
     "replay_tests": "not run",
     "decision_test": "installed-wheel behavior witness only; light full-tree Git/AST census also rerun for reproducibility"
-  }
+  },
+  "finding_ids": [
+    "LA-045"
+  ],
+  "implementation_commits": [
+    "5650b7aed7991606d62cd8510b377698a778ce39"
+  ],
+  "candidate_tree_sha": "b03120869a77b27d02aba456fb7dfc88d582f832",
+  "changed_paths": [
+    "policy-engine/tests/unit/remediation/test_req_01_installed.py"
+  ],
+  "companion_evidence_commits": [
+    {
+      "commit": "43644bb6d80831890f18bd696a560f23688867ab",
+      "role": "separate evidence-only commit containing the implementation handoff and receipts",
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/"
+      ]
+    }
+  ],
+  "finding_outcome": "limited",
+  "finding_outcome_adjudication": "Proposed bounded outcome for parent/root adjudication; no closure ID is asserted.",
+  "finding_outcome_rationale": "Runtime compatibility and finite tracked-Python caller evidence are positive, but 270 computed-target import forms and external, generated, non-Python, and execution-dispatch callers remain not_established. The complete finding therefore remains limited.",
+  "predicate_basis": {
+    "class": "recomputed",
+    "property": "No statically resolved retired-compiler caller exists in the complete tracked .py/.pyi Git tree at the pinned slice base.",
+    "source_of_truth": "All tracked Git tree entries ending .py or .pyi at slice_base_sha; each selected blob was read and AST parsed.",
+    "scope": "Finite tracked Python selector only; does not establish a universal or external zero."
+  },
+  "property_witness": {
+    "property": "The installed public compiler keeps the active family mapping, compiler-to-resolver-port handoff and report persistence/readback, while the retired private compiler names no longer resolve via module reflection/import or the package facade.",
+    "runtime_path": "Build the product wheel, install it into a fresh venv, then run an outside-checkout Python -S child. The child imports DataRequirementCompiler from the installed polisyos.data_requirement facade and executes compile_for_claim_ledger, active resolver-port query construction, report serialization and JSON readback.",
+    "asserted_provenance": "Every imported polisyos .py module resolves under the installed wheel package; source/tests/architecture checkout paths are excluded from the child sys.path.",
+    "negative_controls": [
+      "All eight retired names are absent from compiler and package __all__.",
+      "Module getattr raises AttributeError for each retired name.",
+      "Dynamic __import__ with fromlist does not resolve each retired name.",
+      "Package facade getattr raises AttributeError for each retired name.",
+      "Unmapped family yields no resolver call and no DataRequirementSpec."
+    ],
+    "proxy_divergence": "The census measures statically resolved tracked Python references only. Its 270 computed-target import forms have unknown targets, and external/plugin/generated/non-Python/exec/native/service dispatch are outside the denominator. A static zero is not a universal caller-absence property; that residual is why the finding outcome remains limited.",
+    "resolver_limit": "The resolver is the RecordingResolver test fixture, not the production capability catalog/source-admission authority. The witness establishes query construction, port handoff, binding propagation and persisted readback, not live source admission."
+  },
+  "checks": [
+    {
+      "check_id": "REQ-01-installed-wheel-runtime-compatibility",
+      "outcome": "PASS",
+      "target": "tests/unit/remediation/test_req_01_installed.py::test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers",
+      "command": "env UV_OFFLINE=1 UV_PYTHON_DOWNLOADS=never /opt/homebrew/bin/uvx --offline uv==0.9.21 run --no-project --python /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/remediation/test_req_01_installed.py::test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers -vv --basetemp=<receipt>/pytest-basetemp --junitxml=<receipt>/wheel-smoke-junit.xml",
+      "environment": {
+        "receipt": {
+          "path": "compiler-full/installed-wheel.environment.json",
+          "sha256": "2ee9af60c5d8b7c76c3c427c147cb996455f1e1b5d306277a8db15dc796977d0"
+        },
+        "summary": "CPython 3.14.0; uv 0.9.21 selected with uvx --offline; UV_OFFLINE=1 and UV_PYTHON_DOWNLOADS=never; root-owned project .venv borrowed for pytest and dependency purelib/platlib; fresh venv for wheel, installed --no-deps."
+      },
+      "input": {
+        "implementation_commit": "5650b7aed7991606d62cd8510b377698a778ce39",
+        "implementation_tree_sha": "b03120869a77b27d02aba456fb7dfc88d582f832",
+        "test_source_sha256": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830",
+        "wheel_sha256": "fcf6fdcba77630799a2dbdacab1ac9c2ce6286605675992f0c44da74635c2231"
+      },
+      "output": {
+        "stdout": {
+          "path": "compiler-full/installed-wheel.stdout.log",
+          "sha256": "2157a41636a8f355c4e82a72ac0a56fe0b263a112b723bb3457133e87869353e"
+        },
+        "junit": {
+          "path": "compiler-full/installed-wheel.junit.xml",
+          "sha256": "14dec41f5a42a0edd54a86a31b5934ee5dd1d324de63a8e8b0df139ea533efb7"
+        },
+        "wheel_origin": {
+          "path": "compiler-full/wheel-origin-and-report.json",
+          "sha256": "7fbe252bf667e9375e62a1f3d4d4b1e456902ed191206da5df3a3fa54d97f407"
+        },
+        "compiler_persisted_readback": {
+          "path": "compiler-full/compiler-readback.json",
+          "sha256": "d1d31eef31ddf6c0781d601be7325144e3f36292142abac20e5dd4413fb481d2"
+        }
+      }
+    },
+    {
+      "check_id": "REQ-01-first-offline-backend-attempt",
+      "outcome": "ERROR",
+      "target": "tests/unit/remediation/test_req_01_installed.py::test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers",
+      "classification": "Environment/build-backend resolution failed before wheel creation or compiler execution; not a product failure.",
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini tests/unit/remediation/test_req_01_installed.py::test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers -vv --basetemp=<raw>/pytest-basetemp --junitxml=<raw>/wheel-smoke-junit.xml",
+      "environment": {
+        "receipt": {
+          "path": "compiler-full/offline-backend-error.environment.json",
+          "sha256": "051b8f17c6db8e965b39771b7fe67222564e380e84bda4865265fd69790b0aa5"
+        },
+        "summary": "CPython 3.14.0; /opt/homebrew/bin/uv 0.10.6 selected by the test; UV_OFFLINE=1 and UV_PYTHON_DOWNLOADS=never set inside the test subprocess; Hatchling missing from the uv cache."
+      },
+      "input": {
+        "implementation_commit": "5650b7aed7991606d62cd8510b377698a778ce39",
+        "test_source_sha256": "f69b4792064af8747114a2c7e65a39e03abfd181a63ad148fcec22dcf027b830"
+      },
+      "output": {
+        "lossless_stdout_and_junit_capture": {
+          "path": "compiler-full/offline-backend-error.capture.json",
+          "sha256": "271475770e0617c6bfedbdfa082a2f01f8d29745cbf973540116863bcf47e6d9"
+        },
+        "capture_note": "JSON fields stdout and junit_xml retain exact UTF-8 output, including original whitespace; their original SHA-256 and byte lengths are in the capture."
+      }
+    },
+    {
+      "check_id": "pinned-hatchling-backend-prewarm",
+      "outcome": "PASS",
+      "target": "Build backend requirement hatchling>=1.27.0 / hatchling.build",
+      "command": "env UV_OFFLINE=0 /opt/homebrew/bin/uvx --offline uv==0.9.21 build --wheel --out-dir <receipt>/prewarm-wheelhouse",
+      "environment": "Pinned uv 0.9.21; network enabled for the nested genuine backend provisioning build; no source or lockfile changes.",
+      "input": "Product pyproject.toml build-system declaration at implementation commit.",
+      "output": {
+        "path": "compiler-full/hatchling-backend-prewarm.stdout.log",
+        "sha256": "b4ab1d7780821f619ec65943705d6a269960beb8a5134c69f698be3897df7d63"
+      }
+    },
+    {
+      "check_id": "pinned-complete-tracked-python-census",
+      "outcome": "PASS",
+      "target": "All tracked Git blob paths ending .py or .pyi at 198076863e143dea9f89f02734b13d50dae3eed5.",
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py 198076863e143dea9f89f02734b13d50dae3eed5",
+      "environment": "Read-only Git object traversal and Python AST parsing; no checkout/cache filesystem used as the denominator.",
+      "input": {
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+      },
+      "output": {
+        "ignored_raw_report_path_sha256": "policy-engine/_build/e02-A-full-queue/compiler_retirement/census-report.json@sha256:79e97e15f9e28a38550a49db6d64a3f4771b26f9298e88c19c4030d6ad56f5ef",
+        "committed_reproducer": {
+          "path": "compiler-full/census_tracked_python.py",
+          "sha256": "d99f6f850f2c3c2465a9aba926c95121a24eacd8425d828ac07a5bc88095df0f"
+        },
+        "equality_check": "Committed relocatable script output matched the complete original census JSON byte-for-byte at this worktree and pinned ref."
+      }
+    }
+  ],
+  "source_register_status": "partial",
+  "source_criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/REQ-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+  "source_status_ref": "policy-engine/docs/research/e02-cloud-test-plan/bundle-catalog.md#req-01 records LA-045=partial."
 }

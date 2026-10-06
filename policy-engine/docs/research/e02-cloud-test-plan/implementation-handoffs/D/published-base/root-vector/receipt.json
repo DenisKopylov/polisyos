@@ -1,0 +1,33 @@
+{
+  "source_sha": "e309d61faf7fbed88ad2d7881fa11b27e4393b6a",
+  "source_tree": "d7891fdba5c0d077376dc9b64ff05fdd9a71e747",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-q",
+    "tests/unit/scientist/agent/test_vector_memory.py",
+    "tests/unit/remediation/test_trn_02.py",
+    "-ra"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 25.021344413995394,
+  "cwd": "/workspace/e02-D-published-root/policy-engine",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "packages": {
+    "hnswlib": "0.8.0",
+    "torch": "2.10.0",
+    "pytest": "9.0.2"
+  },
+  "module_origins": {
+    "hnswlib": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/hnswlib.cpython-314-x86_64-linux-gnu.so",
+    "polisyos.scientist.agent.vector_memory": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/agent/vector_memory.py"
+  },
+  "seed_inputs": "exact synthetic native CAS vectors and real-reader barriers from frozen test source; source tests contain default native seed",
+  "deciding_output": "....................                                                     [100%]\n=============================== warnings summary ===============================\n../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474\n../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474\n  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.\n    warnings.warn(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n20 passed, 2 warnings in 17.74s\n",
+  "output_sha256": "05139d9457c39f90136c4545efcb4718974baacd9099f3018670a430635bbdb5",
+  "scope": "in-process immutable generation and native envelope admission; no distributed or production provenance claim"
+}

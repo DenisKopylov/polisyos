@@ -1,0 +1,35 @@
+{
+  "schema": "polisyos.e02.B19.raw_carrier_label_correction.v1",
+  "new_runtime": false,
+  "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+  "historical_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/canonical-companions-independent-read-review.json",
+    "git_blob": "11388fd3a76ff4f9e022f64a7911daba2c741e56",
+    "sha256": "3076a1b5c1aa304acecf9b9f63d9b4413ed865a21826a66d9861aa15fa692e0f",
+    "incorrect_pointer": "/B19/encoded_bundle/sha256"
+  },
+  "carrier": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-parity-243-complete.json.gz",
+    "git_blob": "58e52950b4741116b17aefaa20185cbc8b890aed",
+    "bytes": 276469,
+    "sha256": "3b43811027e728a29773621628325adedaa4605a229edf6cda18f31cb0893b96",
+    "member_count": 371
+  },
+  "decoded_member": {
+    "json_pointer": "/complete_raw_files/296",
+    "path": "results-v2/B19/artifacts/_build/.tmp/last-mile/module-size.json",
+    "bytes": 24136,
+    "sha256": "2e6241fe1267ca64582cd1a78542b69048c025694cb1196d5539ce4d6799658a",
+    "hash_matches_declared": true,
+    "contract_error_count": 77,
+    "contract_error_messages": {
+      "validation tooling above warning threshold lacks a module-size budget": 53,
+      "validation tooling extraction target date must be today or future": 9,
+      "target_fail_closed_not_before must be today or future": 15
+    },
+    "report_only_count": 6
+  },
+  "correction": "The historical encoded_bundle.sha256 is the decoded raw member hash. Use carrier.sha256 for the gzip transport and decoded_member.sha256 for module-size.json. No property, outcome, counts or historical execution is superseded.",
+  "formal_closed": 0,
+  "G_accepted": false
+}

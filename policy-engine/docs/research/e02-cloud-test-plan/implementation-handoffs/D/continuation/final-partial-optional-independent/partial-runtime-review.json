@@ -1,0 +1,822 @@
+{
+  "schema": "polisyos.e02.independent_partial_wave_review.v1",
+  "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+  "source_tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+  "new_runtime": false,
+  "metadata_only": true,
+  "whole_suite_verdict": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+  "formal_closed": 0,
+  "G_accepted": false,
+  "snapshots": {
+    "declared_count": 5568,
+    "before_after_files_equal": true,
+    "external_inputs_equal": true,
+    "git_state_equal": true,
+    "before_and_after_clean": true,
+    "frozen_git_discrepancies": [],
+    "all_tracked_tests_python": 2860,
+    "captured_tests_python": 2860,
+    "missing_tracked_tests_python": [],
+    "all_tracked_source_python": 2701,
+    "captured_source_python": 2701,
+    "missing_tracked_source_python": []
+  },
+  "selected_count": 100,
+  "extra_selectors": [],
+  "inherited_numeric_caps_and_addopts": {},
+  "denominator": {
+    "collected_unique": 1244,
+    "collected_raw": 1244,
+    "collected_declared": 1244,
+    "declared_unique": 1244,
+    "deselected": [],
+    "unique_starts": 280,
+    "unique_finishes": 279,
+    "unfinished_started": [
+      "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs"
+    ],
+    "never_started_count": 964,
+    "never_started_ids_json_sha256": "463ac09fdaa8aa3a50ba4704257768b4bb465284559d5ebfea28c3ecd951358f",
+    "collected_cases_UNRUN_count": 965,
+    "complete_phase_counts": {
+      "setup:passed": 279,
+      "call:passed": 229,
+      "teardown:passed": 279,
+      "call:failed": 45,
+      "call:skipped": 5
+    },
+    "complete_phase_shape_gaps": [],
+    "started_outside_collection": [],
+    "finished_outside_collection": [],
+    "failure_unique_count": 45,
+    "failure_phase_count": 45,
+    "failure_and_error_phase_overlap": [],
+    "collection_skipped_modules": 15,
+    "case_event_order_gaps": [],
+    "unfinished_setup_passed_count": 1
+  },
+  "failures": [
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-total_cost_usd-usage]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1444,
+      "longrepr_sha256": "7fb0a0278d7f63ec77f6e092cb09e0bb6ce96e27ddd10695c2b09af138238445",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-total_cost_usd-payload]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1449,
+      "longrepr_sha256": "4696bad60d724ce5ad25c59c5ffbcb000ebbd97bc8167a725ba6a22814fb1c00",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost_usd-usage]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1454,
+      "longrepr_sha256": "85c69d42307a95d0abfe8489764b7e3a50943b18259c43ac11ecfedc6e0cb493",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost_usd-payload]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1459,
+      "longrepr_sha256": "4da46785548aac0e3458ac5afe2adf60600dbafe4ab055d0cf6d7fde3650102b",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost-usage]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1464,
+      "longrepr_sha256": "1be033bc434adfde03782a97c5d5ad0a6d86c399bc0e6f9dd08c15fd97df41a6",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost-payload]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1469,
+      "longrepr_sha256": "81b7894adde02a0dcc55320e71b99e83873c9812a5794d070750a6f286225390",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-base_cost_usd-usage]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1474,
+      "longrepr_sha256": "2a7aefb47304344bb3bb51fcc0ec5045c657febff50822059d3055704982e047",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-base_cost_usd-payload]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1479,
+      "longrepr_sha256": "5f295d9c37ed608e71a21ab0519a919c46e37edd7749317b3e2a5dde336c2bb4",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-platform_fee_usd-usage]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1484,
+      "longrepr_sha256": "f70278a199032952c84d9ca1432809536c45696a33dead148f26998a8afec6ca",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-platform_fee_usd-payload]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1489,
+      "longrepr_sha256": "a2cdec9d8a39bd6c8a47f13c13301287c64a36b9b6057befa1947fd6814228de",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-total_cost_usd-usage]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1494,
+      "longrepr_sha256": "a3dc2302b23a03cf65d84a94dbfd60ac113f7f1afc818aa8578b1acc1ba9f500",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-total_cost_usd-payload]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1499,
+      "longrepr_sha256": "7dab8416f385fdf4dbd03e67851cc74d3105d12db342b3a5faffaa0b11ee47df",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost_usd-usage]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1504,
+      "longrepr_sha256": "d5e62acbac9f4aae1ebbf18cdf24c41f9e40b8160aa7ec80a37c7ba1e0742447",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost_usd-payload]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1509,
+      "longrepr_sha256": "c04eb9f8cf662205900d40a251a19fb49b84c4800d8b4265af9703f54da2d5b3",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost-usage]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1514,
+      "longrepr_sha256": "db637de80301357ce9ed016c6c4e0f3dce3561181b2c24fe80e239ec89fb6df2",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost-payload]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1519,
+      "longrepr_sha256": "89c8b28fbb38968e8d5097aec35753aca22e856531eb87826ae949ee02c66714",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-base_cost_usd-usage]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1524,
+      "longrepr_sha256": "5faa59b67543db7184f32536ce651ffb04a6f948e2a2c860839ebcf7f1cd4963",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-base_cost_usd-payload]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1529,
+      "longrepr_sha256": "c78bed5ac6dfc84ce3f38d8d119416a6982dc43eaf78e2435d66022b6343c097",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-platform_fee_usd-usage]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1534,
+      "longrepr_sha256": "5509a62d7f2009c5a66f1a28232e422ef9cb0cf6df60cf1d0b0747c5b8a8ee08",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-platform_fee_usd-payload]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1539,
+      "longrepr_sha256": "315db1613b7bc79ec81c369cfcac28365af962e350b9e6e9b8d563282530e94a",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_underflow_cannot_settle_zero_in_fresh_ledger",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 1544,
+      "longrepr_sha256": "fd29a7ea949de89b8c1cc0e124c9fd782c5e1e2d4619d94b0939dd84b9bfd4cf",
+      "wasxfail": null,
+      "class": "provider_decimal_lexeme"
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_snapshot_report.py::test_actual_nonregular_read_is_a_finite_child_refusal[symlink]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2383,
+      "longrepr_sha256": "075d90db92ed402b0ec1b7e73d7747b087b4dcdf161af2f5bc072178efaadac8",
+      "wasxfail": null,
+      "class": "nonregular_child_timeout"
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_snapshot_report.py::test_actual_nonregular_read_is_a_finite_child_refusal[dangling]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2388,
+      "longrepr_sha256": "42f211202a231ee50dc2b16fb5bb6d9b2c1959852d982a2bc46d38f0822fc215",
+      "wasxfail": null,
+      "class": "nonregular_child_timeout"
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_snapshot_report.py::test_actual_nonregular_read_is_a_finite_child_refusal[fifo]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2393,
+      "longrepr_sha256": "f14a70a4e03a24432abf0bbbbf9ab201faf46ba0c84cc2f47ae942ae0e5e34d5",
+      "wasxfail": null,
+      "class": "nonregular_child_timeout"
+    },
+    {
+      "nodeid": "tests/unit/core/artifacts/test_verification_snapshot_report.py::test_actual_nonregular_read_is_a_finite_child_refusal[socket]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2398,
+      "longrepr_sha256": "e7df516b83b1378296ac2b36152c1d43c50385fa230793fec872fedf3ae3ea42",
+      "wasxfail": null,
+      "class": "nonregular_child_timeout"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_llm_01.py::test_cache_hits_emit_reuse_without_duplicate_provider_usage",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2578,
+      "longrepr_sha256": "1df4041e2b5aa8aad02d07a2cf35269ebcade85982a0999bacaaacde3b8dae0b",
+      "wasxfail": null,
+      "class": "cache_reuse_receipt_contract"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_llm_01.py::test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_expiry",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2583,
+      "longrepr_sha256": "cf975842f976db4fc906204ca893c4f1cdbaf015ca8e2c29ff1f2a1a7aee6942",
+      "wasxfail": null,
+      "class": "cache_reuse_receipt_contract"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_trn_02.py::test_discovery_preserves_history_ref_and_reads_cas_without_second_ann",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2588,
+      "longrepr_sha256": "b211f41b7319015c2930e4f2c32d5930781d266c5d7ffefb8d37eb400b138ef6",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_transfer"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_trn_02.py::test_history_cache_is_bound_to_snapshot_and_consumer_sort_is_non_mutating",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2593,
+      "longrepr_sha256": "2cc5a09cc996e7f30bcfd3284ec1fd0c5703ed8781816b4e18fa6ef656cd0470",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_transfer"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_query_captures_one_generation_during_native_publication[load]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2613,
+      "longrepr_sha256": "7e742e33e00d5f289bc8b769a0c57a082f3363c28929c95e2ffb2612d9bc29b9",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_query_captures_one_generation_during_native_publication[update]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2618,
+      "longrepr_sha256": "d99f82eab0e60d79c9ca6d70eca1401bd03bb449f2d3aaa177e359978d499f82",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_metadata_copies_and_failed_native_mutation_preserve_generation",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2623,
+      "longrepr_sha256": "601147b88a637a160fb116ebefffffec051f01e072342ec27b58ef3d2f706746",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_same_ref_altered_bytes_refuses_load_without_publishing",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2628,
+      "longrepr_sha256": "4be9ace59b30d0ecd200578074dd3d8de480ce9c1dc6791ea57918eb940a57a4",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[outer-kind]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2633,
+      "longrepr_sha256": "a1a47117919499e79dfcbc67cc3db75e6eb856e08b791a92f20dbeb68969d121",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[outer-media]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2638,
+      "longrepr_sha256": "db3e6de7aff67f540e683e49f188d5ee3e8d910f955973f7e42accc1b826f831",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[schema]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2643,
+      "longrepr_sha256": "bb4db94b012b513d8b5c5ebfe0fca755f56d67c1935a33514c8c7418405535ea",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[missing-schema]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2648,
+      "longrepr_sha256": "d23d6e56679043218d29dd187c7cd6f30351f54a2aee2a5ea24440893d827cb4",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[dimension]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2653,
+      "longrepr_sha256": "d4eea86c6299cb11fd3fbefde3adfa8ea32e861640fc9f0fa5795335fe55603b",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[count]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2658,
+      "longrepr_sha256": "27fac6500432cbae40cc9b5bf2ab0e6d96cfbf179b67c1970ab9df3e054c5605",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[capacity]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2663,
+      "longrepr_sha256": "367ab29b9798bcbd374377017116cc654f1fcdaa12c521699d7a55f5ce6e0f88",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[index-kind]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2668,
+      "longrepr_sha256": "67e461dfb44fd9f2e09085f76295bdad2b9dbdb4e191f3c026bf1a87c8b57b76",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[truncated-index]",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2673,
+      "longrepr_sha256": "9bebf59c9027bdd336a4f5f71f791fd283bf373988b592c6769e88ad3f8e02d4",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_explicit_schema_absent_legacy_bundle_uses_default_native_view",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2678,
+      "longrepr_sha256": "1cac80cad7fb1b5f0e9b5c7982fd035cb531b340defc0f7ba3d5235a725b58a7",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_same_native_ref_changed_bytes_preserves_published_generation",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2683,
+      "longrepr_sha256": "e48d8e629c4a03e389805a2e2dc8bfaa4e1062e92821ee4cb26396beee64d5bc",
+      "wasxfail": null,
+      "class": "unguarded_native_hnsw_generation"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_first_sobol_candidate_uses_native_search_space_protocol",
+      "when": "call",
+      "runtime_outcome": "failed",
+      "events_line": 2728,
+      "longrepr_sha256": "55f2caf6b0a80374e6c0dcf9e1e294ca65a69db8dda6189b6aad379d318234b9",
+      "wasxfail": null,
+      "class": "unguarded_native_bayesian_candidate"
+    }
+  ],
+  "failure_classes": {
+    "provider_decimal_lexeme": 21,
+    "nonregular_child_timeout": 4,
+    "cache_reuse_receipt_contract": 2,
+    "unguarded_native_hnsw_transfer": 2,
+    "unguarded_native_hnsw_generation": 15,
+    "unguarded_native_bayesian_candidate": 1
+  },
+  "completed_skips": [
+    {
+      "nodeid": "tests/unit/remediation/test_trn_02.py::test_failed_native_add_does_not_publish_a_second_python_record",
+      "when": "call",
+      "runtime_outcome": "skipped",
+      "events_line": 2598,
+      "longrepr_sha256": "15c52908049603323813ff5f8c93ee2620c79a9eae96cd37dbc02fca07fe204a",
+      "wasxfail": null,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/remediation/test_trn_02.py', 54, \"Skipped: could not import 'hnswlib': No module named 'hnswlib'\")"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_trn_02.py::test_failed_native_load_does_not_publish_partial_bundle",
+      "when": "call",
+      "runtime_outcome": "skipped",
+      "events_line": 2603,
+      "longrepr_sha256": "9fc2755c6a1e3f6e130a1de092f52dda7066d4b82c35403f9dc82b3f9f3ff701",
+      "wasxfail": null,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/remediation/test_trn_02.py', 70, \"Skipped: could not import 'hnswlib': No module named 'hnswlib'\")"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_trn_02.py::test_native_roundtrip_preserves_one_small_generation",
+      "when": "call",
+      "runtime_outcome": "skipped",
+      "events_line": 2608,
+      "longrepr_sha256": "afdec02539cd57eb21d2fd86f6401309418274048d083add6c9a0c461298dee0",
+      "wasxfail": null,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/remediation/test_trn_02.py', 104, \"Skipped: could not import 'hnswlib': No module named 'hnswlib'\")"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_transfer_process.py::test_second_process_consumes_exact_cas_snapshot_and_preserves_failed_generation",
+      "when": "call",
+      "runtime_outcome": "skipped",
+      "events_line": 2688,
+      "longrepr_sha256": "d77ba2bd15166e2ab99071725ed979128f04af0ef3a6011c6e0c5e422b3005b9",
+      "wasxfail": null,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/agent/test_vector_transfer_process.py', 28, 'Skipped: UNRUN: second-process transfer profile requires hnswlib')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_transfer_process.py::test_actual_native_loader_exception_keeps_the_old_generation",
+      "when": "call",
+      "runtime_outcome": "skipped",
+      "events_line": 2693,
+      "longrepr_sha256": "f97e772ba47032118744550a7eb5e880f1e2f263b4b6cd8502bec1742f1ed1d5",
+      "wasxfail": null,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/agent/test_vector_transfer_process.py', 36, 'Skipped: UNRUN: native HNSW loader control requires hnswlib')"
+    }
+  ],
+  "collection_reports": [
+    {
+      "nodeid": "tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+      "outcome": "skipped",
+      "events_line": 1196,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/integration/scientist/methods/search/test_configured_transfer_controller.py', 30, 'Skipped: UNRUN: configured native transfer requires Torch')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "outcome": "skipped",
+      "events_line": 1197,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py', 15, 'Skipped: UNRUN: native numerical adapter requires Torch')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+      "outcome": "skipped",
+      "events_line": 1204,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py', 9, 'Skipped: UNRUN: optional numerical runtime unavailable')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "outcome": "skipped",
+      "events_line": 1205,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py', 7, 'Skipped: UNRUN: actual DOE backend required')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+      "outcome": "skipped",
+      "events_line": 1207,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py', 41, 'Skipped: UNRUN: native receiver review requires Torch')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+      "outcome": "skipped",
+      "events_line": 1208,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py', 7, 'Skipped: SALib not installed')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py",
+      "outcome": "skipped",
+      "events_line": 1209,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py', 7, 'Skipped: UNRUN: actual DOE backend required')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "outcome": "skipped",
+      "events_line": 1210,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py', 37, 'Skipped: UNRUN: native transfer workflow requires Torch')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "outcome": "skipped",
+      "events_line": 1213,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py', 10, \"Skipped: could not import 'SALib': No module named 'SALib'\")"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "outcome": "skipped",
+      "events_line": 1215,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py', 27, 'Skipped: UNRUN: native analytic GP continuation requires Torch')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+      "outcome": "skipped",
+      "events_line": 1216,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py', 7, 'Skipped: UNRUN: optional numerical runtime unavailable')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+      "outcome": "skipped",
+      "events_line": 1217,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py', 7, 'Skipped: UNRUN: actual native MO backend')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+      "outcome": "skipped",
+      "events_line": 1218,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py', 15, 'Skipped: UNRUN: actual MO reference consumer requires Torch')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+      "outcome": "skipped",
+      "events_line": 1220,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py', 11, 'Skipped: UNRUN: transfer selection requires native HNSW')"
+    },
+    {
+      "nodeid": "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "outcome": "skipped",
+      "events_line": 1383,
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py', 19, 'Skipped: UNRUN: native CAS/ANN producer requires hnswlib')"
+    }
+  ],
+  "loaded_product_origins": {
+    "event_rows": 2736,
+    "unique_paths": 1368,
+    "frozen_git_discrepancies": [],
+    "scope": "Observed main-process partial exec/census only; no final census or subprocess source enforcement claim"
+  },
+  "sampled_actual_backends": [
+    {
+      "events_line": 272,
+      "stage": "configure",
+      "state": {
+        "torch": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "botorch": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "gpytorch": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "hnswlib": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "SALib": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "numpy": {
+          "installed_version": "2.3.5",
+          "actually_loaded_in_main_process": true,
+          "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/__init__.py",
+          "module_version": "2.3.5",
+          "module_file_sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+          "module_file_bytes": 25919
+        },
+        "scipy": {
+          "installed_version": "1.16.3",
+          "actually_loaded_in_main_process": false
+        },
+        "pytest": {
+          "installed_version": "9.0.2",
+          "actually_loaded_in_main_process": true,
+          "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/pytest/__init__.py",
+          "module_version": "9.0.2",
+          "module_file_sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+          "module_file_bytes": 5582
+        },
+        "numpy._core._multiarray_umath:binary": {
+          "path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+          "bytes": 10800697,
+          "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+        }
+      }
+    },
+    {
+      "events_line": 1386,
+      "stage": "collection_complete",
+      "state": {
+        "torch": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "botorch": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "gpytorch": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "hnswlib": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "SALib": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "numpy": {
+          "installed_version": "2.3.5",
+          "actually_loaded_in_main_process": true,
+          "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/__init__.py",
+          "module_version": "2.3.5",
+          "module_file_sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+          "module_file_bytes": 25919
+        },
+        "scipy": {
+          "installed_version": "1.16.3",
+          "actually_loaded_in_main_process": true,
+          "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/scipy/__init__.py",
+          "module_version": "1.16.3",
+          "module_file_sha256": "a72412a5c62442876e073a01da1910c84b7214d1382380b71a873b470420dd68",
+          "module_file_bytes": 4063
+        },
+        "pytest": {
+          "installed_version": "9.0.2",
+          "actually_loaded_in_main_process": true,
+          "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/pytest/__init__.py",
+          "module_version": "9.0.2",
+          "module_file_sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+          "module_file_bytes": 5582
+        },
+        "numpy._core._multiarray_umath:binary": {
+          "path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+          "bytes": 10800697,
+          "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+        }
+      }
+    }
+  ],
+  "artifact_identities": {
+    "before.json": {
+      "path": "/tmp/e02-D-final-root-wave-c17db434-20261006/before.json",
+      "bytes": 1618217,
+      "sha256": "cefc302f90ed1c5bb463947042a7b5e2ea9386b9b99b9e9b49c38ddf81d816ce"
+    },
+    "after.json": {
+      "path": "/tmp/e02-D-final-root-wave-c17db434-20261006/after.json",
+      "bytes": 1618217,
+      "sha256": "61a6cf38e62f3e49971377120908e1a1c8e55458a66ce9a27e97da118605e8a4"
+    },
+    "result.json": {
+      "path": "/tmp/e02-D-final-root-wave-c17db434-20261006/result.json",
+      "bytes": 45647,
+      "sha256": "d1b65cb8f20a0786aaeaa388b5425ae4d946497970740a1e623b360feaf5f355"
+    },
+    "execution-manifest.json": {
+      "path": "/tmp/e02-D-final-root-wave-c17db434-20261006/execution-manifest.json",
+      "bytes": 34461,
+      "sha256": "c4891565c88f6495be78a95909d869166b44b4419a6058c70cc1eac61307a36e"
+    },
+    "events.jsonl": {
+      "path": "/tmp/e02-D-final-root-wave-c17db434-20261006/events.jsonl",
+      "bytes": 3036271,
+      "sha256": "20b1377b538a1a1f32ef41156a4f3e18c7f6f5f4593903f1361050a745fee34d"
+    },
+    "collected-nodeids.json": {
+      "path": "/tmp/e02-D-final-root-wave-c17db434-20261006/collected-nodeids.json",
+      "bytes": 190983,
+      "sha256": "d1c09e13cc172d35089be4a88fe8bd42b445cd1145c0ffae1c34ea94154ea997"
+    },
+    "complete.stdout.txt": {
+      "path": "/tmp/e02-D-final-root-wave-c17db434-20261006/complete.stdout.txt",
+      "bytes": 303,
+      "sha256": "40d9cf7cf261afd40fd641d54668234c20ac6552915488ce757ebb4787a55289"
+    },
+    "complete.stderr.txt": {
+      "path": "/tmp/e02-D-final-root-wave-c17db434-20261006/complete.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "missing_final_artifacts": [
+    "junit.xml",
+    "observer-summary.json"
+  ],
+  "event_kind_counts": {
+    "observer_loaded": 1,
+    "polisyos_module_exec": 1368,
+    "polisyos_module_census": 4,
+    "configure": 1,
+    "collection_report": 15,
+    "collection_complete": 1,
+    "case_start": 280,
+    "case_report": 838,
+    "case_finish": 279
+  },
+  "termination": {
+    "child_exit": -9,
+    "signal": 9,
+    "wall_seconds": 62.77516844100319,
+    "child_usage": {
+      "user_seconds": 23.27624,
+      "system_seconds": 19.492353,
+      "maxrss_KiB_linux": 595748
+    },
+    "scope": "Observed SIGKILL only; global memory counters do not establish PID-specific cause"
+  },
+  "limitations": [
+    "No JUnit/session_finish/observer final summary exists; partial events cannot certify whole-suite completion.",
+    "229 completed call passes apply only to their actual case phases at this exact source/profile.",
+    "45 failed calls remain historical FAIL; 18 missing-backend failures do not adjudicate underlying native numerical/ANN predicates.",
+    "5 completed native-backend skips and 15 collection skips are UNRUN for their required backend predicates.",
+    "Backends are sampled configure/collection observations, not a final global census; no numerical model construction or fit claim.",
+    "Four nonregular subprocess tests hit their existing test-owned five-second timeout with no stdout/stderr and no CAS fixtures; CAS refusal was not observed.",
+    "Root aggregate finished_case_count=0 and actual_collected_case_count=null reflect missing final summary; raw partial events independently contain279 completed cases and1244 collected identities."
+  ],
+  "published_raw_output_reference": {
+    "commit": "f5642cca00f084ddbc195c98541a30df058612db",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-c17-partial/complete-output.json.xz",
+    "sha256": "2be4574286b788bfcb280d123054550407568891843e4c6267e877e6a8cea87a",
+    "bytes": 976704,
+    "member_count": 682,
+    "encoding": "xz JSON members with base64 bodies",
+    "artifact_member_pointers": {
+      "before.json": "/members/1",
+      "after.json": "/members/0",
+      "result.json": "/members/678",
+      "execution-manifest.json": "/members/6",
+      "events.jsonl": "/members/5",
+      "collected-nodeids.json": "/members/2",
+      "complete.stdout.txt": "/members/4",
+      "complete.stderr.txt": "/members/3"
+    }
+  },
+  "publication_scope": "Original independent metadata only. All existing complete raw outputs resolve through the exact published root carrier; none of its source/script bodies are recopied."
+}

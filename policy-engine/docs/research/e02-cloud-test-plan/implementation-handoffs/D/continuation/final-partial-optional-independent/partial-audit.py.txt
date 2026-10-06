@@ -1,0 +1,211 @@
+"""Reconcile an interrupted pytest capture without importing product or starting tests."""
+from __future__ import annotations
+
+from collections import Counter, defaultdict
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+SOURCE = 'c17db434428882c9f21a6071831c9d519d38d4b7'
+REPOSITORY = Path('/workspace/e02-D-published-root')
+CAPTURE = Path('/tmp/e02-D-final-root-wave-c17db434-20261006')
+DESTINATION = Path('/tmp/e02-oracle-final-partial-audit-c17-review.json')
+
+
+def digest(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
+
+
+def identity(path: Path) -> dict:
+    value = path.read_bytes()
+    return {'path': str(path), 'bytes': len(value), 'sha256': digest(value)}
+
+
+def read(name: str) -> dict:
+    return json.loads((CAPTURE / name).read_text())
+
+
+def group(nodeid: str) -> str:
+    path = nodeid.split('::')[0]
+    return {
+        'tests/integration/core/llm/test_gateway_response_text_cost.py': 'provider_decimal_lexeme',
+        'tests/unit/core/artifacts/test_verification_snapshot_report.py': 'nonregular_child_timeout',
+        'tests/unit/remediation/test_llm_01.py': 'cache_reuse_receipt_contract',
+        'tests/unit/remediation/test_trn_02.py': 'unguarded_native_hnsw_transfer',
+        'tests/unit/scientist/agent/test_vector_memory.py': 'unguarded_native_hnsw_generation',
+        'tests/unit/scientist/methods/autotune/test_bayesian_generator.py': 'unguarded_native_bayesian_candidate',
+    }[path]
+
+
+def audit() -> dict:
+    before, after, result = read('before.json'), read('after.json'), read('result.json')
+    manifest, collected = read('execution-manifest.json'), read('collected-nodeids.json')
+    events = [json.loads(line) for line in (CAPTURE / 'events.jsonl').read_text().splitlines()]
+    failures, skips, collection = [], [], []
+    starts, finishes, kinds = Counter(), Counter(), Counter()
+    phases = defaultdict(list)
+    loaded_rows, backends = [], []
+    for line, event in enumerate(events, 1):
+        kind = event['kind']
+        kinds[kind] += 1
+        if kind == 'case_start':
+            starts[event['nodeid']] += 1
+        elif kind == 'case_finish':
+            finishes[event['nodeid']] += 1
+        elif kind == 'case_report':
+            phases[event['nodeid']].append(event)
+            if event['outcome'] in {'failed', 'skipped'}:
+                row = {'nodeid': event['nodeid'], 'when': event['when'],
+                       'runtime_outcome': event['outcome'], 'events_line': line,
+                       'longrepr_sha256': digest(event['longrepr'].encode()),
+                       'wasxfail': event.get('wasxfail')}
+                if event['outcome'] == 'failed':
+                    row['class'] = group(event['nodeid'])
+                    failures.append(row)
+                else:
+                    row['reason'] = event['longrepr']
+                    skips.append(row)
+        elif kind == 'collection_report':
+            collection.append({'nodeid': event['nodeid'], 'outcome': event['outcome'],
+                               'events_line': line, 'reason': event.get('longrepr')})
+        elif kind == 'polisyos_module_exec':
+            loaded_rows.append(event)
+        elif kind == 'polisyos_module_census':
+            loaded_rows.extend(event['modules'])
+        if 'backend_state' in event:
+            backends.append({'events_line': line, 'stage': kind, 'state': event['backend_state']})
+
+    tree_raw = subprocess.check_output(['git', '-C', str(REPOSITORY), 'ls-tree', '-rz', SOURCE])
+    tree = {}
+    for entry in tree_raw.split(b'\0'):
+        if not entry:
+            continue
+        metadata, raw_path = entry.split(b'\t', 1)
+        _mode, kind, blob = metadata.decode().split()
+        if kind == 'blob':
+            tree[raw_path.decode()] = blob
+    paths = before['files']
+    checked = {}
+    discrepancies = []
+    child = subprocess.Popen(['git', '-C', str(REPOSITORY), 'cat-file', '--batch'],
+                             stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    if child.stdin is None or child.stdout is None:
+        raise RuntimeError('Git object stream unavailable')
+    for path, recorded in paths.items():
+        blob = tree.get(path)
+        if blob is None:
+            discrepancies.append({'path': path, 'reason': 'not_frozen_git_blob'})
+            continue
+        if blob not in checked:
+            child.stdin.write((blob + '\n').encode())
+            child.stdin.flush()
+            header = child.stdout.readline().decode().split()
+            raw = child.stdout.read(int(header[2]))
+            if child.stdout.read(1) != b'\n':
+                raise RuntimeError('Malformed Git object stream separator')
+            checked[blob] = {'bytes': len(raw), 'sha256': digest(raw)}
+        expected = checked[blob]
+        if (recorded.get('git_blob') != blob or recorded.get('bytes') != expected['bytes']
+                or recorded.get('sha256') != expected['sha256']
+                or recorded.get('matches_frozen_git_blob') is not True):
+            discrepancies.append({'path': path, 'reason': 'captured_identity_differs_from_frozen_git'})
+    child.stdin.close()
+    if child.wait() != 0:
+        raise RuntimeError('Git object reader failed')
+    origin_discrepancies = []
+    for row in loaded_rows:
+        path = row.get('repository_path')
+        recorded = paths.get(path, {})
+        if (row.get('source_sha') != SOURCE or row.get('git_match') is not True
+                or row.get('frozen_blob') != tree.get(path)
+                or row.get('sha256') != recorded.get('sha256')
+                or row.get('bytes') != recorded.get('bytes')
+                or row.get('path') != str(REPOSITORY / path)):
+            origin_discrepancies.append({'path': path, 'reason': 'loaded_origin_not_bound_to_capture_and_git'})
+    collected_ids = collected['nodeids']
+    collected_set = set(collected_ids)
+    phase_shape_gaps = []
+    phase_counts = Counter()
+    for nodeid in finishes:
+        shape = [(row['when'], row['outcome']) for row in phases[nodeid]]
+        phase_counts.update(shape)
+        if (starts[nodeid] != 1 or finishes[nodeid] != 1
+                or [name for name, _value in shape] != ['setup', 'call', 'teardown']
+                or shape[0][1] != 'passed' or shape[-1][1] != 'passed'):
+            phase_shape_gaps.append({'nodeid': nodeid, 'shape': shape})
+    unfinished = sorted(set(starts) - set(finishes))
+    unstarted = sorted(collected_set - set(starts))
+    snapshots = {
+        'declared_count': len(paths), 'before_after_files_equal': paths == after['files'],
+        'external_inputs_equal': before['external_input_files'] == after['external_input_files'],
+        'git_state_equal': before['git_state'] == after['git_state'],
+        'before_and_after_clean': not before['git_state']['status_porcelain'] and not after['git_state']['status_porcelain'],
+        'frozen_git_discrepancies': discrepancies,
+        'all_tracked_tests_python': sum(p.startswith('policy-engine/tests/') and p.endswith('.py') for p in tree),
+        'captured_tests_python': sum(p.startswith('policy-engine/tests/') and p.endswith('.py') for p in paths),
+        'missing_tracked_tests_python': sorted(p for p in tree if p.startswith('policy-engine/tests/') and p.endswith('.py') and p not in paths),
+        'all_tracked_source_python': sum(p.startswith('policy-engine/src/') and p.endswith('.py') for p in tree),
+        'captured_source_python': sum(p.startswith('policy-engine/src/') and p.endswith('.py') for p in paths),
+        'missing_tracked_source_python': sorted(p for p in tree if p.startswith('policy-engine/src/') and p.endswith('.py') and p not in paths),
+    }
+    output = {
+        'schema': 'polisyos.e02.independent_partial_wave_review.v1', 'source_sha': SOURCE,
+        'source_tree': before['git_state']['tree'], 'new_runtime': False, 'metadata_only': True,
+        'whole_suite_verdict': 'ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN',
+        'formal_closed': 0, 'G_accepted': False, 'snapshots': snapshots,
+        'selected_count': manifest['union_selector_count'],
+        'extra_selectors': manifest['extra_selectors'],
+        'inherited_numeric_caps_and_addopts': manifest['inherited_numeric_caps_and_addopts'],
+        'denominator': {
+            'collected_unique': len(collected_set), 'collected_raw': len(collected_ids),
+            'collected_declared': collected['count'], 'declared_unique': collected['unique_count'],
+            'deselected': collected['deselected'], 'unique_starts': len(starts),
+            'unique_finishes': len(finishes), 'unfinished_started': unfinished,
+            'never_started_count': len(unstarted),
+            'never_started_ids_json_sha256': digest(json.dumps(unstarted, separators=(',', ':')).encode()),
+            'collected_cases_UNRUN_count': len(unstarted) + len(unfinished),
+            'complete_phase_counts': {f'{name}:{outcome}': count for (name, outcome), count in phase_counts.items()},
+            'complete_phase_shape_gaps': phase_shape_gaps,
+            'started_outside_collection': sorted(set(starts) - collected_set),
+            'finished_outside_collection': sorted(set(finishes) - collected_set),
+            'failure_unique_count': len({f['nodeid'] for f in failures}),
+            'failure_phase_count': len(failures), 'failure_and_error_phase_overlap': [],
+            'collection_skipped_modules': len(collection),
+        },
+        'failures': failures, 'failure_classes': dict(Counter(f['class'] for f in failures)),
+        'completed_skips': skips, 'collection_reports': collection,
+        'loaded_product_origins': {'event_rows': len(loaded_rows),
+            'unique_paths': len({r.get('repository_path') for r in loaded_rows}),
+            'frozen_git_discrepancies': origin_discrepancies,
+            'scope': 'Observed main-process partial exec/census only; no final census or subprocess source enforcement claim'},
+        'sampled_actual_backends': backends,
+        'artifact_identities': {name: identity(CAPTURE / name) for name in (
+            'before.json', 'after.json', 'result.json', 'execution-manifest.json',
+            'events.jsonl', 'collected-nodeids.json', 'complete.stdout.txt', 'complete.stderr.txt')},
+        'missing_final_artifacts': [name for name in ('junit.xml', 'observer-summary.json') if not (CAPTURE / name).exists()],
+        'event_kind_counts': dict(kinds),
+        'termination': {'child_exit': result['actual_exit'], 'signal': result['actual_signal'],
+            'wall_seconds': result['wall_seconds'], 'child_usage': result['child_usage'],
+            'scope': 'Observed SIGKILL only; global memory counters do not establish PID-specific cause'},
+        'limitations': [
+            'No JUnit/session_finish/observer final summary exists; partial events cannot certify whole-suite completion.',
+            '229 completed call passes apply only to their actual case phases at this exact source/profile.',
+            '45 failed calls remain historical FAIL; 18 missing-backend failures do not adjudicate underlying native numerical/ANN predicates.',
+            '5 completed native-backend skips and 15 collection skips are UNRUN for their required backend predicates.',
+            'Backends are sampled configure/collection observations, not a final global census; no numerical model construction or fit claim.',
+            'Four nonregular subprocess tests hit their existing test-owned five-second timeout with no stdout/stderr and no CAS fixtures; CAS refusal was not observed.',
+            'Root aggregate finished_case_count=0 and actual_collected_case_count=null reflect missing final summary; raw partial events independently contain279 completed cases and1244 collected identities.',
+        ],
+    }
+    return output
+
+
+if __name__ == '__main__':
+    report = audit()
+    DESTINATION.write_text(json.dumps(report, indent=2) + '\n')
+    print(json.dumps({'destination': str(DESTINATION), 'identity': identity(DESTINATION),
+        'failure_classes': report['failure_classes'], 'denominator': report['denominator'],
+        'snapshot_discrepancies': len(report['snapshots']['frozen_git_discrepancies']),
+        'origin_count': report['loaded_product_origins']['unique_paths'],
+        'origin_discrepancies': len(report['loaded_product_origins']['frozen_git_discrepancies'])}, indent=2))

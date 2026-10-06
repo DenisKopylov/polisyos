@@ -1,0 +1,104 @@
+"""Read-only validation of the published interrupted-wave carrier."""
+from __future__ import annotations
+import base64
+import hashlib
+import json
+import lzma
+import os
+from pathlib import Path
+import stat
+import subprocess
+
+REPO = Path('/workspace/e02-D-published-root')
+COMMIT = 'f5642cca00f084ddbc195c98541a30df058612db'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-c17-partial/'
+CAPTURE = Path('/tmp/e02-D-final-root-wave-c17db434-20261006')
+
+
+def git_body(commit: str, path: str) -> bytes:
+    return subprocess.check_output(['git', '-C', str(REPO), 'show', commit + ':' + path])
+
+
+def sha256(raw: bytes) -> str:
+    return hashlib.sha256(raw).hexdigest()
+
+
+carrier = git_body(COMMIT, PREFIX + 'complete-output.json.xz')
+manifest_body = git_body(COMMIT, PREFIX + 'manifest.json')
+manifest = json.loads(manifest_body)
+bundle = json.loads(lzma.decompress(carrier))
+errors = []
+metadata = []
+raw_count = 0
+for index, member in enumerate(bundle['members']):
+    if member['encoding'] != 'base64':
+        raise ValueError('Unsupported lossless member encoding')
+    raw = base64.b64decode(member['data'], validate=True)
+    raw_count += len(raw)
+    path = CAPTURE / member['name']
+    body_ok = len(raw) == member['bytes'] and sha256(raw) == member['sha256']
+    original_ok = path.is_file() and not path.is_symlink() and path.read_bytes() == raw
+    if not body_ok or not original_ok:
+        errors.append({'index': index, 'name': member['name'], 'body_ok': body_ok, 'original_ok': original_ok})
+    metadata.append({key: value for key, value in member.items() if key != 'data'})
+actual_regular = set()
+actual_nonregular = []
+for parent, directories, files in os.walk(CAPTURE, followlinks=False):
+    for name in directories + files:
+        path = Path(parent) / name
+        info = path.lstat()
+        relative = path.relative_to(CAPTURE).as_posix()
+        if stat.S_ISREG(info.st_mode):
+            actual_regular.add(relative)
+        elif not stat.S_ISDIR(info.st_mode):
+            kind = 'symlink' if stat.S_ISLNK(info.st_mode) else 'other'
+            actual_nonregular.append({'name': relative, 'mode': oct(info.st_mode), 'kind': kind,
+                                      'symlink_target': os.readlink(path) if kind == 'symlink' else None})
+expected_regular = {member['name'] for member in bundle['members']}
+nonregular_equal = sorted(actual_nonregular, key=lambda x: x['name']) == sorted(bundle['nonregular_members'], key=lambda x: x['name'])
+inputs = [
+    ('final_runner', '69e2d477b7e8f2e213bf545fbbad42881a9aefce',
+     'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-wave-input/runner.py.txt',
+     '/tmp/e02-D-broad-wave-final.py'),
+    ('base_helper', 'e038bca98f9e33dca33cc49221a85311a5ab5704',
+     'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-wave-source-helpers.py.txt',
+     '/tmp/e02-D-broad-wave.py'),
+    ('observer', 'e038bca98f9e33dca33cc49221a85311a5ab5704',
+     'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-runtime-observer.py.txt',
+     '/tmp/e02_broad_observer.py'),
+]
+input_checks = []
+for role, commit, path, original in inputs:
+    raw = git_body(commit, path)
+    input_checks.append({'role': role, 'source_sha': commit, 'path': path, 'bytes': len(raw),
+                         'sha256': sha256(raw), 'original_bytes_equal': raw == Path(original).read_bytes()})
+output = {
+    'schema': 'polisyos.e02.independent_c17_lossless_carrier_review.v1',
+    'new_runtime': False, 'source_sha': bundle['source_sha'], 'source_tree': bundle['source_tree'],
+    'carrier_commit': COMMIT, 'carrier_path': PREFIX + 'complete-output.json.xz',
+    'carrier_bytes': len(carrier), 'carrier_sha256': sha256(carrier),
+    'manifest_path': PREFIX + 'manifest.json', 'manifest_bytes': len(manifest_body),
+    'manifest_sha256': sha256(manifest_body), 'member_count': len(bundle['members']),
+    'unique_member_names': len(expected_regular), 'raw_bytes': raw_count,
+    'member_errors': errors, 'manifest_members_deep_equal': metadata == manifest['complete_members'],
+    'manifest_scalar_values_match': (len(carrier) == manifest['carrier_bytes']
+        and sha256(carrier) == manifest['carrier_sha256'] and len(bundle['members']) == manifest['member_count']
+        and raw_count == manifest['original_raw_bytes']),
+    'original_regular_walk_count': len(actual_regular), 'missing_original_regular_files': sorted(actual_regular - expected_regular),
+    'carrier_names_absent_from_original_regular_files': sorted(expected_regular - actual_regular),
+    'nonregular_count': len(actual_nonregular), 'nonregular_descriptors_equal': nonregular_equal,
+    'manifest_nonregular_and_input_refs_deep_equal': bundle['nonregular_members'] == manifest['nonregular_members'] and bundle['original_input_refs'] == manifest['original_input_refs'],
+    'original_tracked_measurement_input_checks': input_checks,
+    'partial_runtime_verdict': 'ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN',
+    'limitations': ['Lossless transport integrity does not establish completion or override any actual failed case.',
+                    'Subprocess bodies were not origin-enforced by the passive main-process observer.',
+                    'No JUnit/session_finish/final observer summary exists; no whole-suite PASS or model-fit acceptance.',
+                    'The carrier lists three direct historical input references; this review explicitly resolves the additional consumed base helper through its exact existing Git source.'],
+    'formal_closed': 0, 'G_accepted': False,
+}
+destination = Path('/tmp/e02-oracle-c17-carrier-independent-binding.json')
+destination.write_text(json.dumps(output, indent=2) + '\n')
+print(json.dumps({'output': str(destination), 'bytes': len(destination.read_bytes()),
+                  'sha256': sha256(destination.read_bytes()), 'members': len(bundle['members']),
+                  'member_errors': errors, 'regular_walk_equal': actual_regular == expected_regular,
+                  'nonregular_equal': nonregular_equal, 'manifest_deep_equal': metadata == manifest['complete_members']}, indent=2))

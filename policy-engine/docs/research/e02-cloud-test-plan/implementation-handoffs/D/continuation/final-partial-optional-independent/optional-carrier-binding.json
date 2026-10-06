@@ -1,0 +1,28 @@
+{
+  "schema": "polisyos.e02.independent_optional_native_carrier_binding.v1",
+  "new_runtime": false,
+  "carrier_commit": "6755e9cbedd88abb8c9d882efd5f923ccb2e2f2b",
+  "carrier_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-proof/complete-data.json.gz",
+  "carrier_bytes": 637147,
+  "carrier_sha256": "4dcd692301dfb28eef60f36098697ad7ad84ac0db01926f76818e1591e2d7822",
+  "decoded_sha256": "72d43b4e1e9c539fbb394e107eff9dc8fb647cd02206bdd81c5d9cfd5b002ae7",
+  "members": 10,
+  "unique_names": 10,
+  "member_errors": [],
+  "after_reference_reconstruction": [
+    {
+      "name": "after.json",
+      "target": "before.json",
+      "bytes": 1615808,
+      "raw_sha256": "879637905cd5c7c27e37cf237430efc4a58a32e35a7103d6a2a907efbefdbc21"
+    }
+  ],
+  "handoff_commit": "415621e89b059d432f1b24a00262b73b3fe99e22",
+  "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-handoff.json",
+  "handoff_bytes": 13005,
+  "handoff_sha256": "0f8fa634d703b8030b5f0811aff2af37b80c08939548bd8ff04acbeae4b74c1c",
+  "source_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+  "scope": "All ten published raw output/metadata members reconstituted byte-for-byte and matched retained originals; author current38 runtime is reviewed separately. Native21SKIP=UNRUN; no GP/HNSW fit acceptance.",
+  "formal_closed": 0,
+  "G_accepted": false
+}

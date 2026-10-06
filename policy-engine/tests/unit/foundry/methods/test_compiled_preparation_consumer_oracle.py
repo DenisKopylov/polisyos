@@ -43,7 +43,9 @@ class _State(NamedTuple):
 
 
 def _slot(name: str, shape: tuple[str, ...] = ()) -> SlotSpec:
-    return SlotSpec(name, SlotType.VECTOR if shape else SlotType.SCALAR, Unit("value", "1"), shape)
+    return SlotSpec(
+        name, SlotType.VECTOR if shape else SlotType.SCALAR, Unit("value", "1"), shape=shape
+    )
 
 
 class _Draw:

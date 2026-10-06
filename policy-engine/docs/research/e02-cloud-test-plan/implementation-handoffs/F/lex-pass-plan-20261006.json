@@ -170,8 +170,8 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/implementation.patch",
-      "sha256": "209f747bda75af63dc2dcd3adc2e9c35b2d69ca01ca5d155dcc4cdfbbe0f3876",
-      "bytes": 5086
+      "sha256": "cff3aa0211801c162ccb219214fd5234db3306bb7278010044ba55100bde806a",
+      "bytes": 5562
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/invocation.json.gz",
@@ -273,7 +273,7 @@
   ],
   "local_rerun": {
     "owner": "G with local Lex source owner",
-    "candidate_sha": "6fb011374d8ec60780cf6acd0259de724d73ced5",
+    "candidate_sha": "00a6eda114b903bc5abe86902cd8372426f739a1",
     "purpose": "If asserting current-law/report-corpus applicability, bind immutable baseline/candidate NormPack refs, actual legal backend/profile, jurisdiction/effective-time and issuer/custody proof, then run existing lex impact consumer read-only; retain source-bound topic limitations.",
     "check": "UNRUN",
     "command_not_constructed_reason": "Local input refs and actual admitted law/backend profile are unavailable; no guessed paths or runnable placeholders."
@@ -295,7 +295,7 @@
     "00a6eda114b903bc5abe86902cd8372426f739a1"
   ],
   "candidate_tree_sha": "e84f7a4d1cb91c624264e6c95f5d0c07fb3510f3",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/48",
   "changed_paths": [
     "policy-engine/release-fragments/unreleased/2026-10-06-lex-pass-plan-deduplication.toml",
     "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
@@ -451,5 +451,9 @@
       "reason": "Initial final-targeted invocation used an absent guessed test path; no product was exercised. Actual recorded selector rerun24PASS.",
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/final-targeted-harness-path-error.stderr"
     }
-  ]
+  ],
+  "publication_readback_before_receipt_append": {
+    "head": "5ab0d966810fddf1f792b587ea163974285e95b3",
+    "reason": "Full implementation diff now includes the release metadata commit. Prior numeric witnesses are unchanged; this append changes receipts only."
+  }
 }

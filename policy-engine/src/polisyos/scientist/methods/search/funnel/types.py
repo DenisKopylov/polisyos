@@ -8,6 +8,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass, field
 from decimal import Decimal
+from functools import partial
 from math import isfinite
 from typing import Any, Literal
 
@@ -23,6 +24,32 @@ FunnelEvaluationStatus = Literal["not_evaluated", "partial", "evaluated"]
 _RESOURCE_RESPONSE_OBSERVER: ContextVar[Callable[[Any], None] | None] = ContextVar(
     "funnel_resource_response_observer", default=None
 )
+
+
+def resolve_funnel_local_receipt(owner: Any, declared: Any) -> Any:
+    """Require the public B receipt type and exact readback from this known owner."""
+    from polisyos.core.llm.response import LLMLocalSpendReceipt
+    from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedgerSpendReceipt
+
+    if owner is None or not isinstance(declared, BudgetLedgerSpendReceipt):
+        return None
+    actual = owner.resolve_spend_safe(declared.event_id)
+    if not isinstance(actual, BudgetLedgerSpendReceipt) or actual != declared:
+        return None
+    return LLMLocalSpendReceipt(
+        actual.event_id, actual.payload_digest, actual.key, actual.amount, actual.provider
+    )
+
+
+@contextmanager
+def funnel_resource_receipt_context(owner: Any) -> Iterator[None]:
+    """Bind only the configured B owner's existing read-only receipt operation."""
+    from polisyos.core.llm.response import llm_local_receipt_resolver
+
+    with llm_local_receipt_resolver(
+        partial(resolve_funnel_local_receipt, owner) if owner is not None else None
+    ):
+        yield
 
 
 @contextmanager

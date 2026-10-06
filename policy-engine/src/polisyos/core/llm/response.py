@@ -2,10 +2,42 @@
 
 from __future__ import annotations
 
+import hashlib
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, replace
 from decimal import Decimal, InvalidOperation
 from math import isfinite
 from typing import Any
+
+
+@dataclass(frozen=True)
+class LLMLocalSpendReceipt:
+    """Read-only view returned by an existing configured local ledger adapter."""
+
+    event_id: str
+    payload_digest: str
+    key: str
+    amount: Decimal
+    provider: str | None
+
+
+_LOCAL_RECEIPT_RESOLVER: ContextVar[Callable[[Any], LLMLocalSpendReceipt | None] | None] = (
+    ContextVar("llm_local_receipt_resolver", default=None)
+)
+
+
+@contextmanager
+def llm_local_receipt_resolver(
+    resolver: Callable[[Any], LLMLocalSpendReceipt | None] | None,
+) -> Iterator[None]:
+    """Supply operational readback; this port never settles or grants permission."""
+    token = _LOCAL_RECEIPT_RESOLVER.set(resolver)
+    try:
+        yield
+    finally:
+        _LOCAL_RECEIPT_RESOLVER.reset(token)
 
 
 class _InvalidLLMCostError(ValueError):
@@ -48,14 +80,20 @@ class LLMResponseData:
         return prompt_tokens + completion_tokens
 
 
-def extract_llm_response_data(response: Any) -> LLMResponseData:
+def extract_llm_response_data(
+    response: Any, *, _physical_provider: bool = False
+) -> LLMResponseData:
     """Extract content, usage, model, and cost fields from heterogeneous LLM SDK responses."""
     from .settlement import LLMSettledResponse
 
     if isinstance(response, LLMSettledResponse):
         response = response.response
     content = response.content if hasattr(response, "content") else str(response)
-    cache_hit, usage_origin, reuse_event_id, cache_key = _extract_cache_provenance(response)
+    cache_hit, usage_origin, reuse_event_id, cache_key = (
+        (False, "provider", None, None)
+        if _physical_provider
+        else _extract_cache_provenance(response)
+    )
     origin_prompt_tokens = 0
     origin_completion_tokens = 0
     provider: str | None = None
@@ -120,17 +158,54 @@ def _extract_cache_provenance(
     response: Any,
 ) -> tuple[bool, str, str | None, str | None]:
     """Consume B's receiver-bound operational cache capability, not a type marker."""
-    from .settlement import _cache_reuse_provenance
+    from .settlement import LLMProducerSettlement, _cache_reuse_provenance, producer_settlement
 
     provenance = _cache_reuse_provenance(response)
     if provenance is None:
         return False, "provider", None, None
+    origin = producer_settlement(response)
+    resolver = _LOCAL_RECEIPT_RESOLVER.get()
+    if not isinstance(origin, LLMProducerSettlement) or resolver is None:
+        raise ValueError(
+            "cache reuse requires original producer settlement and local receipt readback"
+        )
+    event, ack = origin.event, origin.ack
+    content = getattr(response, "content", None)
+    if (
+        not isinstance(content, str)
+        or event.kind != "provider"
+        or event.request_digest != provenance.request_digest
+        or event.response_digest != "sha256:" + hashlib.sha256(content.encode()).hexdigest()
+        or event.model != getattr(response, "model", None)
+        or event.provider != getattr(response, "provider", None)
+        or ack.status != "committed"
+        or ack.durability != "ledger"
+        or not ack.receipts
+    ):
+        raise ValueError(
+            "cache reuse does not bind original response content/context and paid receipt"
+        )
+    for declared in ack.receipts:
+        receipt = resolver(declared)
+        if not isinstance(receipt, LLMLocalSpendReceipt):
+            raise ValueError("cache reuse receipt readback unavailable")
+        expected_id = f"{event.event_id}:budget:{hashlib.sha256(receipt.key.encode()).hexdigest()}"
+        expected_digest = hashlib.sha256(
+            f"{event.payload_digest}:{receipt.key}".encode()
+        ).hexdigest()
+        if (
+            receipt.event_id != expected_id
+            or receipt.payload_digest != expected_digest
+            or receipt.amount != event.amount
+            or receipt.provider != event.provider
+        ):
+            raise ValueError("cache reuse receipt conflicts with original producer input")
     return True, "provider", provenance.reuse_event_id, provenance.cache_key
 
 
 def _extract_physical_provider_response_data(response: Any) -> LLMResponseData:
     """Preserve B's billable physical-completion boundary with strict D cost intake."""
-    parsed = extract_llm_response_data(response)
+    parsed = extract_llm_response_data(response, _physical_provider=True)
     return replace(
         parsed,
         prompt_tokens=parsed.origin_prompt_tokens or 0,

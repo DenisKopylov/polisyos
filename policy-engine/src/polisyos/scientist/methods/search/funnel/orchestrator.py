@@ -21,6 +21,7 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelStageResult,
     TypedFailureCard,
     UncertaintyEnvelope,
+    funnel_resource_receipt_context,
     funnel_resource_response_observer,
 )
 from polisyos.scientist.methods.search.lessons import (
@@ -456,7 +457,10 @@ class FunnelOrchestrator:
                 if self._budget_middleware is not None
                 else None
             )
-            with funnel_resource_response_observer(observer):
+            with (
+                funnel_resource_receipt_context(self._budget_middleware),
+                funnel_resource_response_observer(observer),
+            ):
                 result = stage.evaluate(
                     resolved_ticket.candidate,
                     stage_context,

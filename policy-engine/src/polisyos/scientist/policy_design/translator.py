@@ -12,6 +12,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.llm.traced_client import LLMAccountingError
 from polisyos.scientist.methods.search.funnel.types import (
+    funnel_resource_receipt_context,
     observe_funnel_resource_accounting_failure,
     observe_funnel_resource_response,
 )
@@ -233,17 +234,20 @@ class PolicyTranslatorWorker:
             ),
         }
         try:
-            response = await llm_client.generate(
-                system=get_policy_translator_prompt(),
-                user=build_policy_translator_user_payload(payload),
-                response_format={"type": "json_object"},
-                temperature=self._config.temperature,
-                max_tokens=self._config.max_tokens,
-                _run_id=bundle.run_id,
-                **(
-                    {"_evaluation_id": evaluation_id} if self._budget_middleware is not None else {}
-                ),
-            )
+            with funnel_resource_receipt_context(self._budget_middleware):
+                response = await llm_client.generate(
+                    system=get_policy_translator_prompt(),
+                    user=build_policy_translator_user_payload(payload),
+                    response_format={"type": "json_object"},
+                    temperature=self._config.temperature,
+                    max_tokens=self._config.max_tokens,
+                    _run_id=bundle.run_id,
+                    **(
+                        {"_evaluation_id": evaluation_id}
+                        if self._budget_middleware is not None
+                        else {}
+                    ),
+                )
             observe_funnel_resource_response(response)
             raw = getattr(response, "content", response)
             return PolicyBrief.model_validate(_parse_json_object(raw))

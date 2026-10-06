@@ -1,0 +1,10 @@
+id = "2026-10-06-e02-D-cache-receipt-consumer"
+title = "Bind free cache reuse to actual original bytes and local receipt readback"
+type = "fixed"
+component = "core-llm"
+owner = "team-policyos-runtime"
+surface_classification = "internal"
+summary = "The D receiver verifies original producer settlement, exact response bytes/model/provider/request and configured local typed receipt readback before projecting free cache reuse. D stages and native policy workers supply the existing middleware resolver; physical completions remain billable."
+evidence = ["tests/integration/core/llm/test_cache_response_binding.py"]
+compatibility = "Standalone B/cache clients without the read-only resolver port, and in-memory/no-receipt envelopes, cannot establish free reuse. Their additive configured owner port remains a B integration request."
+limitations = "This operational readback issues no permission, charge, reservation release or external billing claim."

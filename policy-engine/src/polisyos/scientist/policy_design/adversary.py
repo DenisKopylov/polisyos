@@ -26,6 +26,7 @@ from polisyos.scientist.methods.doe.designs import (
 from polisyos.scientist.methods.doe.stress_report import StressTestReport, admit_objective_threshold
 from polisyos.scientist.methods.search.adversarial import run_stress_test
 from polisyos.scientist.methods.search.funnel.types import (
+    funnel_resource_receipt_context,
     observe_funnel_resource_accounting_failure,
     observe_funnel_resource_response,
 )
@@ -155,30 +156,33 @@ class ScenarioAdversaryWorker:
                 run_id=run_id,
             )
         try:
-            response = await llm_client.generate(
-                system=get_policy_adversary_prompt(),
-                user=build_policy_adversary_user_payload(
-                    {
-                        "candidate_id": surface.candidate_id,
-                        "parameter_specs": [
-                            item.model_dump(mode="json")
-                            for item in surface.parameter_specs[: self._config.max_scenarios]
-                        ],
-                        "split_manifest": (
-                            surface.benchmark_split_manifest.model_dump(mode="json")
-                            if surface.benchmark_split_manifest is not None
-                            else None
-                        ),
-                    }
-                ),
-                response_format={"type": "json_object"},
-                max_tokens=self._config.max_tokens,
-                temperature=0.1,
-                _run_id=run_id,
-                **(
-                    {"_evaluation_id": evaluation_id} if self._budget_middleware is not None else {}
-                ),
-            )
+            with funnel_resource_receipt_context(self._budget_middleware):
+                response = await llm_client.generate(
+                    system=get_policy_adversary_prompt(),
+                    user=build_policy_adversary_user_payload(
+                        {
+                            "candidate_id": surface.candidate_id,
+                            "parameter_specs": [
+                                item.model_dump(mode="json")
+                                for item in surface.parameter_specs[: self._config.max_scenarios]
+                            ],
+                            "split_manifest": (
+                                surface.benchmark_split_manifest.model_dump(mode="json")
+                                if surface.benchmark_split_manifest is not None
+                                else None
+                            ),
+                        }
+                    ),
+                    response_format={"type": "json_object"},
+                    max_tokens=self._config.max_tokens,
+                    temperature=0.1,
+                    _run_id=run_id,
+                    **(
+                        {"_evaluation_id": evaluation_id}
+                        if self._budget_middleware is not None
+                        else {}
+                    ),
+                )
             observe_funnel_resource_response(response)
             payload = _parse_json_object(getattr(response, "content", response))
             proposals = [

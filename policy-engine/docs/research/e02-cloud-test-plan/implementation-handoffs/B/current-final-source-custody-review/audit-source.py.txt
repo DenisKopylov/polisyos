@@ -1,0 +1,243 @@
+"""Read immutable Git only; no native/gate/collection or checkout mutation."""
+import argparse
+import ast
+import collections
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import tomllib
+import re
+
+ROOT = Path('/workspace/e02-B-current-cas-generation')
+BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+FORBIDDEN = 'a3daffbe867ddfe9eede5e5990687283b552952a'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+REQUIRED = ('schema unit slice closure_ids bundle_ids slice_base_sha implementation_commits '
+            'candidate_tree_sha branch pull_request changed_paths baseline_cells checks property '
+            'predicate_basis capability_state_or_finding_state limitations_and_next_owner').split()
+CHECK_REQUIRED = 'command target_sha environment input_closure outcome output'.split()
+PROPERTY_REQUIRED = 'statement runtime_path proxy_divergence negative_controls'.split()
+ENUMS = ['recomputed', 'independently_reconciled', 'consumer_asserted',
+         'institutionally_supplied', 'not_established']
+
+def git(*args, check=True):
+    return subprocess.run(['git', '-C', str(ROOT), *args], check=check,
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+def text(*args):
+    return git(*args).stdout.decode()
+
+def blob(source, path):
+    return git('show', source + ':' + path).stdout
+
+def tree(source):
+    rows = {}
+    for raw in git('ls-tree', '-r', '-l', '-z', source).stdout.split(b'\0'):
+        if not raw:
+            continue
+        left, path = raw.split(b'\t', 1)
+        mode, typ, oid, size = left.decode().split()
+        rows[path.decode()] = {'mode': mode, 'type': typ, 'blob': oid,
+                               'bytes': int(size) if size != '-' else None}
+    return rows
+
+def category(path):
+    if path.startswith('policy-engine/src/'):
+        return 'product_python' if path.endswith('.py') else ('product_stub' if path.endswith('.pyi') else 'product_companion')
+    if path.startswith('policy-engine/tests/'):
+        if path.endswith('.py'):
+            return 'native_test_module' if Path(path).name.startswith('test_') else 'native_test_helper'
+        return 'native_test_fixture_or_companion'
+    if path.startswith('policy-engine/release-fragments/'):
+        return 'release_fragment'
+    if path.startswith('policy-engine/tools/'):
+        return 'tool_or_generator'
+    if path.startswith('policy-engine/docs/research/'):
+        return 'research_evidence_or_handoff'
+    if path.startswith('policy-engine/architecture/'):
+        return 'architecture_contract_or_generated'
+    if path.startswith('policy-engine/schemas/'):
+        return 'generated_schema'
+    if path.startswith('policy-engine/docs/'):
+        return 'nonresearch_documentation'
+    return 'other'
+
+def shape_defects(d):
+    defects = []
+    missing = [k for k in REQUIRED if k not in d]
+    if missing:
+        defects.append({'level': 'top', 'missing': missing})
+    if d.get('predicate_basis') not in ENUMS:
+        defects.append({'level': 'predicate_enum', 'actual': d.get('predicate_basis')})
+    for index, check in enumerate(d.get('checks', [])):
+        missing = [k for k in CHECK_REQUIRED if not isinstance(check, dict) or k not in check]
+        if missing:
+            defects.append({'level': 'check', 'index': index, 'missing': missing})
+    prop = d.get('property', {})
+    missing = [k for k in PROPERTY_REQUIRED if not isinstance(prop, dict) or k not in prop]
+    if missing:
+        defects.append({'level': 'property', 'missing': missing})
+    return defects
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--source', required=True)
+    parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--provisional', action='store_true')
+    args = parser.parse_args()
+    source = text('rev-parse', args.source).strip()
+    target_tree = text('rev-parse', source + '^{tree}').strip()
+    changed = text('diff', '--name-only', '--no-renames', BASE, source).splitlines()
+    base_tree, final_tree = tree(BASE), tree(source)
+    custody = [{'path': p, 'category': category(p), 'base': base_tree.get(p),
+                'candidate': final_tree.get(p)} for p in changed]
+    protected_paths = [
+        'policy-engine/src/polisyos/runtime/quality/generation_cycle.py',
+        'policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py',
+        'policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py',
+        'policy-engine/src/polisyos/fabric/data_plane/streaming.py',
+        'policy-engine/src/polisyos/scientist/orchestration/llm/streaming.py',
+    ]
+    protected = []
+    for p in protected_paths:
+        a, b = blob(BASE, p), blob(source, p)
+        protected.append({'path': p, 'byte_equal': a == b,
+                          'base_blob': base_tree[p]['blob'],
+                          'target_blob': final_tree[p]['blob'],
+                          'bytes': len(b), 'sha256': hashlib.sha256(b).hexdigest()})
+    receipts, roles, other_schemas = [], collections.defaultdict(set), collections.Counter()
+    for p in final_tree:
+        if not p.startswith(PREFIX) or '/' in p[len(PREFIX):] or not p.endswith('.json'):
+            continue
+        raw = blob(source, p)
+        d = json.loads(raw)
+        if d.get('schema') != 'policyos.e02.implementation_handoff.v1':
+            other_schemas[str(d.get('schema'))] += 1
+            continue
+        impl = d.get('implementation_commits', [])
+        branch = d.get('branch')
+        for commit in impl:
+            if isinstance(commit, str) and branch:
+                roles[commit].add(branch)
+        row = {'path': p, 'blob': final_tree[p]['blob'], 'bytes': len(raw),
+               'sha256': hashlib.sha256(raw).hexdigest(), 'branch': branch,
+               'slice': d.get('slice'), 'shape_defects': shape_defects(d)}
+        base = d.get('slice_base_sha')
+        declared_paths = d.get('changed_paths')
+        if impl and isinstance(base, str) and isinstance(declared_paths, list) and all(isinstance(x, str) for x in declared_paths):
+            actual = git('diff', '--name-only', '--no-renames', base, str(impl[-1]), check=False)
+            if actual.returncode == 0:
+                actual_paths = actual.stdout.decode().splitlines()
+                expected_tree = text('rev-parse', str(impl[-1]) + '^{tree}').strip()
+                row['footprint'] = {'implementation_tip': impl[-1],
+                    'declared_tree': d.get('candidate_tree_sha'), 'actual_tree': expected_tree,
+                    'tree_equal': d.get('candidate_tree_sha') == expected_tree,
+                    'declared_count': len(declared_paths), 'actual_count': len(actual_paths),
+                    'missing_declared_paths': sorted(set(actual_paths) - set(declared_paths)),
+                    'extra_declared_paths': sorted(set(declared_paths) - set(actual_paths)),
+                    'qualification': 'Literal last implementation commit projection; multi-tip/evidence source roles may require explicit owner qualification.'}
+            else:
+                row['footprint'] = {'state': 'not_established', 'stderr': actual.stderr.decode()}
+        else:
+            row['footprint'] = {'state': 'not_established', 'reason': 'No literal string base/commit/path list for direct Git footprint.'}
+        receipts.append(row)
+    # This old peer map is navigation for canonical source families, not final source verdict.
+    peer_path = PREFIX + 'current-root-closeout-source-preparation.json'
+    peer = json.loads(blob(source, peer_path))
+    peer_map = peer.get('canonical_writer_mapping', {})
+    prior_owner = {r['path']: r['canonical_mechanism_family'] for r in peer_map.get('rows', [])}
+    for commit, branches in peer_map.get('declared_commit_roles', {}).items():
+        roles[commit].update(branches)
+    product = []
+    for p in changed:
+        if not p.startswith('policy-engine/src/') or not p.endswith(('.py', '.pyi')):
+            continue
+        commits = text('log', '--no-merges', '--format=%H', BASE + '..' + source, '--', p).splitlines()
+        mapped = {c: sorted(roles.get(c, set())) for c in commits}
+        families = sorted({r for v in mapped.values() for r in v if r != 'codex/e02-B-current-coordination'})
+        product.append({'path': p, 'canonical_previous_owner': prior_owner.get(p),
+                        'nonmerge_commits': mapped, 'declared_nonroot_families': families,
+                        'unmapped_commits': [c for c, r in mapped.items() if not r]})
+    configs = {}
+    for p in ['policy-engine/architecture/generated_artifacts.toml',
+              'policy-engine/architecture/public_surface/contract.toml']:
+        raw = blob(source, p)
+        d = tomllib.loads(raw.decode())
+        outputs = []
+        for family in d.get('family', []) + d.get('generated_artifact_family', []):
+            hits = [x for x in family.get('outputs', []) if 'policy-engine/' + x in changed or x in changed]
+            if hits:
+                outputs.append({'id': family.get('id'), 'owner': family.get('owner'),
+                                'changed_outputs': hits, 'regenerate_commands': family.get('regenerate_commands'),
+                                'freshness_rule': family.get('freshness_rule')})
+        configs[p] = {'blob': final_tree[p]['blob'], 'bytes': len(raw),
+                      'sha256': hashlib.sha256(raw).hexdigest(), 'changed_families': outputs}
+    contract = tomllib.loads(blob(source, 'policy-engine/architecture/public_surface/contract.toml').decode())
+    supported = {x for r in contract['package'] for x in r['supported_entrypoints']}
+    facades = []
+    for p in changed:
+        if p.startswith('policy-engine/src/') and p.endswith('/__init__.py'):
+            module = p[len('policy-engine/src/'):].removesuffix('/__init__.py').replace('/', '.')
+            facades.append({'path': p, 'module': module,
+                            'listed_supported_entrypoint': module in supported,
+                            'classification': 'registered entrypoint' if module in supported else 'internal_by_default',
+                            'ast_parse_pass': isinstance(ast.parse(blob(source, p)), ast.Module)})
+    release_rows = []
+    for p in changed:
+        if category(p) != 'release_fragment':
+            continue
+        data = tomllib.loads(blob(source, p).decode())
+        refs = []
+        for field in ['evidence', 'migration_docs', 'runbook_docs']:
+            for ref in data.get(field, []):
+                path = ref if ref.startswith('policy-engine/') else 'policy-engine/' + ref
+                refs.append({'field': field, 'path': path, 'exists': path in final_tree})
+        release_rows.append({'path': p, 'owner': data.get('owner'),
+                             'surface_classification': data.get('surface_classification'),
+                             'migration': data.get('migration'), 'declared_refs': refs})
+    quota_pattern = re.compile(r'OMP_NUM_THREADS|OPENBLAS_NUM_THREADS|MKL_NUM_THREADS|NUMEXPR_NUM_THREADS|VECLIB_MAXIMUM_THREADS|BLIS_NUM_THREADS|--maxWorkers|taskset|cpu[-_]quota|cpu[-_]count|setrlimit|RLIMIT|JAX_NUM_THREADS|RAYON_NUM_THREADS')
+    live_research = [p for p in changed if p.startswith(PREFIX) and '/' not in p[len(PREFIX):] and p.endswith('.py')]
+    quota_hits = []
+    quota_scanned = []
+    for p in changed:
+        if not p.endswith(('.py', '.toml', '.json', '.yaml', '.yml')) or (p.startswith('policy-engine/docs/research/') and p not in live_research):
+            continue
+        quota_scanned.append(p)
+        for line in text('diff', '--unified=0', BASE, source, '--', p).splitlines():
+            if line.startswith('+') and not line.startswith('+++') and quota_pattern.search(line):
+                quota_hits.append({'path': p, 'added_line': line[1:]})
+    categories = collections.Counter(r['category'] for r in custody)
+    receipt_defects = [r for r in receipts if r['shape_defects']]
+    footprint_mismatches = [r for r in receipts if 'actual_count' in r['footprint'] and (
+        not r['footprint']['tree_equal'] or r['footprint']['missing_declared_paths'] or r['footprint']['extra_declared_paths'])]
+    result = {'schema': 'policyos.e02.source_custody_audit.v1', 'source_sha': source,
+              'tree_sha': target_tree, 'slice_base_sha': BASE,
+              'provisional_not_final_acceptance': args.provisional,
+              'forbidden_a3_ancestor': git('merge-base', '--is-ancestor', FORBIDDEN, source, check=False).returncode == 0,
+              'full_changed_path_count': len(changed), 'category_counts': dict(categories),
+              'total_changed_candidate_blob_bytes': sum(r['candidate']['bytes'] or 0 for r in custody if r['candidate']),
+              'protected_paths': protected, 'canonical_handoff_count': len(receipts),
+              'other_top_level_json_schema_counts': dict(other_schemas),
+              'schema_defect_count': len(receipt_defects),
+              'literal_footprint_mismatch_count': len(footprint_mismatches),
+              'product_owner_rows': product, 'generated_configs': configs,
+              'generated_or_tool_changes': [p for p in changed if p.endswith('.pyi') or p.startswith('policy-engine/tools/') or p.startswith('policy-engine/schemas/') or p.startswith('policy-engine/architecture/') or p.endswith('public-surface.md') or p.endswith('generated-artifacts.md')],
+              'changed_facade_classifications': facades,
+              'release_fragment_fields_and_refs': release_rows,
+              'quota_addedline_scan': {'full_scanned_path_count': len(quota_scanned),
+                   'live_top_research_scripts': live_research, 'pattern': quota_pattern.pattern,
+                   'hits': quota_hits, 'qualification': 'Literal added-line scan of product/tests/tools/config/live top research helpers; historical embedded witness copies/outputs excluded and dynamic behavior not proved by pattern absence.'},
+              'nearest_readmes': [p for p in changed if Path(p).name == 'README.md'],
+              'release_fragments': [p for p in changed if category(p) == 'release_fragment'],
+              'receipt_shape_defects': receipt_defects,
+              'receipt_literal_footprint_mismatches': footprint_mismatches,
+              'claim_grade': 'Git metadata/source/mandatory field correspondence only; no source behavior, runtime, lease timeline, or formal finding closure.'}
+    args.out.mkdir(parents=True, exist_ok=True)
+    for name, value in [('audit.json', result), ('derivable-path-custody.json', custody), ('receipt-census.json', receipts)]:
+        raw = (json.dumps(value, ensure_ascii=False, indent=2) + '\n').encode()
+        (args.out / name).write_bytes(raw)
+    print(json.dumps({k: v for k, v in result.items() if k not in {'product_owner_rows', 'receipt_shape_defects', 'receipt_literal_footprint_mismatches', 'release_fragment_fields_and_refs'}}, ensure_ascii=False, indent=2))
+
+if __name__ == '__main__':
+    main()

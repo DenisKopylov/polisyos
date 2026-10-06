@@ -1,0 +1,209 @@
+{
+  "schema": "policyos.e02.finite_resource_review.v1",
+  "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+  "predicate_basis": "independently_reconciled",
+  "claim_grade": "independent environment/source/input inquiry; no own CAS or root outcome acceptance",
+  "verdict": "finite cloud replay prerequisite unresolved; prepared retry UNRUN",
+  "actual_native_predecessor": {
+    "whole_native_files": 250,
+    "collected_cases": 3882,
+    "observer_state": "collection_finished_runtime_pending",
+    "persisted_runtime_reports": 0,
+    "wall_s": 486.20474443299463,
+    "returncode": -9,
+    "child_maxrss_kib": 1289484,
+    "full_partition": "not_established; EXE owns observed stdout-prefix attribution. Tail hidden-client node does not establish setup or body completion."
+  },
+  "static_actual_attempts": [
+    {
+      "wall_s": 123.27904838400718,
+      "returncode": -9,
+      "child_maxrss_kib": 5610612
+    },
+    {
+      "wall_s": 109.96838946299977,
+      "returncode": -9,
+      "child_maxrss_kib": 5456628
+    }
+  ],
+  "environment": {
+    "memory_max_bytes": 17179869184,
+    "swap_total": "0 observed in /proc/meminfo; memory.swap.current0",
+    "tmp_and_dev_shm": "two tmpfs mounts charged to the same cgroup; available mount blocks do not establish aggregate resident memory headroom",
+    "current_samples": "Full actual timestamps/counters in environment-checkpoint and audit before/after; concurrent root offline architecture helper is explicitly present in census. These are not kill-time samples or exact PID OOM attribution."
+  },
+  "new_closed_forests": {
+    "summary": {
+      "candidate_count": 64,
+      "stable_inactive_candidates": 64,
+      "allocated_bytes": 268632064,
+      "allocated_zero_page_bytes": 228196352
+    },
+    "all_zero_estimate_in_final_forest": 228196352,
+    "boundary": "4096-byte all-zero pages only within SEEK_DATA extents, conservative min of per-file allocated bytes; no mutation/punch performed. All64 candidates stable while read and no accessible FD/map before/after. dockerd/containerd denied, so universal no-FD absence not established. Root declined punch as insufficient."
+  },
+  "space_forecast": {
+    "declared_runtime_api_env_cases": 561,
+    "hidden_collection_index0": 1322,
+    "remaining_declared_fixture_cases": 544,
+    "by_file": {
+      "tests/unit/runtime/http/test_acquisition_routes_api.py": 2,
+      "tests/unit/runtime/http/test_api_maturity.py": 6,
+      "tests/unit/runtime/http/test_artifact_inspector_api.py": 4,
+      "tests/unit/runtime/http/test_auth_api.py": 1,
+      "tests/unit/runtime/http/test_authority_values.py": 1,
+      "tests/unit/runtime/http/test_authorization_audience_denials.py": 7,
+      "tests/unit/runtime/http/test_b88_served_replay.py": 5,
+      "tests/unit/runtime/http/test_bureaucratic_rendering_api.py": 8,
+      "tests/unit/runtime/http/test_capability_discovery_api.py": 7,
+      "tests/unit/runtime/http/test_case_inspection_api.py": 6,
+      "tests/unit/runtime/http/test_confidence_ledger_risk_spend_api.py": 3,
+      "tests/unit/runtime/http/test_control_api.py": 66,
+      "tests/unit/runtime/http/test_control_job_execution_intent.py": 1,
+      "tests/unit/runtime/http/test_core_only_runs_api.py": 2,
+      "tests/unit/runtime/http/test_debug_api.py": 6,
+      "tests/unit/runtime/http/test_decision_validity_api.py": 7,
+      "tests/unit/runtime/http/test_ds20_authorization_binding_followups.py": 2,
+      "tests/unit/runtime/http/test_ds20_seeded_negatives.py": 15,
+      "tests/unit/runtime/http/test_e2e_ingestion.py": 16,
+      "tests/unit/runtime/http/test_fabric_integration_routes.py": 4,
+      "tests/unit/runtime/http/test_governed_projection_api.py": 9,
+      "tests/unit/runtime/http/test_human_decision_api.py": 2,
+      "tests/unit/runtime/http/test_insights_api.py": 3,
+      "tests/unit/runtime/http/test_lineage_api.py": 6,
+      "tests/unit/runtime/http/test_lineage_routes.py": 3,
+      "tests/unit/runtime/http/test_public_decision_verification_routes.py": 4,
+      "tests/unit/runtime/http/test_r13_ingestion_tenant_custody.py": 2,
+      "tests/unit/runtime/http/test_review_collaboration_api.py": 5,
+      "tests/unit/runtime/http/test_review_effectiveness_projection.py": 3,
+      "tests/unit/runtime/http/test_run_compare_api.py": 4,
+      "tests/unit/runtime/http/test_run_evidence_context_promotions.py": 2,
+      "tests/unit/runtime/http/test_run_paper_api.py": 11,
+      "tests/unit/runtime/http/test_runs_api.py": 38,
+      "tests/unit/runtime/http/test_runtime_api_authz.py": 169,
+      "tests/unit/runtime/http/test_runtime_api_contract_hardening.py": 1,
+      "tests/unit/runtime/http/test_runtime_api_no_legacy_sources.py": 1,
+      "tests/unit/runtime/http/test_runtime_api_observability.py": 3,
+      "tests/unit/runtime/http/test_runtime_authorization_access_audit.py": 23,
+      "tests/unit/runtime/http/test_runtime_deployment_security.py": 1,
+      "tests/unit/runtime/http/test_runtime_fixture_identity_prohibition.py": 5,
+      "tests/unit/runtime/http/test_runtime_postgres_linearizability.py": 3,
+      "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py": 16,
+      "tests/unit/runtime/http/test_runtime_step_up_authz.py": 22,
+      "tests/unit/runtime/http/test_sae_spatial_route.py": 1,
+      "tests/unit/runtime/http/test_scenarios_api.py": 6,
+      "tests/unit/runtime/http/test_temporal_api.py": 6,
+      "tests/unit/runtime/http/test_temporal_routes.py": 9,
+      "tests/unit/runtime/http/test_timeline_api.py": 7,
+      "tests/unit/runtime/http/test_workspace_loop_transition.py": 27
+    },
+    "observed_final_duckdb_logical_size_distribution": {
+      "6303744": 30,
+      "2633728": 8,
+      "3420160": 6,
+      "3158016": 12
+    },
+    "observed_example_catalog_bytes": 6303744,
+    "remaining_linear_size_projection_bytes": 3429236736,
+    "qualification": "Fixture declaration and actual retained-file size projection only; not a lower bound, fit guarantee, future quantity, or outcome partition. Direct helper calls/failed setup native allocations remain unmeasured."
+  },
+  "source_resource_trace": [
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_authorization_audience_denials.py",
+      "lines": [
+        102,
+        105,
+        112
+      ],
+      "meaning": "hidden_client_action requests through a real authenticated HTTP client and runtime_api_env; no explicit fork/process/address-space admission in this test body."
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_authz.py",
+      "lines": [
+        979,
+        1007,
+        1021
+      ],
+      "meaning": "_build_secure_client constructs real RuntimeServiceContainer-backed FastAPI app and TestClient; no explicit fork in this helper."
+    },
+    {
+      "path": "policy-engine/tests/_helpers/runtime_http.py",
+      "lines": [
+        57,
+        64,
+        269,
+        289,
+        1376,
+        1391,
+        1477,
+        1482,
+        1490
+      ],
+      "meaning": "per-test POLISYOS_CACHE_HOME; actual runtime env construction, explicit client/service close and removal from live env registry after yield. Registration happens at completed build, so exceptional constructor-before-registration remains outside this cleanup proof. Files persist in unique tmp_path after close."
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "lines": [
+        257,
+        261
+      ],
+      "meaning": "teardown closes registered direct-helper envs. Source evidence of cleanup mechanism, not measured absence of live-process leak at kill."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "lines": [
+        2226,
+        2232,
+        2711,
+        2716,
+        2721
+      ],
+      "meaning": "real default retrieval DatasetCatalogGraph during ControlPlaneService construction; close stops worker and closes catalog/control/store. No changes to A-owned source."
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+      "lines": [
+        246,
+        257,
+        716
+      ],
+      "meaning": "DatasetCatalogGraph constructs DatasetCatalogStore and closes owned store; model embedding is lazily constructed by search, not proven entered in failed target."
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "lines": [
+        128,
+        140,
+        1010
+      ],
+      "meaning": "canonical catalog read session and close; local retained DB allocations remain after connection close."
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+      "lines": [
+        503,
+        510,
+        554,
+        559
+      ],
+      "meaning": "full tracked src/tools/tests source dictionaries and AST/scope analysis for both current and baseline; reported5.46GB RSS belongs to static consumer, not an HTTP leak proof. No source optimization or exclusion proposed."
+    }
+  ],
+  "observer_boundary": "Only collection and final hooks persist runtime array. SIGKILL bypasses sessionfinish/unconfigure; all3882 declarations remain but actual phases observed before death are not saved in inventory. No fabricated complete partition or count uplift. No observer change in this task.",
+  "recommended_next_owner": "ROOT/G resource-preserving replay on exact1862/250selectors/order/input backend only after real adequate filesystem and memory admission; preserve old artifacts and source. Current overlay\u22481.53GB is below remaining declared-fixture linear projection\u22483.43GB, which is a forecast not a lower bound. Prefer an adequately provisioned file-backed G/cloud environment; current finite17.18GB environment is not proven impossible, only unadmitted for a blind identical rerun.",
+  "falsifier": {
+    "source": "same exact1862/tree f765; no product/config/test edits, marker/worker/thread/CPU quota",
+    "native": "same unfiltered250paths/order, wheel7 inputs from fresh built source1862 with actual wheel/source/consumer hashes; actual psycopg3.3.2 PostgreSQL consumer admission, required-PG flag, private DSN file withheld from public packet; fresh disk-backed scratch and distinct output tag",
+    "resource_admission": "measure actual filesystem available capacity, cgroup before/through/after, memory.events deltas, process/child RSS and scratch allocation growth; no deletion/env/fixture move or invented Trash. Absence of concurrent full static graph work is prerequisite conflict avoidance, not a numeric process quota.",
+    "deciding_observation": "terminal pytest session/complete inventory + full stdout/JUnit and source/input guards. A further SIGKILL requires actual resource-event association; terminal non-memory failure would falsify an exclusive resource explanation. No individual PID causal assignment is currently established."
+  },
+  "limitations": [
+    "Current snapshots and cumulative oom_kill5 do not identify a specific killed PID or causal allocation.",
+    "Neither a hidden HTTP app heap leak nor source/product bug is established by last printed node.",
+    "Per-path st_blocks sums in census may double-count hardlinks and exclude metadata; statvfs/cgroup remain independent measured quantities, not derived sum identities.",
+    "Closed-fixture zero-page estimate is not permission or a remedy; no punch, move, cleanup, cache/env mutation, service action, heavy native or quota.",
+    "Retained raw source-profile/input locators are hash-bound; receiver availability remains not_established unless ROOT transfers bytes. PG credentials and private DSN file values were never read.",
+    "Source-leaf scoped runtime evidence and all60 dispositions remain distinct from incomplete broad root acceptance; ROOT/DUR/G own adjudication."
+  ]
+}

@@ -200,6 +200,22 @@ def test_real_persisted_binding_missing_and_malformed_fields_are_typed_refusals(
     malformed["versions"] = []
     with pytest.raises(bridge.WorkerBindingError):
         bridge._validate_reply(malformed, request, lock)
+    # Self-consistent hashes/version markers must not turn malformed JSON scalars
+    # into numerical evidence at the persisted consumer boundary.
+    for key, values in {
+        "point": ["2.0", True],
+        "standard_error": ["0.1", False],
+        "interval": [["1.0", "3.0"], [True, 3.0]],
+        "control_value": [False],
+        "treatment_value": [True],
+    }.items():
+        for value in values:
+            changed = copy.deepcopy(response)
+            changed["result"][key] = value
+            with pytest.raises(bridge.WorkerBindingError):
+                bridge.validate_persisted_worker_response(
+                    response=changed, state=data, store=store, source_ref=source
+                )
 
 
 @pytest.mark.parametrize(
@@ -283,7 +299,15 @@ def test_real_estimate_point_only_survives_parent_cas_and_reader(
 
 @pytest.mark.parametrize(
     "malformed",
-    ["[[0.,1.],[2.,3.]]", "[0.,1.,2.]", "[3.,1.]", "[float('nan'),1.]", "[0.,float('inf')]"],
+    [
+        "[[0.,1.],[2.,3.]]",
+        "[0.,1.,2.]",
+        "[3.,1.]",
+        "[float('nan'),1.]",
+        "[0.,float('inf')]",
+        "['1.0','3.0']",
+        "[True,3.0]",
+    ],
 )
 def test_actual_estimator_malformed_ci_refused_in_parent(
     tmp_path, selected_worker, monkeypatch, malformed

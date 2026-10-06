@@ -1,0 +1,358 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "exact-pareto-quantity-continuation",
+  "closure_ids": [],
+  "finding_ids": [
+    "B109",
+    "B110",
+    "B111"
+  ],
+  "bundle_ids": [
+    "OPT-01"
+  ],
+  "slice_base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "slice_base_tree": "e063183d3c82809b17c4d3c55de94a3c9edc249c",
+  "implementation_commits": [
+    "a82a02b816b619d706b398100024a9bb5b0daf21",
+    "e2b1c6f7e7157e72d4a56008da5edb85f01a9312",
+    "e287cc9954fc95ea44aca44573f59aa90fe8b53d",
+    "163a3b51630bca46b99ce660b40749fb79ed6b40"
+  ],
+  "candidate_sha": "163a3b51630bca46b99ce660b40749fb79ed6b40",
+  "candidate_tree_sha": "c0d81a144e904119db8521eb5ac9c533214e957c",
+  "other_candidate_mechanism_commits": [
+    "5fad9f31b491a4aff4c0f9a87c25922e61abbdf6",
+    "bde05d6f4848f87326a9d01113a42c1101a06181"
+  ],
+  "branch": "codex/e02-D-published-search",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-exact-pareto-quantity.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-generator-resume.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py"
+  ],
+  "changed_path_git_blobs": {
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-exact-pareto-quantity.toml": "9970373ea51aca237934f94c8f7a4e92a29b872e",
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-generator-resume.toml": "fb857f273b0f20085e8f6127b5b4f23bf9f1b460",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py": "16e90531f9aeeba3c2c203f738a1065b7d7b3b9f",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py": "fbf4f922543363171aa40d60359600f6ac03ff72",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py": "d12d0bb37b33ffb59513697eb95cc1653912553c",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py": "1e19866d58e85f247217949797efaf4de1ffd13d",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py": "2a10d485c1dfb3af384d4a82db3600d80a310f6c",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_profile.py": "c0edd75373323ea3473021c13d06d47cb8bc9fde",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py": "caa3fb0dd90d29fa5de4e22eed2b8b3b675f1167",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py": "1ef216bbfcb1c9eb532cdf068c2bb424110f62b5",
+    "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py": "7325a9a98c2be4fba5494113a8d7b59b29950ef8"
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "limited; no finding closure adjudicated",
+  "criterion_refs": [
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md#bundle-opt-01",
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-pr47-continuation-audit-2026-10-06.md@363e7ae0"
+  ],
+  "evidence_cells": [
+    {
+      "name": "development-fixture-first",
+      "files": {
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/development-fixture-first/complete.txt": {
+          "sha256": "a73e42c2d03febde1bceaeabf35d83bf6ff47f5a99cd3e12a549d7cd396aa39d",
+          "bytes": 36693
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/development-fixture-first/inputs.json": {
+          "sha256": "d3bf593443d88db22446d131e59c7f23507742bd6f0ffcb90d0a83be32f80a7e",
+          "bytes": 1646
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/development-fixture-first/junit.xml": {
+          "sha256": "be4d1e275100446d5c50f74397f2bedad94dff694e74bd6a4976fb6c1ba961aa",
+          "bytes": 23693
+        }
+      },
+      "junit": {
+        "executions": 85,
+        "failures": 7,
+        "errors": 0,
+        "skips": 0
+      }
+    },
+    {
+      "name": "development-historical-fixture",
+      "files": {
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/development-historical-fixture/complete.txt": {
+          "sha256": "a04e67d695df9dbcc3820ecbac6136cdfc0f714a98162ff7de8b1d2d6f8f9742",
+          "bytes": 25492
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/development-historical-fixture/inputs.json": {
+          "sha256": "d904fde45d4fd55542a13a1695df0e991c3553d7a87d958ab93df4175e9adfa9",
+          "bytes": 598
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/development-historical-fixture/junit.xml": {
+          "sha256": "12eef035eb0a853133a42cc7968ea6c1efd99506309ccf8a9f85c116b5b2969a",
+          "bytes": 11456
+        }
+      },
+      "junit": {
+        "executions": 42,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      }
+    },
+    {
+      "name": "a82-observer-error",
+      "files": {
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-observer-error/complete.txt": {
+          "sha256": "ab36862eba6e21ec0b753f334adc8737499f20687b2a4e4d9a4ed0c13d362a20",
+          "bytes": 5033
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-observer-error/run.py.txt": {
+          "sha256": "e5cd31442cd56ebb0c7de1078195f6ce6c0014810f1955c2160365a1f395dbcd",
+          "bytes": 2536
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-observer-error/native_observer.py.txt": {
+          "sha256": "72b418faef1d1601faef2eba1277e424d22a548e3ac43a01b6c21a24f5a0801f",
+          "bytes": 1708
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-observer-error/run.json": {
+          "sha256": "42334fbb6004fe0a7be8db0d22127bcffba4fecd051f2687385be184fe99d238",
+          "bytes": 4687
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-observer-error/junit.xml": {
+          "sha256": "42b6a5d201e0f0c782b9593bbf36ab7412a5defdb22879b29f8f3e23d2cf2414",
+          "bytes": 18065
+        }
+      },
+      "junit": {
+        "executions": 94,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      }
+    },
+    {
+      "name": "a82-native94",
+      "files": {
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-native94/complete.txt": {
+          "sha256": "0d288bd348b2112286e8dad625c5581b21de98480c91b8ed83562166db5e2a43",
+          "bytes": 30681
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-native94/run.py.txt": {
+          "sha256": "382f7cf499af5355a96d9956a53f8e9f028674f715cf81e3b5d694a8b3bc1dac",
+          "bytes": 2570
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-native94/junit.native.json": {
+          "sha256": "3e9ef916f2d40e1130063d473d37c758528c6691da10d073a15d119059f49d0c",
+          "bytes": 3121
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-native94/native_observer.py.txt": {
+          "sha256": "1d90c0adf47034692fe7144fe1ac2fbf4a7ebcfe5a2d86f06993f288acb0c572",
+          "bytes": 1707
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-native94/run.json": {
+          "sha256": "8f102108bfd039c89c1c814f5b6d02802d33b714ca536897668ab0c9731f41ae",
+          "bytes": 4754
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-native94/junit.xml": {
+          "sha256": "dfb6f76737fc86e759ec32d4ce188fedddaad9a7f5f11c067b793469f03aef0a",
+          "bytes": 18065
+        }
+      },
+      "junit": {
+        "executions": 94,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      }
+    },
+    {
+      "name": "a82-property-removal",
+      "files": {
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-property-removal/complete.txt": {
+          "sha256": "2241ded642de5a0e27fbc8de4c917df4edb9d99c79f645b8e590f621a8197f36",
+          "bytes": 3334
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-property-removal/quantity_removal.py.txt": {
+          "sha256": "d82a1226fbf768941e5e8be54bbe363ce526907624edb905350e3c47c04e31d4",
+          "bytes": 582
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-property-removal/run.json": {
+          "sha256": "150d9fd4299d10197e04f1ee5d81a3d808919a82b8f5f8fd6778007093eb3811",
+          "bytes": 820
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/a82-property-removal/junit.xml": {
+          "sha256": "4fa58bd4a2ef25f202eabdbbbb7882bc1a7e0db2903a9970362bff6ff3d3f507",
+          "bytes": 3884
+        }
+      },
+      "junit": {
+        "executions": 4,
+        "failures": 2,
+        "errors": 0,
+        "skips": 0
+      }
+    },
+    {
+      "name": "5fad-quantity-and-wrapper",
+      "files": {
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/5fad-quantity-and-wrapper/complete.txt": {
+          "sha256": "5590af1e0cc21ef285981b80f5d481de8142bd75794a998aaaf523847fe072d4",
+          "bytes": 34935
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/5fad-quantity-and-wrapper/run.py.txt": {
+          "sha256": "1e766edae68e0c7f86fc99f7a5e2b1044d71b19ea49d471d6d0019b906a8c180",
+          "bytes": 2719
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/5fad-quantity-and-wrapper/junit.native.json": {
+          "sha256": "227149b7979a7f475e5b5bcdf7f9f4b4d6280967a7facd4c61147648473b20ed",
+          "bytes": 3932
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/5fad-quantity-and-wrapper/native_observer.py.txt": {
+          "sha256": "1e55ce8aa95df57f3431a6f47b0bf64f2aed44bf85d81c5daa8cd75c53b90b51",
+          "bytes": 1869
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/5fad-quantity-and-wrapper/run.json": {
+          "sha256": "edd7783be393654827d0358c695efcd3535a55dffb0b8c16fdb8c3a30060199f",
+          "bytes": 6156
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/5fad-quantity-and-wrapper/junit.xml": {
+          "sha256": "ce6e73a4419fda4fda5de51e997a512961fca1b185e70e25d3ecf08b5b1ec0df",
+          "bytes": 21414
+        }
+      },
+      "junit": {
+        "executions": 108,
+        "failures": 1,
+        "errors": 0,
+        "skips": 0
+      }
+    },
+    {
+      "name": "163a-quantity-intake43",
+      "files": {
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/163a-quantity-intake43/complete.txt": {
+          "sha256": "19596da7de0dab0c91fe40726c29cb5ad038ede9e217b6ae3c86b1b42b3f21a4",
+          "bytes": 8789
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/163a-quantity-intake43/run.py.txt": {
+          "sha256": "7faebe959a10dab031f8af593eb39442d011f6966985c255f04260a0340cbc3a",
+          "bytes": 2374
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/163a-quantity-intake43/junit.native.json": {
+          "sha256": "9bbfe241ab192dd440f3e996b07ba552a48817877d4632827b320b6510b73e24",
+          "bytes": 3064
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/163a-quantity-intake43/native_observer.py.txt": {
+          "sha256": "12d584c9fd4f0f7016c501b669aa249438773ee0cadf1d198cf2a906c8662de8",
+          "bytes": 1883
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/163a-quantity-intake43/run.json": {
+          "sha256": "2501d7656a79b09f93a63eef1fcc0814b71bfacf7abd7ab8cc41e71a92bd7441",
+          "bytes": 4999
+        },
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-quantity-continuation/163a-quantity-intake43/junit.xml": {
+          "sha256": "1929c7d51323b2a6ae8fcd756780a0439bf1371a573b68f5aa2d2f07370eae38",
+          "bytes": 9630
+        }
+      },
+      "junit": {
+        "executions": 43,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "a82-native94",
+      "target_sha": "a82a02b816b619d706b398100024a9bb5b0daf21",
+      "outcome": "PASS",
+      "scope": "94 defining and affected persisted/frontier tests; real partitioning80 actual calls; full native origins/environment in evidencecell"
+    },
+    {
+      "name": "a82-property-removal",
+      "target_sha": "a82a02b816b619d706b398100024a9bb5b0daf21",
+      "outcome": "FAIL_AS_REQUIRED",
+      "scope": "bounding box substituted in child while reference/membership/profile/assessment markers retained;2FAIL2PASS"
+    },
+    {
+      "name": "5fad-quantity-and-wrapper",
+      "target_sha": "5fad9f31b491a4aff4c0f9a87c25922e61abbdf6",
+      "outcome": "FAIL",
+      "scope": "107PASS1FAIL; quantity96PASS, one own nonexistent Sobolmetadata fixture field; preserved, not inherited or waived"
+    },
+    {
+      "name": "163a-quantity-intake43",
+      "target_sha": "163a3b51630bca46b99ce660b40749fb79ed6b40",
+      "outcome": "PASS",
+      "scope": "43 tests, zero skip/error/failure; actual1\u20134D finite quantities, unsupported5D, malformed explicit/derived refs, hugeint/bool/nonreal row refusal, native legacy finite-vector caller and registry readback"
+    }
+  ],
+  "independent_evidence": {
+    "test_commits": [
+      "a1a833f2fbae50338c3ffd988d6af766451d43a8",
+      "5d351d0f1f8a34acad951537ba47f36a4849f401"
+    ],
+    "baseline_reports": "Reviewer own immutable96eb21:10FAIL11PASS; e2reference14:7FAIL7PASS. Published deciding receipt supplied by reviewer; no local summary substitutes for its Git output.",
+    "candidate_status": "reviewer reported exacta8221PASS and exacte221PASS; final163reference rerun pending independently, not claimed here"
+  },
+  "property": {
+    "statement": "Exact dominated-box union in explicit direction-normalized maximizing product-unit float64 profile supported1\u20134D; malformed scalar/ref or unavailable input/backend/profile has null typed assessment. Coordinatev2 binds configured actual metric/split/unit/direction/definition_version, persistence and basis comparison are label-independent.",
+    "runtime_path": [
+      "typed BenchmarkEvaluation metric dictionaries -> shared finite_real_scalar row admission -> ParetoPromoter coordinate vectors/front",
+      "canonical HypervolumeResult adapter -> real pinned BoTorch DominatedPartitioning -> available/null assessment",
+      "native MOBayesianOptimizer complete-vector admission/reference configuration -> same quantity adapter",
+      "ParetoRegistry recompute/disk serialization/get_snapshot -> availability preserved separately from membership",
+      "legacy controller frontier -> same finite_real_scalar admission"
+    ],
+    "proxy_divergence": "Three axis-only3D points have union0 but bounding box8; overlapping3D boxes have union16 but bounding box27. Declaration of available/backend/version is insufficient when geometry is replaced.",
+    "negative_controls": [
+      "child-only geometry replacement2FAIL",
+      "noinputs vs nonempty mathematicalzero",
+      "unsupported5D/backend profile",
+      "bool/nonreal/float overflow exact row omission",
+      "malformed explicit/derived refs before Torch arithmetic",
+      "configured definitionversion basis change and duplicate fullcoordinate refusal"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "B109",
+      "status": "limited",
+      "bounded_property": "Fast/direct1\u20134D strict dominance lattice and earlier-group dominance covered by native numerical suite; complete inputs retain independent ties.",
+      "missing_input": "No independently supplied complete run/tenant/cell eligible/feasible/unknown denominator or actual appointed A provider/export consumer is established by these synthetic inputs.",
+      "next_owner": "A workflow/provider/export appointment and bridge; G finding-level acceptance; root retains concrete dependency packet."
+    },
+    {
+      "finding_id": "B110",
+      "status": "limited",
+      "bounded_property": "Distinct selection/holdout identity survives JSON/CAS predecessor readback; coordinatev2 adds explicit ordered definitionversion, unit/direction identity and changedbasis refusal.",
+      "missing_input": "Configured definition_versions are producer declarations, not invented measurement-definition authority. Legacyv1 remains explicitly version-limited; production evaluator/source custody remains owner supplied.",
+      "next_owner": "Producer supplies actual versions/units; G original finding acceptance."
+    },
+    {
+      "finding_id": "B111",
+      "status": "limited",
+      "bounded_property": "Exact1\u20134D quantities, typed no-input/backend/dimension/ref/overflow unavailability, generic scalar row refusal, actualMO quantity consumer and registry indicator readback preserve membership independently. Known snapshot1/2 profile gate from publishedbase remains; no unknownschema promotion.",
+      "missing_input": "A source denominator/served producer/export remains missing. Other dimensions/backend versions are explicitly unsupported; float64 unrepresentable quantities are unavailable. Fixtures do not establish production source truth or quality/convergence law.",
+      "next_owner": "A appointed supplier/publisher and G schema/criteria acceptance; D stopping/controller availability companion gp_witness."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "No arbitrary-dimensional exactness claim: quantity profile1\u20134D only. Optional absent or unverified backend cannot become0/PASS;1D2D native and nonemptyzero boxes are computed without optional backend.",
+    "Original uncommitted development fixture failures and immutable observerERROR retained. Their incomplete source closure is not immutable acceptance evidence; no P41 waiver.",
+    "No unchangedGP26 replay, no fittedGP source edits, no deployment or institutional source authorization claim.",
+    "Configured generator API is a separate companion receipt; the 5fad full run includes it but cannot establish standalone current-transferred-row checkpoint custody.",
+    "No source/main pushes, force, rebase, reset, permanent cleanup or test/backend cap settings. Fixtures retained; production runtime thread defaults recorded separately."
+  ]
+}

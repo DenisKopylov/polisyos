@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp=/dev/shm/search-quantity-fixtures-a2f7a2b323294993a4d7c41051221bcb",
+    "--junitxml=/workspace/e02-D2-receipts/search-quantity-6e41565985b243eaa921a8c3276f2a29/junit.xml",
+    "-q",
+    "-rA",
+    "tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+    "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+    "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+    "tests/unit/scientist/methods/autotune/test_pareto.py",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py"
+  ],
+  "cwd": "/workspace/e02-D-published-search/policy-engine",
+  "source_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "file_sha256": {
+    "tests/unit/scientist/methods/autotune/test_hypervolume_profile.py": "9cbc2f31a34e3a0f00f6bad1c4b56fd2089f7f3748c796c9f109524200f2ce14",
+    "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py": "5e42d37dbc7b73325b18e8163311f343632d1bf0b581e06a2a47227c5a92dc7a",
+    "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071",
+    "tests/unit/scientist/methods/autotune/test_pareto.py": "e9494af0f66434b6a580073acd5dad24c09ec5d918d72a6d5eaa038e6c05224e",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py": "3e61bd27dbf7a3e769e5effa843d5e98306475bc95fe16d94c35694a26ca7df4"
+  }
+}

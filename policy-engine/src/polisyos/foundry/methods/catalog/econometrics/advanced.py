@@ -10,7 +10,11 @@ from typing import TYPE_CHECKING, Any, ClassVar
 
 import numpy as np
 
-from polisyos.calibration.continuous import evaluate_continuous
+from polisyos.calibration import (
+    evaluate_continuous,
+    load_continuous_evaluation,
+    persist_continuous_evaluation,
+)
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -566,11 +570,6 @@ def _summarize_interval_diagnostics(
     )
     calibration_ref = None
     if calibration_store is not None:
-        from polisyos.calibration.continuous import (
-            load_continuous_evaluation,
-            persist_continuous_evaluation,
-        )
-
         calibration_ref = persist_continuous_evaluation(
             calibration_store, report, source_binding=source_binding
         )

@@ -8,7 +8,7 @@ from typing import Any
 import numpy as np
 import pytest
 
-from polisyos.calibration.continuous import load_continuous_evaluation
+from polisyos.calibration import load_continuous_evaluation
 from polisyos.core.artifacts import ArtifactRef, ArtifactWriteOptions
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import CanonSpec, from_canonical_bytes

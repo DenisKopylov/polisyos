@@ -1,0 +1,107 @@
+{
+  "source_sha": "425c90e8a698edf40f345baf1395d11545bb01d1",
+  "criterion_checks": [
+    {
+      "finding_id": "B108",
+      "bundle": "OPT-01",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "37f4bbbced6935c4e051c4bb1b1a9e76eb505301",
+      "section_sha256": "27ce2933f0d6d9e9575060337e2ac754a30e76f9b4816c10a06984e1c989a4a3",
+      "exact_marker_and_quote_verified": true
+    },
+    {
+      "finding_id": "B109",
+      "bundle": "OPT-01",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "37f4bbbced6935c4e051c4bb1b1a9e76eb505301",
+      "section_sha256": "e658098bc2f79717e9b48d9f615687ec4d8a6a9d7d6e2571ee4c98a514a3dafc",
+      "exact_marker_and_quote_verified": true
+    },
+    {
+      "finding_id": "B110",
+      "bundle": "OPT-01",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "37f4bbbced6935c4e051c4bb1b1a9e76eb505301",
+      "section_sha256": "7498df4ffe001d950fd03e1b88cf9f28aff59394a008da17844c196d63f5d461",
+      "exact_marker_and_quote_verified": true
+    },
+    {
+      "finding_id": "B111",
+      "bundle": "OPT-01",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "37f4bbbced6935c4e051c4bb1b1a9e76eb505301",
+      "section_sha256": "9d54d0f478e973cc89ed50adb4a03fc18fc1db35d1befcc3aed09128fc4bf41c",
+      "exact_marker_and_quote_verified": true
+    },
+    {
+      "finding_id": "B112",
+      "bundle": "OPT-02",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "9ffd2f22532b56ae73469396e8c56557aec56e77",
+      "section_sha256": "dab328e91cf2ca0a3e7d8c72a711dc5d722d5c71970b7efb12935910b28b2e57",
+      "exact_marker_and_quote_verified": true
+    },
+    {
+      "finding_id": "B113",
+      "bundle": "OPT-02",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "9ffd2f22532b56ae73469396e8c56557aec56e77",
+      "section_sha256": "908b6a6c82d3b6a103607146a9eea5e7cd7776df0190d31b80bd22ff96c2070e",
+      "exact_marker_and_quote_verified": true
+    },
+    {
+      "finding_id": "B114",
+      "bundle": "OPT-03",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "ca113cf95e55e57b19605c63df36a209770157bb",
+      "section_sha256": "eb469b9d46d5b69922ef906a0e0f0784a36c5bf89b00e7187bcf3932dc653e3b",
+      "exact_marker_and_quote_verified": true
+    },
+    {
+      "finding_id": "B115",
+      "bundle": "OPT-03",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "ca113cf95e55e57b19605c63df36a209770157bb",
+      "section_sha256": "c1f8051273de474f3ea0c3daf71eb5653586950289c47d6d00a205890f5cc123",
+      "exact_marker_and_quote_verified": true
+    },
+    {
+      "finding_id": "B124",
+      "bundle": "CTL-02",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "575d80aa75101b555b3118748e4dee968a81bd0a",
+      "section_sha256": "6d949a0ae0f28d013e78395833abb7bb327ed11d40eb2061c4bc77633474b2cb",
+      "exact_marker_and_quote_verified": true
+    },
+    {
+      "finding_id": "B125",
+      "bundle": "CTL-02",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "575d80aa75101b555b3118748e4dee968a81bd0a",
+      "section_sha256": "21499f83d06e9efe27407795b059ff270590a99f01a7ec86a13c193142103ff9",
+      "exact_marker_and_quote_verified": true
+    },
+    {
+      "finding_id": "B126",
+      "bundle": "CTL-02",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "575d80aa75101b555b3118748e4dee968a81bd0a",
+      "section_sha256": "a5d7832423cbe9287fd9558d614760065c63a57bcf1e8484cccc0e562b491b8d",
+      "exact_marker_and_quote_verified": true
+    },
+    {
+      "finding_id": "B127",
+      "bundle": "OPT-02",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "git_blob": "9ffd2f22532b56ae73469396e8c56557aec56e77",
+      "section_sha256": "4d0aaaf2ac4c0de1820d286421f70475f441ccd5322ee1f4436b8626d529437f",
+      "exact_marker_and_quote_verified": true
+    }
+  ],
+  "finding_count": 12,
+  "bundle_count": 4,
+  "overall_predicate_basis": "not_established",
+  "verified_pinned_catalog_entries": 18,
+  "complete_catalog_bytes_and_blobs_verified": true,
+  "no_runtime_or_closure_inferred": true
+}

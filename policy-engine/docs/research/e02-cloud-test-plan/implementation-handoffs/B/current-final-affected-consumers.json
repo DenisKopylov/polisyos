@@ -1,0 +1,1542 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-final-affected-consumers",
+  "bundle_ids": [
+    "DUR-01",
+    "DUR-02",
+    "EXE-01",
+    "EXE-02",
+    "RES-01",
+    "RES-02",
+    "RES-04",
+    "RUN-03",
+    "STA-01",
+    "STA-02",
+    "WIRE-01"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "d539717f2720ef4f202e6cb265e23b99cb4a5018",
+  "implementation_commits": [
+    "28b9ba5febf41c0eb619e4613e839c33b181ed08"
+  ],
+  "candidate_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+  "candidate_tree_sha": "ebd01e7519639308d93a6e700d9e89d7f18e4b6e",
+  "candidate_kind": "Metadata-only transport of independently executed foreign affected consumers; actual execution source10e is distinct from evidence candidate.",
+  "runtime_target_source_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+  "runtime_target_source_tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+  "content_only_reference_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "branch": "codex/e02-B-current-adapters",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/64",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-cases.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-collection-reports.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-junit-case-joins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-runtime-phases.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-session-items.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/capture.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/case-partition-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/deciding-module-origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/execution-contract.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/execution-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/large-raw-availability.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/native.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/package.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser-capture.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser-selectors.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/prepare-parser-inputs.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/selector-proposal.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/selectors.args",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-after.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-before.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-content-projection-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/wrapper.json"
+  ],
+  "net_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-cases.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-collection-reports.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-junit-case-joins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-runtime-phases.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-session-items.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/capture.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/case-partition-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/deciding-module-origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/execution-contract.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/execution-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/large-raw-availability.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/native.txt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/package.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser-capture.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser-profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser-selectors.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/prepare-parser-inputs.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/selector-proposal.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/selectors.args",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-after.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-before.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-content-projection-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/wrapper.json"
+  ],
+  "representation_retirements": [],
+  "source_changed_paths": [],
+  "test_changed_paths": [],
+  "evidence_commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+  "evidence_index": {
+    "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/index.json",
+    "bytes": 6673,
+    "sha256": "86ceebf8b3a51066d8c21bf95a8f99248e4529a3ea727fea3e67d262d5386701"
+  },
+  "baseline_cells": [],
+  "baseline_context": {
+    "scope": "No baseline cell is used as deciding evidence or finding conclusion. This slice repeats current source actual affected importer/consumer bodies after contract change; canonical root final all60 adjudication independently resolves baseline cells/source/environment/input closure.",
+    "current_canonical_navigation": {
+      "source_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+      "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "full_per_criterion_refs_and_case_indices": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      }
+    },
+    "historical_wholefile18_238_and_main_cohort_grades": "Remain historical; none promoted to this current712 outcome."
+  },
+  "checks": [
+    {
+      "id": "whole-affected-native",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/selectors.args",
+        "-vv",
+        "--tb=short",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "current_cohort_inventory",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/fixtures",
+        "--junitxml",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/native.xml"
+      ],
+      "target_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+      "environment": {
+        "actual_execution_checkout": "/workspace/e02-B-current-coordination",
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "actual_source_head": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+        "actual_source_tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "python_version": "Python 3.14.2",
+        "pytest_version": "9.0.2",
+        "tool_environment": "root current194 environment; actual installed dependency backing files captured by hook-time observer",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/tools:/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "tokenizer": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache/9b5ad71b2ce5302211f9c61530b329a4922fc6a4",
+          "bytes": 1681126,
+          "sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7"
+        },
+        "caps": {
+          "XLA_FLAGS": null,
+          "JAX_NUM_THREADS": null,
+          "TF_NUM_INTEROP_THREADS": null,
+          "TF_NUM_INTRAOP_THREADS": null,
+          "NUMBA_NUM_THREADS": null,
+          "LOKY_MAX_CPU_COUNT": null,
+          "PYTEST_XDIST_AUTO_NUM_WORKERS": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "RAYON_NUM_THREADS": null
+        },
+        "no_cap_added": true,
+        "fixture_backing": {
+          "meminfo": [
+            "MemAvailable:    4935992 kB",
+            "SwapFree:              0 kB",
+            "Shmem:          12044052 kB"
+          ],
+          "file_backing": "new root-ignored overlay fixtures; no filesystem/process quota",
+          "disk_available_bytes": 1490546688
+        },
+        "PG_contacted_or_required": false
+      },
+      "input_closure": {
+        "wholefile_selectors": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/selectors.args",
+          "bytes": 4049,
+          "sha256": "68ab505d78e414b496540963e0455c9d9dfb0401ee6cbff284606f8dada4e8bd"
+        },
+        "all_35_direct_import_body_traces": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/selector-proposal.json",
+          "bytes": 18136,
+          "sha256": "a2da65aae5ca75d42ea0f1c8804db5f776aca0b8c68dba86a474e3d67178c39f"
+        },
+        "source_disk_before": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-before.json",
+          "bytes": 17892,
+          "sha256": "aa43bf2776386c7e57a29ccfd0cb007f2bc2bdf2eaf79206135fa00501ef767b"
+        },
+        "source_disk_after": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-after.json",
+          "bytes": 17940,
+          "sha256": "ea7408c104dbfcce2d33e8e43aa0d58c5fbadd8fd27189f2ef27adc4e99f0581"
+        },
+        "source_projection": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/source-content-projection-summary.json",
+          "bytes": 1134,
+          "sha256": "4ed25c7cf728bc57cd0bc7917ceab601c35b1f3e58f75482e7f9380ded5049b3"
+        },
+        "driver": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/capture.source.txt",
+          "bytes": 8019,
+          "sha256": "b952f450a7f972ce63a2483b7bdf35fda64e72a7db128cee5567036f7ca129da"
+        },
+        "observer_source": {
+          "commit": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-inventory.py",
+          "sha256": "2766137b6322946a1e4a6f05717708636148391622e37106e66e6d9634e0f802"
+        },
+        "fixture_scope": "unique fresh file-backed root ignored fixtures; original whole tests; no filters/skips/xfails added"
+      },
+      "outcome": "PASS",
+      "outcome_details": {
+        "wholefiles": 35,
+        "unique_cases": 712,
+        "case_counts": {
+          "PASS": 712,
+          "FAIL": 0,
+          "ERROR": 0,
+          "XFAIL": 0,
+          "SKIP": 0,
+          "UNRUN": 0
+        },
+        "observed_phase_reports": 2136,
+        "phase_outcomes": {
+          "setup/passed/passed": 712,
+          "call/passed/passed": 712,
+          "teardown/passed/passed": 712
+        },
+        "pytest_summary": "712 passed,48 warnings in424.44s",
+        "wait4_exit": 0,
+        "signal": null,
+        "wall_seconds": 432.1670279940008,
+        "max_rss_kib": 1026224,
+        "declared_source_inputs": 56,
+        "disk_bytes_unchanged": true,
+        "root_head_unchanged": true
+      },
+      "output": {
+        "stdout_lossless": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/native.txt.json",
+          "bytes": 107875,
+          "sha256": "a850cdf230e6c39f77d3176ba090ac51b71d4703245a453053fe454a7790633a"
+        },
+        "junit": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/native.xml",
+          "bytes": 123142,
+          "sha256": "e6726d596686c0fc52fcafd9e1648802d39fd13409fdc0603dbb974af4a4bfe6"
+        },
+        "wait4_wrapper": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/wrapper.json",
+          "bytes": 1808,
+          "sha256": "6b3a6e7909f2c9651cd164798b62ec7fe6b17801f8cc47484e019fbf93e11f73"
+        },
+        "full_case_table": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-cases.json",
+          "bytes": 351700,
+          "sha256": "b2f8733f9d63b6fbb6874dc82de4e40cb19ba7b230d8866eb0a614ed3034afd7"
+        },
+        "full_phase_table": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-runtime-phases.json",
+          "bytes": 616455,
+          "sha256": "af4c083c552d6682bb14760ed8db10e0bfee32c84463e3403452370f15d5763a"
+        },
+        "full_collection_reports": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-collection-reports.json",
+          "bytes": 123570,
+          "sha256": "260783f790fd552a07e73fba26d4c69bb40953179f293b530ede74fb619bce64"
+        },
+        "large_original_observer": {
+          "artifacts": {
+            "inventory.json": {
+              "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/inventory.json",
+              "bytes": 8857354,
+              "sha256": "80932bc68c515e95badfd3718dd98cf9ae611635477c51edbecbf32cde4bd687"
+            },
+            "case-partition.json": {
+              "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/case-partition.json",
+              "bytes": 1385402,
+              "sha256": "67eb3663e982f27ae46e94fc83c5e784a950850d3ff818698451e9ba6260887d"
+            },
+            "all-prod-test-content-projection.json": {
+              "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/all-prod-test-content-projection.json",
+              "bytes": 1029599,
+              "sha256": "f8fe79a0e4c948c545066fcedb8b254f2cf0c600a736534d835458bbca9d5408"
+            }
+          },
+          "availability_to_local_G": "not_established: ignored VM paths are not Git transfer; full deciding native stdout/JUnit and all case/phase/collection rows are separately committed. Hook-time full module census requires original raw transfer or exact rerun.",
+          "exact_rerun": "Run capture.source.txt against exact source10e with declared profile/35 argsfile; run unchanged3cd parser using prepare-parser-inputs.source.txt aliases after native completion. Root owned checkout may be recreated by G under its admission protocol; fixture/runtime paths adjusted and recorded, outputs new source-bound identities."
+        }
+      }
+    },
+    {
+      "id": "unchanged-data-partition",
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-coordination/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-result-partition.py",
+        "--inventory",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/inventory.json",
+        "--junit",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/native.xml",
+        "--wrapper",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/parser-wrapper.json",
+        "--profile",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/parser-profile.json",
+        "--selectors",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/parser-selectors.json",
+        "--stdout",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/native.txt",
+        "--source-sha",
+        "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+        "--repo",
+        "/workspace/e02-B-current-coordination",
+        "--output",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/case-partition.json"
+      ],
+      "target_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+      "environment": {
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "parser_source_commit": "3cd679570eb1b0b83a0f7f4e3ffe599282815af3",
+        "parser_sha256": "a0de853bfe4d895381ccfcc06c1ece8893bd5755db56bb3de2667e4d0601fdaf",
+        "source_review": {
+          "commit": "ade80582565bb7b4ab53120ff5da54f854de867e",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cohort-partition-independent-review/review.json",
+          "review_scope": "independent source-only; separate from this actual completed-data parse"
+        }
+      },
+      "input_closure": {
+        "six_input_identities": {
+          "inventory": {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/inventory.json",
+            "bytes": 8857354,
+            "sha256": "80932bc68c515e95badfd3718dd98cf9ae611635477c51edbecbf32cde4bd687"
+          },
+          "wrapper": {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/parser-wrapper.json",
+            "bytes": 1859,
+            "sha256": "3cf9831fdb3e892653c5a2d9b563ec292ec5d7ccae7abadf212a0d87226b3e81"
+          },
+          "profile": {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/parser-profile.json",
+            "bytes": 6834,
+            "sha256": "ae43511af9fcd1dfdddd6836e20f38b2dc554c6427cf2991dedcb09fa07c40da"
+          },
+          "selectors": {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/parser-selectors.json",
+            "bytes": 5918,
+            "sha256": "63bf8b21c7185a97d2226912195780bba5ead40ff51feb972680941c255ef203"
+          },
+          "junit": {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/native.xml",
+            "bytes": 123142,
+            "sha256": "e6726d596686c0fc52fcafd9e1648802d39fd13409fdc0603dbb974af4a4bfe6"
+          },
+          "stdout": {
+            "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/native.txt",
+            "bytes": 106811,
+            "sha256": "c3bd7294fd8d47583c7531129994ab77c55042e4a5322f09655d4582378e015c"
+          }
+        },
+        "original_to_parser_field_aliases": [
+          {
+            "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser-wrapper.json",
+            "bytes": 1859,
+            "sha256": "3cf9831fdb3e892653c5a2d9b563ec292ec5d7ccae7abadf212a0d87226b3e81"
+          },
+          {
+            "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser-profile.json",
+            "bytes": 6834,
+            "sha256": "ae43511af9fcd1dfdddd6836e20f38b2dc554c6427cf2991dedcb09fa07c40da"
+          },
+          {
+            "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser-selectors.json",
+            "bytes": 5918,
+            "sha256": "63bf8b21c7185a97d2226912195780bba5ead40ff51feb972680941c255ef203"
+          }
+        ],
+        "alias_driver": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/prepare-parser-inputs.source.txt",
+          "bytes": 3542,
+          "sha256": "a703f9704e6be16a70ffe0b5345e3d51bae5e507352757056868c4b12859da22"
+        },
+        "qualification": "Aliases preserve original actual wait4/profile/selection fields with explicit provenance. Selected-subset absent list is empty; global canonical absent selectors/backends remain outside this invocation."
+      },
+      "outcome": "PASS",
+      "outcome_details": {
+        "parse_state": "COMPLETE",
+        "reconciliation_checks": {
+          "pytest_source_profile": true,
+          "plain_single_process_observation": true,
+          "phase_annotations_present": true,
+          "session_count_binding": true,
+          "wrapper_source": true,
+          "profile_source": true,
+          "same_source_tree": true,
+          "observer_start_source": true,
+          "observer_finish_source": true,
+          "observer_source_tree": true,
+          "same_command": true,
+          "same_cwd": true,
+          "stdout_binding": true,
+          "selector_hash_binding": true,
+          "selector_list_binding": true,
+          "selector_denominator": true,
+          "case_identity_unique": true,
+          "case_partition_total": true,
+          "case_file_groupings_complete": true,
+          "all_reports_have_admitted_nodeid": true,
+          "same_junit_path": true,
+          "native_xml_case_projection": true,
+          "native_junit_source_profile": true,
+          "native_xml_collector_projection": true,
+          "origins_recorded_denominators": true,
+          "instrument_byte_match": true,
+          "every_xml_representation_assigned": true
+        },
+        "actual_child_exit": 0,
+        "counts": {
+          "PASS": 712,
+          "FAIL": 0,
+          "ERROR": 0,
+          "XFAIL": 0,
+          "SKIP": 0,
+          "UNRUN": 0
+        },
+        "denominators": {
+          "requested_whole_files": 35,
+          "session_item_entries": 712,
+          "unique_nodeids": 712,
+          "collection_file_types_item_entries": {
+            ".py": 712
+          },
+          "definition_path_file_types_item_entries": {
+            ".py": 712
+          },
+          "distinct_collection_files": 35,
+          "distinct_definition_paths": 35,
+          "distinct_collection_file_types": {
+            ".py": 35
+          },
+          "distinct_definition_path_file_types": {
+            ".py": 35
+          },
+          "phase_reports": 2136,
+          "collection_reports": 63,
+          "deselected_item_entries": 0,
+          "junit_representations": 712
+        }
+      },
+      "output": {
+        "complete_parser_stdout": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser.txt",
+          "bytes": 2129,
+          "sha256": "12f31dca16b9f4b76e17f1d2dec1c1ad3965d9b382e7c648b2dc15d529d2b2c3"
+        },
+        "parser_capture": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/parser-capture.json",
+          "bytes": 2205,
+          "sha256": "26edcf583d7efb0b6414fe9146949e6bfa5d1d6859125675ab6432059e994baa"
+        },
+        "complete_partition_summary": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/case-partition-summary.json",
+          "bytes": 21271,
+          "sha256": "6b74170bb93f6bb6e9048dfc0abdebf6ca2367a367b317d116990afa3263d3c4"
+        },
+        "all_case_joins": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-junit-case-joins.json",
+          "bytes": 253898,
+          "sha256": "28bb8693c0daa64a3140f2d03444a8db181df107641dfcb543f5b599d81c0f14"
+        },
+        "all_case_rows": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-cases.json",
+          "bytes": 351700,
+          "sha256": "b2f8733f9d63b6fbb6874dc82de4e40cb19ba7b230d8866eb0a614ed3034afd7"
+        }
+      }
+    },
+    {
+      "id": "lossless-transport-validation",
+      "command": [
+        "python3",
+        "package.source.txt",
+        "then independently decode all three indexed row tables and hash original stdout"
+      ],
+      "target_sha": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "environment": {
+        "scope": "metadata-only packaging; source/test execution remains exact10e",
+        "repository": "/workspace/e02-B-current-adapters"
+      },
+      "input_closure": {
+        "packaging_script": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/package.source.txt",
+          "bytes": 10703,
+          "sha256": "f8f0f4b0985e72a5417993a1a6daa47a5b8b6c5f98c01361242d1544fc2b2dd2"
+        },
+        "evidence_index": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/index.json",
+          "bytes": 6673,
+          "sha256": "86ceebf8b3a51066d8c21bf95a8f99248e4529a3ea727fea3e67d262d5386701"
+        },
+        "three_row_tables": [
+          {
+            "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-cases.json",
+            "bytes": 351700,
+            "sha256": "b2f8733f9d63b6fbb6874dc82de4e40cb19ba7b230d8866eb0a614ed3034afd7"
+          },
+          {
+            "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-runtime-phases.json",
+            "bytes": 616455,
+            "sha256": "af4c083c552d6682bb14760ed8db10e0bfee32c84463e3403452370f15d5763a"
+          },
+          {
+            "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-session-items.json",
+            "bytes": 302127,
+            "sha256": "b006d46ea0893669cf1e1271d860d3a5beba73e6756a5382bb0216b1f1b89611"
+          }
+        ]
+      },
+      "outcome": "PASS",
+      "outcome_details": {
+        "payload_count": 27,
+        "payload_bytes": 2087261,
+        "all_indexed_files_hash_and_size_verified": true,
+        "three_tables_full_decode_equals_original": true,
+        "stdout_UTF8_encode_equals_original": true,
+        "git_show_check_exit": 0
+      },
+      "output": {
+        "table_format": "Column dictionary encoding is lossless: every value, missing key and JSON type remains recoverable; no row truncation, case-prefix upgrades or phase doublecount.",
+        "index": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/index.json",
+          "bytes": 6673,
+          "sha256": "86ceebf8b3a51066d8c21bf95a8f99248e4529a3ea727fea3e67d262d5386701"
+        },
+        "all_session_items": {
+          "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/all-session-items.json",
+          "bytes": 302127,
+          "sha256": "b006d46ea0893669cf1e1271d860d3a5beba73e6756a5382bb0216b1f1b89611"
+        }
+      }
+    }
+  ],
+  "property": {
+    "statement": "After current budget-ledger/middleware and LLM accounting contract changes, the selected real executor/cache/admission/checkpoint/state/runner/wire/fallback consumers execute on one exact clean current source tuple; complete observed cases/phases/JUnit agree without dropped or invented attempts.",
+    "runtime_path": [
+      "actual initialized BudgetMiddleware and FileBudgetLedger APIs",
+      "AsyncWorkflowExecutor cache read/admission/scheduler and checkpoint publication",
+      "actual history/journal/state fork and compensation paths",
+      "versioned serialization into actual activity worker/runner tiers",
+      "native unit and integration consumers in all35 wholefiles"
+    ],
+    "proxy_divergence": "The old18-file238-case source snapshot predates changed lower contracts; a count, marker or source-byte equality cannot establish current importer behavior. This wave actually executes35 current files with712 complete attempts. Whole native success does not establish all60 criterion closures or held semantic/data/authority laws.",
+    "negative_controls": [
+      "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache[deadline-trace]",
+      "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py::test_cold_seed_late_read_cannot_publish_cache[cancel-checkpoint]",
+      "tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py::test_unavailable_required_ref_refuses_resume_before_dependent_cas_effect[corrupt]",
+      "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py::test_safe_hash_tamper_refuses_before_typed_decode[stdlib]",
+      "tests/unit/remediation/test_dur_02_process.py::test_bound_handler_cannot_forge_a_new_transaction_admission[unproven_terminal]"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "PASS bounded affected-consumer rejoin and complete observed-case data interpretation; no finding closure claimed.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B37",
+      "bundle_id": "DUR-01",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B37",
+          "document": "B_r19",
+          "lines": [
+            700,
+            717
+          ],
+          "sha256": "4cb4cba956a6535facb92240a7755afd76eabd8c50ecda00d76e607299ab9985",
+          "card": "DUR-01"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B38",
+      "bundle_id": "DUR-02",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B38",
+          "document": "B_r19",
+          "lines": [
+            718,
+            735
+          ],
+          "sha256": "55b93abe088e8226f8e0ba2338c2327152689127d999c19c1ea20e6963f50b06",
+          "card": "DUR-02"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/remediation/test_dur_02.py",
+        "policy-engine/tests/unit/remediation/test_dur_02_process.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "This wave excludes PostgreSQL HTTP oracle; B38 separate published actual8 evidence. No physical external reconciliation is established for B78.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B39",
+      "bundle_id": "RUN-03",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B39",
+          "document": "B_r19",
+          "lines": [
+            736,
+            751
+          ],
+          "sha256": "ae2637a00985713e0b16b5d65a3e57ad308b95c1b63885d77f2a795736c5f1fd",
+          "card": "RUN-03"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/remediation/test_run_03.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B51",
+      "bundle_id": "EXE-01",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B51",
+          "document": "B_r19",
+          "lines": [
+            1331,
+            1346
+          ],
+          "sha256": "e9b4ac7cef4037c2a72c1e5b9ebef5401d821d718b1be3dfb7b4fd44c38004f8",
+          "card": "EXE-01"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B52",
+      "bundle_id": "EXE-01",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B52",
+          "document": "B_r19",
+          "lines": [
+            1347,
+            1362
+          ],
+          "sha256": "1a6929c4d593f31111984bfc232aa5047093e63c0ae8b30bc8a77f988c193ab9",
+          "card": "EXE-01"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B55",
+      "bundle_id": "EXE-01",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B55",
+          "document": "B_r19",
+          "lines": [
+            1395,
+            1408
+          ],
+          "sha256": "26067194bc63e79de6b0a05c8ec8d1baa08f15661428174ded6ddbeea336a422",
+          "card": "EXE-01"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_execution_admission.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B57",
+      "bundle_id": "STA-01",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B57",
+          "document": "B_r19",
+          "lines": [
+            1543,
+            1558
+          ],
+          "sha256": "0d78e1d5818a8ee8e0f4ba236038d69d06c75e74da87ce22dd7327a13f2f8f06",
+          "card": "STA-01"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_state_merge.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B58",
+      "bundle_id": "STA-01",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B58",
+          "document": "B_r19",
+          "lines": [
+            1559,
+            1572
+          ],
+          "sha256": "1c1de2a09c78b01dcd21aff5b3b9aafb037873624e4848a2df85846e40cbe9df",
+          "card": "STA-01"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_state_merge.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B59",
+      "bundle_id": "STA-01",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B59",
+          "document": "B_r19",
+          "lines": [
+            1573,
+            1586
+          ],
+          "sha256": "f1be31314c74127f473589edbd1cda207e908ba5d0d1917d3cdbbb857ed306a8",
+          "card": "STA-01"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_state_merge.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B60",
+      "bundle_id": "STA-02",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B60",
+          "document": "B_r19",
+          "lines": [
+            1587,
+            1600
+          ],
+          "sha256": "44f69d1484c4a6336451b3c0c9645e799ad9b872941f4d068556a9c1d0cde018",
+          "card": "STA-02"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B61",
+      "bundle_id": "STA-02",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B61",
+          "document": "B_r19",
+          "lines": [
+            1601,
+            1614
+          ],
+          "sha256": "d866142adb470420e36484ae68a71a865e730697ae87639bbef85c27ef86c32b",
+          "card": "STA-02"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "B61 semantic data_record owner contract remains held; executing references does not supply missing law.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B62",
+      "bundle_id": "STA-02",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B62",
+          "document": "B_r19",
+          "lines": [
+            1615,
+            1628
+          ],
+          "sha256": "e8a018dd29129a34baf12068580586d16474c3b244341e94dc5eb6e3e5355070",
+          "card": "STA-02"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B63",
+      "bundle_id": "RES-01",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B63",
+          "document": "B_r19",
+          "lines": [
+            1629,
+            1642
+          ],
+          "sha256": "32962af76b9f728aceb504125f39eede0c6431de9547983bc235eb05459f6bf1",
+          "card": "RES-01"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/remediation/test_res_01.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B70",
+      "bundle_id": "RES-01",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B70",
+          "document": "B_r19",
+          "lines": [
+            1873,
+            1888
+          ],
+          "sha256": "eadcf7072e1ce0c09c3ddb56144e572674cf1df043750d1b4fe23211020573cc",
+          "card": "RES-01"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/remediation/test_res_01.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B71",
+      "bundle_id": "RES-01",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B71",
+          "document": "B_r19",
+          "lines": [
+            1889,
+            1904
+          ],
+          "sha256": "6239c931b0f33cd80db9286a7010e500f4fcf8f9d03765a4e5c615172c2bb1ca",
+          "card": "RES-01"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/remediation/test_res_01.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B72",
+      "bundle_id": "RES-02",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B72",
+          "document": "B_r19",
+          "lines": [
+            1905,
+            1920
+          ],
+          "sha256": "38979cf3522b6b847946b86db0042408c08d07996d5b2f52a7c127e56c718189",
+          "card": "RES-02"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/remediation/test_res_02.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "policy-engine/tests/integration/scientist/test_checkpoint_resume.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B73",
+      "bundle_id": "RES-02",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B73",
+          "document": "B_r19",
+          "lines": [
+            1921,
+            1938
+          ],
+          "sha256": "e621748d93e6a09366084624850c95e9765196b665a628702f05054dd857bd9b",
+          "card": "RES-02"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/remediation/test_res_02.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing_execution.py",
+        "policy-engine/tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "policy-engine/tests/integration/scientist/test_checkpoint_resume.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B74",
+      "bundle_id": "RES-04",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B74",
+          "document": "B_r19",
+          "lines": [
+            1939,
+            1952
+          ],
+          "sha256": "8d9049975bdf678761aab8dbf7f9b2e3fa2aa4dabda2d6c2fd9a2d2c6ba5a88b",
+          "card": "RES-04"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/remediation/test_res_04.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+        "policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B75",
+      "bundle_id": "RES-04",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B75",
+          "document": "B_r19",
+          "lines": [
+            1953,
+            1968
+          ],
+          "sha256": "25d5059a21fb186c9825ac2fde8cb74cd29c692834f2ddd5614c99dfc84d0b74",
+          "card": "RES-04"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/remediation/test_res_04.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+        "policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B76",
+      "bundle_id": "RES-04",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B76",
+          "document": "B_r19",
+          "lines": [
+            1969,
+            1984
+          ],
+          "sha256": "36a6087dde2ea2e4d90a2e063141b4f2d583e20fa62214997bed2eea192d315e",
+          "card": "RES-04"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/remediation/test_res_04.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+        "policy-engine/tests/integration/scientist/test_parallel_tier_compensation_oracle.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B77",
+      "bundle_id": "EXE-02",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B77",
+          "document": "B_r19",
+          "lines": [
+            1985,
+            1998
+          ],
+          "sha256": "9a964e072d3e3b2f8a636c8ba2d38de5e8ea300b9c7b11dbc7c5e09463fe392f",
+          "card": "EXE-02"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/remediation/test_exe_02.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B78",
+      "bundle_id": "DUR-02",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B78",
+          "document": "B_r19",
+          "lines": [
+            1999,
+            2014
+          ],
+          "sha256": "93c248082a0e76e9ad7e91276e92316bc07d4159dae3031f553da1377444b9d0",
+          "card": "DUR-02"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/remediation/test_dur_02.py",
+        "policy-engine/tests/unit/remediation/test_dur_02_process.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "This wave excludes PostgreSQL HTTP oracle; B38 separate published actual8 evidence. No physical external reconciliation is established for B78.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B94",
+      "bundle_id": "WIRE-01",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B94",
+          "document": "B_r19",
+          "lines": [
+            2477,
+            2492
+          ],
+          "sha256": "da315729082384722dd083535cd9f7e944d8ff25aaa8856ca4ab8fc1f1d99bc7",
+          "card": "WIRE-01"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/remediation/test_wire_01.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_state_merge.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    },
+    {
+      "finding_id": "B96",
+      "bundle_id": "RUN-03",
+      "state": "affected_consumer_execution_observed",
+      "closure_claim": false,
+      "checks": [
+        "whole-affected-native",
+        "unchanged-data-partition"
+      ],
+      "criterion_refs": [
+        {
+          "criterion_id": "B96",
+          "document": "B_r19",
+          "lines": [
+            2507,
+            2520
+          ],
+          "sha256": "3bbac0ead421ca4359f884f7a70f5b17128262dcf360688db02ad60916abb517",
+          "card": "RUN-03"
+        }
+      ],
+      "wholefile_selectors": [
+        "policy-engine/tests/unit/remediation/test_run_03.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py"
+      ],
+      "case_index_ref": {
+        "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/affected-consumer-criterion-joins.json",
+        "bytes": 39654,
+        "sha256": "d38cd660dd45e46b131f9e779500dedbb86b5280b20cebefdb85b1683083ca3c"
+      },
+      "limitations": "No marker/path/count alone is used as criterion admission.",
+      "next_owner": "B root independent manual criterion adjudication; G production/backend inputs when intrinsically needed"
+    }
+  ],
+  "workspace_custody": {
+    "own_existing_admitted_lane": "/workspace/e02-B-current-adapters",
+    "base_clean_attached_sha": "d539717f2720ef4f202e6cb265e23b99cb4a5018",
+    "new_worktree_created": false,
+    "root_readonly_execution_checkpoint": {
+      "head": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+      "tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+      "branch": "refs/heads/codex/e02-B-current-coordination",
+      "tracked_status": "",
+      "expected_clean_attached": true
+    },
+    "root_after_execution_checkpoint": {
+      "head": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+      "tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+      "branch": "refs/heads/codex/e02-B-current-coordination",
+      "tracked_status": "",
+      "expected_clean_attached": true
+    },
+    "root_tracking_identity_not_restamped_to_1862": true,
+    "no_source_or_test_writes": true,
+    "source_hold_released_after_terminal": true
+  },
+  "public_surface_reviewed": {
+    "classification": "evidence-only; no production, test, public constructor, facade, wire schema, generated contract or registered public surface change",
+    "existing_instrument_and_parser": "Literal already reviewed3cd source; no plugin/source behavior change"
+  },
+  "limitations_and_next_owner": [
+    "Actual712 native cases and2136 phases prove the selected invocation only; semantic criterion adequacy, owner permission and final all60 disposition require root independent manual adjudication.",
+    "No PostgreSQL or HTTP native executed in this wave. B38 realPG8 evidence remains separately published d539; B78 external-effect outcome remains unknown unless actual status/idempotency consumer authority establishes it.",
+    "B61 semantic data_record law remains held; reference/cache cases cannot create owner permission or database semantic identity.",
+    "Instrument exitstatus is the pytest_sessionfinish hook argument. Actual outer wait4 exit0 is separately deciding; module origins are hook-time backing-file hashes, not loader reads, finalization, child, resource/service or universal input closure.",
+    "Large original8.857MB observer inventory/full6246 source entries/full1.385MB partition remain ignored VM raw paths with byte hashes; independent G raw availability not_established. Complete native stdout/JUnit, all observed cases/phases/items/collector reports and deciding source/module rows are committed.",
+    "Other planned absent selectors, backends and production datasets were not executed here; their absence remains outside this35-file subset, with unknown case cardinality.",
+    "No CPU/thread/process/worker quota, test filter, added skip/XFAIL, fixture cleanup or PG lifecycle operation was performed."
+  ],
+  "exact_rerun_candidate": {
+    "source_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+    "source_tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+    "native_command": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "-m",
+      "pytest",
+      "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/selectors.args",
+      "-vv",
+      "--tb=short",
+      "--import-mode=importlib",
+      "-p",
+      "no:cacheprovider",
+      "-p",
+      "current_cohort_inventory",
+      "--basetemp",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/fixtures",
+      "--junitxml",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/affected-10e-20261006/native.xml"
+    ],
+    "full_35_inputs": {
+      "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/selectors.args",
+      "bytes": 4049,
+      "sha256": "68ab505d78e414b496540963e0455c9d9dfb0401ee6cbff284606f8dada4e8bd"
+    },
+    "driver": {
+      "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/capture.source.txt",
+      "bytes": 8019,
+      "sha256": "b952f450a7f972ce63a2483b7bdf35fda64e72a7db128cee5567036f7ca129da"
+    },
+    "runtime_profile": {
+      "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/execution-profile.json",
+      "bytes": 6034,
+      "sha256": "0c99f68549bc32f9bbfa1d3a992d13ddfc6330b87c00e93307d7cc749552bdb8"
+    },
+    "source_and_test_content_reference_only": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "raw_transfer_requirement": {
+      "commit": "28b9ba5febf41c0eb619e4613e839c33b181ed08",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers-evidence/large-raw-availability.json",
+      "bytes": 1344,
+      "sha256": "4876d877721356b65f2da4b23064bb0d93b0ac50f208214335faae0c4b513e13"
+    },
+    "local_G": "G uses an admitted exact source checkout and genuinely installed compatible194 runtime/tokenizer; records adjusted unique paths and fresh identities. Do not substitute prior summary or grade."
+  },
+  "created_at_utc": "2026-10-06T23:44:20.352075+00:00"
+}

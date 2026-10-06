@@ -61,3 +61,13 @@ P35 — полный знаменатель; P40 — исправлять кла
 P41 — атрибутировать red только по exact slice-base replay. Acceptance поручения:
 вся owner-очередь получает row-level решение с реальным deciding evidence,
 а не только план, refusal или число PASS.
+
+## Возобновление E после PR38
+
+[Дополнительный промпт E](E-resume-after-pr38.md) задаёт конкретное продолжение
+после frozen source `58e2d97965c0826c44843a78dcb2f8698d9950a3` и receipt head
+`be947056728a24d50432d32fbb9feabee7dfeffc`.
+[Независимый разбор G](../../integration/reviews/E-pr38-continuation-audit-2026-10-06.md)
+сверяет полный набор findings, deciding outputs, математические остатки,
+default consumers и внешние owner decisions. Это дополнение к исходному E.md;
+оно не принимает E код и не меняет finding ledger.

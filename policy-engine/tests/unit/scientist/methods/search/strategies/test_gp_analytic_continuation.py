@@ -24,6 +24,11 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
+pytest.importorskip("torch", reason="UNRUN: native analytic GP continuation requires Torch")
+pytest.importorskip("botorch", reason="UNRUN: native analytic GP continuation requires BoTorch")
+pytest.importorskip("gpytorch", reason="UNRUN: native analytic GP continuation requires GPyTorch")
+pytestmark = pytest.mark.integration
+
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 from polisyos.scientist.methods.search.strategies import bayesian as bayesian_module
 from polisyos.scientist.methods.search.strategies._deps import require_botorch, require_torch

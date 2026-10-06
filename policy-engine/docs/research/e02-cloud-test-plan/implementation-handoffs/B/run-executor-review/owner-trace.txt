@@ -1,0 +1,77 @@
+Scope: complete tracked common Python files: 15
+INPUT src/polisyos/common/__init__.py sha256 80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080
+INPUT src/polisyos/common/async_tools.py sha256 86801101f3f7d9b26975a1368c204d06282be120c9fa90e12369b7f87c1f241e
+Executor subclass: src/polisyos/common/async_tools.py _SharedExecutor methods: ['__init__', '_register_worker', 'submit']
+INPUT src/polisyos/common/canonical.py sha256 89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41
+INPUT src/polisyos/common/config.py sha256 126ca3bc685dbe60ad46f803090fca815c8ec520b5d3c3d8f34f18e62c98ef61
+INPUT src/polisyos/common/env_parsing.py sha256 90afe172cc0b46df9838e6c1f0eec656c62bd5d1e4162394e21cb58e9d8bb897
+INPUT src/polisyos/common/hashing.py sha256 4ecfe5e4ed78585a25dfd4ee7de1eee10f4d4b467bca95fd6716537a68ef3ead
+INPUT src/polisyos/common/jax_env.py sha256 c47cae7faa16a86b0353ba95149a3a9d3ba1c26f2e0f39bbdae78277d89214e1
+INPUT src/polisyos/common/logger.py sha256 d496cd41f388b185cc4c9c9bcb5d7f7c2c3eecba02fc9f437ae5f02f2201e5a0
+INPUT src/polisyos/common/markdown.py sha256 7d53f727efeb781975c786443d2542d78a8ec2e9b782fa3f151ce5e37d585e69
+INPUT src/polisyos/common/migrations/__init__.py sha256 f26b19cddaff94a28a7cd35dda419441e52d4714880ae106f1fec4abe6eac096
+INPUT src/polisyos/common/migrations/_engine.py sha256 67038f9da8e5948dbf4b898671c25f72244d4bed224d26193772010cbc544c48
+INPUT src/polisyos/common/migrations/base.py sha256 5575321803537f6c4f8b3d94be5cd959e54dec1e4e6f6536cdd3bc398caa088f
+INPUT src/polisyos/common/migrations/manifest.py sha256 7d7a8ecb625f23fb9e3e0dfc66f7837b9b30353d15a587c3a23525d991b72806
+INPUT src/polisyos/common/serialization.py sha256 03c7fc1756449d77aff0819a79038c632724a398fee1091b2423bffca9d93d24
+INPUT src/polisyos/common/timestamps.py sha256 c6343733a85b80f7b8eb2a2e607ad864e0059f30b6c01a818ba6eb97129d6963
+Code trace: submit delegates directly to stdlib submit; initializer only marks thread identity.
+STDLIB ThreadPoolExecutor.submit /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/thread.py sha256 7f95079dda8064cd372c9c0ea60c7e172b34c8f2aa0c3d9213e85b8584aa033c
+    def submit(self, fn, /, *args, **kwargs):
+        with self._shutdown_lock, _global_shutdown_lock:
+            if self._broken:
+                raise self.BROKEN(self._broken)
+
+            if self._shutdown:
+                raise RuntimeError('cannot schedule new futures after shutdown')
+            if _shutdown:
+                raise RuntimeError('cannot schedule new futures after '
+                                   'interpreter shutdown')
+
+            f = _base.Future()
+            task = self._resolve_work_item_task(fn, args, kwargs)
+            w = _WorkItem(f, task)
+
+            self._work_queue.put(w)
+            self._adjust_thread_count()
+            return f
+
+STDLIB _WorkItem.run /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/thread.py sha256 7f95079dda8064cd372c9c0ea60c7e172b34c8f2aa0c3d9213e85b8584aa033c
+    def run(self, ctx):
+        if not self.future.set_running_or_notify_cancel():
+            return
+
+        try:
+            result = ctx.run(self.task)
+        except BaseException as exc:
+            self.future.set_exception(exc)
+            # Break a reference cycle with the exception 'exc'
+            self = None
+        else:
+            self.future.set_result(result)
+
+STDLIB Future.set_result /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py sha256 3665aa676031ee09ed6db32db6227e66f56c96230cfd26a2db7c2d83da49b69d
+    def set_result(self, result):
+        """Sets the return value of work associated with the future.
+
+        Should only be used by Executor implementations and unit tests.
+        """
+        with self._condition:
+            if self._state in {CANCELLED, CANCELLED_AND_NOTIFIED, FINISHED}:
+                raise InvalidStateError('{}: {!r}'.format(self._state, self))
+            self._result = result
+            self._state = FINISHED
+            for waiter in self._waiters:
+                waiter.add_result(self)
+            self._condition.notify_all()
+        self._invoke_callbacks()
+
+STDLIB Future._invoke_callbacks /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py sha256 3665aa676031ee09ed6db32db6227e66f56c96230cfd26a2db7c2d83da49b69d
+    def _invoke_callbacks(self):
+        for callback in self._done_callbacks:
+            try:
+                callback(self)
+            except Exception:
+                LOGGER.exception('exception calling callback for %r', self)
+
+Scoped missing capability: physical worker admission held through all user callbacks, or an owned nonblocking callback scheduling boundary. The canonical subclass does not wrap its delegated _WorkItem.run/Future callback lifecycle. Whole-repository absence, reflective/third-party callback consumers and general deadlock freedom are not established.

@@ -1,0 +1,22 @@
+id = "2026-10-05-e02-run-owned-process-cleanup"
+title = "Reap timed node descendants and bound shared executor reentry"
+type = "fixed"
+component = "scientist-runtime"
+owner = "team-polisyos"
+summary = "Linux timed node execution now owns a disposable child subreaper that kills and reaps descendants before accepting results or completing cancellation. Saturated nested shared-executor submissions fail explicitly before they can deadlock."
+evidence = [
+  "tests/unit/common/test_async_tools.py",
+  "tests/unit/scientist/orchestration/engine/test_retry.py",
+  "tests/unit/remediation/test_run_03.py",
+  "tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+]
+compatibility = "Retry entrypoints and result payloads retain their signatures. Nested shared-executor work is accepted when capacity exists; saturated worker reentry raises RuntimeError before submission."
+change_class = "internal"
+surface_classification = "internal: retry process ownership and shared executor scheduling"
+migration = "Use async entrypoints for nested composition and handle explicit saturated synchronous bridge refusal. Validate non-Linux fork deployments against their existing process-group cleanup contract."
+api = "No new public entrypoint. Timed Linux nodes gain isolated descendant ownership without changing the caller's subreaper flag."
+limitations = "The supervisor requires Linux prctl, fork and readable /proc. Multithreaded fork retains Python's platform warning; other fork platforms require separate acceptance. Thread and coroutine cancellation remains cooperative, and cleanup does not undo completed external effects or provide a hostile-code sandbox."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/common/README.md"]
+runbook_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]

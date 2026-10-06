@@ -1,0 +1,33 @@
+{
+  "schema": "policyos.e02.worktree_custody_review.v1",
+  "observer": "adapters_probe",
+  "observed_at_UTC": "2026-10-05T15:39:03.907774+00:00",
+  "complete_self_created_worktree_set": [
+    {
+      "path": "/workspace/e02-B-run-review-base",
+      "HEAD": "ab310be19f310a6055797a2af56bf1ffae01f555",
+      "tree": "94075c2114b9fa4d48d90e95aa6a680f963cf292",
+      "git_dir": "/workspace/polisyos/.git/worktrees/e02-B-run-review-base",
+      "status_porcelain": "",
+      "historical_precreation_receipt": null,
+      "historical_resume_receipt": null,
+      "custody_disposition": "precreation_custody_not_established",
+      "qualification": "Current read-only identity checkpoint is not precreation/resume evidence and does not retroactively establish historical custody."
+    },
+    {
+      "path": "/workspace/e02-B-run-review-candidate",
+      "HEAD": "6c2cab488368932479677bc036ffad25657c0367",
+      "tree": "9ab42758250e3c2f34f41bb5abc0d07d269b17f8",
+      "git_dir": "/workspace/polisyos/.git/worktrees/e02-B-run-review-candidate",
+      "status_porcelain": "",
+      "historical_precreation_receipt": null,
+      "historical_resume_receipt": null,
+      "custody_disposition": "precreation_custody_not_established",
+      "qualification": "Current read-only identity checkpoint is not precreation/resume evidence and does not retroactively establish historical custody."
+    }
+  ],
+  "provided_worktree_not_self_created": "/workspace/e02-B-adapters supplied by parent at c40d4acae1ce58b597267255026d9356565828fd",
+  "reused_writer_worktree_not_self_created": "/workspace/e02-B-run existing RUN writer worktree; final b439 replay expressly authorized per parent message; no reattach/new tree/source edits",
+  "historical_receipt_search": "rg --files hidden named receipt/admission/worktree/checkpoint over /tmp and coordination .polisyos; rg content run-review-base|run-review-candidate|adapters_probe in coordination .polisyos, existing RUN handoffs and /tmp *.json/log/md/py; no precreation/resume receipts located. Earlier handoff/check artifacts are source/execution evidence, not precreation custody proof.",
+  "prior_evidence_qualification": "Old B39/queued/base executor checks bind actual modules, source hashes and process/fs outputs; source checks qualified with precreation_custody_not_established, not full admission/input-custody closure."
+}

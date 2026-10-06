@@ -1,0 +1,21 @@
+id = "2026-10-05-e02-run-retry-error-identity"
+title = "Preserve retry error identity across execution boundaries"
+type = "fixed"
+component = "scientist-runtime"
+owner = "team-polisyos"
+summary = "Forked node errors retain their original category and explicit code, so permanent errors are not retried and custom retry_on filters select the same path. Thread and coroutine waits distinguish a provider TimeoutError from wrapper deadline expiration."
+evidence = [
+  "tests/unit/scientist/orchestration/engine/test_retry.py",
+  "tests/unit/remediation/test_run_03.py",
+  "tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+]
+compatibility = "Retry signatures and diagnostic messages remain stable. Worker exception causes remain RuntimeError subtypes; arbitrary original exception classes are not reconstructed across IPC."
+change_class = "internal"
+surface_classification = "internal: retry classification and private worker IPC"
+migration = "Treat provider TimeoutError as a retryable node failure according to retry_on; reserve NodeTimeoutError for an expired execution wait."
+api = "No new public entrypoint or persisted serialization format."
+limitations = "The new fork transport controls are Linux cloud checks; non-Linux fork acceptance remains local. Retry classification does not provide external side-effect idempotency, rollback, or a total workflow deadline."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []

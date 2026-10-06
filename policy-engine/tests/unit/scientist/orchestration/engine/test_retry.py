@@ -17,6 +17,7 @@ import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts import BoundedLivenessConfig
+from polisyos.core.errors import ErrorCategory
 from polisyos.core.run.context import RunContext
 from polisyos.core.run.manifest import RunManifest
 from polisyos.scientist.orchestration.engine import retry as retry_module
@@ -63,6 +64,246 @@ def _fail_outcome(state, code="node.exception"):
         artifacts=[],
         error=NodeError(code=code, message="fail"),
     )
+
+
+class _TransientTransportValueError(ValueError):
+    default_category = ErrorCategory.TRANSIENT
+    code = "node.transport"
+
+
+class _ValidationTransportError(RuntimeError):
+    default_category = ErrorCategory.VALIDATION
+
+
+class _CodedTransportError(RuntimeError):
+    code = "node.action"
+
+
+class _ErrorTransportNode:
+    """Record real compute attempts outside the forked object's memory."""
+
+    def __init__(self, attempts_path, error=None, *, return_failure=False, recover=True) -> None:
+        self.attempts_path = attempts_path
+        self.error = error
+        self.return_failure = return_failure
+        self.recover = recover
+
+    def execute(self, _ctx, state):
+        with self.attempts_path.open("a") as attempts:
+            attempts.write("attempt\n")
+        if self.return_failure:
+            return _fail_outcome(state, code="node.invalid_state")
+        if not self.recover or len(self.attempts_path.read_text().splitlines()) == 1:
+            raise self.error
+        return _ok_outcome(state)
+
+
+class _AsyncErrorTransportNode(_ErrorTransportNode):
+    async def execute_async(self, ctx, state):
+        await asyncio.sleep(0)
+        return self.execute(ctx, state)
+
+
+@pytest.mark.parametrize("route", ["direct", "thread", "async-thread", "fork", "async"])
+def test_provider_timeout_error_is_retryable_across_execution_routes(
+    tmp_path, ctx, state, route, monkeypatch
+):
+    if route == "fork" and "fork" not in mp.get_all_start_methods():
+        pytest.skip("fork unavailable")
+    if route in {"thread", "async-thread"}:
+        monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+    attempts_path = tmp_path / "attempts"
+    node_type = _AsyncErrorTransportNode if route == "async" else _ErrorTransportNode
+    node = node_type(attempts_path, TimeoutError("provider request exceeded its own deadline"))
+    kwargs = {
+        "retry_policy": RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+        "timeout_s": None if route == "direct" else 2.0,
+        "alias": "provider-timeout",
+    }
+    outcome = _execute_retry_mode(
+        "async" if route in {"async", "async-thread"} else "sync", node, ctx, state, **kwargs
+    )
+    assert outcome.status == "ok"
+    assert attempts_path.read_text().splitlines() == ["attempt", "attempt"]
+
+
+@pytest.mark.parametrize("route", ["thread", "async-thread", "async"])
+def test_wrapper_expiration_is_terminal_without_another_attempt(
+    tmp_path, ctx, state, route, monkeypatch
+):
+    if route in {"thread", "async-thread"}:
+        monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+    attempts_path = tmp_path / "attempts"
+    started = threading.Event()
+    release = threading.Event()
+    finished = threading.Event()
+
+    class _SlowThreadNode:
+        def execute(self, _ctx, passed_state):
+            with attempts_path.open("a") as attempts:
+                attempts.write("attempt\n")
+            started.set()
+            try:
+                assert release.wait(timeout=2.0)
+                return _ok_outcome(passed_state)
+            finally:
+                finished.set()
+
+    class _SlowAsyncNode:
+        async def execute_async(self, _ctx, passed_state):
+            with attempts_path.open("a") as attempts:
+                attempts.write("attempt\n")
+            try:
+                await asyncio.sleep(2.0)
+                return _ok_outcome(passed_state)
+            finally:
+                finished.set()
+
+    node = _SlowAsyncNode() if route == "async" else _SlowThreadNode()
+    kwargs = {
+        "retry_policy": RetryPolicy(max_retries=2, backoff_base_s=0.1, jitter="none"),
+        "timeout_s": 0.05,
+        "alias": "wrapper-expiry",
+    }
+    try:
+        with pytest.raises(NodeTimeoutError):
+            _execute_retry_mode(
+                "sync" if route == "thread" else "async", node, ctx, state, **kwargs
+            )
+    finally:
+        release.set()
+        assert finished.wait(timeout=2.0)
+    if route != "async":
+        assert started.is_set()
+    assert attempts_path.read_text().splitlines() == ["attempt"]
+
+
+@pytest.mark.parametrize("refusal", ["deadline", "cancellation"])
+def test_async_thread_refusal_cancels_queued_compute_before_pool_release(
+    tmp_path, ctx, state, refusal, monkeypatch
+):
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=4, thread_name_prefix="queued-refusal")
+    release = threading.Event()
+    ready = threading.Barrier(5)
+    submitted = threading.Event()
+    raw_write = tmp_path / "late-queued-write"
+
+    def _block_worker():
+        ready.wait(timeout=2.0)
+        assert release.wait(timeout=5.0)
+
+    class _QueuedNode:
+        def execute(self, _ctx, passed_state):
+            raw_write.write_text("compute ran after refusal")
+            return _ok_outcome(passed_state)
+
+    blockers = [executor.submit(_block_worker) for _ in range(4)]
+    original_submit = executor.submit
+
+    def _observe_submission(*args, **kwargs):
+        future = original_submit(*args, **kwargs)
+        submitted.set()
+        return future
+
+    monkeypatch.setattr(executor, "submit", _observe_submission)
+    monkeypatch.setattr(retry_module, "get_shared_executor", lambda: executor)
+    monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+
+    async def _run():
+        task = asyncio.create_task(
+            execute_with_retry_async(
+                _QueuedNode(),
+                ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=0.05 if refusal == "deadline" else 2.0,
+                alias="queued-refusal",
+            )
+        )
+        while not submitted.is_set():
+            await asyncio.sleep(0)
+        if refusal == "cancellation":
+            task.cancel()
+        error = NodeTimeoutError if refusal == "deadline" else asyncio.CancelledError
+        with pytest.raises(error):
+            await task
+        # Do not yield the loop between refusal and releasing occupied workers.
+        # asyncio Future.cancel forwards to its concurrent Future in a callback;
+        # that deferred action can lose this real admission race.
+        release.set()
+        executor.shutdown(wait=True)
+        assert not raw_write.exists(), "queued compute wrote after execution was refused"
+
+    try:
+        ready.wait(timeout=2.0)
+        asyncio.run(_run())
+        assert all(blocker.result() is None for blocker in blockers)
+    finally:
+        release.set()
+        executor.shutdown(wait=True)
+
+
+@pytest.mark.skipif("fork" not in mp.get_all_start_methods(), reason="fork unavailable")
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("shape", ["return", "raise"])
+def test_fork_permanent_error_shape_keeps_one_real_attempt(tmp_path, ctx, state, mode, shape):
+    attempts_path = tmp_path / "attempts"
+    node = _ErrorTransportNode(
+        attempts_path,
+        ValueError("invalid input contract"),
+        return_failure=shape == "return",
+        recover=False,
+    )
+    kwargs = {
+        "retry_policy": RetryPolicy(max_retries=2, backoff_base_s=0.1, jitter="none"),
+        "timeout_s": 2.0,
+        "alias": "transport-permanent",
+    }
+    if shape == "raise":
+        with pytest.raises(RetryExhaustedError):
+            _execute_retry_mode(mode, node, ctx, state, **kwargs)
+    else:
+        outcome = _execute_retry_mode(mode, node, ctx, state, **kwargs)
+        assert outcome.status == "fail"
+    assert attempts_path.read_text().splitlines() == ["attempt"]
+
+
+@pytest.mark.skipif("fork" not in mp.get_all_start_methods(), reason="fork unavailable")
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize(
+    ("error", "retry_on", "expected_attempts"),
+    [
+        (_ValidationTransportError("temporary sounding message"), ["node.exception"], 1),
+        (AttributeError("invalid node contract"), ["node.exception"], 1),
+        (LookupError("invalid lookup contract"), ["node.exception"], 1),
+        (_TransientTransportValueError("invalid sounding value"), ["node.transport"], 2),
+        (_CodedTransportError("custom code"), ["node.action"], 2),
+        (_CodedTransportError("custom code"), ["node.exception"], 1),
+        (OSError("ValueError: fatal sounding message"), ["node.exception"], 2),
+        (ValueError("ConnectionError: transient sounding message"), ["node.exception"], 1),
+    ],
+)
+def test_fork_exception_preserves_category_and_policy_code(
+    tmp_path, ctx, state, mode, error, retry_on, expected_attempts
+):
+    attempts_path = tmp_path / "attempts"
+    node = _ErrorTransportNode(attempts_path, error)
+    kwargs = {
+        "retry_policy": RetryPolicy(
+            max_retries=2, backoff_base_s=0.1, jitter="none", retry_on=retry_on
+        ),
+        "timeout_s": 2.0,
+        "alias": "transport-classified",
+    }
+    if expected_attempts == 1:
+        with pytest.raises(RetryExhaustedError):
+            _execute_retry_mode(mode, node, ctx, state, **kwargs)
+    else:
+        outcome = _execute_retry_mode(mode, node, ctx, state, **kwargs)
+        assert outcome.status == "ok"
+    assert len(attempts_path.read_text().splitlines()) == expected_attempts
 
 
 # ---------------------------------------------------------------------------
@@ -181,9 +422,7 @@ class TestExecuteWithRetrySync:
         attempt.claim_ledger_owner.persist_candidate_ledger(ledger="late")
         target.claim_ledger_owner.persist_candidate_ledger.assert_not_called()
 
-    def test_claim_capable_execute_preserves_type_and_manifest_authority(
-        self, state, monkeypatch
-    ):
+    def test_claim_capable_execute_preserves_type_and_manifest_authority(self, state, monkeypatch):
         class _RecordingStore:
             def __init__(self) -> None:
                 self.put_json_calls: list[tuple[object, object]] = []
@@ -329,9 +568,7 @@ class TestExecuteWithRetrySync:
         assert audit.append_calls
         assert claim_owner.persist_calls == [{"ledger": "on_time"}]
 
-    def test_claim_capable_execute_preserves_real_run_sinks_on_time(
-        self, state, monkeypatch
-    ):
+    def test_claim_capable_execute_preserves_real_run_sinks_on_time(self, state, monkeypatch):
         class _RecordingStore:
             def put_json(self, payload: object, options: object) -> object:
                 return object()
@@ -744,6 +981,7 @@ class TestExecuteWithRetrySync:
                 alias="late-async-write",
             )
         )
+
         async def _release_later() -> None:
             await asyncio.sleep(0.05)
             release.set()
@@ -764,25 +1002,15 @@ class TestExecuteWithRetrySync:
         assert recording_claim_owner.persist_calls == []
 
     def test_timeout_path_uses_shared_executor(self, ctx, state, monkeypatch):
-        class _FakeFuture:
-            def __init__(self, outcome):
-                self._outcome = outcome
-                self.cancelled = False
-
-            def result(self, timeout=None):
-                _ = timeout
-                return self._outcome
-
-            def cancel(self) -> None:
-                self.cancelled = True
-
         class _FakeExecutor:
             def __init__(self) -> None:
                 self.submissions: list[tuple[object, tuple[object, ...]]] = []
 
             def submit(self, fn, *args):
                 self.submissions.append((fn, args))
-                return _FakeFuture(fn(*args))
+                future = concurrent.futures.Future()
+                future.set_result(fn(*args))
+                return future
 
         node = MagicMock()
         node.execute.return_value = _ok_outcome(state)
@@ -1098,9 +1326,7 @@ class _StoppedProcessHandle:
 
 def test_unknown_process_group_cleanup_is_not_reported_complete() -> None:
     """A stopped worker without a group cannot prove descendants are gone."""
-    assert (
-        retry_module._terminate_owned_process(_StoppedProcessHandle(), None) is False
-    )
+    assert retry_module._terminate_owned_process(_StoppedProcessHandle(), None) is False
 
 
 class _ImmediateResultQueue:
@@ -1119,14 +1345,15 @@ def test_late_worker_completion_is_not_delivery_success(mode) -> None:
     result_queue = _ImmediateResultQueue()
     compute_deadline = _time.monotonic() - 1.0
 
-    with pytest.raises(retry_module._WorkerComputeTimeout):
-        if mode == "sync":
+    if mode == "sync":
+        with pytest.raises(retry_module._WorkerComputeTimeout):
             retry_module._drain_result_sync(
                 process,
                 result_queue,
                 compute_deadline=compute_deadline,
             )
-        else:
+    else:
+        with pytest.raises(retry_module._WorkerComputeTimeout):
             asyncio.run(
                 retry_module._drain_result_async(
                     process,
@@ -1143,12 +1370,16 @@ class _DescendantProcessNode:
         self.pid_path = pid_path
 
     def execute(self, _ctx, _state):
-        child = subprocess.Popen(
-            [sys.executable, "-c", "import time; time.sleep(30)"]
-        )
+        child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
         self.pid_path.write_text(str(child.pid))
         _time.sleep(30)
         raise AssertionError("timeout should terminate the worker first")
+
+
+def _execute_retry_mode(mode, node, ctx, state, **kwargs):
+    if mode == "sync":
+        return execute_with_retry_sync(node, ctx, state, **kwargs)
+    return asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
 
 
 @pytest.mark.skipif(
@@ -1160,18 +1391,15 @@ def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> 
     pid_path = tmp_path / "descendant-pid"
     node = _DescendantProcessNode(pid_path)
     descendant_pid: int | None = None
+    kwargs = {
+        "retry_policy": RetryPolicy(),
+        "timeout_s": 0.5,
+        "alias": "descendant-cleanup",
+    }
 
     try:
         with pytest.raises(NodeTimeoutError):
-            kwargs = {
-                "retry_policy": RetryPolicy(),
-                "timeout_s": 0.5,
-                "alias": "descendant-cleanup",
-            }
-            if mode == "sync":
-                execute_with_retry_sync(node, ctx, state, **kwargs)
-            else:
-                asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+            _execute_retry_mode(mode, node, ctx, state, **kwargs)
         assert pid_path.exists()
         descendant_pid = int(pid_path.read_text())
         with pytest.raises(ProcessLookupError):
@@ -1191,9 +1419,7 @@ class _ExitedWorkerWithDescendantNode:
         self.pid_path = pid_path
 
     def execute(self, _ctx, _state):
-        child = subprocess.Popen(
-            [sys.executable, "-c", "import time; time.sleep(30)"]
-        )
+        child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
         self.pid_path.write_text(str(child.pid))
         os._exit(0)
 
@@ -1231,6 +1457,192 @@ def test_cleanup_kills_descendant_after_worker_exit(tmp_path, ctx, state) -> Non
                 os.kill(descendant_pid, signal.SIGKILL)
             except ProcessLookupError:
                 pass
+
+
+class _GrandchildProcessNode:
+    """Create two TERM-resistant generations in the owned worker group."""
+
+    def __init__(self, pid_path, late_path, escape_group=False) -> None:
+        self.pid_path = pid_path
+        self.late_path = late_path
+        self.escape_group = escape_group
+
+    def execute(self, _ctx, _state):
+        grandchild_code = (
+            "import pathlib,signal,time; "
+            "signal.signal(signal.SIGTERM, signal.SIG_IGN); "
+            "time.sleep(1.5); "
+            f"pathlib.Path({str(self.late_path)!r}).write_text('unauthorized late write'); "
+            "time.sleep(30)"
+        )
+        child_code = (
+            "import os,pathlib,signal,subprocess,sys,time; "
+            "signal.signal(signal.SIGTERM, signal.SIG_IGN); "
+            f"child=subprocess.Popen([sys.executable, '-c', {grandchild_code!r}]); "
+            f"pathlib.Path({str(self.pid_path)!r}).write_text(str(os.getpid())+' '+str(child.pid)); "
+            "time.sleep(30)"
+        )
+        subprocess.Popen([sys.executable, "-c", child_code], start_new_session=self.escape_group)
+        _time.sleep(30)
+        raise AssertionError("timeout must terminate the owned computation")
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="process-local Linux subreaper contract")
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("escape_group", [False, True], ids=["owned-group", "new-session"])
+def test_timeout_reaps_term_resistant_grandchildren_before_refusal(
+    tmp_path, ctx, state, mode, escape_group
+):
+    """Both descendant generations are reaped and cannot write after refusal."""
+    pid_path = tmp_path / "grandchild-pids"
+    late_path = tmp_path / "late-write"
+    node = _GrandchildProcessNode(pid_path, late_path, escape_group)
+    kwargs = {"retry_policy": RetryPolicy(), "timeout_s": 0.5, "alias": "grandchild-cleanup"}
+    with pytest.raises(NodeTimeoutError, match=r"^Node exceeded timeout of 0.5s$"):
+        _execute_retry_mode(mode, node, ctx, state, **kwargs)
+    for pid in map(int, pid_path.read_text().split()):
+        with pytest.raises(ProcessLookupError):
+            os.kill(pid, 0)
+    _time.sleep(1.0)
+    assert not late_path.exists()
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(sys.platform != "linux", reason="process-local Linux subreaper contract")
+async def test_cancelled_process_wait_reaps_descendants(tmp_path, ctx, state):
+    """Cancelling the async caller also waits for its owned process cleanup."""
+    pid_path = tmp_path / "cancelled-descendant-pid"
+    task = asyncio.create_task(
+        execute_with_retry_async(
+            _DescendantProcessNode(pid_path),
+            ctx,
+            state,
+            retry_policy=RetryPolicy(),
+            timeout_s=30.0,
+            alias="cancelled-descendant",
+        )
+    )
+    for _ in range(100):
+        if pid_path.exists():
+            break
+        await asyncio.sleep(0.02)
+    assert pid_path.exists()
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    with pytest.raises(ProcessLookupError):
+        os.kill(int(pid_path.read_text()), 0)
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="process-local Linux subreaper contract")
+def test_supervisor_setup_failure_cannot_publish_success(ctx, state, monkeypatch):
+    """A real supervisor startup fault returns failure rather than a node result."""
+
+    def _fail_setup():
+        raise OSError("subreaper setup failed")
+
+    monkeypatch.setattr(retry_module, "_enable_linux_child_subreaper", _fail_setup)
+    with pytest.raises(
+        RuntimeError, match="worker supervision failed: OSError: subreaper setup failed"
+    ):
+        retry_module._execute_with_timeout_process(
+            _PayloadTransportNode(64), ctx, state, timeout_s=2.0
+        )
+
+
+@pytest.mark.skipif("fork" not in mp.get_all_start_methods(), reason="fork worker required")
+def test_process_start_failure_retains_original_exception(ctx, state, monkeypatch):
+    """Closing an unstarted handle must not replace the actual startup fault."""
+
+    def _fail_start(_process):
+        raise OSError("owned process start failed")
+
+    monkeypatch.setattr(mp.get_context("fork").Process, "start", _fail_start)
+    with pytest.raises(OSError, match="owned process start failed"):
+        retry_module._execute_with_timeout_process(
+            _PayloadTransportNode(64), ctx, state, timeout_s=2.0
+        )
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux subreaper status available")
+def test_timeout_supervisor_does_not_change_caller_subreaper_status(ctx, state):
+    """The kernel flag belongs to the disposable supervisor, not this caller."""
+    import ctypes
+
+    def _caller_status() -> int:
+        status = ctypes.c_int()
+        assert ctypes.CDLL(None).prctl(37, ctypes.byref(status), 0, 0, 0) == 0
+        return status.value
+
+    before = _caller_status()
+    result = retry_module._execute_with_timeout_process(
+        _PayloadTransportNode(64), ctx, state, timeout_s=2.0
+    )
+    assert result.status == "ok"
+    assert _caller_status() == before
+
+
+@pytest.mark.parametrize("mode", ["direct", "thread", "fork", "async"])
+def test_concurrent_request_contexts_match_across_retry_routes(ctx, state, mode, monkeypatch):
+    """Two real request contexts keep their own marker in every supported route."""
+    import concurrent.futures
+    import contextvars
+
+    if mode == "fork" and "fork" not in mp.get_all_start_methods():
+        pytest.skip("actual fork worker unavailable")
+    scope = contextvars.ContextVar("request_context", default=None)
+
+    class _ContextNode:
+        def execute(self, _ctx, passed_state):
+            _time.sleep(0.02)
+            result_state = passed_state.model_copy(deep=True)
+            result_state.params["request_context"] = scope.get()
+            return _ok_outcome(result_state)
+
+    class _AsyncContextNode:
+        async def execute_async(self, _ctx, passed_state):
+            await asyncio.sleep(0.02)
+            result_state = passed_state.model_copy(deep=True)
+            result_state.params["request_context"] = scope.get()
+            return _ok_outcome(result_state)
+
+    if mode == "thread":
+        monkeypatch.setattr(retry_module, "_can_use_forked_timeout_worker", lambda: False)
+
+    def _request(marker):
+        token = scope.set(marker)
+        try:
+            if mode == "async":
+                result = asyncio.run(
+                    execute_with_retry_async(
+                        _AsyncContextNode(),
+                        ctx,
+                        state,
+                        retry_policy=RetryPolicy(),
+                        timeout_s=2.0,
+                        alias="context-async",
+                    )
+                )
+            else:
+                result = execute_with_retry_sync(
+                    _ContextNode(),
+                    ctx,
+                    state,
+                    retry_policy=RetryPolicy(),
+                    timeout_s=None if mode == "direct" else 2.0,
+                    alias="context-sync",
+                )
+            return result.state.params["request_context"]
+        finally:
+            scope.reset(token)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as callers:
+        assert list(callers.map(_request, ["request-A", "request-B"])) == [
+            "request-A",
+            "request-B",
+        ]
+    assert scope.get() is None
+    assert state.params == {}
 
 
 class _OutputAwareTransportNode:

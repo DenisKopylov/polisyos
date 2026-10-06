@@ -22,6 +22,64 @@ _DEFAULT_TIMEOUT_SECONDS = max(
 )
 
 
+class _SharedExecutor(concurrent.futures.ThreadPoolExecutor):
+    """Bound worker reentry using reservations for unfinished submitted jobs.
+
+    Reservations do not track worker occupancy during user done callbacks.
+    Blocking nested waits from those callbacks are unsupported.
+    """
+
+    def __init__(self, *, max_workers: int, thread_name_prefix: str) -> None:
+        self._worker_identity = threading.local()
+        self._admission_lock = threading.RLock()
+        self._outstanding_jobs = 0
+        self._capacity = max_workers
+        super().__init__(
+            max_workers=max_workers,
+            thread_name_prefix=thread_name_prefix,
+            initializer=self._register_worker,
+        )
+
+    def _register_worker(self) -> None:
+        self._worker_identity.active = True
+
+    def submit[T](
+        self,
+        fn: Callable[..., T],
+        /,
+        *args: object,
+        **kwargs: object,
+    ) -> concurrent.futures.Future[T]:
+        with self._admission_lock:
+            if (
+                getattr(self._worker_identity, "active", False)
+                and self._outstanding_jobs >= self._capacity
+            ):
+                raise RuntimeError(
+                    "shared executor does not support reentrant submission at capacity"
+                )
+            self._outstanding_jobs += 1
+        released = False
+
+        def release_reservation(_future: object = None) -> None:
+            nonlocal released
+            with self._admission_lock:
+                if released:
+                    return
+                released = True
+                self._outstanding_jobs -= 1
+
+        # shutdown(cancel_futures=True) invokes callbacks under the base
+        # shutdown lock. Never hold admission while acquiring that lock.
+        try:
+            future = super().submit(fn, *args, **kwargs)
+            future.add_done_callback(release_reservation)
+        except BaseException:
+            release_reservation()
+            raise
+        return future
+
+
 def _get_shared_executor() -> concurrent.futures.ThreadPoolExecutor:
     global _RUN_CORO_SYNC_EXECUTOR
     if _RUN_CORO_SYNC_EXECUTOR is not None:
@@ -29,7 +87,7 @@ def _get_shared_executor() -> concurrent.futures.ThreadPoolExecutor:
     with _EXECUTOR_LOCK:
         if _RUN_CORO_SYNC_EXECUTOR is None:
             max_workers = max(4, min(32, (os.cpu_count() or 1)))
-            _RUN_CORO_SYNC_EXECUTOR = concurrent.futures.ThreadPoolExecutor(
+            _RUN_CORO_SYNC_EXECUTOR = _SharedExecutor(
                 max_workers=max_workers,
                 thread_name_prefix="polisyos-run-coro-sync",
             )
@@ -50,7 +108,14 @@ atexit.register(shutdown_run_coro_sync_executor)
 
 
 def get_shared_executor() -> concurrent.futures.ThreadPoolExecutor:
-    """Return the shared executor used for sync-over-async bridge operations."""
+    """Return the shared bridge executor with bounded unfinished-job reentry.
+
+    Worker submissions are refused when unfinished-job reservations reach
+    the configured worker count. User done callbacks may still occupy workers
+    after those reservations are released, so blocking nested waits from
+    those callbacks are unsupported. Prefer the existing async entrypoint
+    from its async owner, or move the sync boundary outside this executor.
+    """
     return _get_shared_executor()
 
 

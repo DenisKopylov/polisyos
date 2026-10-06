@@ -1,0 +1,226 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "finding_id": "B39",
+  "reviewer": "adapters_probe (non-author, read-only)",
+  "candidate_sha": "6c2cab488368932479677bc036ffad25657c0367",
+  "candidate_tree_sha": "9ab42758250e3c2f34f41bb5abc0d07d269b17f8",
+  "slice_base_sha": "ab310be19f310a6055797a2af56bf1ffae01f555",
+  "source_sha256": "1be5359cc7a17818d362b5b6af9f270b45813b5e0223084f825e2c042118ab3c",
+  "source_module_readback": "/workspace/e02-B-run-review-candidate/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+  "source_boundaries": {
+    "_exception_retry_category": {
+      "line_start": 494,
+      "line_end": 515
+    },
+    "_worker_error_payload": {
+      "line_start": 547,
+      "line_end": 553
+    },
+    "_worker_error_from_payload": {
+      "line_start": 556,
+      "line_end": 571
+    },
+    "_execute_with_timeout_sync": {
+      "line_start": 933,
+      "line_end": 968
+    },
+    "_node_execute_supervisor": {
+      "line_start": 1215,
+      "line_end": 1298
+    },
+    "_execute_with_timeout_thread_async": {
+      "line_start": 1483,
+      "line_end": 1498
+    },
+    "_await_timed_attempt": {
+      "line_start": 1501,
+      "line_end": 1517
+    },
+    "_node_execute_worker": {
+      "line_start": 1520,
+      "line_end": 1574
+    }
+  },
+  "criterion_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@c40d4acae1ce58b597267255026d9356565828fd#L736-L750",
+  "baseline_cells": [
+    {
+      "id": "F03-P092",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "source_file": "received/F03.txt",
+      "source_line": "222"
+    },
+    {
+      "id": "F04-P105",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "source_file": "received/F04.txt",
+      "source_line": "315"
+    },
+    {
+      "id": "F06-P122",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "source_file": "received/F06.txt",
+      "source_line": "306"
+    },
+    {
+      "id": "F07-P098",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "source_file": "received/F07.txt",
+      "source_line": "104"
+    },
+    {
+      "id": "F09-P094",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "source_file": "received/F09.txt",
+      "source_line": "210"
+    },
+    {
+      "id": "F11-P098",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "source_file": "received/F11.txt",
+      "source_line": "227"
+    },
+    {
+      "id": "F14-P107",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_run_03.py",
+      "source_file": "received/F14.txt",
+      "source_line": "457"
+    },
+    {
+      "id": "F14-P123",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py",
+      "source_file": "received/F14.txt",
+      "source_line": "473"
+    }
+  ],
+  "baseline_source_contexts": [
+    {
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "transferred_text_sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+      "metadata_environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt@c40d4acae1ce58b597267255026d9356565828fd#L6-L128",
+      "manifest_sha256": "b5a8936a67d7e05869331c2ec7ad0c9b36148ec7b9fa7ea00e8f210d4d9a87b0",
+      "raw_archive_transfer": "missing; navigation only, not candidate proof"
+    },
+    {
+      "job": "F04",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "transferred_text_sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+      "metadata_environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F04.txt@c40d4acae1ce58b597267255026d9356565828fd#L4-L78",
+      "manifest_sha256": "eba2a5ce95a6c327bb6e102c7f52e91f645fb5ba54f7f0b3e92b597358fa1d2e",
+      "raw_archive_transfer": "missing; navigation only, not candidate proof"
+    },
+    {
+      "job": "F06",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "transferred_text_sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+      "metadata_environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt@c40d4acae1ce58b597267255026d9356565828fd#L3-L126",
+      "manifest_sha256": "d7df889ef4e489f4695a6c9241f78b379db15168974a2940bf43be969292840e",
+      "raw_archive_transfer": "missing; navigation only, not candidate proof"
+    },
+    {
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "transferred_text_sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+      "metadata_environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F07.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L5",
+      "manifest_sha256": "d7fb66fc3665474c59f11b0463c741b1b05c1b7c8646897c9b4b7d455a68c40f",
+      "raw_archive_transfer": "missing; navigation only, not candidate proof"
+    },
+    {
+      "job": "F09",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "transferred_text_sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff",
+      "metadata_environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L113",
+      "manifest_sha256": "033d478d225b3e4fe2322d0ccb0e5a83993fca17ab37f8dc7148e73fa0246b01",
+      "raw_archive_transfer": "missing; navigation only, not candidate proof"
+    },
+    {
+      "job": "F11",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "transferred_text_sha256": "5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471",
+      "metadata_environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F11.txt@c40d4acae1ce58b597267255026d9356565828fd#L5-L127",
+      "manifest_sha256": "70c193180f8034353f89544f8b27bdbb8afbb5d87b0087e5d4a86d89d5f9681b",
+      "raw_archive_transfer": "missing; navigation only, not candidate proof"
+    },
+    {
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "transferred_text_sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e",
+      "metadata_environment_and_input_closure_ref": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F14.txt@c40d4acae1ce58b597267255026d9356565828fd#L4-L113",
+      "manifest_sha256": "6d22c80796c9d830c55b3b68393f43cd90593f7cb4bfa57643bc32a2da53debf",
+      "raw_archive_transfer": "missing; navigation only, not candidate proof"
+    }
+  ],
+  "query_command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --finding B39 --limit 1000 --details --job-context --block-limit 1000",
+  "environment": {
+    "python": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "data": "synthetic actual NodeOutcome/ExperimentState and local filesystem attempts/event files; no production dataset, DB, ports, external services",
+    "thread_fixture": "real isolated ThreadPoolExecutor(max_workers=2) for thread routes; async bridge otherwise real; monkeypatch only local mode selection/executor, never source files"
+  },
+  "checks": [
+    {
+      "id": "independent-base-matrix",
+      "command": "PYTHONPATH=/workspace/e02-B-run-review-base/policy-engine/src:/workspace/e02-B-run-review-base/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python /tmp/e02-run-B39-review.py /tmp/e02-run-review-base-evidence",
+      "target_sha": "ab310be19f310a6055797a2af56bf1ffae01f555",
+      "outcome": "FAIL",
+      "output": "/tmp/e02-run-review-base-evidence/full.log",
+      "deciding_output": "47 cases:41PASS/6FAIL. Fork permanent raise3 vs return1; immediate node TimeoutError mislabeled wrapper expiry in3 routes; actual async-sync-thread deadline incorrectly retries3."
+    },
+    {
+      "id": "independent-candidate-matrix",
+      "command": "PYTHONPATH=/workspace/e02-B-run-review-candidate/policy-engine/src:/workspace/e02-B-run-review-candidate/policy-engine/product:/workspace/e02-B-run-review-candidate/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python /tmp/e02-run-B39-review.py /tmp/e02-run-review-candidate-evidence",
+      "target_sha": "6c2cab488368932479677bc036ffad25657c0367",
+      "outcome": "PASS",
+      "output": "/tmp/e02-run-review-candidate-evidence/full.log",
+      "deciding_output": "47PASS/0FAIL:7 routes, return/raise permanent1; return/OSError/typed transient ValueError/provider TimeoutError2+ok; actual wrapper deadline1+NodeTimeoutError. Replay needs fresh empty output directory."
+    },
+    {
+      "id": "independent-native-process",
+      "command": "PYTHONPATH=/workspace/e02-B-run-review-candidate/policy-engine/src:/workspace/e02-B-run-review-candidate/policy-engine/product:/workspace/e02-B-run-review-candidate/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -v --tb=short --basetemp=/tmp/e02-run-review-candidate-pytest --junitxml=/tmp/e02-run-review-candidate-evidence/native.xml tests/unit/scientist/orchestration/engine/test_retry.py -k 'fork_permanent_error_shape or fork_exception_preserves or node_timeout_error or wrapper_wait or supervisor or timeout_cleans_owned or cleanup_kills_descendant or term_resistant or cancelled_process_wait or transport_drains or worker_send_failure or serialization_failure or process_start_failure or output_aware_fork'",
+      "cwd": "/workspace/e02-B-run-review-candidate/policy-engine",
+      "target_sha": "6c2cab488368932479677bc036ffad25657c0367",
+      "outcome": "PASS",
+      "output": "/tmp/e02-run-review-candidate-evidence/native.log",
+      "deciding_output": "39PASS/53deselected in11.48s: actual children/grandchildren/new-session group, caller cancellation, worker exit,1MiB delivery, typed payload, setup/start/serialization failure, caller subreaper unchanged, full typed output-aware outcome."
+    }
+  ],
+  "output_sha256": {
+    "/tmp/e02-run-B39-review.py": "6b15791dc9b844ddf3e598c227e61accee913218c7a8eac21e8810f321e429b3",
+    "/tmp/e02-run-review-base-evidence/full.log": "e9da1cac86d03eb13d68bbfe1023a4099d06c577e6edcc7907ae6f1167940ce8",
+    "/tmp/e02-run-review-base-evidence/observations.json": "9b2a87d546dd4c187ba7f192095f868c1a1cacf1bfd651f4117b091562df111a",
+    "/tmp/e02-run-review-candidate-evidence/full.log": "03160cc763ec6999efb5352b5878f4e68023749d2032979c9f2116314059ce67",
+    "/tmp/e02-run-review-candidate-evidence/observations.json": "3df4907381055ef26e1b8491453167cd5f841645afec6cdce9f6a9a206b1e036",
+    "/tmp/e02-run-review-candidate-evidence/native.log": "f9f7ce8b8d27efdbef8667b0001d7514f353b4675b281010d75aa33939aee7f9",
+    "/tmp/e02-run-review-candidate-evidence/native.xml": "da378d7fb517a2737eb81c104de9b27410d2d8351594b48b878712c6613e8830"
+  },
+  "supervisor_review": {
+    "source_from": "ba79d141a3937541b3164db255ceda89883575ec",
+    "unchanged_source_functions": [
+      "_node_execute_supervisor",
+      "_enable_linux_child_subreaper",
+      "_owned_process_group_id",
+      "_terminate_owned_process"
+    ],
+    "behavior": "Linux isolated session/subreaper owns and reaps actual descendants, including TERM-resistant grandchild leaving session, before reporting complete. Kernel parent relation determines adopted children; no arbitrary process group targeting."
+  },
+  "predicate_basis": "recomputed",
+  "decision": "no blocking finding in reviewed candidate class",
+  "reason": "Origin exception category/code computed before IPC, message diagnostic only; decoding validates finite semantic fields without reconstructing exception or serialized authorization. Owned completed Future/Task is decided before raising its result error; one async thread Future removes competing timeout boundary.",
+  "limitations": [
+    "B39 closure is separate G decision; tests sample categories and use local synthetic nodes, not every provider/non-idempotent external action law.",
+    "Linux/procfs/fork ownership only; non-Linux process and malicious escaping node are not established.",
+    "Dead-letter code/error original class reconstruction is not claimed; diagnostic message retained.",
+    "No production source/tests edited; immutable detached snapshots used. Own adapters d0eb247a2 remains clean.",
+    "Review files currently outside Git: RUN author/root must commit full moderate driver and outputs or retain exact fetchable refs in published handoff before G acceptance."
+  ]
+}

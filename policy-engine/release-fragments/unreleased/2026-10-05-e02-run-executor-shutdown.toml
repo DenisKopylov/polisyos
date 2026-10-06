@@ -1,0 +1,17 @@
+id = "2026-10-05-e02-run-executor-shutdown"
+title = "Avoid shared executor submission and shutdown lock inversion"
+type = "fixed"
+component = "common-runtime"
+owner = "team-polisyos"
+summary = "The shared executor releases its job-admission lock before base submission, preventing queued cancellation during shutdown from waiting on a submitter that owns the opposite lock. Each reservation releases once on completion, cancellation or rejected submission."
+evidence = ["tests/unit/common/test_async_tools.py"]
+compatibility = "Existing bridge signatures, unfinished-job refusal and spare-worker nested calls are preserved."
+change_class = "internal"
+surface_classification = "internal: shared executor lock and reservation ownership"
+migration = "No caller migration. User done callbacks must not synchronously wait on nested work in this shared executor."
+api = "No new public entrypoint or persisted format."
+limitations = "The reservation counter tracks unfinished submitted jobs rather than physical worker occupancy during user done callbacks. Blocking nested waits from those callbacks remain unsupported."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = ["src/polisyos/common/README.md"]

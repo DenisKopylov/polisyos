@@ -67,7 +67,7 @@ class _BatchPort:
         self.index = state["index"]
 
 
-def _service(store, steps, cause=None):
+def _service(store, steps, cause=None, *, owner=None):
     port = _BatchPort(steps, cause)
     service = NativeSearchService(
         SearchController(
@@ -77,6 +77,7 @@ def _service(store, steps, cause=None):
                 enable_stage_a=False,
                 batch_size=2,
                 max_empty_generation_attempts=2,
+                budget_middleware=owner,
             ),
             port,
             _stage_a,
@@ -186,3 +187,86 @@ def test_async_cancel_after_empty_public_batch_keeps_acknowledged_generator_and_
     assert _partial(observer) == _partial(service)
     assert observer.controller._generator.get_state() == service.controller._generator.get_state()
     assert store.get_bytes(acknowledged_ref) == old_bytes
+
+
+@pytest.mark.parametrize(
+    "exception_type", [StopIteration, ValueError, CancelledError, asyncio.CancelledError]
+)
+def test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger(
+    tmp_path, exception_type
+):
+    # A local supported transport emits an actual producer response. This proves
+    # exact local settlement/custody, not independent external billing truth.
+    from decimal import Decimal
+
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
+
+    class Transport:
+        calls = 0
+
+        def invoke(self, prompt, **kwargs):
+            self.calls += 1
+            return {
+                "content": "settled",
+                "provider": "fixture-batch-provider",
+                "request_id": "batch-control-settled-request",
+                "usage": {"prompt_tokens": 1, "completion_tokens": 1, "cost_usd": 1.25},
+            }
+
+    ledger_path = tmp_path / "paid-budget.json"
+    state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("100"))})
+    owner = BudgetMiddleware(state, ledger=FileBudgetLedger(ledger_path))
+    transport = Transport()
+    caller = LLMBudgetEnforcer(
+        client=transport,
+        budget_state=state,
+        budget_middleware=owner,
+        budget_keys=["run"],
+        run_id="batch-control-run",
+        model_name="fixture-model",
+    )
+    caller.invoke(
+        "one actual transport call",
+        _evaluation_id="accepted-previous-call",
+        _prompt_tokens_estimate=1,
+        max_tokens=1,
+    )
+    before = FileBudgetLedger(ledger_path).snapshot()
+    assert transport.calls == 1
+    assert before.state.spent == {"run": Decimal("1.25")}
+    assert before.state.provider_spent == {"fixture-batch-provider": Decimal("1.25")}
+    assert len(before.spend_receipts) == 1
+    receipt = next(iter(before.spend_receipts.values()))
+    assert receipt.amount == Decimal("1.25")
+    assert receipt.provider == "fixture-batch-provider"
+
+    store = FileSystemCAS(tmp_path / "cas")
+    cause = exception_type("batch stopped after a locally acknowledged paid call")
+    service = _service(store, ["empty", "signal"], cause, owner=owner)
+    with pytest.raises(exception_type) as raised:
+        service.run_search(
+            initial_context={"cumulative_cost_usd": 7.5}, initial_candidate={"cost": 2}
+        )
+    assert raised.value is cause
+    port = service.controller._generator
+    assert _partial(service) == port.accepted_view
+    assert service.controller._run_state.budget_spent == 1.25
+    assert service._failure == f"{exception_type.__name__}: {cause}"
+    after = FileBudgetLedger(ledger_path).snapshot()
+    assert after == before
+    assert ledger_path.read_bytes()
+    fresh_owner = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    observer = _service(
+        FileSystemCAS(tmp_path / "cas"), ["empty", "signal"], cause, owner=fresh_owner
+    )
+    observer.restore(service.checkpoint_ref)
+    assert _partial(observer) == _partial(service)
+    assert observer._failure == service._failure
+    assert observer.controller._generator.get_state() == port.get_state()
+    assert FileBudgetLedger(ledger_path).snapshot() == before
+    assert store.get_bytes(port.accepted_ref) == port.accepted_bytes
+    assert transport.calls == 1
+    print("actual_batch_local_settlement", before.model_dump_json())

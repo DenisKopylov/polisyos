@@ -1,0 +1,693 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "migrations",
+  "handoff_kind": "append_only_source_freeze_and_installed_audit",
+  "closure_ids": [],
+  "bundle_ids": [
+    "MIG-01",
+    "MIG-02",
+    "MIG-04",
+    "MIG-05"
+  ],
+  "criterion_ids": [
+    "LA-010",
+    "LA-047",
+    "LA-048",
+    "LA-049",
+    "LA-050"
+  ],
+  "slice_base": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "relation": "Exact assigned base. Prior candidate commits were checked against this base; no cherry-picks were made."
+  },
+  "source_freeze": {
+    "commit": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
+    "tree_sha": "5369c0167bc63096a12ee1bea666b42c837ea78b",
+    "branch": "codex/e02-C-migrations-20261006",
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-migrations-20261006/polisyos",
+    "status_at_freeze": "Clean; attached branch confirmed by git status -sb and git symbolic-ref.",
+    "source_changes_after_freeze": "None; subsequent commit is this separate evidence handoff only."
+  },
+  "implementation_ancestry_base_to_freeze": [
+    {
+      "sha": "5a72f76b360e2635d06cee791c51f6e7100bc501",
+      "subject": "Route artifact migrations through declared callables"
+    },
+    {
+      "sha": "696c9d0fc1e9d758014225c91dee80a048adb28b",
+      "subject": "Record migration implementation verification"
+    },
+    {
+      "sha": "317c96342f2c681f121d5b8f067339a25d399b2f",
+      "subject": "Retire completed HYG compatibility shims"
+    },
+    {
+      "sha": "cf8cb9d74973a63b98cc202425686894a8d1e92e",
+      "subject": "Bind packaging archive probe to native resource"
+    },
+    {
+      "sha": "9846dbad5aba245e7c342f2dcbc57737f053aa7e",
+      "subject": "Record HYG-02/04 C2 handoff evidence"
+    },
+    {
+      "sha": "f0940f021f76264c288789e472a9d4681d7f6680",
+      "subject": "Resolve installed workspace root from checkout"
+    },
+    {
+      "sha": "d2da9ce760aa696431d727d3c3b29d03542faa64",
+      "subject": "Record HYG root-resolution handoff"
+    },
+    {
+      "sha": "df6f3326cff8c36ca3b5fa3256503210e3d517fe",
+      "subject": "Merge commit 'f0940f021f76264c288789e472a9d4681d7f6680' into codex/e02-C-migrations-20261006"
+    },
+    {
+      "sha": "e70e8021aae4067aa3c647cd60bf49ff388b4d2c",
+      "subject": "docs: complete frontend workspace map"
+    },
+    {
+      "sha": "c62f5f27c5a165316a5428806993e3f524caae85",
+      "subject": "Fix installed migration contract root resolution"
+    },
+    {
+      "sha": "5ad2dc84420ff61caf02929d196a55fe1ea972cf",
+      "subject": "docs: record HYG-02/04 evidence adjudication"
+    },
+    {
+      "sha": "cf28194b9fa28bbeb97ac5e2792becbda84f4cc0",
+      "subject": "Resolve installed migration contracts from checkout"
+    },
+    {
+      "sha": "1e8aa374829884fcab9b6eca6616c5a7df4beb16",
+      "subject": "fix: validate workspace root sentinel types"
+    },
+    {
+      "sha": "7e03196d0e67266c9267e05ef32e0ef4f4fd0aca",
+      "subject": "Merge commit '1e8aa374829884fcab9b6eca6616c5a7df4beb16' into codex/e02-C-migrations-20261006"
+    },
+    {
+      "sha": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
+      "subject": "Validate migration contract workspace roots"
+    }
+  ],
+  "complete_base_to_source_freeze_footprint": {
+    "path_count": 68,
+    "change_status_counts": {
+      "M": 45,
+      "A": 13,
+      "D": 10
+    },
+    "file_type_counts": {
+      ".argv": 1,
+      ".gz": 2,
+      ".ini": 2,
+      ".json": 4,
+      ".md": 12,
+      ".py": 31,
+      ".sh": 1,
+      ".stdout": 1,
+      ".toml": 9,
+      ".txt": 4,
+      ".yml": 1
+    },
+    "paths": [
+      {
+        "status": "M",
+        "path": "policy-engine/architecture/frontend_workspaces.toml"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/architecture/imports/dynamic.toml"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/architecture/packages/layout.toml"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/architecture/policies/directory_health.toml"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/architecture/shims.toml"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/architecture/tooling/mypy/generated.ini"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/architecture/tooling/mypy/overrides/30-lex-scholar-data-forge-legal.ini"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/architecture/tooling/ruff/generated.toml"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/architecture/tooling/ruff/per-file-ignores/90-repository-tools.toml"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/architecture/topology.toml"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/explanation/architecture.md"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/how-to/run-benchmarks.md"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/reference/frontend/workspace-contract.md"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/reference/repository-topology.md"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-adjudication-d2.json"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-root-resolution-f0940f.json"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04.json"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/benchmark.txt.gz"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/bootstrap.argv"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/bootstrap.txt"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/lex-consumer.txt"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/native-packaging-precorrection.txt.gz"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/native-packaging.txt"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04/production-invocation.stdout"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-verification.txt"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations.json"
+      },
+      {
+        "status": "D",
+        "path": "policy-engine/install.sh"
+      },
+      {
+        "status": "D",
+        "path": "policy-engine/jax_bootstrap.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/ops/ci/templates/workflows/causal-phases.yml"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/ops/migrations/api_schemas/README.md"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/ops/migrations/ir/README.md"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/ops/migrations/runtime_state/README.md"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-c2-migration-binding-resolution.toml"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/common/migrations/README.md"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/fabric/identity/migrations.py"
+      },
+      {
+        "status": "D",
+        "path": "policy-engine/src/polisyos/lex/factlog.py"
+      },
+      {
+        "status": "D",
+        "path": "policy-engine/src/polisyos/scientist/evidence/_shim.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/scientist/governance/passes/README.md"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/scientist/governance/passes/__init__.py"
+      },
+      {
+        "status": "D",
+        "path": "policy-engine/src/polisyos/scientist/governance/passes/base.py"
+      },
+      {
+        "status": "D",
+        "path": "policy-engine/src/polisyos/scientist/governance/passes/legal_pass.py"
+      },
+      {
+        "status": "D",
+        "path": "policy-engine/src/polisyos/scientist/governance/passes/safety_pass.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/repo_quality/test_chronology_terminal_state.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/repo_quality/tools/test_hatch_packaging.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/repo_quality/tools/test_phase4_consolidation.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/lex/mirror_contracts/test_factlog.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/remediation/test_hyg_04.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/remediation/test_mig_01.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/remediation/test_mig_02.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/remediation/test_mig_04.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/remediation/test_mig_05.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/scientist/governance/test_shared_shims.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/devx/workspace/_common.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/lib/imports.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/ops_runners/migrations/README.md"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/ops_runners/migrations/contracts.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/ops_runners/migrations/migrate.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/research/benchmarks/README.md"
+      },
+      {
+        "status": "D",
+        "path": "policy-engine/tools/research/benchmarks/harness.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/research/benchmarks/jax/bench_domain.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/research/benchmarks/jax/bench_simulation.py"
+      },
+      {
+        "status": "D",
+        "path": "policy-engine/tools/research/benchmarks/metrics.py"
+      },
+      {
+        "status": "D",
+        "path": "policy-engine/tools/research/benchmarks/suite_registry.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/research/demos/run_laffer_demo.py"
+      }
+    ],
+    "inventory_command": "git diff --name-status 198076863e143dea9f89f02734b13d50dae3eed5 004ae11f1a541e2035f71cefa92f89b71bd8f562",
+    "scope_note": "Complete base-to-source-freeze set, including inherited/merged provider history and original migration receipt companions; this does not claim all 68 paths were directly authored by the migration owner."
+  },
+  "provider_ancestry": {
+    "HYG_root_lookup_provider": {
+      "original_checkout_root_source": "f0940f021f76264c288789e472a9d4681d7f6680",
+      "typed_layout_predicate_source": "1e8aa374829884fcab9b6eca6616c5a7df4beb16",
+      "typed_layout_predicate_tree": "23e5b56e2a42a652770a698a4259a23f4a41277e",
+      "merge_into_migration_branch": "7e03196d0e67266c9267e05ef32e0ef4f4fd0aca",
+      "provider_contract": "tools.lib.imports.repo_root_from keeps its signature and applies one root predicate to ancestry, CWD fallback, and explicit workspace roots; requires pyproject.toml file plus tools/src directories; does not attest Git identity or source authenticity.",
+      "separate_provider_appendix_not_merged": {
+        "commit": "95407808d90bd7c5c7ca7898a8423fe6d4ee9180",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c2-hyg-02-04-root-layout-types-1e8aa374.json",
+        "blob_sha": "ad56476e4e7cc07f2e447cd2f6f44f6eb9e2febf",
+        "disposition": "Referenced separately; not merged into the source candidate."
+      }
+    }
+  },
+  "prior_candidate_ancestry_at_slice_base": {
+    "already_on_base": [
+      {
+        "sha": "4e6a95acd440ec42126d8348886ba49ae80e47d2",
+        "role": "MIG-01 CLI delegation"
+      },
+      {
+        "sha": "5e3e30bffda1b904cfb5e8fc24abee42c5c60180",
+        "role": "MIG-01 Trinity validation"
+      },
+      {
+        "sha": "a9574e370745f5c144a14d575dc8413290e0462c",
+        "role": "MIG-01 characterization"
+      },
+      {
+        "sha": "3c43fd93955bebd31227e92c73afba658e9bc08d",
+        "role": "MIG-02 implementation"
+      },
+      {
+        "sha": "c44bc0046be338f8e4a4bc54a99d1efd65ee2379",
+        "role": "MIG-02 characterization"
+      },
+      {
+        "sha": "0ae1a84de6472f29977f6dcb1b9e76731cfafba7",
+        "role": "MIG-04 converter move"
+      },
+      {
+        "sha": "6f93ef2fb9a3239b84d38405b5d7e1223182522b",
+        "role": "MIG-04 characterization"
+      },
+      {
+        "sha": "e9efde2a38dbc8cc6891631f8d43f9984e9355a0",
+        "role": "MIG-05 shared linear executor"
+      },
+      {
+        "sha": "de59fea6cc4f0c5144abe94fdf4c77b92230c409",
+        "role": "MIG-05 profile corpus"
+      },
+      {
+        "sha": "1c9803813dabfa04c010ac89cbf6f85229cc7ede",
+        "role": "typing/runtime annotation support"
+      },
+      {
+        "sha": "08d5a969f316be8e4ae8b125ca99acbd4fa490ed",
+        "role": "typing/runtime annotation support"
+      },
+      {
+        "sha": "b270d6dcce0736ed0801585f20f6922b3bb22635",
+        "role": "typing/runtime annotation support"
+      },
+      {
+        "sha": "02b7f5e3c63d42d8a76bc1760d84ee9136375579",
+        "role": "LA-049 unreachable self-edge removal"
+      }
+    ],
+    "not_on_base": [
+      {
+        "sha": "0ec18c55ce3abdebe198987374e803c7f9b45912",
+        "role": "retired-branch RunManifest readback"
+      },
+      {
+        "sha": "6fa80a12aa764f06d75f55c3a21108dc2483ba85",
+        "role": "retired-branch RunManifest readback"
+      }
+    ],
+    "disposition": "No cherry-picks. Prior-candidate exact commits already on base were reused as ancestry, not recommitted. Retired-branch RunManifest PASS evidence was not reused."
+  },
+  "requirements_and_contract_sources": {
+    "criterion_cards": {
+      "MIG-01": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/MIG-01.md",
+        "base_blob": "eb1b6345e2aebfec945333e73696fe8e8d3b5c67"
+      },
+      "MIG-02": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/MIG-02.md",
+        "base_blob": "581ed1133d1d880f135ba11694fb88c6d1bcdac5"
+      },
+      "MIG-04": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/MIG-04.md",
+        "base_blob": "153cfa2b3bfd878e11e72227bda60e2bf3b77b7c"
+      },
+      "MIG-05": {
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/MIG-05.md",
+        "base_blob": "96e1ff0b11f186c15659038ccffa1ab46a1da1bb"
+      }
+    },
+    "closure_decisions": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+      "base_blob": "eb335a62bc1f8bce2cddfcf59f649980a08e88c4",
+      "rows": [
+        "LA-010",
+        "LA-047",
+        "LA-048",
+        "LA-049",
+        "LA-050"
+      ]
+    },
+    "owner_rows": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "base_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7"
+    },
+    "operational_migration_contract": {
+      "path": "policy-engine/ops/migrations/migration-contracts.toml",
+      "base_blob": "3738ab8b7328627e11160f2e8df4570d90717fda"
+    },
+    "distinct_owner_profiles": [
+      {
+        "path": "policy-engine/src/polisyos/common/migrations/base.py",
+        "base_blob": "9079f08f1dbf4429c588e548ea824395137a10f8",
+        "profile": "Common linear copy/mutation, returned-version stamping, and no-op identity semantics"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/migrations/base.py",
+        "base_blob": "71132cea4f788e3701ed6d1215fefe4ef31a8ecd",
+        "profile": "IR linear profile with distinct callback mutation/version/error/no-op semantics"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/migrations/policy_ir.py",
+        "base_blob": "0a89e03c890dc1bfe3cf274bd11aac34dfb99c89",
+        "profile": "IR-owned Trinity validation/migration path"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/manifest_migrations.py",
+        "base_blob": "a5c066737018d254cdbb022f8e60315c63fd0c5b",
+        "profile": "Runtime-owned, version-neutral RunManifest path normalizer"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/identity/migrations.py",
+        "base_blob": "1c168c4df2c2a37be019c6102f825c5b285019c5",
+        "profile": "Fabric-owned DatasetManifest converter"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/migrations.py",
+        "base_blob": "6c79c93314770a5ca2f54222a5444ee1b4ca2e4f",
+        "profile": "DataForge branching SchemaMigrationRegistry; untouched"
+      }
+    ]
+  },
+  "original_ledger_statuses_unchanged": {
+    "LA-010": "closed, bounded historical row",
+    "LA-047": "partial / semantic_test_missing",
+    "LA-048": "partial / bridge_missing",
+    "LA-049": "closed, bounded historical row",
+    "LA-050": "partial / bridge_missing"
+  },
+  "current_evidence_assessment": {
+    "LA-010": {
+      "disposition": "closed",
+      "basis": "Canonical public migration CLI resolves and invokes the declared callable; persisted owner output is reopened by strict DTO consumers; invalid-target and callable-removal controls preserve prior output."
+    },
+    "LA-047": {
+      "disposition": "closed",
+      "basis": "Common and IR retain distinct linear profiles. Deep nested callback mutation and callback-exception behavior, returned-version policy, version type, no-op identity, and chain controls were exercised; no profile conflation."
+    },
+    "LA-048": {
+      "disposition": "closed",
+      "basis": "Actual populated one-row DuckDB dry-run completed through the installed tool with a deliberately unusable PostgreSQL DSN; the route returned before psycopg import/connect. This proves the local dry-run route, not a PostgreSQL migration or durable database write."
+    },
+    "LA-049": {
+      "disposition": "closed",
+      "basis": "IR-owned Trinity validation/migration behavior and current-version/no-op distinctions were exercised through source and installed migration routes; full production/native-model admission is not claimed."
+    },
+    "LA-050": {
+      "disposition": "limited",
+      "basis": "Installed public CLI performed a synthetic v0.9→1.0 DatasetManifest conversion, strict persisted DTO readback, input preservation, and conflict/unknown-field controls. No real historical persisted DatasetManifest artifact was found; that card condition remains unresolved."
+    }
+  },
+  "artifact_and_owner_boundaries": {
+    "migration_runtime": "Public CLI validates HelperBinding, resolves its implementation to the callable invoked, and persists owner-specific conversion output; strict owner DTO readback verifies persisted bytes.",
+    "dataset_manifest": "Fabric owns DatasetManifest conversion. The synthetic tracked v0.9 input is an executable control, not provenance for a historical artifact.",
+    "run_manifest": "Runtime owns version-neutral path normalization. Source CLI route selected nested-root payload over a same-basename decoy; no Runtime version migration was added.",
+    "linear_profiles": "Common and IR remain separate semantic facades over the shared linear executor; mutation/error/version/no-op differences are preserved.",
+    "data_forge": "Branching SchemaMigrationRegistry and its schema/kernel paths remain untouched.",
+    "authority_time_and_surface": "No authority, status, or time claim is added. Public CLI filesystem surface is in scope; API/dashboard surface is explicitly out of scope."
+  },
+  "source_verification": [
+    {
+      "command": "Focused original MIG/source/importer selection at 5a72f76b360e2635d06cee791c51f6e7100bc501",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "result": "94 passed, 1 existing pytest Unknown config option: cache_dir warning in 1.13s."
+    },
+    {
+      "command": "Ruff check/format and git diff --check on the original migration source change",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "result": "All checks passed; 7 files already formatted; diff check empty."
+    },
+    {
+      "command": "Final MIG root-fallback regression selection after HYG typed-layout provider merge",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "result": "9 selected root tests / 10 test cases passed. Covered valid explicit product root, malformed pyproject/tools/src sentinels, source-ancestry/CWD/explicit-root resolution and preservation of source-checkout behavior."
+    },
+    {
+      "command": "Independent source delta review at 004ae11f1a541e2035f71cefa92f89b71bd8f562 / tree 5369c0167bc63096a12ee1bea666b42c837ea78b",
+      "outcome": "GO",
+      "exit_code": 0,
+      "result": "18 focused root and migration-consumer cases passed; reviewer confirmed clean worktree/diff and 14 owner modules byte-identical to the prior independent receipt source."
+    },
+    {
+      "command": "Ruff check and git diff --check for final typed-root delta",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "result": "All checks passed; diff check empty."
+    }
+  ],
+  "installed_audit": {
+    "frozen_source": {
+      "commit": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
+      "tree": "5369c0167bc63096a12ee1bea666b42c837ea78b"
+    },
+    "distribution_sha256": "6e675a4750312d28098b598abd595805152ffb71bfdef4795609861dee599eb9",
+    "combined_manifest": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/installed-final2.command-results.json",
+      "sha256": "566ef406583c6c8a62f99728c295c6923286813cbce15ebbca54952fcf1b98c0",
+      "coverage": "14 actual command records including installed v1.0 no-op/strict DTO, invalid-schema failure-preservation, populated DuckDB dry-run, direct outside/malformed root controls, CLI import-failure classification, and module/source identity."
+    },
+    "converter_supplement": {
+      "manifest": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/installed-converter-delta-verified.command-results.json",
+        "sha256": "cf3bffbdc962a9f83fbc71d6122711385600bc218510fdab6fa01b9ba80b775e"
+      },
+      "argv": "polisyos-tools migrations migrate dataset_manifest <input.json> <output.json> (default target 1.0)",
+      "fixture": {
+        "tracked_source": "policy-engine/tests/unit/remediation/test_mig_04.py::_complete_current_manifest()",
+        "schema_version": "0.9",
+        "datasetName": "baseline",
+        "rawHash": "sha256:abc",
+        "fixture_class": "synthetic tracked fixture, not a real historical artifact"
+      },
+      "input_preserved": true,
+      "persisted_output_sha256": "cef17c34198b0b77eb678d6e036ba48964f2cb4bf34a7280ea60b756dc3bafed",
+      "strict_readback": "Installed DatasetManifest DTO accepted the persisted converted output with schema_version 1.0 and canonical dataset_name/raw_hash keys.",
+      "negative_controls": [
+        "Conflicting alias values convert and persist without being silently discarded; the strict owner DTO rejects the persisted conflict.",
+        "Unknown input field survives conversion/persistence; the strict owner DTO rejects the extra field.",
+        "Installed module/origin and sys.path were captured; sys.path did not change."
+      ],
+      "raw_command_manifest": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/installed-converter-delta.command-results.json",
+        "sha256": "90b2f212a75273b768f512eb4c5f50e8ecde3b98d977fe1a037f61af3b1fa09c"
+      }
+    },
+    "duckdb_route_limit": "PostgreSQL DSN was deliberately pointed at 127.0.0.1:1; dry-run returned before importing or connecting psycopg. Not a live PostgreSQL integration test.",
+    "installed_scope": "Exact-wheel evidence for the named public and direct methods; not a whole-package installed GO."
+  },
+  "runtime_proof_and_limits": {
+    "production_invocation_diagnostic": {
+      "command": "tools.cli validation check-production-invocation --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt docs/research/e02-cloud-test-plan/raw/c-migrations/production-invocation.json",
+      "result": "FAILED static direct-call diagnostic; runtime_invocation_established=false; model reports deferred/registered callback, router, dynamic/reflection, runtime receipt and gate gaps.",
+      "recorded_in_original_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations.json#checks[2]",
+      "raw_ignored_receipt": "policy-engine/docs/research/e02-cloud-test-plan/raw/c-migrations/production-invocation.json@9137128d21f8ae0309072f090e981519e5969ae5a5e44d89590627d2e79c7c5b",
+      "P41": "Attribution is not_established: no exact-base replay plus complete input-denominator/path zero-intersection proof was performed. This static failure is not a runtime negative and does not invalidate actual bounded CLI/DuckDB commands."
+    },
+    "historical_artifacts": "No real persisted historical DatasetManifest fixture was located. Synthetic v0.9 fixtures establish the converter path but not historical provenance.",
+    "database": "No PostgreSQL connection or durable database write was attempted.",
+    "whole_package": "No author-built wheel, full backend/CI parity, production dataset, or service/database verification was performed."
+  },
+  "pattern_pass": {
+    "P01": "Bounded public CLI-to-persisted-artifact-to-strict-owner-consumer paths are shown. Upstream production and broad package-wide runtime invocation remain outside the evidence.",
+    "P29": "Behavioral checks invoke the CLI/callable and strict consumers; tests do not accept binding-marker presence as proof.",
+    "P31": "Shared linear execution is consolidated only under preserved explicit Common/IR profiles; converters remain at owner boundaries.",
+    "P38": "Property: resolve and invoke the declared implementation and read back its persisted result. Earlier code measured binding metadata while hard-coded imports selected behavior; callable-removal and persisted-readback controls distinguish this proxy.",
+    "P40": "The installed-root escape appeared first in migrate.py, then at migration contract lookup and explicit-root resolution. It was bucketed as the same class one layer deeper and widened across migration-family contract lookups to the shared typed root resolver, rather than patched per caller.",
+    "P41": "Static diagnostic red provenance remains not_established under the exact-base and complete-input-denominator requirement."
+  },
+  "tooling_nonreceipts": {
+    "commit_hook": {
+      "outcome": "UNRUN",
+      "evidence": "Earlier ordinary hook reported missing binary at policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook; parent authorized command-local git -c core.hooksPath=/dev/null for implementation commit. No hook install or shared-config mutation."
+    },
+    "app_worktree_registry": {
+      "outcome": "tooling nonreceipt only",
+      "evidence": "Codex list_artifacts showed a different older migration worktree. attach_worktree for the exact authorized checkout returned: The checkout exists but is not a managed worktree. Git branch status is attached and correct; parent confirms this fresh checkout was created by Git fallback after exact create/resume admission. No register retry, new checkout, branch move, or history rewrite."
+    }
+  },
+  "original_handoff_unchanged": {
+    "paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-verification.txt"
+    ],
+    "closure_ids": [],
+    "ledger_rows_not_rewritten": true
+  },
+  "new_handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-root-resolution-004ae.json"
+}

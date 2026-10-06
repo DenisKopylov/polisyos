@@ -99,6 +99,7 @@ from .ids import ArtifactID
 from .manifest import (
     ArtifactManifest,
     ArtifactRef,
+    ArtifactTenantContextInfo,
     CanonInfo,
     _coerce_input_ref,
     artifact_ref_identity_key,
@@ -908,6 +909,24 @@ class FileSystemCAS:
                 "Tenant-scoped artifact operation requires an active tenant owner"
             )
         return owner_tenant, owner_cell
+
+    @staticmethod
+    def _require_bound_context_owner(
+        tenant_context: ArtifactTenantContextInfo | None,
+        owner: dict[str, str | None] | None,
+    ) -> None:
+        """Admit bound metadata only under its declared scoped write identity.
+
+        Unscoped exact-view caches retain original metadata without issuing an
+        owner claim. An absent context also remains an unbound byte/view write.
+        """
+        if tenant_context is None or owner is None:
+            return
+        context = ArtifactTenantContextInfo.model_validate(tenant_context)
+        if context.tenant_id != owner["tenant_id"]:
+            raise ArtifactOwnershipError("Artifact manifest is bound to a different tenant")
+        if context.cell_id != owner["cell_id"]:
+            raise ArtifactOwnershipError("Artifact manifest is bound to a different cell")
 
     def _require_artifact_owner(
         self,
@@ -1994,6 +2013,7 @@ class FileSystemCAS:
             opts=opts,
             created_at=created_at,
         )
+        self._require_bound_context_owner(manifest.tenant_context, owner)
         manifest_bytes = self._manifests.to_bytes(manifest)
         profile_sha256 = self._manifests.profile_sha256(manifest)
         views = intent["views"]
@@ -2148,6 +2168,7 @@ class FileSystemCAS:
                 if self._ownership_enforced and tenant_id is not None
                 else None
             )
+            self._require_bound_context_owner(getattr(opts, "tenant_context", None), owner)
             prior_intent = self._ownership_index._read_transaction_intent(aid)
             if prior_intent is not None:
                 if self._ownership_index._committed_intent_matches_current_state(prior_intent):
@@ -2917,6 +2938,9 @@ class FileSystemCAS:
             if self._ownership_enforced:
                 for source_info in source_by_artifact.values():
                     for source_view in source_info["source_views"]:
+                        self._require_bound_context_owner(
+                            source_view["manifest"].tenant_context, owner
+                        )
                         for raw_input_ref in source_view["manifest"].inputs:
                             input_ref = _coerce_input_ref(raw_input_ref)
                             input_id = input_ref.artifact_id

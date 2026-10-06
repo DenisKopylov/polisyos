@@ -7,6 +7,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import tarfile
 import tempfile
 from contextlib import suppress
@@ -17,6 +18,7 @@ from typing import TYPE_CHECKING, BinaryIO, Protocol
 
 from polisyos.common.serialization import fast_json_dumps, fast_json_dumps_bytes
 
+from ._atomic_write import AtomicFileDurabilityError, fsync_directory
 from ._integrity_ops import ArtifactIntegrityError, validate_manifest_identity
 from ._manifest_lifecycle import ManifestLifecycle
 from .ids import ArtifactID
@@ -275,6 +277,31 @@ def _publish_directory_generation(staging_root: Path, target: Path) -> None:
         raise
     if previous_root.exists():
         shutil.rmtree(previous_root, ignore_errors=True)
+
+
+def _archive_output_mode(target: Path) -> int | None:
+    """Admit a missing or regular output entry without following an alias."""
+    try:
+        status = target.lstat()
+    except FileNotFoundError:
+        return None
+    if not stat.S_ISREG(status.st_mode):
+        raise ValueError(f"Export archive target must be a regular file: {target}")
+    return stat.S_IMODE(status.st_mode)
+
+
+def _publish_archive_generation(staging_path: Path, target: Path) -> None:
+    """Publish a closed, synced archive without exposing partially written bytes."""
+    with staging_path.open("rb") as stream:
+        os.fsync(stream.fileno())
+    os.replace(staging_path, target)
+    try:
+        fsync_directory(target.parent)
+    except OSError as exc:
+        raise AtomicFileDurabilityError(
+            "CAS export archive exists but its parent directory sync failed",
+            replaced=True,
+        ) from exc
 
 
 def _reject_symlink_components(path: Path, root: Path, *, member: str) -> None:
@@ -538,41 +565,52 @@ def export_subgraph(
     if compress:
         archive_path = normalize_archive_path(target)
         archive_path.parent.mkdir(parents=True, exist_ok=True)
-        with tarfile.open(archive_path, "w:gz", format=tarfile.PAX_FORMAT) as tar:
-            for request in requests:
-                artifact_id, profile_sha256, _ref = artifact_reference_parts(request)
-                try:
-                    total_bytes += add_archive_member(tar, request, "blob")
-                except FileNotFoundError:
-                    missing_artifacts.append(str(artifact_id))
-                    continue
-
-                manifest_available = False
-                if include_manifests:
+        previous_mode = _archive_output_mode(archive_path)
+        staging_root = Path(
+            tempfile.mkdtemp(prefix=f".{archive_path.name}.staging-", dir=archive_path.parent)
+        )
+        staging_path = staging_root / "archive.tar.gz"
+        try:
+            with tarfile.open(staging_path, "w:gz", format=tarfile.PAX_FORMAT) as tar:
+                for request in requests:
+                    artifact_id, profile_sha256, _ref = artifact_reference_parts(request)
                     try:
-                        total_bytes += add_archive_member(tar, request, "manifest")
-                        manifest_available = True
+                        total_bytes += add_archive_member(tar, request, "blob")
                     except FileNotFoundError:
-                        missing_manifests.append(str(artifact_id))
-                with suppress(FileNotFoundError):
-                    total_bytes += add_archive_member(tar, request, "signature")
-                exported_ids.add(str(artifact_id))
-                if manifest_available:
-                    exported_views.add((str(artifact_id), profile_sha256 or "default"))
+                        missing_artifacts.append(str(artifact_id))
+                        continue
 
-            meta_payload = _inventory_payload(
-                exported=len(exported_ids),
-                requested=len(requested_ids),
-                exported_views=len(exported_views),
-                requested_views=len(requests),
-                members=member_bindings,
-            )
-            meta_bytes = fast_json_dumps_bytes(meta_payload, sort_keys=True)
-            info = tarfile.TarInfo(name="export_manifest.json")
-            info.size = len(meta_bytes)
-            info.mtime = 0
-            tar.addfile(info, BytesIO(meta_bytes))
-            total_bytes += len(meta_bytes)
+                    manifest_available = False
+                    if include_manifests:
+                        try:
+                            total_bytes += add_archive_member(tar, request, "manifest")
+                            manifest_available = True
+                        except FileNotFoundError:
+                            missing_manifests.append(str(artifact_id))
+                    with suppress(FileNotFoundError):
+                        total_bytes += add_archive_member(tar, request, "signature")
+                    exported_ids.add(str(artifact_id))
+                    if manifest_available:
+                        exported_views.add((str(artifact_id), profile_sha256 or "default"))
+
+                meta_payload = _inventory_payload(
+                    exported=len(exported_ids),
+                    requested=len(requested_ids),
+                    exported_views=len(exported_views),
+                    requested_views=len(requests),
+                    members=member_bindings,
+                )
+                meta_bytes = fast_json_dumps_bytes(meta_payload, sort_keys=True)
+                info = tarfile.TarInfo(name="export_manifest.json")
+                info.size = len(meta_bytes)
+                info.mtime = 0
+                tar.addfile(info, BytesIO(meta_bytes))
+                total_bytes += len(meta_bytes)
+            if previous_mode is not None:
+                staging_path.chmod(previous_mode)
+            _publish_archive_generation(staging_path, archive_path)
+        finally:
+            shutil.rmtree(staging_root, ignore_errors=True)
         output_path = archive_path
     else:
         _validate_directory_export(target)

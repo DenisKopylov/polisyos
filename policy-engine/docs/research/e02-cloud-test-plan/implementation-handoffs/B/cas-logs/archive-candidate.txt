@@ -1,0 +1,3 @@
+....                                                                     [100%]
+
+receipt exit=0 wall_s=1.174369 rss_kib=87768

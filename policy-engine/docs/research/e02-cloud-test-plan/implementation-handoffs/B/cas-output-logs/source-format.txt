@@ -1,0 +1,2 @@
+Would reformat: src/polisyos/core/artifacts/_transfer_ops.py
+1 file would be reformatted

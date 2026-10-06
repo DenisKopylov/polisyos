@@ -1,0 +1,112 @@
+{
+  "schema": "policyos.e02.B.CAS.workspace_custody_qualification.v1",
+  "unit": "B",
+  "topic_branch": "codex/e02-B-cas",
+  "scope": "CAS leaf worktree creation/admission evidence; metadata only, no source/test/runtime change",
+  "self_created_registered_worktrees": [
+    {
+      "path": "/workspace/e02-cas-contract-base36",
+      "created_by": "/root/cas_probe",
+      "creation_command_retained_in_task_history": "git worktree add --detach /workspace/e02-cas-contract-base36 36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+      "head_sha": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+      "tree_sha": "ac5b7fc314e40d6736af885e185a7d3aa627eacc",
+      "precreation_admission_receipt": null,
+      "postcreation_resume_admission_receipt": null,
+      "precreation_custody": "not_established",
+      "precreation_custody_not_established": true,
+      "truthful_absence": "I did not execute or retain the required precreation/create or postcreation/resume admission for this detached baseline checkout.",
+      "current_clean_detached_identity": {
+        "path": "/workspace/e02-cas-contract-base36",
+        "head_sha": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+        "tree_sha": "ac5b7fc314e40d6736af885e185a7d3aa627eacc",
+        "branch_ref": null,
+        "detached": true,
+        "status_porcelain_all_untracked": "",
+        "dotgit_raw": "gitdir: /workspace/polisyos/.git/worktrees/e02-cas-contract-base36\n",
+        "absolute_git_dir": "/workspace/polisyos/.git/worktrees/e02-cas-contract-base36",
+        "common_dir": "/workspace/polisyos/.git",
+        "admin_head_raw": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6\n",
+        "admin_commondir_raw": "../..\n",
+        "admin_gitdir_backlink_raw": "/workspace/e02-cas-contract-base36/.git\n",
+        "dotgit_points_to_admin": true,
+        "admin_backlink_matches_live_dotgit": true,
+        "scope": "current sequential read-only observation only; no historical creation/admission implication"
+      }
+    }
+  ],
+  "root_provided_writer": {
+    "path": "/workspace/e02-B-cas",
+    "branch": "codex/e02-B-cas",
+    "creation_owner": "B root",
+    "admission_evidence": [
+      {
+        "origin_path": "/workspace/polisyos/.polisyos/e02-B-admissions/cas-create.json",
+        "committed_copy_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-workspace-evidence/cas-create.json",
+        "sha256": "c6479f8b035eb06e4f27a2223503ccfba1671428066df728a840bb3b8158a533",
+        "bytes": 29992,
+        "requested": {
+          "branch": "codex/e02-B-cas",
+          "mode": "create",
+          "path": "/workspace/e02-B-cas"
+        },
+        "status": "admitted",
+        "started_at": "2026-10-05T13:38:54.395273+00:00",
+        "finished_at": "2026-10-05T13:38:54.439386+00:00",
+        "creation_owner": "B root; supplied writer, not a leaf-created checkout"
+      },
+      {
+        "origin_path": "/workspace/polisyos/.polisyos/e02-B-admissions/cas-resume.json",
+        "committed_copy_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-workspace-evidence/cas-resume.json",
+        "sha256": "c378945d3938ecf78d6d1b3436b828e9c8d2624bcf42fada9c18343853e2ecf7",
+        "bytes": 35551,
+        "requested": {
+          "branch": "codex/e02-B-cas",
+          "mode": "resume",
+          "path": "/workspace/e02-B-cas"
+        },
+        "status": "admitted",
+        "started_at": "2026-10-05T13:38:57.767923+00:00",
+        "finished_at": "2026-10-05T13:38:57.819841+00:00",
+        "creation_owner": "B root; supplied writer, not a leaf-created checkout"
+      }
+    ]
+  },
+  "other_CAS_named_review_paths": {
+    "paths": [
+      "/workspace/e02-B-cas-alias-base",
+      "/workspace/e02-B-cas-alias-fix"
+    ],
+    "creation_owner": "DUR reviewer (confirmed in reviewer messages); not this CAS leaf self-created set",
+    "qualification_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-archive-output-entry.json@71d53452f69a6172b14071133a597a02add294bf#independent_review/workspace_admission_qualification"
+  },
+  "creation_set_basis": "Retained CAS leaf task history identifies one self-created Git worktree beyond the root-provided writer. Full current Git registration denominator enumerates all16 live registrations. Git itself cannot derive creator identity; historical removed/unregistered creation is unresolved by this current selector.",
+  "other_isolation_operations": "Property-removal and immutable test-overlay checks use TemporaryDirectory plus git archive, not registered Git worktrees; existing retained isolated source copies do not add a Git registration. No new checkout or reattachment was performed for this qualification.",
+  "current_observation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-workspace-evidence/current-observation.json",
+    "sha256": "359d8993cde8957c75fe4146b687e6617173045b60eb58ea77ece021e78242e5",
+    "bytes": 9953,
+    "started_at": "2026-10-05T15:43:57.858399+00:00",
+    "finished_at": "2026-10-05T15:43:57.963802+00:00",
+    "predicate_basis": "recomputed for current SHA/tree/clean/backlink state only"
+  },
+  "qualified_source_observations": [
+    {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-tenant-contract.json@cef751539b0c3244fcfdc6c06dc64177f70aa56e",
+      "checks": [
+        "promotion-base-attribution.txt",
+        "http-base-attribution.txt"
+      ],
+      "source_ref": "36bc2f72f8cc8dab5c1aa2a51740f5945b1143f6",
+      "scope": "Actual observed baseline grounding/corpus and HTTP failures retained. Missing prior admission is not converted into a protocol PASS or a disjoint inherited-green claim."
+    }
+  ],
+  "verdict": "current_exact_baseline_identity_verified; precreation_custody_not_established; protocol_admission_not_established",
+  "next_owner": "G must create an explicitly commissioned baseline pair through complete precreation/create and postcreation/resume admissions, then rerun exact recorded baseline commands for any process-admission claim. Current detached source observations remain qualified evidence, not retrospective admission.",
+  "limitations": [
+    "No historical clean-at-test-time or precreation admission proof is inferred from the current clean checkpoint.",
+    "Complete workspace registry16 is a current path/admin selector, not a proof of every historical creator action.",
+    "The new qualification/evidence JSON files change the all-tracked-JSON corpus denominator; no canonical counter/oracle source change is made."
+  ],
+  "source_and_runtime_edits": false,
+  "closure_ids": []
+}

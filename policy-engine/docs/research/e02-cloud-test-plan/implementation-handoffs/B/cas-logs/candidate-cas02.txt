@@ -1,0 +1,29 @@
+...F......FF.....F                                                       [100%]
+=================================== FAILURES ===================================
+___ test_failed_reused_directory_export_preserves_prior_complete_generation ____
+tests/unit/remediation/test_cas_02.py:207: in test_failed_reused_directory_export_preserves_prior_complete_generation
+    with pytest.raises(OSError, match="replacement copy"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'OSError'>
+________________ test_import_enforces_existing_tenant_ownership ________________
+tests/unit/remediation/test_cas_02.py:420: in test_import_enforces_existing_tenant_ownership
+    with pytest.raises(PermissionError, match="not owned by tenant"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'PermissionError'>
+_________ test_import_rejects_a_selected_view_bound_to_another_tenant __________
+tests/unit/remediation/test_cas_02.py:441: in test_import_rejects_a_selected_view_bound_to_another_tenant
+    with pytest.raises(PermissionError, match="bound to a different tenant"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'PermissionError'>
+_______ test_import_rolls_back_new_generation_on_mid_publication_failure _______
+tests/unit/remediation/test_cas_02.py:585: in test_import_rolls_back_new_generation_on_mid_publication_failure
+    with pytest.raises(OSError, match="mid-publication"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'OSError'>
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_cas_02.py::test_failed_reused_directory_export_preserves_prior_complete_generation
+FAILED tests/unit/remediation/test_cas_02.py::test_import_enforces_existing_tenant_ownership
+FAILED tests/unit/remediation/test_cas_02.py::test_import_rejects_a_selected_view_bound_to_another_tenant
+FAILED tests/unit/remediation/test_cas_02.py::test_import_rolls_back_new_generation_on_mid_publication_failure
+
+receipt exit=1 wall_s=1.634246 rss_kib=92172

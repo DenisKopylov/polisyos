@@ -1,0 +1,21 @@
+{"source_sha": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6", "cwd": "/workspace/e02-B-cas/policy-engine", "argv": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "pytest", "-q", "-o", "addopts=", "--tb=short", "tests/unit/core/artifacts/backends/test_caching_store.py", "tests/unit/core/artifacts/backends/test_config.py", "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py", "tests/unit/core/artifacts/test_artifact_store_protocol.py", "tests/unit/core/artifacts/test_import_tenant_context.py", "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py", "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py", "tests/unit/core/artifacts/test_ownership_history.py", "tests/unit/core/artifacts/test_transfer_publication.py", "tests/unit/core/phase0/test_artifact_export_import.py", "tests/unit/foundry/runtime/test_executor_snapshots.py", "tests/unit/ir/analytics/test_ncm.py", "tests/unit/remediation/test_cas_01.py", "tests/unit/remediation/test_cas_02.py", "tests/unit/remediation/test_cas_03.py", "tests/unit/runtime/quality/test_authority_reconciliation.py", "tests/unit/runtime/quality/test_multi_tenant_shared_cas.py", "tests/unit/runtime/quality/test_tenant_cas_approval_governance.py", "tests/unit/scientist/orchestration/engine/test_idempotency.py", "tests/unit/core/artifacts/test_transfer_output_paths.py", "--junitxml=/workspace/e02-cas-path-native.xml"], "PYTHONPATH": "src:product"}
+........................................................................ [ 23%]
+........................................................................ [ 47%]
+........................................................................ [ 71%]
+........F............................................................... [ 95%]
+..............                                                           [100%]
+=================================== FAILURES ===================================
+________________ test_import_enforces_existing_tenant_ownership ________________
+tests/unit/remediation/test_cas_02.py:438: in test_import_enforces_existing_tenant_ownership
+    with pytest.raises(PermissionError, match="not owned by tenant"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'PermissionError'>
+=============================== warnings summary ===============================
+tests/unit/remediation/test_cas_01.py::test_lock_registry_is_bounded_without_evicting_active_waiters
+  tests/unit/remediation/test_cas_01.py:772: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_lock_registry_is_bounded_without_evicting_active_waiters(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_cas_02.py::test_import_enforces_existing_tenant_ownership
+1 failed, 301 passed, 1 warning in 32.47s

@@ -1,0 +1,10 @@
+id = "2026-10-05-cas-bound-admission"
+title = "Require declared tenant and cell identity before scoped CAS admission"
+type = "fixed"
+component = "core-artifacts"
+owner = "team-policyos-runtime"
+summary = "Scoped CAS writes and transfer imports reject manifest tenant/cell bindings that differ from the current write owner before publishing intents or ownership claims. Archive and exact-view imports preflight every carried manifest binding."
+evidence = ["src/polisyos/core/artifacts/store.py", "tests/unit/core/artifacts/test_import_tenant_context.py", "tests/unit/remediation/test_cas_02.py"]
+compatibility = "A declared cell_id=None is a specific unscoped cell identity, so it cannot be admitted as a different scoped cell. Unbound writes and passive unscoped exact-profile caches remain supported; original manifest and signature bytes remain immutable."
+surface_classification = "public_stable: FileSystemCAS.put_bytes, put_json, import_subgraph, import_exact_view; internal: bound-context admission helper"
+limitations = "Existing mismatched owner claims are not migrated or revoked. This does not add an authority completeness policy or decide generic unbound cross-tenant import admission."

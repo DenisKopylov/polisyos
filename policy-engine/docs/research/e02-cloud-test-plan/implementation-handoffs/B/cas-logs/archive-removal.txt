@@ -1,0 +1,32 @@
+removal isolated_source=/workspace/e02-cas-removal-5znbjd0j/src/polisyos/core/artifacts/_transfer_ops.py
+mutation=write archive directly while retaining staging helper, fsync, inventory and schema markers
+selector excludes killed process: separate process control runs on normal candidate; copied-test namespace cannot spawn without package companions
+FFF...                                                                   [100%]
+=================================== FAILURES ===================================
+___ test_failed_archive_replacement_keeps_previous_verified_package[member] ____
+tests/unit/core/artifacts/test_transfer_publication.py:80: in test_failed_archive_replacement_keeps_previous_verified_package
+    assert archive.read_bytes() == previous
+E   assert b"\x1f\x8b\x0...0\x04\x00\x00" == b'\x1f\x8b\x0...\x00(\x00\x00'
+E     
+E     At index 23 diff: b'\xcd' != b'\x97'
+E     Use -v to get more diff
+___ test_failed_archive_replacement_keeps_previous_verified_package[replace] ___
+tests/unit/core/artifacts/test_transfer_publication.py:80: in test_failed_archive_replacement_keeps_previous_verified_package
+    assert archive.read_bytes() == previous
+E   AssertionError: assert b'\x1f\x8b\x0...\x00(\x00\x00' == b'\x1f\x8b\x0...\x00(\x00\x00'
+E     
+E     At index 25 diff: b's' != b'S'
+E     Use -v to get more diff
+____ test_failed_archive_replacement_keeps_previous_verified_package[fsync] ____
+tests/unit/core/artifacts/test_transfer_publication.py:80: in test_failed_archive_replacement_keeps_previous_verified_package
+    assert archive.read_bytes() == previous
+E   AssertionError: assert b'\x1f\x8b\x0...\x00(\x00\x00' == b'\x1f\x8b\x0...\x00(\x00\x00'
+E     
+E     At index 25 diff: b's' != b'S'
+E     Use -v to get more diff
+=========================== short test summary info ============================
+FAILED tests/unit/core/artifacts/test_transfer_publication.py::test_failed_archive_replacement_keeps_previous_verified_package[member]
+FAILED tests/unit/core/artifacts/test_transfer_publication.py::test_failed_archive_replacement_keeps_previous_verified_package[replace]
+FAILED tests/unit/core/artifacts/test_transfer_publication.py::test_failed_archive_replacement_keeps_previous_verified_package[fsync]
+
+receipt exit=1 wall_s=1.330781 rss_kib=90232

@@ -1,0 +1,3 @@
+Would reformat: src/polisyos/core/artifacts/store.py
+Would reformat: tests/unit/remediation/test_cas_02.py
+2 files would be reformatted

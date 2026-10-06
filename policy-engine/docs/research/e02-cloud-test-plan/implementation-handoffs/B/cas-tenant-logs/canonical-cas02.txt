@@ -1,0 +1,10 @@
+..........F.......                                                       [100%]
+=================================== FAILURES ===================================
+________________ test_import_enforces_existing_tenant_ownership ________________
+tests/unit/remediation/test_cas_02.py:438: in test_import_enforces_existing_tenant_ownership
+    with pytest.raises(PermissionError, match="not owned by tenant"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'PermissionError'>
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_cas_02.py::test_import_enforces_existing_tenant_ownership
+1 failed, 17 passed in 0.40s

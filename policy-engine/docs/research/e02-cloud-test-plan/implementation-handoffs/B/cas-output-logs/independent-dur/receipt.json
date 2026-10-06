@@ -1,0 +1,277 @@
+{
+  "schema": "policyos.e02.B.CAS.archive_output_independent_review.v1",
+  "slice_base_sha": "cef751539b0c3244fcfdc6c06dc64177f70aa56e",
+  "candidate_sha": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+  "candidate_tree_sha": "613e40b149ec448c5b202cc8b5edd811e2e35a68",
+  "closure_ids": [],
+  "verdict": "bounded_final_entry_type_class_pass_no_blocking_source_findings",
+  "source_edits": false,
+  "property": "Compressed CAS export admits only missing or regular normalized final output entry before private staging; refusals preserve real supplied entry and referent package; regular publication still reads exactnew inventory andpreservesmode.",
+  "source_review": [
+    "FileSystemCAS.export_subgraph forwards target unchanged to _transfer_ops; normalization does not resolve symlinks.",
+    "Single _archive_output_mode lstat inlet handles missing bootstrap via FileNotFoundError only; all nonregularst_mode rejected by stat.S_ISREG before mkdtemp or tar writing.",
+    "Mode captured with stat.S_IMODE retains existing0o7777 behavior. Archive fsync/replace/parentfsync boundary unchanged and AtomicFileDurabilityError(replaced=True) remains visible.",
+    "Native negatives have actual immutable referent archive consumer before/after, sameinode/type/linktarget andzero taropen; independent probe also coversUNIXsocket class."
+  ],
+  "checks": [
+    {
+      "target_sha": "cef751539b0c3244fcfdc6c06dc64177f70aa56e",
+      "environment": {
+        "cwd": "/workspace/e02-B-dur-ledger",
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "uid": 1000,
+        "PYTHONPATH": "/workspace/e02-B-cas-alias-base/policy-engine/src:/workspace/e02-B-cas-alias-base/policy-engine/product",
+        "source_ref": "cef751539b0c3244fcfdc6c06dc64177f70aa56e",
+        "source_tree": "69fbb88446ff432bd88815dc14d28be7b33df1f8",
+        "isolation": "TempDirectory perrun;7separate realfilesystemCAS roots; actualsymlink/dangling/FIFO/directory/UNIXsocket; no DB/ports/dataset"
+      },
+      "input_closure": "Exact same independentlywritten3670Bdriver forbase/candidate: native publicFileSystemCAS put_bytes→export_subgraph→archive→newFileSystemCAS importverify/get_bytes; missing+regularmode640positive, fiveactualnonregulartypes; suppliedinode/type/referent bytes andforeigndirectoryentry observed.",
+      "command": "PYTHONPATH=/workspace/e02-B-cas-alias-base/policy-engine/src:/workspace/e02-B-cas-alias-base/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/cas-alias-review/probe.py /workspace/e02-B-cas-alias-base base",
+      "outcome": "FAIL",
+      "output": {
+        "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/cas-alias-review/base.txt",
+        "sha256": "e55324d41a7f06808096ea9972842af383319e616caa5c60279b128723163a6f"
+      },
+      "script": {
+        "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/cas-alias-review/probe.py",
+        "sha256": "cf6438b3fc35b414979182d3e8b508d7ff2a4afe2742578d821f7f798b3376ae"
+      },
+      "expected_outcome": "FAIL for suppliedentrytype admission property; probeexit0 confirms five expectednegative predicate observations plus positivecontrols."
+    },
+    {
+      "target_sha": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+      "environment": {
+        "cwd": "/workspace/e02-B-dur-ledger",
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "Python 3.14.2",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "uid": 1000,
+        "PYTHONPATH": "/workspace/e02-B-cas-alias-fix/policy-engine/src:/workspace/e02-B-cas-alias-fix/policy-engine/product",
+        "source_ref": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+        "source_tree": "613e40b149ec448c5b202cc8b5edd811e2e35a68",
+        "isolation": "TempDirectory perrun;7separate realfilesystemCAS roots; actualsymlink/dangling/FIFO/directory/UNIXsocket; no DB/ports/dataset"
+      },
+      "input_closure": "Exact same independentlywritten3670Bdriver forbase/candidate: native publicFileSystemCAS put_bytes→export_subgraph→archive→newFileSystemCAS importverify/get_bytes; missing+regularmode640positive, fiveactualnonregulartypes; suppliedinode/type/referent bytes andforeigndirectoryentry observed.",
+      "command": "PYTHONPATH=/workspace/e02-B-cas-alias-fix/policy-engine/src:/workspace/e02-B-cas-alias-fix/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python /workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/cas-alias-review/probe.py /workspace/e02-B-cas-alias-fix fixed",
+      "outcome": "PASS",
+      "output": {
+        "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/cas-alias-review/candidate.txt",
+        "sha256": "4e0b5f405f093546dd9df89da789724a537575b1a5b36fed97f3e5cab9f2e8d2"
+      },
+      "script": {
+        "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/cas-alias-review/probe.py",
+        "sha256": "cf6438b3fc35b414979182d3e8b508d7ff2a4afe2742578d821f7f798b3376ae"
+      }
+    },
+    {
+      "target_sha": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+      "environment": {
+        "cwd": "/workspace/e02-B-cas-alias-fix/policy-engine",
+        "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-cas-alias-fix/policy-engine/src:/workspace/e02-B-cas-alias-fix/policy-engine/product",
+        "source_ref": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+        "source_tree": "613e40b149ec448c5b202cc8b5edd811e2e35a68"
+      },
+      "command": "PYTHONPATH=/workspace/e02-B-cas-alias-fix/policy-engine/src:/workspace/e02-B-cas-alias-fix/policy-engine/product /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q -s tests/unit/core/artifacts/test_transfer_output_paths.py tests/unit/core/artifacts/test_transfer_publication.py",
+      "input_closure": "Exactcandidate7newoutputentrycases +7existingarchivefsync/replace/member/concurrent/SIGKILLpublication cases. RealreceivingCAS consumerreadbacks; isolatedspawnchildren fornonregularoutput; no markers-only evidence.",
+      "outcome": "PASS",
+      "deciding_output": "14 passed in2.47s; retainedresource_tracker warning",
+      "output": {
+        "path": "/workspace/e02-B-dur-ledger/_build/e02-B-dur-ledger/cas-alias-review/native.txt",
+        "sha256": "1d31ec9ccd8b9dda1daa68c5f49f16a61d9e0c5d7b5c2a3d7462a414400241d5"
+      }
+    }
+  ],
+  "deciding_outputs": [
+    {
+      "source_sha": "cef751539b0c3244fcfdc6c06dc64177f70aa56e",
+      "module_file": "/workspace/e02-B-cas-alias-base/policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "script_sha256": "cf6438b3fc35b414979182d3e8b508d7ff2a4afe2742578d821f7f798b3376ae",
+      "expected": "base",
+      "input": "real temporary filesystem CAS producer/archive receiver; actual lstat/symlink/dangling/FIFO/directory/socket; no DB or dataset"
+    },
+    {
+      "case": "missing",
+      "before": "missing",
+      "after": "regular",
+      "error": null,
+      "same_inode": false,
+      "private_stages": 0,
+      "real_consumer_new_only": true
+    },
+    {
+      "case": "regular",
+      "before": "regular",
+      "after": "regular",
+      "error": null,
+      "same_inode": false,
+      "private_stages": 0,
+      "real_consumer_new_only": true
+    },
+    {
+      "case": "symlink_regular",
+      "before": "symlink",
+      "after": "regular",
+      "error": null,
+      "same_inode": false,
+      "private_stages": 0,
+      "supplied_identity_preserved": false,
+      "referent_preserved": true,
+      "predicate_pass": false
+    },
+    {
+      "case": "symlink_dangling",
+      "before": "symlink",
+      "after": "regular",
+      "error": null,
+      "same_inode": false,
+      "private_stages": 0,
+      "supplied_identity_preserved": false,
+      "referent_preserved": true,
+      "predicate_pass": false
+    },
+    {
+      "case": "fifo",
+      "before": "fifo",
+      "after": "regular",
+      "error": null,
+      "same_inode": false,
+      "private_stages": 0,
+      "supplied_identity_preserved": false,
+      "referent_preserved": true,
+      "predicate_pass": false
+    },
+    {
+      "case": "directory",
+      "before": "directory",
+      "after": "directory",
+      "error": {
+        "type": "IsADirectoryError",
+        "message": "[Errno 21] Is a directory: '/tmp/e02-cas-alias-real-hu661oew/directory/.current.tar.gz.staging-8pag6j2d/archive.tar.gz' -> '/tmp/e02-cas-alias-real-hu661oew/directory/current.tar.gz'"
+      },
+      "same_inode": true,
+      "private_stages": 0,
+      "supplied_identity_preserved": true,
+      "referent_preserved": true,
+      "foreign_entry_preserved": true,
+      "predicate_pass": false
+    },
+    {
+      "case": "socket",
+      "before": "socket",
+      "after": "regular",
+      "error": null,
+      "same_inode": false,
+      "private_stages": 0,
+      "supplied_identity_preserved": false,
+      "referent_preserved": true,
+      "predicate_pass": false
+    },
+    {
+      "source_sha": "3b2bcc65f63e3fbc76d362c7f07149e360fcf6a6",
+      "module_file": "/workspace/e02-B-cas-alias-fix/policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "script_sha256": "cf6438b3fc35b414979182d3e8b508d7ff2a4afe2742578d821f7f798b3376ae",
+      "expected": "fixed",
+      "input": "real temporary filesystem CAS producer/archive receiver; actual lstat/symlink/dangling/FIFO/directory/socket; no DB or dataset"
+    },
+    {
+      "case": "missing",
+      "before": "missing",
+      "after": "regular",
+      "error": null,
+      "same_inode": false,
+      "private_stages": 0,
+      "real_consumer_new_only": true
+    },
+    {
+      "case": "regular",
+      "before": "regular",
+      "after": "regular",
+      "error": null,
+      "same_inode": false,
+      "private_stages": 0,
+      "real_consumer_new_only": true
+    },
+    {
+      "case": "symlink_regular",
+      "before": "symlink",
+      "after": "symlink",
+      "error": {
+        "type": "ValueError",
+        "message": "Export archive target must be a regular file: /tmp/e02-cas-alias-real-mehlnjvu/symlink_regular/current.tar.gz"
+      },
+      "same_inode": true,
+      "private_stages": 0,
+      "supplied_identity_preserved": true,
+      "referent_preserved": true,
+      "predicate_pass": true
+    },
+    {
+      "case": "symlink_dangling",
+      "before": "symlink",
+      "after": "symlink",
+      "error": {
+        "type": "ValueError",
+        "message": "Export archive target must be a regular file: /tmp/e02-cas-alias-real-mehlnjvu/symlink_dangling/current.tar.gz"
+      },
+      "same_inode": true,
+      "private_stages": 0,
+      "supplied_identity_preserved": true,
+      "referent_preserved": true,
+      "predicate_pass": true
+    },
+    {
+      "case": "fifo",
+      "before": "fifo",
+      "after": "fifo",
+      "error": {
+        "type": "ValueError",
+        "message": "Export archive target must be a regular file: /tmp/e02-cas-alias-real-mehlnjvu/fifo/current.tar.gz"
+      },
+      "same_inode": true,
+      "private_stages": 0,
+      "supplied_identity_preserved": true,
+      "referent_preserved": true,
+      "predicate_pass": true
+    },
+    {
+      "case": "directory",
+      "before": "directory",
+      "after": "directory",
+      "error": {
+        "type": "ValueError",
+        "message": "Export archive target must be a regular file: /tmp/e02-cas-alias-real-mehlnjvu/directory/current.tar.gz"
+      },
+      "same_inode": true,
+      "private_stages": 0,
+      "supplied_identity_preserved": true,
+      "referent_preserved": true,
+      "foreign_entry_preserved": true,
+      "predicate_pass": true
+    },
+    {
+      "case": "socket",
+      "before": "socket",
+      "after": "socket",
+      "error": {
+        "type": "ValueError",
+        "message": "Export archive target must be a regular file: /tmp/e02-cas-alias-real-mehlnjvu/socket/current.tar.gz"
+      },
+      "same_inode": true,
+      "private_stages": 0,
+      "supplied_identity_preserved": true,
+      "referent_preserved": true,
+      "predicate_pass": true
+    }
+  ],
+  "limits": [
+    "No hostile parentcomponent/pathswap isolation, owner/ACL custody or newly definedspecialbits policy claimed.",
+    "Regular hardlinks follow currentatomicdestination replacement behavior; no additional aliasowner policy asserted.",
+    "No powerloss/devicecrash or fullhistoricalfinding closure.",
+    "14native PASS output retains resource_tracker shutdownwarning after SIGKILL/process faultcontrols; notclaiming allprocess/IPC cleanup.",
+    "Initial independentprobe harness triedmkdir onalreadyexisting TemporaryDirectory root; base-first-harness.txt preserved/excluded. Corrected percase subdirectory before anyproduct observation.",
+    "Complete moderate scratch receipts/driver/rawoutputs need committed root/leaftransfer forG delivery; localpaths alone arenottransport."
+  ]
+}

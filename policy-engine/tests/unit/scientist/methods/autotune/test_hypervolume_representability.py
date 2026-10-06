@@ -68,7 +68,10 @@ def _persist_front(store, front):
 
 def test_computed_underflow_retains_members_and_availability_after_native_readback(tmp_path):
     store = FileSystemCAS(tmp_path / "cas")
-    policies = [PromotionPolicy(loop_id="tiny", primary_metric=name) for name in ("a", "b")]
+    policies = [
+        PromotionPolicy(loop_id="tiny", primary_metric=name, direction=MetricDirection.MINIMIZE)
+        for name in ("a", "b")
+    ]
     promoter = ParetoPromoter(policies)
     evaluations = [
         BenchmarkEvaluation(

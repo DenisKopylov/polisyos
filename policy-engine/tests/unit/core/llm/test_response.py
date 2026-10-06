@@ -66,3 +66,16 @@ def test_finite_zero_and_positive_costs_remain_provider_measurements(cost):
 
 def test_absent_cost_remains_absent_for_legacy_tariff_consumer():
     assert extract_llm_response_data({"usage": {"prompt_tokens": 1}}).cost_usd is None
+
+
+@pytest.mark.parametrize("form", ["mapping", "sdk"])
+def test_admitted_paid_receipt_survives_malformed_ancillary_token_metadata(form):
+    usage = {"prompt_tokens": "not-a-token-count", "cost_usd": 1}
+    payload = {"usage": usage, "provider": "provider-a", "request_id": "request-1"}
+    if form == "sdk":
+        payload["usage"] = SimpleNamespace(**usage)
+        payload = SimpleNamespace(**payload)
+    receipt = extract_llm_response_data(payload)
+    assert receipt.cost_usd == 1
+    assert receipt.provider == "provider-a" and receipt.request_id == "request-1"
+    assert receipt.prompt_tokens == receipt.completion_tokens == 0

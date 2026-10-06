@@ -158,3 +158,18 @@ def test_invalid_present_receipt_never_becomes_zero_or_tariff(tmp_path, cost):
     assert snapshot.state.reserved["run"] > 0
     assert snapshot.resource_events == {}
     assert next(iter(snapshot.resource_reservations.values())).status == "reconciliation_required"
+
+
+def test_known_paid_receipt_survives_malformed_token_metadata(tmp_path):
+    class MalformedMetadataTransport(ProviderTransport):
+        def invoke(self, prompt, **kwargs):
+            response = super().invoke(prompt, **kwargs)
+            response.usage.prompt_tokens = "not-a-token-count"
+            return response
+
+    path, _, enforcer = build(tmp_path, MalformedMetadataTransport())
+    enforcer.invoke("hello", _prompt_tokens_estimate=1, max_tokens=1)
+    snapshot = FileBudgetLedger(path).snapshot()
+    assert snapshot.state.spent["run"] == Decimal("1")
+    assert snapshot.state.reserved["run"] == 0
+    assert next(iter(snapshot.resource_events.values())).amount_usd == Decimal("1")

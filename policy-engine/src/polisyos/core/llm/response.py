@@ -64,6 +64,13 @@ def extract_llm_response_data(response: Any) -> LLMResponseData:
         if isinstance(response, dict):
             usage = response.get("usage")
         cost_usd = _extract_cost_usd(usage=usage, payload=response)
+        provider = _as_str(getattr(response, "provider", None))
+        model = _as_str(getattr(response, "model", None))
+        request_id = _as_str(getattr(response, "request_id", None))
+        if isinstance(response, dict):
+            provider = provider or _as_str(response.get("provider"))
+            model = model or _as_str(response.get("model"))
+            request_id = request_id or _as_str(response.get("request_id"))
         if usage is not None and not isinstance(response, dict):
             origin_prompt_tokens = int(getattr(usage, "prompt_tokens", 0) or 0)
             origin_completion_tokens = int(getattr(usage, "completion_tokens", 0) or 0)
@@ -74,27 +81,13 @@ def extract_llm_response_data(response: Any) -> LLMResponseData:
         elif hasattr(response, "input_tokens"):
             origin_prompt_tokens = int(getattr(response, "input_tokens", 0) or 0)
             origin_completion_tokens = int(getattr(response, "output_tokens", 0) or 0)
-        provider = _as_str(getattr(response, "provider", None))
-        model = _as_str(getattr(response, "model", None))
-        request_id = _as_str(getattr(response, "request_id", None))
-        if isinstance(response, dict):
-            provider = provider or _as_str(response.get("provider"))
-            model = model or _as_str(response.get("model"))
-            request_id = request_id or _as_str(response.get("request_id"))
-            if cost_usd is None:
-                cost_usd = _extract_cost_usd(
-                    usage=response.get("usage"),
-                    payload=response,
-                )
     except _InvalidLLMCostError:
         raise
     except Exception:
         origin_prompt_tokens = 0
         origin_completion_tokens = 0
-        provider = None
-        model = None
-        cost_usd = None
-        request_id = None
+        # Usage counts are ancillary to an independently admitted paid receipt.
+        # Invalid token metadata must not turn known provider spend into absence.
 
     reported_cost_usd = cost_usd
     billable_prompt_tokens = 0 if cache_hit else origin_prompt_tokens

@@ -184,7 +184,7 @@ def main() -> int:
         parser.error("--product-python and --output are required")
     if importlib.metadata.version("rdrobust") != "2.1.0":
         raise ValueError("pinned rdrobust 2.1.0 is required; no skip or substitute")
-    if args.replicates < 2000 and not args.removal:
+    if args.replicates < 2000:
         raise ValueError("selected coverage profile requires at least 2000 replicates per target")
     specs = []
     for p in (1, 2):
@@ -204,12 +204,11 @@ def main() -> int:
                             "group": "settings",
                         }
                     )
-    if not args.removal:
-        for tau, first in ((0.0, 271000), (3.0, 821000)):
-            specs.extend(
-                {"seed": first + i, "tau": tau, "group": f"coverage_tau_{tau}"}
-                for i in range(args.replicates)
-            )
+    for tau, first in ((0.0, 271000), (3.0, 821000)):
+        specs.extend(
+            {"seed": first + i, "tau": tau, "group": f"coverage_tau_{tau}"}
+            for i in range(args.replicates)
+        )
     cwd = Path(__file__).resolve().parents[2]
     product_python = args.product_python
     if not product_python.is_absolute():

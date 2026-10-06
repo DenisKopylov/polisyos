@@ -33,7 +33,8 @@ validate a real-data design.
 
 `--removal` deletes correction and variance adaptation inside the actual product
 child while retaining successful status, profile/parameter fields and markers.
-Its same direct numerical oracle must FAIL. Complete product and independent
+Its same direct numerical oracle and both repeated-coverage targets must FAIL.
+Complete product and independent
 reference numeric outputs, environments, streams, command/source identity and
 exits are retained next to the deciding summary. No thread/process/CPU quota is
 set by this profile. The shared PolicyOS environment is read-only.

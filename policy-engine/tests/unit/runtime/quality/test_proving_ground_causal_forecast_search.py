@@ -2007,12 +2007,19 @@ def test_g2_complete_selected_generation_separates_search_and_evidence(
         **_: Any,
     ) -> tuple[int, int]:
         identifiers = [str(identifier) for identifier, _ in rows]
+        vectors = np.zeros((len(identifiers), 2), dtype=np.float32)
+        vectors[:, 0] = 1.0
         np.savez(
             str(embeddings_path),
             ids=np.asarray(identifiers, dtype=object),
-            vectors=np.ones((len(identifiers), 2), dtype=np.float32),
+            vectors=vectors,
         )
-        index_path.write_bytes(b"fixture-hnsw")
+        import hnswlib
+
+        index = hnswlib.Index(space="cosine", dim=2)
+        index.init_index(max_elements=len(identifiers), ef_construction=100, M=16)
+        index.add_items(vectors, np.arange(len(identifiers)))
+        index.save_index(str(index_path))
         return len(identifiers), 2
 
     db_path, academic_root = _create_minimal_skg_fixture(tmp_path)

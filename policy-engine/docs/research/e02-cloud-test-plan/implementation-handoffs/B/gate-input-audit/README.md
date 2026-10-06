@@ -50,6 +50,14 @@ pytest caches, basetemp or frontend outputs is likewise an explicit input change
 Only identical output files, mutable fixtures/DBs, ports or environment writers
 require serialization; a shared parent directory alone does not.
 
+For the existing shared environment, `UV_NO_SYNC=1` is a legitimate uv no-sync
+profile choice. Bind it in both the canonical profile and uncapped constituents;
+then removal of the six thread variables remains their sole mutual environment
+delta. `environment.py --pyproject <target pyproject.toml>` records actual
+installed metadata against core, lint, test, runtime, ml, research and docs direct
+requirements, recursively expanding same-project extras. This is no-sync input
+custody, not native backend, ABI, lock-equality or external transitive proof.
+
 `snapshot.py --root /workspace/e02-B-current-coordination` walks the complete
 tracked Git tree and canonical manifest's declared selector set, and observes named local
 locators and native Trash availability. It neither collects pytest nor discovers

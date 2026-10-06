@@ -614,3 +614,95 @@ def test_native_remote_process_uses_original_producer_scope_before_effect(tmp_pa
     outcome.state.params["post"] = {"values": [3]}
     outcome.state.params["post"]["values"].append(4)
     assert outcome.state.params["post"] == {"values": [3, 4]}
+
+
+@pytest.mark.parametrize(
+    "left,right,consistent",
+    [
+        pytest.param(False, False, True, id="same_false"),
+        pytest.param(None, None, True, id="same_null"),
+        pytest.param(False, 0, False, id="false_zero"),
+        pytest.param({"items": [False]}, {"items": [0]}, False, id="nested_false_zero"),
+        pytest.param(0, 0.0, False, id="zero_float"),
+    ],
+)
+def test_cache_reader_requires_typed_equal_group_intents(tmp_path, left, right, consistent):
+    import polisyos.scientist.orchestration.engine.idempotency as cache_contract
+    from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
+    from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
+    from polisyos.scientist.orchestration.engine.state_merge import merge_parallel_outcomes
+
+    store = FileSystemCAS(tmp_path / "cas")
+    state = ExperimentState(run_id="R_group_types", params={"x": 2, "left": {}, "right": {}})
+    spec = NodeSpec(
+        metadata=_ListNode("no_shift").spec.metadata,
+        state_reads=["params.x"],
+        state_writes=["params"],
+    )
+    producer = branch_state(state, write_paths=spec.state_writes, enforce_write_scope=True)
+    producer.state.params["left"]["v"] = left
+    producer.state.params["right"]["v"] = right
+    key = cache_contract.compute_idempotency_key(spec, state)
+    original_ref = cache_contract.NodeResultCache(store, state.run_id).put(
+        key, str(spec.metadata.component_id), NodeOutcome(status="ok", state=producer.state)
+    )
+    assert store.verify(original_ref).ok
+    original_bytes = store.get_bytes(original_ref)
+    original_reader = cache_contract.NodeResultCache(FileSystemCAS(store.root), state.run_id)
+    assert original_reader.load_entry(original_ref)
+    assert original_reader.get(key) is not None
+    entry = cache_contract.NodeCacheEntry.model_validate(from_canonical_bytes(original_bytes))
+    operations = tuple(op.model_copy(update={"operation_group": 0}) for op in entry.state_mutations)
+    assert len(operations) == 2
+    entry = entry.model_copy(update={"state_mutations": operations})
+    proof = entry.journal_proof
+    assert proof is not None
+    schema = SchemaInfo.model_validate(proof.manifest_schema)
+    origin = ProducerInfo.model_validate(proof.manifest_producer)
+    # Valid integrity does not establish the semantic same-intent premise.
+    # Change only the grouping labels on actual native independent operations.
+    digest = cache_contract._journal_proof_hash(
+        entry, manifest_schema=schema, manifest_producer=origin
+    )
+    entry = entry.model_copy(
+        update={"journal_proof": proof.model_copy(update={"payload_hash": digest})}
+    )
+    payload = to_canonical_bytes(
+        entry.model_dump(mode="python", by_alias=True, exclude_none=False),
+        cache_contract._IDEM_CANON,
+    )
+    ref = store.put_bytes(
+        payload,
+        PutOptions(
+            kind="scientist.node_cache_entry",
+            media_type="application/json",
+            schema=schema,
+            producer=origin,
+        ),
+    )
+    assert store.verify(ref).ok and store.get_bytes(ref) == payload
+    for _ in range(2):
+        reader = cache_contract.NodeResultCache(FileSystemCAS(store.root), state.run_id)
+        assert reader.load_entry(ref) is consistent
+        loaded = reader.get(key)
+        assert (loaded is not None) is consistent
+        if loaded is None:
+            continue
+        current = ExperimentState(
+            run_id=state.run_id,
+            params={"left": {}, "right": {}, "neighbor": "current"},
+            budgets={"neighbor_reserved_usd": Decimal("79")},
+        )
+        current.params["right"] = current.params["left"]
+        assert current.params["left"] is current.params["right"]
+        applied = merge_parallel_outcomes(current, {"cached": loaded}, {"cached": ["params"]}).state
+        physical = store.put_json(
+            applied.model_dump(mode="json"),
+            PutOptions(kind="test.typed_group_result", media_type="application/json"),
+        )
+        assert store.verify(physical).ok
+        actual = json.loads(store.get_bytes(physical))["params"]
+        assert actual["left"]["v"] is left and actual["right"]["v"] is right
+        assert actual["neighbor"] == "current"
+        assert applied.budgets["neighbor_reserved_usd"] == Decimal("79")
+    assert store.get_bytes(original_ref) == original_bytes

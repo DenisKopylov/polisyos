@@ -1,0 +1,3297 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "configured-hierarchical-registry-consumer",
+  "closure_ids": [],
+  "finding_ids": [
+    "B109"
+  ],
+  "related_finding_ids": [
+    "LA-014",
+    "LA-015"
+  ],
+  "bundle_ids": [
+    "OPT-01"
+  ],
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Configured D consumer implemented and independently reviewed in ordinary minimal profile; default producer appointment and foreign structure-context supplier remain distinct.",
+  "slice_base_sha": "fba341253528eb344c340b5e683ecc1f88ea631f",
+  "slice_base_tree": "654f46fba5af6f9ccca178c2369b4c158a7bd17c",
+  "implementation_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+  "candidate_tree_sha": "04044cce0e44a0a2da99e65e347a431e48c28369",
+  "implementation_commits": [
+    "f47914ddd15c2afc90e809c4d308cace1feaf20c",
+    "3d40bb0cb4a1033a6d06ea1adb62b37bd48cf445",
+    "13ba0882e684927f5a474268f20e71fcf43045ea",
+    "fb1d84547b8d8fb71b8cc70ca84a975bdef07ff6",
+    "4bd8cf58e733dcfcbab5e8a4a15761b6aa51940d",
+    "40ffe956ecca1eea07c942fddcb4bcc2cbf99b12",
+    "36fe4c24bf877521d52614aa6a415504ea764134",
+    "db20a788f2b2524d87170233877cb3a78acbde0f",
+    "c030998465d0b6c9f0915a6d5abf642c88301734",
+    "f471b8143e2a841b4d1029ae78de472ac43fc88b"
+  ],
+  "branch": "codex/e02-D-published-search",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/how-to/hierarchical-registry-consumer.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-response-dependency.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-supplier/A-structure-context-native-red.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-supplier/A-structure-context.patch",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-supplier/manifest.json",
+    "policy-engine/release-fragments/unreleased/2026-10-06-configured-hierarchical-registry.toml",
+    "policy-engine/src/polisyos/core/llm/response.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py"
+  ],
+  "source_cells": [
+    {
+      "path": "policy-engine/docs/how-to/hierarchical-registry-consumer.md",
+      "git_blob": "6671d9735e3d9cc6c8654e7d3191abeebab64c12",
+      "bytes": 6447,
+      "sha256": "b482739c659b8a4e35067dfe6e7b032dbc01d4b3f512d1c1deeaec494cfd8797",
+      "ownership": "D admitted writer path/unique companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-response-dependency.json",
+      "git_blob": "c32d3634f7965b2a057cd82f474cde49c6c0589e",
+      "bytes": 1197,
+      "sha256": "911914963ddb0e9afc38056904201fd727671848b73a0e2d65e2d154dac2a191",
+      "ownership": "D admitted writer path/unique companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-supplier/A-structure-context-native-red.py.txt",
+      "git_blob": "05e5bf23b198c930b9f827f0dadf54a7af510c19",
+      "bytes": 1368,
+      "sha256": "4169a67c19cfca1fc6785253131be8b9d1ae659359bae0ca68656d2b9f6ccad7",
+      "ownership": "unapplied canonical A supplier proposal artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-supplier/A-structure-context.patch",
+      "git_blob": "3ad5e69c93bd9a7d35346c43797be4ca6f946a46",
+      "bytes": 1947,
+      "sha256": "b937a542f3361801ca3e64738f6aa9405f54e6c3c5b3af51b6156dcc60265cb9",
+      "ownership": "unapplied canonical A supplier proposal artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-supplier/manifest.json",
+      "git_blob": "059d0c0e937b28b59c09e6157afb81807e3fac21",
+      "bytes": 3639,
+      "sha256": "212d1444580c726a4a2b2ba52e362cf4bad16c1f7fcd1834aa1954b5bee49c14",
+      "ownership": "unapplied canonical A supplier proposal artifact"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-configured-hierarchical-registry.toml",
+      "git_blob": "9283bb2cacc9389352ff8d3652be4474fb8c1906",
+      "bytes": 2095,
+      "sha256": "3c7441f1e0262ff956ebe1cd4d57649c29ae07b7e3e14092d5cfb9e327babc62",
+      "ownership": "D admitted writer path/unique companion"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "git_blob": "ca7084b0fe14c04f0c1f58fe7dd805e51c5b3ec4",
+      "bytes": 13099,
+      "sha256": "115a4202d88b0dc1cae20f13d6eab7ac5165320a9c5e5ac1e342b762c418b169",
+      "ownership": "selected root8c B dependency, not newly authored B behavior"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "git_blob": "cae57ad7bbe3f667862a185f8bcba909f3283024",
+      "bytes": 63816,
+      "sha256": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc",
+      "ownership": "D admitted writer path/unique companion"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+      "git_blob": "f892d0e0a53f5531d998125ec7f5d13c2acd418c",
+      "bytes": 25774,
+      "sha256": "819b407f50f4c080cd6e79026f355ff277884d5a5cf6fac283c3ff4b7d080491",
+      "ownership": "D admitted writer path/unique companion"
+    }
+  ],
+  "metadata_successor_sha": "dbae7fd942db37afd75ed37ed35e509dc8a1e3b6",
+  "moderate_evidence_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+  "criterion_refs": [
+    "docs/research/e02-cloud-test-plan/closure-decisions/D.md:225",
+    "docs/research/e02-cloud-test-plan/closure-decisions/D.md:67",
+    "docs/research/e02-cloud-test-plan/closure-decisions/D.md:542"
+  ],
+  "property": {
+    "statement": "One explicitly supplied canonical registry reaches all three coordinator ports and both parameterized/parameterless native paths. Actual typed rows and subject binding survive disk/fresh snapshot and CAS report; all source rows remain in the report denominator. Raw run tenant/cell identities route through existing scope and conflicting tenant bindings refuse. Supported declared Money+scalar producer transport preserves full canonical JSON/hash without scalar/unit inference.",
+    "runtime_path": [
+      "Caller-supplied canonical ParetoRegistry and actual RunContext identity",
+      "HierarchicalPolicySearchAdapter copied context +existing tenant_scope",
+      "Existing HierarchicalSearchCoordinator /cold native candidate proposal or parameterless evaluation port",
+      "Actual typed PolicyEvaluationVector; configured parameterless subject admission",
+      "ParetoRegistry.update -> physical loops/<loop_id>/pareto_registry.json",
+      "Fresh ParetoRegistry.get_snapshot ->candidate-only ParetoViewProjection when declared basis absent",
+      "Existing full-source report reconciliation ->FileSystemCAS persist_policy_frontier_report ->fresh load_policy_frontier_report",
+      "RunHierarchicalPolicySearchNode forwards its actual owner RunContext; fixture evaluator port supplies finite declared observations"
+    ],
+    "proxy_divergence": [
+      "A caller registry field alone passes construction while removing receiver forwarding loses actual disk entries/projection.",
+      "Typed vector/finite scalar markers alone do not bind a measured row to its subject; three wrong-subject baseline controls were accepted until scoped admission.",
+      "Money fields or valid canonical DTO alone do not preserve full-null ParamValue wire hashing; actual28/2 failure exposed null-presence loss.",
+      "Complete observed registry subset cannot replace the full original source-row denominator or manufacture global rank."
+    ],
+    "negative_controls": [
+      "registry_port",
+      "parameterless_publication",
+      "tenant_scope",
+      "tenant_conflict_guard",
+      "money_transport",
+      "subject_guard"
+    ],
+    "source_denominator": "_persist_frontier_report AST identical to exact mechanical dependency f479; actual partial-registry consumer keeps all3 source rows, refusing global rank."
+  },
+  "input_closure": {
+    "purpose": "synthetic finite fixture observations for ordinary native consumer mechanics; no production simulator/source authority claim",
+    "actual_parameter_inputs": "existing _bundle Money default/bounds/current/schedule, UAH and matching nominal_year, real bound range500..2000; existing scalar path unchanged",
+    "scopes": "raw tenant-a/node-tenant plus actual hashed resolver scope; caller cell traced only, not a partition or permission grant",
+    "supported_transport": "actual Money+scalar producer only; Money canonical JSON and Decimal-tag CAS mappings with absent/explicit-null/explicit-year presence; no all-rich ParamValue inference",
+    "subject_contract": "New configured parameterless measured registry consumer requires matching candidate ID or canonical hash; contradictory present subject refuses. Optional DTO fields and unconfigured callback contract remain unchanged.",
+    "required_numerical_inputs": "Native GP/vector backend not part of this minimal execution profile; that numerical acceptance is UNRUN here."
+  },
+  "environment": {
+    "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "python": "3.14.7",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "numpy": "2.3.5",
+    "profile": "Real locked core+runtime+test148 installed distributions,13980 selected native RECORD paths, no .pth exposure; Torch/BoTorch/GPyTorch/HNSW physically absent",
+    "profile_git_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+    "profile_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json",
+    "profile_receipt_sha256": "ffaad852c0b507931a7b2337a314446712aa9feb319d8450a9046068fe98d859",
+    "no_process_thread_cpu_caps_added": true,
+    "actual_optional_backend_outcome": "UNRUN: no numerical model fit or vector backend acceptance inferred"
+  },
+  "checks": [
+    {
+      "command_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/cache",
+        "--basetemp=/tmp/e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/junit.xml",
+        "-p",
+        "registry_capture",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "fba341253528eb344c340b5e683ecc1f88ea631f",
+      "target_tree": "654f46fba5af6f9ccca178c2369b4c158a7bd17c",
+      "exitcode": 2,
+      "wall_seconds": 26.66414761543274,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "ERROR",
+      "notes": "Exact slice-base collection failed on missing older B physical-response helper. No native bridge property verdict or inherited-red waiver.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/run.json",
+        "sha256": "e6cd223ccb61c0a21f3ee424e1cd6ee1487a44c786d2e08975f21c99b97c3264",
+        "bytes": 2858
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/complete.txt",
+        "sha256": "8a35e8dd112412c2c19f37261c5d744ea746810993dd532fad97eebf4c143dd4",
+        "bytes": 1984
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "d300849e7f631d864358162150678d5f1f8872c152e72404ca54bb005fe91567",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "daa108b06112463a864fd673adad7abbd79759a733dc804059eb682988b55d0f",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 784,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/junit.xml",
+        "sha256": "dadaeefa651642a68c6cb98451a104ad7484bc72a81932f0373a620b617d5aad",
+        "bytes": 1987
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/origins.json",
+        "sha256": "81ef6a78fd02b1f5a2ef63ed4eb2aad77daf218f0135290cdbbec0e8272ec70c",
+        "bytes": 200290
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/native-calls.json",
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "bytes": 2
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "1",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "1",
+          "time": "18.678",
+          "timestamp": "2026-10-06T20:49:57.382866+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "outcome": "ERROR"
+        }
+      ],
+      "source_verification": {
+        "before_sha": "fba341253528eb344c340b5e683ecc1f88ea631f",
+        "after_sha": "fba341253528eb344c340b5e683ecc1f88ea631f",
+        "before_tree": "654f46fba5af6f9ccca178c2369b4c158a7bd17c",
+        "after_tree": "654f46fba5af6f9ccca178c2369b4c158a7bd17c",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "?? policy-engine/tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+        "after_status": "?? policy-engine/tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-admitted-baseline-ba9bf29477df4599b336b898b0ee5abc/cache",
+        "--basetemp=/tmp/e02-D-registry-admitted-baseline-ba9bf29477df4599b336b898b0ee5abc/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-admitted-baseline-ba9bf29477df4599b336b898b0ee5abc/junit.xml",
+        "-p",
+        "registry_capture",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "f47914ddd15c2afc90e809c4d308cace1feaf20c",
+      "target_tree": "06355ca51252cfc7593f2c14b27f3530cf20529e",
+      "exitcode": -9,
+      "wall_seconds": 32.63603973388672,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-admitted-baseline-ba9bf29477df4599b336b898b0ee5abc",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-admitted-baseline-ba9bf29477df4599b336b898b0ee5abc",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "ERROR",
+      "notes": "Actual SIGKILL -9, empty output/no JUnit or deciding callback. Backend/property UNRUN; no assigned process-specific OOM cause.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-admitted-baseline-ba9bf29477df4599b336b898b0ee5abc/run.json",
+        "sha256": "8eb406c33e111371617b708e0089a49cf91d49ae9e204fa240358817cea8524f",
+        "bytes": 2867
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-admitted-baseline-ba9bf29477df4599b336b898b0ee5abc/complete.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "d300849e7f631d864358162150678d5f1f8872c152e72404ca54bb005fe91567",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "daa108b06112463a864fd673adad7abbd79759a733dc804059eb682988b55d0f",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": null,
+      "origin_errors": null,
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-admitted-baseline-ba9bf29477df4599b336b898b0ee5abc/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "source_verification": {
+        "before_sha": "f47914ddd15c2afc90e809c4d308cace1feaf20c",
+        "after_sha": "f47914ddd15c2afc90e809c4d308cace1feaf20c",
+        "before_tree": "06355ca51252cfc7593f2c14b27f3530cf20529e",
+        "after_tree": "06355ca51252cfc7593f2c14b27f3530cf20529e",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "?? policy-engine/tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+        "after_status": "?? policy-engine/tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/junit.xml",
+        "-p",
+        "registry_capture",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "fb1d84547b8d8fb71b8cc70ca84a975bdef07ff6",
+      "target_tree": "a088c305d3ed798b36982da6d790e0bb35d8fa3b",
+      "exitcode": 1,
+      "wall_seconds": 27.80089282989502,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "notes": "7 PASS / 9 FAIL. Eight fixture shape assumptions plus actual malformed-present parameterless observation escape; complete original output retained.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/run.json",
+        "sha256": "e1168b1e35fda6dcfa93b9845a1153fecf9a49af62a847865fe3f96f1e2c558c",
+        "bytes": 3454
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/complete.txt",
+        "sha256": "3c09b6e7ffbb0a9dd80dda5cfa71e0500638388509181976f6b99e905f10cbf5",
+        "bytes": 73490
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "9c7d910580c9f27ecf34de9ac58209bec2dc02c08719863754991edfa6e374e2",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "21cdb18e4980185567d66e7e42e23d29fe7ff8f76b95c3c5720571da177990a8",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1344,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/junit.xml",
+        "sha256": "77ab3c595ceb987e2c73940f90eca73665184a8d65f90ade7c15bc00988a8298",
+        "bytes": 76275
+      },
+      "events.jsonl": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/events.jsonl",
+        "sha256": "a8588674f5410198326c99e0a477e5bebcac25301ab265eda38b3e03d0e57d6c",
+        "bytes": 84091
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/origins.json",
+        "sha256": "51086f9f692eee475bc5b4c660ef61c4b8b9d502d04d2b91e4722185256bcb6b",
+        "bytes": 346713
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/native-calls.json",
+        "sha256": "8b2d127d9f971e51951c534b56513ea97b28200eb646d6a7ea421af0f99d570c",
+        "bytes": 13215
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/capture_parent.py",
+        "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+        "bytes": 4126
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-profile-full16-d4f53508fa5f4ecc975bf1b728f66885/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "9",
+          "skipped": "0",
+          "tests": "16",
+          "time": "20.252",
+          "timestamp": "2026-10-06T21:12:21.517388+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "test_configured_registry_reaches_every_coordinator_port[instantiate]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_reaches_every_coordinator_port[validate]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_reaches_every_coordinator_port[run]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_configured_registry_refuses_noncanonical_object[invalid0]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_refuses_noncanonical_object[registry]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_refuses_noncanonical_object[invalid2]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_typed_rows_reach_disk_and_fresh_projection[False-3]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_actual_typed_rows_reach_disk_and_fresh_projection[True-1]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_parameterless_missing_axes_and_true_empty_history_are_unavailable",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_tenant_scope_covers_real_seed_reads_late_input_change_and_resets",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_mismatched_tenant_context_refuses_before_observation",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_tenant_scope_resets_when_actual_evaluator_refuses",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_node_forwards_owner_run_context_and_persists_report",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_real_source_denominator_cannot_be_replaced_by_partial_registry",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_parameterless_malformed_present_vector_refuses_without_publication",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_tenant_scope_resets_after_registry_publication_fault",
+          "outcome": "FAIL"
+        }
+      ],
+      "source_verification": {
+        "before_sha": "fb1d84547b8d8fb71b8cc70ca84a975bdef07ff6",
+        "after_sha": "fb1d84547b8d8fb71b8cc70ca84a975bdef07ff6",
+        "before_tree": "a088c305d3ed798b36982da6d790e0bb35d8fa3b",
+        "after_tree": "a088c305d3ed798b36982da6d790e0bb35d8fa3b",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/junit.xml",
+        "-p",
+        "registry_capture",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "4bd8cf58e733dcfcbab5e8a4a15761b6aa51940d",
+      "target_tree": "ee3b568ae37049d4a01baca3c10ff1c8e72a42aa",
+      "exitcode": 1,
+      "wall_seconds": 26.67203116416931,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "notes": "12 PASS / 4 FAIL. Actual cold producer technical-envelope projection failures and a fixture incorrectly demanding positive single-point hypervolume instead of genuine computed zero.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/run.json",
+        "sha256": "a8396f799e39379f1f589b134988342265d8899c63a4b56ac06d3c6adc432b92",
+        "bytes": 3472
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/complete.txt",
+        "sha256": "86ef8e1427b44a742b5788792028467e1c1aca2b9fda21842542b1f73c3421d2",
+        "bytes": 17956
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "5c7863ee1852bb20f55109788c7eff0c635e537d73e1b1e6502fe9985ee01db9",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "ef974b064a56f3da126e9b55711178af14f4888c29e7acbd206d347438796d7d",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1344,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/junit.xml",
+        "sha256": "378f7c350a646ac96a08615e9398c3f1018ca9fd96977e58119515f222f24234",
+        "bytes": 18449
+      },
+      "events.jsonl": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/events.jsonl",
+        "sha256": "edf039c77521052855af698a89bdf1f4f17047faa9a2ea622cbc2463894d4336",
+        "bytes": 26533
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/origins.json",
+        "sha256": "0d091db48cbccc1ac266ba900aa0cf4e0ad98d107ed89631f5d1bd43d90af32f",
+        "bytes": 346713
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/native-calls.json",
+        "sha256": "6aa9e0acd8128b2138b70e5bb4caf560a794b72816b3100bf7cd7603d7524f63",
+        "bytes": 23829
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/capture_parent.py",
+        "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+        "bytes": 4126
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-corrective-full16-46a08bd2bb5b44e8b63749f43420be11/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "4",
+          "skipped": "0",
+          "tests": "16",
+          "time": "19.198",
+          "timestamp": "2026-10-06T21:14:34.621175+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "test_configured_registry_reaches_every_coordinator_port[instantiate]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_reaches_every_coordinator_port[validate]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_reaches_every_coordinator_port[run]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_refuses_noncanonical_object[invalid0]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_refuses_noncanonical_object[registry]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_refuses_noncanonical_object[invalid2]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_typed_rows_reach_disk_and_fresh_projection[False-3]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_actual_typed_rows_reach_disk_and_fresh_projection[True-1]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_parameterless_missing_axes_and_true_empty_history_are_unavailable",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_tenant_scope_covers_real_seed_reads_late_input_change_and_resets",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_mismatched_tenant_context_refuses_before_observation",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_tenant_scope_resets_when_actual_evaluator_refuses",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_node_forwards_owner_run_context_and_persists_report",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_real_source_denominator_cannot_be_replaced_by_partial_registry",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_parameterless_malformed_present_vector_refuses_without_publication",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_tenant_scope_resets_after_registry_publication_fault",
+          "outcome": "PASS"
+        }
+      ],
+      "source_verification": {
+        "before_sha": "4bd8cf58e733dcfcbab5e8a4a15761b6aa51940d",
+        "after_sha": "4bd8cf58e733dcfcbab5e8a4a15761b6aa51940d",
+        "before_tree": "ee3b568ae37049d4a01baca3c10ff1c8e72a42aa",
+        "after_tree": "ee3b568ae37049d4a01baca3c10ff1c8e72a42aa",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/junit.xml",
+        "-p",
+        "registry_capture",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "40ffe956ecca1eea07c942fddcb4bcc2cbf99b12",
+      "target_tree": "59a3b888d4c5bf3a703fde419216218147fe05a9",
+      "exitcode": -9,
+      "wall_seconds": 28.66649580001831,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "ERROR",
+      "notes": "SIGKILL -9 before any report/output/JUnit; ERROR/UNRUN, not complete19 acceptance. Memory counter correlation does not identify a process-specific cause.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/run.json",
+        "sha256": "3a3d9c34895f7d560aeba9680d9e7c575977ea84af1c8694ddbd38f07de355e4",
+        "bytes": 3396
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/complete.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "07cf1d0167135baf7a7e495465214d8297f29f3fba923cb9922db347e486e78c",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "0a9d873046e2a57fb05fba429890346de3bfbb3bab1a8675d476abaef87baa17",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": null,
+      "origin_errors": null,
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/capture_parent.py",
+        "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+        "bytes": 4126
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full19-22a5074f843842e9bc1f36018114ebe6/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "source_verification": {
+        "before_sha": "40ffe956ecca1eea07c942fddcb4bcc2cbf99b12",
+        "after_sha": "40ffe956ecca1eea07c942fddcb4bcc2cbf99b12",
+        "before_tree": "59a3b888d4c5bf3a703fde419216218147fe05a9",
+        "after_tree": "59a3b888d4c5bf3a703fde419216218147fe05a9",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/junit.xml",
+        "-p",
+        "registry_capture",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+        "-k",
+        "actual_typed_rows or actual_node or real_source_denominator or nonprojectable"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "40ffe956ecca1eea07c942fddcb4bcc2cbf99b12",
+      "target_tree": "59a3b888d4c5bf3a703fde419216218147fe05a9",
+      "exitcode": 1,
+      "wall_seconds": 26.528793334960938,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "notes": "6 PASS / 1 FAIL /12 deselected. Actual JSON-money node intake still failed; passing persisted registry/denominator/envelope cells remain bounded.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/run.json",
+        "sha256": "241622ff87208e8f29776c5a43778ffbf1e7d02b7f1df5841eaa54caa9bafb2b",
+        "bytes": 3556
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/complete.txt",
+        "sha256": "c68bb1ce60f64ad9d06abb6f3a44d3572b611e53d6333b61745d8dfbb3d76330",
+        "bytes": 4279
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "07cf1d0167135baf7a7e495465214d8297f29f3fba923cb9922db347e486e78c",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "0a9d873046e2a57fb05fba429890346de3bfbb3bab1a8675d476abaef87baa17",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1344,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/junit.xml",
+        "sha256": "8000acd9b22a8ca0f81721880cba1c25a199a75ffe2e9e7faf9ea46c1f0acaf3",
+        "bytes": 3705
+      },
+      "events.jsonl": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/events.jsonl",
+        "sha256": "69092b9da03fe6934c915a2f74d7af162a117a79f1881ce838a79c6e17148e59",
+        "bytes": 7560
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/origins.json",
+        "sha256": "25e3b256fc8ea73eae2acf96bed226c96376888234a4b7681bb0c9c4ed789e74",
+        "bytes": 346713
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/native-calls.json",
+        "sha256": "0ebe861198d90da2eaa3f47573a1ed99f119a33ea8090e62d721ac065fd459bf",
+        "bytes": 12433
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/capture_parent.py",
+        "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+        "bytes": 4126
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-affected7-5ecfacd58d98408f8b58358e57e01843/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "7",
+          "time": "18.930",
+          "timestamp": "2026-10-06T21:18:11.404366+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "test_actual_typed_rows_reach_disk_and_fresh_projection[False-3]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_typed_rows_reach_disk_and_fresh_projection[True-1]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_node_forwards_owner_run_context_and_persists_report",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_real_source_denominator_cannot_be_replaced_by_partial_registry",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_report_refuses_nonprojectable_candidate_envelopes[extra0]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_report_refuses_nonprojectable_candidate_envelopes[extra1]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_report_refuses_nonprojectable_candidate_envelopes[extra2]",
+          "outcome": "PASS"
+        }
+      ],
+      "source_verification": {
+        "before_sha": "40ffe956ecca1eea07c942fddcb4bcc2cbf99b12",
+        "after_sha": "40ffe956ecca1eea07c942fddcb4bcc2cbf99b12",
+        "before_tree": "59a3b888d4c5bf3a703fde419216218147fe05a9",
+        "after_tree": "59a3b888d4c5bf3a703fde419216218147fe05a9",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/junit.xml",
+        "-p",
+        "registry_capture",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_actual_node_forwards_owner_run_context_and_persists_report"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "40ffe956ecca1eea07c942fddcb4bcc2cbf99b12",
+      "target_tree": "59a3b888d4c5bf3a703fde419216218147fe05a9",
+      "exitcode": 1,
+      "wall_seconds": 27.538447380065918,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "notes": "Actual node fail message float(dict) before proposal/evaluator, establishing ordinary JSON money transport gap.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/run.json",
+        "sha256": "eb89a327f77f932481f3c30a7a0aa20a2d7a93ea121518c0cb10f964efec24e5",
+        "bytes": 3532
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/complete.txt",
+        "sha256": "e55026c2aaa1f469d2b27c01c200b52a033feac5f18283736e1a6179efa9dee8",
+        "bytes": 2433
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "07cf1d0167135baf7a7e495465214d8297f29f3fba923cb9922db347e486e78c",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "0a9d873046e2a57fb05fba429890346de3bfbb3bab1a8675d476abaef87baa17",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1344,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/junit.xml",
+        "sha256": "9ba87b7ebcde800d5f1257472601a79aa9f4ae62e8f31b1056cc1cc319caf479",
+        "bytes": 2496
+      },
+      "events.jsonl": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/events.jsonl",
+        "sha256": "83fddd6bf335cd865bb7c1421c04f2b39d88a07fe2246881ad177f82f1a9a6f7",
+        "bytes": 2769
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/origins.json",
+        "sha256": "25e3b256fc8ea73eae2acf96bed226c96376888234a4b7681bb0c9c4ed789e74",
+        "bytes": 346713
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/native-calls.json",
+        "sha256": "ee85e1720b194d90404a19978422df63d0f310e8a81208288f2c185b1c3958eb",
+        "bytes": 297
+      },
+      "actual-node-outcome.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/actual-node-outcome.json",
+        "sha256": "7ecf20d955df499b661998d75ecba42a2809bb54a2e1ce5b532277953aa292e3",
+        "bytes": 208
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/capture_parent.py",
+        "sha256": "bb607a9a981bfe9c903ff365d6d391330d8fce24eeed6cbf7aa35a21dea1e8a2",
+        "bytes": 4134
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-node-diagnostic1-a49016a2cd914b469a3425816d819ad0/registry_capture.py",
+        "sha256": "684143d6f35a61a9ff1b93d93164f5616913523c225ab5e2ec951ca7a931aede",
+        "bytes": 2455
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "1",
+          "time": "19.668",
+          "timestamp": "2026-10-06T21:19:41.893318+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "test_actual_node_forwards_owner_run_context_and_persists_report",
+          "outcome": "FAIL"
+        }
+      ],
+      "source_verification": {
+        "before_sha": "40ffe956ecca1eea07c942fddcb4bcc2cbf99b12",
+        "after_sha": "40ffe956ecca1eea07c942fddcb4bcc2cbf99b12",
+        "before_tree": "59a3b888d4c5bf3a703fde419216218147fe05a9",
+        "after_tree": "59a3b888d4c5bf3a703fde419216218147fe05a9",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/junit.xml",
+        "-p",
+        "registry_capture",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_parameterless_wrong_subject_refuses_without_registry_effect"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "36fe4c24bf877521d52614aa6a415504ea764134",
+      "target_tree": "ab50abcc711b162888329c88e718003064b1101f",
+      "exitcode": 1,
+      "wall_seconds": 26.581090688705444,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "notes": "Three marker-preserving wrong-ID/wrong-hash/unbound observations were admitted before corrective configured measurement subject gate.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/run.json",
+        "sha256": "71597648955304ee7e0970dd77ad4bf9acf7c56310033814ead3c6cac63a4665",
+        "bytes": 3539
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/complete.txt",
+        "sha256": "56a4830c918fdf0ea67ca6c8c7d34fad9a60947b1c88871a49fa37c1653cd6a4",
+        "bytes": 4722
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "07cf1d0167135baf7a7e495465214d8297f29f3fba923cb9922db347e486e78c",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "b59960947f309cc4cc15ef24af141a18e840d8212a829fc4bb3f75e3e07c4be1",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1344,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/junit.xml",
+        "sha256": "0a689744146d36f6026323e55c4c47eb17ccda9f363e2edc90fe454bde155a5f",
+        "bytes": 4842
+      },
+      "events.jsonl": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/events.jsonl",
+        "sha256": "fe0363b8172f5b9aa8a680038a7ad823c2920f20b896055dec46cd977d152248",
+        "bytes": 6335
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/origins.json",
+        "sha256": "25e3b256fc8ea73eae2acf96bed226c96376888234a4b7681bb0c9c4ed789e74",
+        "bytes": 346713
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/native-calls.json",
+        "sha256": "29536d19b762645fc858ade9e155f70330bbb804959da059a0d55005f5fc010e",
+        "bytes": 2438
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/capture_parent.py",
+        "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+        "bytes": 4126
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-subject-baseline3-cbe563a8b4f04e1c8d7f4b56ffc8542b/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "3",
+          "skipped": "0",
+          "tests": "3",
+          "time": "18.673",
+          "timestamp": "2026-10-06T21:27:29.419430+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[candidate_id]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[candidate_hash]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[unbound]",
+          "outcome": "FAIL"
+        }
+      ],
+      "source_verification": {
+        "before_sha": "36fe4c24bf877521d52614aa6a415504ea764134",
+        "after_sha": "36fe4c24bf877521d52614aa6a415504ea764134",
+        "before_tree": "ab50abcc711b162888329c88e718003064b1101f",
+        "after_tree": "ab50abcc711b162888329c88e718003064b1101f",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/junit.xml",
+        "-p",
+        "registry_capture",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "db20a788f2b2524d87170233877cb3a78acbde0f",
+      "target_tree": "b25646d3968f48a2fa7ba480b442e6659665f077",
+      "exitcode": 1,
+      "wall_seconds": 27.485546112060547,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "notes": "28 PASS / 2 FAIL. Reconstructing canonical MoneyValue lost explicit null presence under exclude_none hashing; default full-null node and identity test red preserved.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/run.json",
+        "sha256": "7fca26abbf539a05aa415e247144ab7c128c45584416d3cc15be3157df785810",
+        "bytes": 3443
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/complete.txt",
+        "sha256": "ac597dc1498462480d7856003e2ce04793f73d162fcb29d3bcd4b8836c97fd69",
+        "bytes": 15055
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "61a7af9bdb036804ae6c19b96700bdd596810961cc74626c0d74429788cb6221",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "ca420993833bed0883f3da1575b978e52452dd0c73c1dd2e8e7ffb990f3562eb",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1344,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/junit.xml",
+        "sha256": "299e0073d7ad0f5459d9493fc2377978c45d536351c71e7d9174b3c6ec9f15a4",
+        "bytes": 14983
+      },
+      "events.jsonl": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/events.jsonl",
+        "sha256": "59b6ace820f0fe1de833cd37afbfcdd993ad609db65b4763ce8153c9518e5327",
+        "bytes": 32739
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/origins.json",
+        "sha256": "2a4b6cc0db0acfa91c478a5663e1e3287729ee3095eb564d160f58e7e05d571c",
+        "bytes": 346713
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/native-calls.json",
+        "sha256": "566dca610609ab1ae529f1ea236cee0113f60c12e2565b75947d507a0154d5d7",
+        "bytes": 29882
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/capture_parent.py",
+        "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+        "bytes": 4126
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full30-2b8dbb17de834158ad0ae80a25742c8f/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "2",
+          "skipped": "0",
+          "tests": "30",
+          "time": "19.603",
+          "timestamp": "2026-10-06T21:30:55.157152+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "test_configured_registry_reaches_every_coordinator_port[instantiate]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_reaches_every_coordinator_port[validate]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_reaches_every_coordinator_port[run]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_refuses_noncanonical_object[invalid0]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_refuses_noncanonical_object[registry]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_refuses_noncanonical_object[invalid2]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_typed_rows_reach_disk_and_fresh_projection[False-3]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_typed_rows_reach_disk_and_fresh_projection[True-1]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_parameterless_missing_axes_and_true_empty_history_are_unavailable",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_tenant_scope_covers_real_seed_reads_late_input_change_and_resets",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_mismatched_tenant_context_refuses_before_observation",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_tenant_scope_resets_when_actual_evaluator_refuses",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_node_forwards_owner_run_context_and_persists_report",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_real_source_denominator_cannot_be_replaced_by_partial_registry",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_parameterless_malformed_present_vector_refuses_without_publication",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_tenant_scope_resets_after_registry_publication_fault",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_report_refuses_nonprojectable_candidate_envelopes[extra0]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_report_refuses_nonprojectable_candidate_envelopes[extra1]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_report_refuses_nonprojectable_candidate_envelopes[extra2]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[candidate_id]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[candidate_hash]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[unbound]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_parameterless_callback_accepts_one_matching_subject_binding[id_only]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_parameterless_callback_accepts_one_matching_subject_binding[hash_only]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_money_json_transport_preserves_hash_units_and_unrelated_objects",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_money_json_conflicts_refuse_before_native_observation[min_value]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_money_json_conflicts_refuse_before_native_observation[current]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_money_json_conflicts_refuse_before_native_observation[schedule]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_money_json_conflicts_refuse_before_native_observation[malformed]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_node_money_intake_failure_preserves_source_and_never_observes",
+          "outcome": "PASS"
+        }
+      ],
+      "source_verification": {
+        "before_sha": "db20a788f2b2524d87170233877cb3a78acbde0f",
+        "after_sha": "db20a788f2b2524d87170233877cb3a78acbde0f",
+        "before_tree": "b25646d3968f48a2fa7ba480b442e6659665f077",
+        "after_tree": "b25646d3968f48a2fa7ba480b442e6659665f077",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/junit.xml",
+        "-p",
+        "registry_capture",
+        "-q",
+        "-rA",
+        "/tmp/e02-D-hierarchical-A-context-native-red-f471.py"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "target_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+      "exitcode": 2,
+      "wall_seconds": 27.51399540901184,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "ERROR",
+      "notes": "External /tmp selector lost repository marker configuration; collection ERROR, no supplier/transport verdict. Corrected measurement helper explicitly loads unchanged pytest.ini.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/run.json",
+        "sha256": "d47d704d4413a26d1ba0174fc90e4cceb0df6ccb9a2c2ff966f74a70f02dab65",
+        "bytes": 3510
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/complete.txt",
+        "sha256": "cd385bf946747519ccf51a2453fc196acd67ba4c7096d54e69c463de18a21811",
+        "bytes": 482
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "819b407f50f4c080cd6e79026f355ff277884d5a5cf6fac283c3ff4b7d080491",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1343,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/junit.xml",
+        "sha256": "0e8d37900d74a38a8520d07e73e69f5bfff5ae201b1e9f88447d3a445be92088",
+        "bytes": 449
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/origins.json",
+        "sha256": "15da03725f1f57955d3ae5f547b9c1d3b23c1b34b25b8c3cff095c6c04b9284e",
+        "bytes": 346480
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/native-calls.json",
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "bytes": 2
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/capture_parent.py",
+        "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+        "bytes": 4126
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-refusal-66e3fde3d3f649fc85d0dbbfad8970bb/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "1",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "1",
+          "time": "19.870",
+          "timestamp": "2026-10-06T21:46:42.110651+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "e02-D-hierarchical-A-context-native-red-f471",
+          "outcome": "ERROR"
+        }
+      ],
+      "source_verification": {
+        "before_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "after_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "before_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "after_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/junit.xml",
+        "-p",
+        "registry_capture",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "target_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+      "exitcode": 0,
+      "wall_seconds": 28.07032346725464,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "PASS",
+      "notes": "Complete35 PASS /0 FAIL/ERROR/SKIP. Every defined case executed under real minimal runtime; all1344 product origins match immutable f471 Git, source before/after clean and unchanged.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/run.json",
+        "sha256": "afa085ac793fdaa05ebca9f467ff57018c5343b9f370b0e6ea6996c29f24af37",
+        "bytes": 3442
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/complete.txt",
+        "sha256": "9c9211ee231b80d6b87d83bdf0cf990d5ffd109898a4f0ff95af9c052a402854",
+        "bytes": 7811
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "819b407f50f4c080cd6e79026f355ff277884d5a5cf6fac283c3ff4b7d080491",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1344,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/junit.xml",
+        "sha256": "86e1d13f7cc22c81d29e7e346c12841985bd72865f0533e172c31c275a5699ed",
+        "bytes": 7404
+      },
+      "events.jsonl": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/events.jsonl",
+        "sha256": "3c842c9c89fa868e8b2baab611df06fc9673f69a9a413ae52421a124195210fa",
+        "bytes": 28320
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/origins.json",
+        "sha256": "f9b34c9a0d69c5226075814f8ebd7307cec85e8ce2f74a915438120f674be56a",
+        "bytes": 346713
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/native-calls.json",
+        "sha256": "9f68e7eaa7c8c4b373b3d7cf8e2e429b61844b531ddebf96d5fc059947701bcc",
+        "bytes": 40371
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/capture_parent.py",
+        "sha256": "b55ec4276055b771d02e3a0b506f6c4beef302864cba0a80cdc15cf88738bac3",
+        "bytes": 4126
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-final-full35-cdb53c725eda4b459e1ec2c8a8a46395/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "35",
+          "time": "19.924",
+          "timestamp": "2026-10-06T21:40:05.038779+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "test_configured_registry_reaches_every_coordinator_port[instantiate]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_reaches_every_coordinator_port[validate]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_reaches_every_coordinator_port[run]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_refuses_noncanonical_object[invalid0]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_refuses_noncanonical_object[registry]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_configured_registry_refuses_noncanonical_object[invalid2]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_typed_rows_reach_disk_and_fresh_projection[False-3]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_typed_rows_reach_disk_and_fresh_projection[True-1]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_parameterless_missing_axes_and_true_empty_history_are_unavailable",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_tenant_scope_covers_real_seed_reads_late_input_change_and_resets",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_mismatched_tenant_context_refuses_before_observation",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_tenant_scope_resets_when_actual_evaluator_refuses",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_node_forwards_owner_run_context_and_persists_report",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_real_source_denominator_cannot_be_replaced_by_partial_registry",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_parameterless_malformed_present_vector_refuses_without_publication",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_tenant_scope_resets_after_registry_publication_fault",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_report_refuses_nonprojectable_candidate_envelopes[extra0]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_report_refuses_nonprojectable_candidate_envelopes[extra1]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_report_refuses_nonprojectable_candidate_envelopes[extra2]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[candidate_id]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[candidate_hash]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[unbound]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_parameterless_callback_accepts_one_matching_subject_binding[id_only]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_parameterless_callback_accepts_one_matching_subject_binding[hash_only]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_declared_money_json_transport_preserves_hash_units_and_unrelated_objects",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_money_json_conflicts_refuse_before_native_observation[min_value]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_money_json_conflicts_refuse_before_native_observation[current]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_money_json_conflicts_refuse_before_native_observation[schedule]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_money_json_conflicts_refuse_before_native_observation[malformed]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_node_money_intake_failure_preserves_source_and_never_observes",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_money_parameter_wire_presence_preserves_current_values_and_identity[absent]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_money_parameter_wire_presence_preserves_current_values_and_identity[explicit_null]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_money_parameter_wire_presence_preserves_current_values_and_identity[explicit_year]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_actual_canonical_candidate_cas_readback_reaches_node_and_fresh_report",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_direct_canonical_candidate_readback_reaches_adapter_without_json_conversion",
+          "outcome": "PASS"
+        }
+      ],
+      "source_verification": {
+        "before_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "after_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "before_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "after_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/junit.xml",
+        "-p",
+        "registry_capture",
+        "-p",
+        "registry_removal",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_actual_typed_rows_reach_disk_and_fresh_projection[False-3]"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "target_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+      "exitcode": 1,
+      "wall_seconds": 21.202895402908325,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "notes": "Intentional in-memory mechanism removal with original test expectations and source files unchanged; FAIL remains FAIL and demonstrates discriminator sensitivity.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/run.json",
+        "sha256": "872cd14df323d894282a88fb6507c8a6c4c3b71c1eac5261405eb4871d6f3009",
+        "bytes": 3726
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/complete.txt",
+        "sha256": "02c5efdb6c036ea23ef7dab190c8a4b67557c4e86adae6ae8ff6dfe032b408b6",
+        "bytes": 3297
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "819b407f50f4c080cd6e79026f355ff277884d5a5cf6fac283c3ff4b7d080491",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1344,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/junit.xml",
+        "sha256": "7af47fd7012872bad18e2b83b7b3c09b8e67e61d472e6212880feca99d6c21e9",
+        "bytes": 3021
+      },
+      "events.jsonl": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/events.jsonl",
+        "sha256": "0dc0ec189632044f10f5ecc0005bc54fcda42c2fad39835d2ddfcc92cbd42fcf",
+        "bytes": 3062
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/origins.json",
+        "sha256": "2fdb321a422292bb6c7bada99d76369edc9290d7275c540a0e252288791c5f53",
+        "bytes": 346713
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/native-calls.json",
+        "sha256": "3c25fb673b9c061fab2ae95ae887d315fc473f677a4c8ca677d8a749a66e552a",
+        "bytes": 3209
+      },
+      "retained-markers.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/retained-markers.json",
+        "sha256": "9b981d198925bf497f7598e99be28dd3bdff6014d3fca2947536bad980c98d0e",
+        "bytes": 740
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/capture_parent.py",
+        "sha256": "0c44c9529df72d9c93a3fddcc53a43985171be51dcd384e054f722a5a8ec97a2",
+        "bytes": 4385
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "registry_removal.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-registry_port-850e5c544c994c6fa86bd61509229675/registry_removal.py",
+        "sha256": "9ee57b2f243ab889d2540e611f66177c948a0862b6a49f435a959b500aa85ee3",
+        "bytes": 5034
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "1",
+          "time": "0.606",
+          "timestamp": "2026-10-06T21:44:04.340096+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "test_actual_typed_rows_reach_disk_and_fresh_projection[False-3]",
+          "outcome": "FAIL"
+        }
+      ],
+      "removal_mode": "registry_port",
+      "predicate_basis": "recomputed",
+      "source_verification": {
+        "before_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "after_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "before_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "after_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/junit.xml",
+        "-p",
+        "registry_capture",
+        "-p",
+        "registry_removal",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_actual_typed_rows_reach_disk_and_fresh_projection[True-1]"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "target_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+      "exitcode": 1,
+      "wall_seconds": 21.252214908599854,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "notes": "Intentional in-memory mechanism removal with original test expectations and source files unchanged; FAIL remains FAIL and demonstrates discriminator sensitivity.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/run.json",
+        "sha256": "e03457e7606b66afb7bd5aa29d960659258762c19bae63cbf1f4d2eca34f9841",
+        "bytes": 3809
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/complete.txt",
+        "sha256": "f0ff686a13703a0de69172f06cc6441def8127f0bd6778fe0e991d1c727454e6",
+        "bytes": 2753
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "819b407f50f4c080cd6e79026f355ff277884d5a5cf6fac283c3ff4b7d080491",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1344,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/junit.xml",
+        "sha256": "fed7016c86108635e2700b4fe3a217a3e0e9fb8a4e640eec1d9806397b42cac2",
+        "bytes": 3055
+      },
+      "events.jsonl": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/events.jsonl",
+        "sha256": "13a6195a8009d580ad1309785440e7f184d53098644454f880590074ba5704da",
+        "bytes": 3082
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/origins.json",
+        "sha256": "2fdb321a422292bb6c7bada99d76369edc9290d7275c540a0e252288791c5f53",
+        "bytes": 346713
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/native-calls.json",
+        "sha256": "0903156e56bd3cc343477c9d723fa8e155c22a5dcf913ce484475f43e329b367",
+        "bytes": 701
+      },
+      "retained-markers.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/retained-markers.json",
+        "sha256": "a79d7a6579da286851f639feee0933a581045ca58b1d73a3692faf9ed7f85bc4",
+        "bytes": 1463
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/capture_parent.py",
+        "sha256": "0c44c9529df72d9c93a3fddcc53a43985171be51dcd384e054f722a5a8ec97a2",
+        "bytes": 4385
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "registry_removal.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-parameterless_publication-711f736518184a2baba8e1eee6a37fe6/registry_removal.py",
+        "sha256": "9ee57b2f243ab889d2540e611f66177c948a0862b6a49f435a959b500aa85ee3",
+        "bytes": 5034
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "1",
+          "time": "0.537",
+          "timestamp": "2026-10-06T21:44:29.854361+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "test_actual_typed_rows_reach_disk_and_fresh_projection[True-1]",
+          "outcome": "FAIL"
+        }
+      ],
+      "removal_mode": "parameterless_publication",
+      "predicate_basis": "recomputed",
+      "source_verification": {
+        "before_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "after_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "before_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "after_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/junit.xml",
+        "-p",
+        "registry_capture",
+        "-p",
+        "registry_removal",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_tenant_scope_covers_real_seed_reads_late_input_change_and_resets"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "target_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+      "exitcode": 1,
+      "wall_seconds": 20.947299480438232,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "notes": "Intentional in-memory mechanism removal with original test expectations and source files unchanged; FAIL remains FAIL and demonstrates discriminator sensitivity.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/run.json",
+        "sha256": "746a2d23abdbd4834be1cc12548d0d4834ed5d1ab869ba7fab81df3ecce7e437",
+        "bytes": 3725
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/complete.txt",
+        "sha256": "2450bf81c831ea9c0af1699014b04cf009a1ec35c052e760a3dc61a0cf4f0e87",
+        "bytes": 2996
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "819b407f50f4c080cd6e79026f355ff277884d5a5cf6fac283c3ff4b7d080491",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1344,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/junit.xml",
+        "sha256": "9d3e001596c020d8eeb04fc19a7188caea63100b853232f7ff35ab722fe4c1a0",
+        "bytes": 2587
+      },
+      "events.jsonl": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/events.jsonl",
+        "sha256": "a87cc731a8e118072bc61dc39da8b3a8e4d382ecb455880f04ef89ea13011d02",
+        "bytes": 2783
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/origins.json",
+        "sha256": "2fdb321a422292bb6c7bada99d76369edc9290d7275c540a0e252288791c5f53",
+        "bytes": 346713
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/native-calls.json",
+        "sha256": "2e0014919e8522b4e40ba08ffd198365bb4010d341cbb3acc4d6bd69f2c6afba",
+        "bytes": 4692
+      },
+      "retained-markers.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/retained-markers.json",
+        "sha256": "11104dbc15817ae693916bf8f3a0a3b30b107515b149c967d4840d504cecb5cf",
+        "bytes": 464
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/capture_parent.py",
+        "sha256": "0c44c9529df72d9c93a3fddcc53a43985171be51dcd384e054f722a5a8ec97a2",
+        "bytes": 4385
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "registry_removal.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_scope-a643c46fe4ec4dfa89c9893e3f60fb7d/registry_removal.py",
+        "sha256": "9ee57b2f243ab889d2540e611f66177c948a0862b6a49f435a959b500aa85ee3",
+        "bytes": 5034
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "1",
+          "time": "0.549",
+          "timestamp": "2026-10-06T21:44:54.756807+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "test_tenant_scope_covers_real_seed_reads_late_input_change_and_resets",
+          "outcome": "FAIL"
+        }
+      ],
+      "removal_mode": "tenant_scope",
+      "predicate_basis": "recomputed",
+      "source_verification": {
+        "before_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "after_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "before_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "after_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/junit.xml",
+        "-p",
+        "registry_capture",
+        "-p",
+        "registry_removal",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_mismatched_tenant_context_refuses_before_observation"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "target_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+      "exitcode": 1,
+      "wall_seconds": 20.945039749145508,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "notes": "Intentional in-memory mechanism removal with original test expectations and source files unchanged; FAIL remains FAIL and demonstrates discriminator sensitivity.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/run.json",
+        "sha256": "026c740d3078492334144a4f8fbd38d9e2088251cc0b8a7784b33f812440bda5",
+        "bytes": 3776
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/complete.txt",
+        "sha256": "935892d91d41991eda6f51470bac391151dac0353800b309fb513c7c0d53de30",
+        "bytes": 1720
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "819b407f50f4c080cd6e79026f355ff277884d5a5cf6fac283c3ff4b7d080491",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1344,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/junit.xml",
+        "sha256": "ebd6538d603fcf8aa91cf9db5cf2ff2d75fbed571f4a2b16a5e0e720d23fc861",
+        "bytes": 1194
+      },
+      "events.jsonl": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/events.jsonl",
+        "sha256": "57c2f3af6e23f77d977b1ae3827768f27d7924e5fcb231ab0232d53e0eda39df",
+        "bytes": 1443
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/origins.json",
+        "sha256": "2fdb321a422292bb6c7bada99d76369edc9290d7275c540a0e252288791c5f53",
+        "bytes": 346713
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/native-calls.json",
+        "sha256": "82c254b79736234aab714f184a4ab6650135a47742a422067cf1ed6aac1d5317",
+        "bytes": 3689
+      },
+      "retained-markers.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/retained-markers.json",
+        "sha256": "d1fb776fca498d31dd3e184d0a515d44dfe4b153a5ced97bddcd678bdf881396",
+        "bytes": 1090
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/capture_parent.py",
+        "sha256": "0c44c9529df72d9c93a3fddcc53a43985171be51dcd384e054f722a5a8ec97a2",
+        "bytes": 4385
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "registry_removal.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-tenant_conflict_guard-92ba59ad7da6412795b82b5348ed9138/registry_removal.py",
+        "sha256": "9ee57b2f243ab889d2540e611f66177c948a0862b6a49f435a959b500aa85ee3",
+        "bytes": 5034
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "1",
+          "time": "0.507",
+          "timestamp": "2026-10-06T21:45:19.739961+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "test_mismatched_tenant_context_refuses_before_observation",
+          "outcome": "FAIL"
+        }
+      ],
+      "removal_mode": "tenant_conflict_guard",
+      "predicate_basis": "recomputed",
+      "source_verification": {
+        "before_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "after_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "before_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "after_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/junit.xml",
+        "-p",
+        "registry_capture",
+        "-p",
+        "registry_removal",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_actual_node_forwards_owner_run_context_and_persists_report"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "target_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+      "exitcode": 1,
+      "wall_seconds": 20.966777563095093,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "notes": "Intentional in-memory mechanism removal with original test expectations and source files unchanged; FAIL remains FAIL and demonstrates discriminator sensitivity.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/run.json",
+        "sha256": "02c162f7d217cd550c5d08b3995f9a0103aaf8378a6bd50174f606151beffade",
+        "bytes": 3740
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/complete.txt",
+        "sha256": "ff9ff629afc90a55482d597fad0921dabd08ef0d8c9747a569a337691a286c66",
+        "bytes": 2432
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "819b407f50f4c080cd6e79026f355ff277884d5a5cf6fac283c3ff4b7d080491",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1344,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/junit.xml",
+        "sha256": "48a194cf42b1d333d1ecfeb8c61b404dc699838a9a4f095f98c31d6d05d33196",
+        "bytes": 2495
+      },
+      "events.jsonl": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/events.jsonl",
+        "sha256": "3978a50cf62c9966363a02851375000d4518faa2c1640b1f97cb7be058313ca5",
+        "bytes": 2768
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/origins.json",
+        "sha256": "2fdb321a422292bb6c7bada99d76369edc9290d7275c540a0e252288791c5f53",
+        "bytes": 346713
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/native-calls.json",
+        "sha256": "ee85e1720b194d90404a19978422df63d0f310e8a81208288f2c185b1c3958eb",
+        "bytes": 297
+      },
+      "retained-markers.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/retained-markers.json",
+        "sha256": "e5cc053e55b7502788907534eee31d008329ed255c68099f853a924f59d6e61b",
+        "bytes": 27346
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/capture_parent.py",
+        "sha256": "0c44c9529df72d9c93a3fddcc53a43985171be51dcd384e054f722a5a8ec97a2",
+        "bytes": 4385
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "registry_removal.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-money_transport-cec4f4a3a90c4e3bb42c8d879ba74647/registry_removal.py",
+        "sha256": "9ee57b2f243ab889d2540e611f66177c948a0862b6a49f435a959b500aa85ee3",
+        "bytes": 5034
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "1",
+          "time": "0.542",
+          "timestamp": "2026-10-06T21:45:44.736093+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "test_actual_node_forwards_owner_run_context_and_persists_report",
+          "outcome": "FAIL"
+        }
+      ],
+      "removal_mode": "money_transport",
+      "predicate_basis": "recomputed",
+      "source_verification": {
+        "before_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "after_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "before_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "after_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/junit.xml",
+        "-p",
+        "registry_capture",
+        "-p",
+        "registry_removal",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_parameterless_wrong_subject_refuses_without_registry_effect"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "target_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+      "exitcode": 1,
+      "wall_seconds": 21.120784997940063,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "notes": "Intentional in-memory mechanism removal with original test expectations and source files unchanged; FAIL remains FAIL and demonstrates discriminator sensitivity.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/run.json",
+        "sha256": "5ce33a7a734c2758511edbd479ce7487af2e2da0cb29f3b29ecf3afb2d8b19b9",
+        "bytes": 3727
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/complete.txt",
+        "sha256": "095c6fa5572b4179fc41233709745815b300d3a0ac36d3efb17e9b757671581d",
+        "bytes": 4733
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "819b407f50f4c080cd6e79026f355ff277884d5a5cf6fac283c3ff4b7d080491",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1344,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/junit.xml",
+        "sha256": "829d087cb33e6a0b85d4ab96cb3f8019c2d074f7a9770240835c196987acd60a",
+        "bytes": 4853
+      },
+      "events.jsonl": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/events.jsonl",
+        "sha256": "76fd7a5070d5904352a39cd3f3b0295f9df1754f93b9b4607798618312989ac9",
+        "bytes": 6348
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/origins.json",
+        "sha256": "2fdb321a422292bb6c7bada99d76369edc9290d7275c540a0e252288791c5f53",
+        "bytes": 346713
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/native-calls.json",
+        "sha256": "f597ec6ac93d5c26aca7ce944b7ab5218ff88a27a5d7da321b463c3879009f4d",
+        "bytes": 2150
+      },
+      "retained-markers.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/retained-markers.json",
+        "sha256": "89e00c971e217d95f81695d541f9c68dda90882c7511a6c15e20570d0a92cfac",
+        "bytes": 2722
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/capture_parent.py",
+        "sha256": "0c44c9529df72d9c93a3fddcc53a43985171be51dcd384e054f722a5a8ec97a2",
+        "bytes": 4385
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "registry_removal.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-removal-subject_guard-0240fd189fc24bc290965fbec3813cc8/registry_removal.py",
+        "sha256": "9ee57b2f243ab889d2540e611f66177c948a0862b6a49f435a959b500aa85ee3",
+        "bytes": 5034
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "3",
+          "skipped": "0",
+          "tests": "3",
+          "time": "0.549",
+          "timestamp": "2026-10-06T21:46:09.841918+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[candidate_id]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[candidate_hash]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[unbound]",
+          "outcome": "FAIL"
+        }
+      ],
+      "removal_mode": "subject_guard",
+      "predicate_basis": "recomputed",
+      "source_verification": {
+        "before_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "after_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "before_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "after_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    },
+    {
+      "command_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "/workspace/e02-D-published-search/policy-engine/pytest.ini",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-o",
+        "cache_dir=/tmp/e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/cache",
+        "--basetemp=/tmp/e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/new-fixtures",
+        "--junitxml=/tmp/e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/junit.xml",
+        "-p",
+        "registry_capture",
+        "-q",
+        "-rA",
+        "/tmp/e02-D-hierarchical-A-context-native-red-f471.py"
+      ],
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "target_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "target_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+      "exitcode": 1,
+      "wall_seconds": 26.908671617507935,
+      "environment_overrides": {
+        "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "E02_REGISTRY_SOURCE_ROOT": "/workspace/e02-D-published-search/policy-engine",
+        "E02_REGISTRY_OUTPUT": "/tmp/e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "outcome": "FAIL",
+      "notes": "Native A source-context recipe FAIL: actual structure seed run_id registry_policy differs from supplied appointed_source_run. Subsequent task_family assertion did not execute; source contract proposal is unapplied. Two separate noncanonical money-wire intake controls PASS before observation/registry effects.",
+      "run_metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/run.json",
+        "sha256": "fd8f6f22f3b4bebe6007230d9bff6345584e5523d2bc8dc139ad149f81509552",
+        "bytes": 3605
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/complete.txt",
+        "sha256": "1feb62ec86347f786e1360248a11c51d1437017d11766d275487544271b1be3c",
+        "bytes": 1924
+      },
+      "test_input_sha256": {
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": "819b407f50f4c080cd6e79026f355ff277884d5a5cf6fac283c3ff4b7d080491",
+        "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "origin_count": 1343,
+      "origin_errors": [],
+      "native_numerical_verdict": "UNRUN: this scope establishes ordinary registry/context/persistence, not GP/vector numerics",
+      "environment.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/environment.json",
+        "sha256": "04450db629863e5c401c41b78cf9fed74a0602cc3854a39ed022742522973ced",
+        "bytes": 291
+      },
+      "environment.stderr": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/environment.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit.xml": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/junit.xml",
+        "sha256": "0f458d1e8794213cf3fcecb0163b7b04f41cf87e7cfb3146416fff425239d8cb",
+        "bytes": 2014
+      },
+      "events.jsonl": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/events.jsonl",
+        "sha256": "95b08e4913228c0b2341efa4043e04015490100548ead4d4900173c07b573d97",
+        "bytes": 2905
+      },
+      "origins.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/origins.json",
+        "sha256": "960290e475b2559c075351045baf7136ac1bfd950dcea6391d3b78524f754c30",
+        "bytes": 346480
+      },
+      "native-calls.json": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/native-calls.json",
+        "sha256": "fe03daabbd1efb40b469ae50a3ab491ac603eb88de50a8c9c59d03985b844d37",
+        "bytes": 257
+      },
+      "capture_parent.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/capture_parent.py",
+        "sha256": "5cc23095ffb37ae8989e85a60cf74b617ba09e8b52a2a289cd3b5c264561d0d6",
+        "bytes": 4238
+      },
+      "registry_capture.py": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/registry_capture.py",
+        "sha256": "0ede513a70ecde71088037c214c94096d07f46cde5f3075efd4cc5b124fb1e59",
+        "bytes": 2041
+      },
+      "junit_suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "3",
+          "time": "19.337",
+          "timestamp": "2026-10-06T21:47:59.092005+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "cases": [
+        {
+          "name": "test_structure_seed_reader_consumes_supplied_run_and_task_context",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_noncanonical_money_wire_coercion_refuses_before_native_observation[500]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_noncanonical_money_wire_coercion_refuses_before_native_observation[5e2]",
+          "outcome": "PASS"
+        }
+      ],
+      "source_verification": {
+        "before_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "after_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+        "before_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "after_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+        "before_branch": "codex/e02-D-published-search",
+        "after_branch": "codex/e02-D-published-search",
+        "before_status": "",
+        "after_status": "",
+        "path_hashes_equal": true,
+        "complete_metadata_reference": "run_metadata lossless member"
+      }
+    }
+  ],
+  "baseline_cells": {
+    "exact_slice_base": {
+      "check_index": 0,
+      "outcome": "ERROR",
+      "source_sha": "fba341253528eb344c340b5e683ecc1f88ea631f",
+      "full_source_output_reference": "checks[0].run_metadata and checks[0].complete_output"
+    },
+    "historical_counted_failures_preserved": true,
+    "sigkill_attempts": "ERROR/UNRUN, empty or partial evidence cannot yield PASS",
+    "inherited_red_waiver": false,
+    "lower_overhead_direct_attempt": {
+      "outcome": "ERROR",
+      "exitcode": -9,
+      "wall_seconds": 111.51157188415527,
+      "source_pin_verification": "not_established: direct capture has no before/after or loaded-origin verdict",
+      "metadata": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "extras/e02-D-registry-direct-0df096b08bb0442783fe89b2d514f861.run.json",
+        "sha256": "c51130670712a8849648828e5f654b8d049416874b5d44b7f2e6ce5f001d1fcd",
+        "bytes": 298
+      },
+      "complete_output": {
+        "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+        "member": "extras/e02-D-registry-direct-0df096b08bb0442783fe89b2d514f861.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    }
+  },
+  "deciding_output": {
+    "complete_scope": "35 passed,7warnings in20.46s; wall28.07032346725464;0FAIL/ERROR/SKIP",
+    "origins": "1344 actual product modules,all immutablef471 GitMATCH,zero errors",
+    "removals": "6 modes,8 intended assertionFAIL,0ERROR/SKIP;sourcefilesunchanged,retained input/metadata markers and distinct ASTs recorded",
+    "foreign_supplier": "1 actual native run-contextFAIL; proposed A patch remains unapplied;2 separate strict Money-wire controlsPASS",
+    "independent_review": "Independent sourcef471 acceptance and actual7PASS are separately published at a4281c05533eb82940a5f9ca71eb6341ba210618; author35/removals remain distinct source-bound checks."
+  },
+  "output_transport": {
+    "header_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json",
+    "payload_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+    "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+    "schema": "policyos.e02.lossless_evidence_transport.v1",
+    "source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+    "source_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+    "payload_filename": "hierarchical-registry-evidence.json.xz",
+    "payload_sha256": "1c58127a077d02b84f5164dcbd1879c1b7aad7dd16fb86d0d3f990cf3275d5d0",
+    "payload_bytes": 443384,
+    "compression": "XZ/LZMA2 stdlib preset3",
+    "member_count": 1683,
+    "raw_member_bytes": 8650933,
+    "index_sha256": "0c295aa0195f7b141a2fbed45fd442622f208c8873f6ded1b68883e25c8c69eb",
+    "full_member_hash_size_index": "embedded losslessly in payload members; base64 recovers exact deciding bytes",
+    "originals_retained": true,
+    "scope": "new moderate measurement outputs/helpers/fixture CAS inputs only, no product source archive/test tree/env copy; historical ERROR/FAIL included",
+    "verification": {
+      "members_verified": 1683,
+      "lossless_hash_size_errors": []
+    }
+  },
+  "companion_checks": {
+    "source_ast_and_constructor_inventory": {
+      "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+      "member": "extras/e02-D-hierarchical-final-static-f471.json",
+      "sha256": "70643063daedd2ca1339cb1c239a30a6ad675978097b63a5d8e51162931a0518",
+      "bytes": 346
+    },
+    "structured_fragment_validation": {
+      "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+      "member": "extras/e02-D-hierarchical-fragment-f471.json",
+      "sha256": "ac89dbc22ecb7a078f7cb4706bc1b9af4d6315af41544315f2226aa3280d6dec",
+      "bytes": 188
+    },
+    "ruff": {
+      "target_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+      "interpreter": "/workspace/e02-D-locked-env/bin/python",
+      "version": "0.14.10",
+      "checks": [
+        {
+          "argv": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "ruff",
+            "check",
+            "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+            "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py"
+          ],
+          "exitcode": 0,
+          "complete_output": "All checks passed!\n"
+        },
+        {
+          "argv": [
+            "/workspace/e02-D-locked-env/bin/python",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+            "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py"
+          ],
+          "exitcode": 0,
+          "complete_output": "2 files already formatted\n"
+        }
+      ],
+      "scope": "Only owned changed Python paths; no broad quality verdict."
+    }
+  },
+  "mechanical_dependency": {
+    "commit": "f47914ddd15c2afc90e809c4d308cace1feaf20c",
+    "source_root_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "path": "policy-engine/src/polisyos/core/llm/response.py",
+    "blob": "ca7084b0fe14c04f0c1f58fe7dd805e51c5b3ec4",
+    "scope": "Root-approved exact selected adoption only; no bespoke B code, source approval, or owner authority inferred."
+  },
+  "supplier_dependency": {
+    "state": "proposed_unapplied",
+    "requested_canonical_owner": "A-W01 coordinator owner; G reviews/ports accepted source change",
+    "appointment_status": "not_established",
+    "proposal_commit": "fb1d84547b8d8fb71b8cc70ca84a975bdef07ff6",
+    "corrected_metadata_commit": "dbae7fd942db37afd75ed37ed35e509dc8a1e3b6",
+    "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-supplier/manifest.json",
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-supplier/A-structure-context.patch",
+    "patch_sha256": "b937a542f3361801ca3e64738f6aa9405f54e6c3c5b3af51b6156dcc60265cb9",
+    "destination_path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+    "destination_blob": "49ddb4c29f333de12211a1e7222a1d8368f8cd85",
+    "actual_A_sha": "93d62af8eb037fa37cb0254ad38285507b26a86a",
+    "actual_G_sha": "ff277db7798fc312654704fa51c52e00f53f10f4",
+    "required_signature": "existing optional initial_context passed through generate_structure_candidates and _transfer_seed_candidates to resolve_transfer_context(context=...,run_id=caller.run_id or candidate_id)",
+    "apply_check": "exit0 at pinned original13ba; not applied",
+    "native_run_context_red": {
+      "git_commit": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+      "member": "e02-D-registry-minimal-A-context-red-and-wire-configured-0ba40357f51a41c0a89e135e9239f4b3/complete.txt",
+      "sha256": "1feb62ec86347f786e1360248a11c51d1437017d11766d275487544271b1be3c",
+      "bytes": 1924
+    },
+    "task_family_assertion": "UNRUN after preceding run_id mismatch; proposed propagation read directly from actual source contract"
+  },
+  "limitations_and_next_owner": [
+    "Default RunHierarchicalPolicySearchNode constructs an unconfigured adapter. The configured port is verified; no ordinary default registry/provider appointment or objective basis is invented. A/G must supply actual caller/factory, existing registry root/namespace, complete eligible/unknown source rows and the existing ordered declared basis/ref if global rank is required.",
+    "Foreign A structure-seed caller drops initial_context run/task fields; exact unapplied patch and native run-ID red are Git-delivered. Existing tenant security scope supplies tenant routing; cell is traced, not a registry partition.",
+    "Cell context metadata is runtime-verified; existing cell ContextVar reset is source-reviewed, whereas tenant reset on normal/evaluator/registry exception is runtime-verified. Neither grants AccessScope/B131 authority.",
+    "Fixture evaluator returns declared finite observations through the actual evaluation port; full Foundry/readiness/simulation execution and institutional data source authorization are not exercised.",
+    "This actual producer profile is Money+existing scalars. Rate/Count/Duration and other rich external carriers are not runtime-qualified here. The foreign A restore helper has wider source breadth; no generic capability-absence or rich-unit law claim follows.",
+    "LA-014/LA-015 appointed served cutover, historical reader retirement and lifecycle scope belong to their separate accepted source/caller receipts. This hierarchical consumer packet does not relabel those findings or close them.",
+    "GP/vector numerics remain UNRUN in this real minimal profile; full optional-profile SIGKILLs remain ERROR/UNRUN. No P41 inherited waiver or automatic G closure is asserted."
+  ],
+  "independent_review": {
+    "executor": "/root/funnel_owner",
+    "actual_source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+    "actual_test_outcome": "7 PASS/0 FAIL/ERROR/SKIP;13.54pytest/21.43847wall",
+    "source_origins": "1345 actual loaded modules exactGitMATCH",
+    "payload_commit": "95a9173ddcb1afbc9a755c9d94683507a11a54cf",
+    "payload_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-registry-independent-proof/output.json.gz",
+    "payload_sha256": "a1c2b74f40ab55f62f0f384d1c50b725c07d8e9b4d73ab3d6433114fd4b24d8f",
+    "receipt_status": "Normal-published remote readback MATCH reported by independent reviewer; source/runtime review is separately owned.",
+    "receipt_sha": "a4281c05533eb82940a5f9ca71eb6341ba210618",
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-registry-f471-review.json",
+    "receipt_sha256": "0b2b42e2eea60941d30951119e488c1b27548f76c578fa843e4e27327cf8fb64"
+  }
+}

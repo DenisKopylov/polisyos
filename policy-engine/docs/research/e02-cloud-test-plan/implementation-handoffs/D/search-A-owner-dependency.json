@@ -1,0 +1,110 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "candidate_source_sha": "e789e9523725fa081de5cdc69da5938489315b4a",
+  "candidate_tree_sha": "8baa795f1e191b4bf9c6d6c5dc283bd32bab440f",
+  "branch": "codex/e02-D-search",
+  "pull_request": null,
+  "closure_ids": [],
+  "environments": [
+    {
+      "id": "D-search-latest-real-cpu",
+      "python": "3.14.2",
+      "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "PYTHONPATH": "/workspace/e02-D-search/policy-engine/src",
+      "torch": "2.14.1+cu130",
+      "botorch": "0.18.1",
+      "gpytorch": "1.15.2",
+      "pytest": "9.0.2",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "device": "cpu",
+      "scope": "Shared environment read only; isolated worktree and pytest scratch; actual optional numerical backend present."
+    },
+    {
+      "id": "D-independent-locked-real-cpu",
+      "python": "3.14.7",
+      "executable": "/workspace/e02-D-locked-env/bin/python",
+      "torch": "2.10.0+cu128",
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1",
+      "device": "cpu",
+      "executor": "independent gp_witness/numerical_oracle, archived exact source",
+      "python_version_source": "/workspace/e02-D-locked-env/bin/python --version -> Python3.14.7; root final-environment.json; corrected prior3.14.2 assumption."
+    }
+  ],
+  "authority_purpose": "Bounded engineering verification only. G accepts integration and closure; scientific promotion, default authority, and principal-held compatibility/scale decisions are not supplied by these checks.",
+  "baseline_scope": "Full owned route join: 23 finding IDs, 274 route rows, 70 unique source cells. Source-reported results identify historical observations, not future candidate PASS. Raw archives absent in source transfer metadata.",
+  "baseline_cells_ref": "search-coverage.json#baseline_cells",
+  "source_environment_refs": "search-coverage.json#baseline_source_receipts",
+  "slice": "search-A-owner-dependency",
+  "bundle_ids": [
+    "OPT-01"
+  ],
+  "covered_finding_ids": [
+    "B109",
+    "B111"
+  ],
+  "implementation_commits": [],
+  "patch": "search-A-owner-dependency.patch",
+  "checks": [
+    {
+      "id": "A-proposed-patch-admission",
+      "target_sha": "e789e9523725fa081de5cdc69da5938489315b4a",
+      "command": "git apply --check policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-A-owner-dependency.patch; compile both proposed Python bodies",
+      "executor": "search_owner",
+      "environment": "D-search-latest-real-cpu",
+      "input_closure": "Unleased policy_design/output.py and served hierarchical node handed to A as proposed patch only.",
+      "outcome": "PASS",
+      "deciding_output": "Applicable unified patch129lines; compilation PASS. Not applied or behavioral-test PASS."
+    }
+  ],
+  "capability_state_or_finding_state": "bridge_missing/provider_missing; proposed patch not applied",
+  "predicate_basis": "not_established for actual provider/supplier orchestration",
+  "property": {
+    "statement": "Independent source-feasible/unknown input must determine denominator status before reporting a ranked global frontier; nonfinite/overflowed champion ranking must never install an unassessed champion.",
+    "runtime_path": [
+      "run/tenant/cell independent record provider (absent)",
+      "PolicyArtifactBuildInput source denominator seam (proposed)",
+      "PolicyArtifactBuilder._build_frontier_report -> persisted report -> served reader",
+      "hierarchical node rank -> typed NodeOutcome failure before champion persistence (proposed)"
+    ],
+    "proxy_divergence": "A real source-feasible candidate omitted before projection disappears from both self-derived sets, so equality remains green. A finite marker/front tuple can coexist with Inf derived volume or NaN champion key."
+  },
+  "producer_status": "absent/unallocated in current tracked literal construction/caller census; dynamic/external providers unmeasured",
+  "required_producer_contract": [
+    "Bound full candidate record collection to run/tenant/cell and actual ArtifactStore history/evaluation refs before eligibility/projection filtering.",
+    "Every admitted candidate explicitly feasible/infeasible/unknown; missing/conflicting evaluation cannot be feasible.",
+    "Reconcile objective basis and source-feasible/unknown denominator against provider projection; never derive source completeness from eligible output.",
+    "Appointment of actual workflow/provider consumer is upstream A owner dependency, not solved by constructor injection or field markers."
+  ],
+  "exact_negative_recipe": [
+    {
+      "case": "omitted_before_projection",
+      "path": "tests/unit/scientist/policy_design/test_phase_b_output.py",
+      "fixture": "Reuse existing real candidate/evaluation/declared basis setup. Actual source feasible hashes {a,b}; snapshot projection/entries contain onlya. Current builder self-derives {a}, emits complete/ranked output. Proposed explicit source tuples {a,b},unknown() must emit denominator_limited, globalfrontierempty, candidatefrontier preserving omittedb. Persist via actual CAS publisher and reopen actual reader."
+    },
+    {
+      "case": "unknown_missing_supplier",
+      "fixture": "Do not provide independent source denominator; keep complete typed snapshotmarkers. Proposed builder emits unknown candidates and unranked denominator_limited report, preserving ordinary candidate work. Compatiblecontrol explicitly supplies fullactualknownsource sets; complete rankedtruefront retained."
+    },
+    {
+      "case": "served_champion_nonfinite_or_derived_overflow",
+      "path": "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+      "fixture": "Use actual _iter_candidate_records/candidatefixtures and callserved hierarchical node for finite, NaN,±Inf policy_value and finite welfare+employment overflow permutations. Proposed guard raises controlled limitation -> NodeOutcome fail before _persist_trinity_bundle. Allfinitecompatiblecontrol unchanged."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "A owns foreign policy_design/output.py and servednode; this Gitpatch compiles/applies but no appliedruntimebehavior claimed. A must add native red/positive/removal tests and scope-bound producer wiring.",
+    "Proposed all-invalid/mixed-invalid champion handling conservatively refuses publication, choosing no finite rescale/ordering convention. Canonical A owner must accept exact control/typed NodeOutcome semantics and any migration implications.",
+    "Direct current servednode finite ranking and ordinarybuilder completeness remain uncorrected in D branch; findingB111 remainspartial."
+  ],
+  "patch_sha256": "2e69739655d93019e6ac2fa12edc835c13df5235769925b4b6e8fea28b00f83c",
+  "pinned_target_source_sha": "e789e9523725fa081de5cdc69da5938489315b4a",
+  "G_base_compatibility": {
+    "checkpoint_sha": "3178752cc2ce065a0758efecf1d967201c0815e5",
+    "output_source_blob": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+    "served_node_source_blob": "6f48872f02bbd54fd70bb257856a0eeb789f516c",
+    "verdict": "Both foreign source blobs exactly equal e789 target; git apply --check targetPASS; proposed bodies compilePASS. No applied runtime behavior claimed."
+  }
+}

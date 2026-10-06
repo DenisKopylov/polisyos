@@ -1,0 +1,206 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "lessons",
+  "closure_ids": [],
+  "finding_ids": [
+    "B135",
+    "B136",
+    "B137"
+  ],
+  "bundle_ids": [
+    "TRN-03"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "6d1916ce2d41c3af81b00710acebc56c332b26f0",
+    "89c1b9c325ab033bea8ddbcdc8338f98454b017d",
+    "66c1a8b17e20fcdf1d36593afb052ff92ed2b171"
+  ],
+  "candidate_tree_sha": "a5443d26d3b2e335a4a5eefc5a651e8f3e50e77d",
+  "branch": "codex/e02-D-lessons",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+    "policy-engine/release-fragments/unreleased/2026-10-05-lesson-query-freshness.toml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-final-baseline.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-final-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-baseline-incomplete.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-baseline.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-candidate.txt"
+  ],
+  "baseline_cells": [
+    "F03-P100",
+    "F04-P121",
+    "F04-P128",
+    "F06-P117",
+    "F06-P133",
+    "F07-P113",
+    "F09-P102",
+    "F10-P104",
+    "F11-P095",
+    "F13-P115",
+    "F13-P142"
+  ],
+  "baseline_route_grade": "source-reported compact text; candidate_unverified; historical file PASS does not establish these semantics; original raw archive absent",
+  "source_refs": [
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md@c40d4acae1ce58b597267255026d9356565828fd#B135,B136,B137",
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#B135,B136,B137"
+  ],
+  "environment": {
+    "python_executable": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "pytest": "9.0.2",
+    "platform": "Linux x86_64 CPU",
+    "backend": "actual FileSystemCAS isolated fixture, actual SearchController.run consumer; no numerical backend claim"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=<archived c40 src+architecture> /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/methods/search/test_lesson_query_persistence.py --confcutdir=<mirrored test directory> -k \"not access_writes and not removing_evidence and not post_projection\" -vv --tb=short --durations=10",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "test_sha": "66c1a8b17e20fcdf1d36593afb052ff92ed2b171",
+      "environment": "locked Python3.14.7 pytest9.0.2 real FileSystemCAS",
+      "input_closure": "All8 defining property cases; complete archived src and architecture; three implementation helper/removal controls deselected; native test filename and archive path appear in deciding log",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "collected": 11,
+      "passed": 2,
+      "failed": 6,
+      "deselected": 3,
+      "skipped": 0,
+      "pytest_wall_s": 7.43,
+      "wall_s": 11.36257671300018,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-final-baseline.txt",
+      "output_sha256": "b2c7a300f1145a6b6dd3d9d0814924432c19fa38284c8d5ee7cbd7b1b5763e5e"
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/methods/search/test_lesson_query_persistence.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py -vv --tb=short --durations=10",
+      "target_sha": "66c1a8b17e20fcdf1d36593afb052ff92ed2b171",
+      "test_sha": "66c1a8b17e20fcdf1d36593afb052ff92ed2b171",
+      "environment": "locked Python3.14.7 pytest9.0.2; native conftest; real FileSystemCAS in isolated tmp",
+      "input_closure": "All11 new cases and all11 existing native lesson/transfer cases; real SearchController generator hint consumer; old100d/TTL90; explicit TTL5 and180; out-of-order old/new/old history selection; restart local/transfer; complete CAS regular-file byte denominator",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "collected": 22,
+      "passed": 22,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_wall_s": 7.45,
+      "wall_s": 11.670730729999832,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-final-candidate.txt",
+      "output_sha256": "96f18caad851f3a594e7e82300f91e82c9c2e4bb99ed92549146398c1accf034"
+    },
+    {
+      "command": "/workspace/e02-D-locked-env/bin/python -m ruff format <lessons.py> <test_lesson_query_persistence.py>; /workspace/e02-D-locked-env/bin/python -m ruff check <same two paths>",
+      "target_sha": "66c1a8b17e20fcdf1d36593afb052ff92ed2b171",
+      "environment": "locked Python3.14.7",
+      "input_closure": "Only modified Python source and mirrored witness file",
+      "outcome": "PASS",
+      "output": "2 files left unchanged\nAll checks passed!"
+    },
+    {
+      "command": "tomllib.loads(release fragment); assert evidence paths exist; git diff --check",
+      "target_sha": "66c1a8b17e20fcdf1d36593afb052ff92ed2b171",
+      "environment": "Python3.14.7 / Git",
+      "input_closure": "release-fragments/unreleased/2026-10-05-lesson-query-freshness.toml and changed paths",
+      "outcome": "PASS",
+      "output": "TOML parsed; all evidence paths exist; git diff --check empty"
+    },
+    {
+      "command": "Initial exact slice-base archive replay without architecture directory",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "test_sha": "6d1916ce2d41c3af81b00710acebc56c332b26f0",
+      "environment": "locked Python3.14.7",
+      "input_closure": "Incomplete first archive only src; real controller reads architecture/dependency_registry.json",
+      "outcome": "ERROR",
+      "output_classification": "Harness input closure error, repaired by archiving architecture from the same SHA. Superseded by complete deciding baseline logs; not a product finding.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-baseline-incomplete.txt",
+      "output_sha256": "148d46dedcbcbc2dc861ace9fa315d3fee4154161587b95501c1c6b0eab0118b"
+    },
+    {
+      "command": "Original5 defining property cases with complete slice-base src+architecture",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "test_sha": "6d1916ce2d41c3af81b00710acebc56c332b26f0",
+      "environment": "locked Python3.14.7",
+      "input_closure": "Earlier defining5 cases before review widened out-of-order producer/policy basis",
+      "outcome": "FAIL",
+      "passed": 2,
+      "failed": 3,
+      "skipped": 0,
+      "pytest_wall_s": 8.71,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-baseline.txt",
+      "output_sha256": "849bd09d79722a8b57b1d856c74d98ddcadc228617a25e34e9f6d8b819b69369"
+    },
+    {
+      "command": "Native new8 plus existing11 lesson/transfer cases before independent review delta",
+      "target_sha": "6d1916ce2d41c3af81b00710acebc56c332b26f0",
+      "environment": "locked Python3.14.7",
+      "input_closure": "Real CAS, local/transfer and consumer; superseded by final22 candidate evidence",
+      "outcome": "PASS",
+      "passed": 19,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_wall_s": 7.73,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons-candidate.txt",
+      "output_sha256": "3342e1e7fe7d6f860977b3dcb44467a42a67fabe5a675e89ea1f112a38d3880d"
+    }
+  ],
+  "property": {
+    "statement": "Typed/JSON substantive context reaches the real consumer, query filters hold before and after transfer, and reads retain evidence status across reopen without publishing full CAS snapshots. Newest producer selection and one explicitly active policy keep source clocks and transfer projection compatible.",
+    "runtime_path": [
+      "LessonCard producer -> persist_lesson_card -> CAS artifact_ref/index",
+      "index_snapshot -> shared query predicate/evidence clock -> find projected status -> materialize_transfer -> persisted receiver",
+      "reopen registry -> local query -> SearchController.run -> generator lesson_hints"
+    ],
+    "time_roles": {
+      "created_at": "producer card version timestamp",
+      "last_seen": "maximum producer version timestamp from record_local, not a read",
+      "last_accessed_at": "separate bounded retention sidecar, never confidence evidence",
+      "target_context.timestamp": "transfer provenance and age policy basis",
+      "request_policy": "explicit TransferPolicy TTL used in local, aggregated local, find, and materialize for that request"
+    },
+    "proxy_divergence": "Saved old card and confidence markers remain intact. Removing the evidence clock admits a strict fresh-confidence request after read; removing the postprojection predicate materializes a LOCAL-only request as TRANSFERRED.",
+    "negative_controls": [
+      "Replace evidence anchor with retention access time while source CASref/card-created timestamp remain intact; strict confidence/trust oracle detects rejuvenation.",
+      "Remove shared postprojection query predicate while same source CASref, provenance and query markers remain; actual materialization oracle rejects."
+    ],
+    "property_preserving_controls": [
+      "Broad stale lessons remain available as confidence0.5/LOW_CONFIDENCE across cold/warm/reopen and transfer.",
+      "A permitted fresh transferred source returns actual hints while strict trust/source/confidence/stage requests avoid materialization.",
+      "Genuine new producer version has new refs/time; out-of-order old replay preserves selected newer ref and both audit refs; no evidence authority invented."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "PARTIAL: final22 bounded native/fixture PASS; independent root review and aggregate regression pending; B135 already correct at slice base and characterized, not newly repaired",
+  "findings": [
+    {
+      "ids": [
+        "B136",
+        "B137"
+      ],
+      "bucket": "shared effective-card query/evidence clock class P40",
+      "actual": "Baseline LOCAL-only transfer unnecessarily reaches materialization; stale transferred confidence0.9 bypasses the age-demoted local0.5 status; returned reads republish full evidence snapshots.",
+      "result": "Shared before/after effective-card projection, common evidence age, and separate daily-throttled retention hints verified."
+    },
+    {
+      "ids": [
+        "B136",
+        "B137"
+      ],
+      "bucket": "same effective evidence selection/policy class widened on review P40",
+      "actual": "Older producer arrival after a fresh version replaces selected artifact_ref while last_seen stays new; explicit policy TTL applied to provenance but registry default still aged cards.",
+      "result": "Keep newest producer CASref/candidate basis and historical refs; thread explicit active policy through every retrieval route, with old/new/old reopen+transfer and TTL5/180 falsifiers."
+    }
+  ],
+  "reviewer": "root and independent lesson oracle review requested; gp_witness is mechanism author",
+  "limitations_and_next_owner": [
+    "No new scientific evidence sufficiency or revalidation authority. Fixture producer new versions demonstrate refs/time handling only.",
+    "Real tenant authorization authority and production lesson history outside this bounded witness; existing cross-tenant denial tests pass and resolver security precedence unchanged.",
+    "Best-effort retention hints throttle sequential/restart reads; concurrent processes may race and no cross-process strict write cap is claimed. Corrupt retention hints are ignored and cannot alter evidence status.",
+    "Source cards and evidence index snapshots remain schema1.0; sidecar timestamp internal retention format is covered by release fragment.",
+    "Partial-answer deduplication across local+transfer remains outside this slice; restart tests request limit1 to isolate evidence status and selection.",
+    "Four-base source-card replay remains UNRUN; original source-reported file PASS is not closure. Parent/root must review exact66c source and final receipt, integrate by Git, and run final broad frozen-env gate."
+  ]
+}

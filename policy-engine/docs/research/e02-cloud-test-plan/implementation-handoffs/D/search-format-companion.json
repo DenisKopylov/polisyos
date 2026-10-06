@@ -1,0 +1,89 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "search-format-companion",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "format_base_sha": "989dd88e48a8d90c55a0f9540d3c3fcc3c8af67c",
+  "implementation_commits": [
+    "69b3cec8ff19b8a98ca29ba4d110c4ecbc893271"
+  ],
+  "candidate_source_sha": "69b3cec8ff19b8a98ca29ba4d110c4ecbc893271",
+  "candidate_tree_sha": "16ac2d2b335e3a532da0d25c9d952aa8c7d7969c",
+  "scientific_source_sha": "e789e9523725fa081de5cdc69da5938489315b4a",
+  "branch": "codex/e02-D-search",
+  "pull_request": null,
+  "closure_ids": [],
+  "covered_finding_ids": [],
+  "changed_paths": [
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py"
+  ],
+  "checks": [
+    {
+      "command": "/workspace/e02-D-locked-env/bin/python -m ruff check policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py policy-engine/src/polisyos/scientist/methods/search/controller.py policy-engine/src/polisyos/scientist/methods/search/service.py policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "target_sha": "69b3cec8ff19b8a98ca29ba4d110c4ecbc893271",
+      "outcome": "PASS",
+      "deciding_output": "All checks passed!",
+      "environment": "Python3.14.7/Ruff0.14.10"
+    },
+    {
+      "command": "/workspace/e02-D-locked-env/bin/python -m ruff format --check policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py policy-engine/src/polisyos/scientist/methods/search/controller.py policy-engine/src/polisyos/scientist/methods/search/service.py policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "target_sha": "69b3cec8ff19b8a98ca29ba4d110c4ecbc893271",
+      "outcome": "PASS",
+      "deciding_output": "4 files already formatted",
+      "environment": "Python3.14.7/Ruff0.14.10"
+    },
+    {
+      "command": "ast.dump(ast.parse(git show BASE:path), include_attributes=False) == ast.dump(ast.parse(git show CANDIDATE:path), include_attributes=False), all four complete changed files",
+      "target_sha": "69b3cec8ff19b8a98ca29ba4d110c4ecbc893271",
+      "outcome": "PASS",
+      "deciding_output": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "before_bytes_sha256": "fc3c1c94fa92e4cb90a99b75632336de55749a771c80be0e43946ec91f3542fa",
+          "after_bytes_sha256": "08488d5f624663b10067a1e34cf562471a0ce9caa36d505cfdc57116766df62d",
+          "same_ast_sha256": "708fba8306db35b1272f981b0acdf8d3a7686bbcc3860a271557f386f923e1ab",
+          "outcome": "AST_SAME"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "before_bytes_sha256": "de73bf36390d1e5786018423e89953c635060939078320a6d114ef0fd7c8c536",
+          "after_bytes_sha256": "7de551816fcce8260c4b62820a44f64e5581518214feae3e56b6e0560ce42ff5",
+          "same_ast_sha256": "145bcd00dc658bca11e3cb6a03fdcffa39223979da7ceaea9443f66b11cb9915",
+          "outcome": "AST_SAME"
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "before_bytes_sha256": "5e052aa3d9651ce21edd9f6e39cd83663678598cf0f0d9b72d0a641443506b75",
+          "after_bytes_sha256": "2fba84959b4ee43173a7514fff31637097fcdee864bb6a5ddbc15471dc1b7bd6",
+          "same_ast_sha256": "ff6a23cef2e96875c0c08fa4852ec7b1f41c6e820ef370e7e2b474fd8abf5a60",
+          "outcome": "AST_SAME"
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+          "before_bytes_sha256": "b8950b0bad5cc846af805a586d22b9151f097d5baf2c31f628e6f376f0534c7a",
+          "after_bytes_sha256": "ad86251b83e36c7a0bf145919427b5f5bcd2953e96c88fb97741586328dc9a4d",
+          "same_ast_sha256": "d6926cc5a519c16c46dce7740cd77f182398e7375ef75b0295de26bbc22ab044",
+          "outcome": "AST_SAME"
+        }
+      ]
+    }
+  ],
+  "property": {
+    "statement": "Formatting companion preserves complete Python AST and literal values for four owned paths.",
+    "runtime_path": [
+      "Same scientific source as e789 -> AST-identical formatting69"
+    ],
+    "proxy_divergence": "Ruff lintPASS did not imply formatterPASS on all touched files.",
+    "negative_controls": []
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "format-only companion, no behavioral/closure expansion",
+  "limitations_and_next_owner": [
+    "Both shared and locked Ruff versions are0.14.10. Earlier lint and selective format checks omitted the complete four-path formatting gate; this is owned verification debt, not inherited red or version skew.",
+    "Locked independent environment is Python3.14.7; previous3.14.2 environment assumption corrected in search receipts.",
+    "G root runs full regression on immutable aggregate. e789 behavior witnesses are not promoted to untested source changes; this four-path companion is AST-identical."
+  ]
+}

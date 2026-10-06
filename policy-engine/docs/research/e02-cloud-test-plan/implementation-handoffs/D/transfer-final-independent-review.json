@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "unit": "D",
+  "slice": "transfer-final-independent-review",
+  "entry_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "reviewed_root_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+  "reviewed_root_tree": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+  "covered_finding_ids": [
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134"
+  ],
+  "closure_ids": [],
+  "review_changes": "Review artifacts only. No runtime source writes to root/foreign owners; mutation confined to isolated second archive. Canonical sourcecompanion publicfacade edits already separated1366 andruffstyle efb.",
+  "content_property_control": {
+    "root_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+    "root_tree": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+    "scratch": "/tmp/e02-transfer-final-content.320sqplg",
+    "changed_source_paths": [
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"
+    ],
+    "source_before_sha256": "e85d800b7c20ddd084ff1f1eeca3f871ba618ee78c271a46c70b08360e37877c",
+    "source_mutation_sha256": "9c7381dad2a3c2e8d5b7b2055a1ee688b4ee1718da21dc447d71a736179111bb",
+    "mutated_method": "TransferLearningManager._candidate_parameter_rejection",
+    "remaining_AST_equal": true,
+    "probe_sha256": "9d8f4a5707c5185021537163b0a732456a24bdf2d85e5a244547000f0abbde25",
+    "all_reference_inputs_identical": true,
+    "runs": [
+      {
+        "variant": "unchanged",
+        "exit_code": 0,
+        "command": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "/tmp/e02-transfer-final-content.320sqplg/transfer-content-property-probe.py"
+        ],
+        "PYTHONPATH": "/tmp/e02-transfer-final-content.320sqplg/unchanged/policy-engine/src",
+        "fixture": "/tmp/e02-transfer-final-content.320sqplg/unchanged/policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "log": "/workspace/e02-D-transfer/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/transfer-final-content-unchanged.txt",
+        "log_sha256": "e3d1a9dfb65cf1814a57303abc6a0473d77339c3ebfb3e1fd9272fed1b7adf16",
+        "actual": {
+          "accepted": 3,
+          "actual_GP_train_inputs": [
+            [
+              0.4
+            ],
+            [
+              0.7
+            ],
+            [
+              0.9
+            ]
+          ],
+          "actual_GP_unstandardized_targets": [
+            [
+              -16.0
+            ],
+            [
+              -49.0
+            ],
+            [
+              -81.0
+            ]
+          ],
+          "actual_candidate_params": {
+            "x": 0.95
+          },
+          "actual_candidate_ref": "sha256:4c953b16ca945e7f7f718bdd3d2d0da68a0f2ae265123d284af03e0a0d446129",
+          "actual_import_origins": {
+            "polisyos.scientist.methods.autotune.bayesian_generator": "/tmp/e02-transfer-final-content.320sqplg/unchanged/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+            "polisyos.scientist.methods.autotune.warm_start": "/tmp/e02-transfer-final-content.320sqplg/unchanged/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+            "polisyos.scientist.methods.search.strategies.bayesian": "/tmp/e02-transfer-final-content.320sqplg/unchanged/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+            "polisyos.scientist.methods.search.strategies.transfer": "/tmp/e02-transfer-final-content.320sqplg/unchanged/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"
+          },
+          "history_ref": "sha256:e35090bc6bede8f7c8e0b12523ad18c2507a22ac856112ab00a42d6fe6b50ef3",
+          "original_and_history_params": {
+            "x": 0.1
+          },
+          "original_evaluation_ref": "sha256:3f7c08802ca3e79a67226deb9ece971147c487cb516c5d445a3f10448ac9ded7",
+          "proposal_source": "bayesian_acquisition",
+          "rejected": 1,
+          "rejection_reasons": [
+            "actual candidate parameters differ from the transferred observation"
+          ],
+          "variant": "unchanged"
+        },
+        "tracked_log": "transfer-final-content-unchanged.txt"
+      },
+      {
+        "variant": "binding_algorithm_removed",
+        "exit_code": 1,
+        "command": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "/tmp/e02-transfer-final-content.320sqplg/transfer-content-property-probe.py"
+        ],
+        "PYTHONPATH": "/tmp/e02-transfer-final-content.320sqplg/binding_removed/policy-engine/src",
+        "fixture": "/tmp/e02-transfer-final-content.320sqplg/binding_removed/policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "log": "/workspace/e02-D-transfer/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/transfer-final-content-binding_algorithm_removed.txt",
+        "log_sha256": "b90f640add8c644e444e43da3911a6ed4cc4e4ecf25e56b10b7945a5a70c5211",
+        "actual": {
+          "accepted": 4,
+          "actual_GP_train_inputs": [
+            [
+              0.1
+            ],
+            [
+              0.4
+            ],
+            [
+              0.7
+            ],
+            [
+              0.9
+            ]
+          ],
+          "actual_GP_unstandardized_targets": [
+            [
+              -1.0
+            ],
+            [
+              -16.0
+            ],
+            [
+              -49.0
+            ],
+            [
+              -81.0
+            ]
+          ],
+          "actual_candidate_params": {
+            "x": 0.95
+          },
+          "actual_candidate_ref": "sha256:4c953b16ca945e7f7f718bdd3d2d0da68a0f2ae265123d284af03e0a0d446129",
+          "actual_import_origins": {
+            "polisyos.scientist.methods.autotune.bayesian_generator": "/tmp/e02-transfer-final-content.320sqplg/binding_removed/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+            "polisyos.scientist.methods.autotune.warm_start": "/tmp/e02-transfer-final-content.320sqplg/binding_removed/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+            "polisyos.scientist.methods.search.strategies.bayesian": "/tmp/e02-transfer-final-content.320sqplg/binding_removed/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+            "polisyos.scientist.methods.search.strategies.transfer": "/tmp/e02-transfer-final-content.320sqplg/binding_removed/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"
+          },
+          "history_ref": "sha256:e35090bc6bede8f7c8e0b12523ad18c2507a22ac856112ab00a42d6fe6b50ef3",
+          "original_and_history_params": {
+            "x": 0.1
+          },
+          "original_evaluation_ref": "sha256:3f7c08802ca3e79a67226deb9ece971147c487cb516c5d445a3f10448ac9ded7",
+          "proposal_source": "bayesian_acquisition",
+          "rejected": 0,
+          "rejection_reasons": [],
+          "variant": "binding_algorithm_removed"
+        },
+        "tracked_log": "transfer-final-content-binding_algorithm_removed.txt"
+      }
+    ]
+  },
+  "A_patch_review": {
+    "apply_check": {
+      "patch_artifact_commit": "989dd88e48a8d90c55a0f9540d3c3fcc3c8af67c",
+      "patch_sha256": "2e69739655d93019e6ac2fa12edc835c13df5235769925b4b6e8fea28b00f83c",
+      "pinned_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "pinned_base_tree": "897662caf73bd4487f798d66938b74d7abfe753e",
+      "pinned_target_source_sha": "e789e9523725fa081de5cdc69da5938489315b4a",
+      "scratch": "/tmp/e02-A-independent-apply.bshua24w",
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "/tmp/e02-A-independent-apply.bshua24w/search-A-owner-dependency.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "foreign_source_blobs": {
+        "policy-engine/src/polisyos/scientist/policy_design/output.py": {
+          "c40d4acae1ce58b597267255026d9356565828fd": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+          "e789e9523725fa081de5cdc69da5938489315b4a": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+          "3178752cc2ce065a0758efecf1d967201c0815e5": "fb85325cfc6e93458979e0fe758e69d99d3aed3e"
+        },
+        "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py": {
+          "c40d4acae1ce58b597267255026d9356565828fd": "6f48872f02bbd54fd70bb257856a0eeb789f516c",
+          "e789e9523725fa081de5cdc69da5938489315b4a": "6f48872f02bbd54fd70bb257856a0eeb789f516c",
+          "3178752cc2ce065a0758efecf1d967201c0815e5": "6f48872f02bbd54fd70bb257856a0eeb789f516c"
+        }
+      },
+      "applied_to_source": false,
+      "runtime_tested": false
+    },
+    "verdict": "Applicable proposed patch only. Missing independent denominator becomes limited/unranked when proposed body used, but actual run/tenant/cell-bound provider is absent and caller tuples alone do not establish source completeness. Finite ranking guards proposed forA. No applied runtime/served readback evidence from this review; no closure.",
+    "dependency_note": "Textual application on basec40 is not standalone runtime admission: proposed output body references new hypervolume assessment metadata from search targetdependency. A must integrate the pinned search dependency and real provider/consumer before behavioral acceptance."
+  },
+  "denominator_hygiene": {
+    "leaf_source_command": "PYTHONPATH=/workspace/e02-D-transfer/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/scientist/methods/autotune/test_warm_start.py tests/unit/scientist/agent/test_vector_memory.py tests/unit/remediation/test_trn_02.py -q -rA",
+    "leaf_source_sha": "1366d17870dfc6ed800e71cfeadb4a50bba1c302",
+    "leaf_passed_file_counts": {
+      "strategies/test_transfer.py": 52,
+      "autotune/test_warm_start.py": 10,
+      "agent/test_vector_memory.py": 8,
+      "unit/remediation/test_trn_02.py": 5
+    },
+    "leaf_four_file_count": 75,
+    "root_reported_main_three_count": 70,
+    "root_reported_workflow_count": 3,
+    "root_reported_final_combined_count": 73,
+    "root_reported_candidate": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+    "reported_by": "root; unchanged broad3 positive suite not duplicated here",
+    "independent_new_control_cases": 2,
+    "independent_control_result": "unchangednegativePASS; isolatedalgorithmremovalexpectedFAIL, actualGPcorpus differs"
+  },
+  "finding_classification": {
+    "B128": {
+      "mechanism": "Canonical typed restoration rejects coercion of approval/numeric/status/time fields and preserves addressed row identity and explicit timestamp.",
+      "oracle": "Declared-type realCAS negatives and malformed approval exclusion from actual GP; native helper and root final workflow.",
+      "input_limit": "Bounded analytic original records, no representative live source history.",
+      "next_owner": "G/local source data owner; code boundary verified within named inputs."
+    },
+    "B129": {
+      "mechanism": "Retain exact discovered historyArtifactRef; direct CAS resolution and visible unavailable/corrupt/schema issues.",
+      "oracle": "Native catalog1002, separate top_k discovery and no second ANN query; addressed-ref negatives.",
+      "input_limit": "Post-discovery addressability, not universal ANN recall or live history availability.",
+      "next_owner": "G/history availability owner."
+    },
+    "B130": {
+      "mechanism": "Normalized minimization ranking; valid-source round-robin quota; rejected records do not starve valid response slots.",
+      "oracle": "Direction reversal, quota negatives, actual GP receiving corpus.",
+      "input_limit": "No production acceleration or solution quality comparison.",
+      "next_owner": "G/actual benchmark owner."
+    },
+    "B131": {
+      "mechanism": "Reconcile complete target/source declarations, actual snapshot/original record, actual candidatephysical input and native coordinates.",
+      "oracle": "Final6ac healthy candidatecontentnegative reachesactual GP3rows; removeonlybinding method makessameoracleFAIL withactual GP4rows andallrefs/markersunchanged.",
+      "input_limit": "Caller-declared origin/tenant equality and immutableCAS consistency do not authorize tenant access or attest scientific source truth.",
+      "next_owner": "Institutional source/execution owner andG; no authority appointment supplied."
+    },
+    "B132": {
+      "mechanism": "Resolve original sourcebenchmark/candidate before historical view; preserve sourceidentity/rawmetrics/split and nonpromotable semantics.",
+      "oracle": "Actual DTO/candidateCAS roundtrip, missinglineage and physicalcontentconflict refusals; live loop persistsfresh measuredtarget separately.",
+      "input_limit": "Analytic sourceevaluator only, actualhistoricalbenchmark/evaluator data obligation remains.",
+      "next_owner": "G/real source benchmark owner."
+    },
+    "B133": {
+      "mechanism": "Exact immutable snapshot cache, deepcopy consumerdata and process-local generation lock.",
+      "oracle": "Warm/cold cache and snapshotchange, consumer mutation and native publication/rollback controls.",
+      "input_limit": "No distributed atomicity/consistency guarantee or deployment/principal ruling.",
+      "next_owner": "Principal( Denis ) for distributed guarantee/compatibility; Gforbounded local checks."
+    },
+    "B134": {
+      "mechanism": "Native index+keys+metadata generation reconciliation, floatenabledcanonical roundtrip.",
+      "oracle": "Native failedwrite/load rollback, label/key/schema mismatch, concurrent querypublication controls.",
+      "input_limit": "Owner-issued live transfermetadata/data_record andhostilenativebinary safeness unestablished.",
+      "next_owner": "Transfermetadata issuer/data owner andG."
+    }
+  },
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.2",
+    "torch": "2.14.1+cu130",
+    "botorch": "0.18.1",
+    "gpytorch": "1.15.2",
+    "hnswlib": "0.8.0",
+    "device": "cpu",
+    "production_configured_threads": "4intraop/1interop; no externally imposed caps",
+    "native_GP_config": "n_initial3/seed47/restarts3/rawsamples32/fallbackFalse; actual fit/acquisition, no GPmock"
+  },
+  "artifact_probe": "transfer-content-property-probe.py",
+  "artifact_probe_sha256": "9d8f4a5707c5185021537163b0a732456a24bdf2d85e5a244547000f0abbde25",
+  "checks": [
+    "Exactroot6ac contentnegativePASS withactualreceivingSingleTaskGP3rows.",
+    "Onlyactualinputbinding methodbodyremoved inisolatedcopy -> sameoracleFAIL, actualreceivingGP4rows; remainingAST andall other sourcebytes unchanged.",
+    "Allcandidate/original/history refs anddeclarations identical acrossvariants.",
+    "ImmutableApatchdigest verified andgitapplycheckPASS againstcompletepinnedbasearchive.",
+    "Ruff0.14.10reviewprobecheck/formatPASS; gitdiffcheckPASS."
+  ],
+  "limits": [
+    "Actual sourcebenchmarks/tenantauthorization/issuertruth remainunestablished. No production historical benchmark equivalence or performance claim.",
+    "Algorithmremoved source is a labeled scratch variant andnever committed asruntime; result is expectednegative oraclefailure, not candidate failure.",
+    "All original finding closures remain Gdecisions. TRN03 source andreceipts staydisjoint lessons owner."
+  ]
+}

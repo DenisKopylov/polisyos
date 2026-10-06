@@ -1,0 +1,109 @@
+target_sha=19bafcd0f593d182a1b7c79833bbb0efaad3bc90
+python=/workspace/e02-D-locked-env/bin/python
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/unit/scientist/search/funnel/test_level6_promotion.py _
+tests/unit/scientist/search/funnel/test_level6_promotion.py:8: in <module>
+    from polisyos.scientist.nodes.builtins.decide import run_policy_blueprint_runtime as runtime
+src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py:16: in <module>
+    from polisyos.foundry.methods.catalog.causal.strategic import (
+src/polisyos/foundry/methods/catalog/__init__.py:133: in <module>
+    from polisyos.foundry.methods.catalog.dependency_authority import (
+src/polisyos/foundry/methods/catalog/dependency_authority.py:7157: in <module>
+    _OWNER_ENTRYPOINT_SPECS = derive_owner_entrypoint_denominator_from_source(
+src/polisyos/foundry/methods/catalog/dependency_authority.py:6119: in derive_owner_entrypoint_denominator_from_source
+    registry = load_digest_domain_registry(_DIGEST_REGISTRY_PATH)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/catalog/dependency_evidence.py:2253: in load_digest_domain_registry
+    return decode_digest_domain_registry_toml(path.read_bytes())
+                                              ^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:777: in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-fun-immutable-v2w6tsw8/policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml'
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/unit/scientist/search/funnel/test_level6_promotion.py - FileNotFo...
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+2 warnings, 1 error in 5.81s
+candidate_test_exit=2
+rerun: archive now includes tracked architecture inputs; prior error was archive-input omission
+........................................................................ [ 64%]
+........................................                                 [100%]
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+112 passed, 2 warnings in 13.32s
+candidate_test_exit=0
+semantic_time 2026-10-01 00:00:00+00:00 ticket d495e090-0d02-4566-ba85-02fe294a4553 score 1.0 cache False actual_cost 1.0 budget_remaining 5
+semantic_time 2026-10-02 00:00:00+00:00 ticket d495e090-0d02-4566-ba85-02fe294a4553 score 1.0 cache True actual_cost 1.0 budget_remaining 5
+semantic_time 2026-10-03 ticket d5307e27-b96a-47a0-b8db-c9dbb925b115 score 3.0 cache False actual_cost 1.0 budget_remaining 5
+semantic_time 2026-10-04 ticket 5efac146-f699-4258-8377-f7031707232a score 4.0 cache False actual_cost 1.0 budget_remaining 5
+workflow_calls [1.0, 3.0, 4.0]
+datetime_probe_exit=0
+typed_time_target_sha=93be49e480d723c5c55bb3716ba63f06e7be39a0
+........................................................................ [ 63%]
+..........................................                               [100%]
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+114 passed, 2 warnings in 14.54s
+typed_time_candidate_test_exit=0
+Traceback (most recent call last):
+  File "<string>", line 6, in <module>
+    from polisyos.core.budget import BudgetState,BudgetLimit
+ModuleNotFoundError: No module named 'polisyos.core.budget'
+typed_time_probe_exit=1
+typed_time_probe_rerun=correct budget import from canonical engine owner
+Traceback (most recent call last):
+  File "<string>", line 16, in <module>
+    print('semantic_time',value,'ticket',ticket.ticket_id,'score',-out.final_result.objective_value,'cache',ticket.cache_hit,'actual_cost',out.compute_actual_usd,'budget_remaining',budget.remaining('run'))
+                                                                                                            ^^^^^^^^^^^^^^^^
+AttributeError: 'FunnelTicket' object has no attribute 'cache_hit'. Did you mean: 'cache_key'?
+typed_time_probe_rerun_exit=1
+deciding_probe_target_sha=93be49e480d723c5c55bb3716ba63f06e7be39a0
+semantic_time 2026-10-01 00:00:00+00:00 ticket 95ab8ce8-9534-4d27-92a7-e8dd355f7f45 score 1.0 cache False actual_cost 1.0 budget_remaining 5
+semantic_time 2026-10-02 00:00:00+00:00 ticket a50cecb2-bd8a-4126-ba36-2f314a8fc8ab score 2.0 cache False actual_cost 1.0 budget_remaining 5
+semantic_time 2026-10-03 ticket c31c159b-1544-4855-8fd2-1bde5782ed9f score 3.0 cache False actual_cost 1.0 budget_remaining 5
+semantic_time 2026-10-04 ticket 531fa351-33d1-41b1-bc13-2b08c48158eb score 4.0 cache False actual_cost 1.0 budget_remaining 5
+workflow_calls [1.0, 2.0, 3.0, 4.0]
+deciding_probe_exit=0
+final_funnel_target_sha=63b0eb20a3ed99c72d8b88eea09d80f87ac98495
+........................................................................ [ 61%]
+.............................................                            [100%]
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+117 passed, 2 warnings in 32.48s
+final_funnel_suite_exit=0
+owner_value None effect_count 0 terminal_action defer_to_human
+owner_value False effect_count 0 terminal_action defer_to_human
+owner_value {'allowed': False} effect_count 0 terminal_action defer_to_human
+owner_value 'allow' effect_count 0 terminal_action defer_to_human
+owner_value 1 effect_count 0 terminal_action defer_to_human
+owner_value [False] effect_count 0 terminal_action defer_to_human
+owner_value True effect_count 1 terminal_action complete
+owner_value {'allowed': False} effect_count 1 terminal_action complete
+strict_boolean_guard_removed=FAIL_AS_REQUIRED
+final_generic_permission_probe_exit=0

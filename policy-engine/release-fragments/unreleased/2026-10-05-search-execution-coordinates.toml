@@ -1,0 +1,12 @@
+id = "2026-10-05-search-execution-coordinates"
+title = "Bind optimizer observations and resumed state to actual executions"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-scientist"
+summary = "Canonical candidate construction normalizes executed integer/category parameters while retaining the relaxed proposal. Bayesian pending, completed, and batch checks avoid duplicate actions, and bounded proposal failures preserve native lifecycle partial results. Autotune inherits the complete canonical space and supports an explicitly configured transfer bridge."
+evidence = ["tests/unit/scientist/methods/search/strategies/test_effective_actions.py", "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py", "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py"]
+compatibility = "Versioned GP checkpoints now bind backend/configuration, fitted corpus, refit counters, and compatible warm observations. Legacy GP checkpoints lacking this replay basis are refused; starting a fresh run is a distinct operation."
+change_class = "internal"
+surface_classification = "internal: polisyos.scientist.methods.search and autotune"
+migration = "Use the same space, backend versions, and optimizer settings when reopening new GP checkpoints. Configure both transfer bridge and target fingerprint together."
+limitations = "A bounded proposal failure does not prove the complete finite space exhausted. Production history/data admission and scientific calibration remain separately bounded."

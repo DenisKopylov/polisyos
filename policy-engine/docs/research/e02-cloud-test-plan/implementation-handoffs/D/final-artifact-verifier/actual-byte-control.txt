@@ -1,0 +1,29 @@
+{
+  "source_sha": "dc23a996704e6c251ab1c9b7ad24b19479168f6c",
+  "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "positive_outcome": "PASS",
+  "negative_outcome": "FAIL",
+  "mutated_ref": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "mutated_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/measure.txt",
+  "mutation": "Append bytes in memory; all original file bytes, receipt labels, declared hashes, counts and Git objects retained. No filesystem mutation. Target chosen from discovered available digest-bound text references.",
+  "errors": [
+    {
+      "kind": "size_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead.json",
+      "locator": "$.provenance.artifacts.measure.txt.path",
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/measure.txt@dabdd83fe235155a91dc6c7b1d85c7cfa5db6346: declared 668; actual 707"
+    },
+    {
+      "kind": "sha256_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead.json",
+      "locator": "$.provenance.artifacts.measure.txt.sha256",
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/measure.txt@dabdd83fe235155a91dc6c7b1d85c7cfa5db6346: declared d322b0df1236bcee353b5d88b2153cabe8079ca2a2d53fe4f1913441afbbdb4b; actual 82289e3751d6b79afa6286d3b2a21af69d4f6e75bf8455c684fd5757bf7b558a"
+    },
+    {
+      "kind": "size_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead.json",
+      "locator": "$.provenance.artifacts.measure.txt.sha256",
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/measure.txt@dabdd83fe235155a91dc6c7b1d85c7cfa5db6346: declared 668; actual 707"
+    }
+  ]
+}

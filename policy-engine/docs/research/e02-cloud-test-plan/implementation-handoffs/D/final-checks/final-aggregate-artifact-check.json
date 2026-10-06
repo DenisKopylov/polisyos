@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/verify.py",
+    "--repo",
+    "/workspace/e02-D-orchestration",
+    "--target",
+    "cb6555b69120ad2a34b047ffb6359d9844c9d5b0",
+    "--base",
+    "c40d4acae1ce58b597267255026d9356565828fd",
+    "--output",
+    "/workspace/e02-D-receipts/final-aggregate-artifact-report.json"
+  ],
+  "cwd": "/workspace/e02-D-orchestration",
+  "target_sha": "cb6555b69120ad2a34b047ffb6359d9844c9d5b0",
+  "candidate_tree_sha": "9b5c991926b5cb9d840217b01901bf32dbb21609",
+  "end_sha": "cb6555b69120ad2a34b047ffb6359d9844c9d5b0",
+  "immutable_commit_unchanged": true,
+  "exit_code": 0,
+  "wall_s": 2.5386972569995123,
+  "peak_rss_kib": 44056,
+  "output_path": "/workspace/e02-D-receipts/final-aggregate-artifact-check.log",
+  "output_bytes": 1375,
+  "output_sha256": "b997b155b70aba8e84e07728f00f014d20057fd1b1f9422f0af30e0b40663d11",
+  "numerical_environment_overrides": {},
+  "PYTHONPATH": null
+}

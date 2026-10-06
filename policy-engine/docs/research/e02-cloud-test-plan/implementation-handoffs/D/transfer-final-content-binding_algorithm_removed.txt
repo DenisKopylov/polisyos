@@ -1,0 +1,21 @@
+IMMUTABLE_ROOT_SOURCE 6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2
+VARIANT binding_algorithm_removed
+SOURCE_ROOT /tmp/e02-transfer-final-content.320sqplg/binding_removed/policy-engine/src
+{"accepted": 4, "actual_GP_train_inputs": [[0.1], [0.4], [0.7], [0.9]], "actual_GP_unstandardized_targets": [[-1.0], [-16.0], [-49.0], [-81.0]], "actual_candidate_params": {"x": 0.95}, "actual_candidate_ref": "sha256:4c953b16ca945e7f7f718bdd3d2d0da68a0f2ae265123d284af03e0a0d446129", "actual_import_origins": {"polisyos.scientist.methods.autotune.bayesian_generator": "/tmp/e02-transfer-final-content.320sqplg/binding_removed/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py", "polisyos.scientist.methods.autotune.warm_start": "/tmp/e02-transfer-final-content.320sqplg/binding_removed/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py", "polisyos.scientist.methods.search.strategies.bayesian": "/tmp/e02-transfer-final-content.320sqplg/binding_removed/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py", "polisyos.scientist.methods.search.strategies.transfer": "/tmp/e02-transfer-final-content.320sqplg/binding_removed/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"}, "history_ref": "sha256:e35090bc6bede8f7c8e0b12523ad18c2507a22ac856112ab00a42d6fe6b50ef3", "original_and_history_params": {"x": 0.1}, "original_evaluation_ref": "sha256:3f7c08802ca3e79a67226deb9ece971147c487cb516c5d445a3f10448ac9ded7", "proposal_source": "bayesian_acquisition", "rejected": 0, "rejection_reasons": [], "variant": "binding_algorithm_removed"}
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+2026-10-05 15:13:09.563 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-05 15:13:09.570 | INFO     | polisyos.common.logger:_call:120 - Bayesian warm-start: added 4 historical evaluations; rejected 0
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/botorch/acquisition/analytic.py:343: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+
+	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+
+instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+  legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+Traceback (most recent call last):
+  File "/tmp/e02-transfer-final-content.320sqplg/transfer-content-property-probe.py", line 115, in <module>
+    torch.testing.assert_close(actual_x.reshape(-1, 1), expected_x)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/testing/_comparison.py", line 1689, in assert_close
+    raise error_metas[0].to_error(msg)
+AssertionError: The values for attribute 'shape' do not match: torch.Size([4, 1]) != torch.Size([3, 1]).

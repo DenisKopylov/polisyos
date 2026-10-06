@@ -1,0 +1,96 @@
+........................................................................ [100%]
+=============================== warnings summary ===============================
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+____ test_exact_history_address_survives_a_native_catalog_over_one_thousand ____
+------------------------------ Captured log call -------------------------------
+WARNING  polisyos.scientist.methods.search.strategies.transfer:transfer.py:233 Skipping run distractor-0 without a valid history ArtifactRef
+WARNING  polisyos.scientist.methods.search.strategies.transfer:transfer.py:233 Skipping run distractor-548 without a valid history ArtifactRef
+WARNING  polisyos.scientist.methods.search.strategies.transfer:transfer.py:233 Skipping run distractor-95 without a valid history ArtifactRef
+WARNING  polisyos.scientist.methods.search.strategies.transfer:transfer.py:233 Skipping run distractor-643 without a valid history ArtifactRef
+WARNING  polisyos.scientist.methods.search.strategies.transfer:transfer.py:233 Skipping run distractor-190 without a valid history ArtifactRef
+_ TestTransferLearningManagerWarmStart.test_similar_objectives_do_not_override_space_binding _
+------------------------------ Captured log call -------------------------------
+WARNING  polisyos.scientist.methods.search.strategies.transfer:transfer.py:233 Skipping run old1 without a valid history ArtifactRef
+WARNING  polisyos.scientist.methods.search.strategies.transfer:transfer.py:233 Skipping run old1 without a valid history ArtifactRef
+WARNING  polisyos.scientist.methods.search.strategies.transfer:transfer.py:233 Skipping run old1 without a valid history ArtifactRef
+WARNING  polisyos.scientist.methods.search.strategies.transfer:transfer.py:233 Skipping run old1 without a valid history ArtifactRef
+WARNING  polisyos.scientist.methods.search.strategies.transfer:transfer.py:233 Skipping run old1 without a valid history ArtifactRef
+WARNING  polisyos.scientist.methods.search.strategies.transfer:transfer.py:233 Skipping run old1 without a valid history ArtifactRef
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_real_cas_history_registration_preserves_finite_numeric_values
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_reverse_benchmark_view_requires_resolvable_original_lineage
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_persisted_native_transfer_ranking_and_lineage[minimize-0.1]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_persisted_native_transfer_ranking_and_lineage[maximize-0.9]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_near_history_cannot_cross_a_changed_numeric_basis[space_hash-different]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_near_history_cannot_cross_a_changed_numeric_basis[bounds-value1]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_near_history_cannot_cross_a_changed_numeric_basis[split-hidden_holdout]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_near_history_cannot_cross_a_changed_numeric_basis[units-value3]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_near_history_cannot_cross_a_changed_numeric_basis[origin-changed-data-snapshot]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_near_history_cannot_cross_a_changed_numeric_basis[tenant_id-other-tenant]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_near_history_cannot_cross_a_changed_numeric_basis[objective_directions-value6]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_near_history_cannot_cross_a_changed_numeric_basis[origin-None]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_forged_discovery_binding_cannot_override_actual_cas_history
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_rewritten_history_basis_cannot_relabel_the_original_measurement
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_rejection_identity_survives_a_full_valid_response_quota
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_original_measurement_tampering_is_a_visible_rejection
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_actual_candidate_input_must_match_both_original_and_history[candidate_payload0]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_actual_candidate_input_must_match_both_original_and_history[candidate_payload1]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_original_and_history_cannot_share_a_false_normalized_coordinate
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_actual_candidate_must_be_in_the_persisted_attainable_domain[continuous-1.5]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_actual_candidate_must_be_in_the_persisted_attainable_domain[integer-0.1]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_unsupported_candidate_input_basis_is_a_visible_refusal
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[stage_a_passed-false]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[stage_a_passed-1]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[is_satisfied-false]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[is_satisfied-1]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[scalar_score-1.0]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[scalar_score-True]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[params_normalized-value6]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[params_normalized-value7]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[raw_value-1.0]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[raw_value-True]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[weight-1.0]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[weight-True]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[threshold-1.0]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[threshold-True]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[wall_time_seconds-0.1]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[wall_time_seconds-True]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[status-True]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[timestamp-True]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_declared_persisted_types_cannot_be_coerced_into_success[timestamp-2026-10-05T00:00:00]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_changed_scalar_cannot_relabel_an_unchanged_benchmark
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_rejected_source_does_not_consume_a_valid_sources_numeric_quota
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_reverse_transfer_resolves_original_benchmark_and_refuses_fabrication
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_exact_history_address_survives_a_native_catalog_over_one_thousand
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_bad_exact_snapshot_is_distinguished_and_never_replaced[unavailable]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_bad_exact_snapshot_is_distinguished_and_never_replaced[corrupt]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_bad_exact_snapshot_is_distinguished_and_never_replaced[schema]
+PASSED tests/unit/scientist/methods/search/strategies/test_transfer.py::test_history_consumer_mutation_cannot_change_cached_snapshot
+PASSED tests/unit/scientist/methods/autotune/test_warm_start.py::TestWarmStartBridge::test_loads_from_transfer_manager
+PASSED tests/unit/scientist/methods/autotune/test_warm_start.py::TestWarmStartBridge::test_no_similar_runs
+PASSED tests/unit/scientist/methods/autotune/test_warm_start.py::TestWarmStartBridge::test_partial_data
+PASSED tests/unit/scientist/methods/autotune/test_warm_start.py::TestWarmStartBridge::test_evaluations_to_benchmarks
+PASSED tests/unit/scientist/methods/autotune/test_warm_start.py::TestWarmStartBridge::test_evaluations_to_benchmarks_preserves_raw_maximize_value
+PASSED tests/unit/scientist/methods/autotune/test_warm_start.py::TestTransferLearningManagerWarmStart::test_register_run_persistence_rehydrates_native_fields
+PASSED tests/unit/scientist/methods/autotune/test_warm_start.py::TestTransferLearningManagerWarmStart::test_selects_lowest_normalized_score_first
+PASSED tests/unit/scientist/methods/autotune/test_warm_start.py::TestTransferLearningManagerWarmStart::test_redistributes_unused_per_run_quota
+PASSED tests/unit/scientist/methods/autotune/test_warm_start.py::TestTransferLearningManagerWarmStart::test_malformed_row_is_reported_instead_of_silently_dropped
+PASSED tests/unit/scientist/methods/autotune/test_warm_start.py::TestTransferLearningManagerWarmStart::test_similar_objectives_do_not_override_space_binding
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_metadata_cannot_mutate_the_published_generation
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_valid_native_bytes_cannot_publish_mismatched_metadata[missing_label]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_valid_native_bytes_cannot_publish_mismatched_metadata[duplicate_key]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_valid_native_bytes_cannot_publish_mismatched_metadata[bad_metadata]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_partial_native_update_failure_restores_previous_vectors_and_metadata
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_nonfinite_vector_is_refused_before_native_mutation[embedding0]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_nonfinite_vector_is_refused_before_native_mutation[embedding1]
+PASSED tests/unit/scientist/agent/test_vector_memory.py::test_query_waits_for_native_update_and_metadata_publication
+PASSED tests/unit/remediation/test_trn_02.py::test_discovery_preserves_history_ref_and_reads_cas_without_second_ann
+PASSED tests/unit/remediation/test_trn_02.py::test_history_cache_is_bound_to_snapshot_and_consumer_sort_is_non_mutating
+PASSED tests/unit/remediation/test_trn_02.py::test_failed_native_add_does_not_publish_a_second_python_record
+PASSED tests/unit/remediation/test_trn_02.py::test_failed_native_load_does_not_publish_partial_bundle
+PASSED tests/unit/remediation/test_trn_02.py::test_native_roundtrip_preserves_one_small_generation

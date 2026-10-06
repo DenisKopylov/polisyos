@@ -1,0 +1,38 @@
+IMPORT_ORIGIN=/tmp/e02-D-funnel-evidence/typed_time/src/polisyos/scientist/methods/search/funnel/orchestrator.py
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_datetime_input_reaches_real_workflow_instead_of_stale_terminal_score ___
+
+    def test_datetime_input_reaches_real_workflow_instead_of_stale_terminal_score():
+        from datetime import UTC, datetime
+    
+        from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+        from polisyos.scientist.orchestration.workflows import SimpleLoopEngine
+    
+        observed_days = []
+    
+        def estimate(state):
+            day = state["valid_at"].day
+            observed_days.append(day)
+            return {
+                **state,
+                "simulation_results": {"gdp_change": float(day)},
+                "feedback": {"verdict": "APPROVE"},
+            }
+    
+        orch = FunnelOrchestrator([Level4FullFidelity(SimpleLoopEngine([("estimate", estimate)]))])
+        candidate = {"candidate_id": "dated-effect"}
+        first_context = {"valid_at": datetime(2026, 10, 1, tzinfo=UTC)}
+        first = orch.submit(candidate, first_context)
+        first_outcome = orch.advance(first, policy="full")
+        second = orch.submit(candidate, {"valid_at": datetime(2026, 10, 2, tzinfo=UTC)})
+        second_outcome = orch.advance(second, policy="full")
+>       assert second is not first
+E       AssertionError: assert FunnelTicket(ticket_id='3b7074a7-bcf0-4dc9-9f91-7ee13c28dad2', candidate_hash='883c40c352a335c6', candidate={'candidat...28dad2',), continuation_reason=None, terminal_basis=None, terminal_budget_remaining={}, terminal_degradation_mode=None) is not FunnelTicket(ticket_id='3b7074a7-bcf0-4dc9-9f91-7ee13c28dad2', candidate_hash='883c40c352a335c6', candidate={'candidat...28dad2',), continuation_reason=None, terminal_basis=None, terminal_budget_remaining={}, terminal_degradation_mode=None)
+
+tests/unit/scientist/search/funnel/test_orchestrator.py:1136: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/funnel/test_orchestrator.py::test_datetime_input_reaches_real_workflow_instead_of_stale_terminal_score
+1 failed in 0.75s
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(

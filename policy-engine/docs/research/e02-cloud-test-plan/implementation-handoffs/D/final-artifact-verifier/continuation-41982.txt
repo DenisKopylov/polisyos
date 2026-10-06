@@ -1,0 +1,69 @@
+{"argv": ["python", "/tmp/e02-final-artifact419/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/verify.py", "--repo", "/workspace/e02-D-ci-triage", "--target", "41982ed684d8711d91677a98c6d9b9729d424e09", "--base", "c40d4acae1ce58b597267255026d9356565828fd", "--output", "/tmp/e02-final-artifacts41982.json"], "measurement_boundary": "single executed child process plus descendants; ru_maxrss KiB on Linux"}
+{
+  "schema": "e02-independent-git-artifact-verification/v1",
+  "target_sha": "41982ed684d8711d91677a98c6d9b9729d424e09",
+  "target_tree": "d0ac63977cf57ece6e30c2cf3343ff903689fe95",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "scope": {
+    "tracked_D_json_files": 70,
+    "changed_json_files": 70,
+    "changed_release_fragments": 13
+  },
+  "checks": {
+    "json_files_parsed": 71,
+    "git_object_claims_checked": 141,
+    "unique_reference_claims": 891,
+    "available_reference_claims": 847,
+    "sha256_claims_checked": 268,
+    "size_claims_checked": 224,
+    "git_blob_claims_checked": 62,
+    "inline_utf8_sha256_claims_checked": 3,
+    "release_fragments_parsed": 13,
+    "byte_line_locators_checked": 185
+  },
+  "sha256_declarations": 571,
+  "sha256_declarations_with_byte_locator": 414,
+  "errors": [
+    {
+      "kind": "size_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier.json",
+      "locator": "$.provenance.artifacts.verify.py.path",
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/verify.py@41982ed684d8711d91677a98c6d9b9729d424e09: declared 22951; actual 23303"
+    },
+    {
+      "kind": "sha256_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier.json",
+      "locator": "$.provenance.artifacts.verify.py.sha256",
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/verify.py@41982ed684d8711d91677a98c6d9b9729d424e09: declared 6e7ee883a0d9687d5feeab3de73cdfecebfd646aad05af5b6d30f2746e1ef246; actual c725bb1656849d35069c7bd68d5d6ca1b36812f2d04186ab94149e2ef9ef82d9"
+    },
+    {
+      "kind": "size_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier.json",
+      "locator": "$.provenance.artifacts.verify.py.sha256",
+      "detail": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/verify.py@41982ed684d8711d91677a98c6d9b9729d424e09: declared 22951; actual 23303"
+    },
+    {
+      "kind": "sha256_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-witness.json",
+      "locator": "$.checks[18].probe_source_sha256",
+      "detail": "@41982ed684d8711d91677a98c6d9b9729d424e09: declared 5ef0fa8af8b6c239f3fd2a3c9eea59f92c8e56ab5b97ab3f0cd35b785425f1a7; actual dcbbafa172b04c90319e44c38ced2bde0f472c93e1deb0023b947ad8c7d7f61d"
+    }
+  ],
+  "limitation_counts": {
+    "hash_without_byte_locator": 157,
+    "unavailable_raw_or_external": 36
+  },
+  "outcome": "FAIL",
+  "interpretation": "Git byte/reference/census/syntax reconciliation only. No native runtime replay, closure verdict, authority admission, or unavailable raw-byte verification.",
+  "census": {
+    "finding_owner_rows": 45,
+    "bundle_owners": 17,
+    "route_rows": 456,
+    "distinct_primary_cells": 115,
+    "states": {
+      "PASS": 112,
+      "FAILED": 3
+    }
+  }
+}
+{"exit_code": 1, "elapsed_s": 2.492, "max_rss_kib": 42712}

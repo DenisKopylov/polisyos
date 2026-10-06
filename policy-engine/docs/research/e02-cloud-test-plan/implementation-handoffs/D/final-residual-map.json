@@ -1,0 +1,2621 @@
+{
+  "schema": "e02.D.final_residual_map.v1",
+  "unit": "D",
+  "purpose": "Per-finding navigation/reconciliation index of canonical baseline and immutable owner handoffs. This document assigns no finding closure and does not substitute owner-reported bounded checks for G acceptance.",
+  "closure_ids": [],
+  "covered_finding_ids": [
+    "B41",
+    "B106",
+    "B107",
+    "B108",
+    "B109",
+    "B110",
+    "B111",
+    "B112",
+    "B113",
+    "B114",
+    "B115",
+    "B116",
+    "B117",
+    "B118",
+    "B119",
+    "B120",
+    "B121",
+    "B122",
+    "B123",
+    "B124",
+    "B125",
+    "B126",
+    "B127",
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134",
+    "B135",
+    "B136",
+    "B137",
+    "B156",
+    "B157",
+    "B158",
+    "B159",
+    "B160",
+    "B161",
+    "B162",
+    "B163",
+    "B164",
+    "B165",
+    "LA-014",
+    "LA-015"
+  ],
+  "bundle_ids": [
+    "CTL-01",
+    "CTL-02",
+    "CTL-03",
+    "FUN-01",
+    "FUN-02",
+    "FUN-03",
+    "OPT-01",
+    "OPT-02",
+    "OPT-03",
+    "OPT-04",
+    "SRV-01",
+    "SRV-03",
+    "STP-01",
+    "STR-01",
+    "TRN-01",
+    "TRN-02",
+    "TRN-03"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "criteria_source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+  "aggregate_binding": {
+    "runtime_candidate_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+    "runtime_candidate_tree": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+    "final_aggregate_acceptance_sha": null,
+    "state": "root_reported_source_freeze; independent_aggregate_reconciliation_pending",
+    "note": "Parent supplied this exact frozen runtime candidate after public canon facade/import corrections. Owner evidence remains bound to its exact behavior/check SHAs; root must attach final aggregate checks, changed-input reconciliation and G acceptance. No future acceptance SHA or broad PASS is claimed here."
+  },
+  "owner_source_freezes": {
+    "search": {
+      "behavior_sha": "e789e9523725fa081de5cdc69da5938489315b4a",
+      "tree": "8baa795f1e191b4bf9c6d6c5dc283bd32bab440f",
+      "scope": "Owner source freeze; actual checks retain their own earlier/final target SHA and input closure in immutable receipt catalog."
+    },
+    "transfer": {
+      "behavior_sha": "830ddd02dcfbdc6b93492d740b397581b79c82fc",
+      "tree": "68ad202bff60a17a15e9500be13d0dcaba28af24",
+      "scope": "Owner source freeze; actual checks retain their own earlier/final target SHA and input closure in immutable receipt catalog."
+    },
+    "lessons": {
+      "behavior_sha": "66c1a8b17e20fcdf1d36593afb052ff92ed2b171",
+      "tree": "a5443d26d3b2e335a4a5eefc5a651e8f3e50e77d",
+      "scope": "Owner source freeze; actual checks retain their own earlier/final target SHA and input closure in immutable receipt catalog."
+    },
+    "funnel": {
+      "behavior_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "tree": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+      "scope": "Owner source freeze; actual checks retain their own earlier/final target SHA and input closure in immutable receipt catalog."
+    },
+    "stress": {
+      "behavior_sha": "58bccb82f2447fcd8bc3d10ebc89abc69aea71ef",
+      "tree": "805f62376d18835cd40e5b47b78f9226d3eba005",
+      "scope": "Owner source freeze; actual checks retain their own earlier/final target SHA and input closure in immutable receipt catalog."
+    }
+  },
+  "canonical_allocation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+    "commit": "c40d4acae1ce58b597267255026d9356565828fd",
+    "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+    "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+    "unit_filter": "D",
+    "finding_id_join": "Exact canonical finding IDs, including LA-014/LA-015; one row each. LA-015 has CTL-01/SRV-03 source bundles and SRV-03 closure owner."
+  },
+  "denominator": {
+    "finding_rows": 45,
+    "bundle_owners": 17,
+    "family_finding_rows": {
+      "search": 23,
+      "stress": 2,
+      "transfer": 7,
+      "lessons": 3,
+      "funnel": 10
+    },
+    "transfer_family_total_including_lessons": 10,
+    "baseline_per_finding_route_rows": 456,
+    "baseline_distinct_cells": 115,
+    "baseline_source_reported_states": {
+      "PASS": 112,
+      "FAILED": 3
+    },
+    "baseline_source_jobs": 15,
+    "formal_closures": 0,
+    "principal_held_ids": [
+      "B106",
+      "B116",
+      "B117",
+      "B122",
+      "B133"
+    ],
+    "issuer_data_record_pending_ids": [
+      "B134"
+    ],
+    "caller_migration_appointment_pending_ids": [
+      "LA-014"
+    ]
+  },
+  "baseline_inputs": {
+    "receipt": "baseline",
+    "json_pointer": "/inputs"
+  },
+  "baseline_cells": {
+    "receipt": "baseline",
+    "json_pointer": "/cells"
+  },
+  "baseline_jobs": {
+    "receipt": "baseline",
+    "json_pointer": "/jobs"
+  },
+  "baseline_sources": {
+    "receipt": "baseline",
+    "json_pointer": "/sources"
+  },
+  "owner_receipts": {
+    "baseline": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+        "commit": "d7705039d1b509fee606d204b60585fcf137dbd8",
+        "git_blob": "b54571765fe625b42b82df08692ecf033d5eae7d",
+        "sha256": "14cee3e4fd1325207e79a0760130d2d1a6f1eeb9e064c9b4d76a3981d7d27c60",
+        "bytes": 124158
+      },
+      "document_ref": {
+        "receipt": "baseline",
+        "json_pointer": ""
+      },
+      "environment_refs": [],
+      "source_binding_refs": []
+    },
+    "search": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-coverage.json",
+        "commit": "4a390fd4a2f556fd93cd215542e04d4d339cc6ad",
+        "git_blob": "59a091565ea0fe673c085b121885db505c36074f",
+        "sha256": "a2211daf08407a898b92ec57d33ed184242237cdec04944a283f3576d7669ca7",
+        "bytes": 201273
+      },
+      "document_ref": {
+        "receipt": "search",
+        "json_pointer": ""
+      },
+      "checks_ref": {
+        "receipt": "search",
+        "json_pointer": "/checks"
+      },
+      "environment_refs": [
+        {
+          "receipt": "search",
+          "json_pointer": "/environments"
+        },
+        {
+          "receipt": "search",
+          "json_pointer": "/checks"
+        }
+      ],
+      "source_binding_refs": [
+        {
+          "receipt": "search",
+          "json_pointer": "/candidate_source_sha"
+        },
+        {
+          "receipt": "search",
+          "json_pointer": "/candidate_tree_sha"
+        },
+        {
+          "receipt": "search",
+          "json_pointer": "/implementation_commits"
+        }
+      ]
+    },
+    "transfer_numerical": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-numerical.json",
+        "commit": "3911345b2fec2c54ae03529bc29b214e79db6aee",
+        "git_blob": "e919fe7e3f4af2efd0d82444d27ff650323654ed",
+        "sha256": "ef9f277f869e496f8876eca20e99606539bc5be3df310e0554544a8646c01f3c",
+        "bytes": 16816
+      },
+      "document_ref": {
+        "receipt": "transfer_numerical",
+        "json_pointer": ""
+      },
+      "checks_ref": {
+        "receipt": "transfer_numerical",
+        "json_pointer": "/checks"
+      },
+      "environment_refs": [
+        {
+          "receipt": "transfer_numerical",
+          "json_pointer": "/environment"
+        },
+        {
+          "receipt": "transfer_numerical",
+          "json_pointer": "/checks"
+        }
+      ],
+      "source_binding_refs": [
+        {
+          "receipt": "transfer_numerical",
+          "json_pointer": "/candidate_tree_sha"
+        },
+        {
+          "receipt": "transfer_numerical",
+          "json_pointer": "/implementation_commits"
+        }
+      ]
+    },
+    "transfer_generation": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-generation.json",
+        "commit": "3911345b2fec2c54ae03529bc29b214e79db6aee",
+        "git_blob": "dcccf8058a971fb3be6a429c7bedb20d3ff91bb5",
+        "sha256": "ce8ed67344f06eabde99b8a19e6fda887e1d311088954a1fb060a5ba70e2963e",
+        "bytes": 6683
+      },
+      "document_ref": {
+        "receipt": "transfer_generation",
+        "json_pointer": ""
+      },
+      "checks_ref": {
+        "receipt": "transfer_generation",
+        "json_pointer": "/checks"
+      },
+      "environment_refs": [
+        {
+          "receipt": "transfer_generation",
+          "json_pointer": "/environment"
+        },
+        {
+          "receipt": "transfer_generation",
+          "json_pointer": "/checks"
+        }
+      ],
+      "source_binding_refs": [
+        {
+          "receipt": "transfer_generation",
+          "json_pointer": "/candidate_tree_sha"
+        },
+        {
+          "receipt": "transfer_generation",
+          "json_pointer": "/implementation_commits"
+        }
+      ]
+    },
+    "transfer_binding": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-input-binding.json",
+        "commit": "3911345b2fec2c54ae03529bc29b214e79db6aee",
+        "git_blob": "2f66daff0ce8dfd6fc43bdb3112eeecef6aca156",
+        "sha256": "2899b883ccb04aef471b5ee82aca958e72e35478d9b91fc76d3d02888237dae7",
+        "bytes": 4263
+      },
+      "document_ref": {
+        "receipt": "transfer_binding",
+        "json_pointer": ""
+      },
+      "checks_ref": {
+        "receipt": "transfer_binding",
+        "json_pointer": "/checks"
+      },
+      "environment_refs": [
+        {
+          "receipt": "transfer_binding",
+          "json_pointer": "/environment"
+        },
+        {
+          "receipt": "transfer_binding",
+          "json_pointer": "/checks"
+        }
+      ],
+      "source_binding_refs": [
+        {
+          "receipt": "transfer_binding",
+          "json_pointer": "/implementation_sha"
+        },
+        {
+          "receipt": "transfer_binding",
+          "json_pointer": "/implementation_commits"
+        }
+      ]
+    },
+    "transfer_typed": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-typed-restore.json",
+        "commit": "3911345b2fec2c54ae03529bc29b214e79db6aee",
+        "git_blob": "8afee5bbc004998d8d1b77d04a287b2a3f006cfc",
+        "sha256": "02e70fa12f6eede8117af7dfd43f13d690aba3624284b754be0c90e00ec2b40a",
+        "bytes": 3794
+      },
+      "document_ref": {
+        "receipt": "transfer_typed",
+        "json_pointer": ""
+      },
+      "checks_ref": {
+        "receipt": "transfer_typed",
+        "json_pointer": "/checks"
+      },
+      "environment_refs": [
+        {
+          "receipt": "transfer_typed",
+          "json_pointer": "/environment"
+        },
+        {
+          "receipt": "transfer_typed",
+          "json_pointer": "/checks"
+        }
+      ],
+      "source_binding_refs": [
+        {
+          "receipt": "transfer_typed",
+          "json_pointer": "/implementation_sha"
+        }
+      ]
+    },
+    "transfer_physical": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-physical-types.json",
+        "commit": "3911345b2fec2c54ae03529bc29b214e79db6aee",
+        "git_blob": "f14063c26125b4cab2b2a78c3389aea26cfaf148",
+        "sha256": "d001406208a3450f7cde1de9bbffa61e2c5a30ffd4f3f7b81d2ee24a343c7aaf",
+        "bytes": 2773
+      },
+      "document_ref": {
+        "receipt": "transfer_physical",
+        "json_pointer": ""
+      },
+      "checks_ref": {
+        "receipt": "transfer_physical",
+        "json_pointer": "/checks"
+      },
+      "environment_refs": [
+        {
+          "receipt": "transfer_physical",
+          "json_pointer": "/environment"
+        },
+        {
+          "receipt": "transfer_physical",
+          "json_pointer": "/checks"
+        }
+      ],
+      "source_binding_refs": [
+        {
+          "receipt": "transfer_physical",
+          "json_pointer": "/implementation_sha"
+        }
+      ]
+    },
+    "transfer_workflow": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-workflow-4097.json",
+        "commit": "3911345b2fec2c54ae03529bc29b214e79db6aee",
+        "git_blob": "d1379ff20da84812a7a3e8d9626361df4a1642fa",
+        "sha256": "eca27e9830231637bf012e1efca796334bb05b977f5c92076bb281e08101bedb",
+        "bytes": 6647
+      },
+      "document_ref": {
+        "receipt": "transfer_workflow",
+        "json_pointer": ""
+      },
+      "checks_ref": {
+        "receipt": "transfer_workflow",
+        "json_pointer": "/checks"
+      },
+      "environment_refs": [
+        {
+          "receipt": "transfer_workflow",
+          "json_pointer": "/environment"
+        },
+        {
+          "receipt": "transfer_workflow",
+          "json_pointer": "/checks"
+        }
+      ],
+      "source_binding_refs": [
+        {
+          "receipt": "transfer_workflow",
+          "json_pointer": "/production_implementation_sha"
+        },
+        {
+          "receipt": "transfer_workflow",
+          "json_pointer": "/deciding_candidate_sha"
+        }
+      ]
+    },
+    "lessons": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lessons.json",
+        "commit": "3e762fbabde70013e50a42e84945066351e71718",
+        "git_blob": "581f5a2f36fba0743d04eb4352d6551f9a159890",
+        "sha256": "a1e91657feb3e22681163328f8d441618531f5484c998a08b271edabb345f9c6",
+        "bytes": 12723
+      },
+      "document_ref": {
+        "receipt": "lessons",
+        "json_pointer": ""
+      },
+      "checks_ref": {
+        "receipt": "lessons",
+        "json_pointer": "/checks"
+      },
+      "environment_refs": [
+        {
+          "receipt": "lessons",
+          "json_pointer": "/environment"
+        },
+        {
+          "receipt": "lessons",
+          "json_pointer": "/checks"
+        }
+      ],
+      "source_binding_refs": [
+        {
+          "receipt": "lessons",
+          "json_pointer": "/candidate_tree_sha"
+        },
+        {
+          "receipt": "lessons",
+          "json_pointer": "/implementation_commits"
+        }
+      ]
+    },
+    "stress": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress.json",
+        "commit": "005a6b1e23dd1ea24d22187ddc22862d24425a99",
+        "git_blob": "cbea4dbcca5645f605544c58dbdad01728b70e34",
+        "sha256": "d502bbfd693333a6402f584a205bae55afbe9e59680632eafcf3e0682463567e",
+        "bytes": 44906
+      },
+      "document_ref": {
+        "receipt": "stress",
+        "json_pointer": ""
+      },
+      "checks_ref": {
+        "receipt": "stress",
+        "json_pointer": "/checks"
+      },
+      "environment_refs": [
+        {
+          "receipt": "stress",
+          "json_pointer": "/checks"
+        }
+      ],
+      "source_binding_refs": [
+        {
+          "receipt": "stress",
+          "json_pointer": "/candidate_sha"
+        },
+        {
+          "receipt": "stress",
+          "json_pointer": "/candidate_tree_sha"
+        },
+        {
+          "receipt": "stress",
+          "json_pointer": "/implementation_commits"
+        }
+      ]
+    },
+    "fun_01": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-01-continuation.json",
+        "commit": "01e5110f908f5467cfadf67acd595eaf254cbc8d",
+        "git_blob": "544c50e30867329e4470fad02d34545fe4a1590d",
+        "sha256": "cbb10f3045e8797ba862685e683c79c863b785e7fceb2f5b241b41f20442dba9",
+        "bytes": 45773
+      },
+      "document_ref": {
+        "receipt": "fun_01",
+        "json_pointer": ""
+      },
+      "checks_ref": {
+        "receipt": "fun_01",
+        "json_pointer": "/checks"
+      },
+      "environment_refs": [
+        {
+          "receipt": "fun_01",
+          "json_pointer": "/checks"
+        }
+      ],
+      "source_binding_refs": [
+        {
+          "receipt": "fun_01",
+          "json_pointer": "/candidate_sha"
+        },
+        {
+          "receipt": "fun_01",
+          "json_pointer": "/candidate_tree_sha"
+        },
+        {
+          "receipt": "fun_01",
+          "json_pointer": "/implementation_commits"
+        }
+      ]
+    },
+    "fun_02": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-02-config-outcomes.json",
+        "commit": "01e5110f908f5467cfadf67acd595eaf254cbc8d",
+        "git_blob": "0fc3240eb9060e7f5652d0d27ca1f374c48e175d",
+        "sha256": "3c733ca7e194524c64a67502e62cba2e3f84d42b41223eee1fabfe49b35e59fe",
+        "bytes": 62076
+      },
+      "document_ref": {
+        "receipt": "fun_02",
+        "json_pointer": ""
+      },
+      "checks_ref": {
+        "receipt": "fun_02",
+        "json_pointer": "/checks"
+      },
+      "environment_refs": [
+        {
+          "receipt": "fun_02",
+          "json_pointer": "/checks"
+        }
+      ],
+      "source_binding_refs": [
+        {
+          "receipt": "fun_02",
+          "json_pointer": "/candidate_sha"
+        },
+        {
+          "receipt": "fun_02",
+          "json_pointer": "/candidate_tree_sha"
+        },
+        {
+          "receipt": "fun_02",
+          "json_pointer": "/implementation_commits"
+        }
+      ]
+    },
+    "fun_03": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-03-calibration-promotion.json",
+        "commit": "01e5110f908f5467cfadf67acd595eaf254cbc8d",
+        "git_blob": "2465bdb23477533c12cae7dc9ed9927a50b20e86",
+        "sha256": "8545c643d589a8a259a00771d005222a9299f054958979cb88d285099557d8ba",
+        "bytes": 83481
+      },
+      "document_ref": {
+        "receipt": "fun_03",
+        "json_pointer": ""
+      },
+      "checks_ref": {
+        "receipt": "fun_03",
+        "json_pointer": "/checks"
+      },
+      "environment_refs": [
+        {
+          "receipt": "fun_03",
+          "json_pointer": "/checks"
+        }
+      ],
+      "source_binding_refs": [
+        {
+          "receipt": "fun_03",
+          "json_pointer": "/candidate_sha"
+        },
+        {
+          "receipt": "fun_03",
+          "json_pointer": "/candidate_tree_sha"
+        },
+        {
+          "receipt": "fun_03",
+          "json_pointer": "/implementation_commits"
+        }
+      ]
+    },
+    "gp_403_review": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-403-fallback-review.json",
+        "commit": "80cac6b10b42156e18cd73844e7ec279bf05dc96",
+        "git_blob": "9067153d2c21f23cb33a50cdde30cddeba99fc78",
+        "sha256": "45309b0f8ee3525d02f2f54605ca732194ee39384903c7ea34c82a7afc8b6fca",
+        "bytes": 13980
+      },
+      "document_ref": {
+        "receipt": "gp_403_review",
+        "json_pointer": ""
+      },
+      "environment_refs": [
+        {
+          "receipt": "gp_403_review",
+          "json_pointer": "/environment"
+        }
+      ],
+      "source_binding_refs": []
+    },
+    "final_contract_review": {
+      "identity": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-contract-review.json",
+        "commit": "7ced8ed4bcf199007aeaa9fda2279aceb975750d",
+        "git_blob": "7e546c7772f503be4de2dc79d86e61979b16760c",
+        "sha256": "56b3b6df805da4875eeec7d2f878cd808437f51f6f014fee876744d00df68b49",
+        "bytes": 33950
+      },
+      "document_ref": {
+        "receipt": "final_contract_review",
+        "json_pointer": ""
+      },
+      "checks_ref": {
+        "receipt": "final_contract_review",
+        "json_pointer": "/checks"
+      },
+      "environment_refs": [
+        {
+          "receipt": "final_contract_review",
+          "json_pointer": "/environment"
+        },
+        {
+          "receipt": "final_contract_review",
+          "json_pointer": "/checks"
+        }
+      ],
+      "source_binding_refs": [
+        {
+          "receipt": "final_contract_review",
+          "json_pointer": "/candidate_tree_sha"
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "finding_id": "B41",
+      "closure_owner": "STP-01",
+      "bundle_ids": [
+        "STP-01"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Existing current embedding/model/dimension freshness admission retained.",
+        "oracle": "Independent current compatible, absent, failed, stale/model/dimension cases and freshness removal control PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/0"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Current-vector detector; verification-only residual."
+      },
+      "missing_input": "Accepted historical four-base replay and actual embedding profile inputs remain separately bounded.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B41/residual_owner"
+        }
+      },
+      "next_owner": "Convergence profile/threshold owner; no general embedding equivalence supplied.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B41"
+      }
+    },
+    {
+      "finding_id": "B106",
+      "closure_owner": "STR-01",
+      "bundle_ids": [
+        "STR-01"
+      ],
+      "family": "stress",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Exact observed attempt/violation/severity counts are updated before presentation dedupe/cap; at most k full distinct Vulnerability examples plus one loop temporary are retained. Principal completeness/formula/whole-domain probability interpretation is not established.",
+        "oracle": "Actual stress runner live-object bound, repeated eight-event occurrence count, CAS reopen and native ScenarioAdversary consumer. Removing only append bound or moving counters after dedupe fails; equivalent bound preserves10PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "stress",
+            "json_pointer": "/property"
+          },
+          {
+            "receipt": "stress",
+            "json_pointer": "/limitations_and_next_owner"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "bounded empirical mechanism and analytic witnesses verified; B106 principal completeness/formula/interpretation ruling pending; B107 finding-level evidence covered without closure claim."
+      },
+      "missing_input": "Principal completeness/empty-evaluation/robustness-formula/whole-domain probability ruling; production distribution law not supplied. Digest keys remain O(unique); sampler arrays/adaptive history are outside full-payload bound.",
+      "semantic_held": {
+        "canonical_kind": "principal_decision",
+        "held": true,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B106/residual_owner"
+        }
+      },
+      "next_owner": "Principal (Denis) for semantic ruling; STR runtime owner for bounded mechanism; appointed STR-01 verification owner and G for acceptance.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B106"
+      }
+    },
+    {
+      "finding_id": "B107",
+      "closure_owner": "STR-01",
+      "bundle_ids": [
+        "STR-01"
+      ],
+      "family": "stress",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Real typed GDP maximize/budget minimize normalization and adaptive extremum agree with physical-coordinate DGP; invalid evidence and CAS readback retain the bounded report semantics.",
+        "oracle": "Analytical threshold positive/negative GDP and budget controls, adaptive feedback, invalid evidence, native ScenarioAdversary low-GDP corner and CAS reopen. Direction removal retains report keys but fails four analytical controls.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "stress",
+            "json_pointer": "/property"
+          },
+          {
+            "receipt": "stress",
+            "json_pointer": "/limitations_and_next_owner"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "bounded empirical mechanism and analytic witnesses verified; B106 principal completeness/formula/interpretation ruling pending; B107 finding-level evidence covered without closure claim."
+      },
+      "missing_input": "Accepted historical four-base/finding-level verification and production distribution inputs remain absent; bounded empirical extrema do not establish whole-domain failure probability.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B107/residual_owner"
+        }
+      },
+      "next_owner": "Appointed STR-01 finding-level verification owner and G; STR/numerical objective runtime owner for any additional production input contract.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B107"
+      }
+    },
+    {
+      "finding_id": "B108",
+      "closure_owner": "OPT-01",
+      "bundle_ids": [
+        "OPT-01"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Existing deficit alias/conflict/finite extractor retained.",
+        "oracle": "Current objective10cases and genuine-zero vs missing/null/conflicting/nonfinite controls PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/1"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Input/served consumer missing; no fabricated unit convention."
+      },
+      "missing_input": "Typed unit input and actual served BudgetDeficitObjective caller remain absent.",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B108/residual_owner"
+        }
+      },
+      "next_owner": "Objective/input owner must define admissible units.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B108"
+      }
+    },
+    {
+      "finding_id": "B109",
+      "closure_owner": "OPT-01",
+      "bundle_ids": [
+        "OPT-01"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Strict Pareto comparator/coordinate artifact retained; derived HV unavailable now usable.",
+        "oracle": "Complete analytic 1–4D ordered-pair lattice plus direction/tie/permutation/removal controls PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/2"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "implemented_but_not_orchestrated; engineering dependency, not production data only."
+      },
+      "missing_input": "Run/tenant/cell-bound Pareto provider is not wired from ExecutionContext/workflow construction to served frontier publisher. Literal source census only.",
+      "semantic_held": {
+        "canonical_kind": "smallest_missing_capability",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B109/residual_owner"
+        },
+        "engineering_contract_gap_not_principal_permission": true
+      },
+      "next_owner": "A workflow/provider appointment and actual ArtifactStore-bound bridge; D supplies mathematical/snapshot contract.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B109"
+      }
+    },
+    {
+      "finding_id": "B110",
+      "closure_owner": "OPT-01",
+      "bundle_ids": [
+        "OPT-01"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Typed metric/split/unit/direction IDs remain content-bound across front/is_dominated.",
+        "oracle": "Split/unit/direction roundtrip, label-preserving and invalid binding controls PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/3"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Bounded mathematical artifact property verified; historical evidence residual."
+      },
+      "missing_input": "Accepted historical selector reconciliation/four-base replay not performed here.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B110/residual_owner"
+        }
+      },
+      "next_owner": "G verifies finding-level evidence acceptance.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B110"
+      }
+    },
+    {
+      "finding_id": "B111",
+      "closure_owner": "OPT-01",
+      "bundle_ids": [
+        "OPT-01"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Finite derived HV overflow now null with typed unavailable reason; front membership preserved.",
+        "oracle": "Real registry persistence/reopen, actual CAS frontier publisher/reader, complete 2-row extreme fixture, fake-zero/missing diagnostic controls PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/4"
+          },
+          {
+            "receipt": "final_contract_review",
+            "json_pointer": "/residuals/0"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "HV generic class repaired; producer/bridge/champion mechanism dependencies remain open.",
+        "additional_review_residuals": [
+          {
+            "mechanism": "Persisted ParetoRegistrySnapshot schema_version admits unknown numeric3.0 under its pattern-only validator. Strict Literal version refusal observed for ParetoFront1/2 and PolicyFrontierReport1/3 does not establish snapshot-version/profile refusal.",
+            "oracle": "Independent actual temporary-disk get_snapshot admits nullable hypervolume/unavailable at schema_version3.0. Literal typed current-version refusal controls and exact consumer/source reconciliation to6ac are pinned in final_contract_review /checks, /persisted_readers and /source_paths.",
+            "input_or_capability_missing": "Explicit persisted snapshot/profile known-version admission and acceptance contract; no strict snapshot-version closure claimed.",
+            "next_owner": "D registry owner and G profile acceptance owner.",
+            "evidence_state": "immutable_independent_review_7ced; bounded_actual_disk_probe",
+            "finding_state": "partial",
+            "closure_ids": []
+          }
+        ]
+      },
+      "missing_input": "Independent complete source-feasible/unknown producer and bridge absent; ordinary builder still self-derives source denominator. Served champion accepts nonfinite/overflow ranking. Additional independent review residual: persisted snapshot schema_version3.0 is currently admitted; D registry/G profile acceptance must supply explicit known-version admission contract and refusing control.",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B111/residual_owner"
+        },
+        "engineering_contract_gap_not_principal_permission": true
+      },
+      "next_owner": "A owns served builder/node; surgical proposed129line patch is supplied, not applied. D registry/G profile acceptance for persisted unknown snapshot version admission.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B111"
+      }
+    },
+    {
+      "finding_id": "B112",
+      "closure_owner": "OPT-02",
+      "bundle_ids": [
+        "OPT-02"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Autotune adapter inherits entire NativeSearchSpace protocol; optional dependency failure remains distinct.",
+        "oracle": "Real default first suggestion/checkpoint plus absent-stack control PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/5"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Default API generic property repaired."
+      },
+      "missing_input": "Scientific live benchmark and upstream caller admission remain bounded independently.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B112/residual_owner"
+        }
+      },
+      "next_owner": "Canonical optimizer owner; no new principal decision.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B112"
+      }
+    },
+    {
+      "finding_id": "B113",
+      "closure_owner": "OPT-02",
+      "bundle_ids": [
+        "OPT-02"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Actual physical params/full serialized IDs/direction retained; absent result excluded rather than numeric0.",
+        "oracle": "Independent actual training tensor, mixed categories/log, missing-score/closed-split controls PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/6"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Bounded physical mapping/DTO consumer property verified."
+      },
+      "missing_input": "Production benchmark result/history content admission requires actual dataset-specific evidence.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B113/residual_owner"
+        }
+      },
+      "next_owner": "Benchmark producer/transfer owner; declared split/rule inputs only.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B113"
+      }
+    },
+    {
+      "finding_id": "B114",
+      "closure_owner": "OPT-03",
+      "bundle_ids": [
+        "OPT-03"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Warm compatible origin-bound corpus survives checkpoint; actual X/Y used and rejections/dedup/replicas retained.",
+        "oracle": "Real split warm+current9row corpus equals unsplit learned params/transforms/posterior/ask; ingestion removal control discriminates.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/7"
+          }
+        ],
+        "supplemental_receipt_layers": [
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/oracle"
+            },
+            "claim": "Exact4097 configured CAS/HNSW/WarmStartBridge/native SearchLoopRunner/actual GP tensor and acquisition workflow PASS3; final aggregate exact-SHA replay is independently required."
+          }
+        ],
+        "current_residual_classification": "Generic actual numerical warm ingestion verified; production-origin admission remains separate."
+      },
+      "missing_input": "Transfer owner configured CASmanager->bridge->actual receiver combined workflow is independently reviewed; no full local production corpus transferred.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B114/residual_owner"
+        }
+      },
+      "next_owner": "TRN owner controls source content/fingerprint admission; D canonical numerical receiver.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B114"
+      }
+    },
+    {
+      "finding_id": "B115",
+      "closure_owner": "OPT-03",
+      "bundle_ids": [
+        "OPT-03"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Model, fitted and full-refit corpora, refit counters, config/backend/space, Python/Sobol/torch RNG and warm context persist.",
+        "oracle": "Real learned parameter/transform/posterior append-conditioning vs uninterrupted control, hidden-fit traps, intrinsic single/batch replay and atomic corpus/clock negatives PASS on both backends; due-refit hardlimit regression corrected558.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/8"
+          }
+        ],
+        "supplemental_receipt_layers": [
+          {
+            "receipt_ref": {
+              "receipt": "gp_403_review",
+              "json_pointer": ""
+            },
+            "claim": "Known-negative exact403 actual ResourceArbiter/SingleTaskGP producer refused a valid deferred-refit checkpoint. Search receipt records correction558 and exacte789 real dual-environment15-test successor checks. Prior403 numerical observations are not generalized into a valid producer-counter admission claim."
+          }
+        ],
+        "current_residual_classification": "Generic continuation verified; bounded environment/corpus only, no inferred authenticity."
+      },
+      "missing_input": "Cross-backend bit identity, model origin authenticity, production history laws not established.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B115/residual_owner"
+        }
+      },
+      "next_owner": "Canonical GP owner; scientific replay policy explicitly versioned sobol_ranked_restarts_v1.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B115"
+      }
+    },
+    {
+      "finding_id": "B116",
+      "closure_owner": "OPT-04",
+      "bundle_ids": [
+        "OPT-04"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Current registry suite/run/candidate/split comparison binding retained.",
+        "oracle": "Valid binding and stale/foreign/missing suite/run/candidate/split tests PASS bounded current protocol.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/9"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "principal_pending; no closure from current registry tests."
+      },
+      "missing_input": "Supported historical legacy pointer/suite protocol window not decided.",
+      "semantic_held": {
+        "canonical_kind": "principal_decision",
+        "held": true,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B116/residual_owner"
+        }
+      },
+      "next_owner": "Principal Denis: held compatibility boundary/removal cost.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B116"
+      }
+    },
+    {
+      "finding_id": "B117",
+      "closure_owner": "OPT-04",
+      "bundle_ids": [
+        "OPT-04"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Existing lock and compare-and-publish monotonicity retained; v1 projection fields preserved.",
+        "oracle": "Current stale-score/idempotence/concurrent predecessor tests PASS; actual CAS current and retained candidate/evaluation readers PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/10"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "principal_pending; no compatibility ruling made."
+      },
+      "missing_input": "Legacy crash/reopen protocol and accepted historical reader window not decided.",
+      "semantic_held": {
+        "canonical_kind": "principal_decision",
+        "held": true,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B117/residual_owner"
+        }
+      },
+      "next_owner": "Principal Denis: held legacy boundary and removal cost.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B117"
+      }
+    },
+    {
+      "finding_id": "B118",
+      "closure_owner": "CTL-01",
+      "bundle_ids": [
+        "CTL-01"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Sole fresh per-run state/nonreentrant ownership retained.",
+        "oracle": "Same-owner sequential vs independent run snapshots, immutable first result, concurrent collision refusal, native caller recreated store/registry controls PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/11"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Bounded native lifecycle verified; served deployment remains separate."
+      },
+      "missing_input": "Distributed service ownership/served HTTP dispatch not established by fixtures.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B118/residual_owner"
+        }
+      },
+      "next_owner": "SearchService deployment/consumer owner; no new value rule.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B118"
+      }
+    },
+    {
+      "finding_id": "B119",
+      "closure_owner": "CTL-01",
+      "bundle_ids": [
+        "CTL-01"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Permanent empty remains typed exhaustion; transient empty bounded; new StrategyError preserves actual partial result and avoids stale candidate reuse.",
+        "oracle": "Transient/permanent empty budget controls, binary actual2actions/2evaluations/retained best and bounded proposal failure PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/12"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Generic partial-result and bounded-attempt behavior verified."
+      },
+      "missing_input": "Bounded proposal failure does not prove complete finite domain exhaustiveness.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B119/residual_owner"
+        }
+      },
+      "next_owner": "Canonical generation/lifecycle owner.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B119"
+      }
+    },
+    {
+      "finding_id": "B120",
+      "closure_owner": "CTL-03",
+      "bundle_ids": [
+        "CTL-03"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Existing sole owner spend snapshot and stop/result accounting retained.",
+        "oracle": "Measured caller-supplied spend/external budget snapshot, exhaustion and transition budget tests PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/13"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Verification/provider residual retained; no cost proxy inflation."
+      },
+      "missing_input": "Real evaluator retry/cache-ledger admission and an independent production budget provider are not established by these CTL fixtures.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B120/residual_owner"
+        }
+      },
+      "next_owner": "FUN/evaluator ledger provider and SearchService caller own actual spend source.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B120"
+      }
+    },
+    {
+      "finding_id": "B121",
+      "closure_owner": "CTL-03",
+      "bundle_ids": [
+        "CTL-03"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Warm history/new-evaluation counters and sentinel exclusion remain in canonical state transition.",
+        "oracle": "Warm augmentation/current-run counters, actual sentinel cost/history exclusion, real warm/current equal GP corpus and fit controls PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/14"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Bounded counters and real numerical training identity verified."
+      },
+      "missing_input": "Complete production paired-history/evaluator receipt and cross-provider spend source not supplied.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B121/residual_owner"
+        }
+      },
+      "next_owner": "TRN/FUN producer owners plus native counter owner.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B121"
+      }
+    },
+    {
+      "finding_id": "B122",
+      "closure_owner": "STP-01",
+      "bundle_ids": [
+        "STP-01"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Nonfinite inputs/derived improvement now explicit unavailable non-stopping predicate; composition/state/result retain diagnostic.",
+        "oracle": "Signed finite caller thresholds, zero/near-zero, NaN/±Inf, overflowed derived improvement, actual native max-iteration result telemetry PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/15"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Generic silent-nonfinite class repaired; principal_pending."
+      },
+      "missing_input": "Accepted universal scientific near-zero scale/nonfinite stopping policy not decided.",
+      "semantic_held": {
+        "canonical_kind": "principal_decision",
+        "held": true,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B122/residual_owner"
+        }
+      },
+      "next_owner": "Principal Denis: held scientific policy; diagnostic chooses no new threshold/stop law.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B122"
+      }
+    },
+    {
+      "finding_id": "B123",
+      "closure_owner": "CTL-03",
+      "bundle_ids": [
+        "CTL-03"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Absent typed input may retain legacy path; malformed typed evaluation refuses light scalar fallback; valid infeasible remains typed.",
+        "oracle": "Legacy/malformed typed/infeasible typed native consumer controls PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/16"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Bounded authority boundary verified; no promotion grant."
+      },
+      "missing_input": "Real decision/promotion authority cannot follow from local surrogate checks.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B123/residual_owner"
+        }
+      },
+      "next_owner": "PolicyEvaluation/decision readiness owner supplies authority.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B123"
+      }
+    },
+    {
+      "finding_id": "B124",
+      "closure_owner": "CTL-02",
+      "bundle_ids": [
+        "CTL-02"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Semantic action dates stay in canonical candidate identity; trace-only metadata excluded.",
+        "oracle": "Actual starts_at difference, trace-only date change and exact duplicate hash controls PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/17"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Bounded semantic hash property verified."
+      },
+      "missing_input": "Dynamic foreign datetime serialization and other cache identities are owned by FUN; no general time-law claim.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B124/residual_owner"
+        }
+      },
+      "next_owner": "Canonical action identity owner.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B124"
+      }
+    },
+    {
+      "finding_id": "B125",
+      "closure_owner": "CTL-02",
+      "bundle_ids": [
+        "CTL-02"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Python/wrapper RNG plus nested base restore fixed; shared malformed artifact decoder widened; GP intrinsic stream used.",
+        "oracle": "Persisted Random/Sobol/RL wrappers resumed nextsequence; numerical nested JSON/removal controls and real GP intrinsic single/batch PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/18"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Generic replay repaired; implemented_but_not_orchestrated RL route remains open."
+      },
+      "missing_input": "Literal production RL wrapper construction not found; reflective/external invocation and production wrapper checkpoint caller not established.",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B125/residual_owner"
+        }
+      },
+      "next_owner": "Control/RL production route owner must wire admitted caller; G acceptance separate.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B125"
+      }
+    },
+    {
+      "finding_id": "B126",
+      "closure_owner": "CTL-02",
+      "bundle_ids": [
+        "CTL-02"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Sobol logical prefix/cursor/seed/backend/space + wrapper/base counters retained; attainable projection policy in fingerprint.",
+        "oracle": "Chunked/Sobol prefix restore, two batch widths, nested replay plus mixed GP single/batch stream controls PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/19"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Bounded stream/counter property verified; caller residual."
+      },
+      "missing_input": "Production wrapper lifecycle/accepted legacy replay boundary remains separate.",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B126/residual_owner"
+        }
+      },
+      "next_owner": "Canonical checkpoint/Sobol caller owner.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B126"
+      }
+    },
+    {
+      "finding_id": "B127",
+      "closure_owner": "OPT-02",
+      "bundle_ids": [
+        "OPT-02"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "All proposal factories bind executed normalized coordinates, retain relaxed proposal; duplicate pending/completed/batch exact physical action; attainable finite domains enforced.",
+        "oracle": "Same action/different relaxed vector, continuous/replica controls, actual pending binary/native service2actions, fractional positive/negative integer domains+empty rejection, real default generator checkpoint PASS.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/20"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Generic executed-action class repaired; production workflow remains bounded."
+      },
+      "missing_input": "Full admitted production checkpoint workflow/independent transfer source content still needs actual caller evidence.",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B127/residual_owner"
+        }
+      },
+      "next_owner": "Canonical effective-action owner with explicit projection and GP replay policy bindings.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B127"
+      }
+    },
+    {
+      "finding_id": "B128",
+      "closure_owner": "TRN-01",
+      "bundle_ids": [
+        "TRN-01"
+      ],
+      "family": "transfer",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "typed faithful restore, canonical CAS encoder/decoder, original timestamp and record diagnostics",
+        "oracle": "realCAS roundtrip and malformed/absent controls",
+        "owner_receipt_refs": [
+          {
+            "receipt": "transfer_numerical",
+            "json_pointer": "/finding_classification/B128"
+          }
+        ],
+        "supplemental_receipt_layers": [
+          {
+            "receipt_ref": {
+              "receipt": "transfer_binding",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_typed",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_physical",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/oracle"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/remaining"
+            }
+          }
+        ],
+        "current_residual_classification": "bounded_engineering_and_native_CAS_evidence; production input/semantic obligations retained"
+      },
+      "missing_input": "representative live history not supplied",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B128/residual_owner"
+        }
+      },
+      "next_owner": "transfer runtime; G decides closure after combined/local evidence",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B128"
+      }
+    },
+    {
+      "finding_id": "B129",
+      "closure_owner": "TRN-02",
+      "bundle_ids": [
+        "TRN-02"
+      ],
+      "family": "transfer",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "exact discoveryArtifactRef retained; typed unavailable/corrupt/schema reasons and discovered-ref issues",
+        "oracle": "realHNSW1002-record catalog, one ANN per discovery, exact refs across two top_k; failing addressed-ref controls",
+        "owner_receipt_refs": [
+          {
+            "receipt": "transfer_numerical",
+            "json_pointer": "/finding_classification/B129"
+          }
+        ],
+        "supplemental_receipt_layers": [
+          {
+            "receipt_ref": {
+              "receipt": "transfer_binding",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_typed",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_physical",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/oracle"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/remaining"
+            }
+          }
+        ],
+        "current_residual_classification": "bounded_engineering_and_native_CAS_evidence; production input/semantic obligations retained"
+      },
+      "missing_input": "no live history availability receipt",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B129/residual_owner"
+        }
+      },
+      "next_owner": "transfer runtime",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B129"
+      }
+    },
+    {
+      "finding_id": "B130",
+      "closure_owner": "TRN-01",
+      "bundle_ids": [
+        "TRN-01"
+      ],
+      "family": "transfer",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "normalized ascending ranking, valid-source round-robin quota, rejected diagnostics outside numeric capacity",
+        "oracle": "minimize/maximize ranking reversal and rejected-source quota control",
+        "owner_receipt_refs": [
+          {
+            "receipt": "transfer_numerical",
+            "json_pointer": "/finding_classification/B130"
+          }
+        ],
+        "supplemental_receipt_layers": [
+          {
+            "receipt_ref": {
+              "receipt": "transfer_binding",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_typed",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_physical",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/oracle"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/remaining"
+            }
+          }
+        ],
+        "current_residual_classification": "bounded_engineering_and_native_CAS_evidence; production input/semantic obligations retained"
+      },
+      "missing_input": "production acceleration/solution-quality benchmark absent and unclaimed",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B130/residual_owner"
+        }
+      },
+      "next_owner": "transfer runtime",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B130"
+      }
+    },
+    {
+      "finding_id": "B131",
+      "closure_owner": "TRN-01",
+      "bundle_ids": [
+        "TRN-01"
+      ],
+      "family": "transfer",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "full target/source basis, CAS-envelope reconciliation, resolve-and-content-bind original record/context",
+        "oracle": "field changes, forged source metadata, unchanged-original-context falsifier",
+        "owner_receipt_refs": [
+          {
+            "receipt": "transfer_numerical",
+            "json_pointer": "/finding_classification/B131"
+          }
+        ],
+        "supplemental_receipt_layers": [
+          {
+            "receipt_ref": {
+              "receipt": "transfer_binding",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_typed",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_physical",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/oracle"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/remaining"
+            }
+          }
+        ],
+        "current_residual_classification": "bounded_engineering_and_native_CAS_evidence; production input/semantic obligations retained"
+      },
+      "missing_input": "actual execution-owner tenant authorization and live source metadata/provenance validation remain unestablished",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B131/residual_owner"
+        }
+      },
+      "next_owner": "transfer compatibility runtime plus institutional data/execution owners",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B131"
+      }
+    },
+    {
+      "finding_id": "B132",
+      "closure_owner": "TRN-01",
+      "bundle_ids": [
+        "TRN-01"
+      ],
+      "family": "transfer",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "reverse path resolves original benchmark and candidate; source loop/suite/split/values retained; historical view nonpromotable",
+        "oracle": "actualDTO/candidate CAS roundtrip and missing/fabricated-lineage refusals",
+        "owner_receipt_refs": [
+          {
+            "receipt": "transfer_numerical",
+            "json_pointer": "/finding_classification/B132"
+          }
+        ],
+        "supplemental_receipt_layers": [
+          {
+            "receipt_ref": {
+              "receipt": "transfer_binding",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_typed",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_physical",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/oracle"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/remaining"
+            }
+          }
+        ],
+        "current_residual_classification": "bounded_engineering_and_native_CAS_evidence; production input/semantic obligations retained"
+      },
+      "missing_input": "real-source benchmark/evaluator validation remains localG queue",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B132/residual_owner"
+        }
+      },
+      "next_owner": "transfer lineage runtime",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B132"
+      }
+    },
+    {
+      "finding_id": "B133",
+      "closure_owner": "TRN-02",
+      "bundle_ids": [
+        "TRN-02"
+      ],
+      "family": "transfer",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "immutable snapshot cache and privately owned consumer data verified in prior slice",
+        "oracle": "warm/cold and changed snapshot tests, mutation controls",
+        "owner_receipt_refs": [
+          {
+            "receipt": "transfer_numerical",
+            "json_pointer": "/finding_classification/B133"
+          },
+          {
+            "receipt": "transfer_generation",
+            "json_pointer": "/finding_classification/B133"
+          }
+        ],
+        "supplemental_receipt_layers": [
+          {
+            "receipt_ref": {
+              "receipt": "transfer_binding",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_typed",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_physical",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/oracle"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/remaining"
+            }
+          }
+        ],
+        "current_residual_classification": "bounded_engineering_and_native_CAS_evidence; production input/semantic obligations retained"
+      },
+      "missing_input": "distributed guarantee/principal ruling remains held",
+      "semantic_held": {
+        "canonical_kind": "principal_decision",
+        "held": true,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B133/residual_owner"
+        }
+      },
+      "next_owner": "Principal (Denis) for distributed guarantee; transfer runtime for local cache",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B133"
+      }
+    },
+    {
+      "finding_id": "B134",
+      "closure_owner": "TRN-02",
+      "bundle_ids": [
+        "TRN-02"
+      ],
+      "family": "transfer",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "native/Python generation integrity plus complete canonical metadata roundtrip",
+        "oracle": "native rollback, invalid generation, concurrent publication and numeric metadata reopen",
+        "owner_receipt_refs": [
+          {
+            "receipt": "transfer_numerical",
+            "json_pointer": "/finding_classification/B134"
+          },
+          {
+            "receipt": "transfer_generation",
+            "json_pointer": "/finding_classification/B134"
+          }
+        ],
+        "supplemental_receipt_layers": [
+          {
+            "receipt_ref": {
+              "receipt": "transfer_binding",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_typed",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_physical",
+              "json_pointer": "/mechanism"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/oracle"
+            }
+          },
+          {
+            "receipt_ref": {
+              "receipt": "transfer_workflow",
+              "json_pointer": "/remaining"
+            }
+          }
+        ],
+        "current_residual_classification": "bounded_engineering_and_native_CAS_evidence; production input/semantic obligations retained"
+      },
+      "missing_input": "owner-issued live transfer metadata remains pending",
+      "semantic_held": {
+        "canonical_kind": "data_record",
+        "held": true,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B134/residual_owner"
+        }
+      },
+      "next_owner": "Transfer metadata issuer/data owner",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B134"
+      }
+    },
+    {
+      "finding_id": "B135",
+      "closure_owner": "TRN-03",
+      "bundle_ids": [
+        "TRN-03"
+      ],
+      "family": "lessons",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Existing typed/JSON substantive task_family/domain context reaches the actual SearchController generator lesson_hints consumer; characterized at slice base, not newly repaired.",
+        "oracle": "Actual LessonCard -> FileSystemCAS -> reopened registry -> SearchController.run -> generator hint assertions, within final22 native/fixture cases. Receipt explicitly records B135 already correct at the slice base.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "lessons",
+            "json_pointer": "/property"
+          },
+          {
+            "receipt": "lessons",
+            "json_pointer": "/capability_state_or_finding_state"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "PARTIAL: final22 bounded native/fixture PASS; independent root review and aggregate regression pending; B135 already correct at slice base and characterized, not newly repaired"
+      },
+      "missing_input": "Real tenant authorization, production lesson history and accepted historical four-base replay not supplied; no new scientific evidence-sufficiency/revalidation authority. Retention is best effort across processes; partial-answer local+transfer dedup is outside slice.",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B135/residual_owner"
+        }
+      },
+      "next_owner": "Transfer replay/custody and native lesson consumer owner for production integration; E/scientific evidence owner for any revalidation contract; G for finding acceptance.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B135"
+      }
+    },
+    {
+      "finding_id": "B136",
+      "closure_owner": "TRN-03",
+      "bundle_ids": [
+        "TRN-03"
+      ],
+      "family": "lessons",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Shared before/after effective-card projection applies query filters before transfer materialization and afterward; newest producer CASref/candidate basis survives older arrivals, and explicit active TTL is used on all retrieval routes.",
+        "oracle": "Actual local/transfer/CAS/reopen/consumer cases; LOCAL-only transfer refusal, old/new/old artifact selection and TTL5/180 controls; shared postprojection predicate removal fails while provenance markers remain.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "lessons",
+            "json_pointer": "/property"
+          },
+          {
+            "receipt": "lessons",
+            "json_pointer": "/capability_state_or_finding_state"
+          },
+          {
+            "receipt": "lessons",
+            "json_pointer": "/findings"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "PARTIAL: final22 bounded native/fixture PASS; independent root review and aggregate regression pending; B135 already correct at slice base and characterized, not newly repaired"
+      },
+      "missing_input": "Real tenant authorization, production lesson history and accepted historical four-base replay not supplied; no new scientific evidence-sufficiency/revalidation authority. Retention is best effort across processes; partial-answer local+transfer dedup is outside slice.",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B136/residual_owner"
+        }
+      },
+      "next_owner": "Transfer replay/custody and native lesson consumer owner for production integration; E/scientific evidence owner for any revalidation contract; G for finding acceptance.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B136"
+      }
+    },
+    {
+      "finding_id": "B137",
+      "closure_owner": "TRN-03",
+      "bundle_ids": [
+        "TRN-03"
+      ],
+      "family": "lessons",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Evidence age derives from producer version time and max producer last_seen; reads only write separately throttled retention hints and cannot rejuvenate confidence. Newest artifact selection and active policy remain coherent across reopen/transfer.",
+        "oracle": "Actual stale .9 transferred versus age-demoted local .5, confidence/trust filters and CAS write denominator; evidence-anchor-to-access-time removal fails while source timestamps/CASrefs remain.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "lessons",
+            "json_pointer": "/property"
+          },
+          {
+            "receipt": "lessons",
+            "json_pointer": "/capability_state_or_finding_state"
+          },
+          {
+            "receipt": "lessons",
+            "json_pointer": "/findings"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "PARTIAL: final22 bounded native/fixture PASS; independent root review and aggregate regression pending; B135 already correct at slice base and characterized, not newly repaired"
+      },
+      "missing_input": "Real tenant authorization, production lesson history and accepted historical four-base replay not supplied; no new scientific evidence-sufficiency/revalidation authority. Retention is best effort across processes; partial-answer local+transfer dedup is outside slice.",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B137/residual_owner"
+        }
+      },
+      "next_owner": "Transfer replay/custody and native lesson consumer owner for production integration; E/scientific evidence owner for any revalidation contract; G for finding acceptance.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B137"
+      }
+    },
+    {
+      "finding_id": "B156",
+      "closure_owner": "FUN-01",
+      "bundle_ids": [
+        "FUN-01"
+      ],
+      "family": "funnel",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "bounded_verified: same effective request reuses terminal result; dataset/model/role/sentinel/rule/time changes isolate fresh work; typed date/datetime preserved recursively. Prior ordinary attempt remains unchanged.",
+        "oracle": "Actual SimpleLoopEngine/Foundry bootstrap workflow calls, fresh tickets/scores/history assertions and semantic+typed-time removal controls.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "fun_01",
+            "json_pointer": "/finding_residual_map/B156"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "partial_bounded_verified; no finding closure requested; engineering and production input boundaries remain"
+      },
+      "missing_input": "Transferred source cells are compact PASS observations without raw archives. No production history/reuse receipt supplied.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B156/residual_owner"
+        }
+      },
+      "next_owner": "None invented for fixture cache separation; G accepts finding scope. Persisted cross-process cache/history compatibility remains runtime owner A/D input requirement.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B156"
+      }
+    },
+    {
+      "finding_id": "B157",
+      "closure_owner": "FUN-02",
+      "bundle_ids": [
+        "FUN-02"
+      ],
+      "family": "funnel",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "bounded_verified existing mechanism: L3 copies caller configs; L4 direct and L3->L4 retain full effective settings/output.",
+        "oracle": "Real Foundry BCa bootstrap: medium24samples/50draws differs from full120/120; direct and chained full endpoint interval/output identical, caller unchanged; native CAS actionable readback; config alias removal fails.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "fun_02",
+            "json_pointer": "/finding_residual_map/B157"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "partial_bounded_verified; no finding closure requested; engineering and production input boundaries remain"
+      },
+      "missing_input": "Production _PolicyRuntimeWorkflowEngine pins backend fidelity but ignores generic data/bootstrap config. Native production sample/draw counts and artifact/history evidence absent.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B157/residual_owner"
+        }
+      },
+      "next_owner": "Native backend/evaluator owner B with policy caller A must define and measure effective reduced/full configurations before claiming production reduction.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B157"
+      }
+    },
+    {
+      "finding_id": "B158",
+      "closure_owner": "FUN-01",
+      "bundle_ids": [
+        "FUN-01"
+      ],
+      "family": "funnel",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "bounded_verified: full and split stop before the same unaffordable next stage and preserve routing reason/progress. bridge_missing: reported stage cost does not debit supplied BudgetState.",
+        "oracle": "Real L2/L3/L4 workflow; same permitted stages and trace cost under full/split; budget-change successor consumes reduced/full bootstrap configurations. Independent downstream probe exposes totalcost>=1 but remaining(run)=5,spent={}.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "fun_01",
+            "json_pointer": "/finding_residual_map/B158"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "partial_bounded_verified; no finding closure requested; engineering and production input boundaries remain"
+      },
+      "missing_input": "Authoritative live cost/reservation/reconciliation receipt and production RunPolicyBlueprint caller budget bridge absent. Native node constructs no supplied budget_state and writes trace cost only.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B158/residual_owner"
+        },
+        "engineering_contract_gap_not_principal_permission": true
+      },
+      "next_owner": "A/runtime resource-budget owner must appoint one authoritative charge bridge without estimated-cost self-attestation or double charge; D continues against that contract.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B158"
+      }
+    },
+    {
+      "finding_id": "B159",
+      "closure_owner": "FUN-01",
+      "bundle_ids": [
+        "FUN-01"
+      ],
+      "family": "funnel",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "fixed_bounded: spent-only hash changes cannot skip a stage-owned defer. Scheduler budget pauses resume only on improved remaining capacity or lifted freeze and rerun scheduling; lineage/trace/cost retain predecessor progress.",
+        "oracle": "Same-basis/spent-only retry returns original terminal object; increased budget creates successor and executes actual numerical work. Removed predicate fails while ticket markers remain.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "fun_01",
+            "json_pointer": "/finding_residual_map/B159"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "partial_bounded_verified; no finding closure requested; engineering and production input boundaries remain"
+      },
+      "missing_input": "No authoritative real-charge bridge; no reevaluable prerequisite discriminators for stage-owned defer/retry_cheaper/high-timeout blockers.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B159/residual_owner"
+        },
+        "engineering_contract_gap_not_principal_permission": true
+      },
+      "next_owner": "Stage owner must provide an existing allowed recheck condition before those pauses can resume. No novel resume event semantics or authorization invented.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B159"
+      }
+    },
+    {
+      "finding_id": "B160",
+      "closure_owner": "FUN-02",
+      "bundle_ids": [
+        "FUN-02"
+      ],
+      "family": "funnel",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "bounded_verified existing mechanism: empty/capped output stays not_evaluated; a genuinely completed numerical zero remains zero.",
+        "oracle": "Real SimpleLoopEngine/L4 zero control and empty/capped aggregate projection; numeric-placeholder removal retains not_evaluated markers and fails.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "fun_02",
+            "json_pointer": "/finding_residual_map/B160"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "partial_bounded_verified; no finding closure requested; engineering and production input boundaries remain"
+      },
+      "missing_input": "All publication/dashboard consumers and production persisted empty-run projections not admitted.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B160/residual_owner"
+        }
+      },
+      "next_owner": "G accepts bounded funnel behavior; A owns any further operator/registry projection integration.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B160"
+      }
+    },
+    {
+      "finding_id": "B161",
+      "closure_owner": "FUN-03",
+      "bundle_ids": [
+        "FUN-03"
+      ],
+      "family": "funnel",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "partial: semantic request identity now prevents foreign rule/time reuse. Selective same-scope refinement not established: historical merge_max remains; uncertainty_current feedback is only final stage envelope.",
+        "oracle": "Real L0 -> SimpleLoopEngine -> L4 -> get_outcome witness history.statistical1,final/current.1; explicit independentrisk fixture .8 preserved by merge_max. Estimate fields contain no subject/value/input/procedure/rule/time basis.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "fun_03",
+            "json_pointer": "/finding_residual_map/B161"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "partial_bounded_verified; no finding closure requested; engineering and production input boundaries remain"
+      },
+      "missing_input": "Content-bound estimate provenance and existing allowed procedure/supersession contract to distinguish refinements from independent constraints or foreign population. No downstream production rejection caused by historical max reproduced.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B161/residual_owner"
+        },
+        "engineering_contract_gap_not_principal_permission": true
+      },
+      "next_owner": "D/scientific uncertainty owner with E/calibration and A/evidence consumer must appoint same-subject/value/input/rule/time basis and allowed refinement relation. Do not global min/last, overwrite independentrisk, or invent authority.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B161"
+      }
+    },
+    {
+      "finding_id": "B162",
+      "closure_owner": "FUN-02",
+      "bundle_ids": [
+        "FUN-02"
+      ],
+      "family": "funnel",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "bounded_verified existing mechanism: missing/invalid CI width yields conservative typed uncertainty; valid0 retains zero-width method while numerical output remains.",
+        "oracle": "Real engine/L4 widths None,\"broken\",0,.4 with/without optional stage verdict; malformed->zero removal fails while method marker remains.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "fun_02",
+            "json_pointer": "/finding_residual_map/B162"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "partial_bounded_verified; no finding closure requested; engineering and production input boundaries remain"
+      },
+      "missing_input": "Real native evaluation adapter output encodings beyond bounded fixture numbers/strings and production estimator data absent.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B162/residual_owner"
+        }
+      },
+      "next_owner": "B/numerical evaluator owns any additional output-format contract; G accepts bounded typed normalization.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B162"
+      }
+    },
+    {
+      "finding_id": "B163",
+      "closure_owner": "FUN-03",
+      "bundle_ids": [
+        "FUN-03"
+      ],
+      "family": "funnel",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "bounded_verified existing mechanism: empty tracker reports not_established/no_promotion without measured drift; aligned and opposite observed corpora have coherent metrics/routing; compatible native snapshot loader reuses real stage pair observations.",
+        "oracle": "Actual paired L3/L4 numerical results populate tracker; CAS report snapshot persist/reopen through native resolver; empty vs bad corpus distinguish and runner remains capped; empty routing normalization removal fails.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "fun_03",
+            "json_pointer": "/finding_residual_map/B163"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "partial_bounded_verified; no finding closure requested; engineering and production input boundaries remain"
+      },
+      "missing_input": "Production calibration report scope/content admission, natural observed corpus and source evaluator history absent.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B163/residual_owner"
+        }
+      },
+      "next_owner": "E/calibration owner with A/native caller must admit snapshot subject/run/config scope; metrics labels and persisted fixture are not evidence authority.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B163"
+      }
+    },
+    {
+      "finding_id": "B164",
+      "closure_owner": "FUN-03",
+      "bundle_ids": [
+        "FUN-03"
+      ],
+      "family": "funnel",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "fixed_bounded: preflight modes block effectful producer; native owner guard recomputes permission/run/evidence/candidate before inner commit and exact ArtifactRef required. Generic runner now needs declared recheck returning strict boolTrue; absent/malformed/truthy denials failclosed.",
+        "oracle": "Actual native node/funnel/L6 callback allowed effect1 with checksTrue/True; missing/wrong/malformed candidate and permission loss effect0/defer. Inner guard removal has actual effect1 despite revoked permission. Missing owner/strict bool removal independently fail effects assertions. Existing no_promotion/reduced_judge/auto_cap and attached payload controls retained.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "fun_03",
+            "json_pointer": "/finding_residual_map/B164"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "partial_bounded_verified; no finding closure requested; engineering and production input boundaries remain"
+      },
+      "missing_input": "No actual authority credentials, registry publication or ticket-generation revocation capability admitted. A generic owner callback returning selfattestedTrue still calls runner; no content-bound/verifiable generic owner contract. Wrong-owner selfattestedTrue is not distinguishable in the generic callback contract; exact native candidate/run/evidence mismatch controls are not a generic owner-binding proof.",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B164/residual_owner"
+        },
+        "engineering_contract_gap_not_principal_permission": true
+      },
+      "next_owner": "Required integrate-contract handoff to A/B via this Git receipt: appoint caller/admission owner for candidate+purpose+run/ticket generation+policy+time, typed evidence and commit revalidation before arbitrary effectful callbacks. D implements the consumer against that contract. Engineering residual; not principal blocked.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B164"
+      }
+    },
+    {
+      "finding_id": "B165",
+      "closure_owner": "FUN-02",
+      "bundle_ids": [
+        "FUN-02"
+      ],
+      "family": "funnel",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "bounded_verified existing mechanism: aggregate verdict follows ticket decision; optional local L2 verdict survives as stage_verdict and does not change aggregate DEFER.",
+        "oracle": "Real L2 optional-field variants with identical input/config and finite budget; setdefault removal yields APPROVE on a deferred ticket and fails.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "fun_02",
+            "json_pointer": "/finding_residual_map/B165"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "partial_bounded_verified; no finding closure requested; engineering and production input boundaries remain"
+      },
+      "missing_input": "Sibling operator/registry compatibility consumers and production histories not selected.",
+      "semantic_held": {
+        "canonical_kind": "verification_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/B165/residual_owner"
+        }
+      },
+      "next_owner": "A owns dependent compatibility projection admission; no technical promising flag grants publication authority.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/B165"
+      }
+    },
+    {
+      "finding_id": "LA-014",
+      "closure_owner": "SRV-01",
+      "bundle_ids": [
+        "SRV-01"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Contract-only imports stay lazy; native ask/tell state owner and SearchLoopRunner route exist.",
+        "oracle": "Actual native caller oldController.run forbidden, current/retained CAS readers PASS; constructor-only not used for lifecycle verdict.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/21"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "owner_appointment_pending; no inferred deployment/cutover closure."
+      },
+      "missing_input": "Appointed production SearchService consumer/migration owner and served request/readback/retirement contract absent.",
+      "semantic_held": {
+        "canonical_kind": "owner_appointment",
+        "held": true,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/LA-014/residual_owner"
+        }
+      },
+      "next_owner": "Owner appointment typed blocker retained.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/LA-014"
+      }
+    },
+    {
+      "finding_id": "LA-015",
+      "closure_owner": "SRV-03",
+      "bundle_ids": [
+        "CTL-01",
+        "SRV-03"
+      ],
+      "family": "search",
+      "finding_state": "partial",
+      "closure_ids": [],
+      "engineering": {
+        "verified_bounded_property": "Live SearchLoopRunner uses _NativeSearchServiceDriver; sole canonical state transitions retained.",
+        "oracle": "Actual caller2runs, independent store/registry reopen, currentchampion9/retained7+2 evaluation/candidate CAS readers, legacy-run trap PASS. Native empty/warm/sentinel/error/budget fixtures retained.",
+        "owner_receipt_refs": [
+          {
+            "receipt": "search",
+            "json_pointer": "/findings/22"
+          }
+        ],
+        "supplemental_receipt_layers": [],
+        "current_residual_classification": "Bounded real caller and retained reader path verified; migration/retirement engineering remains open."
+      },
+      "missing_input": "Full end-to-end trace equivalence across agreed historical reader window, retirement/rollback and production evaluator-failure/resume deployment are not established.",
+      "semantic_held": {
+        "canonical_kind": "implementation_owner",
+        "held": false,
+        "basis_ref": {
+          "receipt": "baseline",
+          "json_pointer": "/findings/LA-015/residual_owner"
+        }
+      },
+      "next_owner": "Native lifecycle engineering owner plus migration owner; no blanket local-data debt.",
+      "canonical_baseline": {
+        "receipt": "baseline",
+        "json_pointer": "/findings/LA-015"
+      }
+    }
+  ],
+  "reconciliation_flags": [
+    "Baseline PASS112/FAILED3 is a source-reported115-cell observation denominator, not finding-level acceptance.456 routes repeat cells across findings. Raw archives/complete runtime fixture and environment custody remain absent as explicitly recorded per baseline job.",
+    "All45 formal states remain partial; closure_ids[] at index and every row. Engineering, verification, missing capability, owner appointment, data record and principal decision obligations remain separate.",
+    "FUN03 B161 selective same-scope refinement is not established; historical merge_max witness remains. B164 generic strictbool gate is bounded engineering; selfattestedTrue cannot establish typed/verifiable declared-owner admission. Native exact candidate and commit recheck evidence does not fill that generic contract.",
+    "FUN01 B158/B159 reported trace cost does not charge supplied BudgetState; A/runtime authoritative spend bridge remains missing. Stage-owned pauses without reevaluable discriminator remain deferred.",
+    "Transfer physical/typed/candidate-binding layers are source830; exact4097 actual GP workflow has3PASS with actual trained tensors/acquisition/CAS outcome. Final aggregate exact-SHA import/admission and representative source-history law/tenant authorization remain required; earlier pending workflow statements are superseded only at4097 bounded scope.",
+    "Search403 due-refit counter admission is a known-negative intermediate corrected558; e789 successor15 actual GP dual-environment checks are recorded separately.403 prior numerical observations do not authorize rejecting legitimate retained-model producer states.",
+    "Search final matrix4a corrects locked Python3.14.7; stress immutable receipt independent_locked_env_source_focused reports3.14.2 for the same locked interpreter. Source-reported values are preserved here; root environment reconciliation must resolve this discrepancy before claiming exact environment equality.",
+    "Owner catalogs include historical baseline FAIL, expected source-removal FAIL and unresolved static invocation diagnostics. Their outcomes are preserved and are not summed into a broad aggregate PASS or inherited-red exclusion.",
+    "B111 immutable independent final_contract_review@7ced records persisted snapshot schema_version3.0 admission with real temporary-disk get_snapshot and exact6ac consumer/source reconciliation. D registry/G profile acceptance engineering residual remains; strict Literal versions on ParetoFront/PolicyFrontierReport do not establish strict persisted snapshot admission.",
+    "No new product code or test execution is performed by this index. Exact frozen runtime candidate6ac is parent supplied and its Git tree resolves; root aggregate check receipts and independent G acceptance must be attached by root. Final acceptance SHA is deliberately null."
+  ],
+  "index_validation": {
+    "canonical_45_ID_join": "PASS",
+    "canonical_closure_owner_and_bundle_join": "PASS",
+    "complete_17_bundle_allocation": "PASS",
+    "456_route_115_cell_15_job_join": "PASS",
+    "immutable_receipt_bytes_loaded_from_Git": "PASS",
+    "owner_behavior_SHA_trees_resolve": "PASS",
+    "new_product_execution": "none; index consistency only",
+    "finding_acceptance": "not_established",
+    "deciding_command": "python /tmp/e02-D-final-index/build_index.py; embedded generic JSON-pointer verification below against immutable Git receipt bytes",
+    "pointer_verification_source": "resolved = 0\nfor row in index['findings']:\n    refs = (row['engineering']['owner_receipt_refs']\n            + [layer['receipt_ref'] for layer in row['engineering']['supplemental_receipt_layers']]\n            + [row['canonical_baseline']])\n    for ref in refs:\n        identity = index['owner_receipts'][ref['receipt']]['identity']\n        raw = subprocess.check_output(['git', 'show', identity['commit'] + ':' + identity['path']])\n        assert hashlib.sha256(raw).hexdigest() == identity['sha256']\n        source = json.loads(raw)\n        for segment in ref['json_pointer'].split('/')[1:]:\n            segment = segment.replace('~1', '/').replace('~0', '~')\n            source = source[int(segment)] if isinstance(source, list) else source[segment]\n        resolved += 1\nassert resolved == 137\nprint('resolved exact owner/baseline JSON pointers', resolved)\nprint('uniqueIDs', len({r['finding_id'] for r in index['findings']}), 'bundleIDs', len(index['bundle_ids']))\n",
+    "prior_observation": {
+      "index_commit": "a6111740692b010f6ba444e33e2153fc349f8da7",
+      "complete_deciding_output": "resolved exact owner/baseline JSON pointers 136\nuniqueIDs 45 bundleIDs 17 cellUnion 115\n",
+      "delta": "Compact references replace copied tracked payloads; one immutable B111 final-contract-review residual pointer added."
+    },
+    "complete_deciding_output": "resolved exact owner/baseline JSON pointers 137\nuniqueIDs 45 bundleIDs 17\n",
+    "environment": "Python3.12.14 stdlib/Git; no shared environment writes or product test execution.",
+    "scope": "Consistency observation only.137 per-finding references resolve to exact pinned Git bytes and declared SHA256. Product positive/removal controls remain complete in each pinned owner receipt /checks; no product gate or new finding closure derives from pointer resolution."
+  },
+  "common_row_evidence_grade": "Bounded owner receipt; no aggregate production/semantic closure inferred. All45 finding acceptances remain unestablished by this index; G/root independent reconciliation required."
+}

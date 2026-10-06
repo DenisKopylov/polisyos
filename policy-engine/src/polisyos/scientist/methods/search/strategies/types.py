@@ -89,9 +89,13 @@ class ParameterBounds:
                     f"Categorical parameter '{self.name}' requires at least two categories"
                 )
             return
+        if not math.isfinite(self.lower) or not math.isfinite(self.upper):
+            raise ValueError(f"Finite bounds required for '{self.name}'")
         if self.lower >= self.upper:
             raise ValueError(f"Invalid bounds for '{self.name}': lower >= upper")
-        if self.log_scale and self.lower <= 0:
+        if self.dtype == ParameterType.INTEGER and math.ceil(self.lower) > math.floor(self.upper):
+            raise ValueError(f"Integer parameter '{self.name}' has no attainable values")
+        if (self.log_scale or self.dtype == ParameterType.LOG_CONTINUOUS) and self.lower <= 0:
             raise ValueError(f"Log-scale parameter '{self.name}' requires lower > 0")
 
 
@@ -166,7 +170,13 @@ class StrategyState:
 
     @classmethod
     def from_artifact(cls, data: bytes) -> StrategyState:
-        payload = json.loads(data.decode("utf-8"))
-        model_state = payload.get("model_state")
-        payload["model_state"] = bytes.fromhex(model_state) if model_state else None
-        return cls(**payload)
+        """Decode an object checkpoint or report a controlled compatibility failure."""
+        try:
+            payload = json.loads(data.decode("utf-8"))
+            if not isinstance(payload, dict):
+                raise ValueError("strategy checkpoint must be a JSON object")
+            model_state = payload.get("model_state")
+            payload["model_state"] = bytes.fromhex(model_state) if model_state else None
+            return cls(**payload)
+        except (AttributeError, TypeError, ValueError, UnicodeError) as exc:
+            raise ValueError("Strategy checkpoint artifact is invalid") from exc

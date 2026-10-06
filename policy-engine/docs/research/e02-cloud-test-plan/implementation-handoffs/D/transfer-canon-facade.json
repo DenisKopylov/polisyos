@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "unit": "D",
+  "slice": "transfer-public-facade-companion",
+  "entry_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "slice_base_sha": "3b57cdea1ba51f0368ac9d5848cb289785f91776",
+  "implementation_sha": "1366d17870dfc6ed800e71cfeadb4a50bba1c302",
+  "candidate_tree": "0437f2803bacfac7a59a917257f2ae0e8351d4e2",
+  "implementation_commits": [
+    "9708b4293c53f4822c06fef5e50d928dd2a788ec",
+    "1366d17870dfc6ed800e71cfeadb4a50bba1c302"
+  ],
+  "behavior_freeze_sha": "830ddd02dcfbdc6b93492d740b397581b79c82fc",
+  "covered_finding_ids": [
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134"
+  ],
+  "closure_ids": [],
+  "public_facade_wire": {
+    "canon": "from polisyos.core import canon; canon.CanonSpec and canon.from_canonical_bytes",
+    "warm_start_type": "TYPE_CHECKING from polisyos.core import artifacts; annotations artifacts.ArtifactStore",
+    "canon_module_origin": "/workspace/e02-D-transfer/policy-engine/src/polisyos/core/canon/__init__.py",
+    "artifacts_module_origin": "/workspace/e02-D-transfer/policy-engine/src/polisyos/core/artifacts/__init__.py",
+    "exact_same_class_function_protocol_objects": true,
+    "underlying_class_module": "polisyos.core.canon.canon_json",
+    "underlying_decoder_module": "polisyos.core.canon.canon_json",
+    "underlying_protocol_module": "polisyos.core.artifacts.protocol",
+    "native_tagged_float_roundtrip": "PASS"
+  },
+  "AST_equivalence": {
+    "method": "Proof copy only: remove old/new canonical facade imports and normalize new qualified facade attributes to their previous identical class/function/protocol names. All remaining AST nodes equal. No production AST rewriting, baseline/exception/core changes.",
+    "source_paths": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+        "normalized_AST_equal": true,
+        "normalized_ast_sha256": "a8bb64b25180a63163b1a9219258124a88c94bc2fe1d7f101642d0e66d883669",
+        "normalized_ast_quantity": "UTF-8 bytes of the normalized ast.dump(..., include_attributes=False) representation under the recorded import/attribute substitution method",
+        "rawfile_sha256": "9a5215f3f05a0464bf268b0cf8904b396eb46d084dbe2dd67be64858003593d6",
+        "rawfile_source_sha": "1366d17870dfc6ed800e71cfeadb4a50bba1c302"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+        "normalized_AST_equal": true,
+        "normalized_ast_sha256": "e4b72cf309ea2ffcba8ddc0bb3a8f36f0e469ff836995747084a0a5834effcd5",
+        "normalized_ast_quantity": "UTF-8 bytes of the normalized ast.dump(..., include_attributes=False) representation under the recorded import/attribute substitution method",
+        "rawfile_sha256": "fca5f1bcde9212d9c8e914ea93d26cee51977fa5969294bec18dc5b4d8445495",
+        "rawfile_source_sha": "1366d17870dfc6ed800e71cfeadb4a50bba1c302"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "normalized_AST_equal": true,
+        "normalized_ast_sha256": "4791b55d7525db10003b4cf8016e6e3901a119f2f438c5f4bbf2125bd60785ab",
+        "normalized_ast_quantity": "UTF-8 bytes of the normalized ast.dump(..., include_attributes=False) representation under the recorded import/attribute substitution method",
+        "rawfile_sha256": "e85d800b7c20ddd084ff1f1eeca3f871ba618ee78c271a46c70b08360e37877c",
+        "rawfile_source_sha": "1366d17870dfc6ed800e71cfeadb4a50bba1c302"
+      }
+    ]
+  },
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.2",
+    "ruff": "0.14.10",
+    "hnswlib": "0.8.0",
+    "node_hook": "22.23.3",
+    "PYTHONPATH": "/workspace/e02-D-transfer/policy-engine/src"
+  },
+  "checks": [
+    {
+      "target_sha": "1366d17870dfc6ed800e71cfeadb4a50bba1c302",
+      "result": "PASS",
+      "scope": "complete four focused native files",
+      "passed_node_count": 75,
+      "failed_node_count": 0,
+      "log": "transfer-canon-facade-checks.txt",
+      "log_sha256": "7b249437e3182c0eef676718fb086c6044dc25038e42d19a30dc5a3a3768f45f"
+    },
+    {
+      "result": "PASS",
+      "scope": "object identities; normalized AST equivalence3; frozen Ruffformat/check; diffcheck"
+    }
+  ],
+  "root_final_workflow": "UNRUN pending combined frozen candidate; prior4097three tests retained as prior exact-source evidence only",
+  "limits": [
+    "Supported facade fixes caller imports only; all original typed/CAS/native behavior retained.",
+    "Origin/tenant supplied declarations are not authority. B133distributed/principal andB134productiondata held; no closure claim."
+  ]
+}

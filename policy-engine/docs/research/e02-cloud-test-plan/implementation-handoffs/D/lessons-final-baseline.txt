@@ -1,0 +1,110 @@
+{"source_sha": "c40d4acae1ce58b597267255026d9356565828fd", "test_sha": "66c1a8b17e20fcdf1d36593afb052ff92ed2b171", "argv": ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "tests/unit/scientist/methods/search/test_lesson_query_persistence.py", "--confcutdir=/workspace/e02-D-lessons/policy-engine/tests/unit/scientist/methods/search", "-k", "not access_writes and not removing_evidence and not post_projection", "-vv", "--tb=short", "--durations=10"], "cwd": "/workspace/e02-D-lessons/policy-engine", "PYTHONPATH": "/workspace/e02-D-lessons/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/lessons-base/policy-engine/src", "environment": "locked Python3.14.7 pytest9.0.2", "input_closure": "git archive complete slice-base src plus architecture; same8 defining property cases; exclude3 implementation helper/property deletion controls"}
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-D-locked-env/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'default'
+rootdir: /workspace/e02-D-lessons/policy-engine
+configfile: pytest.ini
+plugins: jaxtyping-0.3.4, benchmark-5.2.3, hypothesis-6.151.2, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 11 items / 3 deselected / 8 selected
+
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_nested_context_and_explicit_override_reach_real_lesson_consumer PASSED [ 12%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_transfer_query_filters_before_materialization_and_after_restart FAILED [ 25%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_old_reads_survive_restart_without_confidence_rejuvenation_or_full_snapshot_writes FAILED [ 37%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_stale_transfer_preserves_evidence_age_before_and_after_materialization FAILED [ 50%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_new_producer_evidence_version_has_its_own_refs_and_clock PASSED [ 62%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_out_of_order_old_producer_replay_preserves_newest_evidence_across_transfer FAILED [ 75%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_explicit_active_policy_applies_to_local_and_transferred_evidence[5-10-0.5] FAILED [ 87%]
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_explicit_active_policy_applies_to_local_and_transferred_evidence[180-100-0.9] FAILED [100%]
+
+=================================== FAILURES ===================================
+_____ test_transfer_query_filters_before_materialization_and_after_restart _____
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py:122: in test_transfer_query_filters_before_materialization_and_after_restart
+    assert calls == [], "Rejected projected cards must not enter materialization"
+E   AssertionError: Rejected projected cards must not enter materialization
+E   assert [(LessonCard(...etadata={}),)] == []
+E     
+E     Left contains one more item: (LessonCard(lesson_id='lesson-source', schema_version='1.0', kind=<LessonKind.FAILURE: 'failure'>, summary='Keep the s...e, mutation_hints=[], anti_patterns=[], failure_card_refs=[], trace_refs=['fixture/source/evidence-v1'], metadata={}),)
+E     
+E     Full diff:
+E     - []
+E     + [
+E     +     (...
+E     
+E     ...Full output truncated (3 lines hidden), use '-vv' to show
+_ test_old_reads_survive_restart_without_confidence_rejuvenation_or_full_snapshot_writes _
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py:170: in test_old_reads_survive_restart_without_confidence_rejuvenation_or_full_snapshot_writes
+    assert index_path.read_bytes() == before_index, (
+E   AssertionError: Access accounting must not rewrite evidence index
+E   assert b'{\n  "schem...    }\n  ]\n}' == b'{\n  "schem...    }\n  ]\n}'
+E     
+E     At index 76 diff: b'8' != b'6'
+E     
+E     Full diff:
+E       (b'{\n  "schema_version": "1.0",\n  "snapshot_created_at": "2026-10-05T14:20:'
+E     -  b'03.567136Z",\n  "task_family": "policy",\n  "domain": "source",\n  "entries'
+E     ?        ^^  -...
+E     
+E     ...Full output truncated (39 lines hidden), use '-vv' to show
+_ test_stale_transfer_preserves_evidence_age_before_and_after_materialization __
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py:189: in test_stale_transfer_preserves_evidence_age_before_and_after_materialization
+    assert registry.query_with_transfer(strict, target_context=target) == []
+E   AssertionError: assert [LessonCard(l...sfer': True})] == []
+E     
+E     Left contains one more item: LessonCard(lesson_id='c9cfe2509f0c44c383be77b68c7b3819', schema_version='1.0', kind=<LessonKind.FAILURE: 'failure'>, s...patterns=[], failure_card_refs=[], trace_refs=['fixture/source/evidence-v1'], metadata={'materialized_transfer': True})
+E     
+E     Full diff:
+E     - []
+E     + [
+E     +     LessonCard(lesson_id='c9cfe2509f0c44c383be77b68c7b3819', schema_version='1.0', kind=<LessonKind.FAILURE: 'failure'>, summary='Keep the source evidence boundary.', failure_type='source-boundary', stage_name='stage-source', fidelity_level=1, candidate_hash='candidate-source', source_run_id='run-source', created_a...
+E     
+E     ...Full output truncated (2 lines hidden), use '-vv' to show
+_ test_out_of_order_old_producer_replay_preserves_newest_evidence_across_transfer _
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py:257: in test_out_of_order_old_producer_replay_preserves_newest_evidence_across_transfer
+    assert entry.artifact_ref == new_ref
+E   AssertionError: assert ArtifactRef(a...e_sha256=None) == ArtifactRef(a...e_sha256=None)
+E     
+E     Full diff:
+E     - ArtifactRef(artifact_id=ArtifactID(root='sha256:06962a07779b9e9f4e0f754b5015012248d34ed370a41097df16eda13e386378'), kind='scientist.search.lesson_card', media_type='application/json', manifest_profile_sha256=None)
+E     + ArtifactRef(artifact_id=ArtifactID(root='sha256:be769a364a8a6861bd21c28a4f5ba4ada24caff0c0a4099d43e050beded0c1bb'), kind='scientist.search.lesson_card', media_type='application/json', manifest_profile_sha256=None)
+_ test_explicit_active_policy_applies_to_local_and_transferred_evidence[5-10-0.5] _
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py:294: in test_explicit_active_policy_applies_to_local_and_transferred_evidence
+    assert len(local) == 1 and local[0].confidence == confidence
+E   AssertionError: assert (1 == 1 and 0.9 == 0.5)
+E    +  where 1 = len([LessonCard(lesson_id='lesson-source', schema_version='1.0', kind=<LessonKind.FAILURE: 'failure'>, summary='Keep the source evidence boundary.', failure_type='source-boundary', stage_name='stage-source', fidelity_level=1, candidate_hash='candidate-source', source_run_id='run-source', created_at=datetime.datetime(2026, 9, 25, 14, 20, 3, 669066, tzinfo=datetime.timezone.utc), confidence=0.9, trust_level=<LessonTrustLevel.LOCAL: 'local'>, task_family='policy', domain='source', provenance_weight=1.0, last_accessed_at=datetime.datetime(2026, 10, 5, 14, 20, 3, 675706, tzinfo=datetime.timezone.utc), transfer_chain=[], origin_run_id='run-source', origin_domain='source', origin_tenant_hash='fixture-tenant', tags=[], remediation_hint=None, mutation_hints=[], anti_patterns=[], failure_card_refs=[], trace_refs=['fixture/source/evidence-v1'], metadata={})])
+E    +  and   0.9 = LessonCard(lesson_id='lesson-source', schema_version='1.0', kind=<LessonKind.FAILURE: 'failure'>, summary='Keep the source evidence boundary.', failure_type='source-boundary', stage_name='stage-source', fidelity_level=1, candidate_hash='candidate-source', source_run_id='run-source', created_at=datetime.datetime(2026, 9, 25, 14, 20, 3, 669066, tzinfo=datetime.timezone.utc), confidence=0.9, trust_level=<LessonTrustLevel.LOCAL: 'local'>, task_family='policy', domain='source', provenance_weight=1.0, last_accessed_at=datetime.datetime(2026, 10, 5, 14, 20, 3, 675706, tzinfo=datetime.timezone.utc), transfer_chain=[], origin_run_id='run-source', origin_domain='source', origin_tenant_hash='fixture-tenant', tags=[], remediation_hint=None, mutation_hints=[], anti_patterns=[], failure_card_refs=[], trace_refs=['fixture/source/evidence-v1'], metadata={}).confidence
+_ test_explicit_active_policy_applies_to_local_and_transferred_evidence[180-100-0.9] _
+tests/unit/scientist/methods/search/test_lesson_query_persistence.py:294: in test_explicit_active_policy_applies_to_local_and_transferred_evidence
+    assert len(local) == 1 and local[0].confidence == confidence
+E   AssertionError: assert (1 == 1 and 0.5 == 0.9)
+E    +  where 1 = len([LessonCard(lesson_id='lesson-source', schema_version='1.0', kind=<LessonKind.FAILURE: 'failure'>, summary='Keep the source evidence boundary.', failure_type='source-boundary', stage_name='stage-source', fidelity_level=1, candidate_hash='candidate-source', source_run_id='run-source', created_at=datetime.datetime(2026, 6, 27, 14, 20, 3, 687664, tzinfo=datetime.timezone.utc), confidence=0.5, trust_level=<LessonTrustLevel.LOW_CONFIDENCE: 'low_confidence'>, task_family='policy', domain='source', provenance_weight=1.0, last_accessed_at=datetime.datetime(2026, 10, 5, 14, 20, 3, 694274, tzinfo=datetime.timezone.utc), transfer_chain=[], origin_run_id='run-source', origin_domain='source', origin_tenant_hash='fixture-tenant', tags=[], remediation_hint=None, mutation_hints=[], anti_patterns=[], failure_card_refs=[], trace_refs=['fixture/source/evidence-v1'], metadata={})])
+E    +  and   0.5 = LessonCard(lesson_id='lesson-source', schema_version='1.0', kind=<LessonKind.FAILURE: 'failure'>, summary='Keep the source evidence boundary.', failure_type='source-boundary', stage_name='stage-source', fidelity_level=1, candidate_hash='candidate-source', source_run_id='run-source', created_at=datetime.datetime(2026, 6, 27, 14, 20, 3, 687664, tzinfo=datetime.timezone.utc), confidence=0.5, trust_level=<LessonTrustLevel.LOW_CONFIDENCE: 'low_confidence'>, task_family='policy', domain='source', provenance_weight=1.0, last_accessed_at=datetime.datetime(2026, 10, 5, 14, 20, 3, 694274, tzinfo=datetime.timezone.utc), transfer_chain=[], origin_run_id='run-source', origin_domain='source', origin_tenant_hash='fixture-tenant', tags=[], remediation_hint=None, mutation_hints=[], anti_patterns=[], failure_card_refs=[], trace_refs=['fixture/source/evidence-v1'], metadata={}).confidence
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================= slowest 10 durations =============================
+0.03s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_old_reads_survive_restart_without_confidence_rejuvenation_or_full_snapshot_writes
+0.02s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_nested_context_and_explicit_override_reach_real_lesson_consumer
+0.02s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_out_of_order_old_producer_replay_preserves_newest_evidence_across_transfer
+0.02s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_new_producer_evidence_version_has_its_own_refs_and_clock
+0.02s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_stale_transfer_preserves_evidence_age_before_and_after_materialization
+0.01s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_explicit_active_policy_applies_to_local_and_transferred_evidence[5-10-0.5]
+0.01s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_explicit_active_policy_applies_to_local_and_transferred_evidence[180-100-0.9]
+0.01s call     tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_transfer_query_filters_before_materialization_and_after_restart
+
+(2 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_transfer_query_filters_before_materialization_and_after_restart
+FAILED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_old_reads_survive_restart_without_confidence_rejuvenation_or_full_snapshot_writes
+FAILED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_stale_transfer_preserves_evidence_age_before_and_after_materialization
+FAILED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_out_of_order_old_producer_replay_preserves_newest_evidence_across_transfer
+FAILED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_explicit_active_policy_applies_to_local_and_transferred_evidence[5-10-0.5]
+FAILED tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_explicit_active_policy_applies_to_local_and_transferred_evidence[180-100-0.9]
+============ 6 failed, 2 passed, 3 deselected, 2 warnings in 7.43s =============
+{"exit_code": 1, "wall_s": 11.36257671300018}

@@ -1,0 +1,46 @@
+{"argv": ["/workspace/polisyos/policy-engine/.venv/bin/python", "-m", "pytest", "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution", "-q", "-o", "cache_dir=_cache/pytest-stress-consumer"], "measurement_boundary": "single executed child process plus descendants; ru_maxrss KiB on Linux"}
+ERROR: found no collectors for /tmp/e02-stress-base-o81nfihh/policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution
+
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/unit/scientist/policy_design/test_phase_b_policy_workers.py _
+tests/unit/scientist/policy_design/test_phase_b_policy_workers.py:12: in <module>
+    from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
+src/polisyos/scientist/methods/search/readiness.py:14: in <module>
+    from polisyos.foundry.validation import (
+src/polisyos/foundry/validation/__init__.py:12: in <module>
+    from polisyos.foundry.validation.phase0_closure import (
+src/polisyos/foundry/validation/phase0_closure.py:16: in <module>
+    from polisyos.foundry.agent_sim.world import (
+src/polisyos/foundry/agent_sim/__init__.py:84: in <module>
+    from .government_policy import (
+src/polisyos/foundry/agent_sim/government_policy.py:18: in <module>
+    from polisyos.foundry.welfare.social_weights import (
+src/polisyos/foundry/welfare/social_weights.py:10: in <module>
+    from polisyos.foundry.methods.catalog.policy.welfare import (
+src/polisyos/foundry/methods/catalog/__init__.py:133: in <module>
+    from polisyos.foundry.methods.catalog.dependency_authority import (
+src/polisyos/foundry/methods/catalog/dependency_authority.py:7157: in <module>
+    _OWNER_ENTRYPOINT_SPECS = derive_owner_entrypoint_denominator_from_source(
+src/polisyos/foundry/methods/catalog/dependency_authority.py:6119: in derive_owner_entrypoint_denominator_from_source
+    registry = load_digest_domain_registry(_DIGEST_REGISTRY_PATH)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/catalog/dependency_evidence.py:2253: in load_digest_domain_registry
+    return decode_digest_domain_registry_toml(path.read_bytes())
+                                              ^^^^^^^^^^^^^^^^^
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:777: in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:771: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/e02-stress-base-o81nfihh/policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml'
+=============================== warnings summary ===============================
+../../../workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR tests/unit/scientist/policy_design/test_phase_b_policy_workers.py - Fil...
+{"exit_code": 4, "elapsed_s": 7.793, "max_rss_kib": 1069512}

@@ -1,0 +1,91 @@
+{
+  "schema": "e02-independent-git-artifact-verification/v1",
+  "target_sha": "6f8a6108a44fa80ade581a7b70fb54be78fe6b02",
+  "target_tree": "a97fcf2067d2ec784ae1d7ce9dff771c286d16c3",
+  "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "scope": {
+    "tracked_D_json_files": 66,
+    "changed_json_files": 66,
+    "changed_release_fragments": 13
+  },
+  "checks": {
+    "json_files_parsed": 67,
+    "git_object_claims_checked": 128,
+    "unique_reference_claims": 807,
+    "available_reference_claims": 764,
+    "sha256_claims_checked": 244,
+    "size_claims_checked": 184,
+    "git_blob_claims_checked": 46,
+    "inline_utf8_sha256_claims_checked": 4,
+    "release_fragments_parsed": 13,
+    "byte_line_locators_checked": 185
+  },
+  "sha256_declarations": 529,
+  "sha256_declarations_with_byte_locator": 387,
+  "errors": [
+    {
+      "kind": "size_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-contract-review.json",
+      "locator": "$.B112_test_fingerprint.baseline_test_identity.path",
+      "detail": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py@6f8a6108a44fa80ade581a7b70fb54be78fe6b02: declared 7663; actual 8574"
+    },
+    {
+      "kind": "git_blob_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-contract-review.json",
+      "locator": "$.B112_test_fingerprint.baseline_test_identity.path",
+      "detail": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py@6f8a6108a44fa80ade581a7b70fb54be78fe6b02: declared ff25c935265e8d781febc101628ce0b159ea8e44; actual 4c3b918385f5a7149d5366215084235798b14363"
+    },
+    {
+      "kind": "sha256_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-contract-review.json",
+      "locator": "$.B112_test_fingerprint.baseline_test_identity.sha256",
+      "detail": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py@6f8a6108a44fa80ade581a7b70fb54be78fe6b02: declared 0845ff4d85b58443c78e23be781517f3aa504312e731e8d7113de24e5d087553; actual bb3a58c5e2aa1ed1adfd7056ba245a45f5d4a1fc438b99a6a4298c57feff691e"
+    },
+    {
+      "kind": "size_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-contract-review.json",
+      "locator": "$.B112_test_fingerprint.baseline_test_identity.sha256",
+      "detail": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py@6f8a6108a44fa80ade581a7b70fb54be78fe6b02: declared 7663; actual 8574"
+    },
+    {
+      "kind": "inline_sha256_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-A-owner-dependency.json",
+      "locator": "$.patch_sha256",
+      "detail": "declared 2e69739655d93019e6ac2fa12edc835c13df5235769925b4b6e8fea28b00f83c; actual 6c798378c4c2533190be87454d50848146832536f09dac1c25f21bdcb8f96f40"
+    },
+    {
+      "kind": "sha256_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-canon-facade.json",
+      "locator": "$.AST_equivalence.source_paths[0].sha256",
+      "detail": "policy-engine/src/polisyos/scientist/agent/vector_memory.py@1366d17870dfc6ed800e71cfeadb4a50bba1c302: declared a8bb64b25180a63163b1a9219258124a88c94bc2fe1d7f101642d0e66d883669; actual 9a5215f3f05a0464bf268b0cf8904b396eb46d084dbe2dd67be64858003593d6"
+    },
+    {
+      "kind": "sha256_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-canon-facade.json",
+      "locator": "$.AST_equivalence.source_paths[1].sha256",
+      "detail": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py@1366d17870dfc6ed800e71cfeadb4a50bba1c302: declared e4b72cf309ea2ffcba8ddc0bb3a8f36f0e469ff836995747084a0a5834effcd5; actual fca5f1bcde9212d9c8e914ea93d26cee51977fa5969294bec18dc5b4d8445495"
+    },
+    {
+      "kind": "sha256_mismatch",
+      "artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-canon-facade.json",
+      "locator": "$.AST_equivalence.source_paths[2].sha256",
+      "detail": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py@1366d17870dfc6ed800e71cfeadb4a50bba1c302: declared 4791b55d7525db10003b4cf8016e6e3901a119f2f438c5f4bbf2125bd60785ab; actual e85d800b7c20ddd084ff1f1eeca3f871ba618ee78c271a46c70b08360e37877c"
+    }
+  ],
+  "limitation_counts": {
+    "hash_without_byte_locator": 142,
+    "unavailable_raw_or_external": 35
+  },
+  "outcome": "FAIL",
+  "interpretation": "Git byte/reference/census/syntax reconciliation only. No native runtime replay, closure verdict, authority admission, or unavailable raw-byte verification.",
+  "census": {
+    "finding_owner_rows": 45,
+    "bundle_owners": 17,
+    "route_rows": 456,
+    "distinct_primary_cells": 115,
+    "states": {
+      "PASS": 112,
+      "FAILED": 3
+    }
+  }
+}

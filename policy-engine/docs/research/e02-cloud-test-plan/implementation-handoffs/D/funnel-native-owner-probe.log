@@ -1,0 +1,19 @@
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+{
+  "native_module": "/workspace/e02-D-funnel/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+  "backend_calls": [
+    "full"
+  ],
+  "runner_calls": [
+    "runner"
+  ],
+  "owner_checks": [
+    true,
+    false
+  ],
+  "effects": 0,
+  "final_action": "defer_to_human",
+  "reason": "promotion_owner_recheck_failed",
+  "boundary": "test-local promotion recorder; real native node, funnel and inner commit guard"
+}

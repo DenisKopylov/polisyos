@@ -1,0 +1,487 @@
+........................................................................ [  8%]
+.........................F.............................................. [ 16%]
+.................................................F...................... [ 24%]
+........................................................................ [ 32%]
+........................................................................ [ 40%]
+........................................................................ [ 49%]
+........................................................................ [ 57%]
+........................................................................ [ 65%]
+........................................................................ [ 73%]
+....................F................................................... [ 81%]
+.................................FF....................F................ [ 90%]
+........................................................................ [ 98%]
+...............                                                          [100%]
+=================================== FAILURES ===================================
+____ test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-119/test_calibration_meta_promotio0')
+
+    def test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / ".polisyos")
+        registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
+        suite_ref = persist_benchmark_suite(store, _calibration_suite(tmp_path))
+        evaluator = CalibrationMetaEvaluator(store=store, registry=registry)
+    
+        good_candidate_ref = persist_mutation_artifact(
+            store, CalibrationMetaSearchConfig(learning_rate=0.01)
+        )
+    
+        def good_runner(row, config, context):
+            del row, context
+            return _report(
+                rmse=0.1 if config.learning_rate == 0.01 else 0.6,
+                runtime_seconds=2.0,
+            )
+    
+        good_eval = evaluator.evaluate(
+            good_candidate_ref,
+            suite_ref,
+            {"store": store, "registry": registry, "calibration_runner": good_runner},
+        )
+        good_eval_ref = persist_benchmark_evaluation(store, good_eval)
+        good_decision = registry.consider_promotion(
+            "calibration_meta",
+            good_candidate_ref,
+            good_eval_ref,
+            default_calibration_policy(),
+        )
+    
+        bad_candidate_ref = persist_mutation_artifact(
+            store, CalibrationMetaSearchConfig(learning_rate=0.5)
+        )
+    
+        def bad_runner(row, config, context):
+            del row, context, config
+            return _report(
+                rmse=0.05, runtime_seconds=1.0, diagnostics=["Non-finite gradients at step 3"]
+            )
+    
+        bad_eval = evaluator.evaluate(
+            bad_candidate_ref,
+            suite_ref,
+            {"store": store, "registry": registry, "calibration_runner": bad_runner},
+        )
+        bad_eval_ref = persist_benchmark_evaluation(store, bad_eval)
+        bad_decision = registry.consider_promotion(
+            "calibration_meta",
+            bad_candidate_ref,
+            bad_eval_ref,
+            default_calibration_policy(),
+        )
+    
+>       assert good_decision.promoted is True
+E       AssertionError: assert False is True
+E        +  where False = PromotionDecision(loop_id='calibration_meta', promoted=False, reason='suite_ref_required', champion=None, previous_champion=None).promoted
+
+tests/unit/scientist/methods/autotune/test_calibration_autotune.py:199: AssertionError
+______ test_reflexion_replay_benchmark_promotes_better_recoverable_route _______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-119/test_reflexion_replay_benchmar0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f27cc5431c0>
+
+    def test_reflexion_replay_benchmark_promotes_better_recoverable_route(
+        tmp_path, monkeypatch
+    ) -> None:
+        store_root = tmp_path / ".polisyos"
+        monkeypatch.setenv("POLISYOS_CAS_ROOT", str(store_root))
+        monkeypatch.setenv("POLISYOS_SEARCH_REGISTRY_ROOT", str(store_root / "search_registry"))
+        store = FileSystemCAS(store_root)
+        registry = ChampionRegistry(root=store_root / "search_registry", store=store)
+        recorder = ReflexionReplayRecorder()
+        recorder.record_case(
+            case_id="case-1",
+            card=_failure_card(error_code="schema_error"),
+            decision_outcomes={
+                RecoverableRoutingDecision.RETURN_TO_FORMALIZER.value: False,
+                RecoverableRoutingDecision.RETURN_TO_DRAFTER.value: True,
+            },
+        )
+        suite_ref = persist_benchmark_suite(
+            store, recorder.write_dataset(output_dir=tmp_path / "replay")
+        )
+        candidate_ref = persist_mutation_artifact(
+            store,
+            ReflexionRoutingConfig(
+                rules=[
+                    ReflexionRoutingRule(
+                        error_codes=["schema_error"],
+                        decision=RecoverableRoutingDecision.RETURN_TO_DRAFTER,
+                    )
+                ]
+            ),
+        )
+        evaluator = ReflexionRoutingEvaluator(store=store, registry=registry)
+        evaluation = evaluator.evaluate(
+            candidate_ref, suite_ref, {"store": store, "registry": registry}
+        )
+        evaluation_ref = persist_benchmark_evaluation(store, evaluation)
+        decision = registry.consider_promotion(
+            "reflexion_routing",
+            candidate_ref,
+            evaluation_ref,
+            default_reflexion_policy(),
+        )
+    
+        orchestrator = ReflexionOrchestrator()
+        runtime_decision = orchestrator.evaluate_failure(_failure_card(error_code="schema_error"), {})
+    
+>       assert decision.promoted is True
+E       AssertionError: assert False is True
+E        +  where False = PromotionDecision(loop_id='reflexion_routing', promoted=False, reason='suite_ref_required', champion=None, previous_champion=None).promoted
+
+tests/unit/scientist/methods/autotune/test_reflexion_autotune.py:140: AssertionError
+____ test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-119/test_cheap_stage_promotes_only0')
+
+    def test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / ".polisyos")
+        registry = ChampionRegistry(root=tmp_path / ".polisyos" / "search_registry", store=store)
+        dataset = write_correlation_dataset(_records(250), output_dir=tmp_path / "large")
+        suite_ref = persist_benchmark_suite(store, dataset)
+        evaluator = CheapStageBenchmarkEvaluator(store=store, registry=registry)
+    
+        bad_candidate_ref = persist_mutation_artifact(store, CheapStageTuningConfig(threshold=1.0))
+        bad_eval = evaluator.evaluate(
+            bad_candidate_ref,
+            suite_ref,
+            {"store": store, "registry": registry},
+        )
+        bad_eval_ref = persist_benchmark_evaluation(store, bad_eval)
+        bad_decision = registry.consider_promotion(
+            "cheap_stage",
+            bad_candidate_ref,
+            bad_eval_ref,
+            default_cheap_stage_policy(),
+        )
+    
+        good_candidate_ref = persist_mutation_artifact(store, CheapStageTuningConfig(threshold=0.4))
+        good_eval = evaluator.evaluate(
+            good_candidate_ref,
+            suite_ref,
+            {"store": store, "registry": registry},
+        )
+        good_eval_ref = persist_benchmark_evaluation(store, good_eval)
+        good_decision = registry.consider_promotion(
+            "cheap_stage",
+            good_candidate_ref,
+            good_eval_ref,
+            default_cheap_stage_policy(),
+        )
+    
+        assert bad_eval.guardrails["true_positive_rate_floor"] is False
+        assert bad_decision.promoted is False
+        assert good_eval.guardrails["true_positive_rate_floor"] is True
+        assert good_eval.guardrails["stage_b_eval_rate_delta_ok"] is True
+>       assert good_decision.promoted is True
+E       AssertionError: assert False is True
+E        +  where False = PromotionDecision(loop_id='cheap_stage', promoted=False, reason='suite_ref_required', champion=None, previous_champion=None).promoted
+
+tests/unit/scientist/search/test_cheap_stage_autotune.py:118: AssertionError
+______ test_promotion_coordinator_persists_readiness_and_updates_champion ______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-119/test_promotion_coordinator_per0')
+
+    def test_promotion_coordinator_persists_readiness_and_updates_champion(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+        coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
+    
+        candidate = _candidate(evidence_depth="replicated")
+        candidate_ref = persist_policy_candidate_schema(store, candidate)
+        selection_eval, hidden_holdout = _benchmark(candidate_ref, holdout_score=0.94)
+        evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+        replay_ref, replay_verification_ref = _persist_replay_support(
+            store,
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+        )
+        vector = _evaluation_vector(candidate)
+        bundle = coordinator.build_input_bundle(
+            candidate=candidate,
+            phase3_gate=_phase3_passed(),
+            benchmark_evaluation=selection_eval,
+            hidden_holdout_evaluation=hidden_holdout,
+            evaluation_vector=vector,
+            distributional_report=_distributional_report(),
+            causal_effect_report=_causal_effect_report(),
+            data_readiness_report=build_data_readiness_report(
+                sample_size=120,
+                measurement_quality="known_good",
+                fallback_data_available=True,
+            ),
+            cross_graph_profile=_cross_graph_profile(),
+            prior_knowledge_bundle=_prior_knowledge_bundle(status="ok", coverage_complete=True),
+            governance_report={"verdict": "approve", "issues": []},
+            uncertainty_envelope=_uncertainty(0.1),
+            replay_bundle_ref=replay_ref,
+            replay_verification_ref=replay_verification_ref,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("10.0"))},
+                spent={"run": Decimal("1.0")},
+            ),
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            state={
+                "checkpoints": [
+                    {"stage": "data_loaded", "timestamp": "2026-03-25T10:00:00Z"},
+                    {"stage": "estimation_complete", "timestamp": "2026-03-25T10:01:00Z"},
+                ],
+                "verified_claims": [{"source_ref": "source:1", "confidence": 0.9}],
+                "data_sources": [{"name": "dataset", "last_updated": "2026-03-01T00:00:00+00:00"}],
+                "knowledge_metadata": {"last_updated": "2026-03-01T00:00:00+00:00"},
+                "pii_scan_results": {"max_severity": "none", "total_entities_found": 0},
+                "audit_lineage_complete": True,
+            },
+            compute_cost_usd=1.0,
+            replay_cost_usd=0.5,
+            expected_improvement=2.0,
+            timeout_risk=0.1,
+        )
+    
+        result = coordinator.coordinate_promotion(
+            loop_id="policy_loop",
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            promotion_policy=PromotionPolicy(loop_id="policy_loop", primary_metric="score"),
+            judge_input=bundle,
+        )
+    
+>       assert result.promotion_decision.promoted is True
+E       AssertionError: assert False is True
+E        +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted
+E        +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision
+
+tests/unit/scientist/search/test_phase_b_policy_runtime.py:1200: AssertionError
+____ test_missing_prior_knowledge_caps_readiness_below_recommendation_ready ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-119/test_missing_prior_knowledge_c0')
+
+    def test_missing_prior_knowledge_caps_readiness_below_recommendation_ready(tmp_path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+        coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
+    
+        candidate = _candidate(evidence_depth="replicated")
+        candidate_ref = persist_policy_candidate_schema(store, candidate)
+        selection_eval, hidden_holdout = _benchmark(candidate_ref, holdout_score=0.94)
+        evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+        replay_ref, replay_verification_ref = _persist_replay_support(
+            store,
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+        )
+    
+        bundle = coordinator.build_input_bundle(
+            candidate=candidate,
+            phase3_gate=_phase3_passed(),
+            benchmark_evaluation=selection_eval,
+            hidden_holdout_evaluation=hidden_holdout,
+            evaluation_vector=_evaluation_vector(candidate),
+            distributional_report=_distributional_report(),
+            causal_effect_report=_causal_effect_report(),
+            data_readiness_report=build_data_readiness_report(
+                sample_size=120,
+                measurement_quality="known_good",
+                fallback_data_available=True,
+            ),
+            cross_graph_profile=_cross_graph_profile(),
+            governance_report={"verdict": "approve", "issues": []},
+            uncertainty_envelope=_uncertainty(0.1),
+            replay_bundle_ref=replay_ref,
+            replay_verification_ref=replay_verification_ref,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("10.0"))},
+                spent={"run": Decimal("1.0")},
+            ),
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            state={
+                "checkpoints": [
+                    {"stage": "data_loaded", "timestamp": "2026-03-25T10:00:00Z"},
+                    {"stage": "estimation_complete", "timestamp": "2026-03-25T10:01:00Z"},
+                ],
+                "verified_claims": [{"source_ref": "source:1", "confidence": 0.9}],
+                "data_sources": [{"name": "dataset", "last_updated": "2026-03-01T00:00:00+00:00"}],
+                "knowledge_metadata": {"last_updated": "2026-03-01T00:00:00+00:00"},
+                "pii_scan_results": {"max_severity": "none", "total_entities_found": 0},
+                "audit_lineage_complete": True,
+            },
+            compute_cost_usd=1.0,
+            replay_cost_usd=0.5,
+            expected_improvement=2.0,
+            timeout_risk=0.1,
+        )
+    
+        result = coordinator.coordinate_promotion(
+            loop_id="policy_loop",
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            promotion_policy=PromotionPolicy(loop_id="policy_loop", primary_metric="score"),
+            judge_input=bundle,
+        )
+    
+>       assert result.promotion_decision.promoted is True
+E       AssertionError: assert False is True
+E        +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted
+E        +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision
+
+tests/unit/scientist/search/test_phase_b_policy_runtime.py:1290: AssertionError
+___ test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler ____
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-119/test_promotion_coordinator_pub0')
+
+    def test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler(tmp_path) -> None:
+        class _Scheduler:
+            def __init__(self) -> None:
+                self.calls: list[dict[str, object]] = []
+    
+            def observe_promotion_outcome(self, **kwargs) -> None:
+                self.calls.append(kwargs)
+    
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+        coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
+        candidate = _candidate(evidence_depth="replicated")
+        candidate_ref = persist_policy_candidate_schema(store, candidate)
+        selection_eval, hidden_holdout = _benchmark(candidate_ref, holdout_score=0.94)
+        evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+        scheduler = _Scheduler()
+        replay_ref, replay_verification_ref = _persist_replay_support(
+            store,
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+        )
+    
+        bundle = coordinator.build_input_bundle(
+            candidate=candidate,
+            phase3_gate=_phase3_passed(),
+            benchmark_evaluation=selection_eval,
+            hidden_holdout_evaluation=hidden_holdout,
+            evaluation_vector=_evaluation_vector(candidate),
+            distributional_report=_distributional_report(),
+            causal_effect_report=_causal_effect_report(),
+            data_readiness_report=build_data_readiness_report(
+                sample_size=120,
+                measurement_quality="known_good",
+                fallback_data_available=True,
+            ),
+            cross_graph_profile=_cross_graph_profile(),
+            prior_knowledge_bundle=_prior_knowledge_bundle(status="ok", coverage_complete=True),
+            governance_report={"verdict": "approve", "issues": []},
+            uncertainty_envelope=_uncertainty(0.1),
+            replay_bundle_ref=replay_ref,
+            replay_verification_ref=replay_verification_ref,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("10.0"))},
+                spent={"run": Decimal("1.0")},
+            ),
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            state={
+                "current_pareto_position": "frontier",
+                "checkpoints": [
+                    {"stage": "data_loaded", "timestamp": "2026-03-25T10:00:00Z"},
+                    {"stage": "estimation_complete", "timestamp": "2026-03-25T10:01:00Z"},
+                ],
+                "verified_claims": [{"source_ref": "source:1", "confidence": 0.9}],
+                "data_sources": [{"name": "dataset", "last_updated": "2026-03-01T00:00:00+00:00"}],
+                "knowledge_metadata": {"last_updated": "2026-03-01T00:00:00+00:00"},
+                "pii_scan_results": {"max_severity": "none", "total_entities_found": 0},
+                "audit_lineage_complete": True,
+            },
+            voi_scheduler=scheduler,
+            compute_cost_usd=1.0,
+            replay_cost_usd=0.5,
+            expected_improvement=2.0,
+            timeout_risk=0.1,
+        )
+    
+        result = coordinator.coordinate_promotion(
+            loop_id="policy_loop",
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            promotion_policy=PromotionPolicy(loop_id="policy_loop", primary_metric="score"),
+            judge_input=bundle,
+        )
+    
+>       assert result.promotion_decision.promoted is True
+E       AssertionError: assert False is True
+E        +  where False = PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None).promoted
+E        +    where PromotionDecision(loop_id='policy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None) = PolicyPromotionResult(judge_verdict=JudgeVerdict(per_judge={'structural': SingleJudgeVerdict(judge_name='structural', ...olicy_loop', promoted=False, reason='canonical_n9_promotion_sequence_required', champion=None, previous_champion=None)).promotion_decision
+
+tests/unit/scientist/search/test_phase_b_policy_runtime.py:2285: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_configured_cas_transfer_reaches_the_receiving_gp_on_the_live_loop
+tests/unit/scientist/methods/autotune/test_transfer_workflow.py::test_malformed_source_outcome_is_excluded_from_the_real_receiving_gp
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_dependency_fallback
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_no_refit_preserves_learned_gp_state_with_new_observation
+tests/unit/scientist/search/strategies/test_neural.py::TestGPBasedSuggest::test_suggest_after_initial_phase
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_intrinsic_checkpoint_single_and_batch_replay_ignores_external_torch_draws
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_intrinsic_checkpoint_single_and_batch_replay_ignores_external_torch_draws
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_batch_shape_when_deps_available
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/monte_carlo.py:400: NumericsWarning: qExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 qExpectedImprovement 	 --> 	 qLogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+tests/unit/scientist/search/strategies/test_adapter.py::test_adapter_syncs_history_and_status
+  /workspace/e02-D-orchestration/policy-engine/tests/unit/scientist/search/strategies/test_adapter.py:40: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+tests/unit/scientist/search/strategies/test_adapter.py::test_adapter_syncs_history_and_status
+  /workspace/e02-D-orchestration/policy-engine/tests/unit/scientist/search/strategies/test_adapter.py:51: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+tests/unit/scientist/search/strategies/test_adapter.py::test_adapter_exposes_raw_directional_score_not_negated_search_score
+  /workspace/e02-D-orchestration/policy-engine/tests/unit/scientist/search/strategies/test_adapter.py:96: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+tests/unit/scientist/search/strategies/test_multi_objective.py::test_mo_batch_shape_when_deps_available
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/multi_objective/monte_carlo.py:110: NumericsWarning: qExpectedHypervolumeImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 qExpectedHypervolumeImprovement 	 --> 	 qLogExpectedHypervolumeImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+tests/unit/scientist/search/test_diversity.py::test_exclusion_list_builder_extracts_unique_mechanisms
+  /workspace/e02-D-orchestration/policy-engine/tests/unit/scientist/search/test_diversity.py:22: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+tests/unit/scientist/search/test_diversity.py::test_exclusion_list_builder_extracts_unique_mechanisms
+  /workspace/e02-D-orchestration/policy-engine/tests/unit/scientist/search/test_diversity.py:33: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_search_controller_revalidates_reloaded_objective_result
+tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_pareto_registry_rejects_malformed_owner_vector_before_write
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `ObjectiveChannelValue` - serialized value may not be as expected [field_name='primary', input_value='not-a-channel', input_type=str])
+    return self.__pydantic_serializer__.to_python(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py:7: SALib not installed
+FAILED tests/unit/scientist/methods/autotune/test_calibration_autotune.py::test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence
+FAILED tests/unit/scientist/methods/autotune/test_reflexion_autotune.py::test_reflexion_replay_benchmark_promotes_better_recoverable_route
+FAILED tests/unit/scientist/search/test_cheap_stage_autotune.py::test_cheap_stage_promotes_only_when_tpr_and_eval_rate_constraints_hold
+FAILED tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_persists_readiness_and_updates_champion
+FAILED tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_missing_prior_knowledge_caps_readiness_below_recommendation_ready
+FAILED tests/unit/scientist/search/test_phase_b_policy_runtime.py::test_promotion_coordinator_publishes_promotion_outcome_to_voi_scheduler

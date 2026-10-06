@@ -1,0 +1,10 @@
+id = "2026-10-05-e02-funnel-semantic-time"
+title = "Keep semantic time roles in funnel request identity"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-scientist"
+summary = "Funnel cache identity retains substantive time fields such as valid_at, rule_effective_at and observation_timestamp instead of excluding arbitrary timestamp suffixes. Date and datetime values bind at top level and inside configuration mappings through typed ISO-8601 projections."
+compatibility = "Named volatile orchestration fields such as request_id and created_at continue to reuse the same effective request; changing substantive time or rule inputs creates a fresh evaluation."
+surface_classification = "internal: scientist multi-fidelity funnel runtime"
+limitations = "Cache isolation establishes request separation. It does not establish independent evidence, publication authority, or a scope-bound selective uncertainty-refinement contract."
+evidence = ["src/polisyos/scientist/methods/search/funnel/orchestrator.py", "tests/unit/scientist/search/funnel/test_orchestrator.py"]

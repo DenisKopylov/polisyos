@@ -1,0 +1,61 @@
+{
+  "schema": "policyos.ci_job_deciding_excerpt.v1",
+  "repo": "DenisKopylov/polisyos",
+  "pr": 10,
+  "head_sha": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+  "checkout_sha": "588b754c702ba0b28afcaf452107616ab4b5c7cc",
+  "head_and_checkout_tree": "b0d58f50f992a4ee1c8d04200681e3d087e6607a",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "job_id": 111797145328,
+  "run_id": 37320234846,
+  "source": "GitHub Actions decoded job-log content via fetch_workflow_job_logs",
+  "source_utf8_sha256": "efd7a5435f54042e297a5f975a89ebec3cf8392e2563df80e7efe911f5cf3763",
+  "source_utf8_bytes": 44126,
+  "source_lines": 605,
+  "ranges": [
+    {
+      "lines": [
+        1,
+        23
+      ],
+      "bytes": [
+        0,
+        1366
+      ],
+      "content": "﻿2026-10-05T13:53:00.3922707Z Current runner version: '2.337.0'\n2026-10-05T13:53:00.3939693Z ##[group]Runner Image Provisioner\n2026-10-05T13:53:00.3940279Z Hosted Compute Agent\n2026-10-05T13:53:00.3940649Z Version: 20260901.588\n2026-10-05T13:53:00.3941003Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b\n2026-10-05T13:53:00.3941467Z Build Date: 2026-09-01T19:56:44Z\n2026-10-05T13:53:00.3941859Z Worker ID: {7a8a703c-b99c-475d-af64-a78eff23ca59}\n2026-10-05T13:53:00.3942326Z Azure Region: centralus\n2026-10-05T13:53:00.3942694Z ##[endgroup]\n2026-10-05T13:53:00.3943538Z ##[group]Operating System\n2026-10-05T13:53:00.3943937Z Ubuntu\n2026-10-05T13:53:00.3944238Z 24.04.5\n2026-10-05T13:53:00.3944563Z LTS\n2026-10-05T13:53:00.3944899Z ##[endgroup]\n2026-10-05T13:53:00.3945213Z ##[group]Runner Image\n2026-10-05T13:53:00.3945600Z Image: ubuntu-24.04\n2026-10-05T13:53:00.3945927Z Version: 20260927.320.1\n2026-10-05T13:53:00.3946714Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260927.320/images/ubuntu/Ubuntu2404-Readme.md\n2026-10-05T13:53:00.3947540Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260927.320\n2026-10-05T13:53:00.3948105Z ##[endgroup]\n2026-10-05T13:53:00.3948739Z ##[group]GITHUB_TOKEN Permissions\n2026-10-05T13:53:00.3949915Z Contents: read\n2026-10-05T13:53:00.3950269Z Metadata: read\n"
+    },
+    {
+      "lines": [
+        186,
+        216
+      ],
+      "bytes": [
+        15405,
+        17692
+      ],
+      "content": "2026-10-05T13:53:10.4381683Z HEAD is now at 588b754c7 Merge 6d4588be99824b1b21bf860bf1e44f09f3fe16bb into c40d4acae1ce58b597267255026d9356565828fd\n2026-10-05T13:53:10.4441838Z ##[endgroup]\n2026-10-05T13:53:10.4487845Z [command]/usr/bin/git log -1 --format=%H\n2026-10-05T13:53:10.4510195Z 588b754c702ba0b28afcaf452107616ab4b5c7cc\n2026-10-05T13:53:10.4749834Z Prepare all required actions\n2026-10-05T13:53:10.4750240Z Getting action download info\n2026-10-05T13:53:10.6789378Z Download action repository 'actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)\n2026-10-05T13:53:10.7777204Z Download action repository 'astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57' (SHA:cec208311dfd045dd5311c1add060b2062131d57)\n2026-10-05T13:53:11.4195068Z ##[group]Run ./.github/actions/setup-policy-engine-python\n2026-10-05T13:53:11.4195264Z with:\n2026-10-05T13:53:11.4195376Z   profile: docs\n2026-10-05T13:53:11.4195490Z   extras: dev test\n2026-10-05T13:53:11.4195744Z   python-version: 3.14\n2026-10-05T13:53:11.4195878Z   working-directory: policy-engine\n2026-10-05T13:53:11.4196026Z ##[endgroup]\n2026-10-05T13:53:11.4232786Z ##[start-action display=Setup Python;id=__self.__actions_setup-python]\n2026-10-05T13:53:11.4284950Z ##[group]Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065\n2026-10-05T13:53:11.4285165Z with:\n2026-10-05T13:53:11.4285282Z   python-version: 3.14\n2026-10-05T13:53:11.4285409Z   check-latest: false\n2026-10-05T13:53:11.4286797Z   token: ***\n2026-10-05T13:53:11.4286916Z   update-environment: true\n2026-10-05T13:53:11.4287053Z   allow-prereleases: false\n2026-10-05T13:53:11.4287179Z   freethreaded: false\n2026-10-05T13:53:11.4287298Z ##[endgroup]\n2026-10-05T13:53:11.5118257Z ##[group]Installed versions\n2026-10-05T13:53:11.5172652Z (node:2712) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n2026-10-05T13:53:11.5173165Z (Use `node --trace-deprecation ...` to show where the warning was created)\n2026-10-05T13:53:11.5173596Z Successfully set up CPython (3.14.7)\n2026-10-05T13:53:11.5173855Z ##[endgroup]\n2026-10-05T13:53:11.5321200Z ##[end-action id=__self.__actions_setup-python;outcome=success;conclusion=success;duration_ms=108]\n"
+    },
+    {
+      "lines": [
+        300,
+        310
+      ],
+      "bytes": [
+        24942,
+        25783
+      ],
+      "content": "2026-10-05T13:53:19.5309754Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.7/x64/lib\n2026-10-05T13:53:19.5309986Z   UV_PYTHON_INSTALL_DIR: /home/runner/work/_temp/uv-python-dir\n2026-10-05T13:53:19.5310198Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache\n2026-10-05T13:53:19.5310379Z   UV_NO_BUILD_PACKAGE: pillow\n2026-10-05T13:53:19.5310523Z ##[endgroup]\n2026-10-05T13:53:19.6863703Z Using CPython 3.14.7 interpreter at: /opt/hostedtoolcache/Python/3.14.7/x64/bin/python3.14\n2026-10-05T13:53:19.6864196Z Creating virtual environment at: .venv\n2026-10-05T13:53:19.7074786Z    Building policy-engine @ file\u003a\u002f\u002f/home/runner/work/polisyos/polisyos/policy-engine\n2026-10-05T13:53:19.7421830Z Downloading pillow (6.6MiB)\n2026-10-05T13:53:19.7422274Z Downloading grpcio (6.4MiB)\n2026-10-05T13:53:19.7423836Z Downloading uvloop (4.1MiB)\n"
+    },
+    {
+      "lines": [
+        560,
+        585
+      ],
+      "bytes": [
+        39031,
+        41619
+      ],
+      "content": "2026-10-05T13:53:25.8040641Z ##[group]Run uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref \"${BASE_REF}\"\n2026-10-05T13:53:25.8041187Z \u001b[36;1muv run polisyos-tools validation check-docs-gate --repo-root . --base-ref \"${BASE_REF}\"\u001b[0m\n2026-10-05T13:53:25.8091742Z shell: /usr/bin/bash -e {0}\n2026-10-05T13:53:25.8091903Z env:\n2026-10-05T13:53:25.8092054Z   pythonLocation: /opt/hostedtoolcache/Python/3.14.7/x64\n2026-10-05T13:53:25.8092285Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.14.7/x64/lib/pkgconfig\n2026-10-05T13:53:25.8092514Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.7/x64\n2026-10-05T13:53:25.8092718Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.7/x64\n2026-10-05T13:53:25.8092916Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.14.7/x64\n2026-10-05T13:53:25.8093125Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.14.7/x64/lib\n2026-10-05T13:53:25.8093519Z   UV_PYTHON_INSTALL_DIR: /home/runner/work/_temp/uv-python-dir\n2026-10-05T13:53:25.8093839Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache\n2026-10-05T13:53:25.8094032Z   BASE_REF: c40d4acae1ce58b597267255026d9356565828fd\n2026-10-05T13:53:25.8094193Z ##[endgroup]\n2026-10-05T13:53:29.7810560Z Docs freshness baseline FAILED:\n2026-10-05T13:53:29.7810810Z - docs freshness exception baseline expired\n2026-10-05T13:53:29.7811100Z - docs freshness violation count changed: expected 0, observed 10\n2026-10-05T13:53:29.7811565Z - docs freshness baseline hash changed: expected a3030ecf013ab9e3e7ffec891b2743e7dac6f2892361fad35f63774f7e4fe7a2, observed 459cc4ff53c6dcb5cb8444e1bc22c715583f3a69411870176a6bf06bafcdb6be\n2026-10-05T13:53:29.8046019Z Docs drift gate\n2026-10-05T13:53:29.8046184Z - changed files: 6\n2026-10-05T13:53:29.8046960Z - change window: `docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map-handoff.json`, `docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json`, `docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-rl-checkpoint.json`, `release-fragments/unreleased/2026-10-05-search-rl-checkpoint.toml`, and 2 more\n2026-10-05T13:53:29.8047919Z [docs-gate] verify docs freshness baseline\n2026-10-05T13:53:29.8048145Z [docs-gate] $ uv run polisyos-tools validation check-docs-freshness-baseline\n2026-10-05T13:53:29.8048358Z Docs drift gate FAILED:\n2026-10-05T13:53:29.8048646Z - [command_failure] verify docs freshness baseline failed with exit code 1: uv run polisyos-tools validation check-docs-freshness-baseline\n2026-10-05T13:53:29.8270247Z ##[error]Process completed with exit code 1.\n"
+    }
+  ]
+}

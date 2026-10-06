@@ -1,0 +1,129 @@
+--- a/policy-engine/src/polisyos/scientist/policy_design/output.py
++++ b/policy-engine/src/polisyos/scientist/policy_design/output.py
+@@ -586,6 +586,8 @@
+     evaluation_vector: PolicyEvaluationVector | None = None
+     evaluation_ref: ArtifactRef | None = None
+     pareto_snapshot: ParetoRegistrySnapshot | None = None
++    source_feasible_candidate_hashes: tuple[str, ...] | None = None
++    eligibility_unknown_candidate_hashes: tuple[str, ...] | None = None
+     run_local_frontier_report_ref: PolicyFrontierReportRef | None = None
+     run_local_frontier_report_loop_id: str | None = None
+     promotion_result: PolicyPromotionResult | None = None
+@@ -970,6 +972,46 @@
+                 view_projections=view_projections,
+             )
+         projection = snapshot.project_view(ParetoView.GLOBAL_FEASIBLE)
++        source_feasible = source.source_feasible_candidate_hashes
++        source_unknown = source.eligibility_unknown_candidate_hashes
++        if source_feasible is None or source_unknown is None:
++            # No independent source denominator was supplied. Preserve ordinary
++            # candidate work without deriving completeness from the projection.
++            source_feasible = ()
++            source_unknown = tuple(sorted(set(snapshot.entries) | {source.candidate_hash}))
++        if set(source_feasible) != set(projection.eligible_candidate_hashes) or source_unknown:
++            limited = ParetoViewProjection(
++                view=projection.view,
++                assessment=ParetoViewAssessment.model_validate({
++                    **projection.assessment.model_dump(mode="python"),
++                    "status": "denominator_limited",
++                }),
++                eligible_candidate_hashes=projection.eligible_candidate_hashes,
++                candidate_frontier_hashes=projection.candidate_frontier_hashes,
++                unassessed_candidate_hashes=projection.eligible_candidate_hashes,
++            )
++            candidate_hashes = sorted(
++                (set(projection.candidate_frontier_hashes) & set(source_feasible))
++                | (set(source_feasible) - set(projection.eligible_candidate_hashes))
++                | set(source_unknown)
++            )
++            return PolicyFrontierReport(
++                loop_id=snapshot.loop_id,
++                source_feasible_candidate_hashes=source_feasible,
++                eligibility_unknown_candidate_hashes=source_unknown,
++                candidate_frontier=[
++                    PolicyFrontierEntry(
++                        candidate_hash=candidate_hash,
++                        candidate_id=(snapshot.entries[candidate_hash].candidate_id
++                                      if candidate_hash in snapshot.entries else None),
++                        metadata={"ranking_basis": "not_established"},
++                    )
++                    for candidate_hash in candidate_hashes
++                ],
++                view_membership={"global_feasible": []},
++                view_projections={"global_feasible": limited},
++                metadata={"limitation": "independent_source_denominator_not_reconciled"},
++            )
+         projected_hashes = (
+             projection.ranked_frontier_hashes
+             if projection.assessment.status == "complete"
+@@ -1018,7 +1060,8 @@
+                 )
+         return PolicyFrontierReport(
+             loop_id=snapshot.loop_id,
+-            source_feasible_candidate_hashes=projection.eligible_candidate_hashes,
++            source_feasible_candidate_hashes=source_feasible,
++            eligibility_unknown_candidate_hashes=source_unknown,
+             global_frontier=(entries if projection.assessment.status == "complete" else []),
+             candidate_frontier=(entries if projection.assessment.status != "complete" else []),
+             view_membership={
+@@ -1026,7 +1069,13 @@
+                 for key, view_projection in all_projections.items()
+             },
+             view_projections=all_projections,
+-            metadata={"hypervolume_by_view": dict(snapshot.hypervolume_by_view)},
++            metadata={
++                "hypervolume_by_view": dict(snapshot.hypervolume_by_view),
++                "hypervolume_assessments_by_view": {
++                    key: value.model_dump(mode="json")
++                    for key, value in snapshot.hypervolume_assessments_by_view.items()
++                },
++            },
+         )
+ 
+     def _build_constraint_report(
+--- a/policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py
++++ b/policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py
+@@ -12,6 +12,7 @@
+ 
+ from collections.abc import Mapping
+ from dataclasses import dataclass
++from math import isfinite
+ from pathlib import Path
+ from typing import TYPE_CHECKING, Any
+ 
+@@ -684,7 +685,16 @@
+             )
+             return NodeOutcome(status="fail", state=state, error=error)
+ 
+-        champion = _select_champion_candidate(candidate, search_result)
++        try:
++            champion = _select_champion_candidate(candidate, search_result)
++        except ValueError as exc:
++            return NodeOutcome(
++                status="fail", state=state,
++                error=NodeError(
++                    code=node_errors.ERROR_INVALID_STATE,
++                    message=f"Champion assessment unavailable: {exc}",
++                ),
++            )
+         if champion is None:
+             champion = candidate
+ 
+@@ -1039,11 +1049,16 @@
+     policy_value = _objective_value(evaluation, "policy_value")
+     welfare = _objective_value(evaluation, "welfare")
+     employment = _objective_value(evaluation, "employment")
++    secondary_value = welfare + employment
++    if not all(isfinite(value) for value in (
++        record.objective_value, policy_value, welfare, employment, secondary_value,
++    )):
++        raise ValueError("non-finite champion ranking basis")
+     blocking_count = 0 if evaluation is None else len(evaluation.blocking_reasons)
+     return (
+         1.0 if record.feasible else 0.0,
+         policy_value,
+-        welfare + employment,
++        secondary_value,
+         -blocking_count,
+     )
+ 

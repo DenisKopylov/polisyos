@@ -1,0 +1,45 @@
+IMPORT_ORIGIN=/tmp/e02-D-funnel-evidence/aggregate_verdict/src/polisyos/scientist/methods/search/funnel/orchestrator.py
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_real_l2_defer_projection_is_independent_of_optional_stage_verdict ____
+
+    def test_real_l2_defer_projection_is_independent_of_optional_stage_verdict():
+        from dataclasses import replace
+    
+        from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
+        from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+    
+        projections = []
+        for verdict in (None, "APPROVE"):
+    
+            class StageWithOptionalVerdict(Level2CausalPlausibility):
+                def evaluate(self, candidate, context, verdict=verdict):
+                    result = super().evaluate(candidate, context)
+                    feedback = dict(result.feedback)
+                    if verdict is not None:
+                        feedback["verdict"] = verdict
+                    return replace(result, feedback=feedback)
+    
+            observations = []
+            budget = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("0.001"))})
+            orch = FunnelOrchestrator(
+                [StageWithOptionalVerdict(), Level3MediumFidelity(_bootstrap_workflow(observations))],
+                budget_state=budget,
+            )
+            output = orch.as_stage_b_callable()(
+                {"candidate_id": "optional-verdict"}, _bootstrap_context()
+            )
+            assert output["feedback"]["stage_verdict"] == verdict
+            assert output["_funnel_result"].is_promising
+>           assert output["feedback"]["verdict"] == "DEFER"
+E           AssertionError: assert 'APPROVE' == 'DEFER'
+E             
+E             - DEFER
+E             + APPROVE
+
+tests/unit/scientist/search/funnel/test_orchestrator.py:979: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/funnel/test_orchestrator.py::test_real_l2_defer_projection_is_independent_of_optional_stage_verdict
+1 failed in 0.49s
+/workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/torch/jit/_script.py:1485: FutureWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(

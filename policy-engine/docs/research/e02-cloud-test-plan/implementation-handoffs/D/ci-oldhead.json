@@ -1,0 +1,380 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "ci-oldhead",
+  "closure_ids": [],
+  "finding_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "150c8f2d27c9218ee3a8ae0067ccbe467e6d7052",
+    "4a388516351c29e45259fbe8360725f71881974b"
+  ],
+  "candidate_sha": "4a388516351c29e45259fbe8360725f71881974b",
+  "candidate_tree_sha": "7f7f9b9b551d964a3cb74e30487f04e925156eea",
+  "branch": "codex/e02-D-ci-triage",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/environment-jobs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797143332-excerpt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797143594-excerpt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797145215-excerpt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797145328-excerpt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/pr-info.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-map.json"
+  ],
+  "baseline_cells": [],
+  "observed_PR": {
+    "url": "https://github.com/DenisKopylov/polisyos/pull/10",
+    "head_sha": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+    "actual_checkout_sha": "588b754c702ba0b28afcaf452107616ab4b5c7cc",
+    "head_and_checkout_tree": "b0d58f50f992a4ee1c8d04200681e3d087e6607a",
+    "base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+    "final_D_candidate": "UNRUN by these old-head jobs"
+  },
+  "dependency_checkpoint": {
+    "branch": "codex/e02-integration",
+    "observed_remote_sha": "3178752cc2ce065a0758efecf1d967201c0815e5",
+    "tree": "dfebb12883eff0dc66693c1c5a03c2413da32074",
+    "relation": "Observed published checkpoint only; this read-only diagnostic slice remains based on admittedc40d and adjudicates old6d/588 source."
+  },
+  "checks": [
+    {
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/verify-source.txt 4a388516351c29e45259fbe8360725f71881974b RECEIVED_DECODED_JOB_LOGS_DIRECTORY",
+      "target_sha": "4a388516351c29e45259fbe8360725f71881974b",
+      "environment": {
+        "kind": "read-only GitHub/source reconciliation",
+        "curator_python": "3.12.14",
+        "gh": "2.46.0",
+        "CI_environment": "ci-oldhead-map.json CI_environment and per-job environment (Python3.14.7/uv0.9.21; minimal/docs/runtime profiles; Lychee0.23.0)."
+      },
+      "input_closure": "All4 requested decoded job bodies UTF-8 source hashes and byte locators, GitHub job metadata by immutable job ID, all22 pinned Git source/config refs, identical oldhead/merge tree. Logs obtained through GitHub connector; raw ignored receiver paths listed below.",
+      "outcome": "PASS",
+      "output": "4 received bodies content-bound; actual unit step skipped;22 Git source/config refs bound; counterfeit ARCH value with intact identity declarations REJECTED. wall1.524s RSS26240KiB.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/source-verification.log",
+        "sha256": "931cc3c5f07a520b60431277edb3393aed6aabc966b8e43555cac70ccefc3bb7",
+        "bytes": 552
+      },
+      "portable_verifier": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/verify-source.txt",
+        "sha256": "696c4b9d05cc6edda9d672b21b9d8d9789ac22c79f686b1cadf7a8afc73ba89f",
+        "bytes": 2528
+      }
+    },
+    {
+      "command": "functions.exec orchestration: github_fetch_workflow_job_logs for111797145215/111797145328/111797143594/111797143332, compare fresh decoded content to first received bytes, compare frozen Git excerpt ranges to full source bytes.",
+      "target_sha": "4a388516351c29e45259fbe8360725f71881974b",
+      "environment": {
+        "kind": "read-only GitHub/source reconciliation",
+        "curator_python": "3.12.14",
+        "gh": "2.46.0",
+        "CI_environment": "ci-oldhead-map.json CI_environment and per-job environment (Python3.14.7/uv0.9.21; minimal/docs/runtime profiles; Lychee0.23.0)."
+      },
+      "input_closure": "Entire decoded log body of each of the4 requested immutable GitHub jobs, not only error search hits.",
+      "outcome": "PASS",
+      "output": "All4 fresh source bodies identical. Frozen excerpts reconcile every retained line/byte range; complete21 import edges and28 offline link errors. Remove one deciding edge while preserving declared provenance: REJECTED."
+    },
+    {
+      "command": "gh api repos/DenisKopylov/polisyos/actions/jobs/JOB_ID/logs (parallel4 requested IDs)",
+      "target_sha": "588b754c702ba0b28afcaf452107616ab4b5c7cc",
+      "environment": {
+        "kind": "read-only GitHub/source reconciliation",
+        "curator_python": "3.12.14",
+        "gh": "2.46.0",
+        "CI_environment": "ci-oldhead-map.json CI_environment and per-job environment (Python3.14.7/uv0.9.21; minimal/docs/runtime profiles; Lychee0.23.0)."
+      },
+      "input_closure": "Same4 source jobs, CLI signed-redirect transport.",
+      "outcome": "ERROR",
+      "output": "CLI log retrieval redirected to Azure blob storage then403 Forbidden; no source/CI product verdict from that attempt. Connector retrieval succeeded independently. Full error output retained with signed credential query values redacted.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/source-cli-redirect-error.log",
+        "sha256": "ad8ae843b694f196ba8f96f33b9b343e47b26d3045d3f16f6906318642feb6ad",
+        "bytes": 3635
+      }
+    },
+    {
+      "command": "LEFTHOOK_CONFIG=policy-engine/apps/runtime-dashboard/lefthook.yml npm exec --yes --package=node@22 -- policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook run pre-push --no-auto-install",
+      "target_sha": "150c8f2d27c9218ee3a8ae0067ccbe467e6d7052",
+      "environment": {
+        "node": "22.23.3",
+        "pnpm": "10.33.2",
+        "lefthook": "2.1.6",
+        "dependencies": "checkout-local frozen pnpm install; normal hooks, no bypass"
+      },
+      "input_closure": "Frontend app/node/tools TypeScript inputs and lockfile; successor4a changes only diagnostic map predicate label/description.",
+      "outcome": "PASS",
+      "output": "Normal prepush typecheck PASS37.214s RSS1791100KiB. No frontend source changed.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/pre-push-hooks.log",
+        "sha256": "e0264e5546f5ac64a25a231d871ba0ec4856599bfc427415e079faa04ef44ff0",
+        "bytes": 1047
+      }
+    },
+    {
+      "command": "uv run python tools/quality/lint/lint_imports.py --policy architecture/imports/policy.toml --exceptions architecture/imports/exceptions.toml",
+      "target_sha": "588b754c702ba0b28afcaf452107616ab4b5c7cc",
+      "head_sha": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "job_id": 111797145215,
+      "run_id": 37320234846,
+      "environment": {
+        "job_id": 111797145215,
+        "installed_distribution_rows": 164,
+        "profile": "minimal",
+        "actual_versions": {
+          "pytest": "9.0.2",
+          "pytest-benchmark": "5.2.3",
+          "numpy": "2.3.5",
+          "pydantic": "2.12.5",
+          "duckdb": "1.4.3",
+          "pyyaml": "6.0.3",
+          "click": "8.3.1"
+        },
+        "source_log_utf8_sha256": "182466d56c3c29f9818239c6b0ba64936bc08807861a601125d4f50f4def30e9",
+        "source_log_utf8_bytes": 46025
+      },
+      "input_closure": "Full declared denominator and limits: ci-oldhead-map.json@4a388516351c29e45259fbe8360725f71881974b#jobs/111797145215",
+      "outcome": "FAIL",
+      "output": "21 unadjudicated ARCH001/ARCH006/ARCH007 imports; lapsed cover0; scanner completed full AST parse. Fast unit suite SKIPPED.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797145215-excerpt.json",
+        "sha256": "bfc9d9ae4d131625e9cc737280e74865b1f2eace8a8f672bee36d8266f35eecb",
+        "bytes": 16004
+      },
+      "evidence_kind": "CI source-reported observation independently content-reconciled; no local exact command/base replay.",
+      "inherited_red": "not_established"
+    },
+    {
+      "command": "uv run polisyos-tools validation check-docs-gate --repo-root . --base-ref c40d4acae1ce58b597267255026d9356565828fd",
+      "target_sha": "588b754c702ba0b28afcaf452107616ab4b5c7cc",
+      "head_sha": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "job_id": 111797145328,
+      "run_id": 37320234846,
+      "environment": {
+        "job_id": 111797145328,
+        "installed_distribution_rows": 184,
+        "profile": "docs",
+        "actual_versions": {
+          "pytest": "9.0.2",
+          "pytest-benchmark": "5.2.3",
+          "numpy": "2.3.5",
+          "pydantic": "2.12.5",
+          "duckdb": "1.4.3",
+          "pyyaml": "6.0.3",
+          "click": "8.3.1"
+        },
+        "source_log_utf8_sha256": "efd7a5435f54042e297a5f975a89ebec3cf8392e2563df80e7efe911f5cf3763",
+        "source_log_utf8_bytes": 44126
+      },
+      "input_closure": "Full declared denominator and limits: ci-oldhead-map.json@4a388516351c29e45259fbe8360725f71881974b#jobs/111797145328",
+      "outcome": "FAIL",
+      "output": "Freshness exception expired2026-06-30 before CI2026-10-05; expected0 observed10; output hash changed a303...->459cc...; strict docs build and later lifecycle/docstring gates SKIPPED.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797145328-excerpt.json",
+        "sha256": "7064c9340f7dbc0fbec16c6fb07d3d6e9cf644b6cb3f39ef6a69e8927e35d6e9",
+        "bytes": 8403
+      },
+      "evidence_kind": "CI source-reported observation independently content-reconciled; no local exact command/base replay.",
+      "inherited_red": "not_established"
+    },
+    {
+      "command": "uv run pytest tests/performance/test_overhead.py tests/performance/test_scientist_runtime_paths.py tests/performance/test_runtime_hot_paths.py --benchmark-only --benchmark-json=core-runtime-benchmarks.json --benchmark-warmup=on --benchmark-min-rounds=5 -q",
+      "target_sha": "588b754c702ba0b28afcaf452107616ab4b5c7cc",
+      "head_sha": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "job_id": 111797143594,
+      "run_id": 37320234710,
+      "environment": {
+        "job_id": 111797143594,
+        "installed_distribution_rows": 162,
+        "profile": "extras:test runtime causal-discovery sandbox",
+        "actual_versions": {
+          "pytest": "9.0.2",
+          "pytest-benchmark": "5.2.3",
+          "numpy": "2.3.5",
+          "pydantic": "2.12.5",
+          "duckdb": "1.4.3",
+          "pyyaml": "6.0.3",
+          "click": "8.3.1"
+        },
+        "source_log_utf8_sha256": "c2d09a5cc43a0ce1af1887973680b9c113b615bb347193b42f59aec0ffd7766a",
+        "source_log_utf8_bytes": 67801
+      },
+      "input_closure": "Full declared denominator and limits: ci-oldhead-map.json@4a388516351c29e45259fbe8360725f71881974b#jobs/111797143594",
+      "outcome": "FAIL",
+      "output": "Six hot-path cases fail building runtime API fixture: missing dataset_catalog.duckdb -> catalog_fetch_source_unreadable. No failure is a recorded timing threshold violation. Nonbenchmark cases SKIPPED intentionally; benchmark JSON written but upload step SKIPPED.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797143594-excerpt.json",
+        "sha256": "11619c35bc189b524e6bdfc085de9c1176b59a961ea897daf2fb0bd11c561d3e",
+        "bytes": 37166
+      },
+      "evidence_kind": "CI source-reported observation independently content-reconciled; no local exact command/base replay.",
+      "inherited_red": "not_established"
+    },
+    {
+      "command": "lychee --offline --config lychee.toml policy-engine/docs/ policy-engine/README.md policy-engine/CONTRIBUTING.md",
+      "target_sha": "588b754c702ba0b28afcaf452107616ab4b5c7cc",
+      "head_sha": "6d4588be99824b1b21bf860bf1e44f09f3fe16bb",
+      "job_id": 111797143332,
+      "run_id": 37320234710,
+      "environment": {
+        "job_id": 111797143332,
+        "installed_distribution_rows": 0,
+        "profile": "Lychee-only",
+        "actual_versions": {},
+        "source_log_utf8_sha256": "14838b71e8761c42cf9615cd9ec649879e5aa88421b3a80849ce773d72c67016",
+        "source_log_utf8_bytes": 37320
+      },
+      "input_closure": "Full declared denominator and limits: ci-oldhead-map.json@4a388516351c29e45259fbe8360725f71881974b#jobs/111797143332",
+      "outcome": "FAIL",
+      "output": "Lychee0.23.0 completes offline crawl: total5702, successful3358, excluded2316, errors28, timeout0/redirect0/unknown0. Errors20 absolute Mac scratch references and8 literal shell benchmark file URIs in received transcripts.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797143332-excerpt.json",
+        "sha256": "e7cc33e301c74e06a0bdabecbf379c215decbb34c010a5a1de70f4fd3da4f6bf",
+        "bytes": 18709
+      },
+      "evidence_kind": "CI source-reported observation independently content-reconciled; no local exact command/base replay.",
+      "inherited_red": "not_established"
+    }
+  ],
+  "property": {
+    "statement": "Bind exactly the4 requested old-head CI failures to actual checkout SHA, recorded backend/environment, complete declared inputs, deciding source bytes and first-stop/skipped-step meaning. Preserve every required check and refrain from inherited-red or final-candidate acceptance without its own evidence.",
+    "runtime_path": [
+      "GitHub hosted workflow/checker execution on merge588b (tree identical oldhead6d)",
+      "GitHub decoded job-log producer and per-job API metadata",
+      "UTF-8 full-source binding and curated complete failure-step excerpt",
+      "immutable source/config references + typed diagnostic map",
+      "G routes canonical gate/input owners and obtains fresh final-candidate checks"
+    ],
+    "proxy_divergence": "A job named Python quality and unit can be red even though the unit suite never ran; here import policy failed first and GitHub metadata marks units skipped. Performance Smoke can be red before benchmarking because fixture catalog bytes are unavailable, so its red does not measure a timing regression. Merely unchanged offending lines do not establish inherited red because whole-input scans may intersect our paths.",
+    "negative_controls": [
+      "Change an ARCH code in the excerpt while retaining declared source/identity/count markers: real source-byte reconciliation rejects it.",
+      "Remove one deciding import edge while retaining source declarations: frozen excerpt reconciliation rejects it."
+    ],
+    "unresolved_boundaries": [
+      "No exact CI3.14.7 command replay at slice-base; inherited attribution remains not_established.",
+      "Exact transitively executed performance/import-runtime inputs and Lychee parser filetype input set not reconstructed from logs; declared directory/test/config sets and observed URLs retained.",
+      "No ruling for other PR jobs or any new final candidate."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_annotations": {
+    "decoded_logs": "Independently retained/read against GitHub source/metadata and Git source refs; scientific runtime/finding adequacy not admitted.",
+    "input_absence": "Source logs show catalog path not admitted as readable file; catalog file bytes not_established.",
+    "inherited_red": "not_established",
+    "new_candidate_CI_acceptance": "not_established"
+  },
+  "capability_state_or_finding_state": "read-only diagnostic handoff; original required CI reds preserved; unitSKIP; no new finding closure",
+  "authority_purpose": "Route old-head technical gate/input diagnostics to G and canonical owners, not approve merge or scientific claims.",
+  "provenance": {
+    "map": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-map.json",
+      "commit": "4a388516351c29e45259fbe8360725f71881974b",
+      "sha256": "4f2175356a386efa6bca7be374583b217fd248bbb9d4270acb1f7dccda8fe3c0"
+    },
+    "artifacts": {
+      "environment-jobs.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/environment-jobs.json",
+        "sha256": "8e0c2b9b859d1bd3cbad616d1162661b391aa4f8f3930782207ce2d0862de860",
+        "bytes": 1661
+      },
+      "job-111797143332-excerpt.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797143332-excerpt.json",
+        "sha256": "e7cc33e301c74e06a0bdabecbf379c215decbb34c010a5a1de70f4fd3da4f6bf",
+        "bytes": 18709
+      },
+      "job-111797143594-excerpt.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797143594-excerpt.json",
+        "sha256": "11619c35bc189b524e6bdfc085de9c1176b59a961ea897daf2fb0bd11c561d3e",
+        "bytes": 37166
+      },
+      "job-111797145215-excerpt.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797145215-excerpt.json",
+        "sha256": "bfc9d9ae4d131625e9cc737280e74865b1f2eace8a8f672bee36d8266f35eecb",
+        "bytes": 16004
+      },
+      "job-111797145328-excerpt.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/job-111797145328-excerpt.json",
+        "sha256": "7064c9340f7dbc0fbec16c6fb07d3d6e9cf644b6cb3f39ef6a69e8927e35d6e9",
+        "bytes": 8403
+      },
+      "measure.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/measure.txt",
+        "sha256": "d322b0df1236bcee353b5d88b2153cabe8079ca2a2d53fe4f1913441afbbdb4b",
+        "bytes": 668
+      },
+      "pr-info.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/pr-info.json",
+        "sha256": "9540c97eb8690799ca5a05420a170965230ca693d284e7506ab7beaee7292921",
+        "bytes": 324
+      },
+      "pre-push-hooks.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/pre-push-hooks.log",
+        "sha256": "e0264e5546f5ac64a25a231d871ba0ec4856599bfc427415e079faa04ef44ff0",
+        "bytes": 1047
+      },
+      "source-cli-redirect-error.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/source-cli-redirect-error.log",
+        "sha256": "ad8ae843b694f196ba8f96f33b9b343e47b26d3045d3f16f6906318642feb6ad",
+        "bytes": 3635
+      },
+      "source-verification.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/source-verification.log",
+        "sha256": "931cc3c5f07a520b60431277edb3393aed6aabc966b8e43555cac70ccefc3bb7",
+        "bytes": 552
+      },
+      "verify-source.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/ci-oldhead-logs/verify-source.txt",
+        "sha256": "696c4b9d05cc6edda9d672b21b9d8d9789ac22c79f686b1cadf7a8afc73ba89f",
+        "bytes": 2528
+      }
+    },
+    "raw_receiver_inputs": [
+      {
+        "path": "/workspace/e02-D-receipts/pr10-ci-oldhead/raw/111797143332.log",
+        "sha256": "14838b71e8761c42cf9615cd9ec649879e5aa88421b3a80849ce773d72c67016",
+        "bytes": 37320,
+        "reacquire": "GitHub connector github_fetch_workflow_job_logs for exact job ID; preserve decoded UTF-8 content."
+      },
+      {
+        "path": "/workspace/e02-D-receipts/pr10-ci-oldhead/raw/111797145328.log",
+        "sha256": "efd7a5435f54042e297a5f975a89ebec3cf8392e2563df80e7efe911f5cf3763",
+        "bytes": 44126,
+        "reacquire": "GitHub connector github_fetch_workflow_job_logs for exact job ID; preserve decoded UTF-8 content."
+      },
+      {
+        "path": "/workspace/e02-D-receipts/pr10-ci-oldhead/raw/111797143594.log",
+        "sha256": "c2d09a5cc43a0ce1af1887973680b9c113b615bb347193b42f59aec0ffd7766a",
+        "bytes": 67801,
+        "reacquire": "GitHub connector github_fetch_workflow_job_logs for exact job ID; preserve decoded UTF-8 content."
+      },
+      {
+        "path": "/workspace/e02-D-receipts/pr10-ci-oldhead/raw/111797145215.log",
+        "sha256": "182466d56c3c29f9818239c6b0ba64936bc08807861a601125d4f50f4def30e9",
+        "bytes": 46025,
+        "reacquire": "GitHub connector github_fetch_workflow_job_logs for exact job ID; preserve decoded UTF-8 content."
+      }
+    ],
+    "record_encoding": "Historical received repo logs/Mac references untouched. Curated JSON source-value strings escape file URI/Mac path separators for data transport; JSON decode preserves every original excerpt byte."
+  },
+  "time_roles": {
+    "prepared_utc": "2026-10-05T14:51:11.336711+00:00",
+    "original_workflow_runs": "2026-10-05T13:52:55Z; attempt1; four jobs completed13:53-13:55UTC.",
+    "freshness_expiry": "Exception2026-06-30 versus CI date2026-10-05; not silently extended.",
+    "fresh_source_retrieval": "Original and second connector reads byte-identical during current diagnostic work.",
+    "receipt": "Separate commit follows immutable map/source-excerpt implementation; no own future SHA."
+  },
+  "pattern_pass": [
+    "P35 complete requested4-job/source-file and emitted-error denominators; no full PR/whole repo verdict.",
+    "P37 registered source reconciliation label with explicit unresolved acceptance predicates.",
+    "P38 job names/exit codes do not substitute for executed unit/scientific/timing property.",
+    "P41 exact slice-base replay+zero changed-input intersection absent; no inherited exclusion."
+  ],
+  "limitations_and_next_owner": [
+    "G routes all21 import-policy edges to architecture coordinator plus canonical code-root owners; D fixes any demonstrated touched-path private-helper gate issue in its source lease.",
+    "Team-docs owns published-doc accuracy and expired exception ruling. Do not rebaseline expected count/hash/expiry simply to green the PR.",
+    "G/A runtime fixture and DataForge catalog owners must supply content-bound bounded catalog fixture or appoint local exact data-dependent check; preserve production catalog fail-closed acceptance.",
+    "Team-docs/E02 evidence custodians own offline local-reference policy. Do not modify received raw transcripts/Mac scratch evidence or weaken whole check to hide errors.",
+    "The final frozen D candidate needs fresh original required CI jobs and actual unit/backend checks; oldhead data confers no PASS or closure.",
+    "No production/test/workflow/config/source-history edits in this topic; all source checker results remain oldhead observations."
+  ]
+}

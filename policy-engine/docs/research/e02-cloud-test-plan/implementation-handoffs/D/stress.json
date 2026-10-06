@@ -1,0 +1,808 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "stress",
+  "bundle_ids": [
+    "STR-01"
+  ],
+  "finding_ids": [
+    "B106",
+    "B107"
+  ],
+  "covered_finding_ids": [
+    "B106",
+    "B107"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "c6bc25386cd745ec07fb7d004e032598a03092dc",
+    "eb18c8b740eed83280a36a440c5682ad4cbe6d00",
+    "58bccb82f2447fcd8bc3d10ebc89abc69aea71ef"
+  ],
+  "candidate_sha": "58bccb82f2447fcd8bc3d10ebc89abc69aea71ef",
+  "candidate_tree_sha": "805f62376d18835cd40e5b47b78f9226d3eba005",
+  "branch": "codex/e02-D-stress",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+    "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+  ],
+  "baseline_cells": [
+    "F02-P067",
+    "F04-P120",
+    "F06-P088",
+    "F08-P120",
+    "F09-P068",
+    "F10-P068",
+    "F15-P079",
+    "F15-P142"
+  ],
+  "dependency_checkpoint": {
+    "branch": "codex/e02-integration",
+    "sha": "c40d4acae1ce58b597267255026d9356565828fd",
+    "tree": "897662caf73bd4487f798d66938b74d7abfe753e"
+  },
+  "source_input_identity": {
+    "base": {
+      "commit": "c40d4acae1ce58b597267255026d9356565828fd",
+      "tree": "897662caf73bd4487f798d66938b74d7abfe753e",
+      "tracked_input_roots": {
+        "policy-engine/src": "ad5369944b0b959342320ae3ff4f6172471d48e6",
+        "policy-engine/tests": "c7ccd3c86a1ea04016a217d7265f531642b86d04",
+        "policy-engine/architecture": "4ee55a12145835f59e93c0100dccd0c27672f8e6",
+        "policy-engine/tools": "6fcaa959970b4a84df81f1fcd9179de2f3b58a71",
+        "policy-engine/pyproject.toml": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "policy-engine/pytest.ini": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+        "policy-engine/uv.lock": "85f1fb2150a4da454fee02108565381d44f56730",
+        "policy-engine/ruff.toml": "a0928fffdad2d96d6030fc23584801beac45b560"
+      },
+      "ignored_inputs": "temporary fixture CAS/cache; read-only installed environment identified separately; no production dataset used"
+    },
+    "candidate": {
+      "commit": "58bccb82f2447fcd8bc3d10ebc89abc69aea71ef",
+      "tree": "805f62376d18835cd40e5b47b78f9226d3eba005",
+      "tracked_input_roots": {
+        "policy-engine/src": "4234cd575b06063dc3215d29dc53197704b065f0",
+        "policy-engine/tests": "4f8893f531e993fa20a87c5d496fe3a378c1d724",
+        "policy-engine/architecture": "4ee55a12145835f59e93c0100dccd0c27672f8e6",
+        "policy-engine/tools": "6fcaa959970b4a84df81f1fcd9179de2f3b58a71",
+        "policy-engine/pyproject.toml": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "policy-engine/pytest.ini": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+        "policy-engine/uv.lock": "85f1fb2150a4da454fee02108565381d44f56730",
+        "policy-engine/ruff.toml": "a0928fffdad2d96d6030fc23584801beac45b560"
+      },
+      "ignored_inputs": "temporary fixture CAS/cache; read-only installed environment identified separately; no production dataset used"
+    },
+    "changed_file_sha256": {
+      "policy-engine/src/polisyos/scientist/methods/search/adversarial.py": "d2e49ec1720979eb468605f1d1cae1a6f58803123eeaa187c65b510ad2f51640",
+      "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py": "1a8a9148529297240e5d57c3dc1dc3cf644c65425eaca90271aab81034e56cba",
+      "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py": "8ad3bdf014a6c555cb0a1e59d24991f4e2f985de1da6408581e2cd52c1c98263"
+    },
+    "criteria_source": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STR-01.md",
+      "commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "sha256": "e0532566d84e5e3d62d5e8b03a41eaf96d9a11aa155cc5475a0fb2a5d910d966"
+    },
+    "criteria_byte_locators": {
+      "B106": {
+        "source": "STR-01.md@6978076",
+        "lines": [
+          47,
+          60
+        ],
+        "bytes": [
+          4609,
+          7657
+        ]
+      },
+      "B107": {
+        "source": "STR-01.md@6978076",
+        "lines": [
+          66,
+          79
+        ],
+        "bytes": [
+          7804,
+          11098
+        ]
+      }
+    },
+    "source_rules": "StressTestReport schema_version1.0; existing direction, validity, severity, score and adequacy contracts preserved."
+  },
+  "checks": [
+    {
+      "name": "native_focused_runtime_and_worker_consumer",
+      "target_sha": "eb18c8b740eed83280a36a440c5682ad4cbe6d00",
+      "environment": {
+        "identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/environment.json",
+        "identity_sha256": "c1fb7d736d0eba3c92b1bf64940c44788ea875d36e653fe3b47ad3750702f03e",
+        "python": "3.14.2",
+        "kind": "native_read_only_shared_venv",
+        "lock_conformance": "not_established; independent locked-env c6 check recorded separately"
+      },
+      "input_closure": "Exact commit/tree bounds every tracked source, test/helper/fixture, architecture registry, tools and pytest/project configuration. Selected cases use bounded DGPs and pytest temporary CAS, not production data. PYTHONPATH=src; conftest inserts checkout src. Existing read-only installed distribution inventory is environment.json.",
+      "outcome": "PASS",
+      "output": "34 tests PASS; wall24.257s; RSS1329840KiB.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/final-green.log",
+        "bytes": 1112,
+        "sha256": "2946160656851856fad8736115ca3843d75d048cacc640708f7b82c5cb681fc8"
+      },
+      "successor_identity": {
+        "commit": "58bccb82f2447fcd8bc3d10ebc89abc69aea71ef",
+        "production_and_new_test_bytes_unchanged": true,
+        "consumer_AST_unchanged": true,
+        "consumer_final_exact_bytes_rerun": "final_consumer_selector"
+      },
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/search/test_adversarial_streaming.py",
+        "tests/unit/scientist/search/test_adversarial.py",
+        "tests/unit/scientist/mirror_contracts/test_stress_report.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "-q",
+        "-o",
+        "cache_dir=_cache/pytest-stress-final"
+      ],
+      "measurement": {
+        "exit_code": 0,
+        "elapsed_s": 24.257,
+        "max_rss_kib": 1329840
+      }
+    },
+    {
+      "name": "final_consumer_selector",
+      "target_sha": "58bccb82f2447fcd8bc3d10ebc89abc69aea71ef",
+      "environment": {
+        "identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/environment.json",
+        "identity_sha256": "c1fb7d736d0eba3c92b1bf64940c44788ea875d36e653fe3b47ad3750702f03e",
+        "python": "3.14.2",
+        "kind": "native_read_only_shared_venv",
+        "lock_conformance": "not_established; independent locked-env c6 check recorded separately"
+      },
+      "input_closure": "Exact commit/tree bounds every tracked source, test/helper/fixture, architecture registry, tools and pytest/project configuration. Selected cases use bounded DGPs and pytest temporary CAS, not production data. PYTHONPATH=src; conftest inserts checkout src. Existing read-only installed distribution inventory is environment.json.",
+      "outcome": "PASS",
+      "output": "Exact final consumer bytes: PASS; first grid physical corner shock=noise0, normalized objective0, high1; wall17.002s; RSS1286456KiB.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/final-consumer-green.log",
+        "bytes": 988,
+        "sha256": "e942d86d7df37e470e0249a9ae3248040fb2bc7ebecb76afbbd3236d5961d87b"
+      },
+      "time_roles": "Test executed after whitespace-only edit before Git commit; all touched bytes reread and exactly matched final immutable commit.",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution",
+        "-q",
+        "-o",
+        "cache_dir=_cache/pytest-stress-consumer"
+      ],
+      "measurement": {
+        "exit_code": 0,
+        "elapsed_s": 17.002,
+        "max_rss_kib": 1286456
+      }
+    },
+    {
+      "name": "consumer_slice_base",
+      "target_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "environment": {
+        "identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/environment.json",
+        "identity_sha256": "c1fb7d736d0eba3c92b1bf64940c44788ea875d36e653fe3b47ad3750702f03e",
+        "python": "3.14.2",
+        "kind": "native_read_only_shared_venv",
+        "lock_conformance": "not_established; independent locked-env c6 check recorded separately"
+      },
+      "input_closure": "Immutable git archive at exact slice base containing complete policy-engine/src, tests, tools, architecture, pyproject.toml, pytest.ini. Same native interpreter, PYTHONPATH=src and same selector/pytest options as c6 and final.",
+      "outcome": "FAIL",
+      "output": "Exact same selector FAIL: vulnerabilities=[] at normalized objective=-GDP<=0 versus threshold+0.5.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/consumer-base-red.log",
+        "bytes": 4043,
+        "sha256": "c10b7e04420f72150fbba4f75300f499599a514521f14c4809822a67605552e5"
+      },
+      "inherited_red": false,
+      "changed_input_intersection": [
+        "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+        "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+      ],
+      "input_identity": {
+        "commit": "c40d4acae1ce58b597267255026d9356565828fd",
+        "tree": "897662caf73bd4487f798d66938b74d7abfe753e",
+        "tracked_input_roots": {
+          "policy-engine/src": "ad5369944b0b959342320ae3ff4f6172471d48e6",
+          "policy-engine/tests": "c7ccd3c86a1ea04016a217d7265f531642b86d04",
+          "policy-engine/architecture": "4ee55a12145835f59e93c0100dccd0c27672f8e6",
+          "policy-engine/tools": "6fcaa959970b4a84df81f1fcd9179de2f3b58a71",
+          "policy-engine/pyproject.toml": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "policy-engine/pytest.ini": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "policy-engine/uv.lock": "85f1fb2150a4da454fee02108565381d44f56730",
+          "policy-engine/ruff.toml": "a0928fffdad2d96d6030fc23584801beac45b560"
+        },
+        "ignored_inputs": "temporary fixture CAS/cache; read-only installed environment identified separately; no production dataset used"
+      },
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution",
+        "-q",
+        "-o",
+        "cache_dir=_cache/pytest-stress-consumer"
+      ],
+      "measurement": {
+        "exit_code": 1,
+        "elapsed_s": 16.76,
+        "max_rss_kib": 1295000
+      }
+    },
+    {
+      "name": "consumer_pre_companion",
+      "target_sha": "c6bc25386cd745ec07fb7d004e032598a03092dc",
+      "environment": {
+        "identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/environment.json",
+        "identity_sha256": "c1fb7d736d0eba3c92b1bf64940c44788ea875d36e653fe3b47ad3750702f03e",
+        "python": "3.14.2",
+        "kind": "native_read_only_shared_venv",
+        "lock_conformance": "not_established; independent locked-env c6 check recorded separately"
+      },
+      "input_closure": "Exact commit/tree bounds every tracked source, test/helper/fixture, architecture registry, tools and pytest/project configuration. Selected cases use bounded DGPs and pytest temporary CAS, not production data. PYTHONPATH=src; conftest inserts checkout src. Existing read-only installed distribution inventory is environment.json.",
+      "outcome": "FAIL",
+      "output": "Same selector FAIL: impossible positive threshold for -GDP over physical GDP[0,2].",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/consumer-c6-red.log",
+        "bytes": 4031,
+        "sha256": "54745f47dddef767046e5e9781d59047a8adac94f197d5166236d030e3c3022a"
+      },
+      "inherited_red": false,
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution",
+        "-q",
+        "-o",
+        "cache_dir=_cache/pytest-stress-consumer"
+      ],
+      "measurement": {
+        "exit_code": 1,
+        "elapsed_s": 14.623,
+        "max_rss_kib": 1305844
+      }
+    },
+    {
+      "name": "consumer_companion_before_format",
+      "target_sha": "eb18c8b740eed83280a36a440c5682ad4cbe6d00",
+      "environment": {
+        "identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/environment.json",
+        "identity_sha256": "c1fb7d736d0eba3c92b1bf64940c44788ea875d36e653fe3b47ad3750702f03e",
+        "python": "3.14.2",
+        "kind": "native_read_only_shared_venv",
+        "lock_conformance": "not_established; independent locked-env c6 check recorded separately"
+      },
+      "input_closure": "Exact commit/tree bounds every tracked source, test/helper/fixture, architecture registry, tools and pytest/project configuration. Selected cases use bounded DGPs and pytest temporary CAS, not production data. PYTHONPATH=src; conftest inserts checkout src. Existing read-only installed distribution inventory is environment.json.",
+      "outcome": "PASS",
+      "output": "PASS with actual normalized threshold -0.5 and deterministic GRID_EXTREME; exact corner assertions retained.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/consumer-green.log",
+        "bytes": 988,
+        "sha256": "8307449a01640802802025b808afbd48ff779522e9ea0f809a693b4e0661188c"
+      },
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution",
+        "-q",
+        "-o",
+        "cache_dir=_cache/pytest-stress-consumer"
+      ],
+      "measurement": {
+        "exit_code": 0,
+        "elapsed_s": 13.912,
+        "max_rss_kib": 1286532
+      }
+    },
+    {
+      "name": "historical_payload_retention_discriminator",
+      "target_sha": "c6bc25386cd745ec07fb7d004e032598a03092dc",
+      "environment": {
+        "identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/environment.json",
+        "identity_sha256": "c1fb7d736d0eba3c92b1bf64940c44788ea875d36e653fe3b47ad3750702f03e",
+        "python": "3.14.2",
+        "kind": "native_read_only_shared_venv",
+        "lock_conformance": "not_established; independent locked-env c6 check recorded separately"
+      },
+      "input_closure": "Historical adversarial.py bytes from exact base injected into actual module; other dependencies and new tests at c6. This hybrid discriminator is not a full slice-base runtime receipt.",
+      "outcome": "FAIL",
+      "output": "2 expected failures: cap1 retains23 full payloads; cap3 retains24. Capped final presentation alone misses unbounded in-run retention.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/historical-red.log",
+        "bytes": 5107,
+        "sha256": "43326e8a2df59316fc96e7ef58c866b6aa471c3366a61fe615d45d7631f8a040"
+      },
+      "module_source_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+      "probe_mode": "historical",
+      "portable_rerun": "From repository policy-engine cwd: PYTHONPATH=src python3 docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/measure.txt OUTPUT VENV/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/probe.txt MODE",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02_stress_probe.py",
+        "historical"
+      ],
+      "measurement": {
+        "exit_code": 1,
+        "elapsed_s": 25.928,
+        "max_rss_kib": 1165612
+      }
+    },
+    {
+      "name": "retention_removal_keep_markers",
+      "target_sha": "c6bc25386cd745ec07fb7d004e032598a03092dc",
+      "environment": {
+        "identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/environment.json",
+        "identity_sha256": "c1fb7d736d0eba3c92b1bf64940c44788ea875d36e653fe3b47ad3750702f03e",
+        "python": "3.14.2",
+        "kind": "native_read_only_shared_venv",
+        "lock_conformance": "not_established; independent locked-env c6 check recorded separately"
+      },
+      "input_closure": "Exact commit/tree bounds every tracked source, test/helper/fixture, architecture registry, tools and pytest/project configuration. Selected cases use bounded DGPs and pytest temporary CAS, not production data. PYTHONPATH=src; conftest inserts checkout src. Existing read-only installed distribution inventory is environment.json.",
+      "outcome": "FAIL",
+      "output": "2 expected failures: remove only full payload append bound while counters, metadata, digest keys and final caps remain; live-payload witness detects regression.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/retention-removal.log",
+        "bytes": 5127,
+        "sha256": "b86ca3ddca2f941998b93413e06ab3d7fb4dbfdb6c45445873cabab093700847"
+      },
+      "probe_mode": "retention_removal",
+      "portable_rerun": "From repository policy-engine cwd: PYTHONPATH=src python3 docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/measure.txt OUTPUT VENV/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/probe.txt MODE",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02_stress_probe.py",
+        "retention_removal"
+      ],
+      "measurement": {
+        "exit_code": 1,
+        "elapsed_s": 28.355,
+        "max_rss_kib": 1165668
+      }
+    },
+    {
+      "name": "direction_removal_keep_markers",
+      "target_sha": "c6bc25386cd745ec07fb7d004e032598a03092dc",
+      "environment": {
+        "identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/environment.json",
+        "identity_sha256": "c1fb7d736d0eba3c92b1bf64940c44788ea875d36e653fe3b47ad3750702f03e",
+        "python": "3.14.2",
+        "kind": "native_read_only_shared_venv",
+        "lock_conformance": "not_established; independent locked-env c6 check recorded separately"
+      },
+      "input_closure": "Exact commit/tree bounds every tracked source, test/helper/fixture, architecture registry, tools and pytest/project configuration. Selected cases use bounded DGPs and pytest temporary CAS, not production data. PYTHONPATH=src; conftest inserts checkout src. Existing read-only installed distribution inventory is environment.json.",
+      "outcome": "FAIL",
+      "output": "4 expected failures: typed GDP worst=-0.982337... rather than analytical +0.958141...; budget worst0 rather than +0.958141... at both threshold signs.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/direction-removal.log",
+        "bytes": 12559,
+        "sha256": "5a9ed82ef04093eb57c0e83984125102a6ae53910bc471cb1a04bdac5ecf4d52"
+      },
+      "probe_mode": "direction_removal",
+      "portable_rerun": "From repository policy-engine cwd: PYTHONPATH=src python3 docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/measure.txt OUTPUT VENV/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/probe.txt MODE",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02_stress_probe.py",
+        "direction_removal"
+      ],
+      "measurement": {
+        "exit_code": 1,
+        "elapsed_s": 16.937,
+        "max_rss_kib": 1166124
+      }
+    },
+    {
+      "name": "occurrence_counter_removal_keep_markers",
+      "target_sha": "eb18c8b740eed83280a36a440c5682ad4cbe6d00",
+      "environment": {
+        "identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/environment.json",
+        "identity_sha256": "c1fb7d736d0eba3c92b1bf64940c44788ea875d36e653fe3b47ad3750702f03e",
+        "python": "3.14.2",
+        "kind": "native_read_only_shared_venv",
+        "lock_conformance": "not_established; independent locked-env c6 check recorded separately"
+      },
+      "input_closure": "Exact commit/tree bounds every tracked source, test/helper/fixture, architecture registry, tools and pytest/project configuration. Selected cases use bounded DGPs and pytest temporary CAS, not production data. PYTHONPATH=src; conftest inserts checkout src. Existing read-only installed distribution inventory is environment.json.",
+      "outcome": "FAIL",
+      "output": "1 expected failure: increment same named counters after presentation dedupe -> high_count1 versus 8 actual repeated violated scenarios.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/counter-removal.log",
+        "bytes": 2765,
+        "sha256": "623563836d3ec09832cc33417ab9ebe1d27378eccb974bc8207a0912209afdc5"
+      },
+      "probe_mode": "counter_removal",
+      "portable_rerun": "From repository policy-engine cwd: PYTHONPATH=src python3 docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/measure.txt OUTPUT VENV/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/probe.txt MODE",
+      "defining_source_bytes_identical_to": "c6bc25386cd745ec07fb7d004e032598a03092dc",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02_stress_probe.py",
+        "counter_removal"
+      ],
+      "measurement": {
+        "exit_code": 1,
+        "elapsed_s": 11.593,
+        "max_rss_kib": 1165780
+      }
+    },
+    {
+      "name": "semantics_preserving_control",
+      "target_sha": "c6bc25386cd745ec07fb7d004e032598a03092dc",
+      "environment": {
+        "identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/environment.json",
+        "identity_sha256": "c1fb7d736d0eba3c92b1bf64940c44788ea875d36e653fe3b47ad3750702f03e",
+        "python": "3.14.2",
+        "kind": "native_read_only_shared_venv",
+        "lock_conformance": "not_established; independent locked-env c6 check recorded separately"
+      },
+      "input_closure": "Exact commit/tree bounds every tracked source, test/helper/fixture, architecture registry, tools and pytest/project configuration. Selected cases use bounded DGPs and pytest temporary CAS, not production data. PYTHONPATH=src; conftest inserts checkout src. Existing read-only installed distribution inventory is environment.json.",
+      "outcome": "PASS",
+      "output": "10 new witnesses PASS after equivalent bound condition len(examples)+1<=max_examples.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/preserving.log",
+        "bytes": 1195,
+        "sha256": "e9beaeeaa146fac7105134462475e65dbf47b253d5aace239f4c287730384b54"
+      },
+      "probe_mode": "preserving",
+      "portable_rerun": "From repository policy-engine cwd: PYTHONPATH=src python3 docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/measure.txt OUTPUT VENV/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/probe.txt MODE",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02_stress_probe.py",
+        "preserving"
+      ],
+      "measurement": {
+        "exit_code": 0,
+        "elapsed_s": 27.547,
+        "max_rss_kib": 1165976
+      }
+    },
+    {
+      "name": "independent_locked_env_source_focused",
+      "target_sha": "c6bc25386cd745ec07fb7d004e032598a03092dc",
+      "environment": {
+        "kind": "root_independent_immutable_archive_locked_env",
+        "interpreter": "/workspace/e02-D-locked-env/bin/python",
+        "python": "3.14.7",
+        "full_distribution_inventory": "not supplied in this transferred receipt",
+        "source_receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/independent-c6.json",
+          "bytes": 638,
+          "sha256": "a0c7d6856e49d296233d9e56eb983351381274f2556a82bf2a91218661290a88"
+        }
+      },
+      "input_closure": "Independent immutable git archive with complete src/tests/tools Python paths plus pyproject; deciding full output copied byte-for-byte from root receipt. No claim for final consumer test in this check.",
+      "outcome": "PASS",
+      "output": "Root independently executed immutable archive c6:27PASS12.91s, wall16.839s RSS1042736KiB.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/independent-c6.log",
+        "bytes": 1029,
+        "sha256": "e32414e0a4ba32dbb4873a8f807a1a1d2152378a9c864fa3f3577fbf2d08d348"
+      },
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/scientist/search/test_adversarial.py",
+        "tests/unit/scientist/search/test_adversarial_streaming.py",
+        "tests/unit/scientist/mirror_contracts/test_stress_report.py",
+        "-o",
+        "addopts=",
+        "-q"
+      ]
+    },
+    {
+      "name": "removed_private_helper_complete_tracked_python_census",
+      "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/helper-census.txt 58bccb82f2447fcd8bc3d10ebc89abc69aea71ef",
+      "target_sha": "58bccb82f2447fcd8bc3d10ebc89abc69aea71ef",
+      "environment": {
+        "kind": "stdlib Git source census",
+        "python": "3.12.14"
+      },
+      "input_closure": "Every one of 6427 tracked .py blobs at target SHA, complete Git pathset; literal direct-reference search; dynamic name construction not established.",
+      "outcome": "PASS",
+      "output": {
+        "target_sha": "58bccb82f2447fcd8bc3d10ebc89abc69aea71ef",
+        "tracked_python_denominator": 6427,
+        "pathset_sha256": "27b4845bc096b0713875ad5dfefbf8c59ba2a380b4228fa2e53fc79bc119a7ce",
+        "removed_helper": "_deduplicate_vulnerabilities",
+        "direct_named_references": [],
+        "dynamic_name_construction": "not_established",
+        "outcome": "PASS"
+      },
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/helper-census.json",
+        "bytes": 345,
+        "sha256": "e98f3eade89237f9d28ce9df5e167460467eced473c56d0fb2abbecf81b5dd63"
+      }
+    },
+    {
+      "name": "touched_source_lint_and_format",
+      "command": [
+        ".venv/bin/ruff check src/polisyos/scientist/methods/search/adversarial.py tests/unit/scientist/search/test_adversarial_streaming.py tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        ".venv/bin/ruff format --check src/polisyos/scientist/methods/search/adversarial.py tests/unit/scientist/search/test_adversarial_streaming.py tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "git diff --check"
+      ],
+      "target_sha": "58bccb82f2447fcd8bc3d10ebc89abc69aea71ef",
+      "environment": {
+        "identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/environment.json",
+        "identity_sha256": "c1fb7d736d0eba3c92b1bf64940c44788ea875d36e653fe3b47ad3750702f03e",
+        "python": "3.14.2",
+        "kind": "native_read_only_shared_venv",
+        "lock_conformance": "not_established; independent locked-env c6 check recorded separately"
+      },
+      "input_closure": "All three touched Python files and ruff.toml at candidate.",
+      "outcome": "PASS",
+      "output": "All checks passed!; 3 files already formatted; git diff --check exit0."
+    },
+    {
+      "name": "normal_precommit_hook_format_commit",
+      "target_sha": "58bccb82f2447fcd8bc3d10ebc89abc69aea71ef",
+      "environment": {
+        "identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/environment.json",
+        "identity_sha256": "c1fb7d736d0eba3c92b1bf64940c44788ea875d36e653fe3b47ad3750702f03e",
+        "python": "3.14.2",
+        "kind": "native_read_only_shared_venv",
+        "lock_conformance": "not_established; independent locked-env c6 check recorded separately"
+      },
+      "input_closure": "Exact commit/tree bounds every tracked source, test/helper/fixture, architecture registry, tools and pytest/project configuration. Selected cases use bounded DGPs and pytest temporary CAS, not production data. PYTHONPATH=src; conftest inserts checkout src. Existing read-only installed distribution inventory is environment.json.",
+      "outcome": "PASS",
+      "output": "Normal canonical precommit hook executed; frontend commands selected no matching staged Python files, no bypass. Commit58bccb82f produced.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/format-commit-hooks.log",
+        "bytes": 1088,
+        "sha256": "5b53f2faf6c7dd1bf75d680a7507c52f92ad8d4dcbc9af9cde6b69d74f3ea1ef"
+      },
+      "command": [
+        "npm",
+        "exec",
+        "--yes",
+        "--package=node@22",
+        "--",
+        "git",
+        "commit",
+        "-m",
+        "style: format touched scenario adversary consumer test"
+      ],
+      "measurement": {
+        "exit_code": 0,
+        "elapsed_s": 0.807,
+        "max_rss_kib": 81056
+      }
+    },
+    {
+      "name": "normal_prepush_hook_gate",
+      "target_sha": "58bccb82f2447fcd8bc3d10ebc89abc69aea71ef",
+      "environment": {
+        "kind": "frozen pnpm workspace",
+        "node": "22.23.3",
+        "pnpm": "10.33.2",
+        "lefthook": "2.1.6",
+        "install_command": "npm exec --yes --package=node@22 -- corepack pnpm install --frozen-lockfile",
+        "lock_sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e"
+      },
+      "input_closure": "Exact commit/tree bounds every tracked source, test/helper/fixture, architecture registry, tools and pytest/project configuration. Selected cases use bounded DGPs and pytest temporary CAS, not production data. PYTHONPATH=src; conftest inserts checkout src. Existing read-only installed distribution inventory is environment.json.",
+      "outcome": "PASS",
+      "output": "Normal canonical prepush TypeScript app/node/tools typecheck PASS; wall37.640s; RSS1792592KiB.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/pre-push-hooks.log",
+        "bytes": 1043,
+        "sha256": "9c1f92f1e40b3ce638a603b7236d54a0cf1bd41b1c78fc2cdd1da48df8b6d2bd"
+      },
+      "command": [
+        "npm",
+        "exec",
+        "--yes",
+        "--package=node@22",
+        "--",
+        "policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook",
+        "run",
+        "pre-push",
+        "--no-auto-install"
+      ],
+      "measurement": {
+        "exit_code": 0,
+        "elapsed_s": 37.64,
+        "max_rss_kib": 1792592
+      }
+    }
+  ],
+  "property": {
+    "statement": "Count all observed stress attempts/violations and severity occurrences before presentation dedupe/cap, retaining at most k full distinct presentation examples plus one current loop temporary; verify real typed GDP/cost normalization and adaptive report extremum against physical-coordinate DGP, including invalid evidence and CAS readback.",
+    "runtime_path": [
+      "AdversarialPlan + parameter specs + deterministic/seeded samples",
+      "real Stage-B evaluator simulation_results -> GDPGrowthObjective/BudgetDeficitObjective -> CompositeObjective normalization",
+      "run_stress_test -> StrategyAdapter(RandomSearchStrategy) adaptive feedback -> _VulnerabilitySummary exact occurrence counters + first-distinct digest keys and bounded examples",
+      "StressTestReport -> canonical FileSystemCAS store -> get_bytes/from_canonical_bytes reopen",
+      "ScenarioAdversaryWorker compiled GRID_EXTREME plan -> low-GDP corner -> consumer report assertions"
+    ],
+    "proxy_divergence": "Final report len(vulnerabilities)<=k and occurrence metadata can both pass while the runner retains every large Vulnerability internally; historical and retention-removal controls fail the in-run object witness. A positive threshold over normalized -GDP is unreachable for GDP[0,2] even though construction succeeds. Correct worst-case fields and retained counters do not establish whole-space failure probability.",
+    "negative_controls": [
+      "Keep markers/counters/capped output but remove only payload append bound: live-object bound fails.",
+      "Keep direction fields/report keys but reverse typed MINIMIZE badness: four analytical threshold± tests fail.",
+      "Keep bounded examples/digest keys and same named counters but increment only after dedupe: eight repeated observed violations collapse to one and fail.",
+      "Historical pre-fix payload module injected into actual runtime: cap1/cap3 tests fail."
+    ],
+    "semantics_preserving_control": "Equivalent len(examples)+1<=k yields10PASS."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded empirical mechanism and analytic witnesses verified; B106 principal completeness/formula/interpretation ruling pending; B107 finding-level evidence covered without closure claim.",
+  "authority_purpose": "Candidate mechanism/test handoff for independent D/G acceptance, not scientific completeness policy or finding closure.",
+  "time_roles": {
+    "receipt_prepared_utc": "2026-10-05T14:22:31.863779+00:00",
+    "counts": "Occurrences in actually attempted/evaluated bounded workload, including invalid results.",
+    "score": "Existing finite observed-set formula; adaptive/stopped sample is not a whole-domain probability estimate.",
+    "publication": "Separate receipt commit follows immutable implementation commits; no self-future SHA referenced."
+  },
+  "provenance": {
+    "artifacts": {
+      "consumer-base-input-error.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/consumer-base-input-error.log",
+        "bytes": 3762,
+        "sha256": "21f8a507614e5261b14bd1de288eb0129e625b5e2ab1c0849c33c74c3a817aef"
+      },
+      "consumer-base-red.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/consumer-base-red.log",
+        "bytes": 4043,
+        "sha256": "c10b7e04420f72150fbba4f75300f499599a514521f14c4809822a67605552e5"
+      },
+      "consumer-c6-red.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/consumer-c6-red.log",
+        "bytes": 4031,
+        "sha256": "54745f47dddef767046e5e9781d59047a8adac94f197d5166236d030e3c3022a"
+      },
+      "consumer-green.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/consumer-green.log",
+        "bytes": 988,
+        "sha256": "8307449a01640802802025b808afbd48ff779522e9ea0f809a693b4e0661188c"
+      },
+      "control-script-error.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/control-script-error.log",
+        "bytes": 12554,
+        "sha256": "7ca3049399f952979507e01fc07dcd5cfb68c0381b9894e3633355945b0a9277"
+      },
+      "counter-removal.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/counter-removal.log",
+        "bytes": 2765,
+        "sha256": "623563836d3ec09832cc33417ab9ebe1d27378eccb974bc8207a0912209afdc5"
+      },
+      "direction-removal.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/direction-removal.log",
+        "bytes": 12559,
+        "sha256": "5a9ed82ef04093eb57c0e83984125102a6ae53910bc471cb1a04bdac5ecf4d52"
+      },
+      "environment.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/environment.json",
+        "bytes": 11062,
+        "sha256": "c1fb7d736d0eba3c92b1bf64940c44788ea875d36e653fe3b47ad3750702f03e"
+      },
+      "final-consumer-green.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/final-consumer-green.log",
+        "bytes": 988,
+        "sha256": "e942d86d7df37e470e0249a9ae3248040fb2bc7ebecb76afbbd3236d5961d87b"
+      },
+      "final-green.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/final-green.log",
+        "bytes": 1112,
+        "sha256": "2946160656851856fad8736115ca3843d75d048cacc640708f7b82c5cb681fc8"
+      },
+      "format-commit-hooks.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/format-commit-hooks.log",
+        "bytes": 1088,
+        "sha256": "5b53f2faf6c7dd1bf75d680a7507c52f92ad8d4dcbc9af9cde6b69d74f3ea1ef"
+      },
+      "green.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/green.log",
+        "bytes": 4155,
+        "sha256": "7ac078b22ad34f559710e0d8b487d01fd71890798fd552b2c58b0d5b4edb4041"
+      },
+      "helper-census.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/helper-census.json",
+        "bytes": 345,
+        "sha256": "e98f3eade89237f9d28ce9df5e167460467eced473c56d0fb2abbecf81b5dd63"
+      },
+      "helper-census.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/helper-census.txt",
+        "bytes": 806,
+        "sha256": "7e267954724ecd2a9af04d98cebc6d5b393ad650506a7dd44055734d6518fc89"
+      },
+      "historical-red.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/historical-red.log",
+        "bytes": 5107,
+        "sha256": "43326e8a2df59316fc96e7ef58c866b6aa471c3366a61fe615d45d7631f8a040"
+      },
+      "hook-missing-prerequisite.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/hook-missing-prerequisite.log",
+        "bytes": 350,
+        "sha256": "6b87e72e42d1d35d5312397bc555a00a1ad9f4855f4a575228f02bbdc3392fdc"
+      },
+      "independent-c6.json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/independent-c6.json",
+        "bytes": 638,
+        "sha256": "a0c7d6856e49d296233d9e56eb983351381274f2556a82bf2a91218661290a88"
+      },
+      "independent-c6.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/independent-c6.log",
+        "bytes": 1029,
+        "sha256": "e32414e0a4ba32dbb4873a8f807a1a1d2152378a9c864fa3f3577fbf2d08d348"
+      },
+      "measure.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/measure.txt",
+        "bytes": 668,
+        "sha256": "d322b0df1236bcee353b5d88b2153cabe8079ca2a2d53fe4f1913441afbbdb4b"
+      },
+      "pre-push-hooks.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/pre-push-hooks.log",
+        "bytes": 1043,
+        "sha256": "9c1f92f1e40b3ce638a603b7236d54a0cf1bd41b1c78fc2cdd1da48df8b6d2bd"
+      },
+      "preserving.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/preserving.log",
+        "bytes": 1195,
+        "sha256": "e9beaeeaa146fac7105134462475e65dbf47b253d5aace239f4c287730384b54"
+      },
+      "probe.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/probe.txt",
+        "bytes": 2829,
+        "sha256": "962802e1247be850ef20b4633bcf605f6efede0df264f641b1054b1362130fba"
+      },
+      "retention-removal.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/retention-removal.log",
+        "bytes": 5127,
+        "sha256": "b86ca3ddca2f941998b93413e06ab3d7fb4dbfdb6c45445873cabab093700847"
+      },
+      "runner-unavailable.log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/runner-unavailable.log",
+        "bytes": 60,
+        "sha256": "3e737f6a9117cec194b02103b357f8668fae9adb86a8a8cd0bf25efab8948548"
+      }
+    },
+    "independent_source_review": "Numerical oracle reviewed immutable c6, reran26 native/new tests and independently broke payload retention; its separate Git review receipt remains with root. Root source review found no touched-property blocker.",
+    "baseline_navigation": "baseline-map.json@d259a0102b143c83b145ad9d1b0e5d128eca72f0; source-reported PASS cells not promoted."
+  },
+  "non_deciding_executions": [
+    {
+      "outcome": "ERROR",
+      "artifact": "runner-unavailable.log",
+      "reason": "/usr/bin/time absent; no tests started; switched stdlib subprocess/resource wrapper."
+    },
+    {
+      "outcome": "ERROR",
+      "artifact": "consumer-base-input-error.log",
+      "reason": "Initial isolated archive omitted architecture registry and could not collect consumer; completed exact-base architecture/tools inputs before deciding FAIL replay."
+    },
+    {
+      "outcome": "ERROR",
+      "artifact": "control-script-error.log",
+      "reason": "First attempted new counter-removal branch fell through to prior direction-removal mutation; only direction changed. Excluded from counter verdict; corrected script then dedicated counter-removal produced expected1FAIL."
+    },
+    {
+      "outcome": "FAIL",
+      "artifact": "green.log",
+      "reason": "Earlier combined33PASS1FAIL identified consumer threshold error, then repaired and final focused34PASS."
+    },
+    {
+      "outcome": "FAIL",
+      "artifact": "hook-missing-prerequisite.log",
+      "reason": "Canonical hook newly installed by root required checkout-local frontend deps. Installed frozen deps and normal hook rerun succeeded; no bypass."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "closure_ids=[]; B106 principal decision remains: no new completeness/empty-evaluation policy, robustness formula, or whole-domain probability authority was invented.",
+    "Unique digest-key set remains O(unique findings); sampler arrays and adaptive search history remain outside full-Vulnerability payload bound. This slice does not claim global constant memory.",
+    "Legal admitted AdversarialPlan has nonempty parameter specs and >=1 max_iterations; native sampler paths are nonempty. Corrupted empty sampler behavior was not promoted into a completeness policy.",
+    "Native shared environment lock conformance not established; separate independent frozen locked-env check27PASS at exact sourcec6 covers unchanged production/newtest bytes, not consumer delta.",
+    "Focused34PASS at eb18 plus exact final-byte consumer rerun at58 and AST/source identity prove whitespace-only successor; no broader whole-repository regression claim.",
+    "B107 tested bounded real maximize-GDP/minimize-budget/threshold±/invalid/adaptive/CAS paths; finding closure belongs to appointed verification owner and G acceptance.",
+    "All moderate deciding logs and portable controls are included in receipt publication. P41 inherited-red exclusion is not claimed for intersecting consumer/source paths.",
+    "G must fetch/read exact topic head, receipt, reviews and final consumer delta before integration. Main publication outside this slice."
+  ]
+}

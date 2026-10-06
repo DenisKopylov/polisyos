@@ -1,0 +1,126 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "candidate_source_sha": "e789e9523725fa081de5cdc69da5938489315b4a",
+  "candidate_tree_sha": "8baa795f1e191b4bf9c6d6c5dc283bd32bab440f",
+  "branch": "codex/e02-D-search",
+  "pull_request": null,
+  "closure_ids": [],
+  "environments": [
+    {
+      "id": "D-search-latest-real-cpu",
+      "python": "3.14.2",
+      "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+      "PYTHONPATH": "/workspace/e02-D-search/policy-engine/src",
+      "torch": "2.14.1+cu130",
+      "botorch": "0.18.1",
+      "gpytorch": "1.15.2",
+      "pytest": "9.0.2",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "device": "cpu",
+      "scope": "Shared environment read only; isolated worktree and pytest scratch; actual optional numerical backend present."
+    },
+    {
+      "id": "D-independent-locked-real-cpu",
+      "python": "3.14.7",
+      "executable": "/workspace/e02-D-locked-env/bin/python",
+      "torch": "2.10.0+cu128",
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1",
+      "device": "cpu",
+      "executor": "independent gp_witness/numerical_oracle, archived exact source",
+      "python_version_source": "/workspace/e02-D-locked-env/bin/python --version -> Python3.14.7; root final-environment.json; corrected prior3.14.2 assumption."
+    }
+  ],
+  "authority_purpose": "Bounded engineering verification only. G accepts integration and closure; scientific promotion, default authority, and principal-held compatibility/scale decisions are not supplied by these checks.",
+  "baseline_scope": "Full owned route join: 23 finding IDs, 274 route rows, 70 unique source cells. Source-reported results identify historical observations, not future candidate PASS. Raw archives absent in source transfer metadata.",
+  "baseline_cells_ref": "search-coverage.json#baseline_cells",
+  "source_environment_refs": "search-coverage.json#baseline_source_receipts",
+  "slice": "search-executed-coordinates",
+  "bundle_ids": [
+    "OPT-02",
+    "CTL-01",
+    "CTL-02"
+  ],
+  "covered_finding_ids": [
+    "B112",
+    "B113",
+    "B119",
+    "B125",
+    "B126",
+    "B127"
+  ],
+  "implementation_commits": [
+    "ac98d79e31fe453d49fb61c2e5b23a25b733390c",
+    "d49fc4e27df210d3fd033df20fecbf510530eb94",
+    "5d8aaaa13ad04fe89b762ff5a772a956beddbf44",
+    "a3a9fa56a35679839007a65f4b389a3d172b2788"
+  ],
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-05-search-attainable-domain.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-05-search-execution-coordinates.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-05-search-gp-acquisition-replay.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-05-search-hypervolume-limitations.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-05-search-rl-checkpoint.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-05-search-stopping-limitations.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+    "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+    "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_attainable_space.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_wrapper.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_stopping_limitations.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py"
+  ],
+  "checks_ref": "search-coverage.json#checks",
+  "property": {
+    "statement": "Canonical attained physical action determines training coordinates and pending/completed dedup; no stale action is manufactured after bounded failure.",
+    "runtime_path": [
+      "canonical strategy/space -> StrategyState bytes -> admitted receiver -> actual nextask/model",
+      "native service ask/tell -> soleRunState -> SearchResult",
+      "native registry -> persisted snapshot -> projection -> frontier CAS publisher -> retainedreader"
+    ],
+    "proxy_divergence": "Real fitted model/parameter fields existed while warm corpus/refit counters were lost; relaxed vectors differed from actual actions; finite source coordinates overflowed derived HV; actual hard-limit fallback made a scheduled refit checkpoint legitimate despite elapsed counter.",
+    "negative_controls": [
+      "Numerical/model/warm ingestion and local acquisition RNG removal controls",
+      "Fake measured0/Inf HV with true front/markers",
+      "Malformed JSON shared decode and nested artifact controls",
+      "Future refitclock/corpus X/Y/rowcount corruption",
+      "LegacyController.run forbidden on actual autotune caller"
+    ]
+  },
+  "predicate_basis": "recomputed within bounded fixtures; production predicates remain not_established",
+  "capability_state_or_finding_state": "partial; no new closure",
+  "limitations_and_next_owner": [
+    "Encoding equality abs1e-12 is distinct from exact physical action dedup; independent replica metadata remains distinct.",
+    "attainable_projection.v1 is part of spacefingerprint, so old incomplete projection/checkpoint basis refuses.",
+    "Legacy wrapper production route remains implemented_but_not_orchestrated; package constructor tests do not prove it.",
+    "Bounded proposal failure does not prove mathematical exhaustion of whole finite domain."
+  ]
+}

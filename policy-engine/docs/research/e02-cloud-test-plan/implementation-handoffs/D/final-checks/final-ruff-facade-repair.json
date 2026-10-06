@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-c",
+    "import subprocess,sys; files=subprocess.check_output([\"git\",\"diff\",\"--name-only\",\"c40d4acae1ce58b597267255026d9356565828fd\",\"--\",\"*.py\"],text=True).splitlines(); print(\"Complete changed Python input denominator\",len(files),flush=True); r1=subprocess.call([sys.executable,\"-m\",\"ruff\",\"check\",*files]); r2=subprocess.call([sys.executable,\"-m\",\"ruff\",\"format\",\"--check\",*files]);sys.exit(r1 or r2)"
+  ],
+  "cwd": "/workspace/e02-D-orchestration",
+  "target_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+  "candidate_tree_sha": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+  "end_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+  "immutable_commit_unchanged": true,
+  "exit_code": 0,
+  "wall_s": 0.12949961899994378,
+  "peak_rss_kib": 31360,
+  "output_path": "/workspace/e02-D-receipts/final-ruff-facade-repair.log",
+  "output_bytes": 91,
+  "output_sha256": "b9ed4ae9bd23e1c24c7e2b6b4397de048cbecbae08d84a0dcfd966a342709dbc",
+  "numerical_environment_overrides": {},
+  "PYTHONPATH": null
+}

@@ -171,11 +171,8 @@ class NeuralSearchStrategy(BaseSearchStrategy):
         )
 
         vector = tuple(candidate.squeeze(0).tolist())
-        params = self._space.denormalize(vector)
-
-        return PolicyCandidate(
-            params=params,
-            params_normalized=vector,
+        return self._space.candidate_from_vector(
+            vector,
             acquisition_value=acq_value.item(),
             source_strategy="neural_gp",
             metadata={"warm_start_count": len(self._warm_data)},

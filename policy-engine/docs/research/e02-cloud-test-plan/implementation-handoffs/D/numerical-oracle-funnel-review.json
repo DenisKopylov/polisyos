@@ -1,0 +1,107 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "d3bd03dc0e0041ba83d75768987717f069218331"
+  ],
+  "candidate_tree_sha": "f6fb068d655f6183b814c3fcfe604b955aa69d6a",
+  "branch": "codex/e02-D-oracle",
+  "pull_request": null,
+  "closure_ids": [],
+  "verdict": "PASS_BOUNDED_CODE_REVIEW",
+  "baseline_cells": [],
+  "environment": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "pytest": "9.0.2",
+    "source_mode": "git archive exact SHA; PYTHONPATH=<archive>/policy-engine/src; separate TemporaryDirectory per candidate; tracked architecture included"
+  },
+  "production_files_written": [],
+  "path_map": "Mirrored tests only; immutable source snapshots. This branch contains no production patch.",
+  "slice": "numerical-oracle-funnel-review",
+  "review_target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+  "review_target_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+  "observed_ids": [
+    "B161",
+    "B164"
+  ],
+  "bundle_ids": [
+    "FUN-01",
+    "FUN-02",
+    "FUN-03"
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-funnel-review.txt"
+  ],
+  "log_sha256": "898bede60d7cec8e23e1aa6465460c3b03684c377f59c29a38f07ada4726b69b",
+  "source_basis": [
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py@63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py@63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py@63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+  ],
+  "verification": [
+    {
+      "id": "FUN-native-original",
+      "source_sha": "19bafcd0f593d182a1b7c79833bbb0efaad3bc90",
+      "command": "git archive SOURCE_SHA policy-engine/src policy-engine/tests policy-engine/architecture policy-engine/pytest.ini policy-engine/pyproject.toml; extract; PYTHONPATH=<archive>/policy-engine/src /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/search/funnel --tb=short -ra",
+      "input_closure": "Actual SimpleLoopEngine and Foundry bootstrap with analytic synthetic sequential data; real low/medium/full continuation, calibration roles, sentinel reuse, CI routes, native CAS tracker/audit reopen and policy-node effect harness. Source suite fixtures declare external publication-owner substitutes.",
+      "output": "112 passed, 2 warnings in 13.32s; exit 0",
+      "status": "PASS"
+    },
+    {
+      "id": "FUN-semantic-datetime-discriminator-old",
+      "source_sha": "19bafcd0f593d182a1b7c79833bbb0efaad3bc90",
+      "command": "Same immutable archive. Run actual SimpleLoopEngine estimate: score=float(valid_at.day if typed datetime else final day of ISO string); return simulation_results gdp_change=ate=score, bootstrap ci_width=0, APPROVE. Attach Level4FullFidelity to FunnelOrchestrator; same candidate_id datetime-control. Submit Oct1 datetime UTC, Oct2 datetime UTC, ISO Oct3 and Oct4. Print ticket IDs, score, cache flag, cost and remaining budget.",
+      "input_closure": "Typed datetime(2026,10,1/2,tzinfo=UTC) then strings 2026-10-03/04; declared run budget5, estimated cost1, direct real consumer. Analytic expected executed days [1,2,3,4].",
+      "output": "Actual workflow_calls [1.0,3.0,4.0]; Oct2 reuses Oct1 terminal ticket/cache=True with score1.0. Expected day2 score2 absent. Driver exit0 because original probe printed observation; property FAIL.",
+      "status": "FAIL",
+      "review_class": "P40: existing semantic cache-identity loss one level deeper; sent owner before correction"
+    },
+    {
+      "id": "FUN-semantic-datetime-corrected",
+      "source_sha": "93be49e480d723c5c55bb3716ba63f06e7be39a0",
+      "command": "Same immutable typed-time discriminator, corrected canonical budget import and submitted_via_cache diagnostic attribute; assert workflow_calls == [1.,2.,3.,4.].",
+      "input_closure": "Identical four times/candidate/real consumer. Date and naive/UTC datetime top-level/nested cases also run in native suite.",
+      "output": "114 native tests passed, 2 warnings in14.54s. Actual workflow_calls [1.0,2.0,3.0,4.0]; each changed time new ticket, cacheFalse, scores1/2/3/4; actual_cost1.0, budget_remaining5 each. Deciding probe exit0.",
+      "status": "PASS"
+    },
+    {
+      "id": "FUN-final-native",
+      "source_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "command": "Immutable archive with source+tests+architecture+pytest.ini+pyproject.toml; locked python -m pytest tests/unit/scientist/search/funnel --tb=short -ra",
+      "input_closure": "117 native funnel tests including exact native candidate ArtifactRef binding positive, missing/wrong/malformed controls; continuation, real bootstrap and persisted readback.",
+      "output": "117 passed,2warnings in32.48s; exit0",
+      "status": "PASS"
+    },
+    {
+      "id": "FUN-final-generic-permission-removal",
+      "source_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "command": "Instantiate real Level6PromotionStage with effect-list runner returning decision complete. Owner callback results None(absent), False, {allowed:False}, allow string, integer1, [False], True. Assert effects==int(value is True) and complete iff True. Replace _owner_recheck_allows_write with bool in memory and rerun denialdict witness; require AssertionError.",
+      "input_closure": "Direct generic runtime effect boundary, declared callback contract; no production source edit.",
+      "output": "None/False/denialdict/allow/1/[False] effect_count0, terminal defer_to_human; True effect_count1, complete. Under removal denialdict effect_count1, complete; strict_boolean_guard_removed=FAIL_AS_REQUIRED. Probeexit0.",
+      "status": "PASS"
+    }
+  ],
+  "harness_errors": [
+    {
+      "source_sha": "19bafcd0f593d182a1b7c79833bbb0efaad3bc90",
+      "result": "Initial archive omitted tracked architecture registry; collection ERRORexit2, corrected archive native112PASS. Not product verdict."
+    },
+    {
+      "source_sha": "93be49e480d723c5c55bb3716ba63f06e7be39a0",
+      "result": "First two scratch probes used wrong budget module and nonexistent ticket.cache_hit diagnostic; corrected canonical budget and submitted_via_cache, deciding propertyPASS. Not product verdict."
+    }
+  ],
+  "limitations": [
+    "Routing capacity snapshots and reported compute_actual do not establish an actual caller-budget charging bridge; explicit fixture keeps remaining run5 after reported cost1.",
+    "B161 selective refinement/foreign population supersession finding-level proof remains open.",
+    "B164 generic boolTrue accepts a declared callback without typed ownership evidence; native callback binding is tested, full authority contract remains open.",
+    "Synthetic bootstrap data establishes bounded numerical route parity, not production population or full GY behavior.",
+    "Code review acceptance does not close any finding."
+  ]
+}

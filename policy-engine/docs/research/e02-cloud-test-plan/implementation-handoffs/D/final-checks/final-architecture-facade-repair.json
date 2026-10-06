@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "cwd": "/workspace/e02-D-orchestration/policy-engine",
+  "target_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+  "candidate_tree_sha": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+  "end_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+  "immutable_commit_unchanged": true,
+  "exit_code": 1,
+  "wall_s": 209.26704581899958,
+  "peak_rss_kib": 907568,
+  "output_path": "/workspace/e02-D-receipts/final-architecture-facade-repair.log",
+  "output_bytes": 115757,
+  "output_sha256": "92a4aafae69c13cea74e754c8c24f6c5f36f2070bbeb07d5e5ed846f1ee11625",
+  "numerical_environment_overrides": {},
+  "PYTHONPATH": "src"
+}

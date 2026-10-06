@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "implementation_lane": "D",
+  "bundle_ids": [
+    "TRN-01",
+    "TRN-02"
+  ],
+  "covered_finding_ids": [
+    "B128",
+    "B129",
+    "B130",
+    "B131",
+    "B132",
+    "B133",
+    "B134"
+  ],
+  "closure_ids": [],
+  "entry_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "production_implementation_sha": "830ddd02dcfbdc6b93492d740b397581b79c82fc",
+  "test_commit_sha": "efe999fb143e05b501368d46d3109714e23760f8",
+  "test_commit_tree": "bf4c2dda05796e8d9b40273a6f360dd6b7d9aa81",
+  "deciding_candidate_sha": "4097a0174164564d5feb1f93c11fa137468a6d77",
+  "deciding_candidate_tree": "c469ba35f21c8712282d73973f867e07ac122f54",
+  "test_path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+  "test_sha256": "54f4b2af8fa1ef942318d153a0597492163b87239564ff75b76457652773c56c",
+  "actual_import_origins": {
+    "polisyos.scientist.agent.vector_memory": "/tmp/e02-transfer-workflow-4097.qsw8tz2a/policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+    "polisyos.scientist.methods.autotune.bayesian_generator": "/tmp/e02-transfer-workflow-4097.qsw8tz2a/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "polisyos.scientist.methods.autotune.runtime": "/tmp/e02-transfer-workflow-4097.qsw8tz2a/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+    "polisyos.scientist.methods.autotune.warm_start": "/tmp/e02-transfer-workflow-4097.qsw8tz2a/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+    "polisyos.scientist.methods.search.strategies.bayesian": "/tmp/e02-transfer-workflow-4097.qsw8tz2a/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "polisyos.scientist.methods.search.strategies.transfer": "/tmp/e02-transfer-workflow-4097.qsw8tz2a/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"
+  },
+  "imported_source_sha256": {
+    "polisyos.scientist.agent.vector_memory": "bdf8ea64fbca6bffeecad26cb6abd34571e9f4940f55bd7ed797338926c79391",
+    "polisyos.scientist.methods.autotune.bayesian_generator": "fc3c1c94fa92e4cb90a99b75632336de55749a771c80be0e43946ec91f3542fa",
+    "polisyos.scientist.methods.autotune.runtime": "cfe284284adae4b6345ba01d42d2aaf2893d3a62c3ac69ab9abbebbf914acd12",
+    "polisyos.scientist.methods.autotune.warm_start": "55fac092a2ed477e5ea856b9c3beda8ac17db5395534f75ec24fb634aa815d12",
+    "polisyos.scientist.methods.search.strategies.bayesian": "1c33d1235c8aa09ac6f251c06fa989f49cb6af9781df8b82fb13e8208351d118",
+    "polisyos.scientist.methods.search.strategies.transfer": "2bd8f88b7b950e43f0e37b460daec8ce88205c27c588817fa04e67cbef435fe9"
+  },
+  "archive_method": "git archive immutable combined4097 completepolicy-engine; standalone ownprobe external_probes; --confcutdir external_probes prevents leaf/archivedtests/conftestsrcinjection; PYTHONPATH onlyarchivepolicy-engine/src",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "/tmp/e02-transfer-workflow-4097.qsw8tz2a/external_probes/test_transfer_workflow.py",
+    "--confcutdir",
+    "/tmp/e02-transfer-workflow-4097.qsw8tz2a/external_probes",
+    "-q",
+    "-rA",
+    "--log-cli-level=WARNING"
+  ],
+  "source_root": "/tmp/e02-transfer-workflow-4097.qsw8tz2a/policy-engine/src",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.2",
+    "hnswlib": "0.8.0",
+    "torch": "2.14.1+cu130",
+    "botorch": "0.18.1",
+    "gpytorch": "1.15.2",
+    "device": "cpu",
+    "production_runtime_threads": "4 intraop,1interop logged byproductionowner; no external testcap",
+    "node_hook": "22.23.3",
+    "GP_test_config": "n_initial6 seed47 restarts3 raw_samples32 fallback_on_failureFalse; realfitandacquisition"
+  },
+  "input": {
+    "measurement": "boundedanalytic100*x*x evaluated after reading actual sourceMutationArtifactCAS; original BenchmarkEvaluationCAS then immutable transferhistoryCAS",
+    "physical_x": [
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.75,
+      0.9
+    ],
+    "source_basis": "actual native spacehash+numericcontext fingerprint, bounds0..1, scoreminimize, selection, analyticunits, fixedorigin,isolatedtenant",
+    "negative_cases": [
+      "targetoriginchanged whileoriginalsunchanged",
+      "first registeredstageA stringfalse whileactualcandidate+originalbenchmark+referencesunchanged"
+    ]
+  },
+  "workflow": "realFileSystemCAS -> nativeHNSWdiscovery -> WarmStartBridge configuredpair -> BayesianCandidateGenerator initializedreceiver -> SearchLoopRunner nativecontroller/service -> actualSingleTaskGPfit/acquisition -> actualtargetmutation/evaluationCAS",
+  "oracle": [
+    "ActualSingleTaskGP original_train_inputs equal8physicalsourcecoordinates and inverse-standardizedtrain_targets equal-negativeactualoriginalscalarvalues, no mockargsoracle.",
+    "Actualnativeacquisition labelbayesian_acquisition andvalue exists; actualcandidate/evaluationCAS readback independentlyrecomputedfrominput; targetnonpromotable,noholdout,nochampion.",
+    "Changedorigin warmcorpus empty andactualmodelNone; live loopstillpersistsfreshSobolmeasuredcandidate.",
+    "MalformedstageAexcluded fromactualGP tensors:7rows equalexactremainingoriginals, reporteraccepted7/rejected1 withcandidateidentity+typedreason.",
+    "OriginalsourceevaluationCAS bytes unchanged inallcases."
+  ],
+  "checks": [
+    {
+      "target_sha": "4097a0174164564d5feb1f93c11fa137468a6d77",
+      "result": "PASS",
+      "passed_test_count": 3,
+      "exit_code": 0,
+      "log": "transfer-workflow-4097-checks.txt",
+      "log_sha256": "1a584ce85ebbb5b6864066891becf9104804bbbae4e0617eca8d0018f05d6ef0",
+      "elapsed_seconds": 13.79
+    },
+    {
+      "result": "PASS",
+      "scope": "ruffnewtest,gitdiffcheck; ordinaryNode22commit hook"
+    }
+  ],
+  "proxy_divergence": [
+    "The evaluator is a boundedanalyticfunction, not a production historicalbenchmark; no speed/performance equivalence claimed.",
+    "Typedsourceandtenantdeclarations+CASreconciliation do not proveinstitutionalsourcetruth or authorization.",
+    "4097is immutablecombined reviewcandidate; GPresourcefallbackcheckpointguard followup knownseparate and finalstablewave rerun required.",
+    "Same leafpublisher alone lacks searchownerconfiguredconstructor dependency; workflow wasdecided onlyagainstcombinedsource."
+  ],
+  "remaining": [
+    "Finalrootstablecandidate exactnewfile rerun required; no finalclosurefrom4097alone.",
+    "B133principaldecision/B134data_recordheld; sourceinstitutionalauthorization andproductionhistorybenchmarkreceipt held."
+  ]
+}

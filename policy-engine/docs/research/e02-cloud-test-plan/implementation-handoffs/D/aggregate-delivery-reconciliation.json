@@ -1,0 +1,147 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "aggregate-delivery-reconciliation",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CTL-01",
+    "CTL-02",
+    "CTL-03",
+    "FUN-01",
+    "FUN-02",
+    "FUN-03",
+    "OPT-01",
+    "OPT-02",
+    "OPT-03",
+    "OPT-04",
+    "SRV-01",
+    "SRV-03",
+    "STP-01",
+    "STR-01",
+    "TRN-01",
+    "TRN-02",
+    "TRN-03"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2"
+  ],
+  "candidate_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+  "candidate_tree_sha": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+  "branch": "codex/e02-D-orchestration",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/10",
+  "reviewed_evidence_checkpoint_sha": "f62d4f47c2beae009427a2799ca295f9d778717b",
+  "aggregate_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/aggregate.json",
+    "source_sha": "cb6555b69120ad2a34b047ffb6359d9844c9d5b0",
+    "sha256": "cc836b2d4a53617b6fea8e29fc57cbde603f97c1a45c4da5d2e997e097682dd8",
+    "bytes": 36792
+  },
+  "changed_paths": [],
+  "changed_paths_scope": "No product mechanism changes. This separate receipt retains source-bound aggregate review and the previously committed complete gate report/measurement/stdout companions.",
+  "baseline_cells": {
+    "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+    "commit": "d7705039d1b509fee606d204b60585fcf137dbd8",
+    "json_pointer": "/cells"
+  },
+  "checks": [
+    {
+      "command_argv": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-artifact-verifier/verify.py",
+        "--repo",
+        "/workspace/e02-D-orchestration",
+        "--target",
+        "cb6555b69120ad2a34b047ffb6359d9844c9d5b0",
+        "--base",
+        "c40d4acae1ce58b597267255026d9356565828fd",
+        "--output",
+        "/workspace/e02-D-receipts/final-aggregate-artifact-report.json"
+      ],
+      "target_sha": "cb6555b69120ad2a34b047ffb6359d9844c9d5b0",
+      "target_tree_sha": "9b5c991926b5cb9d840217b01901bf32dbb21609",
+      "environment": {
+        "python": "3.12.14",
+        "platform": "Linux x86_64",
+        "backend_exercised": "Python standard library and actual Git immutable objects; no numerical backend or product runtime exercised",
+        "numerical_environment_overrides": {},
+        "PYTHONPATH": null
+      },
+      "input_closure": "All81 tracked D JSON, all81 changed JSON and13 changed release fragments at the exact immutable aggregate checkpoint; complete canonical45 finding/17 bundle/456 route/115 cell join and185 source byte/line locators. Full named errors and limits are in the report.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_s": 2.5386972569995123,
+      "peak_rss_kib": 44056,
+      "immutable_commit_unchanged": true,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-aggregate-artifact-check.txt",
+        "source_sha": "f62d4f47c2beae009427a2799ca295f9d778717b",
+        "sha256": "b997b155b70aba8e84e07728f00f014d20057fd1b1f9422f0af30e0b40663d11",
+        "bytes": 1375
+      },
+      "complete_named_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-aggregate-artifact-report.json",
+        "source_sha": "f62d4f47c2beae009427a2799ca295f9d778717b",
+        "sha256": "9b0553b728a5514ceeba43db44774ec115fce7b7b368f07d7bb93046441a09d5",
+        "bytes": 70062
+      },
+      "measurement": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-checks/final-aggregate-artifact-check.json",
+        "source_sha": "f62d4f47c2beae009427a2799ca295f9d778717b",
+        "sha256": "97109ab33207675eb0e4170f20dc0ea451f5e95f6104770af943b4bf629ba728",
+        "bytes": 1009
+      }
+    }
+  ],
+  "reviewers": [
+    {
+      "role": "search_owner",
+      "reviewed_file_sha256": "cc836b2d4a53617b6fea8e29fc57cbde603f97c1a45c4da5d2e997e097682dd8",
+      "outcome": "ACCEPT_BOUNDED_HANDOFF",
+      "scope": "Complete45 IDs/17 bundles,137 pinned pointers,ten check/output bindings, GP/refit and final transfer consumer evidence; PR framing. Latest G tree,five product src path changes and both A patch destination blobs reconcile. No blockers, source edits or broad rerun."
+    },
+    {
+      "role": "gp_witness",
+      "reviewed_file_sha256": "cc836b2d4a53617b6fea8e29fc57cbde603f97c1a45c4da5d2e997e097682dd8",
+      "outcome": "ACCEPT_SCOPED_OPT03",
+      "scope": "All four15-test logs and canonical test/source bytes reconcile. Actual warm corpus, learned parameters/transforms, atomic X/Y/count corruptions, same/append no-due fit traps and resource-fallback3-to4 legitimate due refit. Intrinsic RNG continuation with sequential external Torch draws. No controller/API/GPU/concurrent/cross-backend identity extension."
+    },
+    {
+      "role": "baseline_census",
+      "reviewed_file_sha256": "cc836b2d4a53617b6fea8e29fc57cbde603f97c1a45c4da5d2e997e097682dd8",
+      "outcome": "ACCEPT_AVAILABLE_BYTES",
+      "scope": "All73 concrete aggregate references,11 hash claims,tree identities,G tree/delta/blob claims match. No issues. git_path declarations are a generic-instrument limitation; their actual checksum was independently reconciled."
+    }
+  ],
+  "property": {
+    "statement": "The published aggregate accurately binds its concrete source/evidence references and preserves failed/unknown engineering and authority boundaries.",
+    "runtime_path": [
+      "immutable canonical finding/route/cell inputs",
+      "committed owner receipts and actual execution outputs",
+      "aggregate references",
+      "independent byte/reference review",
+      "G candidate intake"
+    ],
+    "proxy_divergence": "A declaration or summary can remain unchanged after referenced bytes or original input binding are corrupted. The artifact control rejects changed payloads; separate actual GP/removal witnesses establish runtime properties. Neither digest consistency nor this PASS proves model execution or closure.",
+    "negative_controls": [
+      "Nine meaningful artifact controls on frozen50cb checkpoint, including actual Git blob/tree rejection, pointer corruption, byte/locator/census corruption and raw-unavailable classification.",
+      "Actual final candidate-byte corruption control retained in final-artifact-verifier-continuation.json; original prior failed witnesses remain committed.",
+      "Actual configured GP content-binding removal retained in transfer-final-independent-review.json."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "authority_purpose": "Candidate-grade engineering intake only; no deployment, promotion, institutional authorization, G acceptance or finding closure signature.",
+  "capability_state_or_finding_state": "partial;45 finding closures remain empty; broad regression and architecture remain FAIL",
+  "time_roles": {
+    "source_and_tree": "Immutable identity only, not authorization or freshness.",
+    "wall_and_RSS": "Actual bounded artifact invocation measurements; no orchestration CPU/thread/worker quota.",
+    "semantic_time": "Owner receipts retain the actual date/TTL/fit-schedule distinctions; artifact timing proves none of their scientific rules."
+  },
+  "limitations_and_next_owner": [
+    "158 hash declarations without unambiguous byte locator and48 unavailable raw/external claims are named in the complete report. This artifact PASS establishes neither their bytes nor any runtime or authority verdict.",
+    "Current delivery adds evidence-only companions after the verified aggregate checkpoint. Product src and native unit/performance tests remain byte-identical to runtime6ac; no second numerical regression wave is claimed.",
+    "The aggregate retains failed broad regression (873PASS/6FAIL/1SALib module skip), failed architecture, static invocation unresolved boundaries, unknown registry schema acceptance and per-finding missing providers/consumers/semantic owners. No inherited-red waiver.",
+    "G must fetch the ordinary published branch head and aggregate cb6555b69, inspect exact ancestry/diff/evidence and perform local history/evaluator checks on candidate6ac with original read-only inputs. Principal-held decisions remain with Denis.",
+    "Normal topic push and exact remote readback follow this separate receipt; its own future commit SHA is never declared as an evidence source. No main push, history rewrite or required-check bypass."
+  ]
+}

@@ -1,0 +1,12 @@
+id = "2026-10-05-search-attainable-domain"
+title = "Project search proposals into attainable finite physical domains"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-scientist"
+summary = "Integer proposals project between ceil(lower) and floor(upper), and empty integer domains are refused. Non-finite bounds and proposal coordinates are refused. Extreme finite continuous bounds normalize without overflow, and GP observation admission checks the actual physical domain."
+evidence = ["tests/unit/scientist/methods/search/strategies/test_attainable_space.py", "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py"]
+compatibility = "Search-space checkpoint fingerprints now include attainable_projection.v1. Artifacts created under the prior projection basis are refused instead of silently producing a different execution after reopen."
+change_class = "internal"
+surface_classification = "internal: polisyos.scientist.methods.search.strategies"
+migration = "Recompute target space fingerprints from the canonical SearchSpace and create new checkpoints. Explicit fresh-run operations remain distinct from restoration."
+limitations = "This enforces declared parameter domains and replay identity; it does not establish scientific objective validity or complete finite-space exhaustion."

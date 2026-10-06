@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "tests/repo_quality/tools/test_e02_final_artifacts.py",
+    "-ra"
+  ],
+  "cwd": "/workspace/e02-D-orchestration/policy-engine",
+  "target_sha": "6f8a6108a44fa80ade581a7b70fb54be78fe6b02",
+  "candidate_tree_sha": "a97fcf2067d2ec784ae1d7ce9dff771c286d16c3",
+  "end_sha": "6f8a6108a44fa80ade581a7b70fb54be78fe6b02",
+  "immutable_commit_unchanged": true,
+  "exit_code": 0,
+  "wall_s": 1.215018515000338,
+  "peak_rss_kib": 102964,
+  "output_path": "/workspace/e02-D-receipts/final-artifact-controls.log",
+  "output_bytes": 98,
+  "output_sha256": "efb4cc1ce219481f3402d2af55e9136236d8c64373d15989442ebcea41df9cb3",
+  "numerical_environment_overrides": {},
+  "PYTHONPATH": "src"
+}

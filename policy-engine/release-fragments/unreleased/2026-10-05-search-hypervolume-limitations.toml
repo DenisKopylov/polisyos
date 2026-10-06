@@ -1,0 +1,12 @@
+id = "2026-10-05-search-hypervolume-limitations"
+title = "Preserve Pareto frontiers when derived hypervolume overflows"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-scientist"
+summary = "A valid finite Pareto frontier survives a non-finite derived hypervolume. New v2 front and registry artifacts represent this numeric result as null with a typed unavailable assessment, retained through snapshot persistence and view projection."
+evidence = ["tests/unit/scientist/methods/search/test_hypervolume_limitations.py", "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py"]
+compatibility = "New v2 artifacts add hypervolume assessments and permit null only with an unavailable assessment. Historical v1 projections keep their original fields; legacy finite numeric artifacts remain readable."
+change_class = "internal"
+surface_classification = "internal: polisyos.scientist.methods.autotune and search"
+migration = "Consumers must distinguish a null, unavailable hypervolume from a measured zero. Frontier membership and finite coordinate comparisons remain available independently of that numeric indicator."
+limitations = "The diagnostic does not choose a rescaling or alternate hypervolume convention. Production objective bases, feasible denominators, and served champion admission remain separate dependencies."

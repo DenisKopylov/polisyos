@@ -1,0 +1,20 @@
+{
+  "target_sha": "c6bc25386cd745ec07fb7d004e032598a03092dc",
+  "source": "immutable git archive (complete src/tests/tools Python paths and pyproject)",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/search/test_adversarial_streaming.py",
+    "tests/unit/scientist/mirror_contracts/test_stress_report.py",
+    "-o",
+    "addopts=",
+    "-q"
+  ],
+  "outcome": "PASS",
+  "exit_code": 0,
+  "wall_seconds": 16.839364169999953,
+  "rss_kib": 1042736,
+  "output": "/workspace/e02-D-receipts/stress-independent/deciding.txt"
+}

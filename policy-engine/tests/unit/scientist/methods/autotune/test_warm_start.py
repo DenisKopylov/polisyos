@@ -6,7 +6,9 @@ import json
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
-from polisyos.scientist.methods.autotune.models import BenchmarkSplit
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon.canon_json import CanonSpec
+from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
 from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
 from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
 from polisyos.scientist.methods.search.strategies.transfer import (
@@ -89,6 +91,35 @@ def _manager_with_cache(rows_by_run: dict[str, list[dict[str, object]]]) -> Tran
     return manager
 
 
+def _persist_source_benchmark(store, evaluation):
+    candidate_ref = store.put_json(
+        {"params": evaluation.params},
+        PutOptions(kind="search.candidate", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    evaluation.candidate_id = str(candidate_ref.artifact_id)
+    original = BenchmarkEvaluation(
+        loop_id=evaluation.metadata.get("source_run_id", "source-loop"),
+        suite_id="source-suite",
+        suite_version="2.0",
+        candidate_ref=candidate_ref,
+        selection_metrics={obj.name: obj.raw_value for obj in evaluation.objectives},
+        runtime_split_type=BenchmarkSplit.SELECTION,
+        metadata={
+            "params": evaluation.params,
+            "directions": {obj.name: obj.direction.value for obj in evaluation.objectives},
+            "warm_start_compatibility": evaluation.metadata.get("warm_start_compatibility"),
+        },
+    )
+    ref = store.put_json(
+        original.model_dump(mode="json"),
+        PutOptions(kind="source.benchmark", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    evaluation.provenance_ref = str(ref.artifact_id)
+    return original
+
+
 class _MemoryArtifactStore:
     def __init__(self) -> None:
         self._payloads: dict[str, bytes] = {}
@@ -139,6 +170,7 @@ class TestWarmStartBridge:
     def test_no_similar_runs(self):
         manager = MagicMock()
         manager.find_similar_runs.return_value = []
+        manager.get_warm_start_evaluations.return_value = []
         bridge = WarmStartBridge(manager)
         evals = bridge.load_warm_start(_fingerprint())
         assert evals == []
@@ -153,7 +185,7 @@ class TestWarmStartBridge:
         evals = bridge.load_warm_start(_fingerprint())
         assert len(evals) == 1
 
-    def test_evaluations_to_benchmarks(self):
+    def test_evaluations_to_benchmarks(self, tmp_path):
         candidate_id = _artifact_id("c")
         provenance_ref = _artifact_id("e")
         second_candidate_id = _artifact_id("d")
@@ -167,20 +199,27 @@ class TestWarmStartBridge:
                 provenance_ref=second_provenance_ref,
             ),
         ]
+        evals[1].params["x"] = 0.6
+        store = FileSystemCAS(tmp_path / "cas")
+        for evaluation in evals:
+            _persist_source_benchmark(store, evaluation)
+        candidate_id, second_candidate_id = [ev.candidate_id for ev in evals]
+        provenance_ref, second_provenance_ref = [ev.provenance_ref for ev in evals]
         benchmarks = WarmStartBridge.evaluations_to_benchmarks(
             evals,
             loop_id="loop1",
             primary_metric="score",
+            store=store,
         )
         assert len(benchmarks) == 2
         candidate_refs = {str(benchmark.candidate_ref.artifact_id) for benchmark in benchmarks}
         assert candidate_refs == {candidate_id, second_candidate_id}
-        assert all(
-            ref != f"sha256:{'0' * 64}"
-            for ref in candidate_refs
-        )
+        assert all(ref != f"sha256:{'0' * 64}" for ref in candidate_refs)
         benchmark = benchmarks[0]
-        assert benchmark.loop_id == "loop1"
+        assert benchmark.loop_id == "run1"
+        assert benchmark.suite_id == "source-suite"
+        assert benchmark.suite_version == "2.0"
+        assert benchmark.metadata["target_loop_id"] == "loop1"
         assert str(benchmark.candidate_ref.artifact_id) == candidate_id
         assert benchmark.selection_metrics == {"score": 0.8}
         assert benchmark.holdout_metrics == {}
@@ -193,7 +232,7 @@ class TestWarmStartBridge:
         assert benchmarks[1].metadata["provenance_ref"] == second_provenance_ref
         assert benchmarks[1].holdout_metrics == {}
 
-    def test_evaluations_to_benchmarks_preserves_raw_maximize_value(self):
+    def test_evaluations_to_benchmarks_preserves_raw_maximize_value(self, tmp_path):
         candidate_id = _artifact_id("9")
         evaluation = _make_eval(
             candidate_id,
@@ -202,11 +241,14 @@ class TestWarmStartBridge:
             raw_score=0.8,
             direction=OptimizationDirection.MAXIMIZE,
         )
+        store = FileSystemCAS(tmp_path / "cas")
+        _persist_source_benchmark(store, evaluation)
 
         benchmark = WarmStartBridge.evaluations_to_benchmarks(
             [evaluation],
             loop_id="loop1",
             primary_metric="score",
+            store=store,
         )[0]
 
         assert benchmark.selection_metrics == {"score": 0.8}
@@ -214,7 +256,7 @@ class TestWarmStartBridge:
 
 
 class TestTransferLearningManagerWarmStart:
-    def test_register_run_persistence_rehydrates_native_fields(self):
+    def test_register_run_persistence_rehydrates_native_fields(self, tmp_path):
         candidate_id = _artifact_id("a")
         provenance_ref = _artifact_id("b")
         evaluation = _make_eval(
@@ -233,15 +275,22 @@ class TestTransferLearningManagerWarmStart:
             units={"score": "points"},
             origin="simulator-v1",
             tenant_id="tenant-a",
+            objective_directions={"score": "minimize"},
             embedding=[0.1],
         )
-        store = _MemoryArtifactStore()
+        store = FileSystemCAS(tmp_path / "cas")
+        evaluation.metadata["warm_start_compatibility"] = {
+            "search_space_fingerprint": fingerprint.space_hash,
+            "context_fingerprint": fingerprint.numeric_context_fingerprint(),
+        }
+        _persist_source_benchmark(store, evaluation)
+        candidate_id, provenance_ref = evaluation.candidate_id, evaluation.provenance_ref
         index = _MemoryVectorIndex()
         writer = TransferLearningManager(store, index)
-        writer.register_run(fingerprint, [evaluation])
+        ref = writer.register_run(fingerprint, [evaluation])
 
         reader = TransferLearningManager(store, index)
-        source = fingerprint.model_copy(update={"embedding": []})
+        source = fingerprint.model_copy(update={"embedding": [], "history_ref": ref})
 
         evaluations = reader.get_warm_start_evaluations(
             [source],
@@ -365,9 +414,9 @@ class TestTransferLearningManagerWarmStart:
             class Index:
                 dim = 1
 
-                def query(self, embedding, top_k):
+                def query(self, embedding, top_k, metadata=source_metadata):
                     del embedding, top_k
-                    return [("old1", 0.01, source_metadata)]
+                    return [("old1", 0.01, metadata)]
 
             manager = object.__new__(TransferLearningManager)
             manager._index = Index()

@@ -471,9 +471,7 @@ class SearchController:
         )
         transition = _EvaluationTransition(
             disposition=(
-                _EvaluationDisposition.SENTINEL
-                if is_sentinel
-                else _EvaluationDisposition.ORDINARY
+                _EvaluationDisposition.SENTINEL if is_sentinel else _EvaluationDisposition.ORDINARY
             ),
             record=record,
         )
@@ -490,9 +488,7 @@ class SearchController:
         return {
             "best_candidate": deepcopy(snapshot.best_candidate),
             "best_objective": (
-                None
-                if snapshot.best_objective == float("inf")
-                else float(snapshot.best_objective)
+                None if snapshot.best_objective == float("inf") else float(snapshot.best_objective)
             ),
             "history_length": snapshot.history_size,
             "registry_update": {"search_id": snapshot.search_id},
@@ -560,15 +556,15 @@ class SearchController:
             "budget_required": bool(self._config.stopping.state_keys()),
             "budget_available": snapshot.budget_available,
             "budget_snapshot": deepcopy(snapshot.budget_snapshot),
-            "budget_spent": (
-                snapshot.budget_spent if snapshot.budget_available else None
-            ),
+            "budget_spent": (snapshot.budget_spent if snapshot.budget_available else None),
         }
         if self._diversity_tracker is not None:
             telemetry["diversity_unique_mechanisms_total"] = (
                 self._diversity_tracker.unique_mechanisms_total
             )
             telemetry["diversity_ratio"] = self._diversity_tracker.diversity_ratio
+        if snapshot.stopping_limitations:
+            telemetry["stopping_limitations"] = deepcopy(snapshot.stopping_limitations)
         transition_payload = snapshot.generation_transition_payload()
         if transition_payload is not None:
             telemetry["generation_transition"] = transition_payload
@@ -795,9 +791,7 @@ class SearchController:
             self._diversity_tracker.record_iteration(candidate)
         return _EvaluationTransition(
             disposition=(
-                _EvaluationDisposition.SENTINEL
-                if is_sentinel
-                else _EvaluationDisposition.ORDINARY
+                _EvaluationDisposition.SENTINEL if is_sentinel else _EvaluationDisposition.ORDINARY
             ),
             record=record,
         )
@@ -1124,9 +1118,9 @@ class SearchController:
             )
             from polisyos.scientist.methods.search.pareto_registry import ParetoView
 
-            self._run_state.pareto_projection = registry.get_snapshot(
-                self._search_id
-            ).project_view(ParetoView.GLOBAL_FEASIBLE)
+            self._run_state.pareto_projection = registry.get_snapshot(self._search_id).project_view(
+                ParetoView.GLOBAL_FEASIBLE
+            )
             self._pareto_front = registry.as_legacy_frontier_payload(self._search_id)
             return
 

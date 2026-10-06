@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-c",
+    "import json,subprocess,sys; paths=json.load(open(\"/workspace/e02-D-receipts/final-regression-inputs.json\")); sys.exit(subprocess.call([sys.executable,\"-m\",\"pytest\",\"-q\",*paths]))"
+  ],
+  "cwd": "/workspace/e02-D-orchestration/policy-engine",
+  "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "candidate_tree_sha": "de7d4f0a4e67f32dc26cb7182f8f1469a982094a",
+  "end_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "immutable_commit_unchanged": true,
+  "exit_code": 1,
+  "wall_s": 145.4736811469993,
+  "peak_rss_kib": 1540032,
+  "output_path": "/workspace/e02-D-receipts/final-regression.log",
+  "output_bytes": 28686,
+  "output_sha256": "20cda897c60275a103d5096fdeb59083ded2737fed82fbb9b2526c18df3f7080",
+  "numerical_environment_overrides": {},
+  "PYTHONPATH": "src"
+}

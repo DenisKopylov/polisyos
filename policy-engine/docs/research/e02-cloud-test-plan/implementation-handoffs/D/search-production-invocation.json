@@ -1,0 +1,72 @@
+{
+  "regressions": [],
+  "new_unresolved_by_construction": [
+    "polisyos.scientist.methods.autotune.bayesian_generator.BayesianCandidateGenerator.generate",
+    "polisyos.scientist.methods.autotune.bayesian_generator.SearchSpace.param_bounds",
+    "polisyos.scientist.methods.autotune.pareto.ParetoPromoter.compute_front",
+    "polisyos.scientist.methods.search.pareto_registry.ParetoRegistry.publish_transfer_surface",
+    "polisyos.scientist.methods.search.pareto_registry.ParetoRegistrySnapshot.historical_v1_payload",
+    "polisyos.scientist.methods.search.stopping.AllStoppingCriteria.check",
+    "polisyos.scientist.methods.search.stopping.CompositeStoppingCriterion.check",
+    "polisyos.scientist.methods.search.stopping.ImprovementPlateau.check",
+    "polisyos.scientist.methods.search.strategies.advanced_policy.BOHBSampler.suggest_batch",
+    "polisyos.scientist.methods.search.strategies.advanced_policy.CMAESExplorer.suggest_batch",
+    "polisyos.scientist.methods.search.strategies.base.BaseSearchStrategy.set_state",
+    "polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer.get_state",
+    "polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer.set_state",
+    "polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer.suggest",
+    "polisyos.scientist.methods.search.strategies.bayesian.BayesianOptimizer.suggest_batch",
+    "polisyos.scientist.methods.search.strategies.rl_wrapper.RLStrategyWrapper.get_state",
+    "polisyos.scientist.methods.search.strategies.rl_wrapper.RLStrategyWrapper.set_state",
+    "polisyos.scientist.methods.search.strategies.space.SearchSpace.candidate_from_vector",
+    "polisyos.scientist.methods.search.strategies.space.SearchSpace.denormalize",
+    "polisyos.scientist.methods.search.strategies.space.SearchSpace.normalize",
+    "polisyos.scientist.methods.search.strategies.space.SearchSpace.sobol_space_fingerprint",
+    "polisyos.scientist.methods.search.strategies.space.SearchSpace.validate_params",
+    "polisyos.scientist.methods.search.strategies.types.StrategyState.from_artifact"
+  ],
+  "coverage": "partial",
+  "measured": "Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies.",
+  "unmeasured": [
+    "HTTP router dispatch",
+    "dependency injection/container dispatch",
+    "event-bus dispatch",
+    "registered callback invocation",
+    "deferred lambda/coroutine execution and generator resumption",
+    "reflection and dynamic receiver/factory resolution",
+    "runtime execution, persisted business receipts, and gate substance"
+  ],
+  "summary": "Partial coverage: Static direct-call reachability from project scripts and non-test __main__ guards, stopping at deferred bodies. Unmeasured: HTTP router dispatch; dependency injection/container dispatch; event-bus dispatch; registered callback invocation; deferred lambda/coroutine execution and generator resumption; reflection and dynamic receiver/factory resolution; runtime execution, persisted business receipts, and gate substance.",
+  "uninvoked_meaning": "No resolved direct path or recognized indirect witness in the static model; not proof of runtime non-invocation.",
+  "root_count": 401,
+  "predicate_provenance": "recomputed",
+  "runtime_invocation_established": false,
+  "limitations": [
+    "Static paths do not prove execution, persisted receipts, or gate substance.",
+    "Reflection, callbacks, receiver types and conditional aliases need manual tracing.",
+    "Concrete public source callables are candidates; helpers are traversed.",
+    "No HTTP route is assumed runnable merely because it has a decorator."
+  ],
+  "base": "c40d4acae1ce58b597267255026d9356565828fd",
+  "schema": "policyos.e02.bounded_measurement_receipt.v1",
+  "source_sha": "4030275fd5bfb9c2a94c78b0f56e8d8aec97a83a",
+  "command": "PYTHONPATH=/workspace/e02-D-search/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --base c40d4acae1ce58b597267255026d9356565828fd --receipt /tmp/e02-search-production-invocation.json",
+  "exit_code": 3,
+  "status": "UNRESOLVED",
+  "unresolved_by_construction_count": 9186,
+  "unresolved_receiver_call_count": 139783,
+  "raw_receipt": {
+    "path": "/tmp/e02-search-production-invocation.json",
+    "sha256": "2ce63b3910db0f5496f41cae322784866581d4d37815c186dc81cc6920f844fb",
+    "bytes": 171195228,
+    "transfer": "Uncommitted large local raw; complete bounded deciding summary and all changed unresolved names committed here. Exact command can regenerate from Git source."
+  },
+  "denominator": {
+    "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+    "current_files": 5909,
+    "base_files": 5897,
+    "source_files": 2697,
+    "current_sha256": "87a110e5ff20937826319f61a190ff2cc754611c4a985e9251f0f27119d1676e",
+    "base_sha256": "5e0603c4e62090abea17ccfff1ab6c7976d0656f8b01367f1dec048e08364773"
+  }
+}

@@ -1,0 +1,641 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "final-contract-review",
+  "closure_ids": [],
+  "observed_ids": [
+    "B111",
+    "B112",
+    "B114",
+    "B115",
+    "B127"
+  ],
+  "bundle_ids": [
+    "OPT-01",
+    "OPT-02",
+    "OPT-03"
+  ],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "review_source_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "review_source_tree": "de7d4f0a4e67f32dc26cb7182f8f1469a982094a",
+  "final_reconciled_source_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+  "candidate_tree_sha": "69f89374f3c4abc50827ed1d5436c9ed4e050ebf",
+  "branch": "codex/e02-D-gp-witness",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-contract-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-contract-review.txt"
+  ],
+  "mutation_scope": "Docs-only independent review; no production/test/source or root worktree writes, no additional GP mutation ladder.",
+  "source_paths": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "git_blob": "4ea79496fa97ef0ea1974b2ff11a29005dbea900",
+      "sha256": "08488d5f624663b10067a1e34cf562471a0ce9caa36d505cfdc57116766df62d",
+      "bytes": 20760,
+      "run_source_git_blob": "00a999d3f3251a7a31cf64f5c11321457aaa461a",
+      "byte_equal_to_run_source": false,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "git_blob": "be3b0c38b5623c486bded159f5d2a482a70f75f2",
+      "sha256": "240ce5631d87102fd31134fec5712328f0c887cccdc6ec879c4626a998593655",
+      "bytes": 41377,
+      "run_source_git_blob": "be3b0c38b5623c486bded159f5d2a482a70f75f2",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "git_blob": "9adaf85aacec6bdee26c0a96d6cd079fc89129fb",
+      "sha256": "6177f695ff0ede423296951c29b1c51755279e95024962cc0df243018088a241",
+      "bytes": 12648,
+      "run_source_git_blob": "9adaf85aacec6bdee26c0a96d6cd079fc89129fb",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "git_blob": "e9ca72983f90c39b29bf36015ef003733546e5a4",
+      "sha256": "c6b37bb8ab1b888e192d15116dee446c57bdc2aad50d922ae865ede8cb36ad8a",
+      "bytes": 20103,
+      "run_source_git_blob": "e9ca72983f90c39b29bf36015ef003733546e5a4",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "git_blob": "4a6ea537c8b997f1a0b9b8770e5d9b06c774a26e",
+      "sha256": "0a3d2038ff91e94f909b27c6a61acf4e92751b52a563d40184537e83fb110557",
+      "bytes": 6444,
+      "run_source_git_blob": "4a6ea537c8b997f1a0b9b8770e5d9b06c774a26e",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+      "git_blob": "38b485a5f943ed232391c8e808b79d1f25e21e2b",
+      "sha256": "020c5f974dae44c53a11f23e0da0374a6c8da7102d5af6dd8786a1d054c413b5",
+      "bytes": 38266,
+      "run_source_git_blob": "38b485a5f943ed232391c8e808b79d1f25e21e2b",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "git_blob": "3b2612ca248311cd52525542b06f868cc0b279b3",
+      "sha256": "d94062736dee912841b173558ddac97678c3af7dbb4554f7e38d014dabebcd46",
+      "bytes": 13279,
+      "run_source_git_blob": "3b2612ca248311cd52525542b06f868cc0b279b3",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "git_blob": "b409cadbd5631c5efd5e093057fe9893ae01f40e",
+      "sha256": "cc196ed4da274d668eb968f2a3b75f8b7e82d292776bbd6f64cc7b68307c6071",
+      "bytes": 29631,
+      "run_source_git_blob": "b409cadbd5631c5efd5e093057fe9893ae01f40e",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+      "git_blob": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+      "sha256": "7c6cc3c4c1f4e57d9c5ade7ada832d5881b88060c5cbdf8b23109de46a5542cd",
+      "bytes": 83008,
+      "run_source_git_blob": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+      "git_blob": "cb00a12a6256f3cc208569cc9acc8f6146c098f0",
+      "sha256": "8dc029683583c70fc9747b47324430b9b63946da233907592287a3e9b2d50e78",
+      "bytes": 29136,
+      "run_source_git_blob": "cb00a12a6256f3cc208569cc9acc8f6146c098f0",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
+      "git_blob": "c1fb2e25f718dbebfc631e688a645ac0b0857b3b",
+      "sha256": "c2b79cfc2b61a279502f92abf7b406996b555f3acac019ac58b91f8b8012da8f",
+      "bytes": 12216,
+      "run_source_git_blob": "c1fb2e25f718dbebfc631e688a645ac0b0857b3b",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "git_blob": "4c3b918385f5a7149d5366215084235798b14363",
+      "sha256": "bb3a58c5e2aa1ed1adfd7056ba245a45f5d4a1fc438b99a6a4298c57feff691e",
+      "bytes": 8574,
+      "run_source_git_blob": "4c3b918385f5a7149d5366215084235798b14363",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+      "git_blob": "0858668e25d8ef1e69c6157acd1c9e75c0d248f0",
+      "sha256": "dd86abbae30fda1125094c5b6412dd45a2ffb5666d0bb7ceaef148ae31c6edd1",
+      "bytes": 9204,
+      "run_source_git_blob": "0858668e25d8ef1e69c6157acd1c9e75c0d248f0",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+      "git_blob": "aa1889db489ba3ea5e4c929d8140981323c5d8dd",
+      "sha256": "9308e9d10a6ee3fbec7809eee44c02e27234a6b9fad2cfa63c7e908e419c14cd",
+      "bytes": 4260,
+      "run_source_git_blob": "aa1889db489ba3ea5e4c929d8140981323c5d8dd",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+      "git_blob": "6317d229927e6783441d81dbc4ba4c744795d492",
+      "sha256": "ca8d6aec2df6ad478a99aea6ecb28ee4c6a1da75176424b6a56b5851f03fc263",
+      "bytes": 24815,
+      "run_source_git_blob": "6317d229927e6783441d81dbc4ba4c744795d492",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py",
+      "git_blob": "2e3b7c4244d377a40bd69db006fc9c44f4c1d6e7",
+      "sha256": "bc04d88f1785e135970d97efcb308775d6021145ec1219b188583f66fd128a00",
+      "bytes": 38132,
+      "run_source_git_blob": "2e3b7c4244d377a40bd69db006fc9c44f4c1d6e7",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+      "git_blob": "ef960e48314869f2d8bae544c89bade317d8f7f7",
+      "sha256": "38902e34984d7cf6c459ad97c06f657c4be6fc316e22132e031da8045146300b",
+      "bytes": 16503,
+      "run_source_git_blob": "ef960e48314869f2d8bae544c89bade317d8f7f7",
+      "byte_equal_to_run_source": true,
+      "normalized_ast_equal_to_run_source": true
+    }
+  ],
+  "release_notes_review": {
+    "denominator": "Every changed release-fragment file and every changed source README in exact c40d4aca..6ac534aef tracked path diff; historical unchanged fragments are outside this delta review.",
+    "changed_release_fragment_count": 13,
+    "fully_read_count": 13,
+    "fragments": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-05-e02-D-stress-streaming.toml",
+        "git_blob": "e8be2fc1c4a5a0b9840af0d479a38dbb2027592c",
+        "sha256": "677d0581f29ea0c60b48ea99216d858b2ee7e7c8a15c01ff7f5b99606df24e33",
+        "bytes": 1086
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-05-e02-funnel-continuation-basis.toml",
+        "git_blob": "ecdebe50550b86f6580bbd21fbdef5c9918258ab",
+        "sha256": "9099dc9ee9d39f9617647caa6ad046aea024ddbb2cc3d68687b65b3870789f1e",
+        "bytes": 1036
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-05-e02-funnel-explicit-owner-permission.toml",
+        "git_blob": "edc7b42da0afec7fed5edad811f397218ea16cc2",
+        "sha256": "2da54f55d3fe90ab415a8ac947c7a1982984fc1ea5be5a55e4330d6ca86f52b4",
+        "bytes": 1120
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-05-e02-funnel-promotion-candidate-binding.toml",
+        "git_blob": "ac04b0f31fc577aaff0ed880cdabfa93d80108ec",
+        "sha256": "e2953508b483eca64d1517c0329c6a7ec871970f7f1c77d2b3a60f7b3e883c16",
+        "bytes": 1119
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-05-e02-funnel-semantic-time.toml",
+        "git_blob": "8f5f2c315cce5fd578fb092d5729c8da596cfdb9",
+        "sha256": "3c4a32bb5996a4abb12cdd2057380d719b953dce12dc3ac73dda23153cec724c",
+        "bytes": 1083
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-05-e02-transfer-restoration.toml",
+        "git_blob": "935bbd01985a14725ab21264f59540787357be63",
+        "sha256": "148f4da35df0bad9409e2c3caab8565ed3a1bd587707a73d6776af14bc9e6fb0",
+        "bytes": 2874
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-05-lesson-query-freshness.toml",
+        "git_blob": "6e6f78264878202c6e5663dcac2f8601e92d56e7",
+        "sha256": "5b18012d426658592f567bf4388095cf6fc5d27266bd5a5830e5fc1a0f207e5d",
+        "bytes": 1473
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-05-search-attainable-domain.toml",
+        "git_blob": "7df54dce0fbf6c57b0c8dda3a4b784202be7c384",
+        "sha256": "5e5acc29cf74e8199e3b590a20dde8e0a19181f343870952aae09c54060c0ce9",
+        "bytes": 1326
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-05-search-execution-coordinates.toml",
+        "git_blob": "bb369b491e64fb40202e655e626854103eb94791",
+        "sha256": "fb9e653b3effb54c3bdcb94e20a81463c15ef2900e68044ce294843b8ee0afe7",
+        "bytes": 1534
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-05-search-gp-acquisition-replay.toml",
+        "git_blob": "801b4ffea3ec3de31a2a195d12e0bbadcf35962f",
+        "sha256": "fa6bd33f811e9c29de68cf4be3729a325b0708d621b73fee82fd3b161e2fc5c0",
+        "bytes": 1333
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-05-search-hypervolume-limitations.toml",
+        "git_blob": "042963e2d2d43929c42e0fa11369f42e3f8ee825",
+        "sha256": "fe96f6aaaaaa63a9ef1f468dccd02c8735e821c5858c1197ee1393c5caec161c",
+        "bytes": 1355
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-05-search-rl-checkpoint.toml",
+        "git_blob": "5988612101e14fad493ea28c1e673b6ac658b858",
+        "sha256": "6898bb8f703f1d19164925719cd741046714ebf02badcb9e302fe529bdc6660b",
+        "bytes": 1064
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-05-search-stopping-limitations.toml",
+        "git_blob": "6936c3e4b3c172cd8ad3a0447ed70882185c19fc",
+        "sha256": "02cf8622e9423fce0f4b3e3da8ed80acaf59c8a3e092bdac8ac75562e3e3a934",
+        "bytes": 1196
+      }
+    ],
+    "changed_source_readme_count": 1,
+    "fully_read_readme_count": 1,
+    "readmes": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+        "git_blob": "0cbb0e37a393c4abd2d90ffa14fca16b9afb0a48",
+        "sha256": "03a87eba8415addd4d2e2fd5122bf3e99cd4a3aeb954f2de4575f6832c843ab6",
+        "bytes": 2662
+      }
+    ],
+    "assessment": "GP policy and projection migration/refusal are explicit. HV notes distinguish null/unavailable from measured zero and retain finite frontier membership. All notes bound scientific authority, source truth, process-local atomicity, supported backend replay, or owner dependencies instead of asserting global preservation."
+  },
+  "consumer_denominator": {
+    "source_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+    "tracked_python_file_count": 2697,
+    "root": "policy-engine/src",
+    "method": "Complete exact-word Git source scan for named typed DTOs and CAS reader; all direct matching consumer/read paths inspected. Match census identifies direct named routes, not opaque dynamic imports, generic callbacks, external clients, non-Python artifacts or institutional completeness.",
+    "census": [
+      {
+        "exact_word_symbol": "ParetoFront",
+        "matching_file_count": 1,
+        "matches": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+            "git_blob": "b409cadbd5631c5efd5e093057fe9893ae01f40e",
+            "sha256": "cc196ed4da274d668eb968f2a3b75f8b7e82d292776bbd6f64cc7b68307c6071",
+            "bytes": 29631,
+            "lines": [
+              156,
+              216,
+              320,
+              322,
+              331,
+              400,
+              414
+            ]
+          }
+        ]
+      },
+      {
+        "exact_word_symbol": "ParetoRegistrySnapshot",
+        "matching_file_count": 4,
+        "matches": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+            "git_blob": "38b485a5f943ed232391c8e808b79d1f25e21e2b",
+            "sha256": "020c5f974dae44c53a11f23e0da0374a6c8da7102d5af6dd8786a1d054c413b5",
+            "bytes": 38266,
+            "lines": [
+              84,
+              102,
+              236,
+              239,
+              240,
+              334,
+              335,
+              346,
+              373,
+              574,
+              660,
+              799,
+              806,
+              811,
+              855,
+              856,
+              926
+            ]
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+            "git_blob": "cb00a12a6256f3cc208569cc9acc8f6146c098f0",
+            "sha256": "8dc029683583c70fc9747b47324430b9b63946da233907592287a3e9b2d50e78",
+            "bytes": 29136,
+            "lines": [
+              28,
+              231
+            ]
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
+            "git_blob": "c1fb2e25f718dbebfc631e688a645ac0b0857b3b",
+            "sha256": "c2b79cfc2b61a279502f92abf7b406996b555f3acac019ac58b91f8b8012da8f",
+            "bytes": 12216,
+            "lines": [
+              38,
+              284
+            ]
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+            "git_blob": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+            "sha256": "7c6cc3c4c1f4e57d9c5ade7ada832d5881b88060c5cbdf8b23109de46a5542cd",
+            "bytes": 83008,
+            "lines": [
+              61,
+              588
+            ]
+          }
+        ]
+      },
+      {
+        "exact_word_symbol": "HypervolumeAssessment",
+        "matching_file_count": 3,
+        "matches": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+            "git_blob": "b409cadbd5631c5efd5e093057fe9893ae01f40e",
+            "sha256": "cc196ed4da274d668eb968f2a3b75f8b7e82d292776bbd6f64cc7b68307c6071",
+            "bytes": 29631,
+            "lines": [
+              12,
+              164,
+              391,
+              394
+            ]
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+            "git_blob": "3b2612ca248311cd52525542b06f868cc0b279b3",
+            "sha256": "d94062736dee912841b173558ddac97678c3af7dbb4554f7e38d014dabebcd46",
+            "bytes": 13279,
+            "lines": [
+              80,
+              90,
+              122,
+              300
+            ]
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+            "git_blob": "38b485a5f943ed232391c8e808b79d1f25e21e2b",
+            "sha256": "020c5f974dae44c53a11f23e0da0374a6c8da7102d5af6dd8786a1d054c413b5",
+            "bytes": 38266,
+            "lines": [
+              20,
+              97
+            ]
+          }
+        ]
+      },
+      {
+        "exact_word_symbol": "PolicyFrontierReport",
+        "matching_file_count": 3,
+        "matches": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+            "git_blob": "6f48872f02bbd54fd70bb257856a0eeb789f516c",
+            "sha256": "d300849e7f631d864358162150678d5f1f8872c152e72404ca54bb005fe91567",
+            "bytes": 49880,
+            "lines": [
+              108,
+              1243
+            ]
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/policy_design/__init__.py",
+            "git_blob": "0b30221a5f22dc47acbe846469edb875f4b2afb0",
+            "sha256": "18bfb35730f0148d4542decc052e18f7e29fcb4f49360f379f1fe629d54cb82c",
+            "bytes": 8526,
+            "lines": [
+              69
+            ]
+          },
+          {
+            "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+            "git_blob": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+            "sha256": "7c6cc3c4c1f4e57d9c5ade7ada832d5881b88060c5cbdf8b23109de46a5542cd",
+            "bytes": 83008,
+            "lines": [
+              179,
+              213,
+              958,
+              963,
+              1019,
+              1460,
+              1469,
+              1665,
+              1667,
+              2022
+            ]
+          }
+        ]
+      },
+      {
+        "exact_word_symbol": "load_policy_frontier_report",
+        "matching_file_count": 1,
+        "matches": [
+          {
+            "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+            "git_blob": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+            "sha256": "7c6cc3c4c1f4e57d9c5ade7ada832d5881b88060c5cbdf8b23109de46a5542cd",
+            "bytes": 83008,
+            "lines": [
+              1662,
+              1692,
+              2039
+            ]
+          }
+        ]
+      }
+    ],
+    "excluded_similarly_named_type": "foundry.welfare.ParetoFrontierRecord belongs to a separate contract; broad substring hits were inspected and excluded from the exact ParetoFront denominator."
+  },
+  "persisted_readers": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+      "function": "ParetoRegistry.get_snapshot",
+      "line": 236,
+      "input": "loops/<loop_id>/pareto_registry.json",
+      "validator": "ParetoRegistrySnapshot.model_validate_json",
+      "supported_version_gate": "NOT_ESTABLISHED: numeric version pattern admits unsupported3.0; actual disk-reader reproduction below"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+      "function": "ParetoRegistry._load_snapshot",
+      "line": 855,
+      "input": "catalog/<tenant>/<family>/<domain>/pareto_registry.json",
+      "validator": "same ParetoRegistrySnapshot.model_validate_json",
+      "supported_version_gate": "same source-defined admission; this catalog route was read, not separately runtime-exercised in this final review"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+      "function": "BuildPolicyOutputBundleNode.execute -> _parse_model",
+      "line": 229,
+      "input": "state.params.pareto_registry_snapshot",
+      "validator": "typed instance returned or dict passed to ParetoRegistrySnapshot.model_validate; no extra version allowlist",
+      "scope": "state parse route read only; source denominator explicitly remains candidate-limited"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
+      "function": "_policy_build_input -> shared _parse_model",
+      "line": 283,
+      "input": "state.params.pareto_registry_snapshot",
+      "validator": "same shared typed/dict parse; no extra version allowlist",
+      "scope": "state parse route read only"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+      "function": "load_policy_frontier_report -> _load_model",
+      "line": 1662,
+      "input": "CAS canonical bytes via store.get_bytes(ref.artifact_id)",
+      "validator": "PolicyFrontierReport.model_validate; Literal1.0/3.0; v3 source/eligible projection validation; historicalv1 projection must reproduce canonical raw bytes",
+      "scope": "actual overflow native case reopens CAS and retains null/unavailable assessment; unknown2.0 typed-model refusal observed, not labeled a separate corrupted-CAS runtime case"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "function": "ParetoFront model validator",
+      "line": 172,
+      "input": "typed/JSON front DTO",
+      "validator": "Literal1.0/2.0; v2 input assessment; v1 forbids new HV assessment; null requiresv2/unavailable; numeric assessment agrees with finite number",
+      "scope": "actual JSON roundtrip exercised; complete named-symbol census found no direct external ParetoFront persisted reader in 2697 tracked Python files, which is not a repository-wide absence claim"
+    }
+  ],
+  "checkpoint_contract": {
+    "gp_state_version": 1,
+    "acquisition_replay_policy": "sobol_ranked_restarts_v1",
+    "space_replay_basis": "attainable_projection.v1",
+    "gates": [
+      "BayesianOptimizer.set_state refuses missing/nonmatching gp checkpoint version before mutation.",
+      "Missing/different acquisition replay policy is refused; configuration, backend version when model exists, exact raw fitted/refit tensor corpus, counts/nonfuture refit clock and warm context must agree.",
+      "SearchSpace fingerprint incorporates projection policy; BaseSearchStrategy.set_state refuses an explicitly mismatching checkpoint space.",
+      "Absent legacy Sobol sampler state is accepted only as incompatible for subsequent Sobol use; _sobol_candidate then raises a controlled incompatibility. This is separate from a complete GP continuation.",
+      "Release migration requires an explicit fresh checkpoint/new operation with the current supported backend/configuration; no silent legacy conversion or caller-reseed next-action claim."
+    ],
+    "source_refs": [
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py:344",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py:123",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py:220"
+    ],
+    "prior_actual_gp_evidence": "gp-witness.json@83ecd6ede8fee3d2fa8bd5c6644a93bc076fc720 records exacte789 source/canonical38ca test full15 + three tensor/count controls on both supported backends. This review adds no new GP fit/corruption claim; production GP and canonical15 test blobs are unchanged in final6ac."
+  },
+  "B112_test_fingerprint": {
+    "baseline_test_commit": "d61ff66521cf52b95bddc51dc24c9b368b6b5451",
+    "baseline_production_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+    "baseline_test_identity": {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "git_blob": "ff25c935265e8d781febc101628ce0b159ea8e44",
+      "sha256": "0845ff4d85b58443c78e23be781517f3aa504312e731e8d7113de24e5d087553",
+      "bytes": 7663,
+      "source_sha": "d61ff66521cf52b95bddc51dc24c9b368b6b5451"
+    },
+    "final_test_identity": {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "git_blob": "4c3b918385f5a7149d5366215084235798b14363",
+      "sha256": "bb3a58c5e2aa1ed1adfd7056ba245a45f5d4a1fc438b99a6a4298c57feff691e",
+      "bytes": 8574
+    },
+    "baseline_log": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/numerical-oracle-baseline.txt",
+      "git_blob": "f2777fcb87c834d491c6e63494cc03a81b8e860d",
+      "sha256": "227ab20a78d4b13c05f53ccda882dd308f3289915247d0758e2592b93a8be2f1",
+      "bytes": 8080
+    },
+    "baseline_deciding_bytes": "KeyError('_strategy_metadata'); actual facade warning: 'SearchSpace' object has no attribute 'last_sobol_sampler_identity'",
+    "function_fingerprints": [
+      {
+        "function": "test_autotune_first_suggestion_uses_real_space_and_checkpoint_protocol",
+        "baseline_normalized_ast_sha256": "98ad9f11b0e7acd666dd09ddcf4098a4bb5503e2d9eb155890fcd4c5777d9f1e",
+        "final_normalized_ast_sha256": "98ad9f11b0e7acd666dd09ddcf4098a4bb5503e2d9eb155890fcd4c5777d9f1e",
+        "unchanged": true
+      },
+      {
+        "function": "_optimizer",
+        "baseline_normalized_ast_sha256": "6589722e899f0c53ce823811507edd108e91e32630bb22847267e6054422b60e",
+        "final_normalized_ast_sha256": "6589722e899f0c53ce823811507edd108e91e32630bb22847267e6054422b60e",
+        "unchanged": true
+      }
+    ],
+    "property": "Default AutotuneSearchSpace/BayesianCandidateGenerator executes the real Sobol first ask, produces bounded physicalx, serializes the real native strategy and restores matching next Sobol point without stubbing suggestion.",
+    "outcome": "PASS_BOUNDED, same baseline assertion/helper AST; no whole-file historical route closure or production-history equivalence claimed."
+  },
+  "environment": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "mode": "actual native CPU optional backend; archived source PYTHONPATH, --confcutdir avoids baseline conftest source insertion"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src /workspace/e02-D-locked-env/bin/python -m pytest --confcutdir=tests/unit/scientist/methods -q tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_autotune_first_suggestion_uses_real_space_and_checkpoint_protocol tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py::test_finite_extreme_values_do_not_crash_front_when_hypervolume_overflows tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+      "cwd": "/workspace/e02-D-gp-witness/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/raw/final-contract-dabdd83/policy-engine",
+      "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "selected_native_cases": 3,
+      "skips": 0,
+      "output": "... [100%], two Python3.14 torch JIT deprecation warning locations; quiet repository settings omit numeric footer",
+      "input_closure": "Unstubbed default B112 facade/coldstart/checkpoint path; finite ±1e308 2D front and JSON roundtrip; actual registry disk persistence/reopen, actual CAS frontier producer/reopen and retained null diagnostic, fake-zero/missing-diagnostic controls on the same bounded fixture."
+    },
+    {
+      "command": "PYTHONPATH=src /workspace/e02-D-locked-env/bin/python - < persisted version probe (source retained below)",
+      "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "outcome": "OBSERVED_B111_RESIDUAL",
+      "exit_code": 0,
+      "source": "import json, tempfile\nfrom pathlib import Path\nimport pydantic, torch, botorch, gpytorch\nfrom polisyos.scientist.methods.search.pareto_registry import ParetoRegistry\nfrom polisyos.scientist.methods.autotune.pareto import ParetoFront\nfrom polisyos.scientist.policy_design.output import PolicyFrontierReport\nimport polisyos.scientist.methods.search.pareto_registry as owner\nprint(json.dumps({'owner':owner.__file__, 'versions':{'torch':torch.__version__,'botorch':botorch.__version__,'gpytorch':gpytorch.__version__,'pydantic':pydantic.__version__}},sort_keys=True))\npayload={'schema_version':'3.0','loop_id':'version-review','hypervolume_by_view':{'global_feasible':None},'hypervolume_assessments_by_view':{'global_feasible':{'status':'unavailable','predicate_basis':'not_established','reason':'non_finite_derived_hypervolume'}}}\nwith tempfile.TemporaryDirectory(prefix='e02-final-contract-review-') as tmp:\n    root=Path(tmp)\n    path=root/'loops'/'version-review'/'pareto_registry.json'\n    path.parent.mkdir(parents=True)\n    path.write_text(json.dumps(payload),encoding='utf-8')\n    restored=ParetoRegistry(root=root).get_snapshot('version-review')\n    print(json.dumps({'actual_disk_reader':'ParetoRegistry.get_snapshot','status':'ADMITTED','schema_version':restored.schema_version,'hypervolume':restored.hypervolume_by_view['global_feasible'],'assessment':restored.hypervolume_assessments_by_view['global_feasible'].model_dump(mode='json')},sort_keys=True))\nfor cls, data in [(ParetoFront, {'schema_version':'3.0'}), (PolicyFrontierReport, {'schema_version':'2.0','loop_id':'version-review'})]:\n    try: cls.model_validate(data)\n    except pydantic.ValidationError as exc:\n        print(json.dumps({'typed_reader':cls.__name__,'schema_version':data['schema_version'],'status':'REFUSED','errors':exc.errors(include_url=False)},sort_keys=True))\n    else: print(json.dumps({'typed_reader':cls.__name__,'status':'ADMITTED'},sort_keys=True))\n",
+      "input_closure": "Real temporary loops/version-review/pareto_registry.json; explicitunsupported3.0 typednull/unavailable payload, actual get_snapshot; two direct typed-model refusal probes; no production history/corpus mutation"
+    },
+    {
+      "command": "Git exact-byte/normalized-AST reconciliation of reviewed paths dabdd83fe..6ac534aef; original B112 function/helper d61ff..6ac; complete Git named-source census",
+      "target_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+      "outcome": "PASS_SOURCE_IDENTITY",
+      "output": "GP production/test, checkpointspace/base gates, HV contracts/DTO/readers and B112test unchanged bytes; facade normalized AST equal; all13changed fragments/oneREADME read; 2697tracked Python-source denominator"
+    }
+  ],
+  "log_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-contract-review.txt",
+  "log_sha256": "50145caa0a9b89b9cb2c5094cdfe01a163aef6105d7b1d7482821c69c7038f71",
+  "predicate_basis": "recomputed_for_exact_runtime/source_profile; unsupported registry gate not established",
+  "capability_state_or_finding_state": "BOUNDED_REVIEW_WITH_OPEN_B111_PERSISTED_PROFILE_RESIDUAL",
+  "residuals": [
+    {
+      "id": "B111",
+      "profile": "ParetoRegistrySnapshot persisted schema-version acceptance",
+      "next_owner": "D registry / G schema acceptance",
+      "actual_source": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py:89",
+      "actual_reader": "ParetoRegistry.get_snapshot:236 -> model_validate_json:240",
+      "witness": "schema_version3.0 + null/unavailable global_feasible hypervolume admitted from actual disk bytes",
+      "consequence": "New typed-null snapshot semantics have no supported1.0/2.0 registry allowlist. Strict ParetoFront1/2 and CAS PolicyFrontierReport1/3 gates do not prove snapshot version gating.",
+      "classification": "Bounded observed persisted-profile residual. c40 already has the numeric version pattern, but no inherited-PASS/gate claim is made and no hypothetical authenticity authority is introduced."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Final broad native validation and G closure are parent-owned. This docs-only receipt claims no finding closure.",
+    "Run source is exactdabdd83; final6ac carries byte-identical inspected runtime gates and original B112 test, plus normalized-AST-only formatting changes in its facade. Updated transfer/vector/core facade paths belong to their separate published evidence.",
+    "Named-reader census covers2697tracked Python source files, not dynamic/external/non-Python consumers or a global repository-absence proof.",
+    "Snapshot internal tensor/count/version consistency and caller-supplied origin/tenant equality do not establish source authenticity, scientific preservation, institutional validation or served recommendation authority.",
+    "Finite overflow example preserves numerical frontier and null diagnostic on a declared2D fixture; production objective basis/feasible denominator/scientific scale remain separate dependencies.",
+    "No additional mutation ladder, backend expansion, scientific policy or production source fix was performed for this final review."
+  ]
+}

@@ -517,6 +517,27 @@ def _numerical_vulnerability(
     )
 
 
+class _VulnerabilitySummary:
+    """Count every occurrence while retaining bounded distinct presentation payloads."""
+
+    def __init__(self, max_examples: int) -> None:
+        self._max_examples = max_examples
+        self.examples: list[Vulnerability] = []
+        self.unique_keys: set[str] = set()
+        self.observed_count = 0
+        self.severity_counts: dict[str, int] = {}
+
+    def record(self, vulnerability: Vulnerability) -> None:
+        self.observed_count += 1
+        severity = vulnerability.severity
+        self.severity_counts[severity] = self.severity_counts.get(severity, 0) + 1
+        key = _vulnerability_key(vulnerability)
+        if key not in self.unique_keys:
+            self.unique_keys.add(key)
+            if len(self.examples) < self._max_examples:
+                self.examples.append(vulnerability)
+
+
 def run_stress_test(
     *,
     adversarial_plan: AdversarialPlan,
@@ -534,7 +555,7 @@ def run_stress_test(
     objective_direction = _resolve_adversarial_direction(base_objective)
     source_objective_direction = base_objective.direction
 
-    vulnerabilities: list[Vulnerability] = []
+    vulnerability_summary = _VulnerabilitySummary(adversarial_plan.collect_top_k)
     worst_case_objective = float("nan")
     worst_case_parameters: dict[str, float] = {}
     total_evaluated = 0
@@ -553,7 +574,7 @@ def run_stress_test(
         except Exception as exc:
             invalid_evaluation_count += 1
             evaluation_unverified = True
-            vulnerabilities.append(
+            vulnerability_summary.record(
                 _numerical_vulnerability(
                     vulnerability_id=f"vuln_numerical_{idx}",
                     parameters=parameters,
@@ -576,7 +597,7 @@ def run_stress_test(
             vuln_id=f"vuln_objective_{idx}",
         )
         if vuln is not None:
-            vulnerabilities.append(vuln)
+            vulnerability_summary.record(vuln)
             if adversarial_plan.stop_on_first_vulnerability:
                 break
 
@@ -585,7 +606,10 @@ def run_stress_test(
         and candidate_generator is not None
         and hasattr(candidate_generator, "generate")
         and total_evaluated < adversarial_plan.max_iterations
-        and (not vulnerabilities or not adversarial_plan.stop_on_first_vulnerability)
+        and (
+            not vulnerability_summary.observed_count
+            or not adversarial_plan.stop_on_first_vulnerability
+        )
         and not evaluation_unverified
     ):
         remaining = max(1, adversarial_plan.max_iterations - total_evaluated)
@@ -626,7 +650,7 @@ def run_stress_test(
             except Exception as exc:
                 invalid_evaluation_count += 1
                 evaluation_unverified = True
-                vulnerabilities.append(
+                vulnerability_summary.record(
                     _numerical_vulnerability(
                         vulnerability_id=f"vuln_numerical_search_{idx}",
                         parameters=candidate_parameters,
@@ -661,7 +685,7 @@ def run_stress_test(
                     vuln_id=f"vuln_search_{idx}",
                 )
                 if vuln is not None:
-                    vulnerabilities.append(vuln)
+                    vulnerability_summary.record(vuln)
                     if adversarial_plan.stop_on_first_vulnerability:
                         break
             stop_check = stopping.check(
@@ -671,9 +695,7 @@ def run_stress_test(
             if stop_check.should_stop:
                 break
 
-    observed_vulnerabilities = list(vulnerabilities)
-    unique_vulnerabilities = _deduplicate_vulnerabilities(observed_vulnerabilities)
-    vulnerabilities = unique_vulnerabilities[: adversarial_plan.collect_top_k]
+    vulnerabilities = vulnerability_summary.examples
     if not math.isfinite(worst_case_objective):
         worst_case_objective = float("nan")
 
@@ -681,7 +703,7 @@ def run_stress_test(
     robustness_score = (
         0.0
         if evaluation_unverified
-        else 1.0 - (len(observed_vulnerabilities) / max(total_evaluated, 1))
+        else 1.0 - (vulnerability_summary.observed_count / max(total_evaluated, 1))
     )
     report = StressTestReport(
         report_id=stable_world_id_from_canon(
@@ -700,9 +722,9 @@ def run_stress_test(
         worst_case_parameters=worst_case_parameters,
         worst_case_objective=worst_case_objective if math.isfinite(worst_case_objective) else None,
         vulnerabilities=vulnerabilities,
-        critical_count=sum(1 for item in observed_vulnerabilities if item.severity == "critical"),
-        high_count=sum(1 for item in observed_vulnerabilities if item.severity == "high"),
-        medium_count=sum(1 for item in observed_vulnerabilities if item.severity == "medium"),
+        critical_count=vulnerability_summary.severity_counts.get("critical", 0),
+        high_count=vulnerability_summary.severity_counts.get("high", 0),
+        medium_count=vulnerability_summary.severity_counts.get("medium", 0),
         robustness_score=robustness_score,
         set_adequacy_status=evaluation_status,
         decision_packet_ref=decision_packet_ref,
@@ -714,8 +736,8 @@ def run_stress_test(
             "evaluation_status": evaluation_status or "verified",
             "invalid_evaluation_count": invalid_evaluation_count,
             "valid_evaluation_count": total_evaluated - invalid_evaluation_count,
-            "observed_vulnerability_count": len(observed_vulnerabilities),
-            "unique_vulnerability_count": len(unique_vulnerabilities),
+            "observed_vulnerability_count": vulnerability_summary.observed_count,
+            "unique_vulnerability_count": len(vulnerability_summary.unique_keys),
             "presented_vulnerability_count": len(vulnerabilities),
         },
     )
@@ -764,23 +786,19 @@ def _detect_objective_vulnerability(
     )
 
 
-def _deduplicate_vulnerabilities(vulnerabilities: list[Vulnerability]) -> list[Vulnerability]:
-    unique: dict[str, Vulnerability] = {}
-    for vulnerability in vulnerabilities:
-        key = stable_world_id_from_canon(
-            prefix="stress.vuln",
-            payload=_canon_safe(
-                {
-                    "type": vulnerability.vulnerability_type.value,
-                    "params": vulnerability.parameter_values,
-                    "description": vulnerability.description,
-                    "objective_value": vulnerability.objective_value,
-                }
-            ),
-        )
-        if key not in unique:
-            unique[key] = vulnerability
-    return list(unique.values())
+def _vulnerability_key(vulnerability: Vulnerability) -> str:
+    """Preserve the existing presentation identity without retaining the payload."""
+    return stable_world_id_from_canon(
+        prefix="stress.vuln",
+        payload=_canon_safe(
+            {
+                "type": vulnerability.vulnerability_type.value,
+                "params": vulnerability.parameter_values,
+                "description": vulnerability.description,
+                "objective_value": vulnerability.objective_value,
+            }
+        ),
+    )
 
 
 def _canon_safe(value: Any) -> Any:

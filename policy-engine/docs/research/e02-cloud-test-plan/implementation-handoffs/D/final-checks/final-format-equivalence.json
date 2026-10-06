@@ -1,0 +1,56 @@
+{
+  "source_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "formatted_candidate_sha": "6cbba16d1dd9e303744a473064a6b7c59a7283c7",
+  "complete_changed_python_denominator": 8,
+  "rows": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "python_ast_identical": true,
+      "before_blob": "00a999d3f3251a7a31cf64f5c11321457aaa461a",
+      "after_blob": "4ea79496fa97ef0ea1974b2ff11a29005dbea900"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "python_ast_identical": true,
+      "before_blob": "9ce51d03c193fa307d0fc0f6ae89c04c3f5db25e",
+      "after_blob": "c3c39757c43d7b845dc78df64e93e18b330642e8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "python_ast_identical": true,
+      "before_blob": "871af62a1fc1871356362b96a56a2118315da702",
+      "after_blob": "2d21957f02087363c8ab6479acfe2a0723e467fa"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "python_ast_identical": true,
+      "before_blob": "1f3913f23df1505217b61d8bdc551fa4d25bbe85",
+      "after_blob": "6bd1addae7716c0b10f33572ec69c65d685d03f1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "python_ast_identical": true,
+      "before_blob": "214f76df848133f1f9238b263edce0918aedad69",
+      "after_blob": "71d58931ec7372a89739403e880a61432a3aa90e"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "python_ast_identical": true,
+      "before_blob": "2665be14f11a0e3d1f855e4d1d04721286f451ef",
+      "after_blob": "ae9ac65ed62574f36fa893397ca4140dfc23898d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "python_ast_identical": true,
+      "before_blob": "077692354d4b4b5ab1c7622802e2c2b3592d3cf3",
+      "after_blob": "5eaf683dea729566f0fd5a5bf4cc5aee60d67ab4"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "python_ast_identical": true,
+      "before_blob": "4934c51d10d6b479cabe5a4510a45a51c98d2031",
+      "after_blob": "7bf758ee1b1ccc52e7f4a13d60f193a4a867307b"
+    }
+  ],
+  "limitation": "AST equality excludes whitespace semantics for inspected Python source; changed docs/release fragments are outside the runtime regression input. It does not turn the six regression failures into PASS."
+}

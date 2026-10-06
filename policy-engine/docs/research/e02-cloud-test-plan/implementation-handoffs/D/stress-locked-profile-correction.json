@@ -1,0 +1,129 @@
+{
+  "schema": "e02-metadata-correction-handoff/v1",
+  "unit": "D",
+  "slice": "stress independent locked profile metadata correction",
+  "closure_ids": [],
+  "finding_ids": [
+    "B106",
+    "B107"
+  ],
+  "covered_finding_ids": [
+    "B106",
+    "B107"
+  ],
+  "bundle_ids": [
+    "STR-01"
+  ],
+  "slice_base_sha": "005a6b1e23dd1ea24d22187ddc22862d24425a99",
+  "implementation_commits": [
+    "485ce25dab736212b5133f3f42b6474a7cfd6b8b"
+  ],
+  "candidate_sha": "485ce25dab736212b5133f3f42b6474a7cfd6b8b",
+  "candidate_tree_sha": "9717a890c4a9f45f3f369684477c31f27db85689",
+  "branch": "codex/e02-D-stress",
+  "pull_request": "not_established",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-locked-profile-reconciliation.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-locked-profile-correction.json"
+  ],
+  "baseline_cells": {
+    "reference": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json@d7705039d1b509fee606d204b60585fcf137dbd8",
+    "property_change": "none; source/test closure or adequacy not re-adjudicated"
+  },
+  "checks": [
+    {
+      "target_sha": "485ce25dab736212b5133f3f42b6474a7cfd6b8b",
+      "outcome": "PASS",
+      "command": "Exact JSON semantic reconciliation with published005a6b1 original plus only checks[10].environment.python3.14.2->3.14.7; byte diff one literal",
+      "input_closure": "Complete original and correctedstressJSON, not a sampledfield subset; everyotherfield deeply equal.",
+      "output": "Only the incorrect independently run locked-profile Python field corrected; original native3.14.2 fields preserved."
+    },
+    {
+      "target_sha": "485ce25dab736212b5133f3f42b6474a7cfd6b8b",
+      "outcome": "PASS",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "--version"
+      ],
+      "environment": {
+        "backend": "direct current interpreter version read",
+        "checker_python": "3.12.14"
+      },
+      "output": "Python 3.14.7",
+      "time_role": "current recomputation; root actual run owner explicitly supplied historical locked profile3.14.7. Retained oldindependentreceipt records executable but no version; old version3.14.2 was incorrectly copied fromnativeprofile."
+    },
+    {
+      "target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "outcome": "RECONCILED",
+      "property": "Every tracked D JSON inspected for explicitly identified locked profile/version fields and explicit lockedPython3.14.2strings.",
+      "input_closure": {
+        "files": 35,
+        "pathset_sha256": "fb0ffbe3696f12a2f208e919b6cb2cb35931469bcc6e646770b7f9b96dab9a93"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-locked-profile-reconciliation.txt",
+        "sha256": "a996927dd321120f38c6c4ef4eabe32a734add1ee245ef1d63abf25e822abfbf",
+        "bytes": 2000
+      },
+      "counts": {
+        "explicit_identified_profile_objects": 3,
+        "matching_locked_version": 2,
+        "contradictory_stress_version": 1
+      },
+      "limitations": "Only explicitly bound profile objects and named contradictory strings classified; unversioned/freeform library prose and otherprofiles not inferred. Current root searchowner correction remains separately owned."
+    },
+    {
+      "target_sha": "485ce25dab736212b5133f3f42b6474a7cfd6b8b",
+      "outcome": "PASS",
+      "command": "git diff --check; ordinaryNode22precommit",
+      "scope": "Metadata only; no production/test changes or runtime rerun."
+    }
+  ],
+  "property": "Correct environment provenance for the existing independent c6lockedstresscheck; no new outcome, backend, lock-conformance, findingclosure or completeness claim.",
+  "predicate_basis": "independently_reconciled",
+  "predicate_annotations": {
+    "current_interpreter_version": "recomputed",
+    "historical_locked_profile_version": "institutionally_supplied by root actualexecutor; exactexecutable checked",
+    "source_output_and_receipt_bytes": "recomputed unchangedhashes; originalretainedreceipt doesnotitselfcarryPythonversion"
+  },
+  "capability_state_or_finding_state": "Metadata corrected; B106 principal completeness decision and all prior bounded payload limitations preserved.",
+  "authority_purpose": "Evidence provenance repair only.",
+  "provenance": {
+    "artifacts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress.json",
+        "commit": "485ce25dab736212b5133f3f42b6474a7cfd6b8b",
+        "sha256": "e831af6f073cee5f4dc91cb89a24d692475d7c03c997a7d80afdf6b3f27c25b0",
+        "bytes": 44906
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-locked-profile-reconciliation.txt",
+        "commit": null,
+        "sha256": "a996927dd321120f38c6c4ef4eabe32a734add1ee245ef1d63abf25e822abfbf",
+        "bytes": 2000
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/independent-c6.json",
+        "commit": "485ce25dab736212b5133f3f42b6474a7cfd6b8b",
+        "sha256": "a0c7d6856e49d296233d9e56eb983351381274f2556a82bf2a91218661290a88",
+        "bytes": 638
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/independent-c6.log",
+        "commit": "485ce25dab736212b5133f3f42b6474a7cfd6b8b",
+        "sha256": "e32414e0a4ba32dbb4873a8f807a1a1d2152378a9c864fa3f3577fbf2d08d348",
+        "bytes": 1029
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/stress-logs/environment.json",
+        "commit": "485ce25dab736212b5133f3f42b6474a7cfd6b8b",
+        "sha256": "c1fb7d736d0eba3c92b1bf64940c44788ea875d36e653fe3b47ad3750702f03e",
+        "bytes": 11062
+      }
+    ],
+    "original_candidate": "005a6b1e23dd1ea24d22187ddc22862d24425a99",
+    "independent_source_target": "c6bc25386cd745ec07fb7d004e032598a03092dc"
+  },
+  "limitations_and_next_owner": "G incorporates this append-onlymetadata correction and verifies final aggregate delta. Full historicalenvironmentinventory remainsnot supplied; no original rawbytes/versionheader were rewritten."
+}

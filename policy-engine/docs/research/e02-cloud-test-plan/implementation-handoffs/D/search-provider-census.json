@@ -1,0 +1,29 @@
+{
+  "schema": "policyos.e02.bounded_source_census.v1",
+  "source_sha": "e789e9523725fa081de5cdc69da5938489315b4a",
+  "method": "Complete tracked policy-engine/src/polisyos/**/*.py parsed by ast, literal Name/Attribute call named ParetoRegistry; literal text pareto_registry_snapshot",
+  "file_count": 2696,
+  "path_denominator_sha256": "582ab985f0c5250832b908a3acf7dc3fa7119b3f108b576752a304bad209f4d2",
+  "literal_constructions": [],
+  "scope_occurrences": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+      "line": 127,
+      "text": "\"params.pareto_registry_snapshot\","
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+      "line": 230,
+      "text": "state.params.get(\"pareto_registry_snapshot\"),"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
+      "line": 284,
+      "text": "state.params.get(\"pareto_registry_snapshot\"), ParetoRegistrySnapshot"
+    }
+  ],
+  "limitations": [
+    "Literal AST spelling is not reflective/external/provider absence proof. Registry injection and runtime dispatch remain unmeasured.",
+    "No source Python files changed after403 except558 removal ofelapsedrefitclockguard."
+  ]
+}

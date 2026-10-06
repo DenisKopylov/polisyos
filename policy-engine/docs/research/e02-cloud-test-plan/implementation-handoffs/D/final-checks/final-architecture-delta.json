@@ -1,0 +1,16 @@
+{
+  "initial_target_sha": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+  "final_target_sha": "6ac534aef6d19dc7b6d0cd2f969d16e6d8e756b2",
+  "old_deep_import_diagnostic_count": 157,
+  "final_deep_import_diagnostic_count": 151,
+  "removed": [
+    "- New deep-import creep detected: polisyos.scientist.agent.vector_memory -> polisyos.core.canon (src/polisyos/scientist/agent/vector_memory.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+    "- New deep-import creep detected: polisyos.scientist.agent.vector_memory -> polisyos.core.canon.canon_json (src/polisyos/scientist/agent/vector_memory.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+    "- New deep-import creep detected: polisyos.scientist.methods.autotune.warm_start -> polisyos.core.artifacts.protocol (src/polisyos/scientist/methods/autotune/warm_start.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+    "- New deep-import creep detected: polisyos.scientist.methods.autotune.warm_start -> polisyos.core.canon (src/polisyos/scientist/methods/autotune/warm_start.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+    "- New deep-import creep detected: polisyos.scientist.methods.search.strategies.transfer -> polisyos.core.canon (src/polisyos/scientist/methods/search/strategies/transfer.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+    "- New deep-import creep detected: polisyos.scientist.methods.search.strategies.transfer -> polisyos.core.canon.canon_json (src/polisyos/scientist/methods/search/strategies/transfer.py). Add a stable facade, update the baseline intentionally, or register a temporary exception."
+  ],
+  "added": [],
+  "scope": "Complete emitted New deep-import creep diagnostics at the two exact check invocations. Unified-diff text is not an error count; full logs retain other baseline/generated-snapshot failures. No inherited-red or repository-wide absence verdict."
+}

@@ -1,0 +1,52 @@
+target_sha=6d1916ce2d41c3af81b00710acebc56c332b26f0
+......................                                                   [100%]
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+22 passed, 2 warnings in 13.07s
+candidate_test_exit=0
+Traceback (most recent call last):
+  File "<string>", line 10, in <module>
+    card=LessonCard(kind=LessonKind.FAILURE,summary='Custom active policy age witness',failure_type='fixture',source_run_id='source',task_family='policy',domain='source',origin_tenant_hash='same',created_at=now-timedelta(days=100),confidence=.9)
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pydantic/main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 3 validation errors for LessonCard
+stage_name
+  Field required [type=missing, input_value={'kind': <LessonKind.FAIL...utc), 'confidence': 0.9}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+fidelity_level
+  Field required [type=missing, input_value={'kind': <LessonKind.FAIL...utc), 'confidence': 0.9}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+candidate_hash
+  Field required [type=missing, input_value={'kind': <LessonKind.FAIL...utc), 'confidence': 0.9}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+active_policy_probe_exit=1
+deciding_probe_target_sha=6d1916ce2d41c3af81b00710acebc56c332b26f0
+registry_ttl 90 override_ttl 180 age_days 100 expected_weight 0.65
+candidates_under_override 0
+direct_materialized_under_override False
+Traceback (most recent call last):
+  File "<string>", line 18, in <module>
+    assert len(candidates)==1,'per-call admitted evidence TTL ignored during candidate aging'
+           ^^^^^^^^^^^^^^^^^^
+AssertionError: per-call admitted evidence TTL ignored during candidate aging
+deciding_probe_exit=1
+final_target_sha=66c1a8b17e20fcdf1d36593afb052ff92ed2b171
+.........................                                                [100%]
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+25 passed, 2 warnings in 47.79s
+final_candidate_test_exit=0
+registry_ttl 90 override_ttl 180 age_days 100 expected_weight 0.65
+candidates_under_override 1
+direct_materialized_under_override True confidence 0.9
+final_active_policy_probe_exit=0

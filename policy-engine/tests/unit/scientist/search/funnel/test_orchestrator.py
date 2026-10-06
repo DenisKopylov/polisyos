@@ -7,9 +7,9 @@ from unittest.mock import MagicMock
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
 from polisyos.scientist.methods.doe.stress_report import StressTestReport
-from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
     Level5RefutationGovernanceStage,
 )
@@ -75,6 +75,25 @@ def _make_stage(
 
 
 class TestFunnelOrchestrator:
+    def test_spend_does_not_authorize_skipping_a_deferred_stage(self):
+        stages = [_make_stage(0, "L0"), _make_stage(1, "L1"), _make_stage(2, "L2")]
+        stages[1].evaluate.return_value.terminal_action = "defer"
+        budget = BudgetState(spent={"run": Decimal("0")})
+        orch = FunnelOrchestrator(stages, budget_state=budget)
+        candidate = {"candidate_id": "deferred-owner"}
+        ticket = orch.submit(candidate, {})
+        orch.advance(ticket, policy="full")
+
+        budget.record_spend("run", Decimal("0.01"))
+        retried = orch.submit(candidate, {})
+        outcome = orch.advance(retried, policy="full")
+
+        assert retried is ticket
+        assert outcome.final_action == "defer"
+        stages[0].evaluate.assert_called_once()
+        stages[1].evaluate.assert_called_once()
+        stages[2].evaluate.assert_not_called()
+
     def test_runs_all_stages_on_passing_candidate(self):
         stages = [
             _make_stage(0, "L0"),
@@ -303,7 +322,7 @@ class TestFunnelOrchestrator:
         assert cached_ticket.submitted_via_cache is True
         assert stage.evaluate.call_count == 2
 
-    def test_freeze_mode_continuation_preserves_partial_progress(self):
+    def test_budget_continuation_requires_improved_capacity_and_preserves_progress(self):
         class _Tracker:
             mode = "normal"
 
@@ -327,9 +346,7 @@ class TestFunnelOrchestrator:
             stage.evaluate.return_value.compute_actual_usd = cost
         stages[3].estimated_cost_usd = 1.0
         tracker = _Tracker()
-        budget = BudgetState(
-            limits={"run": BudgetLimit(key="run", max_usd=Decimal("0.5"))}
-        )
+        budget = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("0.5"))})
         orch = FunnelOrchestrator(
             stages,
             budget_state=budget,
@@ -349,6 +366,9 @@ class TestFunnelOrchestrator:
         prior_cost = sum(step.compute_actual_usd for step in ticket.trace)
 
         tracker.mode = "freeze_frontier"
+        assert orch.submit(candidate, context) is ticket
+        tracker.mode = "normal"
+        budget.limits["run"].max_usd = Decimal("5")
         successor = orch.submit(candidate, context)
 
         assert successor is not ticket
@@ -391,10 +411,10 @@ class TestFunnelOrchestrator:
         budget.record_spend("run", Decimal("0.01"))
         successor = orch.submit(candidate, context)
 
-        assert successor is not ticket
-        assert successor.parent_ticket_id == ticket.ticket_id
-        assert successor.lineage[:-1] == ticket.lineage
-        assert successor.continuation_reason is not None
+        assert successor is ticket
+        assert successor.parent_ticket_id is None
+        assert successor.lineage == ticket.lineage
+        assert successor.continuation_reason is None
         assert successor.stage_results == prior_stage_results
         assert successor.trace == prior_trace
         assert sum(step.compute_actual_usd for step in successor.trace) == prior_cost
@@ -421,10 +441,10 @@ class TestFunnelOrchestrator:
         budget.record_spend("run", Decimal("0.01"))
         successor = orch.submit(candidate, context)
 
-        assert successor is not ticket
-        assert successor.parent_ticket_id == ticket.ticket_id
-        assert successor.lineage[:-1] == ticket.lineage
-        assert successor.continuation_reason is not None
+        assert successor is ticket
+        assert successor.parent_ticket_id is None
+        assert successor.lineage == ticket.lineage
+        assert successor.continuation_reason is None
         assert successor.stage_results == prior_stage_results
         assert successor.trace == prior_trace
         assert sum(step.compute_actual_usd for step in successor.trace) == prior_cost
@@ -472,10 +492,10 @@ class TestFunnelOrchestrator:
         budget.record_spend("run", Decimal("0.01"))
         successor_a = orch.submit(candidate, context_a)
 
-        assert successor_a is not ticket_a
-        assert successor_a.parent_ticket_id == ticket_a.ticket_id
-        assert successor_a.parent_ticket_id != ticket_b.ticket_id
-        assert successor_a.lineage[:-1] == ticket_a.lineage
+        assert successor_a is ticket_a
+        assert successor_a.parent_ticket_id is None
+        assert successor_a is not ticket_b
+        assert successor_a.lineage == ticket_a.lineage
         assert successor_a.stage_results == prior_a_results
         assert successor_a.stage_results[1].objective_value == 1.0
         assert successor_a.trace == prior_a_trace
@@ -585,6 +605,8 @@ class TestFunnelOrchestrator:
                     "decision": "complete",
                     "reason": "promoted_for_test",
                 },
+                # Test-local callback ordering; this fixture grants no publication authority.
+                promotion_owner_recheck=lambda _candidate, _context: True,
             ),
         ]
         orch = FunnelOrchestrator(stages)
@@ -717,3 +739,417 @@ class TestFunnelOrchestrator:
         assert any(
             card.failure_type == "benchmark_split_type_mismatch" for card in outcome.failure_cards
         )
+
+
+def _bootstrap_workflow(observations):
+    """Use the real loop engine and Foundry bootstrap on bounded synthetic data."""
+    import numpy as np
+
+    from polisyos.foundry.methods.catalog.causal.ci_backends import bootstrap_mean_interval
+    from polisyos.scientist.orchestration.workflows import SimpleLoopEngine
+
+    def estimate(state):
+        data = np.asarray(state["data"], dtype=float)
+        fraction = state["data_config"]["subsample_fraction"]
+        sample = data[: max(2, int(len(data) * fraction))]
+        draws = state["estimation_config"]["n_bootstrap"]
+        low, high = bootstrap_mean_interval(sample, seed=17, draws=draws)
+        observations.append((len(sample), draws, low, high))
+        return {
+            **state,
+            "simulation_results": {
+                "ate": float(sample.mean()),
+                "gdp_change": float(sample.mean()),
+                "gov_balance": 0.0,
+                "bootstrap": {"ci_width": high - low},
+            },
+            "feedback": {"verdict": "APPROVE"},
+        }
+
+    return SimpleLoopEngine([("estimate", estimate)], terminal_node="estimate")
+
+
+def _bootstrap_context():
+    return {
+        "data": list(range(1, 121)),
+        "dataset_version": "bounded-synthetic-120-v1",
+        "model_version": "mean-bootstrap-v1",
+        "evaluation_role": "ordinary",
+        "data_config": {"subsample_fraction": 1.0},
+        "estimation_config": {"n_bootstrap": 120},
+        "model_config": {"scm_complexity": "full"},
+    }
+
+
+def test_real_workflow_full_and_split_recheck_budget_before_l3():
+    from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
+    from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+    from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+
+    for split in (False, True):
+        observations = []
+        engine = _bootstrap_workflow(observations)
+        budget = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("0.01"))})
+        orch = FunnelOrchestrator(
+            [Level2CausalPlausibility(), Level3MediumFidelity(engine), Level4FullFidelity(engine)],
+            budget_state=budget,
+        )
+        candidate, context = {"candidate_id": "real-continuation"}, _bootstrap_context()
+        ticket = orch.submit(candidate, context)
+        if split:
+            orch.as_stage_a_callable()(candidate, context)
+            orch.as_stage_b_callable()(candidate, context)
+            outcome = orch.get_outcome(ticket)
+        else:
+            outcome = orch.advance(ticket, policy="full")
+        assert outcome.final_action == "defer"
+        assert list(outcome.stage_results) == [2]
+        assert observations == []
+        assert outcome.last_scheduling_decision.reason == "budget_exhausted_for_next_level"
+        prior_cost = outcome.compute_actual_usd
+
+        assert orch.submit(candidate, context) is ticket
+        budget.record_spend("run", Decimal("0.001"))
+        assert orch.submit(candidate, context) is ticket
+        assert observations == []
+        budget.limits["run"].max_usd = Decimal("10")
+        successor = orch.submit(candidate, context)
+        assert successor is not ticket
+        assert successor.parent_ticket_id == ticket.ticket_id
+        assert successor.stage_results[2] is ticket.stage_results[2]
+        assert orch.get_outcome(successor).compute_actual_usd == prior_cost
+        resumed = orch.advance(successor, policy="full")
+        assert list(resumed.stage_results) == [2, 3, 4]
+        assert resumed.final_action == "complete"
+        assert resumed.last_scheduling_decision.recommended_action == "advance"
+        assert [(n, draws) for n, draws, _, _ in observations] == [(24, 50), (120, 120)]
+        assert ticket.final_action == "defer"
+
+
+def test_real_workflow_context_roles_do_not_reuse_or_mutate_ordinary_attempt():
+    from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+
+    observations = []
+    orch = FunnelOrchestrator([Level3MediumFidelity(_bootstrap_workflow(observations))])
+    candidate, context = {"candidate_id": "real-role"}, _bootstrap_context()
+    ordinary = orch.submit(candidate, context)
+    first = orch.advance(ordinary, policy="full")
+    assert orch.submit(candidate, {**context, "request_id": "repeat"}) is ordinary
+    for changed in (
+        {**context, "evaluation_role": "calibration"},
+        {**context, "calibration_role": "independent_control"},
+        {**context, "dataset_version": "bounded-synthetic-120-v2"},
+    ):
+        ticket = orch.submit(candidate, changed)
+        assert ticket is not ordinary
+        orch.advance(ticket, policy="full")
+    sentinel = orch.submit({**candidate, "__sentinel__": {"sentinel_id": "control-1"}}, context)
+    orch.advance(sentinel, policy="full")
+    assert len(observations) == 5
+    assert not ordinary.context.get("is_sentinel")
+    assert ordinary.context["evaluation_role"] == "ordinary"
+    assert orch.get_outcome(ordinary).trace == first.trace
+
+
+def test_real_bootstrap_l3_then_l4_matches_direct_full_config_and_audit_readback(tmp_path):
+    from copy import deepcopy
+
+    from polisyos.scientist.methods.search.actionable_side_information import (
+        load_actionable_side_information,
+    )
+    from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+    from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+
+    context = _bootstrap_context()
+    original = deepcopy(context)
+    store = FileSystemCAS(tmp_path / "audit")
+    candidate = {"candidate_id": "full-config"}
+    direct_observations, chained_observations = [], []
+    direct = Level4FullFidelity(_bootstrap_workflow(direct_observations)).evaluate(
+        candidate, context
+    )
+    orch = FunnelOrchestrator(
+        [
+            Level3MediumFidelity(_bootstrap_workflow(chained_observations)),
+            Level4FullFidelity(_bootstrap_workflow(chained_observations)),
+        ]
+    )
+    output = orch.as_stage_b_callable()(candidate, {**context, "store": store})
+    full = output["_funnel_outcome"].stage_results[4]
+    medium = output["_funnel_outcome"].stage_results[3]
+    assert context == original
+    assert direct_observations == [chained_observations[1]]
+    assert [(n, draws) for n, draws, _, _ in chained_observations] == [(24, 50), (120, 120)]
+    assert medium.simulation_results != full.simulation_results
+    assert full.simulation_results == direct.simulation_results
+    assert output["objective_value"] == direct.objective_value
+    assert output["feedback"]["verdict"] == "APPROVE"
+    assert output["_funnel_outcome"].final_action == "complete"
+    audit = load_actionable_side_information(store, full.actionable_side_information_ref)
+    assert audit.candidate_id == candidate["candidate_id"]
+    assert audit.metadata["approved"] is True
+
+
+def test_real_workflow_zero_empty_and_capped_aggregate_projection():
+    from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+
+    observations = []
+    stage = Level4FullFidelity(_bootstrap_workflow(observations))
+    context = {**_bootstrap_context(), "data": [0.0] * 120}
+    candidate = {"candidate_id": "true-zero"}
+    evaluated = FunnelOrchestrator([stage]).as_stage_b_callable()(candidate, context)
+    assert evaluated["objective_value"] == 0.0
+    assert evaluated["feedback"]["verdict"] == "APPROVE"
+    for orch in (FunnelOrchestrator([]), FunnelOrchestrator([stage], max_level=2)):
+        output = orch.as_stage_b_callable()(candidate, context)
+        assert output["feedback"]["verdict"] == "NOT_EVALUATED"
+        assert not output["is_promising"]
+        assert output["objective_value"] != 0.0
+        assert output["_funnel_outcome"].stage_results == {}
+        assert output["_funnel_outcome"].evaluation_status == "not_evaluated"
+    assert len(observations) == 1
+
+
+def test_real_workflow_ci_width_and_optional_stage_verdict_do_not_grant_promotion():
+    from polisyos.ir import UncertaintyType
+    from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+    from polisyos.scientist.orchestration.workflows import SimpleLoopEngine
+
+    for width, method in (
+        (None, "ci_width_missing"),
+        ("broken", "ci_width_invalid"),
+        (0.0, "full_fidelity_bootstrap"),
+        (0.4, "full_fidelity_bootstrap"),
+    ):
+        for supplied_verdict in (True, False):
+
+            def estimate(state, width=width, supplied_verdict=supplied_verdict):
+                feedback = {"verdict": "APPROVE"} if supplied_verdict else {}
+                # ExpensiveStage itself requires APPROVE to mark a stage promising.
+                # Keep the numerical evidence fixed when the optional field changes.
+                return {
+                    **state,
+                    "simulation_results": {
+                        "ate": 2.0,
+                        "gdp_change": 2.0,
+                        "bootstrap": {"ci_width": width},
+                    },
+                    "feedback": feedback,
+                }
+
+            engine = SimpleLoopEngine([("estimate", estimate)], terminal_node="estimate")
+            stage = Level4FullFidelity(engine)
+            result = stage.evaluate({}, {})
+            estimate_value = result.uncertainty_envelope.uncertainties[UncertaintyType.STATISTICAL]
+            assert estimate_value.quantification_method == method
+            assert result.simulation_results["ate"] == 2.0
+            assert estimate_value.level == (
+                1.0 if width is None or width == "broken" else width / 4
+            )
+
+
+def test_real_l2_defer_projection_is_independent_of_optional_stage_verdict():
+    from dataclasses import replace
+
+    from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
+    from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+
+    projections = []
+    for verdict in (None, "APPROVE"):
+
+        class StageWithOptionalVerdict(Level2CausalPlausibility):
+            def evaluate(self, candidate, context, verdict=verdict):
+                result = super().evaluate(candidate, context)
+                feedback = dict(result.feedback)
+                if verdict is not None:
+                    feedback["verdict"] = verdict
+                return replace(result, feedback=feedback)
+
+        observations = []
+        budget = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("0.001"))})
+        orch = FunnelOrchestrator(
+            [StageWithOptionalVerdict(), Level3MediumFidelity(_bootstrap_workflow(observations))],
+            budget_state=budget,
+        )
+        output = orch.as_stage_b_callable()(
+            {"candidate_id": "optional-verdict"}, _bootstrap_context()
+        )
+        assert output["feedback"]["stage_verdict"] == verdict
+        assert output["_funnel_result"].is_promising
+        assert output["feedback"]["verdict"] == "DEFER"
+        assert not output["is_promising"]
+        assert output["_funnel_outcome"].final_action == "defer"
+        assert observations == []
+        projections.append((output["objective_value"], output["feedback"]["verdict"]))
+    assert projections[0] == projections[1]
+
+
+def test_semantic_rule_and_time_basis_changes_do_not_reuse_terminal_uncertainty():
+    from datetime import UTC, date, datetime
+
+    from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+
+    for key in (
+        "subject_id",
+        "value_slot",
+        "input_signature",
+        "procedure_id",
+        "rule_version",
+        "population_scope",
+        "valid_at",
+        "rule_effective_at",
+        "observation_timestamp",
+    ):
+        observations = []
+        orch = FunnelOrchestrator([Level3MediumFidelity(_bootstrap_workflow(observations))])
+        candidate = {"candidate_id": "scope-time-control"}
+        context = {**_bootstrap_context(), key: "basis-a"}
+        first = orch.submit(candidate, context)
+        initial = orch.advance(first, policy="full")
+        changed = orch.submit(candidate, {**context, key: "basis-b"})
+        assert changed is not first, key
+        assert changed.stage_results == {}, key
+        orch.advance(changed, policy="full")
+        assert len(observations) == 2, key
+        assert orch.get_outcome(first).trace == initial.trace
+    for first_time, next_time in (
+        (date(2026, 10, 1), date(2026, 10, 2)),
+        (datetime(2026, 10, 1, tzinfo=UTC), datetime(2026, 10, 2, tzinfo=UTC)),
+        (datetime(2026, 10, 1), datetime(2026, 10, 2)),
+    ):
+        for nested in (False, True):
+            observations = []
+            orch = FunnelOrchestrator([Level3MediumFidelity(_bootstrap_workflow(observations))])
+            candidate, context = {"candidate_id": "typed-time"}, _bootstrap_context()
+            changed_context = dict(context)
+            if nested:
+                context["evaluation_config"] = {"valid_at": first_time}
+                changed_context["evaluation_config"] = {"valid_at": next_time}
+            else:
+                context["valid_at"] = first_time
+                changed_context["valid_at"] = next_time
+            first = orch.submit(candidate, context)
+            orch.advance(first, policy="full")
+            changed = orch.submit(candidate, changed_context)
+            assert changed is not first
+            assert changed.stage_results == {}
+            orch.advance(changed, policy="full")
+            assert len(observations) == 2
+            assert orch.submit(candidate, context) is first
+
+
+def test_real_workflow_calibration_pairs_reopen_with_consistent_routing_and_publication_cap(
+    tmp_path,
+):
+    from polisyos.scientist.methods.search.calibration_report import (
+        FunnelCalibrationReport,
+        load_funnel_calibration_report,
+        persist_funnel_calibration_report,
+    )
+    from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+    from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+    from polisyos.scientist.methods.search.stages import CorrelationTracker
+    from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+        _resolve_runtime_correlation_tracker,
+    )
+
+    for relation in ("empty", "aligned", "opposite"):
+        store = FileSystemCAS(tmp_path / relation)
+        tracker = CorrelationTracker()
+        if relation != "empty":
+            for index in range(3):
+                observations = []
+                engine = _bootstrap_workflow(observations)
+                cheap_context = {
+                    **_bootstrap_context(),
+                    "data": list(range(1 + index, 121 + index)),
+                }
+                expensive_index = index if relation == "aligned" else 2 - index
+                full_context = {
+                    **_bootstrap_context(),
+                    "data": list(range(1 + expensive_index, 121 + expensive_index)),
+                }
+                candidate = {"candidate_id": f"paired-{index}"}
+                cheap = Level3MediumFidelity(engine).evaluate(candidate, cheap_context)
+                full = Level4FullFidelity(engine).evaluate(candidate, full_context)
+                tracker.record(cheap, full, f"paired-{index}")
+        expected = tracker.compute_metrics()
+        report = FunnelCalibrationReport(
+            current_mode=tracker.routing_mode(),
+            routing_health=expected,
+            metadata={
+                "correlation_tracker_snapshot": tracker.to_snapshot().model_dump(mode="json")
+            },
+        )
+        report_ref = persist_funnel_calibration_report(store, report)
+        reopened_store = FileSystemCAS(tmp_path / relation)
+        restored = _resolve_runtime_correlation_tracker(
+            load_funnel_calibration_report(reopened_store, report_ref)
+        )
+        assert restored is not None
+        assert restored.compute_metrics() == expected
+        assert restored.routing_mode() == expected["routing_mode"]
+        assert expected["sample_count"] == (0 if relation == "empty" else 3)
+        assert expected["calibration_state"] == (
+            "not_established" if relation == "empty" else "observed"
+        )
+        assert expected["routing_mode"] == ("normal" if relation == "aligned" else "no_promotion")
+        calls = []
+        orch = FunnelOrchestrator(
+            [
+                Level6PromotionStage(
+                    promotion_runner=lambda *args, calls=calls: calls.append("write")
+                )
+            ],
+            correlation_tracker=restored,
+        )
+        outcome = orch.advance(orch.submit({"candidate_id": relation}, {}), policy="full")
+        if relation != "aligned":
+            assert calls == []
+            assert outcome.final_action == "defer_to_human"
+
+
+def test_datetime_input_reaches_real_workflow_instead_of_stale_terminal_score():
+    from datetime import UTC, datetime
+
+    from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+    from polisyos.scientist.orchestration.workflows import SimpleLoopEngine
+
+    observed_days = []
+
+    def estimate(state):
+        day = state["valid_at"].day
+        observed_days.append(day)
+        return {
+            **state,
+            "simulation_results": {"gdp_change": float(day)},
+            "feedback": {"verdict": "APPROVE"},
+        }
+
+    orch = FunnelOrchestrator([Level4FullFidelity(SimpleLoopEngine([("estimate", estimate)]))])
+    candidate = {"candidate_id": "dated-effect"}
+    first_context = {"valid_at": datetime(2026, 10, 1, tzinfo=UTC)}
+    first = orch.submit(candidate, first_context)
+    first_outcome = orch.advance(first, policy="full")
+    second = orch.submit(candidate, {"valid_at": datetime(2026, 10, 2, tzinfo=UTC)})
+    second_outcome = orch.advance(second, policy="full")
+    assert second is not first
+    assert first_outcome.final_result.objective_value == -1.0
+    assert second_outcome.final_result.objective_value == -2.0
+    assert observed_days == [1, 2]
+    assert orch.submit(candidate, first_context) is first
+
+
+def test_routing_budget_snapshot_does_not_establish_actual_spend_bridge():
+    """Bounded divergent control: reported stage cost does not charge its caller budget."""
+    from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+
+    budget = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5"))})
+    orch = FunnelOrchestrator(
+        [Level4FullFidelity(_bootstrap_workflow([]), estimated_cost_usd=1.0)],
+        budget_state=budget,
+    )
+    outcome = orch.advance(orch.submit({"candidate_id": "spend-boundary"}, _bootstrap_context()))
+    assert outcome.compute_actual_usd >= 1.0
+    assert budget.remaining("run") == Decimal("5")
+    assert budget.spent == {}

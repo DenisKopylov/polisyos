@@ -1,0 +1,874 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "funnel-01-continuation",
+  "closure_ids": [],
+  "covered_finding_ids": ["B156", "B158", "B159"],
+  "bundle_ids": ["FUN-01"],
+  "slice_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "admitted_root_base_sha": "c40d4acae1ce58b597267255026d9356565828fd",
+  "implementation_commits": [
+    "b125bb3336afb078cdb4aac6bb97b81d5791b41e",
+    "bfade1eebf4276a29d8f9d38b667b9aa1d088756",
+    "19bafcd0f593d182a1b7c79833bbb0efaad3bc90",
+    "93be49e480d723c5c55bb3716ba63f06e7be39a0"
+  ],
+  "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+  "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+  "branch": "codex/e02-D-funnel",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/10",
+  "transport": {
+    "status": "published",
+    "remote_head_readback": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+    "protocol": "ordinary commit/push; no main/rebase/reset/force push; canonical Node hooks intact",
+    "readback_time_role": "observed implementation publication before this separate handoff commit"
+  },
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-funnel-continuation-basis.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-funnel-explicit-owner-permission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-funnel-promotion-candidate-binding.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-05-e02-funnel-semantic-time.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+    "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+  ],
+  "path_scope_note": "Full six-commit sole-author FUN candidate footprint listed; implementation_commits identify this package property. No calibration/search sibling owner source altered.",
+  "candidate_blob_inputs": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-05-e02-funnel-continuation-basis.toml",
+      "git_blob": "ecdebe50550b86f6580bbd21fbdef5c9918258ab"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-05-e02-funnel-explicit-owner-permission.toml",
+      "git_blob": "edc7b42da0afec7fed5edad811f397218ea16cc2"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-05-e02-funnel-promotion-candidate-binding.toml",
+      "git_blob": "ac04b0f31fc577aaff0ed880cdabfa93d80108ec"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-05-e02-funnel-semantic-time.toml",
+      "git_blob": "8f5f2c315cce5fd578fb092d5729c8da596cfdb9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "git_blob": "b20e605d08ae4c04306dfbdbbb043c710ea3ab53"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "git_blob": "20079ea344f1103190af1b1d006cc64359c57dcb"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+      "git_blob": "872beb91aad6b1cab89da8898570002664d97d91"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "git_blob": "f5df6166239a232fde405d3b5e3ea5931e40f418"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "git_blob": "9fad260e9e9ea51af940b89b138a96ccbfeccfaa"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "git_blob": "7da5552c69dd577825438d6beb6d1d7db73d9265"
+    }
+  ],
+  "canonical_bundle_locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md@c40d4acae1ce58b597267255026d9356565828fd",
+  "residual_ledger_locator": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@c40d4acae1ce58b597267255026d9356565828fd#rows/B156-B165",
+  "baseline_cells": [
+    {
+      "cell": {
+        "id": "F03-P025",
+        "job": "F03",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "state": "PASS",
+        "collected": "25",
+        "calls": "25",
+        "call_pass": "25",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "10.57",
+        "rss_kib": "1190908.0",
+        "receipt_status": "valid_bound",
+        "source_file": "received/F03.txt",
+        "source_line": "155",
+        "extra_json": "{}"
+      },
+      "finding_ids": ["B156", "B158", "B159"],
+      "transferred_source": {
+        "job": "F03",
+        "path": "received/F03.txt",
+        "sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+        "bytes": 75761,
+        "attachment_id": "cbde2f4c-81ca-4357-95bd-2ce1b038b2fc",
+        "transfer": "user_pasted_utf8_text",
+        "raw_archive_transfer": "missing"
+      }
+    },
+    {
+      "cell": {
+        "id": "F04-P063",
+        "job": "F04",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_types.py",
+        "state": "PASS",
+        "collected": "14",
+        "calls": "14",
+        "call_pass": "14",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "7.669",
+        "rss_kib": "518004",
+        "receipt_status": "valid_reconciled_parent",
+        "source_file": "received/F04.txt",
+        "source_line": "273",
+        "extra_json": "{}"
+      },
+      "finding_ids": ["B156", "B158", "B159"],
+      "transferred_source": {
+        "job": "F04",
+        "path": "received/F04.txt",
+        "sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86",
+        "bytes": 79431,
+        "attachment_id": "c24eb795-1f5a-4657-8d45-19237f4728f2",
+        "transfer": "user_pasted_utf8_text",
+        "raw_archive_transfer": "missing"
+      }
+    },
+    {
+      "cell": {
+        "id": "F05-P044",
+        "job": "F05",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "state": "PASS",
+        "collected": "20",
+        "calls": "20",
+        "call_pass": "20",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "32.07",
+        "rss_kib": "1298988",
+        "receipt_status": "valid_reconciled",
+        "source_file": "received/F05.txt",
+        "source_line": "454",
+        "extra_json": "{}"
+      },
+      "finding_ids": ["B156", "B158", "B159"],
+      "transferred_source": {
+        "job": "F05",
+        "path": "received/F05.txt",
+        "sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+        "bytes": 97032,
+        "attachment_id": "853f686a-799d-40b5-b89a-4b86bc16e766",
+        "transfer": "user_pasted_utf8_text",
+        "raw_archive_transfer": "missing"
+      }
+    },
+    {
+      "cell": {
+        "id": "F07-P025",
+        "job": "F07",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "state": "PASS",
+        "collected": "25",
+        "calls": "25",
+        "call_pass": "25",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "31.52027726173401",
+        "rss_kib": "1324684.0",
+        "receipt_status": "valid",
+        "source_file": "received/F07.txt",
+        "source_line": "31",
+        "extra_json": "{}"
+      },
+      "finding_ids": ["B156", "B158", "B159"],
+      "transferred_source": {
+        "job": "F07",
+        "path": "received/F07.txt",
+        "sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866",
+        "bytes": 74977,
+        "attachment_id": "34417503-819a-4dd2-bc5b-3934622b0324",
+        "transfer": "user_pasted_utf8_text",
+        "raw_archive_transfer": "missing"
+      }
+    },
+    {
+      "cell": {
+        "id": "F11-P033",
+        "job": "F11",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "state": "PASS",
+        "collected": "20",
+        "calls": "20",
+        "call_pass": "20",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "31.007",
+        "rss_kib": "1328392",
+        "receipt_status": "valid_reconciled",
+        "source_file": "received/F11.txt",
+        "source_line": "162",
+        "extra_json": "{\"receipt_quality\":\"reconciled\",\"input_custody_blockers\":\"0\"}"
+      },
+      "finding_ids": ["B156", "B158", "B159"],
+      "transferred_source": {
+        "job": "F11",
+        "path": "received/F11.txt",
+        "sha256": "5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471",
+        "bytes": 62579,
+        "attachment_id": "1cfb512a-d61b-4ab0-91c8-569eac14bc87",
+        "transfer": "user_pasted_utf8_text",
+        "raw_archive_transfer": "missing"
+      }
+    },
+    {
+      "cell": {
+        "id": "F15-P030",
+        "job": "F15",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "state": "PASS",
+        "collected": "25",
+        "calls": "25",
+        "call_pass": "25",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "11.55",
+        "rss_kib": "1342952",
+        "receipt_status": "valid",
+        "source_file": "received/F15.txt",
+        "source_line": "185",
+        "extra_json": "{\"reason\":\"null\"}"
+      },
+      "finding_ids": ["B156", "B158", "B159"],
+      "transferred_source": {
+        "job": "F15",
+        "path": "received/F15.txt",
+        "sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+        "bytes": 85661,
+        "attachment_id": "0a75bf6f-5cd7-478e-8ad9-8f9367a1381f",
+        "transfer": "user_pasted_utf8_text",
+        "raw_archive_transfer": "missing"
+      }
+    }
+  ],
+  "baseline_census": [
+    {
+      "finding_id": "B156",
+      "matching_cells": 6,
+      "displayed_cells": 6,
+      "matching_route_cells": 6,
+      "states": {
+        "PASS": 6
+      },
+      "source_blocks": 0,
+      "raw_archives_received": 0,
+      "finding_basis": [
+        {
+          "finding_id": "B156",
+          "bundle_ids": ["FUN-01"],
+          "recorded_ledger_status": "partial",
+          "route_grade": "candidate_unverified",
+          "semantic_adequacy": "not_established",
+          "discriminator_ref": "bundle-catalog.md#fun-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B156",
+          "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B156",
+          "assigned_routes": [
+            {
+              "job": "F03",
+              "ref": "research_main",
+              "cell_ids": ["F03-P025"]
+            },
+            {
+              "job": "F04",
+              "ref": "research_main",
+              "cell_ids": ["F04-P063"]
+            },
+            {
+              "job": "F05",
+              "ref": "e02_execution_base",
+              "cell_ids": ["F05-P044"]
+            },
+            {
+              "job": "F07",
+              "ref": "e02_head",
+              "cell_ids": ["F07-P025"]
+            },
+            {
+              "job": "F11",
+              "ref": "main",
+              "cell_ids": ["F11-P033"]
+            },
+            {
+              "job": "F15",
+              "ref": "integration_head",
+              "cell_ids": ["F15-P030"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B158",
+      "matching_cells": 6,
+      "displayed_cells": 6,
+      "matching_route_cells": 6,
+      "states": {
+        "PASS": 6
+      },
+      "source_blocks": 0,
+      "raw_archives_received": 0,
+      "finding_basis": [
+        {
+          "finding_id": "B158",
+          "bundle_ids": ["FUN-01"],
+          "recorded_ledger_status": "partial",
+          "route_grade": "candidate_unverified",
+          "semantic_adequacy": "not_established",
+          "discriminator_ref": "bundle-catalog.md#fun-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B158",
+          "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B158",
+          "assigned_routes": [
+            {
+              "job": "F03",
+              "ref": "research_main",
+              "cell_ids": ["F03-P025"]
+            },
+            {
+              "job": "F04",
+              "ref": "research_main",
+              "cell_ids": ["F04-P063"]
+            },
+            {
+              "job": "F05",
+              "ref": "e02_execution_base",
+              "cell_ids": ["F05-P044"]
+            },
+            {
+              "job": "F07",
+              "ref": "e02_head",
+              "cell_ids": ["F07-P025"]
+            },
+            {
+              "job": "F11",
+              "ref": "main",
+              "cell_ids": ["F11-P033"]
+            },
+            {
+              "job": "F15",
+              "ref": "integration_head",
+              "cell_ids": ["F15-P030"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "finding_id": "B159",
+      "matching_cells": 6,
+      "displayed_cells": 6,
+      "matching_route_cells": 6,
+      "states": {
+        "PASS": 6
+      },
+      "source_blocks": 0,
+      "raw_archives_received": 0,
+      "finding_basis": [
+        {
+          "finding_id": "B159",
+          "bundle_ids": ["FUN-01"],
+          "recorded_ledger_status": "partial",
+          "route_grade": "candidate_unverified",
+          "semantic_adequacy": "not_established",
+          "discriminator_ref": "bundle-catalog.md#fun-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:B159",
+          "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B159",
+          "assigned_routes": [
+            {
+              "job": "F03",
+              "ref": "research_main",
+              "cell_ids": ["F03-P025"]
+            },
+            {
+              "job": "F04",
+              "ref": "research_main",
+              "cell_ids": ["F04-P063"]
+            },
+            {
+              "job": "F05",
+              "ref": "e02_execution_base",
+              "cell_ids": ["F05-P044"]
+            },
+            {
+              "job": "F07",
+              "ref": "e02_head",
+              "cell_ids": ["F07-P025"]
+            },
+            {
+              "job": "F11",
+              "ref": "main",
+              "cell_ids": ["F11-P033"]
+            },
+            {
+              "job": "F15",
+              "ref": "integration_head",
+              "cell_ids": ["F15-P030"]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "baseline_interpretation": "All relevant transferred source cells requested with limit100 and exact locators; compact source-reported PASS only, zero raw archives, no semantic closure inferred.",
+  "checks": [
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-funnel/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m pytest -c pytest.ini -o addopts= tests/unit/scientist/search/funnel tests/unit/remediation/test_fun_02.py tests/unit/remediation/test_fun_03.py tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py -q",
+      "cwd": "/workspace/e02-D-funnel/policy-engine",
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-final-suite.log",
+        "sha256": "5f56264a90c90e2afb2b18d00133ddd76f9d96a431ceeb8743e10894e156cd72"
+      },
+      "deciding_output": "160 passed,1warning in23.73s; torch.jit.script FutureWarning on Python3.14 only",
+      "denominator": "All tests in the native funnel directory plus the three explicitly named affected consumer files; no skips."
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-funnel/policy-engine/src:/workspace/e02-D-funnel/policy-engine /workspace/polisyos/policy-engine/.venv/bin/python - < embedded reproduction_script",
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-downstream-probe.log",
+        "sha256": "9592c7058ddabf36bbbdca7d88d1dfe9bb1bec1aab3d058770c6360f0fec7445"
+      },
+      "reproduction_script": "\"\"\"Bounded real bootstrap consumer and missing spend bridge witness.\"\"\"\nimport copy\nimport json\nfrom decimal import Decimal\nfrom polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity\nfrom polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity\nfrom polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator\nfrom polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState\nfrom tests.unit.scientist.search.funnel.test_orchestrator import _bootstrap_workflow, _bootstrap_context\ncandidate={'candidate_id':'bounded-mean-fixture'}\ncontext=_bootstrap_context();original=copy.deepcopy(context)\ndirect_observations=[]\ndirect=Level4FullFidelity(_bootstrap_workflow(direct_observations)).evaluate(candidate,context)\nchained_observations=[]\nengine=_bootstrap_workflow(chained_observations)\nbudget=BudgetState(limits={'run':BudgetLimit(key='run',max_usd=Decimal('5'))})\norch=FunnelOrchestrator([Level3MediumFidelity(engine),Level4FullFidelity(engine)],budget_state=budget)\noutcome=orch.advance(orch.submit(candidate,context),policy='full')\nprint(json.dumps({'workflow':'SimpleLoopEngine estimate reads data_config and estimation_config -> Foundry bootstrap_mean_interval seed17',\n 'synthetic_input':'integers1..120; full fraction1; full n_bootstrap120',\n 'direct_observations':direct_observations,'chained_observations':chained_observations,\n 'full_output_equal':direct.simulation_results==outcome.final_result.simulation_results,\n 'caller_context_unchanged':context==original,\n 'direct_output':direct.simulation_results,'final_action':outcome.final_action,\n 'reported_total_cost_usd':outcome.compute_actual_usd,'routing_budget_remaining_run':str(budget.remaining('run')),\n 'routing_budget_spent':{k:str(v) for k,v in budget.spent.items()},\n 'native_adapter_limitation':'_PolicyRuntimeWorkflowEngine pins medium/full fidelity and does not consume this generic workflow data/bootstrap configuration'},indent=2))\nassert direct_observations[0][:2]==(120,120)\nassert [o[:2] for o in chained_observations]==[(24,50),(120,120)]\nassert direct.simulation_results==outcome.final_result.simulation_results\nassert budget.remaining('run')==Decimal('5') and budget.spent=={}\n",
+      "replay_scope": "Internal evidence replay using explicit test-defined inputs; no product entrypoint or repository-wide absence claim."
+    },
+    {
+      "name": "spend_hash",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "selector": "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_spend_does_not_authorize_skipping_a_deferred_stage",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_spend_does_not_authorize_skipping_a_deferred_stage -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/spend_hash/src",
+      "exit_code": 1,
+      "wall_s": 71.77,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Replace _has_new_continuation_basis body after its docstring with return ticket.terminal_basis != self._continuation_basis(ticket, routing_mode=routing_mode). Ticket fields, lineage and trace remain.",
+      "original_module_sha256": "778468bc616d46579460249c27bb097cdc917d42303a08d3b9691fd847225ad7",
+      "mutated_module_sha256": "898db5011d84130e561f3e4808eef585aa323dbdd07d8dc88ffa583533f465ab",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-spend_hash.log",
+        "sha256": "bb2cebad8a15556c81b24b76f16681235e0da847677f69f8325fb124fb427735"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    },
+    {
+      "name": "semantic_time",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "selector": "tests/unit/scientist/search/funnel/test_orchestrator.py::test_semantic_rule_and_time_basis_changes_do_not_reuse_terminal_uncertainty",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/scientist/search/funnel/test_orchestrator.py::test_semantic_rule_and_time_basis_changes_do_not_reuse_terminal_uncertainty -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/semantic_time/src",
+      "exit_code": 1,
+      "wall_s": 59.09,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Restore broad _at/_ts/_timestamp suffix exclusion in _is_volatile_cache_key. Semantic rule/time markers remain in context.",
+      "original_module_sha256": "778468bc616d46579460249c27bb097cdc917d42303a08d3b9691fd847225ad7",
+      "mutated_module_sha256": "ce350729c01da9f4d87fa6bbddf2146b17c6a9a2b13bc33e34649da9ce50c161",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-semantic_time.log",
+        "sha256": "564af68b7b7f4432db9ca49953b1f329e80f6660c750be788bc69ba3c0a78672"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    },
+    {
+      "name": "typed_time",
+      "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "modified_module": "polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "selector": "tests/unit/scientist/search/funnel/test_orchestrator.py::test_datetime_input_reaches_real_workflow_instead_of_stale_terminal_score",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -p provenance -c pytest.ini -o addopts= tests/unit/scientist/search/funnel/test_orchestrator.py::test_datetime_input_reaches_real_workflow_instead_of_stale_terminal_score -q",
+      "isolated_source": "/tmp/e02-D-funnel-evidence/typed_time/src",
+      "exit_code": 1,
+      "wall_s": 71.38,
+      "outcome": "FAIL",
+      "expected_outcome": "FAIL",
+      "property_verdict": "FAIL_AS_REQUIRED",
+      "mutation": "Remove datetime/date from supported unknown-key scalar admission and disable the typed datetime/date serializer. Context and result markers remain.",
+      "original_module_sha256": "778468bc616d46579460249c27bb097cdc917d42303a08d3b9691fd847225ad7",
+      "mutated_module_sha256": "a81ba86a199e341457afbdeda81ee486625d0ccc01e9493af2ec1dd3f0193c81",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-control-typed_time.log",
+        "sha256": "cce4208b385727c67bf76d1fd551ab9b40411ad105a342f833c03e14960993c4"
+      },
+      "input_closure": {
+        "candidate_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+        "candidate_tree_sha": "392e9d6cae59eb2614619f626f0aaf8b1a001387",
+        "tracked_inputs": [
+          "policy-engine/src/**",
+          "policy-engine/tests/**",
+          "policy-engine/architecture/**",
+          "policy-engine/pytest.ini",
+          "policy-engine/pyproject.toml"
+        ],
+        "synthetic_numerical_input": "integers1..120; Foundry BCa bootstrap seed17; medium24samples/50draws, full120samples/120draws",
+        "native_callback_fixture": "_install_actual_runtime_node_dependencies at candidate; retains native node/workflow/funnel/L6/inner guard; stubs backend evidence and promotion write boundary",
+        "excluded_inputs": [
+          "production data/history",
+          "real authority credentials",
+          "real registry/publication writes",
+          "source F01..F15 raw archives (not transferred)"
+        ],
+        "interpretation_boundary": "These are runtime assertions over explicit fixtures, not production invocation or evidence admission."
+      },
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "selector_denominator": "one named existing test; no repository-wide absence verdict",
+      "unresolved_by_construction": [
+        "No actual registry write: native recorder replaces the external commit service.",
+        "Shared imported library bytes are not independently censused by this control."
+      ],
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495"
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-D-funnel/policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python -m polisyos.runtime.quality.production_invocation --repo-root /workspace/e02-D-funnel/policy-engine --base c40d4acae1ce58b597267255026d9356565828fd --receipt /tmp/e02-D-funnel-evidence/final-production-invocation.json",
+      "target_sha": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "environment": {
+        "python": "CPython3.14.2, Clang21.1.4",
+        "platform": "Linux6.18.44 x86_64 glibc2.41",
+        "numpy": "2.3.5",
+        "scipy": "1.16.3",
+        "pytest": "9.0.2",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-D-funnel/policy-engine/src",
+        "python_environment": "externally provisioned shared read-only .venv; no environment writes by D",
+        "node_hooks": "Node22.23.3, pinned workspace pnpm10.33.2; normal canonical precommit/prepush preserved; tsc passed43.10s",
+        "unresolved_by_construction": [
+          "Full library file-read census and production service/data inputs are not selected by these bounded fixtures."
+        ]
+      },
+      "input_closure": {
+        "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+        "current_files": 5898,
+        "base_files": 5897,
+        "source_files": 2697,
+        "current_sha256": "0d447a0b3a20bed38633a8798dd73bd1003e6f889c75ac03f3fcde8b6e9c3b13",
+        "base_sha256": "5e0603c4e62090abea17ccfff1ab6c7976d0656f8b01367f1dec048e08364773"
+      },
+      "outcome": "FAIL",
+      "exit_code": 3,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-production-invocation-summary.json",
+      "deciding_output": "regressions=[];3changed unresolved receiver/callback mechanisms; runtime_invocation_established=false",
+      "limitation": "Full raw census local@sha only; independent receiver must rerun full gate. No inherited-red attribution or gate exemption.",
+      "gate_state": "UNRESOLVED",
+      "meaning": "Static gate exited3 on known dynamic-dispatch boundaries; no product regression or production invocation inferred."
+    }
+  ],
+  "property": {
+    "statement": "Effective request cache separation and pause continuation depend on rechecked prior stopping condition, preserving completed progress.",
+    "runtime_path": [
+      "producer: submit candidate/context with role/version/time identity",
+      "artifact: FunnelTicket cache/context keys, stage results, trace, terminal stopping snapshot",
+      "bridge: _cached_ticket_for_key/_has_new_continuation_basis and successor lineage",
+      "consumer: advance plus stage-A/stage-B adapters invoke actual numerical workflow only when newly eligible"
+    ],
+    "proxy_divergence": "Constructor/config markers do not show effective work. Real BCa medium24/50 vs full120/120 demonstrates consumer settings; reported stagecost leaves routing ledgerunchanged. Native preflight alone does not protect effect: inner guard removal writes despite revoked permission.",
+    "negative_controls": [
+      "Replace _has_new_continuation_basis body after its docstring with return ticket.terminal_basis != self._continuation_basis(ticket, routing_mode=routing_mode). Ticket fields, lineage and trace remain.",
+      "Restore broad _at/_ts/_timestamp suffix exclusion in _is_volatile_cache_key. Semantic rule/time markers remain in context.",
+      "Remove datetime/date from supported unknown-key scalar admission and disable the typed datetime/date serializer. Context and result markers remain."
+    ],
+    "predicate_classification": {
+      "cache_routing_and_guard": "recomputed over explicit fixture inputs",
+      "generic_owner_bool": "consumer_asserted; strict True required but independent admission not established",
+      "actual_budget_charge": "not_established",
+      "production_publication": "not_established"
+    }
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "partial_bounded_verified; no finding closure requested; engineering and production input boundaries remain",
+  "finding_residual_map": {
+    "B156": {
+      "mechanism": "bounded_verified: same effective request reuses terminal result; dataset/model/role/sentinel/rule/time changes isolate fresh work; typed date/datetime preserved recursively. Prior ordinary attempt remains unchanged.",
+      "oracle": "Actual SimpleLoopEngine/Foundry bootstrap workflow calls, fresh tickets/scores/history assertions and semantic+typed-time removal controls.",
+      "missing_input": "Transferred source cells are compact PASS observations without raw archives. No production history/reuse receipt supplied.",
+      "owner_decision": "None invented for fixture cache separation; G accepts finding scope. Persisted cross-process cache/history compatibility remains runtime owner A/D input requirement."
+    },
+    "B158": {
+      "mechanism": "bounded_verified: full and split stop before the same unaffordable next stage and preserve routing reason/progress. bridge_missing: reported stage cost does not debit supplied BudgetState.",
+      "oracle": "Real L2/L3/L4 workflow; same permitted stages and trace cost under full/split; budget-change successor consumes reduced/full bootstrap configurations. Independent downstream probe exposes totalcost>=1 but remaining(run)=5,spent={}.",
+      "missing_input": "Authoritative live cost/reservation/reconciliation receipt and production RunPolicyBlueprint caller budget bridge absent. Native node constructs no supplied budget_state and writes trace cost only.",
+      "owner_decision": "A/runtime resource-budget owner must appoint one authoritative charge bridge without estimated-cost self-attestation or double charge; D continues against that contract."
+    },
+    "B159": {
+      "mechanism": "fixed_bounded: spent-only hash changes cannot skip a stage-owned defer. Scheduler budget pauses resume only on improved remaining capacity or lifted freeze and rerun scheduling; lineage/trace/cost retain predecessor progress.",
+      "oracle": "Same-basis/spent-only retry returns original terminal object; increased budget creates successor and executes actual numerical work. Removed predicate fails while ticket markers remain.",
+      "missing_input": "No authoritative real-charge bridge; no reevaluable prerequisite discriminators for stage-owned defer/retry_cheaper/high-timeout blockers.",
+      "owner_decision": "Stage owner must provide an existing allowed recheck condition before those pauses can resume. No novel resume event semantics or authorization invented."
+    }
+  },
+  "limitations_and_next_owner": [
+    "G independently accepts exact remote source and scope; closure_ids intentionally empty.",
+    "Production dataset remains local read-only and is not required for generic fixture mechanisms; production-dependent admission/history/spend/publication claims await appointed owner inputs.",
+    "Static production gate exit3 is explicit unresolved dynamic-dispatch boundary, not inherited red or executable production proof.",
+    "Root-independent reviewer numerical_oracle accepted bounded exact63 native117tests; reviewer receipt belongs its separate Git handoff, not D self-attestation."
+  ],
+  "related_evidence": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-controls.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/funnel-production-invocation-summary.json"
+  ],
+  "pattern_pass": {
+    "P01/P02": "actual workflow/bootstrap/CAS/native callback traced",
+    "P29": "guard/predicate removals retain markers and fail",
+    "P32/P37": "native guard recomputed; generic bool admission limited",
+    "P38": "reported cost vs budget and config marker vs actualcount divergence retained",
+    "P40": "typed temporal recurrence widened recursive scalar projection; other scope residual explicitly remains",
+    "P41": "No inherited-red claim; source PASScells only navigation"
+  },
+  "canonical_residual_rows": [
+    {
+      "id": "B156",
+      "source_ref": "B_source",
+      "source_line": 4105,
+      "status": "partial",
+      "residual": "Same effective request reuses the result; changed input version is not stale; an independent control actually executes, and ordinary-attempt history remains intact. J0248–J0252 only prove environment/PYTHONPATH, not this behavior; test these request/cache axes.",
+      "residual_owner": {
+        "kind": "verification_owner",
+        "name": "FUN-01 finding-level verification owner; E02-R2 baseline broker for attribution",
+        "appointment_status": "role identified; individual appointment is not established"
+      },
+      "p_triage": null
+    },
+    {
+      "id": "B158",
+      "source_ref": "B_source",
+      "source_line": 4129,
+      "status": "partial",
+      "residual": "Combined and separated calls on identical inputs issue identical permitted work, spend and stopping reasons; changed input records the necessary difference. J0248–J0252 are environment provenance only. Test combined/separated call parity and changed-input control.",
+      "residual_owner": {
+        "kind": "verification_owner",
+        "name": "FUN-01 finding-level verification owner; E02-R2 baseline broker for attribution",
+        "appointment_status": "role identified; individual appointment is not established"
+      },
+      "p_triage": null
+    },
+    {
+      "id": "B159",
+      "source_ref": "B_source",
+      "source_line": 4141,
+      "status": "partial",
+      "residual": "Retry on the same basis costs nothing; an authorized basis change creates a checked continuation; permanent blocker, lineage and spend remain. J0248–J0252 are environment provenance only; exercise retry and authorized-change controls.",
+      "residual_owner": {
+        "kind": "verification_owner",
+        "name": "FUN-01 finding-level verification owner; E02-R2 baseline broker for attribution",
+        "appointment_status": "role identified; individual appointment is not established"
+      },
+      "p_triage": null
+    }
+  ]
+}

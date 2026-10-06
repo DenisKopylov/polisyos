@@ -15,13 +15,13 @@ from polisyos.core import artifacts as core_artifacts
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts import build_skip_blocker_record
-from polisyos.foundry import method_accepts_input_contract
-from polisyos.foundry.data_plane import materialize_method_contract
-from polisyos.foundry.methods import (
-    MethodRegistry,
+from polisyos.foundry import (
     causal_worker_execution_context,
+    method_accepts_input_contract,
     validate_source_bound_causal_worker_response,
 )
+from polisyos.foundry.data_plane import materialize_method_contract
+from polisyos.foundry.methods import MethodRegistry
 from polisyos.foundry.methods.catalog import (
     ensure_all_methods_registered as ensure_causal_methods_registered,
 )
@@ -32,6 +32,7 @@ from polisyos.foundry.methods.causal import (
     HTEObservationalData,
     PanelObservationalData,
     RDDObservationalData,
+    StaggeredDifferenceInDifferences,
 )
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
@@ -512,8 +513,6 @@ def _verify_selected_did_target(
     output: Any, *, observational_data: PanelObservationalData, params: dict[str, Any]
 ) -> None:
     """Recompute the selected scalar's identity at its consuming boundary."""
-    from polisyos.foundry.methods.catalog.causal.did import StaggeredDifferenceInDifferences
-
     if not isinstance(output, dict) or "report" not in output:
         raise ValueError("selected DiD output is missing its report")
     report = CausalEffectReport.model_validate(output["report"])

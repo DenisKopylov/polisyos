@@ -388,7 +388,7 @@ def test_manifest_directory_fsync_fault_preserves_published_history_consumer(tmp
         original_fsync(directory)
 
     monkeypatch.setattr(module, "_fsync_dir", fail_after_manifest_publish)
-    with pytest.raises(CheckpointSaveError):
+    with pytest.raises(module.CheckpointPublicationUncertainError):
         checkpoints[1].save(path)
     # Atomic replacement has happened: this consumer must retain the published
     # array, even while its durability outcome remains uncertain.
@@ -535,6 +535,10 @@ def test_present_rows_do_not_restore_incomplete_history_authority(tmp_path, inco
         import json
 
         data = json.loads(path.read_text())
+        if data.get("checkpoint_format") == "generation-v1":
+            data = json.loads((path.parent / data["snapshot_ref"]).read_text())
+        # Exercise the retained direct-JSON legacy profile with a genuinely
+        # missing header, rather than changing the generation pointer schema.
         del data["history_complete"]
         path.write_text(json.dumps(data))
     checkpoint = ChainCheckpoint.load(path)
@@ -560,3 +564,179 @@ def test_present_rows_do_not_restore_incomplete_history_authority(tmp_path, inco
     )
     assert calls == []
     assert not again.history_complete
+
+
+_CHECKPOINT_PROCESS_DRIVER = r"""
+import hashlib, json, pathlib, runpy, sys, threading, time
+import numpy as np
+import polisyos.foundry.methods.backends.checkpointing as module
+
+source, mode, manifest_text, fixture_text, ready_text, go_text, value_text, result_text = sys.argv[1:]
+manifest, fixture, ready, go, result_path = map(pathlib.Path, (manifest_text, fixture_text, ready_text, go_text, result_text))
+value = int(value_text)
+namespace = runpy.run_path(source)
+
+def observe():
+    checkpoint = module.ChainCheckpoint.load(manifest)
+    node_id, original = module._restore_node_result(checkpoint.node_results[0], checkpoint)
+    assert str(node_id) == checkpoint.completed_node_ids[0]
+    assert original.reproducibility.seed == 23
+    assert original.reproducibility.backend.value == 'numpy'
+    actual = int(original.output)
+    assert actual in (1, 2)
+    np.testing.assert_array_equal(original.slot_outputs['output'], original.output)
+    return actual
+
+if mode == 'reader':
+    seen = {observe()}; count = 1
+    ready.write_text('ready')
+    while not go.exists(): time.sleep(0.005)
+    while not all((fixture.parent / f'writer-{v}.done').exists() for v in (1, 2)):
+        seen.add(observe()); count += 1
+    seen.add(observe()); count += 1
+    result_path.write_text(json.dumps({'observations': count, 'values_seen': sorted(seen),
+        'module_path': module.__file__, 'module_sha256': hashlib.sha256(pathlib.Path(module.__file__).read_bytes()).hexdigest()}))
+else:
+    chain, registry, node, checkpoints = namespace['_history_array_checkpoints'](fixture)
+    checkpoint = checkpoints[value - 1]
+    if mode in ('kill_before_pointer', 'kill_after_pointer'):
+        original_write = module._atomic_write_bytes
+        def pause_write(tmp, target, data, *, on_publish=None):
+            if target != manifest:
+                return original_write(tmp, target, data, on_publish=on_publish)
+            if mode == 'kill_before_pointer':
+                ready.write_text('ready'); threading.Event().wait()
+            def after_publish():
+                on_publish(); ready.write_text('ready'); threading.Event().wait()
+            return original_write(tmp, target, data, on_publish=after_publish)
+        module._atomic_write_bytes = pause_write
+        checkpoint.save(manifest)
+    else:
+        ready.write_text('ready')
+        while not go.exists(): time.sleep(0.005)
+        for iteration in range(25): checkpoint.save(manifest)
+        result_path.write_text(json.dumps({'writes': 25, 'module_path': module.__file__,
+            'module_sha256': hashlib.sha256(pathlib.Path(module.__file__).read_bytes()).hexdigest()}))
+        (fixture.parent / f'writer-{value}.done').write_text('done')
+"""
+
+
+def _checkpoint_process(tmp_path, *, mode, manifest, value, go):
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    fixture = tmp_path / f"process-{mode}-{value}"
+    fixture.mkdir()
+    ready = fixture / "ready"
+    result_path = fixture / "result.json"
+    argv = [
+        sys.executable,
+        "-c",
+        _CHECKPOINT_PROCESS_DRIVER,
+        str(Path(__file__).resolve()),
+        mode,
+        str(manifest),
+        str(fixture),
+        str(ready),
+        str(go),
+        str(value),
+        str(result_path),
+    ]
+    env = os.environ.copy()
+    env["POLISYOS_METRICS_PORT"] = "0"
+    stdout = (fixture / "stdout.txt").open("wb")
+    stderr = (fixture / "stderr.txt").open("wb")
+    child = subprocess.Popen(argv, env=env, stdout=stdout, stderr=stderr)
+    stdout.close()
+    stderr.close()
+    return child, ready, result_path
+
+
+def _await_checkpoint_process_ready(child, ready):
+    import time
+
+    deadline = time.monotonic() + 30
+    while not ready.exists():
+        assert child.poll() is None, (ready.parent / "stderr.txt").read_text()
+        assert time.monotonic() < deadline, "real subprocess did not reach fixture boundary"
+        time.sleep(0.005)
+
+
+@pytest.mark.parametrize("stage", ["before_pointer", "after_pointer"])
+def test_process_kill_selects_only_complete_old_or_new_history(tmp_path, stage):
+    import signal
+
+    import numpy as np
+
+    from polisyos.foundry.methods.backends.checkpointing import _restore_node_result
+
+    chain, registry, node, checkpoints = _history_array_checkpoints(tmp_path)
+    manifest = tmp_path / "shared.json"
+    checkpoints[0].save(manifest)
+    child, ready, _ = _checkpoint_process(
+        tmp_path, mode=f"kill_{stage}", manifest=manifest, value=2, go=tmp_path / "go"
+    )
+    try:
+        _await_checkpoint_process_ready(child, ready)
+        child.kill()
+        assert child.wait(timeout=10) == -signal.SIGKILL
+        checkpoint = ChainCheckpoint.load(manifest)
+        restored_id, result = _restore_node_result(checkpoint.node_results[0], checkpoint)
+        assert str(restored_id) == checkpoint.completed_node_ids[0]
+        expected = 1 if stage == "before_pointer" else 2
+        np.testing.assert_array_equal(result.output, np.asarray(expected))
+        np.testing.assert_array_equal(result.slot_outputs["output"], np.asarray(expected))
+        assert result.reproducibility.seed == 23
+        if stage == "before_pointer":
+            resumed = CheckpointingChainExecutor(registry=registry).execute(
+                chain,
+                initial_state={},
+                params_per_node={node.id: {"value": 1}},
+                checkpoint=checkpoint,
+                seed=23,
+            )
+            np.testing.assert_array_equal(resumed.node_results[0][1].output, np.asarray(1))
+    finally:
+        if child.poll() is None:
+            child.kill()
+            child.wait(timeout=10)
+
+
+def test_fresh_process_reader_observes_complete_generations_from_two_process_writers(tmp_path):
+    import hashlib
+    import json
+    from pathlib import Path
+
+    import polisyos.foundry.methods.backends.checkpointing as module
+
+    _, _, _, checkpoints = _history_array_checkpoints(tmp_path)
+    manifest = tmp_path / "shared.json"
+    checkpoints[0].save(manifest)
+    go = tmp_path / "go"
+    children = [
+        _checkpoint_process(tmp_path, mode="writer", manifest=manifest, value=value, go=go)
+        for value in (1, 2)
+    ]
+    children.append(_checkpoint_process(tmp_path, mode="reader", manifest=manifest, value=0, go=go))
+    try:
+        for child, ready, _ in children:
+            _await_checkpoint_process_ready(child, ready)
+        go.write_text("go")
+        for child, ready, _ in children:
+            assert child.wait(timeout=30) == 0, (ready.parent / "stderr.txt").read_text()
+        packets = [json.loads(result.read_text()) for _, _, result in children]
+        assert [packet["writes"] for packet in packets[:2]] == [25, 25]
+        assert packets[2]["observations"] > 1
+        assert set(packets[2]["values_seen"]) <= {1, 2}
+        expected_hash = hashlib.sha256(Path(module.__file__).read_bytes()).hexdigest()
+        for packet in packets:
+            assert packet["module_path"] == module.__file__
+            assert packet["module_sha256"] == expected_hash
+    finally:
+        go.touch()
+        for child, _, _ in children:
+            if child.poll() is None:
+                child.kill()
+                child.wait(timeout=10)

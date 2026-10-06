@@ -44,3 +44,31 @@ These contracts cover the Foundry chain executor. They do not implement
 Scientist workflow recovery, public generation-route consumption, automatic
 retry, or exactly-once external effects. Checkpoint inputs must retain the
 effective compiled plan and request identity used for the original execution.
+
+## Checkpoint publication
+
+The checkpoint filename now selects one immutable UUID generation through an
+atomic JSON pointer. The pointer binds the complete snapshot bytes; that
+snapshot keeps state, completed frontier and original per-node history in the
+same generation. NumPy state and history sidecars carry content, shape and
+dtype bindings. Readers resolve the selected generation once. Concurrent
+writers hold the same per-checkpoint filesystem lock through publication and
+rollback, and remove only their own unpublished generation after a failed
+save.
+
+Snapshot files, sidecars and their directories are fsynced before the pointer
+is replaced. If the final pointer-directory fsync fails after replacement,
+`CheckpointPublicationUncertainError` reports uncertainty and preserves the
+visible generation. Callers must inspect or retry that outcome; it is not a
+durable-success acknowledgement. A process killed before pointer replacement
+leaves the previous selection readable; a process killed after replacement
+leaves a complete new selection, with durability still unacknowledged.
+
+Existing direct-JSON checkpoint files remain readable under their original
+content-binding and execution-identity checks. Consumers must use
+`ChainCheckpoint.load()` rather than read state fields from the pointer file.
+Generation reclamation is not implemented: successful and interrupted orphan
+generations remain on disk. This protocol assumes a local filesystem with
+flock, atomic replacement and directory fsync. It does not establish power-loss
+behavior, protection from hostile filesystem mutation, or Scientist workflow
+recovery.

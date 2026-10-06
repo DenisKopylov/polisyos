@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import time
 from types import SimpleNamespace
@@ -70,11 +71,93 @@ def test_chain_checkpoint_load_rejects_missing_sidecar(tmp_path) -> None:
         intermediate_state={"arr": np.array([1.0, 2.0])},
     )
     checkpoint.save(path)
-    for sidecar in tmp_path.glob("checkpoint_abc_0000_arr.npy"):
+    for sidecar in tmp_path.rglob("*.npy"):
         sidecar.unlink()
 
     with pytest.raises(CheckpointLoadError, match="sidecar missing"):
         ChainCheckpoint.load(path)
+
+
+@pytest.mark.parametrize("fault", ["sidecar_fsync", "snapshot_fsync", "pointer_replace"])
+def test_prepublication_filesystem_fault_preserves_selected_generation(
+    tmp_path, monkeypatch, fault
+) -> None:
+    import polisyos.foundry.methods.backends.checkpointing as module
+
+    path = tmp_path / "selected.json"
+    old = ChainCheckpoint("boundary", [], [], {"arr": np.array([1.0])})
+    old.save(path)
+    pointer_bytes = path.read_bytes()
+    generation_root = tmp_path / f".{path.name}.generations"
+    old_generations = set(generation_root.iterdir())
+    actual_fsync = module.os.fsync
+    actual_replace = module.os.replace
+    observed = []
+
+    def fsync(fd):
+        member = os.readlink(f"/proc/self/fd/{fd}")
+        sidecar_fault = fault == "sidecar_fsync" and ".npy." in member
+        snapshot_fault = fault == "snapshot_fsync" and ".snapshot.json." in member
+        if sidecar_fault or snapshot_fault:
+            observed.append(member)
+            raise OSError(f"injected actual {fault}")
+        return actual_fsync(fd)
+
+    def replace(source, target, *args, **kwargs):
+        if fault == "pointer_replace" and os.fspath(target) == os.fspath(path):
+            observed.append(os.fspath(target))
+            raise OSError("injected actual pointer replace")
+        return actual_replace(source, target, *args, **kwargs)
+
+    monkeypatch.setattr(module.os, "fsync", fsync)
+    monkeypatch.setattr(module.os, "replace", replace)
+    with pytest.raises(CheckpointSaveError, match="injected actual"):
+        ChainCheckpoint("boundary", [], [], {"arr": np.array([2.0])}).save(path)
+
+    assert observed
+    assert path.read_bytes() == pointer_bytes
+    assert set(generation_root.iterdir()) == old_generations
+    np.testing.assert_array_equal(ChainCheckpoint.load(path).intermediate_state["arr"], [1.0])
+
+
+@pytest.mark.parametrize("corruption", ["content", "traversal", "symlink", "format"])
+def test_generation_pointer_refuses_unbound_or_foreign_snapshot(tmp_path, corruption) -> None:
+    path = tmp_path / "selected.json"
+    ChainCheckpoint("binding", [], [], {"value": 1}).save(path)
+    pointer = json.loads(path.read_text())
+    snapshot = tmp_path / pointer["snapshot_ref"]
+    if corruption == "content":
+        snapshot.write_text(snapshot.read_text().replace('"value": 1', '"value": 2'))
+    elif corruption == "traversal":
+        pointer["snapshot_ref"] = "../foreign-snapshot.json"
+    elif corruption == "symlink":
+        foreign = tmp_path.parent / "foreign-snapshot.json"
+        foreign.write_bytes(snapshot.read_bytes())
+        snapshot.unlink()
+        snapshot.symlink_to(foreign)
+    else:
+        pointer["checkpoint_format"] = "unknown"
+    path.write_text(json.dumps(pointer))
+
+    with pytest.raises(CheckpointLoadError):
+        ChainCheckpoint.load(path)
+
+
+def test_generation_collision_cannot_delete_existing_generation(tmp_path, monkeypatch) -> None:
+    import polisyos.foundry.methods.backends.checkpointing as module
+
+    path = tmp_path / "selected.json"
+    ChainCheckpoint("collision", [], [], {"arr": np.array([1.0])}).save(path)
+    pointer_bytes = path.read_bytes()
+    snapshot = tmp_path / json.loads(pointer_bytes)["snapshot_ref"]
+    generation_id = snapshot.parent.name
+    monkeypatch.setattr(module, "uuid4", lambda: SimpleNamespace(hex=generation_id))
+
+    with pytest.raises(CheckpointSaveError):
+        ChainCheckpoint("collision", [], [], {"arr": np.array([2.0])}).save(path)
+
+    assert path.read_bytes() == pointer_bytes
+    np.testing.assert_array_equal(ChainCheckpoint.load(path).intermediate_state["arr"], [1.0])
 
 
 def test_find_latest_checkpoint_skips_corrupt_latest_and_records_issue(tmp_path) -> None:

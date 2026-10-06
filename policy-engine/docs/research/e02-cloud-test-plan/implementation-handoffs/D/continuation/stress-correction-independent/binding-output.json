@@ -1,0 +1,23 @@
+{
+  "correction_sha": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+  "successor_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+  "origin_matches": 17,
+  "unimported": 1,
+  "profile_file_matches": 22,
+  "wave_counts": {
+    "tests": 142,
+    "failures": 3,
+    "errors": 0,
+    "skipped": 0
+  },
+  "four_counts": {
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "copied_files": 18,
+  "copied_bytes": 110803,
+  "review_sha256": "30535b8355cac99396f4b2cbd32af956456d4abb602679dd36c6c848fe21ad81",
+  "verdict": "PASS within bounded corrected properties: all-component completeness, actual phaseD4 CAS schema alignment, declared resource DTO JSON preservation. Overall originalSTR/E/quality closure remains PARTIAL/UNRUN/FAIL as recorded."
+}

@@ -1,0 +1,13 @@
+{
+  "source_sha": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+  "oracle_sha": "cf358ef1f08eb6836d0dd399297f059dc9aaa15b",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "tests/integration/scientist/methods/search/stress_case_intake_probe.py",
+    "remove_strict_bool",
+    "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 14.171013031998882,
+  "peak_rss_kib": 900656
+}

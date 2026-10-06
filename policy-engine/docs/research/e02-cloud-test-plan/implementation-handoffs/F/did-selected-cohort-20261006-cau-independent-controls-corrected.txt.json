@@ -1,0 +1,6 @@
+{
+  "encoding": "utf8-json-string",
+  "decoded_bytes": 267,
+  "decoded_sha256": "e0c85d1164efefa1a9b1c1df424b87249720c128c39f9bc906e25330dd0b7e88",
+  "text": "Traceback (most recent call last):\n  File \"<string>\", line 25, in <module>\n    assert declared is outside, (confidence,null,result.p_value,outside,declared)\n           ^^^^^^^^^^^^^^^^^^^\nAssertionError: (0.95, np.float64(2.4649254490688586), 0.0475, np.True_, True)\n"
+}

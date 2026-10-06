@@ -421,22 +421,8 @@ def _run_standard_did(data: PanelObservationalData, params: Mapping[str, Any]) -
     z_score = 0.0 if att_se <= 0 else att / att_se
     p_value = _normal_two_sided_pvalue(z_score)
 
-    pre_diag = _parallel_trend_diagnostic(data.outcome, data.treatment, t0=t0)
-    diagnostics = [pre_diag]
-    if not pre_diag.passed:
-        diagnostics.append(
-            DiagnosticTest(
-                test_name="parallel_trends_warning",
-                statistic=pre_diag.statistic,
-                p_value=pre_diag.p_value,
-                passed=False,
-                details={
-                    "message": "Pretrend evidence is limited; it does not establish identification.",
-                    "status": pre_diag.details["status"],
-                    "identification_authority": False,
-                },
-            )
-        )
+    diagnostics, diagnostic_contract = _did_diagnostic_contract(data, standard=True)
+    pre_diag = diagnostics[0]
 
     treated_pre = data.outcome[treated_mask, :t0].mean(axis=1)
     control_pre = data.outcome[control_mask, :t0].mean(axis=1)
@@ -477,10 +463,59 @@ def _run_standard_did(data: PanelObservationalData, params: Mapping[str, Any]) -
             "finite_cluster_guarantee": False,
             "parallel_trends_identified": False,
             "pretrend_status": pre_diag.details["status"],
+            **diagnostic_contract,
             **({"n_clusters": n_clusters} if n_clusters is not None else {}),
         },
     )
     return _wrap_did_output(report)
+
+
+def _did_diagnostic_contract(
+    data: PanelObservationalData, *, standard: bool
+) -> tuple[list[DiagnosticTest], dict[str, Any]]:
+    """Recompute the complete descriptive diagnostic from its actual input basis."""
+
+    pre_diag = _parallel_trend_diagnostic(data.outcome, data.treatment, t0=data.time_treatment)
+    diagnostics = [pre_diag]
+    if standard and not pre_diag.passed:
+        diagnostics.append(
+            DiagnosticTest(
+                test_name="parallel_trends_warning",
+                statistic=pre_diag.statistic,
+                p_value=pre_diag.p_value,
+                passed=False,
+                details={
+                    "message": "Pretrend evidence is limited; it does not establish identification.",
+                    "status": pre_diag.details["status"],
+                    "identification_authority": False,
+                },
+            )
+        )
+    basis = {
+        "outcome": np.asarray(data.outcome, dtype=float).tolist(),
+        "treatment": data.treatment.tolist(),
+        "time_treatment": data.time_treatment,
+    }
+    result = [diagnostic.model_dump(mode="json") for diagnostic in diagnostics]
+
+    def digest(value: Any) -> str:
+        encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+        return hashlib.sha256(encoded).hexdigest()
+
+    contract = {
+        "profile": "pretrend_group_mean_linear_hc1_normal_v1",
+        "method_mode": "standard" if standard else "staggered",
+        "input_fields": ["outcome", "treatment", "time_treatment"],
+        "input_sha256": digest(basis),
+        "time_treatment": data.time_treatment,
+        "diagnostics": result,
+        "result_sha256": digest(result),
+        "identification_authority": False,
+    }
+    return diagnostics, {
+        "diagnostic_contract": contract,
+        "diagnostic_binding": digest(contract),
+    }
 
 
 def _staggered_target_contract(
@@ -869,10 +904,11 @@ def _run_staggered_did(data: PanelObservationalData, params: Mapping[str, Any]) 
 
     att, influence, cell_summaries = _selected_participation_influence(data, cells)
     standard_error = float(np.linalg.norm(influence) / data.n_units)
-    diagnostics = [_parallel_trend_diagnostic(data.outcome, data.treatment, t0=data.time_treatment)]
+    diagnostics, diagnostic_contract = _did_diagnostic_contract(data, standard=False)
     method_params = {
         "staggered": True,
         **target,
+        **diagnostic_contract,
         "control_group": control_group,
         "anticipation": anticipation,
         "n_cells": len(cells),
@@ -1118,6 +1154,19 @@ class StandardDifferenceInDifferences:
     )
 
     @staticmethod
+    def _diagnostic_contract(
+        state: PanelObservationalData | Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Recompute the internal Scientist diagnostic projection, without authority."""
+
+        data = (
+            state
+            if isinstance(state, PanelObservationalData)
+            else PanelObservationalData.model_validate(state)
+        )
+        return _did_diagnostic_contract(data, standard=True)[1]
+
+    @staticmethod
     def pure_step(
         state: PanelObservationalData | Mapping[str, Any], params: Mapping[str, Any]
     ) -> dict[str, Any]:
@@ -1194,6 +1243,19 @@ class StaggeredDifferenceInDifferences:
             else PanelObservationalData.model_validate(state)
         )
         return _staggered_target_contract(data, params)
+
+    @staticmethod
+    def _diagnostic_contract(
+        state: PanelObservationalData | Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Recompute diagnostics separately from the fixed scalar target binding."""
+
+        data = (
+            state
+            if isinstance(state, PanelObservationalData)
+            else PanelObservationalData.model_validate(state)
+        )
+        return _did_diagnostic_contract(data, standard=False)[1]
 
     @staticmethod
     def pure_step(

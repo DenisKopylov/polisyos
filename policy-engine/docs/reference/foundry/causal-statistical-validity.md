@@ -111,3 +111,41 @@ a successful production-node evaluation. The unavailable exact local admission
 and source inputs are handed to G separately. TMLE's candidate/limited result
 remains its own typed numerical profile; no successful causal report or interval
 is manufactured for an unavailable EIF interval.
+
+## Current DiD diagnostic provenance
+
+The preceding family table describes the offline benchmark contract. The
+dedicated runtime DiD producers separately record descriptive pretrend evidence
+and its current-input basis. They do not use an offline benchmark pass or
+diagnostic non-rejection to establish identification on an admitted real panel.
+
+Computed Standard and Staggered DiD reports include `diagnostic_contract` and
+`diagnostic_binding` in `method_params`. The contract binds the complete outcome
+array, binary treatment membership and `time_treatment`, and the complete typed
+diagnostic list under the group-mean linear HC1/normal profile. The diagnostic
+window follows the supplied `time_treatment`; this descriptive contrast is not
+a proof that every staggered cohort has untreated potential-outcome parallel
+trends. The existing Standard warning diagnostic is included in the projection.
+
+This binding is separate from the staggered fixed scalar `target_contract`.
+Changing only `time_treatment` can change a testable diagnostic to `not_testable`
+while leaving cohort timing, eligible periods, theta_sel and its inference
+unchanged. Matching scalar-target markers therefore cannot validate that
+diagnostic. The internal typed `_diagnostic_contract` seam on the existing
+dedicated method recomputes the full result from the current panel. A consuming
+validator must compare both contract metadata and the actual typed
+`report.diagnostics` against this projection. Recomputing a hash of an offered
+diagnostic alone is not an independent check.
+
+Insufficient preperiods and missing groups retain `not_testable`, no statistic
+or p-value, and `passed=False`. Standard DiD with no preperiod remains
+`INPUT_INVALID` before diagnostic computation. Historical reports and output
+aliases remain readable; current-input validation requires recomputation or
+refusal when their diagnostic contract is missing or stale. All diagnostic
+dispositions explicitly retain `identification_authority=False`.
+
+Native NumPy and independent Statsmodels HC1 checks verify this finite
+descriptive profile. Python 3.14 optional DoWhy/EconML marker exclusions are not
+backend witnesses. Current-input diagnostic custody, numerical SUCCESS and an
+actual Runtime identification admission are distinct properties; the last
+requires its canonical verifier and admitted inputs.

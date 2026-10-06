@@ -1,0 +1,11 @@
+import os,sys,json,subprocess,pathlib,hashlib,time,resource
+root=pathlib.Path('/workspace/e02-F-cau-20261006');target='0c2086d6a31dcef1b5b201861b11639a226c2a70';out=pathlib.Path('/workspace/e02-F-20261006-receipts/cau');label=sys.argv[1];argv=sys.argv[2:]
+paths=['policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py','policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py','policy-engine/src/polisyos/ir/analytics/causal_graph.py','policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_readiness.py','policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py','policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py','policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py','policy-engine/tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py']
+def git(*args):return subprocess.check_output(['git',*args],cwd=root,text=True).strip()
+def hashes():return {p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}
+before=hashes();expected={p:hashlib.sha256(subprocess.check_output(['git','show',target+':'+p],cwd=root)).hexdigest() for p in paths};assert before==expected
+env={**os.environ,'PYTHONPATH':'src:.:tools','PYTHONDONTWRITEBYTECODE':'1'};start=time.time();p=subprocess.run(argv,cwd=root/'policy-engine',env=env,capture_output=True);after=hashes();assert before==after
+outputs={}
+for ext,data in [('stdout',p.stdout),('stderr',p.stderr)]:
+ file=out/(label+'.'+ext+'.txt');file.write_bytes(data);outputs[ext]={'path':str(file),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+r={'schema':'policyos.e02.independent_execution.v1','target_sha':target,'target_tree':git('rev-parse',target+'^{tree}'),'head_before_after':git('rev-parse','HEAD'),'source_hashes':before,'source_unchanged':True,'command':argv,'cwd':str(root/'policy-engine'),'environment':{'PYTHONPATH':'src:.:tools','PYTHONDONTWRITEBYTECODE':'1','thread_cpu_quotas':'none'},'exit':p.returncode,'wall_seconds':time.time()-start,'maxrss_kib':resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss,'outputs':outputs};(out/(label+'.json')).write_text(json.dumps(r,indent=2)+'\n');print(json.dumps(r))

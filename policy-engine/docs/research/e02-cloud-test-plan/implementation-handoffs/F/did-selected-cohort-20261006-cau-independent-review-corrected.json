@@ -1,0 +1,66 @@
+{
+  "source_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+  "expected_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+  "source_hash_before": "5b35566ab38d121c43146edf809b9f3194030db950e953b660e0715450538f20",
+  "source_hash_after": "5b35566ab38d121c43146edf809b9f3194030db950e953b660e0715450538f20",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py",
+    "tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+    "tests/unit/remediation/test_cau_02.py",
+    "tests/unit/remediation/test_cau_05.py",
+    "-o",
+    "addopts=",
+    "-v",
+    "--tb=short"
+  ],
+  "native_returncode": 0,
+  "control_returncode": 0,
+  "wall_seconds": 73.91976189613342,
+  "maximum_child_rss_kib": 617140,
+  "native_output": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/cau-independent-native-corrected.txt",
+    "bytes": 10889,
+    "sha256": "b26ce1fa0d7529ca235b30406f8862ad6c076d958ae83012ff44ce40baaaeaad"
+  },
+  "controls_output": {
+    "path": "/workspace/e02-F-20261006-receipts/economics/cau-independent-endpoint-controls.txt",
+    "bytes": 3626,
+    "sha256": "5a88a1ad61ff3fac607a8898775ccf58a68b010176981b8ec62a500af5687087"
+  },
+  "analytic_review": "Read fixed cohort eligibility contract, missing-control refusal, share-ratio IF, shared-unit iid Mammen law, scalar null/CI integer order statistic and pretrend ownership. Ratio IF includes n/selected-count cohort composition term; unit-shared sum centered. Known synthetic DGP does not prove real-input identification or finite-cluster coverage. Correction uses Decimal(str(confidence)) integer accepted-tail cutoff and effect-scale closed intervals; checked confidence .95/.9/.8/.927 endpoints and adjacent representable floats.",
+  "review_verdict": "GO_bounded_corrected_inversion",
+  "native_result": {
+    "passed": 53,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0
+  },
+  "independent_controls": {
+    "confidence_levels": [
+      0.95,
+      0.9,
+      0.8,
+      0.927
+    ],
+    "endpoint_and_nextafter_cases": 24,
+    "closed_interval_and_integer_decision_consistent": true,
+    "row_permutation_point_and_standard_error_invariant": true
+  },
+  "review_runner_correction": {
+    "failed_output": {
+      "path": "/workspace/e02-F-20261006-receipts/economics/cau-independent-controls-corrected.txt",
+      "bytes": 267,
+      "sha256": "e0c85d1164efefa1a9b1c1df424b87249720c128c39f9bc906e25330dd0b7e88"
+    },
+    "reason": "Reviewer-only Python identity assertion compared bool to numpy.bool_; corrected to bool conversion. No product change or product-failure attribution.",
+    "retained_native_run": true
+  },
+  "limits": [
+    "Known synthetic DGP and finite native fixtures do not admit production identification.",
+    "iid panel-unit Mammen inference is not a finite-cluster coverage guarantee.",
+    "Pretrend nonrejection is diagnostic, not identification; missing preperiod remains not_testable."
+  ]
+}

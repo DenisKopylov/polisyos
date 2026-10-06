@@ -1,0 +1,36 @@
+{
+  "outcome": "PASS_CALLER_CUTOVER_PARITY",
+  "whole_suites": "interference PASS3/3; natural FAIL2/3 (score/DGP unchanged)",
+  "measurement": "Exact complete typed report/result payload and case outcomes equal, excludes elapsed/memory metrics only; no slice-base scientific inheritance claim",
+  "pairs": [
+    {
+      "family": "interference",
+      "before_source_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+      "after_source_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+      "case_count": 3,
+      "case_semantic_outputs_exactly_equal": true,
+      "n_passed": 3,
+      "n_failed": 0,
+      "n_errors": 0,
+      "n_skipped": 0,
+      "failed_cases": []
+    },
+    {
+      "family": "natural",
+      "before_source_sha": "c7d33a223e467964c589f61c8b097eb9175335c5",
+      "after_source_sha": "0a25f3afee4c12ba8079c781618229589ef8af75",
+      "case_count": 3,
+      "case_semantic_outputs_exactly_equal": true,
+      "n_passed": 2,
+      "n_failed": 1,
+      "n_errors": 0,
+      "n_skipped": 0,
+      "failed_cases": [
+        {
+          "case_id": "policy_natural::did::clean_rollout",
+          "reason": "clean rollout should pass the parallel-trends diagnostic"
+        }
+      ]
+    }
+  ]
+}

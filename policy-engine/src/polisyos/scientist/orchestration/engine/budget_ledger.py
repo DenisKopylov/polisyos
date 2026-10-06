@@ -22,6 +22,7 @@ from polisyos.scientist.orchestration.engine.budget import BudgetState
 
 _CANONICAL_LEDGER_CONTRACT = "scientist.multi_host_budget_ledger.v1"
 _COORDINATION_MODE = "shared_posix_file_lock"
+_SNAPSHOT_VERSION = "1.1"
 
 __all__ = [
     "BudgetLedger",
@@ -29,6 +30,8 @@ __all__ = [
     "BudgetLedgerMutationResult",
     "BudgetLedgerSnapshot",
     "BudgetLedgerWriter",
+    "BudgetLedgerSpendReceipt",
+    "BudgetLedgerSettlementOutcomeUnknownError",
     "FileBudgetLedger",
 ]
 
@@ -55,6 +58,7 @@ class BudgetLedgerMutation(BaseModel):
         "reserve",
         "release",
         "commit_reservation",
+        "settle_spend",
     ]
     key: str | None = None
     amount: Decimal | None = None
@@ -65,12 +69,42 @@ class BudgetLedgerMutation(BaseModel):
     committed_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
+class BudgetLedgerSpendReceipt(BaseModel):
+    """Durable local accounting acknowledgment for one producer settlement event.
+
+    This binds an observed producer payload to one local charge. It does not
+    certify external billing authority or supply permission to run new work.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    event_id: str = Field(min_length=1)
+    payload_digest: str = Field(pattern=r"^[a-f0-9]{64}$")
+    key: str = Field(min_length=1)
+    amount: Decimal = Field(ge=0, allow_inf_nan=False)
+    provider: str | None = None
+    revision: int = Field(ge=1)
+    committed_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+
+class BudgetLedgerSettlementOutcomeUnknownError(RuntimeError):
+    """A filesystem publication failed without establishing charge acknowledgment."""
+
+    def __init__(self, event_id: str, payload_digest: str) -> None:
+        self.event_id = event_id
+        self.payload_digest = payload_digest
+        super().__init__(
+            f"budget settlement outcome unknown for event {event_id!r}; "
+            "resolve or retry the same event before assuming any charge outcome"
+        )
+
+
 class BudgetLedgerSnapshot(BaseModel):
     """Persisted budget ledger state."""
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    schema_version: str = Field(default=_SNAPSHOT_VERSION, pattern=r"^\d+\.\d+$")
     canonical_contract: str = Field(default=_CANONICAL_LEDGER_CONTRACT, min_length=1)
     coordination_mode: str = Field(default=_COORDINATION_MODE, min_length=1)
     ledger_id: str | None = None
@@ -79,6 +113,9 @@ class BudgetLedgerSnapshot(BaseModel):
     last_writer: BudgetLedgerWriter | None = None
     recent_mutations: list[BudgetLedgerMutation] = Field(default_factory=list)
     state: BudgetState = Field(default_factory=BudgetState)
+    spend_receipts: dict[str, BudgetLedgerSpendReceipt] = Field(
+        default_factory=dict, json_schema_extra={"introduced_in": "1.1"}
+    )
 
 
 _PERSISTED_SNAPSHOT_SCHEMA = BudgetLedgerSnapshot.model_json_schema(mode="serialization")
@@ -90,6 +127,7 @@ def _require_wire_fields(
     definitions: dict[str, Any],
     *,
     location: str = "snapshot",
+    version: str = _SNAPSHOT_VERSION,
 ) -> None:
     """Require non-nullable writer fields before constructor defaults can apply."""
     if "$ref" in schema:
@@ -103,16 +141,26 @@ def _require_wire_fields(
         properties = schema.get("properties", {})
         for name, field_schema in properties.items():
             nullable = any(item.get("type") == "null" for item in field_schema.get("anyOf", []))
-            if name not in value and not nullable:
+            introduced = field_schema.get("introduced_in", "1.0")
+            required_in_version = tuple(map(int, introduced.split("."))) <= tuple(
+                map(int, version.split("."))
+            )
+            if name not in value and not nullable and required_in_version:
                 raise ValueError(f"incomplete budget ledger: missing {location}.{name}")
         for name, item in value.items():
             field_schema = properties.get(name, schema.get("additionalProperties", {}))
             if isinstance(field_schema, dict):
-                _require_wire_fields(item, field_schema, definitions, location=f"{location}.{name}")
+                _require_wire_fields(
+                    item, field_schema, definitions, location=f"{location}.{name}", version=version
+                )
     elif isinstance(value, list):
         for index, item in enumerate(value):
             _require_wire_fields(
-                item, schema.get("items", {}), definitions, location=f"{location}[{index}]"
+                item,
+                schema.get("items", {}),
+                definitions,
+                location=f"{location}[{index}]",
+                version=version,
             )
 
 
@@ -137,11 +185,38 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
     if not raw.strip():
         raise ValueError("existing budget ledger is empty")
     value = json.loads(raw)
+    version = value.get("schema_version") if isinstance(value, dict) else None
+    if not isinstance(version, str) or version not in {"1.0", _SNAPSHOT_VERSION}:
+        raise ValueError("budget ledger schema_version is missing or unsupported")
+    if (
+        value.get("canonical_contract") != _CANONICAL_LEDGER_CONTRACT
+        or value.get("coordination_mode") != _COORDINATION_MODE
+    ):
+        raise ValueError("budget ledger contract or coordination mode is unsupported")
     _require_wire_fields(
-        value, _PERSISTED_SNAPSHOT_SCHEMA, _PERSISTED_SNAPSHOT_SCHEMA.get("$defs", {})
+        value,
+        _PERSISTED_SNAPSHOT_SCHEMA,
+        _PERSISTED_SNAPSHOT_SCHEMA.get("$defs", {}),
+        version=version,
     )
     snapshot = BudgetLedgerSnapshot.model_validate_json(raw, strict=True)
     _require_nonnegative_amounts(snapshot)
+    amounts: dict[str, Decimal] = {}
+    provider_amounts: dict[str, Decimal] = {}
+    for event_id, receipt in snapshot.spend_receipts.items():
+        if receipt.event_id != event_id or receipt.revision > snapshot.revision:
+            raise ValueError("budget settlement receipt identity/revision disagrees with snapshot")
+        amounts[receipt.key] = amounts.get(receipt.key, Decimal("0")) + receipt.amount
+        if receipt.provider is not None:
+            provider_amounts[receipt.provider] = (
+                provider_amounts.get(receipt.provider, Decimal("0")) + receipt.amount
+            )
+    for key, amount in amounts.items():
+        if snapshot.state.spent.get(key, Decimal("0")) < amount:
+            raise ValueError("budget settlement receipts exceed the recorded spend")
+    for provider, amount in provider_amounts.items():
+        if snapshot.state.provider_spent.get(provider, Decimal("0")) < amount:
+            raise ValueError("budget settlement receipts exceed the recorded provider spend")
     return snapshot
 
 
@@ -157,6 +232,9 @@ class BudgetLedgerMutationResult:
 
 class BudgetLedger(Protocol):
     """Protocol for distributed-safe budget ledgers."""
+
+    @property
+    def settlement_owner_identity(self) -> tuple[str, str, str]: ...
 
     def load(self) -> BudgetState: ...
     def snapshot(self) -> BudgetLedgerSnapshot: ...
@@ -177,6 +255,16 @@ class BudgetLedger(Protocol):
         *,
         provider: str | None = None,
     ) -> BudgetLedgerMutationResult: ...
+    def settle_spend(
+        self,
+        event_id: str,
+        key: str,
+        amount: Decimal,
+        *,
+        payload_digest: str,
+        provider: str | None = None,
+    ) -> BudgetLedgerSpendReceipt: ...
+    def resolve_spend(self, event_id: str) -> BudgetLedgerSpendReceipt | None: ...
 
 
 def _fsync_dir(path: Path) -> None:
@@ -222,6 +310,17 @@ class FileBudgetLedger:
         if snapshot is None:
             raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
         return snapshot.state
+
+    @property
+    def settlement_owner_identity(self) -> tuple[str, str, str]:
+        """Return the persisted owner/contract identity for producer cache isolation."""
+        with self._file_lock(exclusive=False):
+            snapshot = self._load_snapshot()
+        if snapshot is None:
+            raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
+        if snapshot.ledger_id is None:
+            raise ValueError("durable settlement owner requires a persisted ledger identity")
+        return snapshot.ledger_id, snapshot.canonical_contract, snapshot.coordination_mode
 
     def snapshot(self) -> BudgetLedgerSnapshot:
         with self._file_lock(exclusive=False):
@@ -322,6 +421,85 @@ class FileBudgetLedger:
             operation=apply,
         )
 
+    def settle_spend(
+        self,
+        event_id: str,
+        key: str,
+        amount: Decimal,
+        *,
+        payload_digest: str,
+        provider: str | None = None,
+    ) -> BudgetLedgerSpendReceipt:
+        """Atomically charge one exact event once and return its durable receipt.
+
+        Exact retries return the original receipt, including after journal
+        eviction or process restart. A reused ID with different payload or
+        charge refuses. Filesystem failure is an unknown acknowledgment;
+        resolve or retry this same ID instead of inventing a second event.
+        """
+        candidate = BudgetLedgerSpendReceipt(
+            event_id=event_id,
+            payload_digest=payload_digest,
+            key=key,
+            amount=amount,
+            provider=provider,
+            revision=1,
+        )
+        with self._thread_lock:
+            with self._file_lock(exclusive=True):
+                snapshot = self._load_snapshot()
+                if snapshot is None:
+                    raise FileNotFoundError(
+                        "budget ledger requires explicit load_or_bootstrap before use"
+                    )
+                existing = snapshot.spend_receipts.get(event_id)
+                if existing is not None:
+                    identity = ("event_id", "payload_digest", "key", "amount", "provider")
+                    if any(
+                        getattr(existing, field) != getattr(candidate, field) for field in identity
+                    ):
+                        raise ValueError("settlement event ID conflicts with an existing charge")
+                    return existing
+                state = _branch_budget_state(snapshot.state)
+                state.record_spend(key, candidate.amount, provider=provider)
+                revision = snapshot.revision + 1
+                receipt = candidate.model_copy(update={"revision": revision})
+                receipts = dict(snapshot.spend_receipts)
+                receipts[event_id] = receipt
+                mutations = list(snapshot.recent_mutations)
+                mutations.append(
+                    self._build_mutation(
+                        revision=revision,
+                        operation="settle_spend",
+                        key=key,
+                        amount=candidate.amount,
+                        applied_amount=candidate.amount,
+                        provider=provider,
+                    )
+                )
+                try:
+                    written = self._persist_snapshot(
+                        self._build_snapshot(
+                            state=state,
+                            revision=revision,
+                            recent_mutations=mutations,
+                            spend_receipts=receipts,
+                        )
+                    )
+                except OSError as exc:
+                    raise BudgetLedgerSettlementOutcomeUnknownError(
+                        event_id, payload_digest
+                    ) from exc
+                return written.spend_receipts[event_id]
+
+    def resolve_spend(self, event_id: str) -> BudgetLedgerSpendReceipt | None:
+        """Resolve a durable local receipt; absence is not an assertion of zero cost."""
+        with self._file_lock(exclusive=False):
+            snapshot = self._load_snapshot()
+        if snapshot is None:
+            raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
+        return snapshot.spend_receipts.get(event_id)
+
     @contextmanager
     def _file_lock(self, *, exclusive: bool) -> Iterator[None]:
         """Hold the stable lockfile for one complete read or publication."""
@@ -380,6 +558,7 @@ class FileBudgetLedger:
                         revision=revision,
                         state=state,
                         recent_mutations=tuple(mutations[-self._mutation_history_limit :]),
+                        spend_receipts=snapshot.spend_receipts,
                     )
                 )
                 return BudgetLedgerMutationResult(
@@ -432,6 +611,7 @@ class FileBudgetLedger:
         state: BudgetState,
         revision: int = 0,
         recent_mutations: tuple[BudgetLedgerMutation, ...] | list[BudgetLedgerMutation] = (),
+        spend_receipts: dict[str, BudgetLedgerSpendReceipt] | None = None,
     ) -> BudgetLedgerSnapshot:
         return BudgetLedgerSnapshot(
             canonical_contract=_CANONICAL_LEDGER_CONTRACT,
@@ -442,6 +622,7 @@ class FileBudgetLedger:
             last_writer=self._writer,
             recent_mutations=list(recent_mutations)[-self._mutation_history_limit :],
             state=state,
+            spend_receipts=dict(spend_receipts or {}),
         )
 
     def _build_mutation(
@@ -454,6 +635,7 @@ class FileBudgetLedger:
             "reserve",
             "release",
             "commit_reservation",
+            "settle_spend",
         ],
         key: str | None = None,
         amount: Decimal | None = None,
@@ -478,12 +660,14 @@ class FileBudgetLedger:
                 "canonical_contract": snapshot.canonical_contract or _CANONICAL_LEDGER_CONTRACT,
                 "coordination_mode": snapshot.coordination_mode or _COORDINATION_MODE,
                 "ledger_id": snapshot.ledger_id or self._ledger_id,
+                "schema_version": _SNAPSHOT_VERSION,
             }
         )
 
     def _needs_contract_upgrade(self, snapshot: BudgetLedgerSnapshot) -> bool:
         return bool(
             snapshot.ledger_id is None
+            or snapshot.schema_version != _SNAPSHOT_VERSION
             or snapshot.canonical_contract != _CANONICAL_LEDGER_CONTRACT
             or snapshot.coordination_mode != _COORDINATION_MODE
         )

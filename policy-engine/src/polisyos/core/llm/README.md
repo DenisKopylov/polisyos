@@ -14,6 +14,9 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
 - **Client protocol** - `LLMClientProtocol` standardizes `invoke`, `ainvoke`, and `generate`.
 - **Traced client** - `TracedLLMClient` adds spans, token accounting, and callback hooks.
 - **Response extraction** - `extract_llm_response_data()` normalizes usage/response metadata.
+- **Producer settlement** - internal `settlement.py` binds an observed provider completion to
+  an immutable event and its actual accounting acknowledgement. Trusted wrapper composition
+  installs the completion hook; provider kwargs cannot install an accounting owner.
 - **Cost estimation** - helper functions estimate pricing from tokens or raw text.
 - **Retry wrapper** - `retry_async` forwards to the shared retry layer.
 
@@ -33,3 +36,7 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
 - Last updated: 2026-04-03
 - The package still centers around `protocols.py`, `traced_client.py`, `response.py`, `cost.py`, and `retry.py`.
 - Cost telemetry falls back to shared pricing defaults when provider responses omit pricing data.
+- Asynchronous generate completion remains owned after initiating caller cancellation. Optional
+  telemetry is isolated from required accounting. An absent durable acknowledgement is unknown,
+  and cannot publish a reusable provider result. Durable budget composition is supplied by the
+  Scientist budget owner; a plain traced client only records an unmanaged operational event.

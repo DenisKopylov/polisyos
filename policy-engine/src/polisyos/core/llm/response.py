@@ -45,6 +45,10 @@ class LLMResponseData:
 
 def extract_llm_response_data(response: Any) -> LLMResponseData:
     """Extract content, usage, model, and cost fields from heterogeneous LLM SDK responses."""
+    from .settlement import LLMSettledResponse
+
+    if isinstance(response, LLMSettledResponse):
+        response = response.response
     content = response.content if hasattr(response, "content") else str(response)
     cache_hit, usage_origin, reuse_event_id, cache_key = _extract_cache_provenance(response)
     origin_prompt_tokens = 0

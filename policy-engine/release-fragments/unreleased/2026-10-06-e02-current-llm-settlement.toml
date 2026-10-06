@@ -1,0 +1,17 @@
+id = "2026-10-06-e02-current-llm-settlement"
+title = "Bind LLM cache publication to owned completion and reuse permission"
+type = "fixed"
+component = "scientist-orchestration"
+owner = "team-scientist"
+summary = "Trusted producer completion accounts before cache publication; deployment owners provide fresh typed reuse decisions independently of metadata and content hashes."
+evidence = ["tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py"]
+compatibility = "Snapshot cache reuse now fails closed without an injected owner authorizer. Provider results remain available through the ordinary provider path."
+change_class = "python-public-api"
+surface_classification = "public_experimental: create_traced_gateway_client and LLMBudgetEnforcer; internal: core.llm.settlement and reuse decision contracts"
+migration = "Compose the actual initialized BudgetMiddleware for durable accounting and inject a deployment-owned cache reuse authorizer; retain actor/scope/epoch/exact-evidence bindings."
+api = "New optional factory and budget wrapper composition inputs."
+limitations = "Owner permission is an external deployment premise. Process death before observed provider completion requires external evidence; optional metrics are not ledger acknowledgements."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/core/llm/README.md", "src/polisyos/scientist/orchestration/llm/README.md"]
+runbook_docs = []

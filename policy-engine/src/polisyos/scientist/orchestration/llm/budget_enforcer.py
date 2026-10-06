@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+import hashlib
 import threading
 import time
 from dataclasses import dataclass, field
@@ -9,9 +11,18 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
+from polisyos.common.serialization import stable_json_dumps, to_python_data
 from polisyos.core.llm.response import extract_llm_response_data
+from polisyos.core.llm.settlement import (
+    LLMProducerEvent,
+    LLMSettlementAck,
+    _new_producer_id,
+    _settlement_owner_context,
+)
+from polisyos.core.llm.traced_client import LLMAccountingError
 from polisyos.core.observability import estimate_llm_cost_usd
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetState
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.operational_monitoring import get_operational_monitor
 from polisyos.scientist.orchestration.llm.cost_anomaly import CostAnomalyDetector
@@ -73,9 +84,15 @@ class LLMBudgetEnforcer:
         run_id: str = "",
         metrics: MetricsRegistry | None = None,
         operational_monitor: ScientistOperationalMonitor | None = None,
+        budget_middleware: BudgetMiddleware | None = None,
     ) -> None:
         self._client = client
-        self._budget_state = budget_state
+        self._budget_middleware = budget_middleware
+        self._budget_state = (
+            budget_middleware.budget_state if budget_middleware is not None else budget_state
+        )
+        self._owned_calls: set[asyncio.Task[Any]] = set()
+        self._unknown_settlements: dict[str, tuple[LLMProducerEvent, _BudgetReservation]] = {}
         self._budget_keys = budget_keys
         self._model_name = model_name
         self._audit_log = audit_log
@@ -87,7 +104,20 @@ class LLMBudgetEnforcer:
 
     @property
     def budget_state(self) -> BudgetState:
+        if self._budget_middleware is not None:
+            self._budget_state = self._budget_middleware.budget_state
         return self._budget_state
+
+    def _reserve_budget(self, key: str, amount: Decimal) -> bool:
+        if self._budget_middleware is not None:
+            return self._budget_middleware.reserve_safe(key, amount)
+        return self._budget_state.reserve(key, amount)
+
+    def _release_budget(self, key: str, amount: Decimal) -> None:
+        if self._budget_middleware is not None:
+            self._budget_middleware.release_safe(key, amount)
+        else:
+            self._budget_state.release(key, amount)
 
     def remaining_budget(self) -> Decimal | None:
         """Return the smallest remaining budget across configured keys."""
@@ -130,6 +160,15 @@ class LLMBudgetEnforcer:
 
     def _pre_check(self, kwargs: dict[str, Any]) -> _BudgetReservation:
         """Estimate cost, reserve budget, and reject calls that cannot fit."""
+        if self._unknown_settlements:
+            event = next(iter(self._unknown_settlements.values()))[0]
+            raise LLMAccountingError(
+                response=None,
+                event={"producer_event": event, "settlement_status": "unknown"},
+                cause=RuntimeError("reconcile the unknown producer settlement before another call"),
+            )
+        if self._budget_middleware is not None:
+            self._budget_state = self._budget_middleware.budget_state
         estimated = self._estimate_cost(kwargs)
         run_id = kwargs.get("_run_id", "")
 
@@ -138,7 +177,7 @@ class LLMBudgetEnforcer:
         with self._lock:
             for key in self._budget_keys:
                 has_limit = key in self._budget_state.limits
-                if not self._budget_state.reserve(key, estimated):
+                if not self._reserve_budget(key, estimated):
                     remaining = self._budget_state.remaining(key)
                     for reserved_key in reserved_keys:
                         reserved_amount = reservation.reserved_amounts.get(
@@ -146,7 +185,7 @@ class LLMBudgetEnforcer:
                             Decimal(0),
                         )
                         if reserved_amount > 0:
-                            self._budget_state.release(reserved_key, reserved_amount)
+                            self._release_budget(reserved_key, reserved_amount)
                             reservation.clear_key(reserved_key)
                     if self._audit_log:
                         self._audit_log.append(
@@ -201,7 +240,7 @@ class LLMBudgetEnforcer:
         released_keys: list[str] = []
         with self._lock:
             for key, reserved in reservation.outstanding_items():
-                self._budget_state.release(key, reserved)
+                self._release_budget(key, reserved)
                 reservation.clear_key(key)
                 released_keys.append(key)
 
@@ -252,7 +291,7 @@ class LLMBudgetEnforcer:
             for key in self._budget_keys:
                 reserved = reservation.reserved_amounts.get(key, Decimal(0))
                 if reserved > 0:
-                    self._budget_state.release(key, reserved)
+                    self._release_budget(key, reserved)
                     reservation.clear_key(key)
                 self._budget_state.record_spend(key, actual_cost)
                 if self._budget_state.is_soft_limit_exceeded(key):
@@ -277,7 +316,10 @@ class LLMBudgetEnforcer:
             )
 
         # Emit OTel metrics
-        self._emit_cost_metrics(actual_cost, data)
+        try:
+            self._emit_cost_metrics(actual_cost, data)
+        except Exception:
+            logger.warning("Optional LLM budget metrics sink failed")
 
         return actual_cost
 
@@ -384,30 +426,141 @@ class LLMBudgetEnforcer:
         self._operational_monitor = monitor
         return self._operational_monitor
 
+    def _accounting_scope(self, run_id: str) -> tuple[str, ...]:
+        owner = (
+            self._budget_middleware.settlement_owner_identity
+            if self._budget_middleware is not None
+            else ("memory-budget", str(id(self._budget_state)))
+        )
+        return (*owner, run_id, *sorted(self._budget_keys))
+
+    @staticmethod
+    def _ledger_event_identity(event: LLMProducerEvent, key: str) -> tuple[str, str]:
+        key_digest = hashlib.sha256(key.encode()).hexdigest()
+        event_id = f"{event.event_id}:budget:{key_digest}"
+        payload_digest = (
+            "sha256:" + hashlib.sha256(f"{event.payload_digest}:{key}".encode()).hexdigest()
+        )
+        return event_id, payload_digest
+
+    def _settle_event(
+        self, event: LLMProducerEvent, response: Any, reservation: _BudgetReservation, run_id: str
+    ) -> LLMSettlementAck:
+        receipts = []
+        if event.kind == "provider" and self._budget_middleware is not None:
+            self._unknown_settlements[event.event_id] = (event, reservation)
+            for key in self._budget_keys:
+                event_id, payload_digest = self._ledger_event_identity(event, key)
+                receipt = self._budget_middleware.settle_spend_safe(
+                    event_id,
+                    key,
+                    event.amount,
+                    provider=event.provider,
+                    payload_digest=payload_digest,
+                )
+                if receipt is None:
+                    raise RuntimeError("durable settlement acknowledgement is absent")
+                receipts.append(receipt)
+            self._unknown_settlements.pop(event.event_id, None)
+            self._budget_state = self._budget_middleware.budget_state
+        elif event.kind == "provider":
+            with self._lock:
+                for key in self._budget_keys:
+                    self._budget_state.record_spend(key, event.amount, provider=event.provider)
+        self._release_reservation(reservation, run_id=run_id, reason="producer_settled")
+        try:
+            self._emit_cost_metrics(event.amount, extract_llm_response_data(response))
+        except Exception:
+            logger.warning("Optional LLM budget metrics sink failed")
+        return LLMSettlementAck(
+            event.event_id,
+            event.payload_digest,
+            "committed",
+            tuple(receipts),
+            "ledger" if self._budget_middleware is not None else "memory",
+        )
+
+    def reconcile_settlement(self, event: LLMProducerEvent) -> LLMSettlementAck:
+        """Resolve exact durable receipts; an absent receipt remains unknown."""
+        if self._budget_middleware is None:
+            raise RuntimeError("durable reconciliation requires a budget ledger")
+        receipts = []
+        for key in self._budget_keys:
+            event_id, payload_digest = self._ledger_event_identity(event, key)
+            receipt = self._budget_middleware.resolve_spend_safe(event_id)
+            if receipt is None:
+                return LLMSettlementAck(event.event_id, event.payload_digest, "unknown")
+            if (
+                receipt.payload_digest != payload_digest
+                or receipt.key != key
+                or receipt.amount != event.amount
+                or receipt.provider != event.provider
+            ):
+                raise RuntimeError("durable receipt conflicts with exact producer charge")
+            receipts.append(receipt)
+        pending = self._unknown_settlements.pop(event.event_id, None)
+        if pending is not None:
+            self._release_reservation(
+                pending[1], run_id=self._run_id, reason="settlement_reconciled"
+            )
+        self._budget_state = self._budget_middleware.budget_state
+        return LLMSettlementAck(
+            event.event_id, event.payload_digest, "committed", tuple(receipts), "ledger"
+        )
+
     async def generate(self, **kwargs: Any) -> Any:
-        """Budget-aware async generate wrapper."""
-        _stripped = {k: v for k, v in kwargs.items() if not k.startswith("_")}
+        """Run a budget-owned producer operation independently of caller cancellation."""
+        task = asyncio.create_task(self._generate_owned(kwargs))
+        self._owned_calls.add(task)
+
+        def completed(done: asyncio.Task[Any]) -> None:
+            self._owned_calls.discard(done)
+            if not done.cancelled():
+                done.exception()
+
+        task.add_done_callback(completed)
+        return await asyncio.shield(task)
+
+    async def _generate_owned(self, kwargs: dict[str, Any]) -> Any:
+        stripped = {k: v for k, v in kwargs.items() if not k.startswith("_")}
         reservation = self._pre_check(kwargs)
-        run_id = kwargs.get("_run_id", "")
+        run_id = kwargs.get("_run_id", self._run_id)
         t0 = time.perf_counter()
         committed = False
+
+        def settle(event: LLMProducerEvent, response: Any) -> LLMSettlementAck:
+            nonlocal committed
+            ack = self._settle_event(event, response, reservation, run_id)
+            committed = ack.status == "committed"
+            return ack
+
         try:
-            response = await self._client.generate(**_stripped)
-            self._record_latency(time.perf_counter() - t0)
-            self._post_record(
-                response,
-                reservation=reservation,
-                run_id=run_id,
-            )
-            committed = True
+            with _settlement_owner_context(self._accounting_scope(run_id), settle):
+                response = await self._client.generate(**stripped)
+                if not committed:
+                    data = extract_llm_response_data(response)
+                    event = LLMProducerEvent(
+                        event_id=_new_producer_id(),
+                        request_digest="sha256:"
+                        + hashlib.sha256(
+                            stable_json_dumps(to_python_data(stripped), sort_keys=True).encode()
+                        ).hexdigest(),
+                        response_digest="sha256:"
+                        + hashlib.sha256(data.content.encode()).hexdigest(),
+                        model=data.model or self._model_name,
+                        provider=data.provider or "unknown",
+                        amount=self._resolve_actual_cost(data),
+                        cost_origin="reported" if data.cost_usd is not None else "estimated",
+                    )
+                    settle(event, response)
+            try:
+                self._record_latency(time.perf_counter() - t0)
+            except Exception:
+                logger.warning("Optional LLM latency metrics sink failed")
             return response
         finally:
-            if not committed and reservation.has_outstanding():
-                self._release_reservation(
-                    reservation,
-                    run_id=run_id,
-                    reason="generate_error",
-                )
+            if not committed and reservation.has_outstanding() and not self._unknown_settlements:
+                self._release_reservation(reservation, run_id=run_id, reason="generate_error")
 
     def invoke(self, prompt: str, **kwargs: Any) -> Any:
         """Budget-aware sync invoke wrapper."""

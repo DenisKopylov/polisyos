@@ -16,6 +16,13 @@ from typing import Any, Protocol
 
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import stable_json_dumps, to_python_data
+from polisyos.core.llm.settlement import (
+    LLMProducerSettlement,
+    LLMSettledResponse,
+    _current_producer_completion,
+    producer_settlement,
+)
+from polisyos.core.security.tenant_context import get_current_access_scope_or_none
 
 from .gateway_client import GatewayLLMResponse, GatewayToolCall, GatewayUsage
 
@@ -52,6 +59,106 @@ _VOLATILE_CACHE_METADATA_SUFFIXES = (
 
 
 @dataclass(frozen=True, slots=True)
+class CacheReuseEvidence:
+    """Exact immutable evidence bytes submitted to the operational policy owner."""
+
+    ref: str
+    version: str
+    content_hash: str
+    content: bytes
+
+
+@dataclass(frozen=True, slots=True)
+class CacheReuseRequest:
+    """Actual principal and exact purpose/ref/request identity requiring permission."""
+
+    actor_id: str
+    tenant: str
+    scope: str
+    purpose: str
+    model: str
+    parameters_digest: str
+    evidence: tuple[CacheReuseEvidence, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class CacheReuseDecision:
+    """Versioned decision supplied by the trusted deployment permission owner."""
+
+    issuer: str
+    epoch: str
+    actor_id: str
+    tenant: str
+    scope: str
+    purpose: str
+    model: str
+    parameters_digest: str
+    evidence: tuple[CacheReuseEvidence, ...]
+
+    def binds(self, request: CacheReuseRequest) -> bool:
+        return bool(self.issuer and self.epoch) and (
+            self.actor_id,
+            self.tenant,
+            self.scope,
+            self.purpose,
+            self.model,
+            self.parameters_digest,
+            self.evidence,
+        ) == (
+            request.actor_id,
+            request.tenant,
+            request.scope,
+            request.purpose,
+            request.model,
+            request.parameters_digest,
+            request.evidence,
+        )
+
+    def key_payload(self) -> dict[str, Any]:
+        return {
+            "issuer": self.issuer,
+            "epoch": self.epoch,
+            "actor_id": self.actor_id,
+            "tenant": self.tenant,
+            "scope": self.scope,
+            "purpose": self.purpose,
+            "model": self.model,
+            "parameters_digest": self.parameters_digest,
+            "evidence": [
+                {"ref": e.ref, "version": e.version, "content_hash": e.content_hash}
+                for e in self.evidence
+            ],
+        }
+
+
+class CacheReuseAuthorizer(Protocol):
+    """Trusted operational owner; metadata declarations are never a decision."""
+
+    def authorize_reuse(self, request: CacheReuseRequest) -> CacheReuseDecision | None: ...
+
+
+class CacheReuseDeniedError(PermissionError):
+    """The current owner decision no longer permits this reuse or flight join."""
+
+
+class _ProducerGatewayResponse(GatewayLLMResponse):
+    __slots__ = ("_polisyos_settlement",)
+
+    def __init__(self, response: GatewayLLMResponse, settlement: LLMProducerSettlement) -> None:
+        super().__init__(
+            content=response.content,
+            usage=response.usage,
+            model=response.model,
+            provider=response.provider,
+            request_id=response.request_id,
+            response_headers=response.response_headers,
+            raw=response.raw,
+            tool_calls=response.tool_calls,
+        )
+        self._polisyos_settlement = settlement
+
+
+@dataclass(frozen=True, slots=True)
 class _SerializedGatewayToolCall:
     id: str
     name: str
@@ -72,6 +179,7 @@ class _SerializedGatewayResponse:
     response_headers: dict[str, str] | None
     raw_json: bytes | None
     tool_calls: tuple[_SerializedGatewayToolCall, ...] = ()
+    settlement: LLMProducerSettlement | None = None
 
 
 class _CacheReuseGatewayResponse(GatewayLLMResponse):
@@ -81,6 +189,7 @@ class _CacheReuseGatewayResponse(GatewayLLMResponse):
         "_polisyos_cache_hit",
         "_polisyos_cache_key",
         "_polisyos_reuse_event_id",
+        "_polisyos_settlement",
     )
 
     def __init__(
@@ -99,6 +208,7 @@ class _CacheReuseGatewayResponse(GatewayLLMResponse):
             raw=response.raw,
             tool_calls=response.tool_calls,
         )
+        self._polisyos_settlement = producer_settlement(response)
         self._polisyos_cache_hit = True
         self._polisyos_cache_key = cache_key
         self._polisyos_reuse_event_id = f"cache-reuse:{uuid.uuid4().hex}"
@@ -262,6 +372,7 @@ class CachingLLMClient:
         model: str,
         ttl_s: float = 300.0,
         inflight_timeout_s: float | None = None,
+        reuse_authorizer: CacheReuseAuthorizer | None = None,
     ) -> None:
         self._client = client
         self._cache = cache
@@ -272,12 +383,67 @@ class CachingLLMClient:
             configured_timeout = getattr(client, "timeout_s", None)
         self._inflight_timeout_s = _coerce_timeout(configured_timeout)
         self._inflight: dict[str, asyncio.Task[Any]] = {}
+        self._reuse_authorizer = reuse_authorizer
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._client, name)
 
     def unwrap(self) -> Any:
         return self._client
+
+    def _reuse_admission(
+        self, args: tuple[Any, ...], kwargs: dict[str, Any]
+    ) -> tuple[CacheReuseRequest, CacheReuseDecision] | None:
+        metadata = kwargs.get("metadata")
+        context = _cache_reuse_context(metadata)
+        if context is None or self._reuse_authorizer is None:
+            return None
+        principal = get_current_access_scope_or_none()
+        if principal is None or principal.tenant_id != context["tenant"]:
+            return None
+        actor = principal.user_sub or principal.spiffe_id
+        if not actor:
+            return None
+        snapshot = metadata["cache_reuse"]["snapshot"]
+        evidence = CacheReuseEvidence(
+            ref=context["snapshot"]["ref"],
+            version=context["snapshot"]["version"],
+            content_hash=context["snapshot"]["content_hash"],
+            content=bytes(snapshot["content"]),
+        )
+        request = CacheReuseRequest(
+            actor_id=actor,
+            tenant=principal.tenant_id,
+            scope=context["scope"],
+            purpose="llm_snapshot_reuse",
+            model=self._model,
+            parameters_digest=compute_cache_key(
+                prompt=args[0] if args else None,
+                model=self._model,
+                extra_payload={k: v for k, v in kwargs.items() if k != "metadata"},
+            ),
+            evidence=(evidence,),
+        )
+        decision = self._reuse_authorizer.authorize_reuse(request)
+        if not isinstance(decision, CacheReuseDecision) or not decision.binds(request):
+            return None
+        return request, decision
+
+    def _require_current_reuse(
+        self, admission: tuple[CacheReuseRequest, CacheReuseDecision] | None
+    ) -> None:
+        if admission is None:
+            return
+        request, admitted = admission
+        current = (
+            self._reuse_authorizer.authorize_reuse(request) if self._reuse_authorizer else None
+        )
+        if (
+            current != admitted
+            or not isinstance(current, CacheReuseDecision)
+            or not current.binds(request)
+        ):
+            raise CacheReuseDeniedError("snapshot reuse permission changed before consumption")
 
     async def generate(self, *args: Any, **kwargs: Any) -> Any:
         args, kwargs = _normalize_prompt_call(args, kwargs)
@@ -286,12 +452,17 @@ class CachingLLMClient:
             args=args,
             kwargs=kwargs,
         )
+        admission = self._reuse_admission(args, kwargs)
+        metadata = kwargs.get("metadata")
+        if isinstance(metadata, Mapping) and "cache_reuse" in metadata and admission is None:
+            reason = reason or "permission_owner_unavailable_or_denied"
         if reason is not None:
             _record_cache_skip(self._cache, reason)
-            return await _maybe_await(
-                self._client.generate(*args, **_provider_kwargs(kwargs))
-            )
+            return await _maybe_await(self._client.generate(*args, **_provider_kwargs(kwargs)))
 
+        completion = _current_producer_completion()
+        principal = get_current_access_scope_or_none()
+        runtime_scope = principal.to_dict() if principal is not None else None
         cache_key = compute_cache_key(
             prompt=args[0] if args else kwargs.get("prompt"),
             system=kwargs.get("system"),
@@ -307,23 +478,28 @@ class CachingLLMClient:
             response_format=kwargs.get("response_format"),
             metadata=kwargs.get("metadata"),
             extra_payload={
-                key: value
-                for key, value in kwargs.items()
-                if key
-                not in {
-                    "prompt",
-                    "system",
-                    "user",
-                    "messages",
-                    "tools",
-                    "tool_choice",
-                    "stream",
-                    "temperature",
-                    "max_tokens",
-                    "seed",
-                    "response_format",
-                    "metadata",
-                }
+                "accounting_owner_scope": completion.scope_key if completion is not None else None,
+                "runtime_principal_scope": runtime_scope,
+                "reuse_decision": admission[1].key_payload() if admission is not None else None,
+                "request": {
+                    key: value
+                    for key, value in kwargs.items()
+                    if key
+                    not in {
+                        "prompt",
+                        "system",
+                        "user",
+                        "messages",
+                        "tools",
+                        "tool_choice",
+                        "stream",
+                        "temperature",
+                        "max_tokens",
+                        "seed",
+                        "response_format",
+                        "metadata",
+                    }
+                },
             },
         )
         cached = self._cache.get(cache_key)
@@ -343,12 +519,15 @@ class CachingLLMClient:
                     cache_key,
                     args,
                     provider_kwargs,
+                    admission,
                 )
             )
             self._inflight[cache_key] = owner_task
             owner_task.add_done_callback(_consume_task_exception)
 
         response = await asyncio.shield(owner_task)
+        if not is_owner:
+            self._require_current_reuse(admission)
         if is_owner:
             return response
 
@@ -362,7 +541,8 @@ class CachingLLMClient:
                 return _CacheReuseGatewayResponse(cached, cache_key=cache_key)
             return cached
         if isinstance(response, GatewayLLMResponse):
-            return _CacheReuseGatewayResponse(response, cache_key=cache_key)
+            detached = _thaw_response(_freeze_response(response))
+            return _CacheReuseGatewayResponse(detached, cache_key=cache_key)
         return response
 
     async def _produce(
@@ -370,14 +550,31 @@ class CachingLLMClient:
         cache_key: str,
         args: tuple[Any, ...],
         kwargs: dict[str, Any],
+        admission: tuple[CacheReuseRequest, CacheReuseDecision] | None,
     ) -> Any:
         """Produce and publish one cache miss, always releasing its flight."""
 
         current_task = asyncio.current_task()
         try:
             response = await self._call_provider(args, kwargs)
+            completion = _current_producer_completion()
+            if completion is not None:
+                completed = completion.complete(response)
+                raw_response = completed.response
+                if isinstance(raw_response, GatewayLLMResponse):
+                    response = _ProducerGatewayResponse(
+                        raw_response, completed._polisyos_settlement
+                    )
+                else:
+                    response = completed
             if isinstance(response, GatewayLLMResponse):
                 _mark_cache_response(response, status="miss", cache_key=cache_key)
+            try:
+                self._require_current_reuse(admission)
+            except CacheReuseDeniedError:
+                # The provider completion remains billable, but is not published
+                # as reusable evidence after revocation.
+                return response
             self._cache.put(cache_key, response, ttl_s=self._ttl_s)
             logger.debug("Prompt cache miss model={} key={}", self._model, cache_key[:12])
             return response
@@ -488,19 +685,22 @@ def _cache_skip_reason(
         ensure_ascii=True,
         sort_keys=True,
     ).lower()
-    if any(
-        marker in text_blob
-        for marker in (
-            "http://",
-            "https://",
-            "fetched_at",
-            "retrieved_at",
-            "query_traces",
-            "claim_supports",
-            "uncertainty_notes",
-            "recency_days",
+    if (
+        any(
+            marker in text_blob
+            for marker in (
+                "http://",
+                "https://",
+                "fetched_at",
+                "retrieved_at",
+                "query_traces",
+                "claim_supports",
+                "uncertainty_notes",
+                "recency_days",
+            )
         )
-    ) and reuse_context is None:
+        and reuse_context is None
+    ):
         return "retrieval_freshness_guard"
     return None
 
@@ -604,8 +804,7 @@ def _cache_reuse_context(metadata: Any) -> dict[str, Any] | None:
     }
     normalized_snapshot["content_hash"] = expected_hash
     normalized_permission = {
-        str(key): _normalize_cache_identity_value(value)
-        for key, value in permission.items()
+        str(key): _normalize_cache_identity_value(value) for key, value in permission.items()
     }
     normalized_context = {
         str(key): _normalize_cache_identity_value(value)
@@ -623,9 +822,7 @@ def _normalize_cache_identity_value(value: Any) -> Any:
     if isinstance(value, (bytes, bytearray, memoryview)):
         return "sha256:" + hashlib.sha256(bytes(value)).hexdigest()
     if isinstance(value, Mapping):
-        return {
-            str(key): _normalize_cache_identity_value(item) for key, item in value.items()
-        }
+        return {str(key): _normalize_cache_identity_value(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
         return [_normalize_cache_identity_value(item) for item in value]
     return value
@@ -639,11 +836,7 @@ def _normalize_cache_metadata(value: Any) -> Any:
             context = _cache_reuse_context(value)
             if context is not None:
                 return {
-                    str(key): (
-                        context
-                        if key == "cache_reuse"
-                        else _normalize_cache_metadata(item)
-                    )
+                    str(key): (context if key == "cache_reuse" else _normalize_cache_metadata(item))
                     for key, item in value.items()
                 }
             return {
@@ -654,9 +847,7 @@ def _normalize_cache_metadata(value: Any) -> Any:
                 )
                 for key, item in value.items()
             }
-        return {
-            str(key): _normalize_cache_metadata(item) for key, item in value.items()
-        }
+        return {str(key): _normalize_cache_metadata(item) for key, item in value.items()}
     if isinstance(value, list):
         return [_normalize_cache_metadata(item) for item in value]
     if isinstance(value, tuple):
@@ -696,6 +887,7 @@ def _freeze_response(response: GatewayLLMResponse) -> _SerializedGatewayResponse
         request_id=response.request_id,
         response_headers=dict(response.response_headers) if response.response_headers else None,
         raw_json=_serialize_payload(response.raw),
+        settlement=producer_settlement(response),
         tool_calls=tuple(
             _SerializedGatewayToolCall(
                 id=tool_call.id,
@@ -709,7 +901,7 @@ def _freeze_response(response: GatewayLLMResponse) -> _SerializedGatewayResponse
 
 
 def _thaw_response(response: _SerializedGatewayResponse) -> GatewayLLMResponse:
-    return GatewayLLMResponse(
+    restored = GatewayLLMResponse(
         content=response.content,
         usage=GatewayUsage(
             prompt_tokens=response.usage_prompt_tokens,
@@ -733,6 +925,9 @@ def _thaw_response(response: _SerializedGatewayResponse) -> GatewayLLMResponse:
         ]
         or None,
     )
+    if response.settlement is not None:
+        return _ProducerGatewayResponse(restored, response.settlement)
+    return restored
 
 
 def _serialize_payload(value: object | None) -> bytes | None:

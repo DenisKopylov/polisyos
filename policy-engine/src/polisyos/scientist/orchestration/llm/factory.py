@@ -12,7 +12,7 @@ from polisyos.core.llm.traced_client import TracedLLMClient
 
 from .fallback_router import EndpointConfig, FallbackRouter
 from .gateway_client import GatewayLLMClient
-from .prompt_cache import CachingLLMClient, InMemoryPromptCache
+from .prompt_cache import CacheReuseAuthorizer, CachingLLMClient, InMemoryPromptCache
 from .simulated_gateway import DEFAULT_SIMULATED_MODEL_IDS, SimulatedGatewayLLMClient
 
 if TYPE_CHECKING:
@@ -86,8 +86,7 @@ class GatewayLLMConfig:
     def from_env(cls) -> GatewayLLMConfig | None:
         _load_gateway_dotenv()
         base_url = (
-            os.getenv("POLISYOS_LLM_GATEWAY_BASE_URL", "").strip()
-            or "https://proxy.gonka.gg/v1"
+            os.getenv("POLISYOS_LLM_GATEWAY_BASE_URL", "").strip() or "https://proxy.gonka.gg/v1"
         )
         api_key = os.getenv("POLISYOS_LLM_GATEWAY_API_KEY", "").strip()
         if not api_key:
@@ -154,6 +153,7 @@ def create_traced_gateway_client(
     model_variant_id: str | None = None,
     call_observer: Callable[[dict[str, Any]], None] | None = None,
     required_accounting: Callable[[dict[str, Any]], None] | None = None,
+    cache_reuse_authorizer: CacheReuseAuthorizer | None = None,
     config: GatewayLLMConfig | None = None,
     tracer: Any | None = None,
     metrics: Any | None = None,
@@ -237,6 +237,7 @@ def create_traced_gateway_client(
             model=model_name,
             ttl_s=cfg.cache_ttl_s,
             inflight_timeout_s=cfg.timeout_s,
+            reuse_authorizer=cache_reuse_authorizer,
         )
     prompt_sanitizer = PromptSanitizer() if cfg.enable_prompt_sanitizer else None
     return TracedLLMClient(

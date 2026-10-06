@@ -16,6 +16,19 @@ execution, fallback routing, prompt caching и registry model profiles для co
 - **TracedLLMClient** — observability-aware wrapper поверх raw client.
 - **Profiles registry** — built-in model profiles for runtime selection/UI.
 - **Fallback router / prompt cache** — supporting runtime resilience and efficiency.
+- **Settlement owner** — `LLMBudgetEnforcer` can compose the actual initialized budget middleware;
+  producer event settlement precedes cache publication and carries exact ledger receipts. A raw
+  `BudgetState` provides memory accounting, not a durable acknowledgement.
+- **Reuse owner** — `create_traced_gateway_client(cache_reuse_authorizer=...)` accepts an internal
+  typed deployment-owner contract. External snapshot reuse requires a fresh actor/tenant/scope/
+  purpose/exact-evidence/epoch decision. Caller metadata and CAS readability cannot grant reuse.
+  Without an owner, snapshot requests invoke the provider. Pure request caching remains scoped
+  to the actual principal and trusted accounting composition.
+
+Owner decisions are operational deployment inputs; the library makes no institutional issuer
+claim. Cancelled consumers do not cancel owned producer settlement. Failed or missing durable
+ACK blocks reuse and remains unknown until exact event receipts reconcile; process death before
+a provider completion/event is observed requires external provider evidence.
 
 ## Public API
 

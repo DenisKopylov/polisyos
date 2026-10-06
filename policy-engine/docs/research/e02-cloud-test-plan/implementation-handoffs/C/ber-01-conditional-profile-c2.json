@@ -1,0 +1,197 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "ber-01-conditional-profile-c2",
+  "created_at": "2026-10-06T10:59:56Z",
+  "closure_ids": [],
+  "bundle_ids": ["BER-01"],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": ["42ee488fb432cad9518dea5e611cb6d84fb86387"],
+  "candidate_tree_sha": "80c7a571ea195844e78cf1c6e777f352b3691dac",
+  "branch": "codex/e02-C-berl-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/public-surface.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-berl-conditional-profile.toml",
+    "policy-engine/src/polisyos/berl/README.md",
+    "policy-engine/src/polisyos/berl/__init__.py",
+    "policy-engine/src/polisyos/berl/adapters/__init__.py",
+    "policy-engine/src/polisyos/berl/adapters/_coalition.py",
+    "policy-engine/src/polisyos/berl/adapters/conditional_shapley.py",
+    "policy-engine/src/polisyos/berl/adapters/protocol.py",
+    "policy-engine/src/polisyos/berl/adapters/shap_kernel.py",
+    "policy-engine/src/polisyos/berl/contracts/__init__.py",
+    "policy-engine/src/polisyos/berl/contracts/explanation_bundle.py",
+    "policy-engine/src/polisyos/berl/contracts/explanation_bundle.schema.json",
+    "policy-engine/src/polisyos/berl/contracts/schema.py",
+    "policy-engine/src/polisyos/berl/contracts/validation_rules.py",
+    "policy-engine/src/polisyos/berl/service.py",
+    "policy-engine/src/polisyos/runtime/quality/explanation_reliability.py",
+    "policy-engine/src/polisyos/scientist/validation/phase5_preflight.py",
+    "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+    "policy-engine/tests/unit/berl/test_conditional_shapley.py",
+    "policy-engine/tests/unit/berl/test_contracts.py",
+    "policy-engine/tests/unit/remediation/test_ber_01.py",
+    "policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py"
+  ],
+  "environment": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "python": "3.14.0",
+    "packages": {
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "jsonschema": "4.25.1",
+      "numpy": "2.3.5"
+    },
+    "source": "admitted worktree via PYTHONPATH; original contributor venv read-only; no package install or build",
+    "inputs": "bounded synthetic fixtures only; no production rows, law artifacts, model files, or shared CAS"
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=\"$PWD/policy-engine/src\" /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider policy-engine/tests/unit/remediation/test_ber_01.py policy-engine/tests/unit/berl/test_contracts.py policy-engine/tests/unit/berl/test_adapters.py policy-engine/tests/unit/berl/mirror_contracts/test_shap_kernel.py policy-engine/tests/unit/berl/test_service.py policy-engine/tests/unit/berl/test_conditional_shapley.py policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py policy-engine/tests/unit/scientist/validation/test_phase5_preflight.py policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py -q",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos",
+      "target_sha": "42ee488fb432cad9518dea5e611cb6d84fb86387",
+      "exit_code": 0,
+      "class": "focused unit and integration tests; one bounded numerical test process",
+      "input_closure": "All nine listed BERL, adapter, runtime reliability, Phase 5, and bridge test files; exact conditional math oracles use two features and synthetic joint laws.",
+      "outcome": "PASS",
+      "test_count": 68,
+      "output": "....................................................................     [100%]\n=============================== warnings summary ===============================\n../../../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\nProcess exited 0; 68 progress dots completed."
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/berl/__init__.py policy-engine/src/polisyos/berl/adapters/__init__.py policy-engine/src/polisyos/berl/adapters/protocol.py policy-engine/src/polisyos/berl/adapters/shap_kernel.py policy-engine/src/polisyos/berl/adapters/_coalition.py policy-engine/src/polisyos/berl/adapters/conditional_shapley.py policy-engine/src/polisyos/berl/contracts/__init__.py policy-engine/src/polisyos/berl/contracts/explanation_bundle.py policy-engine/src/polisyos/berl/contracts/schema.py policy-engine/src/polisyos/berl/contracts/validation_rules.py policy-engine/src/polisyos/berl/service.py policy-engine/src/polisyos/runtime/quality/explanation_reliability.py policy-engine/src/polisyos/scientist/validation/phase5_preflight.py policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py policy-engine/tests/unit/berl/test_contracts.py policy-engine/tests/unit/berl/test_conditional_shapley.py policy-engine/tests/unit/remediation/test_ber_01.py policy-engine/tests/unit/runtime/quality/test_berl_warrant_reliability.py",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos",
+      "target_sha": "42ee488fb432cad9518dea5e611cb6d84fb86387",
+      "exit_code": 0,
+      "class": "lint for all changed Python paths",
+      "input_closure": "Every changed Python path in implementation commit 42ee488.",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "command": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check policy-engine/src/polisyos/berl/adapters/_coalition.py policy-engine/src/polisyos/berl/adapters/conditional_shapley.py policy-engine/tests/unit/berl/test_conditional_shapley.py; git diff --check",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos",
+      "target_sha": "42ee488fb432cad9518dea5e611cb6d84fb86387",
+      "exit_code": 0,
+      "class": "new-file format check and complete source diff whitespace check",
+      "input_closure": "Three newly created Python files plus complete implementation diff.",
+      "outcome": "PASS",
+      "output": "3 files already formatted; git diff --check produced no output."
+    },
+    {
+      "command": "PYTHONPATH=. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos/policy-engine",
+      "target_sha": "42ee488fb432cad9518dea5e611cb6d84fb86387",
+      "exit_code": 0,
+      "class": "canonical Python public-surface inventory generator; deep-import baseline deliberately untouched",
+      "input_closure": "BERL package facade and architecture/public_surface/contract.toml.",
+      "outcome": "PASS",
+      "output": "Architecture guardrail inventories updated."
+    },
+    {
+      "command": "PYTHONPATH=. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python tools/devx/architecture/guardrails.py check --skip-generated-checks > docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/berl-guardrails-check-after-facade-imports.txt 2>&1",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-berl-20261006/polisyos/policy-engine",
+      "target_sha": "42ee488fb432cad9518dea5e611cb6d84fb86387",
+      "exit_code": 1,
+      "class": "repository-wide architecture guardrail; generated-artifact freshness explicitly skipped",
+      "input_closure": "Complete source import graph and deep-import baseline. Full output is retained in the ignored raw file (2009 lines, 115626 bytes), SHA-256 e5bf73523536786c0e3e6e5aa98f943ef00133b0a590fc234f035b8ab31d3eeb.",
+      "outcome": "FAIL; no freshness verdict",
+      "output_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/berl-guardrails-check-after-facade-imports.txt@e5bf73523536786c0e3e6e5aa98f943ef00133b0a590fc234f035b8ab31d3eeb",
+      "output": "SCOPE LIMITED: required generated-artifact freshness checks explicitly omitted (--skip-generated-checks); no freshness verdict. Architecture guardrail check FAILED: deep-import baseline drift detected. The final raw contains no current new-deep-import-creep entries for polisyos.berl; the baseline diff shows removal of prior BERL internal edges after both readers use the public facade. Other repository modules account for the remaining large baseline drift. This is not called inherited: changed reader files intersect the source import-graph denominator and no exact slice-base zero-intersection replay was performed. P41 provenance: not_established."
+    }
+  ],
+  "property": {
+    "statement": "Persisted ExplanationBundles are validated against their exact versioned generated profile before reliability or Phase 5 decisions, and a conditional method emits candidate attribution only from a matching joint-law/model profile without silently becoming marginal KernelSHAP.",
+    "runtime_path": [
+      "ExplanationOrchestrator.explain builds a typed ExplanationBundle",
+      "ExplanationBundle.model_dump(mode='json') serializes the actual producer result to a temporary JSON artifact; the test reloads its bytes with json.loads",
+      "validate_persisted_explanation_bundle selects the exact 1.1.0 generated profile or historical 1.0.0 profile, runs Draft 2020-12 plus format validation, then strict DTO validation",
+      "Runtime quality _validate_bundle_record -> evaluate_warrant_berl_reliability",
+      "Scientist _run_berl_validation -> Phase 5 explanation component",
+      "default conditional registry -> ConditionalSHAPAdapter; a missing law resolver returns a diagnostic, and missing consumer verification keeps display diagnostic_only"
+    ],
+    "proxy_divergence": "A schema_version-shaped semantic version, presence of method/law marker fields, DTO defaults, or returned method ID does not prove persisted wire conformance or executed algorithm identity. The validators inspect the complete generated profile; the orchestrator verifies registered/raw identity and the conditional adapter refuses marginal semantics. A deliberately injected fixture resolver can still return label-only law/profile records and produce candidate numbers; absent a separately admitted consumer verifier, both persisted readers reject analyst display. Resolver/verifier callback claims are not evidence of source authority.",
+    "negative_controls": [
+      "unknown persisted version 9.9.9 fails both Runtime and Phase 5",
+      "missing persisted required/defaulted methods member fails both readers despite DTO construction defaults",
+      "nested fake model field fails both readers despite unrelated identity markers",
+      "historical 1.0.0 profile rejects new 1.1.0 conditional_evidence member",
+      "conditional request without a resolved law emits diagnostic_only with no marginal attributions",
+      "population-binding mismatch rejects the candidate conditional adapter input",
+      "forged adapter effective identity is discarded and becomes diagnostic_only",
+      "bounded nonlinear model output outside the injected interval fails",
+      "correlated Gaussian conditional oracle (.6, .4) differs from marginal background oracle (1, 0); independent Gaussian is the matching control",
+      "singular Gaussian off-support observation, indefinite/asymmetric covariance, and empty discrete stratum fail"
+    ]
+  },
+  "predicate_basis": "mixed; persisted schema conformance and numerical fixture results are recomputed; real law/model source authority and external-consumer provenance remain not_established",
+  "predicate_basis_detail": {
+    "persisted_schema_profile": "recomputed from the canonical owner model/generator and validated against serialized bytes",
+    "Gaussian/discrete/Hoeffding numerical oracle": "recomputed on bounded synthetic inputs",
+    "actual joint-law content digest, source provenance, population/cohort/time/order/schema/model-epoch/support binding": "not_established; the resolver is only a typed interface and fixture callbacks are synthetic",
+    "model profile and output-bound authority": "not_established; no admitted model-owner verifier is supplied by E/F",
+    "conditional persisted consumer verifier": "not_established; consumers fail closed by default",
+    "external JSON-schema reader or analyst-facing endpoint": "not_established; the package API is public_experimental, but no external endpoint was established"
+  },
+  "capability_state_or_finding_state": "Bounded BERL mechanism implementation and local semantic witnesses; no full LA finding closure or complete conditional attribution capability is claimed. Conditional source-law chain remains producer_missing and artifact_missing; authoritative source/model verification and consumer verifier remain verification_missing. The candidate bundle reader gates are wired; analyst endpoint is explicitly out of scope in this slice.",
+  "finding_dispositions": [
+    {
+      "id": "LA-034",
+      "code_acceptance": "bounded PASS: current persisted profile 1.1.0, historical 1.0.0 profile, actual orchestrator-to-JSON-file serialize/readback, canonical generated validator, Runtime consumer, and Phase 5 consumer are exercised; unknown version, missing defaults, and nested fake fields are negative controls.",
+      "finding_closure": "partial; not claimed. The source audit explicitly left external schema consumers/resource-loader packaging not_established. This slice demonstrates a temporary JSON byte round-trip, not a production CAS write path or a complete external consumer census.",
+      "status_labels": ["consumer wired", "verification locally exercised", "external consumer not_established"]
+    },
+    {
+      "id": "LA-036",
+      "code_acceptance": "bounded PASS: marginal and conditional identities are separated, conditional no-law requests never use the marginal background game, registry identity is enforced, and exact/bounded conditional math profiles have discriminating oracles.",
+      "finding_closure": "partial; not claimed. E/F authenticated law artifact producer, independently verifying law/model resolvers, bounded-output authority, and a concrete consumer verifier are absent. Default requests remain diagnostic_only; fixture-injected values are candidate-only.",
+      "status_labels": ["producer_missing", "artifact_missing", "verification_missing", "surface_out_of_scope"]
+    }
+  ],
+  "pattern_pass": {
+    "P01_P02": "Typed conditional evidence, default registry bridge, actual persisted readers, and local semantic tests are wired, but the source-law producer/artifact and authoritative source-to-runtime handshake remain absent.",
+    "P05_P32_P37": "Conditional evidence is not trusted from IDs/refs alone; no injected verifier is present by default, and both readers fail closed. A callback declaration is not an authenticated verifier; the actual E/F source-owner implementation remains not_established.",
+    "P10_P29_P33": "The tests execute the actual service, serializer/readback, consumer methods, math and controls; they distinguish correlation-aware values from the marginal game and use malformed/version/binding variants rather than marker-only assertions.",
+    "P31": "A shared persisted-profile validator is used by both Runtime and Phase 5 rather than patching their required/defaulted fields independently.",
+    "P38": "A forged effective ID now diverges into diagnostic_only; a fake resolver may still return candidate values, but the production claim gate remains closed absent consumer verification. This is a declared boundary, not source-law proof.",
+    "P40": "No independent review finding has been repaired recursively in this slice; remaining missing producer/verifier stages are named as bounded residuals.",
+    "P41": "The architecture check failed on repository-wide deep-import baseline drift. The candidate source paths intersect its import-graph input denominator; exact slice-base replay and zero-intersection proof were not done, so gate ownership is not_established."
+  },
+  "review": {
+    "independent_review": "pending; assigned outside the implementation writer",
+    "self_review": "not performed as an independent review"
+  },
+  "limitations_and_next_owner": [
+    {
+      "state": "producer_missing / artifact_missing",
+      "owner": "E/F source-law owner to supply the ratified, content-addressed joint-law artifact and its producer provenance contract; BERL does not invent the producer schema or authority.",
+      "required_binding": "Resolve bytes and recompute content digest; bind law purpose, model/profile, population, cohort, observation-time window, feature order/schema, model epoch, support, and non-producer verification provenance. Callback field names and digest strings are not enough.",
+      "smallest_closing_capability": "An admitted E/F artifact producer plus independently reconcilable resolver that loads the artifact, verifies its digest/provenance, and checks every binding against this prediction context."
+    },
+    {
+      "state": "verification_missing",
+      "owner": "E/F model/source authorities and the application composition owner.",
+      "required_binding": "A real model-profile verifier, global-output-bound verifier for bounded nonlinear profiles, and persisted consumer verifier that re-resolves/rebinds content before analyst-facing acceptance.",
+      "smallest_closing_capability": "Trusted implementations of the exported protocols connected through an admitted authority registry/composition root; this package only defines candidate injection interfaces."
+    },
+    {
+      "state": "surface_out_of_scope",
+      "owner": "Runtime/API surface owner if a later slice admits an analyst-facing endpoint.",
+      "scope": "The BERL package remains public_experimental and documented; no analyst-facing attribution endpoint or external schema client was established here."
+    },
+    {
+      "state": "not_established",
+      "owner": "Root architecture gate owner.",
+      "scope": "Architecture guardrail baseline provenance cannot be assigned to this slice without exact replay from 198076863e143dea9f89f02734b13d50dae3eed5 and a complete input-denominator intersection proof."
+    }
+  ],
+  "dependency_followup": "BERL imports the existing jsonschema 4.25.1 core validator API. The root owns promotion from test extra to base dependencies and canonical uv.lock update; this implementation commit intentionally contains no pyproject.toml or uv.lock changes.",
+  "transport": {
+    "implementation_remote_head_verified": false,
+    "push": "not performed; root review/integration pending",
+    "implementation_tree_readback": true,
+    "handoff_commit_separate": true
+  }
+}

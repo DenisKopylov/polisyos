@@ -1,0 +1,354 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-postgres-fencing-independent-review",
+  "bundle_ids": [
+    "DUR-02"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "7fc0246063e0c1b34ee4334397242b12e2d6dd26",
+  "implementation_commits": [
+    "4f47dfcbd1db4318d2373e577cf178ef6703c3f6"
+  ],
+  "candidate_sha": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+  "candidate_tree_sha": "581bea713ab49e31ee8fcbdf5e1c9eb85dcb73be",
+  "branch": "codex/e02-B-current-adapters",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/64",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/immutable-artifact-inspection.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/static-checks.json"
+  ],
+  "production_changed_paths": [],
+  "test_changed_paths": [],
+  "baseline_cells": [],
+  "baseline_navigation": {
+    "ref": {
+      "ref": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing.json",
+      "bytes": 57308,
+      "sha256": "5747f53e143080c10e065cc10f4ab40227917decbea85f9b035f0727dd0e5ae3"
+    },
+    "field": "baseline_cells",
+    "grade": "source_reported_navigation_only; original baseline raw/runtime-input custody not_established; no baseline PASS promoted to new PG result"
+  },
+  "review_target": {
+    "source_base_sha": "143b68a1596841fa444aace15120e2a46a746cb8",
+    "original_test_sha": "85f2417187396d40ef0a41e9d7f6651286f55754",
+    "candidate_test_sha": "414c7ec3148a857c3a4e5554dde5d5503fec6e95",
+    "candidate_test_tree": "58aff10a15c5ad109e3dd4781454c137d392f303",
+    "published_author_handoff": {
+      "ref": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing.json",
+      "bytes": 57308,
+      "sha256": "5747f53e143080c10e065cc10f4ab40227917decbea85f9b035f0727dd0e5ae3"
+    },
+    "published_evidence_index": {
+      "ref": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-evidence/index.json",
+      "bytes": 11784,
+      "sha256": "25de04aae1c6d6a146965efdac98785d7f0d449ddc0dd7641799030fdae81f9b"
+    },
+    "normal_author_remote_and_FETCH_HEAD": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+    "author_tree": "21096a15497b372c1ba68394611f5fead7a48f36"
+  },
+  "evidence_refs": [
+    {
+      "commit": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/immutable-artifact-inspection.json",
+      "bytes": 11089,
+      "sha256": "08f75272a34e9161d296ef9468d5be3d1daf6a668bd9c0047224207f72dab2c6"
+    },
+    {
+      "commit": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt",
+      "bytes": 10508,
+      "sha256": "9a2769282f043f42c9df62bc2c008dd8638a9190a4937ef1f1e48155434c5506"
+    },
+    {
+      "commit": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/review.json",
+      "bytes": 12381,
+      "sha256": "12a0587c2dc8901ea463bf73364d6099a05846391b155f75732cb662cfbc6e93"
+    },
+    {
+      "commit": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/static-checks.json",
+      "bytes": 2691,
+      "sha256": "f84dede9977e91239abdd757cfe56c1f58e5db3a8723cda3e14b1241489d1931"
+    }
+  ],
+  "checks": [
+    {
+      "id": "immutable-packet-data-inspection",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt > policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/immutable-artifact-inspection.json",
+      "target_sha": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters",
+        "python": {
+          "executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "mode": "No production imports/native/collection/database/provision; source and output bytes only",
+        "executed_checkout_head": "7fc0246063e0c1b34ee4334397242b12e2d6dd26"
+      },
+      "input_closure": {
+        "review_instrument": {
+          "commit": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt",
+          "bytes": 10508,
+          "sha256": "9a2769282f043f42c9df62bc2c008dd8638a9190a4937ef1f1e48155434c5506"
+        },
+        "author_immutable_packet": {
+          "ref": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing.json",
+          "bytes": 57308,
+          "sha256": "5747f53e143080c10e065cc10f4ab40227917decbea85f9b035f0727dd0e5ae3"
+        },
+        "source_base": "143b68a1596841fa444aace15120e2a46a746cb8",
+        "tests": [
+          "85f2417187396d40ef0a41e9d7f6651286f55754",
+          "414c7ec3148a857c3a4e5554dde5d5503fec6e95"
+        ],
+        "scope": "Source/hash/AST/JUnit representation only; author runtime is inspected, not repeated",
+        "precommit_execution_qualification": "Initial4 static/data checks executed while ownHEAD7fc + exact new instrument bytes, then committed4f. Source target4f names identical published script bytes; no production execution revision inferred."
+      },
+      "outcome": "PASS",
+      "output": {
+        "commit": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/immutable-artifact-inspection.json",
+        "bytes": 11089,
+        "sha256": "08f75272a34e9161d296ef9468d5be3d1daf6a668bd9c0047224207f72dab2c6"
+      }
+    },
+    {
+      "id": "instrument-ruff",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m ruff check --stdin-filename inspect_packet.py < docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt",
+      "target_sha": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "python": {
+          "executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "mode": "No production imports/native/collection/database/provision; source and output bytes only",
+        "executed_checkout_head": "7fc0246063e0c1b34ee4334397242b12e2d6dd26"
+      },
+      "input_closure": {
+        "review_instrument": {
+          "commit": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt",
+          "bytes": 10508,
+          "sha256": "9a2769282f043f42c9df62bc2c008dd8638a9190a4937ef1f1e48155434c5506"
+        },
+        "author_immutable_packet": {
+          "ref": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing.json",
+          "bytes": 57308,
+          "sha256": "5747f53e143080c10e065cc10f4ab40227917decbea85f9b035f0727dd0e5ae3"
+        },
+        "source_base": "143b68a1596841fa444aace15120e2a46a746cb8",
+        "tests": [
+          "85f2417187396d40ef0a41e9d7f6651286f55754",
+          "414c7ec3148a857c3a4e5554dde5d5503fec6e95"
+        ],
+        "scope": "Source/hash/AST/JUnit representation only; author runtime is inspected, not repeated",
+        "precommit_execution_qualification": "Initial4 static/data checks executed while ownHEAD7fc + exact new instrument bytes, then committed4f. Source target4f names identical published script bytes; no production execution revision inferred."
+      },
+      "outcome": "PASS",
+      "output": {
+        "commit": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/static-checks.json",
+        "bytes": 2691,
+        "sha256": "f84dede9977e91239abdd757cfe56c1f58e5db3a8723cda3e14b1241489d1931"
+      }
+    },
+    {
+      "id": "instrument-format",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m ruff format --check --stdin-filename inspect_packet.py < docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt",
+      "target_sha": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters/policy-engine",
+        "python": {
+          "executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "mode": "No production imports/native/collection/database/provision; source and output bytes only",
+        "executed_checkout_head": "7fc0246063e0c1b34ee4334397242b12e2d6dd26"
+      },
+      "input_closure": {
+        "review_instrument": {
+          "commit": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt",
+          "bytes": 10508,
+          "sha256": "9a2769282f043f42c9df62bc2c008dd8638a9190a4937ef1f1e48155434c5506"
+        },
+        "author_immutable_packet": {
+          "ref": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing.json",
+          "bytes": 57308,
+          "sha256": "5747f53e143080c10e065cc10f4ab40227917decbea85f9b035f0727dd0e5ae3"
+        },
+        "source_base": "143b68a1596841fa444aace15120e2a46a746cb8",
+        "tests": [
+          "85f2417187396d40ef0a41e9d7f6651286f55754",
+          "414c7ec3148a857c3a4e5554dde5d5503fec6e95"
+        ],
+        "scope": "Source/hash/AST/JUnit representation only; author runtime is inspected, not repeated",
+        "precommit_execution_qualification": "Initial4 static/data checks executed while ownHEAD7fc + exact new instrument bytes, then committed4f. Source target4f names identical published script bytes; no production execution revision inferred."
+      },
+      "outcome": "PASS",
+      "output": {
+        "commit": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/static-checks.json",
+        "bytes": 2691,
+        "sha256": "f84dede9977e91239abdd757cfe56c1f58e5db3a8723cda3e14b1241489d1931"
+      }
+    },
+    {
+      "id": "instrument-syntax",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python - <<'PY'\nfrom pathlib import Path\np=Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt')\ncompile(p.read_bytes(),str(p),'exec')\nprint('Syntax compilation PASS; source not imported, no product/runtime execution.')\nPY",
+      "target_sha": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters",
+        "python": {
+          "executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "mode": "No production imports/native/collection/database/provision; source and output bytes only",
+        "executed_checkout_head": "7fc0246063e0c1b34ee4334397242b12e2d6dd26"
+      },
+      "input_closure": {
+        "review_instrument": {
+          "commit": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt",
+          "bytes": 10508,
+          "sha256": "9a2769282f043f42c9df62bc2c008dd8638a9190a4937ef1f1e48155434c5506"
+        },
+        "author_immutable_packet": {
+          "ref": "9dcf877a037a9814f18ac7ddc75b992049c737b5",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing.json",
+          "bytes": 57308,
+          "sha256": "5747f53e143080c10e065cc10f4ab40227917decbea85f9b035f0727dd0e5ae3"
+        },
+        "source_base": "143b68a1596841fa444aace15120e2a46a746cb8",
+        "tests": [
+          "85f2417187396d40ef0a41e9d7f6651286f55754",
+          "414c7ec3148a857c3a4e5554dde5d5503fec6e95"
+        ],
+        "scope": "Source/hash/AST/JUnit representation only; author runtime is inspected, not repeated",
+        "precommit_execution_qualification": "Initial4 static/data checks executed while ownHEAD7fc + exact new instrument bytes, then committed4f. Source target4f names identical published script bytes; no production execution revision inferred."
+      },
+      "outcome": "PASS",
+      "output": {
+        "commit": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/static-checks.json",
+        "bytes": 2691,
+        "sha256": "f84dede9977e91239abdd757cfe56c1f58e5db3a8723cda3e14b1241489d1931"
+      }
+    },
+    {
+      "id": "frozen-data-inspection-replay",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt > /tmp/e02-B38-pg-frozen-inspection-adapters.json",
+      "target_sha": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-adapters",
+        "executed_checkout_head": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+        "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "production_runtime": "UNRUN; Git/stdlb data only"
+      },
+      "input_closure": {
+        "script": {
+          "commit": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt",
+          "bytes": 10508,
+          "sha256": "9a2769282f043f42c9df62bc2c008dd8638a9190a4937ef1f1e48155434c5506"
+        },
+        "author_source_and_packet": "Exact143b/85/414/9dc Gitobjects referenced in full output",
+        "untracked_handoff": "This separate receipt preparation is only working-tree delta; source/instrument bytes frozen4f"
+      },
+      "outcome": "PASS",
+      "output": {
+        "commit": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/immutable-artifact-inspection.json",
+        "sha256": "08f75272a34e9161d296ef9468d5be3d1daf6a668bd9c0047224207f72dab2c6",
+        "bytes": 11089,
+        "qualification": "Frozen4f replay full stdout byte-identical to committed full initial data-inspection output; not native replay"
+      }
+    }
+  ],
+  "reviewer_native_checks": {
+    "pytest": "UNRUN",
+    "collection": "UNRUN",
+    "PostgreSQL_connect": "UNRUN",
+    "provision": "UNRUN",
+    "gates": "UNRUN"
+  },
+  "author_native_results": {
+    "original85": "8PASS0FAIL0ERROR0SKIP; wait4exit0; wholefile actual",
+    "successor414": "4 repeated SQLfaultcases PASS0FAIL0ERROR0SKIP; wait4exit0; affected-only actual",
+    "unique_case_names_across_targets": 8,
+    "whole8_at414": "UNRUN; source-equivalent unchanged bodies retain85 execution pin",
+    "output_join": "Complete author stdout/wrapper/XML refs and percase representation in immutable-artifact-inspection.json"
+  },
+  "property": {
+    "statement": "Independently review actual PostgreSQL ownership/attempt/live-lease fencing and transactional terminal publication oracle; distinguish real native semantic evidence from SQL availability or a source marker.",
+    "runtime_path": [
+      "actual ControlWorker handler bound to ControlPlaneStore execution fence",
+      "A persisted lease expiry and separate Python child B actual PostgreSQL generation2 takeover",
+      "18 stale handler inlet refusals with independent full catalog-table row reads after each call",
+      "current B coherent completed/failed record/progress/event/outbox/deadletter consumer",
+      "real event/outbox SQL trigger fault and reopened store rollback consumer"
+    ],
+    "proxy_divergence": "A driver/PG version or successful SELECT does not show stale worker rejection or publication rollback. The native tests actually mutate generation and install real SQL faults; source/evidence review is separately scoped and executes no native path.",
+    "negative_controls": [
+      "running/completed B takeover before stale bound A resumes",
+      "each actual stale inlet refusal followed by native all-table row equality",
+      "real PL/pgSQL event and outbox INSERT failures on completed/failed terminal paths"
+    ],
+    "positive_controls": [
+      "Current B terminal generation succeeds, exact progress/event/outbox generation preserved",
+      "Healthy source remains unchanged; no blanket refusal of current worker admitted as stale fencing"
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "source_oracle_and_published_output_reconciliation": "independently_reconciled",
+    "published_Git_hashes_AST_and_XML_representation": "recomputed",
+    "full_OS_vendor_dynamic_readset": "not_established",
+    "institutional_database_authenticity": "not_established"
+  },
+  "capability_state_or_finding_state": "Independent bounded source/evidence review complete without blocker; no finding closure or independent native replay claimed.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B38",
+      "state": "review_bounded_no_source_oracle_blocker; actual native PG verification gap addressed for author finite profile, root/G criterion adjudication pending",
+      "check_refs": [
+        "review.json",
+        "immutable-artifact-inspection.json"
+      ],
+      "limitations": [
+        "Full8 execution targets85; successor414 repeated4faults only.",
+        "Missing future DSN/psycopg means body SKIP/backend UNRUN.",
+        "External exactly-once, physical worker termination, arbitrary network/deployment failure and OS/vendor readset remain outside this oracle."
+      ],
+      "next_owner": "root/G: actual final profile and canonical adjudication; EXE maintains test owner."
+    }
+  ],
+  "limitations_and_next_owner": [
+    "This source review runs no pytest/collection/PostgreSQL connect/provision/helper/native/gate and cannot independently certify author native PASS",
+    "Full row snapshot covers schema native tables, not PostgreSQL sequences/index counters/catalog or power-loss storage durability; trigger/schema definitions are intentionally introduced fixture inputs",
+    "Eight statically declared parametercases and18 explicit stale inlets are finite oracle scope, not a stop criterion or universal enumeration of every future source method",
+    "Fencing protects actual bound handler writes; unbound administrative API semantics, physical process/thread termination and external action idempotence/authority remain separate contracts",
+    "B78 backend fallback/postdispatch ambiguity and Ray/Temporal handover are not established by this B38 PostgreSQL test",
+    "Concurrent takeover occurs via true separate-process persisted generation after expiry, not a fully arbitrary simultaneous transaction schedule; prior SQLite/native generation tests remain distinct pins, not transplanted PG evidence",
+    "Native8@85 and native4@414 are author execution pins inspected from published full output, not independent reviewer replay or12unique cases.",
+    "OriginalDocker child125 was an unrecorded convention, not an observed exit125; resource/image-save and ICU failures remain preserved setup evidence.",
+    "Generic future cohort without E02_B38_POSTGRES_DSN or actual psycopg input skips these bodies; no transplant from targeted native8 to such a future SKIP.",
+    "B78 backend fallback is separate and is not adjudicated by this B38 oracle.",
+    "Full published author evidence hashes/size reconciled45objects320285B; index itself separate11784B. Sourceonly review cannot certify universal institutional database authenticity.",
+    "OriginalDocker child125 was an unrecorded convention, not observed childexit125; preserved image-save/ICU errors remain setup limitations."
+  ],
+  "created_at_utc": "2026-10-06T18:52:30.900641+00:00"
+}

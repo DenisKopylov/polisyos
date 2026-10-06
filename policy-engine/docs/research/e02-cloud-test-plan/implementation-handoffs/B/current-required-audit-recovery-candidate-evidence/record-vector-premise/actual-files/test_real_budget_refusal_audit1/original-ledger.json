@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.2",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "ledger:1e1a901af416881a",
+  "revision": 4,
+  "updated_at": "2026-10-06T20:54:26.333408Z",
+  "last_writer": {
+    "host_id": "b878f4efbdfc",
+    "writer_id": "b878f4efbdfc:475920:original-ledger.json",
+    "pid": 475920
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:475920:original-ledger.json",
+        "pid": 475920
+      },
+      "committed_at": "2026-10-06T20:54:26.320104Z"
+    },
+    {
+      "revision": 1,
+      "operation": "retain_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:475920:original-ledger.json",
+        "pid": 475920
+      },
+      "committed_at": "2026-10-06T20:54:26.322721Z"
+    },
+    {
+      "revision": 2,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:475920:original-ledger.json",
+        "pid": 475920
+      },
+      "committed_at": "2026-10-06T20:54:26.328128Z"
+    },
+    {
+      "revision": 3,
+      "operation": "retain_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:475920:original-ledger.json",
+        "pid": 475920
+      },
+      "committed_at": "2026-10-06T20:54:26.331507Z"
+    },
+    {
+      "revision": 4,
+      "operation": "complete_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:475920:original-ledger.json",
+        "pid": 475920
+      },
+      "committed_at": "2026-10-06T20:54:26.333404Z"
+    }
+  ],
+  "state": {
+    "limits": {
+      "run": {
+        "key": "run",
+        "max_usd": "1E-9"
+      }
+    },
+    "spent": {},
+    "provider_spent": {},
+    "reserved": {}
+  },
+  "spend_receipts": {},
+  "completion_obligations": {}
+}

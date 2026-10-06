@@ -1,0 +1,1508 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="13" skipped="0" tests="13" time="1.005" timestamp="2026-10-06T20:41:50.422473+00:00" hostname="b878f4efbdfc"><testcase classname="" name="test_protected_audit_reconciliation_precedes_next_provider[healthy-sync-invoke]" time="0.056"><failure message="AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']&#10;  &#10;  Right contains one more item: 'BUDGET_RELEASED'&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-corrected-native/pytest-tmp/test_protected_audit_reconcili0')
+route = 'sync-invoke', fail_commit = False
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("fail_commit", [False, True], ids=["healthy", "protected-commit-fault"])
+    def test_protected_audit_reconciliation_precedes_next_provider(
+        tmp_path: Path, route: str, fail_commit: bool
+    ) -&gt; None:
+        audit_path = tmp_path / "protected-audit.jsonl"
+        ledger_path = tmp_path / "ledger.json"
+        provider_path = tmp_path / "actual-provider.jsonl"
+        initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+        middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+        # Explicit bootstrap precedes the tested reservation and real provider.
+        assert FileBudgetLedger(ledger_path).snapshot().state.spent == {}
+        sink = ChainedAuditSink(chain_id="B65:protected-local", local_path=audit_path)
+        audit = _CommitFaultAuditLog(sink, audit_path, fail=fail_commit)
+        provider = _PhysicalProvider(provider_path)
+        enforcer = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-real-audit"),
+            budget_state=initial,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            audit_log=audit,
+            run_id="B65-real-audit",
+        )
+        try:
+            first_error = None
+            first_response = None
+            try:
+                first_response = _call(enforcer, route)
+            except LLMAccountingError as error:
+                first_error = error
+            first = _observation(audit_path, ledger_path, provider_path)
+            print("B65_FIRST " + json.dumps({"route": route, "fault": fail_commit, **first}))
+            assert len(first["provider_requests"]) == 1
+            snapshot = FileBudgetLedger(ledger_path).snapshot()
+            assert snapshot.state.spent["run"] == Decimal("0.02")
+            assert snapshot.state.reserved["run"] == Decimal("0")
+            assert len(snapshot.spend_receipts) == 1
+            assert next(iter(snapshot.spend_receipts.values())).amount == Decimal("0.02")
+            assert first["audit_chain"]["chain_intact"]
+&gt;           assert audit.attempted_actions[:3] == ["BUDGET_RESERVED", "BUDGET_CHECK", "BUDGET_RELEASED"]
+E           AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']
+E             
+E             Right contains one more item: 'BUDGET_RELEASED'
+E             Use -v to get more diff
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:163: AssertionError</failure></testcase><testcase classname="" name="test_protected_audit_reconciliation_precedes_next_provider[healthy-async-generate]" time="0.031"><failure message="AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']&#10;  &#10;  Right contains one more item: 'BUDGET_RELEASED'&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-corrected-native/pytest-tmp/test_protected_audit_reconcili1')
+route = 'async-generate', fail_commit = False
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("fail_commit", [False, True], ids=["healthy", "protected-commit-fault"])
+    def test_protected_audit_reconciliation_precedes_next_provider(
+        tmp_path: Path, route: str, fail_commit: bool
+    ) -&gt; None:
+        audit_path = tmp_path / "protected-audit.jsonl"
+        ledger_path = tmp_path / "ledger.json"
+        provider_path = tmp_path / "actual-provider.jsonl"
+        initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+        middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+        # Explicit bootstrap precedes the tested reservation and real provider.
+        assert FileBudgetLedger(ledger_path).snapshot().state.spent == {}
+        sink = ChainedAuditSink(chain_id="B65:protected-local", local_path=audit_path)
+        audit = _CommitFaultAuditLog(sink, audit_path, fail=fail_commit)
+        provider = _PhysicalProvider(provider_path)
+        enforcer = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-real-audit"),
+            budget_state=initial,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            audit_log=audit,
+            run_id="B65-real-audit",
+        )
+        try:
+            first_error = None
+            first_response = None
+            try:
+                first_response = _call(enforcer, route)
+            except LLMAccountingError as error:
+                first_error = error
+            first = _observation(audit_path, ledger_path, provider_path)
+            print("B65_FIRST " + json.dumps({"route": route, "fault": fail_commit, **first}))
+            assert len(first["provider_requests"]) == 1
+            snapshot = FileBudgetLedger(ledger_path).snapshot()
+            assert snapshot.state.spent["run"] == Decimal("0.02")
+            assert snapshot.state.reserved["run"] == Decimal("0")
+            assert len(snapshot.spend_receipts) == 1
+            assert next(iter(snapshot.spend_receipts.values())).amount == Decimal("0.02")
+            assert first["audit_chain"]["chain_intact"]
+&gt;           assert audit.attempted_actions[:3] == ["BUDGET_RESERVED", "BUDGET_CHECK", "BUDGET_RELEASED"]
+E           AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']
+E             
+E             Right contains one more item: 'BUDGET_RELEASED'
+E             Use -v to get more diff
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:163: AssertionError</failure></testcase><testcase classname="" name="test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-sync-invoke]" time="0.028"><failure message="AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']&#10;  &#10;  Right contains one more item: 'BUDGET_RELEASED'&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-corrected-native/pytest-tmp/test_protected_audit_reconcili2')
+route = 'sync-invoke', fail_commit = True
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("fail_commit", [False, True], ids=["healthy", "protected-commit-fault"])
+    def test_protected_audit_reconciliation_precedes_next_provider(
+        tmp_path: Path, route: str, fail_commit: bool
+    ) -&gt; None:
+        audit_path = tmp_path / "protected-audit.jsonl"
+        ledger_path = tmp_path / "ledger.json"
+        provider_path = tmp_path / "actual-provider.jsonl"
+        initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+        middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+        # Explicit bootstrap precedes the tested reservation and real provider.
+        assert FileBudgetLedger(ledger_path).snapshot().state.spent == {}
+        sink = ChainedAuditSink(chain_id="B65:protected-local", local_path=audit_path)
+        audit = _CommitFaultAuditLog(sink, audit_path, fail=fail_commit)
+        provider = _PhysicalProvider(provider_path)
+        enforcer = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-real-audit"),
+            budget_state=initial,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            audit_log=audit,
+            run_id="B65-real-audit",
+        )
+        try:
+            first_error = None
+            first_response = None
+            try:
+                first_response = _call(enforcer, route)
+            except LLMAccountingError as error:
+                first_error = error
+            first = _observation(audit_path, ledger_path, provider_path)
+            print("B65_FIRST " + json.dumps({"route": route, "fault": fail_commit, **first}))
+            assert len(first["provider_requests"]) == 1
+            snapshot = FileBudgetLedger(ledger_path).snapshot()
+            assert snapshot.state.spent["run"] == Decimal("0.02")
+            assert snapshot.state.reserved["run"] == Decimal("0")
+            assert len(snapshot.spend_receipts) == 1
+            assert next(iter(snapshot.spend_receipts.values())).amount == Decimal("0.02")
+            assert first["audit_chain"]["chain_intact"]
+&gt;           assert audit.attempted_actions[:3] == ["BUDGET_RESERVED", "BUDGET_CHECK", "BUDGET_RELEASED"]
+E           AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']
+E             
+E             Right contains one more item: 'BUDGET_RELEASED'
+E             Use -v to get more diff
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:163: AssertionError</failure></testcase><testcase classname="" name="test_protected_audit_reconciliation_precedes_next_provider[protected-commit-fault-async-generate]" time="0.028"><failure message="AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']&#10;  &#10;  Right contains one more item: 'BUDGET_RELEASED'&#10;  Use -v to get more diff">tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-corrected-native/pytest-tmp/test_protected_audit_reconcili3')
+route = 'async-generate', fail_commit = True
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("fail_commit", [False, True], ids=["healthy", "protected-commit-fault"])
+    def test_protected_audit_reconciliation_precedes_next_provider(
+        tmp_path: Path, route: str, fail_commit: bool
+    ) -&gt; None:
+        audit_path = tmp_path / "protected-audit.jsonl"
+        ledger_path = tmp_path / "ledger.json"
+        provider_path = tmp_path / "actual-provider.jsonl"
+        initial = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))})
+        middleware = BudgetMiddleware(initial, ledger=FileBudgetLedger(ledger_path))
+        # Explicit bootstrap precedes the tested reservation and real provider.
+        assert FileBudgetLedger(ledger_path).snapshot().state.spent == {}
+        sink = ChainedAuditSink(chain_id="B65:protected-local", local_path=audit_path)
+        audit = _CommitFaultAuditLog(sink, audit_path, fail=fail_commit)
+        provider = _PhysicalProvider(provider_path)
+        enforcer = LLMBudgetEnforcer(
+            client=TracedLLMClient(provider, model_name="default", run_id="B65-real-audit"),
+            budget_state=initial,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            audit_log=audit,
+            run_id="B65-real-audit",
+        )
+        try:
+            first_error = None
+            first_response = None
+            try:
+                first_response = _call(enforcer, route)
+            except LLMAccountingError as error:
+                first_error = error
+            first = _observation(audit_path, ledger_path, provider_path)
+            print("B65_FIRST " + json.dumps({"route": route, "fault": fail_commit, **first}))
+            assert len(first["provider_requests"]) == 1
+            snapshot = FileBudgetLedger(ledger_path).snapshot()
+            assert snapshot.state.spent["run"] == Decimal("0.02")
+            assert snapshot.state.reserved["run"] == Decimal("0")
+            assert len(snapshot.spend_receipts) == 1
+            assert next(iter(snapshot.spend_receipts.values())).amount == Decimal("0.02")
+            assert first["audit_chain"]["chain_intact"]
+&gt;           assert audit.attempted_actions[:3] == ["BUDGET_RESERVED", "BUDGET_CHECK", "BUDGET_RELEASED"]
+E           AssertionError: assert ['BUDGET_RESE...BUDGET_CHECK'] == ['BUDGET_RESE...GET_RELEASED']
+E             
+E             Right contains one more item: 'BUDGET_RELEASED'
+E             Use -v to get more diff
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:163: AssertionError</failure></testcase><testcase classname="" name="test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-sync-invoke]" time="0.044"><failure message="polisyos.core.llm.traced_client.LLMAccountingError: LLM provider result received but mandatory accounting failed; reconciliation required: 1 validation error for BudgetLedgerCompletionObligation&#10;  Value error, completion requires unique keys and exact reservation coordinates [type=value_error, input_value={'obligation_id': 'budget...': 'producer_settled'}}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/value_error">self = &lt;polisyos.scientist.orchestration.llm.budget_enforcer.LLMBudgetEnforcer object at 0x7fe199568cb0&gt;
+
+    def _append_audit(
+        self,
+        *,
+        run_id: str,
+        actor: str,
+        action: Any,
+        metadata: dict[str, Any],
+        producer_event: LLMProducerEvent | None = None,
+        charge_ack: LLMSettlementAck | None = None,
+        response: Any = None,
+        reservation: _BudgetReservation | None = None,
+        act_id: str | None = None,
+    ) -&gt; None:
+        if self._audit_log is None:
+            return
+        identity = act_id or "budget-audit:" + _new_producer_id()
+        if identity in self._pending_audits:
+            obligation, retained_response = self._pending_audits[identity]
+            raise self._audit_error(
+                obligation, retained_response, RuntimeError("resolve the original audit act first")
+            )
+        # Detach caller-owned nested values from the exact protected act.
+        frozen_metadata = to_python_data(metadata)
+        obligation = LLMAuditObligation(
+            event=producer_event,
+            run_id=run_id,
+            scope_key=self._accounting_scope(run_id),
+            charge_ack=charge_ack,
+            action=action,
+            actor=actor,
+            act_id=identity,
+            metadata=tuple(frozen_metadata.items()),
+        )
+        self._pending_audits[identity] = (obligation, response)
+        self._audit_reservations[identity] = reservation or _BudgetReservation(Decimal(0))
+        try:
+&gt;           self._retain_completion(
+                identity,
+                producer_event,
+                reservation or _BudgetReservation(Decimal(0)),
+                run_id,
+                "protected_audit_pending",
+                charge_ack=charge_ack,
+                required_action={
+                    "run_id": run_id,
+                    "actor": actor,
+                    "action": action,
+                    "metadata": frozen_metadata,
+                },
+            )
+
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:771: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.scientist.orchestration.llm.budget_enforcer.LLMBudgetEnforcer object at 0x7fe199568cb0&gt;
+obligation_id = 'budget-audit:llm-producer:1612134e52eb4f2d94e9b09f62162ed5'
+event = LLMProducerEvent(event_id='llm-producer:752d7a1ac7124ba0b76aeab0dd25e5d7', request_digest='sha256:d27a94b1e7ba83b4e3b0...ovider='physical-test-provider', amount=Decimal('0.02'), cost_origin='reported', kind='provider', origin_event_id=None)
+reservation = _BudgetReservation(estimated_cost=Decimal('0'), reserved_amounts={}, attempt_id='', request_digest='', provider_started=False)
+run_id = 'B65-owner-recovery', phase = 'protected_audit_pending'
+
+    def _retain_completion(
+        self,
+        obligation_id: str,
+        event: LLMProducerEvent | None,
+        reservation: _BudgetReservation,
+        run_id: str,
+        phase: str,
+        *,
+        charge_ack: LLMSettlementAck | None = None,
+        required_action: dict[str, Any] | None = None,
+    ) -&gt; Any:
+        if self._budget_middleware is None:
+            return None
+        from polisyos.scientist.orchestration.engine.budget_ledger import (
+            BudgetLedgerCompletionObligation,
+        )
+    
+        existing = self._completion_records.get(obligation_id)
+        if existing is not None:
+            # A prior publication can have replaced the file and lost its ACK,
+            # or failed before replacement. Resolve the actual old/new record
+            # before an exact CAS transition; local intended bytes are not proof
+            # that the filesystem published that phase.
+            persisted = self._budget_middleware.list_completion_obligations_safe(self._budget_keys)
+            existing = next(
+                (record for record in persisted if record.obligation_id == obligation_id), None
+            )
+        body = (
+            self._event_body(event)
+            if event is not None
+            else {
+                "event_id": obligation_id,
+                "kind": "budget_audit",
+                "amount": None,
+                "action": required_action["action"] if required_action else None,
+                "run_id": run_id,
+                "required_action": required_action,
+            }
+        )
+&gt;       record = BudgetLedgerCompletionObligation(
+            obligation_id=obligation_id,
+            event_payload=body,
+            event_digest=event.payload_digest
+            if event is not None
+            else "sha256:"
+            + hashlib.sha256(
+                json.dumps(body, sort_keys=True, separators=(",", ":")).encode()
+            ).hexdigest(),
+            run_id=run_id,
+            budget_keys=self._budget_keys,
+            reserved_amounts=(
+                existing.reserved_amounts
+                if existing is not None
+                else dict(reservation.reserved_amounts)
+            ),
+            phase=phase,
+            owner_epoch=self._budget_middleware.completion_owner_epoch,
+            known_receipt_ids=tuple(r.event_id for r in charge_ack.receipts) if charge_ack else (),
+            required_action=required_action,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for BudgetLedgerCompletionObligation
+E         Value error, completion requires unique keys and exact reservation coordinates [type=value_error, input_value={'obligation_id': 'budget...': 'producer_settled'}}}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:626: ValidationError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-corrected-native/pytest-tmp/test_same_protected_owner_repl0')
+route = 'sync-invoke', action = 'BUDGET_RESERVED'
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("action", ["BUDGET_RESERVED", "BUDGET_RELEASED", "BUDGET_COMMITTED"])
+    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+        tmp_path: Path, route: str, action: str
+    ) -&gt; None:
+        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, action
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, route)
+            error = first.value
+            obligation = error.event["audit_obligation"]
+            before = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+                        "obligation_digest": obligation.payload_digest,
+                        "provider_calls": len(provider.responses),
+                        "original_cause": type(error.cause).__name__,
+                        "settlement_status": error.event["settlement_status"],
+                        "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                        "fresh_ledger": before.model_dump(mode="json"),
+                    }
+                )
+            )
+            assert error.event["required_audit_status"] == "pending"
+            assert obligation.action == action
+            assert error.cause is audit.failure and isinstance(error.cause, IsADirectoryError)
+            original_metadata = json.dumps(dict(obligation.metadata), sort_keys=True)
+            original_digest = obligation.payload_digest
+            detached_metadata = dict(obligation.metadata)
+            if "budget_keys" in detached_metadata:
+                detached_metadata["budget_keys"].append("different-caller-key")
+            else:
+                detached_metadata["payload_digest"] = "sha256:" + "0" * 64
+            print(
+                "B65_DETACHED_METADATA "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "original_metadata": json.loads(original_metadata),
+                        "mutated_caller_view": detached_metadata,
+                        "retained_metadata": dict(obligation.metadata),
+                        "original_digest": original_digest,
+                        "retained_digest": obligation.payload_digest,
+                    }
+                )
+            )
+            assert json.dumps(dict(obligation.metadata), sort_keys=True) == original_metadata
+            assert obligation.payload_digest == original_digest
+            initial_calls = len(provider.responses)
+            assert initial_calls == (0 if action == "BUDGET_RESERVED" else 1)
+            if initial_calls:
+                assert error.response is provider.responses[0]
+                assert obligation.event is not None and obligation.event.amount == Decimal("0.02")
+                assert obligation.charge_ack is not None and obligation.charge_ack.status == "committed"
+                assert error.event["settlement_status"] == "committed"
+                assert before.state.spent["run"] == Decimal("0.02")
+            else:
+                assert error.response is None and obligation.event is None
+                assert obligation.charge_ack is None
+                assert not before.spend_receipts
+                assert before.state.reserved["run"] &gt; Decimal("0")
+            assert before.completion_obligations
+            with pytest.raises(LLMAccountingError):
+                _call(enforcer, route)
+            assert len(provider.responses) == initial_calls
+            # A new constructor reopens the actual ledger with a distinct live
+            # owner epoch. It must discover the persisted obligation, even though
+            # this owner has never seen the original in-memory accounting error.
+            reopened_initial = BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}
+            )
+            reopened = LLMBudgetEnforcer(
+                client=TracedLLMClient(provider, model_name="default", run_id="B65-owner-recovery"),
+                budget_state=reopened_initial,
+                budget_keys=["run"],
+                budget_middleware=BudgetMiddleware(
+                    reopened_initial, ledger=FileBudgetLedger(ledger_path)
+                ),
+                audit_log=audit,
+                audit_reconciler=resolver,
+                run_id="B65-owner-recovery",
+            )
+            ledger_before_reopened_call = ledger_path.read_bytes()
+            audit_before_reopened_call = audit_path.read_bytes()
+            with pytest.raises(LLMAccountingError) as reopened_error:
+                _call(reopened, route)
+            retained = reopened_error.value.event["completion_obligation"]
+            print(
+                "B65_REOPENED_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "provider_calls": len(provider.responses),
+                        "retained_completion": retained.model_dump(mode="json"),
+                        "audit_bytes_unchanged": audit_path.read_bytes() == audit_before_reopened_call,
+                        "ledger_bytes_unchanged": ledger_path.read_bytes()
+                        == ledger_before_reopened_call,
+                        "fresh_ledger": FileBudgetLedger(ledger_path)
+                        .snapshot()
+                        .model_dump(mode="json"),
+                    }
+                )
+            )
+            assert retained.obligation_id in before.completion_obligations
+            assert audit_path.read_bytes() == audit_before_reopened_call
+            assert ledger_path.read_bytes() == ledger_before_reopened_call
+            assert len(provider.responses) == initial_calls
+            ack = enforcer.reconcile_required_audit(obligation.act_id)
+            after = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_AUDIT_RECONCILED "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+                        "provider_calls": len(provider.responses),
+                        "resolver_writes": resolver.writes,
+                        "ack_status": ack.status,
+                        "before": before.model_dump(mode="json"),
+                        "after": after.model_dump(mode="json"),
+                        "fresh_chain": vars(ChainVerifier().verify_jsonl_file(audit_path)),
+                    }
+                )
+            )
+            assert after.state.spent == before.state.spent
+            assert after.spend_receipts == before.spend_receipts
+            assert after.state.reserved.get("run", Decimal("0")) == Decimal("0")
+            assert not after.completion_obligations
+            assert len(provider.responses) == initial_calls
+            assert resolver.calls == resolver.writes == 1
+            if obligation.charge_ack is not None:
+                assert ack == obligation.charge_ack
+            else:
+                assert ack.status == "unmanaged"
+            assert ChainVerifier().verify_jsonl_file(audit_path).chain_intact
+&gt;           result = _call(reopened, route)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:463: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:109: in _call
+    return enforcer.invoke("nonempty physical request", **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:1223: in invoke
+    response = self._client.invoke(prompt, **stripped)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/llm/traced_client.py:635: in invoke
+    settled = self._record_tokens(
+src/polisyos/core/llm/traced_client.py:525: in _record_tokens
+    received = owner.settle(producer_event, response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:1210: in settle
+    ack = self._settle_event(event, response, reservation, run_id)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:913: in _settle_event
+    return self._finish_settlement(event, response, reservation, run_id, ack)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:946: in _finish_settlement
+    self._release_reservation(
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:383: in _release_reservation
+    self._append_audit(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.scientist.orchestration.llm.budget_enforcer.LLMBudgetEnforcer object at 0x7fe199568cb0&gt;
+
+    def _append_audit(
+        self,
+        *,
+        run_id: str,
+        actor: str,
+        action: Any,
+        metadata: dict[str, Any],
+        producer_event: LLMProducerEvent | None = None,
+        charge_ack: LLMSettlementAck | None = None,
+        response: Any = None,
+        reservation: _BudgetReservation | None = None,
+        act_id: str | None = None,
+    ) -&gt; None:
+        if self._audit_log is None:
+            return
+        identity = act_id or "budget-audit:" + _new_producer_id()
+        if identity in self._pending_audits:
+            obligation, retained_response = self._pending_audits[identity]
+            raise self._audit_error(
+                obligation, retained_response, RuntimeError("resolve the original audit act first")
+            )
+        # Detach caller-owned nested values from the exact protected act.
+        frozen_metadata = to_python_data(metadata)
+        obligation = LLMAuditObligation(
+            event=producer_event,
+            run_id=run_id,
+            scope_key=self._accounting_scope(run_id),
+            charge_ack=charge_ack,
+            action=action,
+            actor=actor,
+            act_id=identity,
+            metadata=tuple(frozen_metadata.items()),
+        )
+        self._pending_audits[identity] = (obligation, response)
+        self._audit_reservations[identity] = reservation or _BudgetReservation(Decimal(0))
+        try:
+            self._retain_completion(
+                identity,
+                producer_event,
+                reservation or _BudgetReservation(Decimal(0)),
+                run_id,
+                "protected_audit_pending",
+                charge_ack=charge_ack,
+                required_action={
+                    "run_id": run_id,
+                    "actor": actor,
+                    "action": action,
+                    "metadata": frozen_metadata,
+                },
+            )
+            self._audit_log.append(
+                run_id=run_id, actor=actor, action=action, metadata=frozen_metadata
+            )
+            resolution = LLMAuditResolution(
+                obligation.payload_digest, "committed", "local-audit-return:" + identity
+            )
+            self._completed_audits[identity] = resolution
+            self._complete_record(identity, resolution.evidence_ref)
+        except Exception as exc:
+&gt;           raise self._audit_error(obligation, response, exc) from exc
+E           polisyos.core.llm.traced_client.LLMAccountingError: LLM provider result received but mandatory accounting failed; reconciliation required: 1 validation error for BudgetLedgerCompletionObligation
+E             Value error, completion requires unique keys and exact reservation coordinates [type=value_error, input_value={'obligation_id': 'budget...': 'producer_settled'}}}, input_type=dict]
+E               For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:794: LLMAccountingError</failure></testcase><testcase classname="" name="test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RESERVED-async-generate]" time="0.047"><failure message="polisyos.core.llm.traced_client.LLMAccountingError: LLM provider result received but mandatory accounting failed; reconciliation required: 1 validation error for BudgetLedgerCompletionObligation&#10;  Value error, completion requires unique keys and exact reservation coordinates [type=value_error, input_value={'obligation_id': 'budget...': 'producer_settled'}}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/value_error">self = &lt;polisyos.scientist.orchestration.llm.budget_enforcer.LLMBudgetEnforcer object at 0x7fe1995745a0&gt;
+
+    def _append_audit(
+        self,
+        *,
+        run_id: str,
+        actor: str,
+        action: Any,
+        metadata: dict[str, Any],
+        producer_event: LLMProducerEvent | None = None,
+        charge_ack: LLMSettlementAck | None = None,
+        response: Any = None,
+        reservation: _BudgetReservation | None = None,
+        act_id: str | None = None,
+    ) -&gt; None:
+        if self._audit_log is None:
+            return
+        identity = act_id or "budget-audit:" + _new_producer_id()
+        if identity in self._pending_audits:
+            obligation, retained_response = self._pending_audits[identity]
+            raise self._audit_error(
+                obligation, retained_response, RuntimeError("resolve the original audit act first")
+            )
+        # Detach caller-owned nested values from the exact protected act.
+        frozen_metadata = to_python_data(metadata)
+        obligation = LLMAuditObligation(
+            event=producer_event,
+            run_id=run_id,
+            scope_key=self._accounting_scope(run_id),
+            charge_ack=charge_ack,
+            action=action,
+            actor=actor,
+            act_id=identity,
+            metadata=tuple(frozen_metadata.items()),
+        )
+        self._pending_audits[identity] = (obligation, response)
+        self._audit_reservations[identity] = reservation or _BudgetReservation(Decimal(0))
+        try:
+&gt;           self._retain_completion(
+                identity,
+                producer_event,
+                reservation or _BudgetReservation(Decimal(0)),
+                run_id,
+                "protected_audit_pending",
+                charge_ack=charge_ack,
+                required_action={
+                    "run_id": run_id,
+                    "actor": actor,
+                    "action": action,
+                    "metadata": frozen_metadata,
+                },
+            )
+
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:771: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.scientist.orchestration.llm.budget_enforcer.LLMBudgetEnforcer object at 0x7fe1995745a0&gt;
+obligation_id = 'budget-audit:llm-producer:096cbc0cd52f4806ab25f0c5bc62f05f'
+event = LLMProducerEvent(event_id='llm-producer:61848f04c4fb4c1eaf3a26e9e38d244c', request_digest='sha256:29aa300271dbefbef459...ovider='physical-test-provider', amount=Decimal('0.02'), cost_origin='reported', kind='provider', origin_event_id=None)
+reservation = _BudgetReservation(estimated_cost=Decimal('0'), reserved_amounts={}, attempt_id='', request_digest='', provider_started=False)
+run_id = 'B65-owner-recovery', phase = 'protected_audit_pending'
+
+    def _retain_completion(
+        self,
+        obligation_id: str,
+        event: LLMProducerEvent | None,
+        reservation: _BudgetReservation,
+        run_id: str,
+        phase: str,
+        *,
+        charge_ack: LLMSettlementAck | None = None,
+        required_action: dict[str, Any] | None = None,
+    ) -&gt; Any:
+        if self._budget_middleware is None:
+            return None
+        from polisyos.scientist.orchestration.engine.budget_ledger import (
+            BudgetLedgerCompletionObligation,
+        )
+    
+        existing = self._completion_records.get(obligation_id)
+        if existing is not None:
+            # A prior publication can have replaced the file and lost its ACK,
+            # or failed before replacement. Resolve the actual old/new record
+            # before an exact CAS transition; local intended bytes are not proof
+            # that the filesystem published that phase.
+            persisted = self._budget_middleware.list_completion_obligations_safe(self._budget_keys)
+            existing = next(
+                (record for record in persisted if record.obligation_id == obligation_id), None
+            )
+        body = (
+            self._event_body(event)
+            if event is not None
+            else {
+                "event_id": obligation_id,
+                "kind": "budget_audit",
+                "amount": None,
+                "action": required_action["action"] if required_action else None,
+                "run_id": run_id,
+                "required_action": required_action,
+            }
+        )
+&gt;       record = BudgetLedgerCompletionObligation(
+            obligation_id=obligation_id,
+            event_payload=body,
+            event_digest=event.payload_digest
+            if event is not None
+            else "sha256:"
+            + hashlib.sha256(
+                json.dumps(body, sort_keys=True, separators=(",", ":")).encode()
+            ).hexdigest(),
+            run_id=run_id,
+            budget_keys=self._budget_keys,
+            reserved_amounts=(
+                existing.reserved_amounts
+                if existing is not None
+                else dict(reservation.reserved_amounts)
+            ),
+            phase=phase,
+            owner_epoch=self._budget_middleware.completion_owner_epoch,
+            known_receipt_ids=tuple(r.event_id for r in charge_ack.receipts) if charge_ack else (),
+            required_action=required_action,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for BudgetLedgerCompletionObligation
+E         Value error, completion requires unique keys and exact reservation coordinates [type=value_error, input_value={'obligation_id': 'budget...': 'producer_settled'}}}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:626: ValidationError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-corrected-native/pytest-tmp/test_same_protected_owner_repl1')
+route = 'async-generate', action = 'BUDGET_RESERVED'
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("action", ["BUDGET_RESERVED", "BUDGET_RELEASED", "BUDGET_COMMITTED"])
+    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+        tmp_path: Path, route: str, action: str
+    ) -&gt; None:
+        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, action
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, route)
+            error = first.value
+            obligation = error.event["audit_obligation"]
+            before = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+                        "obligation_digest": obligation.payload_digest,
+                        "provider_calls": len(provider.responses),
+                        "original_cause": type(error.cause).__name__,
+                        "settlement_status": error.event["settlement_status"],
+                        "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                        "fresh_ledger": before.model_dump(mode="json"),
+                    }
+                )
+            )
+            assert error.event["required_audit_status"] == "pending"
+            assert obligation.action == action
+            assert error.cause is audit.failure and isinstance(error.cause, IsADirectoryError)
+            original_metadata = json.dumps(dict(obligation.metadata), sort_keys=True)
+            original_digest = obligation.payload_digest
+            detached_metadata = dict(obligation.metadata)
+            if "budget_keys" in detached_metadata:
+                detached_metadata["budget_keys"].append("different-caller-key")
+            else:
+                detached_metadata["payload_digest"] = "sha256:" + "0" * 64
+            print(
+                "B65_DETACHED_METADATA "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "original_metadata": json.loads(original_metadata),
+                        "mutated_caller_view": detached_metadata,
+                        "retained_metadata": dict(obligation.metadata),
+                        "original_digest": original_digest,
+                        "retained_digest": obligation.payload_digest,
+                    }
+                )
+            )
+            assert json.dumps(dict(obligation.metadata), sort_keys=True) == original_metadata
+            assert obligation.payload_digest == original_digest
+            initial_calls = len(provider.responses)
+            assert initial_calls == (0 if action == "BUDGET_RESERVED" else 1)
+            if initial_calls:
+                assert error.response is provider.responses[0]
+                assert obligation.event is not None and obligation.event.amount == Decimal("0.02")
+                assert obligation.charge_ack is not None and obligation.charge_ack.status == "committed"
+                assert error.event["settlement_status"] == "committed"
+                assert before.state.spent["run"] == Decimal("0.02")
+            else:
+                assert error.response is None and obligation.event is None
+                assert obligation.charge_ack is None
+                assert not before.spend_receipts
+                assert before.state.reserved["run"] &gt; Decimal("0")
+            assert before.completion_obligations
+            with pytest.raises(LLMAccountingError):
+                _call(enforcer, route)
+            assert len(provider.responses) == initial_calls
+            # A new constructor reopens the actual ledger with a distinct live
+            # owner epoch. It must discover the persisted obligation, even though
+            # this owner has never seen the original in-memory accounting error.
+            reopened_initial = BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}
+            )
+            reopened = LLMBudgetEnforcer(
+                client=TracedLLMClient(provider, model_name="default", run_id="B65-owner-recovery"),
+                budget_state=reopened_initial,
+                budget_keys=["run"],
+                budget_middleware=BudgetMiddleware(
+                    reopened_initial, ledger=FileBudgetLedger(ledger_path)
+                ),
+                audit_log=audit,
+                audit_reconciler=resolver,
+                run_id="B65-owner-recovery",
+            )
+            ledger_before_reopened_call = ledger_path.read_bytes()
+            audit_before_reopened_call = audit_path.read_bytes()
+            with pytest.raises(LLMAccountingError) as reopened_error:
+                _call(reopened, route)
+            retained = reopened_error.value.event["completion_obligation"]
+            print(
+                "B65_REOPENED_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "provider_calls": len(provider.responses),
+                        "retained_completion": retained.model_dump(mode="json"),
+                        "audit_bytes_unchanged": audit_path.read_bytes() == audit_before_reopened_call,
+                        "ledger_bytes_unchanged": ledger_path.read_bytes()
+                        == ledger_before_reopened_call,
+                        "fresh_ledger": FileBudgetLedger(ledger_path)
+                        .snapshot()
+                        .model_dump(mode="json"),
+                    }
+                )
+            )
+            assert retained.obligation_id in before.completion_obligations
+            assert audit_path.read_bytes() == audit_before_reopened_call
+            assert ledger_path.read_bytes() == ledger_before_reopened_call
+            assert len(provider.responses) == initial_calls
+            ack = enforcer.reconcile_required_audit(obligation.act_id)
+            after = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_AUDIT_RECONCILED "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+                        "provider_calls": len(provider.responses),
+                        "resolver_writes": resolver.writes,
+                        "ack_status": ack.status,
+                        "before": before.model_dump(mode="json"),
+                        "after": after.model_dump(mode="json"),
+                        "fresh_chain": vars(ChainVerifier().verify_jsonl_file(audit_path)),
+                    }
+                )
+            )
+            assert after.state.spent == before.state.spent
+            assert after.spend_receipts == before.spend_receipts
+            assert after.state.reserved.get("run", Decimal("0")) == Decimal("0")
+            assert not after.completion_obligations
+            assert len(provider.responses) == initial_calls
+            assert resolver.calls == resolver.writes == 1
+            if obligation.charge_ack is not None:
+                assert ack == obligation.charge_ack
+            else:
+                assert ack.status == "unmanaged"
+            assert ChainVerifier().verify_jsonl_file(audit_path).chain_intact
+&gt;           result = _call(reopened, route)
+                     ^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:463: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:110: in _call
+    return asyncio.run(enforcer.generate(user="nonempty physical request", **kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:204: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py:127: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py:719: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:1053: in generate
+    return await asyncio.shield(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:1148: in _generate_owned
+    response = await self._client.generate(**stripped)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/llm/traced_client.py:736: in generate
+    return await self._await_owned_call(self._generate_owned(call_args, call_kwargs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/llm/traced_client.py:242: in _await_owned_call
+    return await asyncio.shield(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/llm/traced_client.py:817: in _generate_owned
+    completed = complete(response)
+                ^^^^^^^^^^^^^^^^^^
+src/polisyos/core/llm/traced_client.py:792: in complete
+    settled = self._record_tokens(
+src/polisyos/core/llm/traced_client.py:525: in _record_tokens
+    received = owner.settle(producer_event, response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:1135: in settle
+    ack = self._settle_event(event, response, reservation, run_id)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:913: in _settle_event
+    return self._finish_settlement(event, response, reservation, run_id, ack)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:946: in _finish_settlement
+    self._release_reservation(
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:383: in _release_reservation
+    self._append_audit(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.scientist.orchestration.llm.budget_enforcer.LLMBudgetEnforcer object at 0x7fe1995745a0&gt;
+
+    def _append_audit(
+        self,
+        *,
+        run_id: str,
+        actor: str,
+        action: Any,
+        metadata: dict[str, Any],
+        producer_event: LLMProducerEvent | None = None,
+        charge_ack: LLMSettlementAck | None = None,
+        response: Any = None,
+        reservation: _BudgetReservation | None = None,
+        act_id: str | None = None,
+    ) -&gt; None:
+        if self._audit_log is None:
+            return
+        identity = act_id or "budget-audit:" + _new_producer_id()
+        if identity in self._pending_audits:
+            obligation, retained_response = self._pending_audits[identity]
+            raise self._audit_error(
+                obligation, retained_response, RuntimeError("resolve the original audit act first")
+            )
+        # Detach caller-owned nested values from the exact protected act.
+        frozen_metadata = to_python_data(metadata)
+        obligation = LLMAuditObligation(
+            event=producer_event,
+            run_id=run_id,
+            scope_key=self._accounting_scope(run_id),
+            charge_ack=charge_ack,
+            action=action,
+            actor=actor,
+            act_id=identity,
+            metadata=tuple(frozen_metadata.items()),
+        )
+        self._pending_audits[identity] = (obligation, response)
+        self._audit_reservations[identity] = reservation or _BudgetReservation(Decimal(0))
+        try:
+            self._retain_completion(
+                identity,
+                producer_event,
+                reservation or _BudgetReservation(Decimal(0)),
+                run_id,
+                "protected_audit_pending",
+                charge_ack=charge_ack,
+                required_action={
+                    "run_id": run_id,
+                    "actor": actor,
+                    "action": action,
+                    "metadata": frozen_metadata,
+                },
+            )
+            self._audit_log.append(
+                run_id=run_id, actor=actor, action=action, metadata=frozen_metadata
+            )
+            resolution = LLMAuditResolution(
+                obligation.payload_digest, "committed", "local-audit-return:" + identity
+            )
+            self._completed_audits[identity] = resolution
+            self._complete_record(identity, resolution.evidence_ref)
+        except Exception as exc:
+&gt;           raise self._audit_error(obligation, response, exc) from exc
+E           polisyos.core.llm.traced_client.LLMAccountingError: LLM provider result received but mandatory accounting failed; reconciliation required: 1 validation error for BudgetLedgerCompletionObligation
+E             Value error, completion requires unique keys and exact reservation coordinates [type=value_error, input_value={'obligation_id': 'budget...': 'producer_settled'}}}, input_type=dict]
+E               For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+src/polisyos/scientist/orchestration/llm/budget_enforcer.py:794: LLMAccountingError</failure></testcase><testcase classname="" name="test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-sync-invoke]" time="0.025"><failure message="polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal">tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-corrected-native/pytest-tmp/test_same_protected_owner_repl2')
+route = 'sync-invoke', action = 'BUDGET_RELEASED'
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("action", ["BUDGET_RESERVED", "BUDGET_RELEASED", "BUDGET_COMMITTED"])
+    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+        tmp_path: Path, route: str, action: str
+    ) -&gt; None:
+        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, action
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, route)
+            error = first.value
+            obligation = error.event["audit_obligation"]
+            before = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+&gt;                       "obligation_digest": obligation.payload_digest,
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+                        "provider_calls": len(provider.responses),
+                        "original_cause": type(error.cause).__name__,
+                        "settlement_status": error.event["settlement_status"],
+                        "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                        "fresh_ledger": before.model_dump(mode="json"),
+                    }
+                )
+            )
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:339: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/llm/settlement.py:178: in payload_digest
+    return _request_digest(
+src/polisyos/core/llm/settlement.py:44: in _request_digest
+    + hashlib.sha256(stable_json_dumps(bind(value), sort_keys=True).encode()).hexdigest()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:252: in stable_json_dumps
+    payload = to_python_data(value, sort_keys=sort_keys, unsupported="error")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:242: in to_python_data
+    return JsonDataVisitor(policy).visit(value)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:135: in visit
+    return self._visit(value, depth=0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:180: in _visit_tracked
+    return [self._visit(item, depth=depth + 1) for item in value]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.common.serialization.JsonDataVisitor object at 0x7fe19827ffb0&gt;
+value = Decimal('0.02')
+
+    def _visit_tracked(self, value: Any, *, depth: int) -&gt; Any:
+        dumped = _as_model_dump(value)
+        if dumped is not None:
+            return self._visit(dumped, depth=depth + 1)
+    
+        if dataclasses.is_dataclass(value) and not isinstance(value, type):
+            fields = dataclasses.fields(value)
+            items = [(field.name, getattr(value, field.name)) for field in fields]
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: pair[0])
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, Mapping):
+            items = list(value.items())
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: str(pair[0]))
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, (list, tuple)):
+            return [self._visit(item, depth=depth + 1) for item in value]
+    
+        if isinstance(value, (set, frozenset)):
+            return [
+                self._visit(item, depth=depth + 1)
+                for item in sorted(value, key=_stable_collection_sort_key)
+            ]
+    
+        listed = _try_tolist(value)
+        if listed is not None:
+            return self._visit(listed, depth=depth + 1)
+    
+        scalar = _try_item(value)
+        if scalar is not None:
+            return self._visit(scalar, depth=depth + 1)
+    
+        if self._policy.unsupported == "error":
+&gt;           raise UnsupportedSerializationError(
+                f"Unsupported type for JSON serialization: {type(value).__name__}"
+            )
+E           polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal
+
+src/polisyos/common/serialization.py:197: UnsupportedSerializationError</failure></testcase><testcase classname="" name="test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_RELEASED-async-generate]" time="0.025"><failure message="polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal">tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-corrected-native/pytest-tmp/test_same_protected_owner_repl3')
+route = 'async-generate', action = 'BUDGET_RELEASED'
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("action", ["BUDGET_RESERVED", "BUDGET_RELEASED", "BUDGET_COMMITTED"])
+    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+        tmp_path: Path, route: str, action: str
+    ) -&gt; None:
+        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, action
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, route)
+            error = first.value
+            obligation = error.event["audit_obligation"]
+            before = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+&gt;                       "obligation_digest": obligation.payload_digest,
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+                        "provider_calls": len(provider.responses),
+                        "original_cause": type(error.cause).__name__,
+                        "settlement_status": error.event["settlement_status"],
+                        "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                        "fresh_ledger": before.model_dump(mode="json"),
+                    }
+                )
+            )
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:339: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/llm/settlement.py:178: in payload_digest
+    return _request_digest(
+src/polisyos/core/llm/settlement.py:44: in _request_digest
+    + hashlib.sha256(stable_json_dumps(bind(value), sort_keys=True).encode()).hexdigest()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:252: in stable_json_dumps
+    payload = to_python_data(value, sort_keys=sort_keys, unsupported="error")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:242: in to_python_data
+    return JsonDataVisitor(policy).visit(value)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:135: in visit
+    return self._visit(value, depth=0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:180: in _visit_tracked
+    return [self._visit(item, depth=depth + 1) for item in value]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.common.serialization.JsonDataVisitor object at 0x7fe1937ed5b0&gt;
+value = Decimal('0.02')
+
+    def _visit_tracked(self, value: Any, *, depth: int) -&gt; Any:
+        dumped = _as_model_dump(value)
+        if dumped is not None:
+            return self._visit(dumped, depth=depth + 1)
+    
+        if dataclasses.is_dataclass(value) and not isinstance(value, type):
+            fields = dataclasses.fields(value)
+            items = [(field.name, getattr(value, field.name)) for field in fields]
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: pair[0])
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, Mapping):
+            items = list(value.items())
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: str(pair[0]))
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, (list, tuple)):
+            return [self._visit(item, depth=depth + 1) for item in value]
+    
+        if isinstance(value, (set, frozenset)):
+            return [
+                self._visit(item, depth=depth + 1)
+                for item in sorted(value, key=_stable_collection_sort_key)
+            ]
+    
+        listed = _try_tolist(value)
+        if listed is not None:
+            return self._visit(listed, depth=depth + 1)
+    
+        scalar = _try_item(value)
+        if scalar is not None:
+            return self._visit(scalar, depth=depth + 1)
+    
+        if self._policy.unsupported == "error":
+&gt;           raise UnsupportedSerializationError(
+                f"Unsupported type for JSON serialization: {type(value).__name__}"
+            )
+E           polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal
+
+src/polisyos/common/serialization.py:197: UnsupportedSerializationError</failure></testcase><testcase classname="" name="test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-sync-invoke]" time="0.025"><failure message="polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal">tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-corrected-native/pytest-tmp/test_same_protected_owner_repl4')
+route = 'sync-invoke', action = 'BUDGET_COMMITTED'
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("action", ["BUDGET_RESERVED", "BUDGET_RELEASED", "BUDGET_COMMITTED"])
+    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+        tmp_path: Path, route: str, action: str
+    ) -&gt; None:
+        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, action
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, route)
+            error = first.value
+            obligation = error.event["audit_obligation"]
+            before = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+&gt;                       "obligation_digest": obligation.payload_digest,
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+                        "provider_calls": len(provider.responses),
+                        "original_cause": type(error.cause).__name__,
+                        "settlement_status": error.event["settlement_status"],
+                        "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                        "fresh_ledger": before.model_dump(mode="json"),
+                    }
+                )
+            )
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:339: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/llm/settlement.py:178: in payload_digest
+    return _request_digest(
+src/polisyos/core/llm/settlement.py:44: in _request_digest
+    + hashlib.sha256(stable_json_dumps(bind(value), sort_keys=True).encode()).hexdigest()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:252: in stable_json_dumps
+    payload = to_python_data(value, sort_keys=sort_keys, unsupported="error")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:242: in to_python_data
+    return JsonDataVisitor(policy).visit(value)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:135: in visit
+    return self._visit(value, depth=0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:180: in _visit_tracked
+    return [self._visit(item, depth=depth + 1) for item in value]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.common.serialization.JsonDataVisitor object at 0x7fe1937eef90&gt;
+value = Decimal('0.02')
+
+    def _visit_tracked(self, value: Any, *, depth: int) -&gt; Any:
+        dumped = _as_model_dump(value)
+        if dumped is not None:
+            return self._visit(dumped, depth=depth + 1)
+    
+        if dataclasses.is_dataclass(value) and not isinstance(value, type):
+            fields = dataclasses.fields(value)
+            items = [(field.name, getattr(value, field.name)) for field in fields]
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: pair[0])
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, Mapping):
+            items = list(value.items())
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: str(pair[0]))
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, (list, tuple)):
+            return [self._visit(item, depth=depth + 1) for item in value]
+    
+        if isinstance(value, (set, frozenset)):
+            return [
+                self._visit(item, depth=depth + 1)
+                for item in sorted(value, key=_stable_collection_sort_key)
+            ]
+    
+        listed = _try_tolist(value)
+        if listed is not None:
+            return self._visit(listed, depth=depth + 1)
+    
+        scalar = _try_item(value)
+        if scalar is not None:
+            return self._visit(scalar, depth=depth + 1)
+    
+        if self._policy.unsupported == "error":
+&gt;           raise UnsupportedSerializationError(
+                f"Unsupported type for JSON serialization: {type(value).__name__}"
+            )
+E           polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal
+
+src/polisyos/common/serialization.py:197: UnsupportedSerializationError</failure></testcase><testcase classname="" name="test_same_protected_owner_replays_exact_missing_act_before_unblocking[BUDGET_COMMITTED-async-generate]" time="0.024"><failure message="polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal">tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-corrected-native/pytest-tmp/test_same_protected_owner_repl5')
+route = 'async-generate', action = 'BUDGET_COMMITTED'
+
+    @pytest.mark.parametrize("route", ["sync-invoke", "async-generate"])
+    @pytest.mark.parametrize("action", ["BUDGET_RESERVED", "BUDGET_RELEASED", "BUDGET_COMMITTED"])
+    def test_same_protected_owner_replays_exact_missing_act_before_unblocking(
+        tmp_path: Path, route: str, action: str
+    ) -&gt; None:
+        enforcer, sink, audit, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, action
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, route)
+            error = first.value
+            obligation = error.event["audit_obligation"]
+            before = FileBudgetLedger(ledger_path).snapshot()
+            print(
+                "B65_PENDING "
+                + json.dumps(
+                    {
+                        "route": route,
+                        "action": action,
+                        "act_id": obligation.act_id,
+&gt;                       "obligation_digest": obligation.payload_digest,
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+                        "provider_calls": len(provider.responses),
+                        "original_cause": type(error.cause).__name__,
+                        "settlement_status": error.event["settlement_status"],
+                        "captured_entry": sink.failed_entry.model_dump(mode="json"),
+                        "fresh_ledger": before.model_dump(mode="json"),
+                    }
+                )
+            )
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:339: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/core/llm/settlement.py:178: in payload_digest
+    return _request_digest(
+src/polisyos/core/llm/settlement.py:44: in _request_digest
+    + hashlib.sha256(stable_json_dumps(bind(value), sort_keys=True).encode()).hexdigest()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:252: in stable_json_dumps
+    payload = to_python_data(value, sort_keys=sort_keys, unsupported="error")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:242: in to_python_data
+    return JsonDataVisitor(policy).visit(value)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:135: in visit
+    return self._visit(value, depth=0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:180: in _visit_tracked
+    return [self._visit(item, depth=depth + 1) for item in value]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:177: in _visit_tracked
+    return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/common/serialization.py:156: in _visit
+    return self._visit_tracked(value, depth=depth)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.common.serialization.JsonDataVisitor object at 0x7fe198229af0&gt;
+value = Decimal('0.02')
+
+    def _visit_tracked(self, value: Any, *, depth: int) -&gt; Any:
+        dumped = _as_model_dump(value)
+        if dumped is not None:
+            return self._visit(dumped, depth=depth + 1)
+    
+        if dataclasses.is_dataclass(value) and not isinstance(value, type):
+            fields = dataclasses.fields(value)
+            items = [(field.name, getattr(value, field.name)) for field in fields]
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: pair[0])
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, Mapping):
+            items = list(value.items())
+            if self._policy.sort_keys:
+                items = sorted(items, key=lambda pair: str(pair[0]))
+            return {str(key): self._visit(item, depth=depth + 1) for key, item in items}
+    
+        if isinstance(value, (list, tuple)):
+            return [self._visit(item, depth=depth + 1) for item in value]
+    
+        if isinstance(value, (set, frozenset)):
+            return [
+                self._visit(item, depth=depth + 1)
+                for item in sorted(value, key=_stable_collection_sort_key)
+            ]
+    
+        listed = _try_tolist(value)
+        if listed is not None:
+            return self._visit(listed, depth=depth + 1)
+    
+        scalar = _try_item(value)
+        if scalar is not None:
+            return self._visit(scalar, depth=depth + 1)
+    
+        if self._policy.unsupported == "error":
+&gt;           raise UnsupportedSerializationError(
+                f"Unsupported type for JSON serialization: {type(value).__name__}"
+            )
+E           polisyos.common.serialization.UnsupportedSerializationError: Unsupported type for JSON serialization: Decimal
+
+src/polisyos/common/serialization.py:197: UnsupportedSerializationError</failure></testcase><testcase classname="" name="test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[event-id]" time="0.023"><failure message="assert None is not None">tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-corrected-native/pytest-tmp/test_retained_protected_act_wr0')
+mismatch = 'event-id'
+
+    @pytest.mark.parametrize("mismatch", ["event-id", "payload", "log-owner"])
+    def test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect(
+        tmp_path: Path, mismatch: str
+    ) -&gt; None:
+        enforcer, sink, _, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, "BUDGET_COMMITTED"
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, "async-generate")
+            obligation = first.value.event["audit_obligation"]
+            entry = sink.failed_entry
+&gt;           assert entry is not None
+E           assert None is not None
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:498: AssertionError</failure></testcase><testcase classname="" name="test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[payload]" time="0.024"><failure message="assert None is not None">tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-corrected-native/pytest-tmp/test_retained_protected_act_wr1')
+mismatch = 'payload'
+
+    @pytest.mark.parametrize("mismatch", ["event-id", "payload", "log-owner"])
+    def test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect(
+        tmp_path: Path, mismatch: str
+    ) -&gt; None:
+        enforcer, sink, _, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, "BUDGET_COMMITTED"
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, "async-generate")
+            obligation = first.value.event["audit_obligation"]
+            entry = sink.failed_entry
+&gt;           assert entry is not None
+E           assert None is not None
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:498: AssertionError</failure></testcase><testcase classname="" name="test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect[log-owner]" time="0.025"><failure message="assert None is not None">tmp_path = PosixPath('/tmp/e02-B65-recovery-a391-corrected-native/pytest-tmp/test_retained_protected_act_wr2')
+mismatch = 'log-owner'
+
+    @pytest.mark.parametrize("mismatch", ["event-id", "payload", "log-owner"])
+    def test_retained_protected_act_wrong_binding_refuses_before_filesystem_effect(
+        tmp_path: Path, mismatch: str
+    ) -&gt; None:
+        enforcer, sink, _, resolver, provider, audit_path, ledger_path = _recovery_fixture(
+            tmp_path, "BUDGET_COMMITTED"
+        )
+        try:
+            with pytest.raises(LLMAccountingError) as first:
+                _call(enforcer, "async-generate")
+            obligation = first.value.event["audit_obligation"]
+            entry = sink.failed_entry
+&gt;           assert entry is not None
+E           assert None is not None
+
+../../e02-B-current-runtime/policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py:498: AssertionError</failure></testcase></testsuite></testsuites>

@@ -179,6 +179,14 @@ class BayesianCandidateGenerator:
         if warm_start_bridge is not None:
             numerical_basis = warm_start_bridge.target_basis(warm_start_fingerprint)
             admission = warm_start_bridge.admit_warm_start
+            if (
+                numerical_basis.metric != primary_metric
+                or numerical_basis.direction.value != direction.value
+                or numerical_basis.split != compare_split.value
+            ):
+                raise ValueError(
+                    "Configured generator metric/direction/split differs from numerical target"
+                )
 
         deps = _try_import_bayesian()
         if deps is not None and search_space is not None:

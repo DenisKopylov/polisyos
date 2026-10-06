@@ -660,6 +660,21 @@ class BayesianOptimizer(BaseSearchStrategy):
 
     def _effective_training_corpus(self, evaluations: list[Evaluation]) -> list[Evaluation]:
         """Combine compatible warm/current records without double-counting artifacts."""
+        transferred = [
+            e for e in [*self._warm_evals, *evaluations] if "numeric_transfer_basis" in e.metadata
+        ]
+        if transferred:
+            if self._warm_start_admission is None:
+                raise ValueError(
+                    "Transferred training rows require the configured CAS admission reader"
+                )
+            admitted = self._warm_start_admission(transferred, self._numerical_basis)
+            if [self._encode_evaluation(e) for e in admitted] != [
+                self._encode_evaluation(e) for e in transferred
+            ]:
+                raise ValueError(
+                    "Transferred training rows are no longer content-bound to the target"
+                )
         corpus: list[Evaluation] = []
         seen: set[tuple[Any, ...]] = set()
         for evaluation in [*self._warm_evals, *evaluations]:

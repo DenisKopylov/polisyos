@@ -168,3 +168,17 @@ def test_saved_warm_content_changed_with_fitted_markers_preserved_refuses(field)
             "MARKER_PRESERVING_WARM_CHANGE_ADMITTED", field, "ACTUAL_EXTRA_MLL_FITS", fit.call_count
         )
     pytest.fail("Persisted warm content changed while fitted/model/corpus markers remained intact")
+
+
+@pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+def test_transferred_current_rows_cannot_bypass_configured_reader():
+    space = SearchSpace([ParameterBounds("x")])
+    strategy = optimizer(space)
+    transferred = rows(space, 6)
+    for row in transferred:
+        row.metadata["numeric_transfer_basis"] = {"profile": "numeric_transfer_basis.v1"}
+    with patch.object(module, "fit_gpytorch_mll", wraps=module.fit_gpytorch_mll) as fit:
+        with pytest.raises(ValueError, match="configured CAS admission reader"):
+            strategy.suggest(transferred)
+        assert fit.call_count == 0
+    assert strategy._model is None

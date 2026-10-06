@@ -160,6 +160,31 @@
     "bytes": 2320
   },
   {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-typed-group-format-stdout.txt",
+    "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+    "bytes": 26
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-typed-group-format-wrapper.json",
+    "sha256": "ec462cdd28820874e61bdb4b2de2e5c695ffddb1a3a446a8dab809b6ee779657",
+    "bytes": 1999
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-typed-group-ruff-stdout.txt",
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "bytes": 19
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-typed-group-ruff-wrapper.json",
+    "sha256": "3826a11469be881950549c71fe24948835b8934e4149b3f809b21133ac2654c6",
+    "bytes": 1978
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/group-input-derivations.json",
+    "sha256": "07c1309324f401d101bc5e63e572286d8c8ad7e55fae3eba928d0c5a6a9491b4",
+    "bytes": 6581
+  },
+  {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/input-derivations.json",
     "sha256": "514382d06d7e75afa8fbb7fb6dbbff6d03c9da77d7d6c14eb708a8edf0b904be",
     "bytes": 46320
@@ -250,6 +275,21 @@
     "bytes": 4583
   },
   {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-bundle-consumers-cohort.xml",
+    "sha256": "33647716525e367983a4b4989b8a38810e580365bde70e3adac43770b85cb532",
+    "bytes": 1803
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-bundle-consumers-stdout.txt",
+    "sha256": "585ba42829657b9e2d56f8614be6c3365a8405474eed008559511ab50f2ffcfb",
+    "bytes": 80
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-bundle-consumers-wrapper.json",
+    "sha256": "8bd1a641a9cf90aced337ea6b6c700200f7b9abe88f29202350efd9a6c40378f",
+    "bytes": 2927
+  },
+  {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-cohort.xml",
     "sha256": "3f4b14d2bdbd228feb2f01df79a5c13e863ff0cae11de116e4800892b80eb3a0",
     "bytes": 106158
@@ -323,6 +363,21 @@
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-owned-graph-wrapper.json",
     "sha256": "a7f6f2c7b3c6fe04729089847fceaf8bec2a704955257cec08201d3d5d539cdd",
     "bytes": 3237
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-typed-group-consumers-cohort.xml",
+    "sha256": "eb19fe91fe76c874807d9df6dddd5cc60c6b21a50bf106f6eeca188d68977f3d",
+    "bytes": 25456
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-typed-group-consumers-stdout.txt",
+    "sha256": "3ca63df1dde3ba9e2d2084a8facf905367fe65246c76bc33b3d06e0024ecdfa9",
+    "bytes": 160
+  },
+  {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-typed-group-consumers-wrapper.json",
+    "sha256": "0baf3e2b11b0b235cb90f2bf0890cbb8d37acca4239c3567de72b90800bfd3e6",
+    "bytes": 3610
   },
   {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-worker-consumers-cohort.xml",

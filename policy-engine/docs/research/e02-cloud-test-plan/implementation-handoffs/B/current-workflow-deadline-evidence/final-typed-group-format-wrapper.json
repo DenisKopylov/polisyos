@@ -1,0 +1,43 @@
+{
+  "target_sha": "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+  "candidate_tree_sha": "1fa3889f9fa5d216ab54357de6a680d03c4621d4",
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/ruff",
+    "format",
+    "--check",
+    "src/polisyos/scientist/orchestration/engine/state_branching.py",
+    "tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+    "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py"
+  ],
+  "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+  "environment": {
+    "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "input_closure": {
+    "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-typed-group-format/input-closure.json",
+    "sha256": "44c4a288acbbcf1c47b0005fa667cf78935473415c24d4c8b155c10e10eb040d",
+    "tracked_paths": 13939,
+    "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "driver_sha256": "d00105b9385369bc6bfeeb90ede651b44dd24ff7b4cba897fdb091f12e010efd",
+  "start_utc": "2026-10-06T14:08:20.454353+00:00",
+  "end_utc": "2026-10-06T14:08:20.484245+00:00",
+  "wall_s": 0.02987769601168111,
+  "max_rss_kib": 50900,
+  "exit": 0,
+  "source_unchanged": true,
+  "outputs": [
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-typed-group-format/input-closure.json",
+      "sha256": "44c4a288acbbcf1c47b0005fa667cf78935473415c24d4c8b155c10e10eb040d",
+      "bytes": 2816006
+    },
+    {
+      "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-typed-group-format/stdout.txt",
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+      "bytes": 26
+    }
+  ]
+}

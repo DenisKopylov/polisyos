@@ -6,6 +6,7 @@
   "proposed_bounded_generic_ids": [
     "B55",
     "B72",
+    "B57",
     "B58",
     "B62"
   ],
@@ -31,19 +32,109 @@
     "3b81bf197be10e20208f8d1925fd8d63eca74da9",
     "29da3db1c351bcc1736283301fe9a2262135d449",
     "a175392fb4b49d19189152609d93e2ec149a4704",
-    "bd490ea81ac5addb78a3f35532558a5b8042dcdb"
+    "bd490ea81ac5addb78a3f35532558a5b8042dcdb",
+    "73da66660015866691248e8414ae03c26c3be298",
+    "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+    "3eb2e887e07452a316aab95b7dbe3b4f2874951d"
   ],
   "metadata_only_implementation_range_commits": [
-    "2f278583a6bdaf6d3da887f49018d8769d8115cf"
+    "2f278583a6bdaf6d3da887f49018d8769d8115cf",
+    "73da66660015866691248e8414ae03c26c3be298"
   ],
-  "candidate_sha": "bd490ea81ac5addb78a3f35532558a5b8042dcdb",
-  "candidate_tree_sha": "253c1ac72c54177a5bf75a55bb729825c9d3f8cf",
-  "production_source_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
-  "production_source_byte_identity": "All tracked policy-engine/src blobs byte-identical productiona175\u2192finaltestcompanion. Historical sourcequality/invocation/native checks retain their original1bd/3b/29/a175 bindings; none are relabeled a successor PASS.",
+  "candidate_sha": "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+  "candidate_tree_sha": "1fa3889f9fa5d216ab54357de6a680d03c4621d4",
+  "production_source_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+  "production_source_byte_identity": "All tracked policy-engine/src blobs are byte-identical ed13\u21923eb test-only companion. Production a175\u2192ed13 differs only in state_branching.py canonical whole-intent comparison; all historical checks keep exact original source and test input bindings.",
   "branch": "codex/e02-B-current-execution-state",
   "pull_request": "https://github.com/DenisKopylov/polisyos/pull/54",
   "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all15-execution-state.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/review-settled-finding-qualification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/admission-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/admission-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure_legacy.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/environment-5ffa6944b3cd.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-architecture-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-architecture-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-b73-frontier-removal-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-b73-frontier-removal-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-b73-frontier-removal-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-native-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-b73-frontier-removal-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-b73-frontier-removal-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-b73-frontier-removal-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-native-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-native-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-invocation-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-invocation-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-invocation-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-native-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-invocation-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-invocation-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-invocation-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/input-derivations.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-admission-corrected-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-admission-corrected-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-admission-corrected-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-bridge-cache-deadline-red-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-bridge-cache-deadline-red-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-bridge-cache-deadline-red-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-corrected-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-corrected-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-corrected-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-final-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-final-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-final-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-preflight-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-preflight.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-all15-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-all15-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-all15-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-graph-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-graph-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-graph-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-fixture-consumers-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-fixture-consumers-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-fixture-consumers-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-list-all15-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-list-all15-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-list-all15-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-owned-graph-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-owned-graph-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-owned-graph-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-worker-consumers-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-worker-consumers-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-worker-consumers-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-frontier-state-current-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-frontier-state-current-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-frontier-state-current-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-owner-deadline-candidate-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-owner-deadline-candidate-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-owner-deadline-candidate-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-workflow-deadline-red-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-workflow-deadline-red-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-workflow-deadline-red-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_complete.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_complete.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_final.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native_legacy.py",
     "policy-engine/release-fragments/unreleased/2026-10-06-scientist-cache-recovery.toml",
     "policy-engine/src/polisyos/core/artifacts/async_store.py",
     "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
@@ -88,9 +179,96 @@
     "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py"
   ],
   "metadata_paths": [
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/review-settled-finding-qualification.json"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all15-execution-state.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-retry-spend-independent-review/review-settled-finding-qualification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/admission-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/admission-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure_legacy.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/environment-5ffa6944b3cd.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-architecture-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-architecture-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-b73-frontier-removal-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-b73-frontier-removal-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-b73-frontier-removal-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-native-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-b73-frontier-removal-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-b73-frontier-removal-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-b73-frontier-removal-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-native-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-native-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-invocation-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-invocation-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-invocation-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-native-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-invocation-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-invocation-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-invocation-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/input-derivations.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-admission-corrected-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-admission-corrected-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-admission-corrected-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-bridge-cache-deadline-red-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-bridge-cache-deadline-red-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-bridge-cache-deadline-red-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-corrected-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-corrected-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-corrected-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-final-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-final-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-final-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-preflight-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-preflight.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-all15-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-all15-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-all15-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-graph-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-graph-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-graph-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-fixture-consumers-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-fixture-consumers-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-fixture-consumers-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-list-all15-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-list-all15-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-list-all15-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-owned-graph-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-owned-graph-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-owned-graph-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-worker-consumers-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-worker-consumers-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-worker-consumers-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-frontier-state-current-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-frontier-state-current-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-frontier-state-current-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-owner-deadline-candidate-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-owner-deadline-candidate-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-owner-deadline-candidate-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-workflow-deadline-red-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-workflow-deadline-red-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-workflow-deadline-red-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_complete.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_complete.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_final.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native_legacy.py"
   ],
   "full_branch_changed_paths_from_root_base": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all15-execution-state.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-evidence-reference.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/admission-create.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery-evidence/admission-resume.json",
@@ -231,6 +409,91 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup-checks/ruff.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process-setup.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-process.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/admission-create.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/admission-resume.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/derive_input_closure_legacy.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/environment-5ffa6944b3cd.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/evidence-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-architecture-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-architecture-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-b73-frontier-removal-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-b73-frontier-removal-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-b73-frontier-removal-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-native-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-architecture-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-b73-frontier-removal-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-b73-frontier-removal-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-b73-frontier-removal-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-native-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-native-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-complete-invocation-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-invocation-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-invocation-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-invocation-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-native-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-native-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-architecture-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-invocation-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-invocation-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-list-invocation-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/input-derivations.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-admission-corrected-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-admission-corrected-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-admission-corrected-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-bridge-cache-deadline-red-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-bridge-cache-deadline-red-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-bridge-cache-deadline-red-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-corrected-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-corrected-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-corrected-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-final-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-final-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-companion-final-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-preflight-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-expired-cache-preflight.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-all15-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-all15-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-all15-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-all15-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-graph-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-graph-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-complete-graph-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-fixture-consumers-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-fixture-consumers-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-fixture-consumers-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-list-all15-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-list-all15-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-list-all15-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-owned-graph-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-owned-graph-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-owned-graph-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-worker-consumers-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-worker-consumers-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-worker-consumers-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-frontier-state-current-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-frontier-state-current-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-frontier-state-current-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-owner-deadline-candidate-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-owner-deadline-candidate-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-owner-deadline-candidate-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-workflow-deadline-red-cohort.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-workflow-deadline-red-stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-workflow-deadline-red-wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_complete.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_complete.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_final.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_final.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_check.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native_legacy.py",
     "policy-engine/release-fragments/unreleased/2026-10-06-scientist-cache-recovery.toml",
     "policy-engine/release-fragments/unreleased/e02-current-runtime-deadline.toml",
     "policy-engine/release-fragments/unreleased/e02-current-runtime-process.toml",
@@ -2782,6 +3045,240 @@
         "sha256": "31e94eb1ba5f3feaf3edab64b835a37b267a27f024f282912815fc950894f64b",
         "bytes": 1191
       }
+    },
+    {
+      "id": "native-final-typed-group-consumers",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_state_branching.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_state_merge.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py",
+        "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-typed-group-consumers/cohort.xml",
+        "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-typed-group-consumers/tmp"
+      ],
+      "target_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+      "candidate_tree_sha": "b5bddf937eb2ebe30b5d2e1f34028a3ee9d39431",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "POLISYOS_METRICS_PORT": "0",
+        "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-typed-group-consumers/environment.json",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "committed_details": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/environment-5ffa6944b3cd.json",
+          "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+          "bytes": 9887
+        }
+      },
+      "input_closure": {
+        "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-typed-group-consumers/input-closure.json",
+        "sha256": "bed647d412b7cf93d1b8e238ead2b636d39da9830928a4ef477e481a072931a5",
+        "paths": 2741,
+        "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data",
+        "bytes": 520934,
+        "storage": "ignored observed raw; byte-exact immutable Git derivation",
+        "derivation_index": 0,
+        "derivation_file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/group-input-derivations.json"
+      },
+      "outcome": "PASS",
+      "exit": 0,
+      "source_unchanged": true,
+      "wall_s": 80.40388383899699,
+      "max_rss_kib": 804320,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-typed-group-consumers-stdout.txt",
+        "sha256": "3ca63df1dde3ba9e2d2084a8facf905367fe65246c76bc33b3d06e0024ecdfa9",
+        "bytes": 160
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-typed-group-consumers-wrapper.json",
+        "sha256": "0baf3e2b11b0b235cb90f2bf0890cbb8d37acca4239c3567de72b90800bfd3e6",
+        "bytes": 3610
+      },
+      "driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native.py",
+        "sha256": "18a3c914d1503301308188d89474ddea80ca4be65a0a0f0bfca922fa2aea86df",
+        "bytes": 4325
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-typed-group-consumers-cohort.xml",
+        "sha256": "eb19fe91fe76c874807d9df6dddd5cc60c6b21a50bf106f6eeca188d68977f3d",
+        "bytes": 25456
+      },
+      "case_counts": {
+        "total": 140,
+        "PASS": 140
+      }
+    },
+    {
+      "id": "native-final-bundle-consumers",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "policy-engine/tests/unit/scientist/methods/causal/test_resolve_parameters_node.py",
+        "--junitxml=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-bundle-consumers/cohort.xml",
+        "--basetemp=/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-bundle-consumers/tmp"
+      ],
+      "target_sha": "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+      "candidate_tree_sha": "1fa3889f9fa5d216ab54357de6a680d03c4621d4",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "POLISYOS_METRICS_PORT": "0",
+        "details": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-bundle-consumers/environment.json",
+        "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+        "committed_details": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/environment-5ffa6944b3cd.json",
+          "sha256": "5ffa6944b3cd7f42880bd9fa98950bc744b01e033fb89a5dbc6013f5493afce8",
+          "bytes": 9887
+        }
+      },
+      "input_closure": {
+        "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/native-final-bundle-consumers/input-closure.json",
+        "sha256": "50747331c10b9cb5210799dc5de82044c1aaf7347aaa9b50982892ae97984da9",
+        "paths": 2732,
+        "fixture_inputs": "Exact test code, isolated basetemp/cas/run paths, no production data",
+        "bytes": 519041,
+        "storage": "ignored observed raw; byte-exact immutable Git derivation",
+        "derivation_index": 1,
+        "derivation_file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/group-input-derivations.json"
+      },
+      "outcome": "PASS",
+      "exit": 0,
+      "source_unchanged": true,
+      "wall_s": 17.82588746199326,
+      "max_rss_kib": 567456,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-bundle-consumers-stdout.txt",
+        "sha256": "585ba42829657b9e2d56f8614be6c3365a8405474eed008559511ab50f2ffcfb",
+        "bytes": 80
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-bundle-consumers-wrapper.json",
+        "sha256": "8bd1a641a9cf90aced337ea6b6c700200f7b9abe88f29202350efd9a6c40378f",
+        "bytes": 2927
+      },
+      "driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_native.py",
+        "sha256": "18a3c914d1503301308188d89474ddea80ca4be65a0a0f0bfca922fa2aea86df",
+        "bytes": 4325
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/native-final-bundle-consumers-cohort.xml",
+        "sha256": "33647716525e367983a4b4989b8a38810e580365bde70e3adac43770b85cb532",
+        "bytes": 1803
+      },
+      "case_counts": {
+        "total": 9,
+        "PASS": 9
+      }
+    },
+    {
+      "id": "final-typed-group-ruff",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/ruff",
+        "check",
+        "src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py"
+      ],
+      "target_sha": "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+      "candidate_tree_sha": "1fa3889f9fa5d216ab54357de6a680d03c4621d4",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+      },
+      "input_closure": {
+        "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-typed-group-ruff/input-closure.json",
+        "sha256": "44c4a288acbbcf1c47b0005fa667cf78935473415c24d4c8b155c10e10eb040d",
+        "tracked_paths": 13939,
+        "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "bytes": 2816006,
+        "storage": "ignored observed raw; byte-exact immutable Git derivation",
+        "derivation_index": 2,
+        "derivation_file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/group-input-derivations.json"
+      },
+      "outcome": "PASS",
+      "exit": 0,
+      "source_unchanged": true,
+      "wall_s": 0.028607025000383146,
+      "max_rss_kib": 50916,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-typed-group-ruff-stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-typed-group-ruff-wrapper.json",
+        "sha256": "3826a11469be881950549c71fe24948835b8934e4149b3f809b21133ac2654c6",
+        "bytes": 1978
+      },
+      "driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_check.py",
+        "sha256": "d00105b9385369bc6bfeeb90ede651b44dd24ff7b4cba897fdb091f12e010efd",
+        "bytes": 2404
+      }
+    },
+    {
+      "id": "final-typed-group-format",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+        "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py"
+      ],
+      "target_sha": "3eb2e887e07452a316aab95b7dbe3b4f2874951d",
+      "candidate_tree_sha": "1fa3889f9fa5d216ab54357de6a680d03c4621d4",
+      "environment": {
+        "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+      },
+      "input_closure": {
+        "path": "/workspace/e02-B-current-execution-state/_build/current-execution-state/final-typed-group-format/input-closure.json",
+        "sha256": "44c4a288acbbcf1c47b0005fa667cf78935473415c24d4c8b155c10e10eb040d",
+        "tracked_paths": 13939,
+        "additional_git_input": "immutable base198076863e143dea9f89f02734b13d50dae3eed5/tree2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+        "bytes": 2816006,
+        "storage": "ignored observed raw; byte-exact immutable Git derivation",
+        "derivation_index": 3,
+        "derivation_file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/group-input-derivations.json"
+      },
+      "outcome": "PASS",
+      "exit": 0,
+      "source_unchanged": true,
+      "wall_s": 0.02987769601168111,
+      "max_rss_kib": 50900,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-typed-group-format-stdout.txt",
+        "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+        "bytes": 26
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/final-typed-group-format-wrapper.json",
+        "sha256": "ec462cdd28820874e61bdb4b2de2e5c695ffddb1a3a446a8dab809b6ee779657",
+        "bytes": 1999
+      },
+      "driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/run_check.py",
+        "sha256": "d00105b9385369bc6bfeeb90ede651b44dd24ff7b4cba897fdb091f12e010efd",
+        "bytes": 2404
+      }
     }
   ],
   "input_derivations": {
@@ -2790,7 +3287,7 @@
     "bytes": 46320
   },
   "property": {
-    "statement": "A single invocation owner/deadline controls new workflow CAS/cache/provider/checkpoint/report/finalize admission. Cache recovery owns private state and publishes only on uncancelled/currentowner await. Entered mutable backend operations may finish and are typedunknown, never fresh ACK/retry authority.",
+    "statement": "A single invocation owner/deadline controls new workflow CAS/cache/provider/checkpoint/report/finalize admission. Cache recovery owns private state and publishes only on uncancelled/currentowner await. Entered mutable backend operations may finish and are typedunknown, never fresh ACK/retry authority. Finite native JSON producer ownership resolves all active memberships under the original attenuating grant and completes into neutral public state; algorithm1.2 grouped intents use strict canonical typed equality and apply once per current physical target, preserving current extra rows.",
     "runtime_path": [
       "actual Node method/NodeRegistry",
       "real FileSystemCAS+RunContext cache/state/checkpoint artifacts",
@@ -2804,17 +3301,21 @@
       "enteredmutable checkpoint/finalize freshreader records completepublication withunknown acknowledgment",
       "originalworkflowcancellation suppressedbycheckpoint hook refusesnewreport/finalization",
       "actualselectedref missing/corrupt/foreignprofile before requiredreader effects",
-      "known expiredcache actualprovider count0 vs original count2"
+      "known expiredcache actualprovider count0 vs original count2",
+      "Actual producer-derived valid CAS/cache entries with only malformed grouping labels refuse scalar/nested type-disagreeing intent before load/get; original native entries and healthy grouped False/null remain admissible.",
+      "Real old request-bound bundle reference missing in a fresh CAS cannot grant ok; changed graph/required-list refs require actual resolution and preserve old bytes."
     ]
   },
   "predicate_basis": "recomputed native consumer oracles and independent RUN source/cancellation review; baseline navigation only; semanticB61 institutionally held",
   "pending_independent_question": {
-    "mechanism": "Confirmed actual FileSystemCAS\u2192NodeResultCache load/get\u2192merge grouped intent False/0 and nested False/0 accepts type-disagreeing same-group operations through Python equality",
-    "state": "confirmed gap in candidate a175/bd490; canonical source repair is next append-only slice",
-    "healthy_control": "Valid native producer3/3 admitted; same-False grouped healthy cache/read/apply positive",
-    "next_owner": "EXE author; independent RUN unchanged executable replay"
+    "state": "resolved in bounded current group decoder",
+    "old_target": "a175392fb4b49d19189152609d93e2ec149a4704",
+    "old_actual_outcome": "Original native cache positives3/3; healthy grouped False positive1PASS, malformed False/0 and nested False/0 reader admitted2FAIL",
+    "new_target": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+    "new_actual_outcome": "Independent unchanged3cases3PASS: original native positives retained, healthy group real CAS/current merge succeeds, malformed scalar/nested group actual load/get refuse",
+    "scope": "Canonical bytes compare all validated intent fields except path/operation_group; existing typed Core profile retains null and bool/int/float distinctions, no percase branches. Ordinary producer is not claimed to emit malformed groups."
   },
-  "capability_state_or_finding_state": "All15 owner dispositions explicit; B59 historical closed state retained with native regression checks, B61 held, other proposed bounded or limited results await root final combined cohort. closure_ids empty. Mandatoryarchitecture/static checks actualFAIL without inheritedwaiver.",
+  "capability_state_or_finding_state": "All15 per-ID owner properties and residuals explicit: B59 historical closed retained, B61 held, proposed bounded or limited results await root final cohort. closure_ids empty. Actual mandatory a175 architecture/static FAIL preserved; final root gates pending, not waived.",
   "finding_dispositions": [
     {
       "finding_id": "B51",
@@ -2964,7 +3465,8 @@
         "native-final-complete-graph",
         "native-final-fixture-consumers",
         "native-final-complete-all15",
-        "native-owner-deadline-candidate"
+        "native-owner-deadline-candidate",
+        "native-final-typed-group-consumers"
       ],
       "baseline_route_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery.json@0f64409dc8f4aff7d2f38139fe337639f76148c7#baseline_cell_routes.B63",
       "limitations_and_next_owner": "FileSystemCAS bound; Ray/Temporal/remote runtime and storethread-affinity capability not established."
@@ -3090,10 +3592,10 @@
     },
     {
       "finding_id": "B57",
-      "state": "limited; grouped_typed_intent_gap_confirmed",
+      "state": "proposed_closed_bounded_generic",
       "strict_criterion_state": "root_final_cohort_adjudication_pending",
-      "verified_property": "Finite native JSON ownership graph preserves true aliases, reinsert/reparent/current paths and original producer grant; additive grouped intents apply once per current physical target while preserving current rows. Actual CAS cache/reopened consumers apply assignment/samevalue/delete/null; unsafe predecessor nested journals miss.",
-      "disposition": "Finite native JSON ownership graph preserves true aliases, reinsert/reparent/current paths and original producer grant; additive grouped intents apply once per current physical target while preserving current rows. Actual CAS cache/reopened consumers apply assignment/samevalue/delete/null; unsafe predecessor nested journals miss.",
+      "verified_property": "Finite native JSON ownership graph preserves true aliases, reinsert/reparent/current paths and original producer grant; additive grouped intents apply once per current physical target while preserving current rows. Actual CAS cache/reopened consumers apply assignment/samevalue/delete/null; unsafe predecessor nested journals miss. Same-group replay accepts only canonical typed-equal complete intents before cache index admission; healthy null/False apply through current aliased targets, scalar/nested False-vs-zero and integer-vs-float malformed groups are cache misses.",
+      "disposition": "Finite native JSON ownership graph preserves true aliases, reinsert/reparent/current paths and original producer grant; additive grouped intents apply once per current physical target while preserving current rows. Actual CAS cache/reopened consumers apply assignment/samevalue/delete/null; unsafe predecessor nested journals miss. Same-group replay accepts only canonical typed-equal complete intents before cache index admission; healthy null/False apply through current aliased targets, scalar/nested False-vs-zero and integer-vs-float malformed groups are cache misses.",
       "criterion_refs": [
         {
           "criterion_id": "B57",
@@ -3114,10 +3616,16 @@
       ],
       "evidence_checks": [
         "native-final-complete-graph",
-        "native-final-fixture-consumers"
+        "native-final-fixture-consumers",
+        "native-final-typed-group-consumers"
       ],
       "baseline_route_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery.json@0f64409dc8f4aff7d2f38139fe337639f76148c7#baseline_cell_routes.B57",
-      "limitations_and_next_owner": "Finite acyclic dict/list JSON graph only; cycles/custom mutable containers typed refuse. Subclass guard views preserve JSON list/dict semantics, not concrete Python implementation-name reflection. Arbitrary direct base-type/object bypasses are outside ordinary API profile. Independent actual CAS/cache grouped False/0 and nested False/0 validation gap confirmed after source review. Canonical typed-intent comparison repair pending in next append-only slice; this candidate does not close the group decoder contract. Additive spend/events/external effects require their own owner operation identity."
+      "limitations_and_next_owner": "Finite acyclic ordinary native JSON dict/list graph/operator profile only. Cycles/custom mutable containers typed refuse; direct base-type/object bypasses outside ordinary API profile. Legacy nested/container journals conservatively miss, only original direct primitive legacy set/delete admitted. Additive spend/events/external effects require their own owner identity. Root final cohort adjudicates generic criterion; no full production/distributed profile claimed.",
+      "independent_evidence": [
+        "independent_graph_source_review",
+        "independent_group_source_review",
+        "independent_graph_runtime_review"
+      ]
     },
     {
       "finding_id": "B58",
@@ -3143,7 +3651,8 @@
       ],
       "evidence_checks": [
         "native-final-complete-graph",
-        "native-final-fixture-consumers"
+        "native-final-fixture-consumers",
+        "native-final-typed-group-consumers"
       ],
       "baseline_route_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery.json@0f64409dc8f4aff7d2f38139fe337639f76148c7#baseline_cell_routes.B58",
       "limitations_and_next_owner": "No deletion of evidence indices/CAS/history; declaration-specific params semantics only."
@@ -3183,8 +3692,8 @@
       "finding_id": "B60",
       "state": "limited",
       "strict_criterion_state": "root_final_cohort_adjudication_pending",
-      "verified_property": "Actual ResolveParameters changedrequest/domain invalidation; currentSKGsource reselects unboundv1 with exactlyone selector invocation; bothrealCASDTOs equivalent except independentlyvalidated freshselectiontime, graphlineage retained; validoldref/currentmissingDB refuses. No-current-source verified replay distinct.",
-      "disposition": "Actual ResolveParameters changedrequest/domain invalidation; currentSKGsource reselects unboundv1 with exactlyone selector invocation; bothrealCASDTOs equivalent except independentlyvalidated freshselectiontime, graphlineage retained; validoldref/currentmissingDB refuses. No-current-source verified replay distinct.",
+      "verified_property": "Actual ResolveParameters changedrequest/domain invalidation; currentSKGsource reselects unboundv1 with exactlyone selector invocation; bothrealCASDTOs equivalent except independentlyvalidated freshselectiontime, graphlineage retained; validoldref/currentmissingDB refuses. No-current-source verified replay distinct. Three additional native controls verify actual graph and required-parameter binding, exact no-current-source reuse with zero selector calls, refusal of stale bundle without source, real selector refresh with exact requested names and immutable old bytes, and a valid producer reference absent in a fresh physical CAS refusing ok. The unavailable CAS witness is distinct from the earlier unavailable database source witness.",
+      "disposition": "Actual ResolveParameters changedrequest/domain invalidation; currentSKGsource reselects unboundv1 with exactlyone selector invocation; bothrealCASDTOs equivalent except independentlyvalidated freshselectiontime, graphlineage retained; validoldref/currentmissingDB refuses. No-current-source verified replay distinct. Three additional native controls verify actual graph and required-parameter binding, exact no-current-source reuse with zero selector calls, refusal of stale bundle without source, real selector refresh with exact requested names and immutable old bytes, and a valid producer reference absent in a fresh physical CAS refusing ok. The unavailable CAS witness is distinct from the earlier unavailable database source witness.",
       "criterion_refs": [
         {
           "criterion_id": "B60",
@@ -3202,10 +3711,11 @@
       ],
       "evidence_checks": [
         "native-final-complete-graph",
-        "native-final-fixture-consumers"
+        "native-final-fixture-consumers",
+        "native-final-bundle-consumers"
       ],
       "baseline_route_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery.json@0f64409dc8f4aff7d2f38139fe337639f76148c7#baseline_cell_routes.B60",
-      "limitations_and_next_owner": "Current specializedIRref has3fields/defaultcoreview; stronger selectedsnapshot/sourcehandle/version law is B61 held. Actual>1s timestamp fixture and originalfalse no-selector FAIL retained."
+      "limitations_and_next_owner": "Existing v1 request/context/domain/graph/coverage/readability profile measured through real ResolveParametersNode and FileSystemCAS. Specialized IR refs use their existing three-field/default view contract. Same-node consumed immutable SKG snapshot/version law remains B61 held, no invented owner binding or global cache authority."
     },
     {
       "finding_id": "B61",
@@ -3239,8 +3749,8 @@
       "finding_id": "B62",
       "state": "proposed_closed_bounded_generic",
       "strict_criterion_state": "root_final_cohort_adjudication_pending",
-      "verified_property": "Five distinct missing/null/0/False/[] real native coldresults and reopenedwarmjournalconsumers retain exactpresent/type/value; fiveproducer effects/fiveverifiedartifacts, no duplicatewarmcompute. Existing nestedmissing/declareddefault controls remain.",
-      "disposition": "Five distinct missing/null/0/False/[] real native coldresults and reopenedwarmjournalconsumers retain exactpresent/type/value; fiveproducer effects/fiveverifiedartifacts, no duplicatewarmcompute. Existing nestedmissing/declareddefault controls remain.",
+      "verified_property": "Five distinct missing/null/0/False/[] real native coldresults and reopenedwarmjournalconsumers retain exactpresent/type/value; fiveproducer effects/fiveverifiedartifacts, no duplicatewarmcompute. Existing nestedmissing/declareddefault controls remain. Final current consumer classifies canonical JSON roundtrip type rather than the tracked Python implementation class name; cold/warm values and five input keys remain exact.",
+      "disposition": "Five distinct missing/null/0/False/[] real native coldresults and reopenedwarmjournalconsumers retain exactpresent/type/value; fiveproducer effects/fiveverifiedartifacts, no duplicatewarmcompute. Existing nestedmissing/declareddefault controls remain. Final current consumer classifies canonical JSON roundtrip type rather than the tracked Python implementation class name; cold/warm values and five input keys remain exact.",
       "criterion_refs": [
         {
           "criterion_id": "B62",
@@ -3259,7 +3769,8 @@
       ],
       "evidence_checks": [
         "native-final-complete-graph",
-        "native-final-fixture-consumers"
+        "native-final-fixture-consumers",
+        "native-final-typed-group-consumers"
       ],
       "baseline_route_locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-cache-recovery.json@0f64409dc8f4aff7d2f38139fe337639f76148c7#baseline_cell_routes.B62",
       "limitations_and_next_owner": "Only declared effective inputs; the native JSON roundtrip consumer preserves bool/int/null/list distinctions. Python subclass implementation names are outside that semantic profile; original reflective type-name FAIL retained. Consumer-declared defaults may normalize legitimate equivalence. No universal null normalization."
@@ -3272,7 +3783,8 @@
     "B61 standing semanticdecision retained; full productiondataset stayslocalreadonly. Only data-dependent criteria need exact localG candidate bd490ea81ac5addb78a3f35532558a5b8042dcdb.",
     "Staticinvocation receipt171252817B ignored@f1ff7dc3d198c011327feafc51ba7cb3a64f03605ad7a315a6bc2dfae9a3d1ff; STATICpartial runtimefalse no servedproductionproof. Root/G can rerun exactcommand if raw unavailable.",
     "ArchitectureFAIL full115208B output transferred; changedpaths intersect fullinputdenominator and no exactslice-basereplay, so attributionnot_established. No gate weakening.",
-    "Confirmed grouped typed-intent validation gap in a175/bd490 is a same-mechanism residual, not accepted closure; exact producer-based reader falsifier retained by independent RUN, next EXE source append repairs canonical whole-intent comparison."
+    "Architecture/static diagnostic actual FAIL results remain exactly a175 source input (115208B full architecture output, 62 new static unresolved, regression resume_from_checkpoint, runtime_invocation_established=false). Exact ed13/3eb full architecture/invocation UNRUN in leaf; root owns final merged cohort/gates. No inherited attribution, source waiver or served production admission is claimed.",
+    "Final 140PASS journal/typed-cache wave is exactly ed13; final 9PASS resolver wave is exactly3eb. Prior 108PASS a175, 45PASS bd490, 310=295PASS15FAIL, worker25=23PASS2FAIL, 267=266PASS1FAIL and B73 actual property-removal FAIL remain separate immutable inputs/outcomes. No new leaf whole23 all-green claim."
   ],
   "admission": {
     "create": {
@@ -3301,7 +3813,8 @@
     "sha256": "4030418485e300a180816e8e86729a01be843ea189590b22183fad419601c61c",
     "bytes": 30743,
     "target_sha": "a175392fb4b49d19189152609d93e2ec149a4704",
-    "scope": "Complete finite JSON graph/source delta and real producer grant/lifetime/remote-entry paths; no bounded source blocker; runtime UNRUN by reviewer, closure_ids empty; target remote ancestry must be verified after publication"
+    "scope": "Complete finite JSON graph/source delta and real producer grant/lifetime/remote-entry paths; no bounded source blocker; runtime UNRUN by reviewer, closure_ids empty; target remote ancestry must be verified after publication",
+    "remote_target_ancestry": "a175 is an ancestor of author remote73da and final candidate3eb; exact remote readback after successor publication is reported externally."
   },
   "b73_fresh_readback": {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/read_b73_complete.json",
@@ -3324,5 +3837,44 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-resume-oracle.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-required-resume.json"
   ],
-  "publication_checkpoint": "Candidate and completehandoff committed separately; exactremotehead readback reported after normalpush, never future selfSHA."
+  "publication_checkpoint": "Candidate and completehandoff committed separately; exactremotehead readback reported after normalpush, never future selfSHA.",
+  "group_input_derivations": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-workflow-deadline-evidence/group-input-derivations.json",
+    "sha256": "07c1309324f401d101bc5e63e572286d8c8ad7e55fae3eba928d0c5a6a9491b4",
+    "bytes": 6581
+  },
+  "previous_handoff": {
+    "commit": "73da66660015866691248e8414ae03c26c3be298",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all15-execution-state.json",
+    "sha256": "044876bec01d04a9efbae844da90f995bc91af1f86036f46b9140281d9fa1c7f",
+    "qualification": "Exact a175/bd490 source and actual grouped-intent residual remain immutable; no old checks relabeled successor results."
+  },
+  "final_implementation_commits": [
+    "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+    "3eb2e887e07452a316aab95b7dbe3b4f2874951d"
+  ],
+  "independent_group_source_review": {
+    "reviewer": "/root/cmp_res_probe",
+    "commit": "62db384e4ffb6bf58cd37ee93c7c75a5ba0288eb",
+    "tree": "a4277fe7c591d365a034e524d4dac84c0959cb70",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-execution-group-intent-source-review.json",
+    "sha256": "b8d4fddab5b7e8c9fa39dd2df62bab975ccc613c34a288d34df53ed21c93559a",
+    "bytes": 15926,
+    "target_sha": "ed13ec37406a2d533d4a95e43c5afd84d2d0614a",
+    "scope": "Complete tiny source delta and shared/Core canonical configuration; no bounded source blocker; reviewer runtime UNRUN."
+  },
+  "independent_graph_runtime_review": {
+    "reviewer": "/root/run_writer",
+    "commit": "42b777ef381f14794bbb91ad1905a07ada768577",
+    "tree": "8ec9a70fb0235d898e503bc818c57ba74dac86e0",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/review-final.json",
+    "sha256": "1faeda016479552d42d99e563d0deea79a4e5131aed1e403dcb00457bb438991",
+    "bytes": 36860,
+    "qualification": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/group-final-qualification.json",
+      "sha256": "2526118952a8adaac7e393ce49c57d71238eb86096893e4293af18bcddf9c4fb",
+      "bytes": 6356
+    },
+    "scope": "Original a175 valid true-alias graph9/nativeproducer4/additivecurrentrows4/presence/resume observations keep a175 binding. Final ed13 unchanged group3PASS; original grouped a1752FAIL retained. Invalid pre-model constructor alias and independent-neutral scope premises explicitly not_established, not claimed bugs."
+  }
 }

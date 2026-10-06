@@ -494,6 +494,45 @@ def test_imported_name_cannot_borrow_ambient_builtin_binding(tmp_path: Path, mon
     assert result.export_resolution["declared_export_candidates"] == ["StaticName"]
 
 
+@pytest.mark.parametrize("declaration, import_refused", [
+    ('__getattr__ = []\n', True),
+    ('__getattr__: list = []\n', True),
+    ('__getattr__ = len\n', False),
+    ('from .values import PASSIVE as __getattr__\n', True),
+])
+def test_passive_dependency_protocol_bindings_are_unknown_on_actual_import(
+    tmp_path: Path, monkeypatch, declaration: str, import_refused: bool,
+) -> None:
+    facade, mapping = _fixture(tmp_path, monkeypatch)
+    (facade.parents[1] / "__init__.py").write_text('__all__ = []\n')
+    facade.with_name("values.py").write_text('PASSIVE = []\n')
+    mapping.write_text('PUBLIC_NAMES = {"StaticName": None}\n' + declaration)
+    observed = subprocess.run(
+        [sys.executable, "-I", "-c", 'import sys;sys.path.insert(0,sys.argv[1]);import polisyos.fixture', str(guardrails.SRC_ROOT)],
+        cwd=tmp_path, capture_output=True, text=True, check=False,
+    )
+    if import_refused:
+        assert observed.returncode != 0 and "TypeError" in observed.stderr
+    else:
+        # A callable module hook is also outside the passive data profile,
+        # even when this particular named import succeeds.
+        assert observed.returncode == 0, observed.stderr
+    result = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert result.export_count is None and result.known_export_count == 0
+    assert result.export_resolution["declared_export_candidates"] == ["StaticName"]
+    assert result.export_resolution["complete"] is False
+
+
+@pytest.mark.parametrize("name", ["__path__", "__loader__", "__future_protocol__"])
+def test_passive_import_profile_refuses_generic_dunder_bindings(
+    tmp_path: Path, monkeypatch, name: str,
+) -> None:
+    _, mapping = _fixture(tmp_path, monkeypatch)
+    mapping.write_text(f'PUBLIC_NAMES = {{"StaticName": None}}\n{name} = []\n')
+    result = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert result.export_count is None and result.export_resolution["complete"] is False
+
+
 def test_unknown_inventory_is_byte_equal_across_canonical_root_relocation(tmp_path: Path, monkeypatch) -> None:
     rendered = []
     for dirname in ("one", "other"):

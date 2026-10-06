@@ -932,6 +932,18 @@ class _StaticExportResolver:
         # Function bodies are deliberately outside the import-time selector.
 
     def _audit_statement(self, source: Path, node: ast.stmt) -> None:
+        if source in self._passive_modules:
+            bound_names = {
+                child.id for child in _module_level_nodes(node)
+                if isinstance(child, ast.Name) and isinstance(child.ctx, ast.Store)
+            }
+            if isinstance(node, (ast.Import, ast.ImportFrom)):
+                bound_names.update(alias.asname or alias.name.split(".")[0] for alias in node.names)
+            # A passive value can still be bound to a module protocol name.
+            # Imported owners/initializers cannot declare dunder bindings; the
+            # explicit export declaration is the sole data-metadata exception.
+            if any(name.startswith("__") and name.endswith("__") and name != "__all__" for name in bound_names):
+                self._refuse_effect(source, node)
         if isinstance(node, (ast.Assign, ast.AnnAssign)):
             targets = node.targets if isinstance(node, ast.Assign) else [node.target]
             if not all(isinstance(target, ast.Name) for target in targets):
@@ -1140,7 +1152,8 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
         "statements, class construction, decorated/type-parameterized function headers "
         "and foreign attribute/subscript/operator/callback protocols remain unknown. "
         "Imported local dependencies and package initializers additionally require "
-        "a passive-binding-only profile without callable definitions; imported names "
+        "a passive-binding-only profile without callable definitions or dunder bindings "
+        "other than the explicit __all__ declaration; imported names "
         "must have explicit owner bindings, never ambient builtin fallbacks. Plain "
         "selected-module function bodies are excluded. No module execution or runtime dispatch."
     )

@@ -54,13 +54,17 @@
   ],
   "slice_base_sha": "972172ac05ebaf804105d8c3fb9844d806eae4c3",
   "implementation_commits": [
-    "e50bcdc2913305ac52adc7b6313fd3cc502950cf"
+    "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+    "21c829434d3ee74370816d78609dff0a71cef6fc"
   ],
-  "candidate_tree_sha": "64686b4279b7b2d8dd037d62e9bb3b1ab9c1bc3f",
+  "candidate_tree_sha": "a3949b874661e179a06a3f25e1d29886417c5f34",
   "branch": "codex/e02-B-current-composition",
   "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
   "changed_paths": [
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/cohort-selector-equivalents.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-selector-equivalence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/instrument.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/reconciliation.txt"
   ],
   "baseline_cells": [],
   "baseline_use": "No baseline summary/cell outcome is used to establish this metadata correction or native acceptance. Canonical source criteria and actual DD test bodies decide finite labels.",
@@ -1151,15 +1155,78 @@
       "input_closure": "No native execution requested/authorized in this metadata slice; root DD wave has its own inputs/outcomes",
       "outcome": "UNRUN",
       "output": "No root source writes, product/test Python edits, selector code change, native/collection command, gate rerun or generator run."
+    },
+    {
+      "command": "python3 .polisyos/e02-B-current-composition/selector-criterion-review/reconcile_after_terminal.py parent-DD-wave-terminal > .polisyos/e02-B-current-composition/selector-criterion-review/post-terminal-reconciliation.txt",
+      "target_sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "metadata_implementation_sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition",
+        "interpreter": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "version": "3.12.14; stdlib-only Git/JSON/AST identity reconciliation, not the supported native profile"
+      },
+      "input_closure": "Complete frozen 236 whole-file paths from SHA-bound DD selector; all 14 corrected absent entries, all 72 candidate descriptors resolving 68 unique exact DD definitions; unchanged generic selector source c8eed06f75fb395c3b064d251d5d8854988eaefc9c7f71b244403f4f5f5e7a4d. No selector import/execution or product/test import.",
+      "outcome": "PASS",
+      "deciding_predicate": "recomputed exact path membership and definition identity; outcome does not use child exit as a product predicate",
+      "executions": 1,
+      "exit_status_qualification": "The aggregate shell cell returned 0 and the complete JSON output was emitted after the identity assertions. A separate wait4 child exit/resource wrapper was not captured; no native execution result is claimed.",
+      "output": {
+        "commit": "21c829434d3ee74370816d78609dff0a71cef6fc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/reconciliation.txt",
+        "bytes": 1456,
+        "sha256": "3faf4ca022721a0d66d9b5c7f17ad81aafdcad0cea69903fe9ef41b7b0b37c4c"
+      },
+      "instrument": {
+        "commit": "21c829434d3ee74370816d78609dff0a71cef6fc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/instrument.source.txt",
+        "bytes": 4412,
+        "sha256": "371c8e0f495260780f29d43011fdaead8d4d2d8308a3058fc70d392fc7d03168"
+      },
+      "result_scope": "236 unchanged, no added/removed/unadmitted files. Original 21 absent named selectors retain UNRUN. This result supplies no native case outcome or full criterion closure."
     }
   ],
   "whole_file_set_reconciliation": {
-    "state": "PENDING_ROOT_TERMINAL_ADMISSION",
-    "basis": "Parent requires finite identity reconciliation ONLY after frozen root wave ends. No comparison/new selector execution has yet occurred.",
+    "state": "COMPLETED_FINITE_SOURCE_SET_RECONCILIATION",
+    "basis": "Executed once only after explicit parent instruction that all DD wave tags were terminal. Parent terminal report admits this metadata operation; it is not independently reviewed native/runtime evidence.",
     "reference_selector_sha256": "e5475e32e07fe0642a16a9c729ee5ba8c90b0355496e4434dfa0b86dffd123f0",
     "reference_whole_file_count": 236,
+    "corrected_whole_file_count": 236,
+    "added_whole_files": [],
+    "removed_whole_files": [],
+    "unadmitted_candidate_whole_files": [],
+    "old_equivalent_file_count": 15,
+    "corrected_equivalent_file_count": 25,
+    "all_original_equivalent_files_retained": true,
+    "complete_output": {
+      "commit": "21c829434d3ee74370816d78609dff0a71cef6fc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/reconciliation.txt",
+      "bytes": 1456,
+      "sha256": "3faf4ca022721a0d66d9b5c7f17ad81aafdcad0cea69903fe9ef41b7b0b37c4c"
+    },
+    "literal_executed_instrument": {
+      "commit": "21c829434d3ee74370816d78609dff0a71cef6fc",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/instrument.source.txt",
+      "bytes": 4412,
+      "sha256": "371c8e0f495260780f29d43011fdaead8d4d2d8308a3058fc70d392fc7d03168"
+    },
+    "source_basis": {
+      "sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+      "root_cwd": "/workspace/e02-B-current-coordination",
+      "production_and_test_changes_from_this_slice": []
+    },
+    "unchanged_selector_behavior": "The selector builds whole native input union before matching equivalent bodies. A new mapped candidate outside that admitted definition set would typed-refuse; it is not automatically added to the native set.",
+    "original_named_selector_count": 21,
+    "original_named_selector_state": "UNRUN_named_selector_absent unchanged",
     "future_PASS_claim": false,
-    "unchanged_selector_behavior": "The selector builds whole native input union before matching equivalent bodies. A new mapped candidate outside that admitted definition set would typed-refuse; it is not automatically added to the native set."
+    "native_outcomes": "Not independently established by this source-only reconciliation; root/ADAPTER/EXE own actual DD cohort and case/phase joins.",
+    "predicate_basis": "recomputed",
+    "unchanged_root_readback": {
+      "sha": "dd9584728bd96f204983615216efdbc58117e713",
+      "tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+      "attached_branch": "codex/e02-B-current-coordination",
+      "tracked_status": "clean"
+    }
   },
   "property": {
     "statement": "Each absent planned name maps only to concrete defining consumer bodies whose finite property actually supports its listed canonical finding IDs; missing original names and unresolved input/owner criteria stay UNRUN/limited.",
@@ -1192,9 +1259,10 @@
     "P41 no global FAIL/UNRUN inheritance or future SHA PASS"
   ],
   "limitations_and_next_owner": [
-    "Root/different-agent independent review of the metadata author remains required; this receipt is not author self-review.",
-    "Root may merge only after all DD terminal results; original DD map/native input/outcomes remain immutable.",
-    "G receives any newly selected file as previously UNRUN if finite post-terminal whole-set comparison adds it; no future whole-wave green is implied.",
+    "Foreign map author review is supplied by exact CAS 1a816 source-only receipt and six verified artifacts. It does not supply independent CAS code acceptance, native execution or SET comparison; this author supplies the finite SET result separately.",
+    "Root may merge after the explicit DD-terminal admission already received; original DD map/native input/outcomes remain immutable and do not become future map-SHA PASS.",
+    "Finite comparison finds zero added/removed/unadmitted files; no newly selected file is promoted from previously UNRUN. Original 21 absent names still remain UNRUN.",
+    "Actual B65/B66 native probe failures reported by root are not resolved by mapping labels; the appointed runtime writers own any successor implementation and its distinct evidence.",
     "B148/B67 actual owner permission premises and B61 exact source-version read input remain explicit owner/input limits, not rules supplied to obtain green.",
     "C alone owns streaming cleanup production; A/G alone own served lifecycle/catalog/producer scope contracts.",
     "Full product dataset/data-dependent local checks remain G input on exact candidate. Source-only Git custody is not a universal module/resource/network/child-process closure."
@@ -1205,9 +1273,43 @@
     "ls_remote_sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
     "fresh_fetch_sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
     "fetched_map_sha256": "28cd03084e8ce77f913c5f8de1aefbfdbf99148c8702c531df900a5fe50b5863",
-    "handoff_status": "NOT_ESTABLISHED_AT_CAPTURE; source implementation remote readback verified separately"
+    "handoff_status": "NOT_ESTABLISHED_AT_CAPTURE for this append; separate normal push/readback follows",
+    "prior_handoff_readback": {
+      "sha": "9cd2c860f2b614d7a976b6ebb14f06744177f72e",
+      "tree": "57a590431eedb1d7a40e7b9643465ff05a8b5290",
+      "receipt_sha256": "49b97066b723be8e0353d212c470247e8e9ceb0cb63f22a6760824aa8ea1b914",
+      "status": "PUBLISHED_READBACK_VERIFIED before terminal-evidence append"
+    },
+    "terminal_evidence_status": "LOCAL_COMMITTED; remote not established at this receipt capture"
+  },
+  "independent_review": {
+    "reviewer": "/root/cas_probe",
+    "receipt": {
+      "commit": "1a816b90a7ee159c67fad29584a783c409bc650e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-map-independent-review.json",
+      "bytes": 13153,
+      "sha256": "b778ffb1b681937125cdaaf8e8869aba7b41c8f624b42447dc53a4862d6027f5"
+    },
+    "receipt_tree": "3caa1a2eeaf0cc6296c135bb58b9bfd56e6681f9",
+    "evidence_implementation_sha": "0b4e34876e349526f253998ac34c932bd97d2338",
+    "review_target_sha": "e50bcdc2913305ac52adc7b6313fd3cc502950cf",
+    "verdict": "NONBLOCKING foreign source-only labels/preconditions for all 14 corrected values",
+    "input_artifact_custody": "Complete canonical review receipt and review.json read; all six declared artifacts resolved from exact Git blobs and bytes/SHA256 matched.",
+    "predicate_basis": "independently_reconciled",
+    "scope": "72 descriptors and 68 DD bodies; 31 mapped IDs plus held B61 = 32 canonical criteria across 13 bundles. No runtime, no reviewer SET comparison and no own CAS code acceptance."
+  },
+  "terminal_append": {
+    "previous_source_only_receipt_sha": "9cd2c860f2b614d7a976b6ebb14f06744177f72e",
+    "evidence_commit": "21c829434d3ee74370816d78609dff0a71cef6fc",
+    "evidence_tree": "a3949b874661e179a06a3f25e1d29886417c5f34",
+    "changed_source_or_test_or_selector_paths": [],
+    "source_grade": "Metadata/path/definition reconciliation only; no production bug verdict or formal closure.",
+    "runtime_and_gate_execution": "UNRUN by this reviewer; no future product PASS",
+    "parent_terminal_report_role": "Explicit task admission only; native case and phase counters are not independently recounted or imported into this receipt."
   },
   "mandatory_metadata_companions": [
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-selector-equivalence.json"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-canonical-selector-equivalence.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/reconciliation.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-selector-equivalence-terminal-evidence/instrument.source.txt"
   ]
 }

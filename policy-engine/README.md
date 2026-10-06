@@ -73,7 +73,7 @@ publication or readback restores local pending ownership and the prior run ledge
 supported ask generators also restore their cursor/state. If that custody is
 unavailable, the live service refuses further publication and requires a fresh
 reader of the last acknowledged reference.
-retry acknowledges the transition only after checkpoint readback. Reopened callbacks and external
+A successful retry acknowledges the transition only after checkpoint readback. Reopened callbacks and external
 owner handles remain caller inputs; callback source authority, a transaction
 across external promotion and checkpoint publication, and distributed
 coordination are not established. Generators without an atomic `get_state()` /
@@ -93,6 +93,38 @@ reader or start a new configured run rather than rewriting their version.
 Unknown schema/configuration is refused rather than migrated. These APIs
 are exported lazily from `polisyos.scientist`; they do not appoint or cut over the
 separate served hierarchical caller.
+
+For a canonical `BayesianCandidateGenerator`, `SearchLoopSpec.metadata` can
+select an existing verified DOE analysis with `analysis_ref`,
+`analysis_order_profile="exploratory_coordinate_order.v1"`, and
+`analysis_purpose="exploratory"`. Supply all three fields together. The factory
+recomputes the persisted analysis and binds its exact parameter bounds, units,
+distribution and ranking before generation. The default typed mutation codec
+projects the supported native technical envelope while retaining meaningful
+mutation fields; candidate and evaluation manifests retain the selected
+`sensitivity_analysis` input. The order affects the assignment of native Sobol
+coordinates and establishes an exploratory experiment only.
+
+The native service assigns its canonical generator's history subject from the
+persisted run ID and public candidate ID before proposal publication. Fresh
+resume preserves the full next proposal and validates pending, history and
+derived best/frontier subjects before live admission. The checkpoint configuration
+binds `native_service_run_candidate.v1`; earlier checkpoints without this binding
+refuse configuration compatibility. Preserve them for their original reader or
+start a new run with the current factory.
+
+For operational recovery, retain the exact acknowledged `ArtifactRef`, its
+artifact bytes, the selected analysis and suite references, and the original
+factory configuration. Reopen the same store with a fresh compatible runner and
+call `resume` with that reference and the same original iteration limit and
+supported context. Verify the returned history, frontier and pending/completed
+subjects before continuing the caller. A terminal checkpoint stays terminal.
+After a publication fault, use the supported live rollback or reopen the last
+acknowledged reference; inspect any external champion pointer separately.
+For `search_resume_configuration_mismatch`, use the original compatible reader
+for the preserved checkpoint or start a fresh current-profile experiment.
+Changing the format label, analysis profile or stored history is not a migration
+or rollback procedure.
 
 `CostBudgetStopping` accepts finite nonnegative recorded cost and refuses invalid
 budget limits. Configured budget owners supply their public recorded state;

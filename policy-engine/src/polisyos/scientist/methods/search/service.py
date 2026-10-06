@@ -154,6 +154,11 @@ class NativeSearchService:
                 "max_empty_generation_attempts": config.max_empty_generation_attempts,
                 "stage_a_enabled": config.enable_stage_a,
                 "batch_size": config.batch_size,
+                **(
+                    {"candidate_identity_profile": "native_service_run_candidate.v1"}
+                    if self._canonical_native_generator() is not None
+                    else {}
+                ),
                 "budget_key": config.budget_key,
                 "budget_cost_key": config.budget_cost_key,
                 "budget_owner_identity": self.controller._budget_owner_identity(),
@@ -504,9 +509,13 @@ class NativeSearchService:
             raise ValueError("search_resume_invalid_run_clock")
         pending = checkpoint_value(saved.pending_candidates)
         initial_candidate = checkpoint_value(saved.initial_candidate)
+        generator_state = checkpoint_value(saved.generator_state)
+        self._validate_native_candidate_identity(
+            state, pending, set(saved.completed_candidate_ids), generator_state
+        )
         # Strategies own atomic admission of their numerical/RNG state. No run
         # ledger or candidate ownership changes precede that admission.
-        restore_generator(checkpoint_value(saved.generator_state))
+        restore_generator(generator_state)
         self.controller._config.stopping = stopping
         self.controller._run_state = state
         self._pending_candidates = {key: pending[key] for key in saved.pending_candidate_ids}
@@ -590,6 +599,102 @@ class NativeSearchService:
         if self._publication_blocked:
             raise ValueError("search_publication_rollback_unavailable_reopen_last_acknowledged_ref")
 
+    def _canonical_native_generator(self) -> Any | None:
+        generator = self.controller._generator
+        if type(generator).__module__ not in {
+            "polisyos.scientist.methods.autotune.bayesian_generator",
+            "polisyos.scientist.methods.search.sensitivity_adapter",
+        }:
+            return None
+        from polisyos.scientist.methods.autotune.bayesian_generator import (
+            BayesianCandidateGenerator,
+        )
+        from polisyos.scientist.methods.search.sensitivity_adapter import (
+            SensitivityAwareCandidateGenerator,
+        )
+
+        base = (
+            generator._base if type(generator) is SensitivityAwareCandidateGenerator else generator
+        )
+        return base if type(base) is BayesianCandidateGenerator else None
+
+    def _bind_native_candidate_identity(self, candidate: dict[str, Any], candidate_id: str) -> None:
+        """Assign the admitted subject before its native history consumer sees it."""
+        if self._canonical_native_generator() is None:
+            return
+        metadata = candidate.get("_strategy_metadata")
+        if metadata is None:
+            metadata = candidate["_strategy_metadata"] = {}
+        if not isinstance(metadata, dict):
+            raise ValueError("native_service_invalid_candidate_identity_carrier")
+        if "candidate_id" in candidate:
+            raise ValueError("native_service_conflicting_candidate_identity")
+        metadata["candidate_id"] = f"{self.controller._run_state.search_id}:{candidate_id}"
+
+    def _validate_native_candidate_identity(
+        self,
+        state: SearchRunState,
+        pending: dict[str, dict[str, Any]],
+        completed: set[str],
+        generator_state: dict[str, Any],
+    ) -> None:
+        base = self._canonical_native_generator()
+        if base is None:
+            return
+        prefix = f"{state.search_id}:"
+
+        def subject(candidate: dict[str, Any]) -> str:
+            metadata = candidate.get("_strategy_metadata")
+            native_id = metadata.get("candidate_id") if isinstance(metadata, dict) else None
+            if (
+                "candidate_id" in candidate
+                or not isinstance(native_id, str)
+                or not native_id.startswith(prefix)
+                or not native_id.removeprefix(prefix)
+            ):
+                raise ValueError("search_resume_native_candidate_identity_mismatch")
+            return native_id.removeprefix(prefix)
+
+        for public_id, candidate in pending.items():
+            if subject(candidate) != public_id:
+                raise ValueError("search_resume_native_candidate_identity_pending_mismatch")
+        seen: set[str] = set()
+        for row in state.history:
+            if row.iteration == -1:
+                continue  # Transferred observations retain their original admitted subjects.
+            public_id = subject(row.candidate)
+            parts = base._history_parts(row)
+            identity = base._history_identity(
+                candidate=parts[0],
+                stage_b_result=parts[1],
+                entry_mapping=parts[2],
+                entry_metadata=parts[3],
+            )
+            if (
+                public_id not in completed
+                or public_id in seen
+                or identity is None
+                or identity.get("candidate_id") != f"{prefix}{public_id}"
+            ):
+                raise ValueError("search_resume_native_candidate_identity_history_mismatch")
+            seen.add(public_id)
+        candidates = [row.candidate for row in state.history]
+        derived = [point.candidate for point in state.pareto_points]
+        if state.best_candidate is not None:
+            derived.append(state.best_candidate)
+        if any(
+            not any(_same_configuration(candidate, original) for original in candidates)
+            for candidate in derived
+        ):
+            raise ValueError("search_resume_native_candidate_identity_projection_mismatch")
+        digests = generator_state.get("history_digests")
+        current = [
+            base._history_row_digest(evaluation)
+            for evaluation in base._history_to_evaluations(state.history)
+        ]
+        if not isinstance(digests, list) or digests != current[: len(digests)]:
+            raise ValueError("search_resume_native_candidate_identity_generator_mismatch")
+
     def _ask_proposals(
         self,
         goal: dict[str, Any] | None,
@@ -624,6 +729,7 @@ class NativeSearchService:
             ):
                 raise ValueError(f"duplicate search candidate id: {candidate_id}")
             candidate = deepcopy(payload)
+            self._bind_native_candidate_identity(candidate, candidate_id)
             pending[candidate_id] = candidate
             proposals.append(
                 CandidateProposal(

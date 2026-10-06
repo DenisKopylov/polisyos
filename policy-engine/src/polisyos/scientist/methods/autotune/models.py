@@ -6,7 +6,7 @@ import hashlib
 import inspect
 import json
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
@@ -411,6 +411,7 @@ class SearchLoopSpec:
     benchmark_evaluator: BenchmarkedEvaluator
     promotion_policy: PromotionPolicy
     runtime_loader: RuntimeLoader | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 def default_cas_root() -> Path:

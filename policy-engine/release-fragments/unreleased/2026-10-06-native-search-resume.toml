@@ -10,15 +10,36 @@ compatibility = "Existing ask/tell adapters remain supported. Current persisted 
 migration = "Read the exact checkpoint_ref from the result telemetry or exposed service after an evaluator interruption. Reopen the configured artifact store and call SearchLoopRunner.resume with the same active suite and supported generator replay contract. Old in-memory service instances have no persisted checkpoint to migrate."
 api = "polisyos.scientist lazily exports NativeSearchService, SearchServiceCheckpoint and SearchLoopRunner. SearchLoopRunner.create_service constructs its actual native evaluator/registry consumer; resume restores an exact artifact reference."
 limitations = "The served hierarchical caller remains unappointed here. Checkpoint identity does not appoint evaluator or promotion authority. Native replay binds actual evaluator settings via known built-in constructors or explicit checkpoint_configuration, suite/data snapshots, codec build/schema and supported context values/callbacks; opaque profiles refuse. External owner handles remain caller inputs. External promotion/frontier effects and service-checkpoint publication are separate atomic boundaries. Generic custom objectives, unsupported generator/stopping profiles and enabled diversity tracking refuse resume. Budget state supplies recorded accounting only; receipt/revision and provider cost-origin authority remain unavailable through the current middleware port."
-evidence = ["tests/unit/scientist/methods/search/test_service_persistence.py", "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py"]
+evidence = ["tests/unit/scientist/methods/search/test_service_persistence.py", "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py", "tests/unit/scientist/methods/autotune/test_native_doe_factory.py"]
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+# Review covers exactly the five compatibility records below. The three native
+# aliases are public_stable at polisyos.scientist; the search/autotune children
+# retain their default internal classification. No B ledger API is classified here.
+# Inventory: architecture/public_surface/inventory.json at
+# 5eca5d0df09f3296aefe20a0797aa14837da01ff, blob f670668140d8c91a23d8ec32d53d2e021154d91d.
+# Independent static review: docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/public-inventory-independent-review.json
+# at 4a4475c78938883b45a59133fc7d4cfea410b064, blob 6a63df99257f6637d02eb3e2fb1ee04848918e7d.
+# Runtime/source verification and full release readiness remain separately scoped.
+public_surface_inventory_reviewed = true
 migration_docs = ["README.md"]
+
+[[compatibility_change]]
+id = "native-factory-exploratory-order-and-subject"
+change_class = "runtime-state-format"
+impact = "breaking"
+surface = "public_stable: polisyos.scientist"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "immediate_validation_refusal"
+release_note = "SearchLoopSpec metadata optionally binds a full selected analysis_ref, exploratory_coordinate_order.v1 and exploratory purpose before canonical native generation. Default typed mutation evaluation preserves selected sensitivity_analysis lineage. The service binds canonical native history IDs to persisted run/public candidate IDs and validates pending/history/best/frontier identity before restore. Checkpoint configuration now requires native_service_run_candidate.v1 for this generator; preserve earlier checkpoints for their original compatible reader or start a new configured run. Unknown or partial analysis profiles and altered subject carriers refuse without live admission. This is exploratory coordinate ordering, not population or promotion authority."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["README.md", "docs/how-to/search-exploratory-coordinate-order.md"]
+runbook_docs = ["README.md"]
 
 [[compatibility_change]]
 id = "native-search-checkpoint-reader-window"
 change_class = "runtime-state-format"
-impact = "migration_required"
+impact = "breaking"
 surface = "public_stable: polisyos.scientist"
 owner = "team-policyos-runtime"
 version_owner = "team-policyos-runtime"
@@ -26,13 +47,13 @@ deprecation_window = "new_format_no_legacy_reader"
 release_note = "Persist and restore only search-service.v2 exact profile-qualified CAS references with compatible native configuration. Original search-service.v1 artifacts are preserved and refused: reopen with the original reader or start a new configured run, without relabeling old artifacts. Unknown formats fail closed; in-memory histories are not automatically converted into durable checkpoints. Terminal stopped runs remain stopped after reopen."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["README.md"]
-runbook_docs = []
+runbook_docs = ["README.md"]
 
 [[compatibility_change]]
 id = "native-recorded-cost-evidence"
-change_class = "python-public-api"
-impact = "migration_required"
-surface = "public_stable: polisyos.scientist"
+change_class = "internal"
+impact = "breaking"
+surface = "internal: polisyos.scientist.methods.search.CostBudgetStopping"
 owner = "team-policyos-runtime"
 version_owner = "team-policyos-runtime"
 deprecation_window = "immediate_validation_refusal"
@@ -43,9 +64,9 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "native-plateau-scalar-admission"
-change_class = "python-public-api"
-impact = "migration_required"
-surface = "public_stable: polisyos.scientist"
+change_class = "internal"
+impact = "breaking"
+surface = "internal: polisyos.scientist.methods.search.ImprovementPlateau"
 owner = "team-policyos-runtime"
 version_owner = "team-policyos-runtime"
 deprecation_window = "immediate_validation_refusal"
@@ -56,9 +77,9 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "native-autotune-verified-cas-inputs"
-change_class = "python-public-api"
-impact = "migration_required"
-surface = "public_stable: polisyos.scientist"
+change_class = "internal"
+impact = "breaking"
+surface = "internal: polisyos.scientist.methods.autotune.models"
 owner = "team-policyos-runtime"
 version_owner = "team-policyos-runtime"
 deprecation_window = "immediate_validation_refusal"

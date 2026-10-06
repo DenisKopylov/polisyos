@@ -1,0 +1,87 @@
+{
+  "source_sha": "b411ad2fa4e8f0104f4676f3c102ce7f2eaea3e1",
+  "tree": "35ca42df40fa1d98414261214a5a8326d56bee4c",
+  "scope": "actual canonical fragment validator on one own immutable changed fragment, not full release readiness",
+  "fragment": {
+    "path": "release-fragments/unreleased/2026-10-06-native-search-resume.toml",
+    "git_blob": "87bf9d8c126afaf6eddafe35ff6ee52eda977d79",
+    "sha256": "859fa058fd133fb053e7a833624da71131d9e6ad336f16bcb7fa89e43b2aa1e6",
+    "bytes": 7488
+  },
+  "readme": {
+    "path": "README.md",
+    "sha256": "665ec9a0b29cd8e8af4adc792e120ecf7b484fb3e69c9f57632808feb6744275"
+  },
+  "policy": {
+    "path": "architecture/gates/compatibility_release.toml",
+    "sha256": "ad2c8d7940c7568d6feac37be1c76d3c0704abf859e29b8e61c958bdf8cd69a3",
+    "breaking_impacts": [
+      "breaking",
+      "removed",
+      "removal",
+      "major"
+    ]
+  },
+  "five_records": [
+    {
+      "id": "native-factory-exploratory-order-and-subject",
+      "change_class": "runtime-state-format",
+      "impact": "breaking",
+      "surface": "public_stable: polisyos.scientist",
+      "migration_docs": [
+        "README.md",
+        "docs/how-to/search-exploratory-coordinate-order.md"
+      ],
+      "runbook_docs": [
+        "README.md"
+      ]
+    },
+    {
+      "id": "native-search-checkpoint-reader-window",
+      "change_class": "runtime-state-format",
+      "impact": "breaking",
+      "surface": "public_stable: polisyos.scientist",
+      "migration_docs": [
+        "README.md"
+      ],
+      "runbook_docs": [
+        "README.md"
+      ]
+    },
+    {
+      "id": "native-recorded-cost-evidence",
+      "change_class": "internal",
+      "impact": "breaking",
+      "surface": "internal: polisyos.scientist.methods.search.CostBudgetStopping",
+      "migration_docs": [
+        "README.md"
+      ],
+      "runbook_docs": []
+    },
+    {
+      "id": "native-plateau-scalar-admission",
+      "change_class": "internal",
+      "impact": "breaking",
+      "surface": "internal: polisyos.scientist.methods.search.ImprovementPlateau",
+      "migration_docs": [
+        "README.md"
+      ],
+      "runbook_docs": []
+    },
+    {
+      "id": "native-autotune-verified-cas-inputs",
+      "change_class": "internal",
+      "impact": "breaking",
+      "surface": "internal: polisyos.scientist.methods.autotune.models",
+      "migration_docs": [
+        "README.md"
+      ],
+      "runbook_docs": []
+    }
+  ],
+  "public_inventory_flag": false,
+  "contract_errors": [],
+  "findings": [],
+  "breaking_runtime_migration_runbook_checks": true,
+  "status": "PASS"
+}

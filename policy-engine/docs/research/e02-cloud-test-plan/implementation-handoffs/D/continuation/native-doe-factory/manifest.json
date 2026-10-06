@@ -1,0 +1,2499 @@
+{
+  "schema": "D.native-doe-factory-evidence.v1",
+  "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+  "source_tree": "ae90a66a882ee9b434cd21554043d887056d75b2",
+  "runs": [
+    {
+      "key": "049-positive",
+      "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+      "tree": "9af281c207da83e4f8c7bc2716f18dd8469784a2",
+      "argv": [
+        "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+        "-s",
+        "--basetemp=/tmp/e02-D-native-doe-049-positive-3a6f76897f534f4583a383796c4154a2",
+        "--junitxml=/tmp/e02-D-native-doe-049-positive-junit.xml"
+      ],
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "executable": "/workspace/e02-D-doe-env/bin/python",
+      "outcome": "5PASS2FAIL",
+      "junit_summary": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "2",
+        "skipped": "0",
+        "tests": "7",
+        "time": "3.998",
+        "timestamp": "2026-10-06T17:42:23.597687+00:00",
+        "hostname": "565838a1e059"
+      },
+      "cases": [
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_ordinary_spec_metadata_changes_actual_proposal_and_typed_persisted_consumer",
+          "status": "FAIL"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_fresh_configured_public_factory_preserves_next_proposal_and_exact_analysis",
+          "status": "FAIL"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[missing_purpose]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[unknown_profile]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[unqualified]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[non_native]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_meaningful_or_forged_native_payload_is_not_dropped_by_typed_projection",
+          "status": "PASS"
+        }
+      ],
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-049-positive-complete.txt.gz",
+        "encoding": "gzip",
+        "raw_bytes": 11557,
+        "raw_sha256": "07a1c8127fe11c245f92267d1cc416cbe14dea6ccd8ebec52b4b62d167a4cfc2",
+        "encoded_bytes": 3451,
+        "encoded_sha256": "a7097552954187690020cd0b074e4e87bde818221cad1fcd3e28ca39755fc793"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-049-positive-junit.xml.gz",
+        "encoding": "gzip",
+        "raw_bytes": 6937,
+        "raw_sha256": "824577cc37348ed32fea2ffbe40ad58746b7b2bc7c5ed8e96870b32e1e000ec1",
+        "encoded_bytes": 2046,
+        "encoded_sha256": "c3985835b1d6d62af058723dec1e83196a694c94a14b7d19767e621449ec8617"
+      },
+      "raw_output_preserved_path": "/tmp/e02-D-native-doe-049-positive-complete.txt",
+      "raw_junit_preserved_path": "/tmp/e02-D-native-doe-049-positive-junit.xml",
+      "versions": {
+        "pytest": "9.0.2",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "SALib": "1.5.2"
+      },
+      "actual_origins": [
+        {
+          "module": "polisyos.scientist.methods.autotune.models",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786",
+          "bytes": 29441,
+          "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.runtime",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "1d19a338b05604f574cd39dcef59b5622df038eb",
+          "bytes": 19483,
+          "sha256": "168431c4d10c9f9fb9c13242676a5a062299a10f45b19965f1f6d8fd1ac3e528"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.bayesian_generator",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "d587877989f627888a8ede1aebd5be22ca69dd5b",
+          "bytes": 39125,
+          "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "fceb09fe88a052c48799f310b3e8caef9cae6c1c",
+          "bytes": 7148,
+          "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.sensitivity_adapter",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "da51fc9a687935293d7989d9a1c1712c870fe5b1",
+          "bytes": 8472,
+          "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.service",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "8e7a6793bdd3fef3f2b4787a4b9158ff4fd0e470",
+          "bytes": 40669,
+          "sha256": "4fb4cf24043d206a5e0ab802494e80a865872c0c64c7d7d20d1104380373f720"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.controller",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "729b174caee729b012c04e948319b70232c175e5",
+          "bytes": 55051,
+          "sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.run_state",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "921718d771190b600ba5e85c0b6ee4474ec51331",
+          "bytes": 17782,
+          "sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.base",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "5b82deef7ecfa4f6b9f08dda77df767b9c8896f1",
+          "bytes": 20645,
+          "sha256": "43d01b637130e11f1efbdb6a73f3270872ed97c58c4726e73709e441816d834b"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.bayesian",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "73808387c874c11ef4b23e2e49f90911de97ad4e",
+          "bytes": 51763,
+          "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.space",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "0819532200aa6cf4e78819554200fc29e6f4eb14",
+          "bytes": 12118,
+          "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.types",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "f6c9ec8dda39abdb3f48a4be31e7fd59c1afd22b",
+          "bytes": 8448,
+          "sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe._receipt",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+          "bytes": 3768,
+          "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.analysis",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+          "bytes": 19279,
+          "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.designs",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705",
+          "bytes": 14391,
+          "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.sampling",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+          "bytes": 3949,
+          "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+        },
+        {
+          "module": "polisyos.core.artifacts.store",
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+          "bytes": 185595,
+          "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+        },
+        {
+          "module": "polisyos.core.artifacts._integrity_ops",
+          "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+          "source_sha": "049d8713220ca439c69c37da690eb2c9b24d5506",
+          "blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+          "bytes": 10425,
+          "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+        }
+      ],
+      "backend_paths": {
+        "torch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+        "botorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+        "gpytorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py"
+      }
+    },
+    {
+      "key": "ccc-positive",
+      "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+      "tree": "610c719a489bbb0aaa39058e77ec29238ec83642",
+      "argv": [
+        "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+        "-k",
+        "ordinary_spec_metadata or fresh_configured_public",
+        "-s",
+        "--basetemp=/tmp/e02-D-native-doe-ccc-positive-03eb1caab7fa47fbb4fda76287b76039",
+        "--junitxml=/tmp/e02-D-native-doe-ccc-positive-junit.xml"
+      ],
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "executable": "/workspace/e02-D-doe-env/bin/python",
+      "outcome": "1PASS1FAIL5DESELECTED",
+      "junit_summary": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "2",
+        "time": "3.748",
+        "timestamp": "2026-10-06T17:49:07.662590+00:00",
+        "hostname": "565838a1e059"
+      },
+      "cases": [
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_ordinary_spec_metadata_changes_actual_proposal_and_typed_persisted_consumer",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_fresh_configured_public_factory_preserves_next_proposal_and_exact_analysis",
+          "status": "FAIL"
+        }
+      ],
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-ccc-positive-complete.txt.gz",
+        "encoding": "gzip",
+        "raw_bytes": 11687,
+        "raw_sha256": "cae51d8db24986d567262f3bc6c12cdd6abb1c6132d01e0e6d1035cdf09f97ef",
+        "encoded_bytes": 3472,
+        "encoded_sha256": "69bec78f7ac8c815621d4598dd332f367ee40850e035f0337857ca53e602b698"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-ccc-positive-junit.xml.gz",
+        "encoding": "gzip",
+        "raw_bytes": 2370,
+        "raw_sha256": "afede28827f0e335b293d0d0d1c53f7dfb18c6cde347d795f91d9b0686bf7515",
+        "encoded_bytes": 929,
+        "encoded_sha256": "9b7103d5898395b9434c2e14ea5fb98aebccca346fb8be89a44923eddaad88c4"
+      },
+      "raw_output_preserved_path": "/tmp/e02-D-native-doe-ccc-positive-complete.txt",
+      "raw_junit_preserved_path": "/tmp/e02-D-native-doe-ccc-positive-junit.xml",
+      "versions": {
+        "pytest": "9.0.2",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "SALib": "1.5.2"
+      },
+      "actual_origins": [
+        {
+          "module": "polisyos.scientist.methods.autotune.models",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786",
+          "bytes": 29441,
+          "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.runtime",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "1d19a338b05604f574cd39dcef59b5622df038eb",
+          "bytes": 19483,
+          "sha256": "168431c4d10c9f9fb9c13242676a5a062299a10f45b19965f1f6d8fd1ac3e528"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.bayesian_generator",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "d587877989f627888a8ede1aebd5be22ca69dd5b",
+          "bytes": 39125,
+          "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "fceb09fe88a052c48799f310b3e8caef9cae6c1c",
+          "bytes": 7148,
+          "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.sensitivity_adapter",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "da51fc9a687935293d7989d9a1c1712c870fe5b1",
+          "bytes": 8472,
+          "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.service",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "8e7a6793bdd3fef3f2b4787a4b9158ff4fd0e470",
+          "bytes": 40669,
+          "sha256": "4fb4cf24043d206a5e0ab802494e80a865872c0c64c7d7d20d1104380373f720"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.controller",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "729b174caee729b012c04e948319b70232c175e5",
+          "bytes": 55051,
+          "sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.run_state",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "921718d771190b600ba5e85c0b6ee4474ec51331",
+          "bytes": 17782,
+          "sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.base",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "5b82deef7ecfa4f6b9f08dda77df767b9c8896f1",
+          "bytes": 20645,
+          "sha256": "43d01b637130e11f1efbdb6a73f3270872ed97c58c4726e73709e441816d834b"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.bayesian",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "73808387c874c11ef4b23e2e49f90911de97ad4e",
+          "bytes": 51763,
+          "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.space",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "0819532200aa6cf4e78819554200fc29e6f4eb14",
+          "bytes": 12118,
+          "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.types",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "f6c9ec8dda39abdb3f48a4be31e7fd59c1afd22b",
+          "bytes": 8448,
+          "sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe._receipt",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+          "bytes": 3768,
+          "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.analysis",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+          "bytes": 19279,
+          "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.designs",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705",
+          "bytes": 14391,
+          "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.sampling",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+          "bytes": 3949,
+          "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+        },
+        {
+          "module": "polisyos.core.artifacts.store",
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+          "bytes": 185595,
+          "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+        },
+        {
+          "module": "polisyos.core.artifacts._integrity_ops",
+          "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+          "source_sha": "ccc199d6077c66951a97c6f305f909542686051f",
+          "blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+          "bytes": 10425,
+          "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+        }
+      ],
+      "backend_paths": {
+        "torch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+        "botorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+        "gpytorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py"
+      }
+    },
+    {
+      "key": "65e-positive",
+      "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+      "tree": "67748eb535ca6f4b4f03c135026fafe54daeb4b8",
+      "argv": [
+        "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+        "-s",
+        "--basetemp=/tmp/e02-D-native-doe-65e-positive-21f61b120a7247a6867f8fdc8b3d24eb",
+        "--junitxml=/tmp/e02-D-native-doe-65e-positive-junit.xml"
+      ],
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "executable": "/workspace/e02-D-doe-env/bin/python",
+      "outcome": "7PASS",
+      "junit_summary": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "7",
+        "time": "4.001",
+        "timestamp": "2026-10-06T17:50:50.143366+00:00",
+        "hostname": "565838a1e059"
+      },
+      "cases": [
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_ordinary_spec_metadata_changes_actual_proposal_and_typed_persisted_consumer",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_fresh_configured_public_factory_preserves_next_proposal_and_exact_analysis",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[missing_purpose]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[unknown_profile]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[unqualified]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[non_native]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_meaningful_or_forged_native_payload_is_not_dropped_by_typed_projection",
+          "status": "PASS"
+        }
+      ],
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-65e-positive-complete.txt.gz",
+        "encoding": "gzip",
+        "raw_bytes": 10361,
+        "raw_sha256": "ebf5fa12f378952e8fd30b9545c7dfd87a1883940644e93861e69cf288273d21",
+        "encoded_bytes": 3020,
+        "encoded_sha256": "b1990fffd5f7e8057b52abc0513cded479031ff011265d05cf58be7c8717adef"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-65e-positive-junit.xml.gz",
+        "encoding": "gzip",
+        "raw_bytes": 1586,
+        "raw_sha256": "bfa6ab2f6b0af00ec6b7654babcd99926775d48b173f12768d64cae30b09754d",
+        "encoded_bytes": 474,
+        "encoded_sha256": "7b6fcff44730ead2024b06627b1fc0085a716674b27a5e8b0cc9777e872fdc4d"
+      },
+      "raw_output_preserved_path": "/tmp/e02-D-native-doe-65e-positive-complete.txt",
+      "raw_junit_preserved_path": "/tmp/e02-D-native-doe-65e-positive-junit.xml",
+      "versions": {
+        "pytest": "9.0.2",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "SALib": "1.5.2"
+      },
+      "actual_origins": [
+        {
+          "module": "polisyos.scientist.methods.autotune.models",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786",
+          "bytes": 29441,
+          "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.runtime",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "1d19a338b05604f574cd39dcef59b5622df038eb",
+          "bytes": 19483,
+          "sha256": "168431c4d10c9f9fb9c13242676a5a062299a10f45b19965f1f6d8fd1ac3e528"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.bayesian_generator",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "d587877989f627888a8ede1aebd5be22ca69dd5b",
+          "bytes": 39125,
+          "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "fceb09fe88a052c48799f310b3e8caef9cae6c1c",
+          "bytes": 7148,
+          "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.sensitivity_adapter",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "da51fc9a687935293d7989d9a1c1712c870fe5b1",
+          "bytes": 8472,
+          "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.service",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "622dafade703f29da1dc4cd9997417f98da32ff6",
+          "bytes": 42376,
+          "sha256": "f103e0725029e97878e87fb4f1429d66817b7d512d0517d6f8364d813fb2b619"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.controller",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "729b174caee729b012c04e948319b70232c175e5",
+          "bytes": 55051,
+          "sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.run_state",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "921718d771190b600ba5e85c0b6ee4474ec51331",
+          "bytes": 17782,
+          "sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.base",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "5b82deef7ecfa4f6b9f08dda77df767b9c8896f1",
+          "bytes": 20645,
+          "sha256": "43d01b637130e11f1efbdb6a73f3270872ed97c58c4726e73709e441816d834b"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.bayesian",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "73808387c874c11ef4b23e2e49f90911de97ad4e",
+          "bytes": 51763,
+          "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.space",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "0819532200aa6cf4e78819554200fc29e6f4eb14",
+          "bytes": 12118,
+          "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.types",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "f6c9ec8dda39abdb3f48a4be31e7fd59c1afd22b",
+          "bytes": 8448,
+          "sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe._receipt",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+          "bytes": 3768,
+          "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.analysis",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+          "bytes": 19279,
+          "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.designs",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705",
+          "bytes": 14391,
+          "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.sampling",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+          "bytes": 3949,
+          "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+        },
+        {
+          "module": "polisyos.core.artifacts.store",
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+          "bytes": 185595,
+          "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+        },
+        {
+          "module": "polisyos.core.artifacts._integrity_ops",
+          "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+          "source_sha": "65e4317436f629fb71a04c231ef7e7c7fbe2f48b",
+          "blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+          "bytes": 10425,
+          "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+        }
+      ],
+      "backend_paths": {
+        "torch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+        "botorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+        "gpytorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py"
+      }
+    },
+    {
+      "key": "f320-negative",
+      "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+      "tree": "d18b7bafe1d40ba85a227454573bdd55ce3f56e8",
+      "argv": [
+        "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+        "-k",
+        "changed_native_subject",
+        "-s",
+        "--basetemp=/tmp/e02-D-native-doe-f320-negative-b25ee59401fa4b1a8e341746475c2da6",
+        "--junitxml=/tmp/e02-D-native-doe-f320-negative-junit.xml"
+      ],
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "executable": "/workspace/e02-D-doe-env/bin/python",
+      "outcome": "4FAIL7DESELECTED",
+      "junit_summary": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "4",
+        "skipped": "0",
+        "tests": "4",
+        "time": "4.245",
+        "timestamp": "2026-10-06T17:52:22.582940+00:00",
+        "hostname": "565838a1e059"
+      },
+      "cases": [
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[pending]",
+          "status": "FAIL"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[history]",
+          "status": "FAIL"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[best]",
+          "status": "FAIL"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[frontier]",
+          "status": "FAIL"
+        }
+      ],
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-f320-negative-complete.txt.gz",
+        "encoding": "gzip",
+        "raw_bytes": 220781,
+        "raw_sha256": "02ae446da097f3aaef7c657b5e371e13adea4bf08d15fffa6ebee0323994bd48",
+        "encoded_bytes": 52596,
+        "encoded_sha256": "70b703e783a6b91a8e5b127e70bec6d9250e5fd4d2035681f6c023ac6006deda"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-f320-negative-junit.xml.gz",
+        "encoding": "gzip",
+        "raw_bytes": 13860,
+        "raw_sha256": "8e3ee9ba4cce4a4fd83189c44315871b95329356c38bb358a307bce1b84432d9",
+        "encoded_bytes": 1517,
+        "encoded_sha256": "9faed4bec91cdcbc3d1bf2f1f5ed491b3ee97234b154e664fe4c24b34e23fb3d"
+      },
+      "raw_output_preserved_path": "/tmp/e02-D-native-doe-f320-negative-complete.txt",
+      "raw_junit_preserved_path": "/tmp/e02-D-native-doe-f320-negative-junit.xml",
+      "versions": {
+        "pytest": "9.0.2",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "SALib": "1.5.2"
+      },
+      "actual_origins": [
+        {
+          "module": "polisyos.scientist.methods.autotune.models",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786",
+          "bytes": 29441,
+          "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.runtime",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "1d19a338b05604f574cd39dcef59b5622df038eb",
+          "bytes": 19483,
+          "sha256": "168431c4d10c9f9fb9c13242676a5a062299a10f45b19965f1f6d8fd1ac3e528"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.bayesian_generator",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "d587877989f627888a8ede1aebd5be22ca69dd5b",
+          "bytes": 39125,
+          "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "fceb09fe88a052c48799f310b3e8caef9cae6c1c",
+          "bytes": 7148,
+          "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.sensitivity_adapter",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "da51fc9a687935293d7989d9a1c1712c870fe5b1",
+          "bytes": 8472,
+          "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.service",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "622dafade703f29da1dc4cd9997417f98da32ff6",
+          "bytes": 42376,
+          "sha256": "f103e0725029e97878e87fb4f1429d66817b7d512d0517d6f8364d813fb2b619"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.controller",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "729b174caee729b012c04e948319b70232c175e5",
+          "bytes": 55051,
+          "sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.run_state",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "921718d771190b600ba5e85c0b6ee4474ec51331",
+          "bytes": 17782,
+          "sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.base",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "5b82deef7ecfa4f6b9f08dda77df767b9c8896f1",
+          "bytes": 20645,
+          "sha256": "43d01b637130e11f1efbdb6a73f3270872ed97c58c4726e73709e441816d834b"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.bayesian",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "73808387c874c11ef4b23e2e49f90911de97ad4e",
+          "bytes": 51763,
+          "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.space",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "0819532200aa6cf4e78819554200fc29e6f4eb14",
+          "bytes": 12118,
+          "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.types",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "f6c9ec8dda39abdb3f48a4be31e7fd59c1afd22b",
+          "bytes": 8448,
+          "sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe._receipt",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+          "bytes": 3768,
+          "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.analysis",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+          "bytes": 19279,
+          "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.designs",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705",
+          "bytes": 14391,
+          "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.sampling",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+          "bytes": 3949,
+          "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+        },
+        {
+          "module": "polisyos.core.artifacts.store",
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+          "bytes": 185595,
+          "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+        },
+        {
+          "module": "polisyos.core.artifacts._integrity_ops",
+          "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+          "source_sha": "f320420acc03b83dfdb79be62c4a5d4f52e4c28e",
+          "blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+          "bytes": 10425,
+          "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+        }
+      ],
+      "backend_paths": {
+        "torch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+        "botorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+        "gpytorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py"
+      }
+    },
+    {
+      "key": "0188-positive",
+      "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+      "tree": "a2eb24d3f91a4524fa0002612a807de89fa3da2a",
+      "argv": [
+        "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+        "-s",
+        "--basetemp=/tmp/e02-D-native-doe-0188-positive-5964f00a8a3d4ea28e0ed5de898215b9",
+        "--junitxml=/tmp/e02-D-native-doe-0188-positive-junit.xml"
+      ],
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "executable": "/workspace/e02-D-doe-env/bin/python",
+      "outcome": "11PASS",
+      "junit_summary": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "11",
+        "time": "4.550",
+        "timestamp": "2026-10-06T17:54:31.760414+00:00",
+        "hostname": "565838a1e059"
+      },
+      "cases": [
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_ordinary_spec_metadata_changes_actual_proposal_and_typed_persisted_consumer",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_fresh_configured_public_factory_preserves_next_proposal_and_exact_analysis",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[missing_purpose]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[unknown_profile]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[unqualified]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[non_native]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_meaningful_or_forged_native_payload_is_not_dropped_by_typed_projection",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[pending]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[history]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[best]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[frontier]",
+          "status": "PASS"
+        }
+      ],
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-0188-positive-complete.txt.gz",
+        "encoding": "gzip",
+        "raw_bytes": 211648,
+        "raw_sha256": "3de0e6508edf32b7b5736efa0fb6935af09f50b9a36761f30149193ad617a08b",
+        "encoded_bytes": 51621,
+        "encoded_sha256": "8897b0bda5977bb45430e6b535968fbd7d45acd84b3ce7b7de08ab5486b78aed"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-0188-positive-junit.xml.gz",
+        "encoding": "gzip",
+        "raw_bytes": 2349,
+        "raw_sha256": "bedca9f4b35085e047462c79cae770372a0e1d325f65ad9685ecc94eb3cc079c",
+        "encoded_bytes": 542,
+        "encoded_sha256": "831c7c975017111fbed685afa506d2a2c60d2df860f4fd373b4820598a91560a"
+      },
+      "raw_output_preserved_path": "/tmp/e02-D-native-doe-0188-positive-complete.txt",
+      "raw_junit_preserved_path": "/tmp/e02-D-native-doe-0188-positive-junit.xml",
+      "versions": {
+        "pytest": "9.0.2",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "SALib": "1.5.2"
+      },
+      "actual_origins": [
+        {
+          "module": "polisyos.scientist.methods.autotune.models",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786",
+          "bytes": 29441,
+          "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.runtime",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "1d19a338b05604f574cd39dcef59b5622df038eb",
+          "bytes": 19483,
+          "sha256": "168431c4d10c9f9fb9c13242676a5a062299a10f45b19965f1f6d8fd1ac3e528"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.bayesian_generator",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "d587877989f627888a8ede1aebd5be22ca69dd5b",
+          "bytes": 39125,
+          "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "fceb09fe88a052c48799f310b3e8caef9cae6c1c",
+          "bytes": 7148,
+          "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.sensitivity_adapter",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "da51fc9a687935293d7989d9a1c1712c870fe5b1",
+          "bytes": 8472,
+          "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.service",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "03b83c0c83b551d1d85829bc46d16f6ee1e20603",
+          "bytes": 45503,
+          "sha256": "fa8b47db0430e90c2483b903c03d2c33545185ca174e8f76615c0b1e85e2e3ef"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.controller",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "729b174caee729b012c04e948319b70232c175e5",
+          "bytes": 55051,
+          "sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.run_state",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "921718d771190b600ba5e85c0b6ee4474ec51331",
+          "bytes": 17782,
+          "sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.base",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "5b82deef7ecfa4f6b9f08dda77df767b9c8896f1",
+          "bytes": 20645,
+          "sha256": "43d01b637130e11f1efbdb6a73f3270872ed97c58c4726e73709e441816d834b"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.bayesian",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "73808387c874c11ef4b23e2e49f90911de97ad4e",
+          "bytes": 51763,
+          "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.space",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "0819532200aa6cf4e78819554200fc29e6f4eb14",
+          "bytes": 12118,
+          "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.types",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "f6c9ec8dda39abdb3f48a4be31e7fd59c1afd22b",
+          "bytes": 8448,
+          "sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe._receipt",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+          "bytes": 3768,
+          "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.analysis",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+          "bytes": 19279,
+          "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.designs",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705",
+          "bytes": 14391,
+          "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.sampling",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+          "bytes": 3949,
+          "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+        },
+        {
+          "module": "polisyos.core.artifacts.store",
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+          "bytes": 185595,
+          "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+        },
+        {
+          "module": "polisyos.core.artifacts._integrity_ops",
+          "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+          "bytes": 10425,
+          "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+        }
+      ],
+      "backend_paths": {
+        "torch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+        "botorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+        "gpytorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py"
+      }
+    },
+    {
+      "key": "0188-remove-port",
+      "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+      "tree": "a2eb24d3f91a4524fa0002612a807de89fa3da2a",
+      "argv": [
+        "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+        "-k",
+        "ordinary_spec_metadata",
+        "-s",
+        "--basetemp=/tmp/e02-D-native-doe-0188-remove-port-75cbd1be99e64779ab845f7a8ce6b302",
+        "--junitxml=/tmp/e02-D-native-doe-0188-remove-port-junit.xml"
+      ],
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "executable": "/workspace/e02-D-doe-env/bin/python",
+      "outcome": "1FAIL10DESELECTED",
+      "junit_summary": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "1",
+        "time": "3.706",
+        "timestamp": "2026-10-06T17:56:47.316590+00:00",
+        "hostname": "565838a1e059"
+      },
+      "cases": [
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_ordinary_spec_metadata_changes_actual_proposal_and_typed_persisted_consumer",
+          "status": "FAIL"
+        }
+      ],
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-0188-remove-port-complete.txt.gz",
+        "encoding": "gzip",
+        "raw_bytes": 8609,
+        "raw_sha256": "f7eaa77aca961a54b3964692bf260612706b4621b97ae838302728378e65ac19",
+        "encoded_bytes": 2961,
+        "encoded_sha256": "b13d1ea989fc61653529969a711bec1e70fbd7bf052e0a6ac1053365285140ee"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-0188-remove-port-junit.xml.gz",
+        "encoding": "gzip",
+        "raw_bytes": 2291,
+        "raw_sha256": "b8f910b03d00996c9a713ecac05435f32b54c92c3e7835916b2320fa740b31af",
+        "encoded_bytes": 971,
+        "encoded_sha256": "b434a9370456e78250e604dab05b7eba61b42c35ab20ee2949fbb09b401ad595"
+      },
+      "raw_output_preserved_path": "/tmp/e02-D-native-doe-0188-remove-port-complete.txt",
+      "raw_junit_preserved_path": "/tmp/e02-D-native-doe-0188-remove-port-junit.xml",
+      "versions": {
+        "pytest": "9.0.2",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "SALib": "1.5.2"
+      },
+      "actual_origins": [
+        {
+          "module": "polisyos.scientist.methods.autotune.models",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786",
+          "bytes": 29441,
+          "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.runtime",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "1d19a338b05604f574cd39dcef59b5622df038eb",
+          "bytes": 19483,
+          "sha256": "168431c4d10c9f9fb9c13242676a5a062299a10f45b19965f1f6d8fd1ac3e528"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.bayesian_generator",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "d587877989f627888a8ede1aebd5be22ca69dd5b",
+          "bytes": 39125,
+          "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "fceb09fe88a052c48799f310b3e8caef9cae6c1c",
+          "bytes": 7148,
+          "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.sensitivity_adapter",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "da51fc9a687935293d7989d9a1c1712c870fe5b1",
+          "bytes": 8472,
+          "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.service",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "03b83c0c83b551d1d85829bc46d16f6ee1e20603",
+          "bytes": 45503,
+          "sha256": "fa8b47db0430e90c2483b903c03d2c33545185ca174e8f76615c0b1e85e2e3ef"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.controller",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "729b174caee729b012c04e948319b70232c175e5",
+          "bytes": 55051,
+          "sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.run_state",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "921718d771190b600ba5e85c0b6ee4474ec51331",
+          "bytes": 17782,
+          "sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.base",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "5b82deef7ecfa4f6b9f08dda77df767b9c8896f1",
+          "bytes": 20645,
+          "sha256": "43d01b637130e11f1efbdb6a73f3270872ed97c58c4726e73709e441816d834b"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.bayesian",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "73808387c874c11ef4b23e2e49f90911de97ad4e",
+          "bytes": 51763,
+          "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.space",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "0819532200aa6cf4e78819554200fc29e6f4eb14",
+          "bytes": 12118,
+          "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.types",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "f6c9ec8dda39abdb3f48a4be31e7fd59c1afd22b",
+          "bytes": 8448,
+          "sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe._receipt",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+          "bytes": 3768,
+          "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.analysis",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+          "bytes": 19279,
+          "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.designs",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705",
+          "bytes": 14391,
+          "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.sampling",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+          "bytes": 3949,
+          "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+        },
+        {
+          "module": "polisyos.core.artifacts.store",
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+          "bytes": 185595,
+          "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+        },
+        {
+          "module": "polisyos.core.artifacts._integrity_ops",
+          "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+          "bytes": 10425,
+          "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+        }
+      ],
+      "backend_paths": {
+        "torch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+        "botorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+        "gpytorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py"
+      }
+    },
+    {
+      "key": "0188-remove-identity",
+      "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+      "tree": "a2eb24d3f91a4524fa0002612a807de89fa3da2a",
+      "argv": [
+        "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+        "-k",
+        "fresh_configured_public",
+        "-s",
+        "--basetemp=/tmp/e02-D-native-doe-0188-remove-identity-75cbd1be99e64779ab845f7a8ce6b302",
+        "--junitxml=/tmp/e02-D-native-doe-0188-remove-identity-junit.xml"
+      ],
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "executable": "/workspace/e02-D-doe-env/bin/python",
+      "outcome": "1FAIL10DESELECTED",
+      "junit_summary": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "1",
+        "time": "3.575",
+        "timestamp": "2026-10-06T17:57:18.800028+00:00",
+        "hostname": "565838a1e059"
+      },
+      "cases": [
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_fresh_configured_public_factory_preserves_next_proposal_and_exact_analysis",
+          "status": "FAIL"
+        }
+      ],
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-0188-remove-identity-complete.txt.gz",
+        "encoding": "gzip",
+        "raw_bytes": 9456,
+        "raw_sha256": "464fdd3915e86858c40b794a8747b82251c324319f11a3fec52962ddc0bb87bf",
+        "encoded_bytes": 2906,
+        "encoded_sha256": "e04d4218cb1d52520a65accb5aaf7011f16438f585678e3064e6f142081796ab"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-0188-remove-identity-junit.xml.gz",
+        "encoding": "gzip",
+        "raw_bytes": 3080,
+        "raw_sha256": "be4f3129e35bef204bc12460b0797928451698c4bbfc854735dd92a9be644f3a",
+        "encoded_bytes": 1177,
+        "encoded_sha256": "16da505e7f3d1713483dee23bf80812f5331e9d530fa3686baeef962334956f9"
+      },
+      "raw_output_preserved_path": "/tmp/e02-D-native-doe-0188-remove-identity-complete.txt",
+      "raw_junit_preserved_path": "/tmp/e02-D-native-doe-0188-remove-identity-junit.xml",
+      "versions": {
+        "pytest": "9.0.2",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "SALib": "1.5.2"
+      },
+      "actual_origins": [
+        {
+          "module": "polisyos.scientist.methods.autotune.models",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786",
+          "bytes": 29441,
+          "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.runtime",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "1d19a338b05604f574cd39dcef59b5622df038eb",
+          "bytes": 19483,
+          "sha256": "168431c4d10c9f9fb9c13242676a5a062299a10f45b19965f1f6d8fd1ac3e528"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.bayesian_generator",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "d587877989f627888a8ede1aebd5be22ca69dd5b",
+          "bytes": 39125,
+          "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "fceb09fe88a052c48799f310b3e8caef9cae6c1c",
+          "bytes": 7148,
+          "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.sensitivity_adapter",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "da51fc9a687935293d7989d9a1c1712c870fe5b1",
+          "bytes": 8472,
+          "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.service",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "03b83c0c83b551d1d85829bc46d16f6ee1e20603",
+          "bytes": 45503,
+          "sha256": "fa8b47db0430e90c2483b903c03d2c33545185ca174e8f76615c0b1e85e2e3ef"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.controller",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "729b174caee729b012c04e948319b70232c175e5",
+          "bytes": 55051,
+          "sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.run_state",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "921718d771190b600ba5e85c0b6ee4474ec51331",
+          "bytes": 17782,
+          "sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.base",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "5b82deef7ecfa4f6b9f08dda77df767b9c8896f1",
+          "bytes": 20645,
+          "sha256": "43d01b637130e11f1efbdb6a73f3270872ed97c58c4726e73709e441816d834b"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.bayesian",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "73808387c874c11ef4b23e2e49f90911de97ad4e",
+          "bytes": 51763,
+          "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.space",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "0819532200aa6cf4e78819554200fc29e6f4eb14",
+          "bytes": 12118,
+          "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.types",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "f6c9ec8dda39abdb3f48a4be31e7fd59c1afd22b",
+          "bytes": 8448,
+          "sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe._receipt",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+          "bytes": 3768,
+          "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.analysis",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+          "bytes": 19279,
+          "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.designs",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705",
+          "bytes": 14391,
+          "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.sampling",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+          "bytes": 3949,
+          "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+        },
+        {
+          "module": "polisyos.core.artifacts.store",
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+          "bytes": 185595,
+          "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+        },
+        {
+          "module": "polisyos.core.artifacts._integrity_ops",
+          "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+          "source_sha": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+          "blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+          "bytes": 10425,
+          "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+        }
+      ],
+      "backend_paths": {
+        "torch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+        "botorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+        "gpytorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py"
+      }
+    },
+    {
+      "key": "6fe-positive",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "tree": "ae90a66a882ee9b434cd21554043d887056d75b2",
+      "argv": [
+        "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+        "tests/unit/scientist/methods/search/test_service_persistence.py::test_native_factory_failure_checkpoint_fresh_public_resume_retains_evaluated_subject",
+        "tests/unit/scientist/methods/search/test_service_persistence.py::test_pending_and_completed_ids_survive_fresh_reader_and_failed_tell_rolls_back",
+        "tests/unit/scientist/methods/search/test_service_persistence.py::test_stopped_checkpoint_is_terminal_and_wrong_rule_or_suite_refuses_without_effect",
+        "tests/unit/scientist/methods/search/test_service_persistence.py::test_actual_pending_batch_order_survives_canonical_json_key_sorting",
+        "-s",
+        "--basetemp=/tmp/e02-D-native-doe-6fe-positive-66ba59f8246848c39859d01e0714585c",
+        "--junitxml=/tmp/e02-D-native-doe-6fe-positive-junit.xml"
+      ],
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "executable": "/workspace/e02-D-doe-env/bin/python",
+      "outcome": "15PASS",
+      "junit_summary": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "15",
+        "time": "5.176",
+        "timestamp": "2026-10-06T17:59:12.886976+00:00",
+        "hostname": "565838a1e059"
+      },
+      "cases": [
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_ordinary_spec_metadata_changes_actual_proposal_and_typed_persisted_consumer",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_fresh_configured_public_factory_preserves_next_proposal_and_exact_analysis",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[missing_purpose]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[unknown_profile]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[unqualified]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_invalid_factory_analysis_configuration_refuses_before_native_activity[non_native]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_meaningful_or_forged_native_payload_is_not_dropped_by_typed_projection",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[pending]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[history]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[best]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect[frontier]",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_factory_failure_checkpoint_fresh_public_resume_retains_evaluated_subject",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_pending_and_completed_ids_survive_fresh_reader_and_failed_tell_rolls_back",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_stopped_checkpoint_is_terminal_and_wrong_rule_or_suite_refuses_without_effect",
+          "status": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_pending_batch_order_survives_canonical_json_key_sorting",
+          "status": "PASS"
+        }
+      ],
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-6fe-positive-complete.txt.gz",
+        "encoding": "gzip",
+        "raw_bytes": 212239,
+        "raw_sha256": "d64610b7138d39fbe52df2903ac59b1f2069bfdb3702ab297ae98ba7368c3f42",
+        "encoded_bytes": 51810,
+        "encoded_sha256": "9d2bebc44bc0172df3a90dc5478d3245ed0403661ee059a9ceeadc3e479cb858"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-6fe-positive-junit.xml.gz",
+        "encoding": "gzip",
+        "raw_bytes": 3084,
+        "raw_sha256": "a3c3c089c59eaa89bcd736d1fbafec80148e9ef42d58d907864ec770ec20077a",
+        "encoded_bytes": 719,
+        "encoded_sha256": "15c71243938415d91b594a60173d201d23fd51ad7e0b8b5c938c9df9950462a5"
+      },
+      "raw_output_preserved_path": "/tmp/e02-D-native-doe-6fe-positive-complete.txt",
+      "raw_junit_preserved_path": "/tmp/e02-D-native-doe-6fe-positive-junit.xml",
+      "versions": {
+        "pytest": "9.0.2",
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "SALib": "1.5.2"
+      },
+      "actual_origins": [
+        {
+          "module": "polisyos.scientist.methods.autotune.models",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786",
+          "bytes": 29441,
+          "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.runtime",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "1d19a338b05604f574cd39dcef59b5622df038eb",
+          "bytes": 19483,
+          "sha256": "168431c4d10c9f9fb9c13242676a5a062299a10f45b19965f1f6d8fd1ac3e528"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.bayesian_generator",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "d587877989f627888a8ede1aebd5be22ca69dd5b",
+          "bytes": 39125,
+          "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a"
+        },
+        {
+          "module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "fceb09fe88a052c48799f310b3e8caef9cae6c1c",
+          "bytes": 7148,
+          "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.sensitivity_adapter",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "da51fc9a687935293d7989d9a1c1712c870fe5b1",
+          "bytes": 8472,
+          "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.service",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "1f5dbec29500d1014098805e752d92a27072e729",
+          "bytes": 45505,
+          "sha256": "44e3d754ff360641c3921f5c99d77592960ead0a3c04e9ffc7b7674ef1bf2f06"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.controller",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "729b174caee729b012c04e948319b70232c175e5",
+          "bytes": 55051,
+          "sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.run_state",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "921718d771190b600ba5e85c0b6ee4474ec51331",
+          "bytes": 17782,
+          "sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.base",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "5b82deef7ecfa4f6b9f08dda77df767b9c8896f1",
+          "bytes": 20645,
+          "sha256": "43d01b637130e11f1efbdb6a73f3270872ed97c58c4726e73709e441816d834b"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.bayesian",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "73808387c874c11ef4b23e2e49f90911de97ad4e",
+          "bytes": 51763,
+          "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.space",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "0819532200aa6cf4e78819554200fc29e6f4eb14",
+          "bytes": 12118,
+          "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca"
+        },
+        {
+          "module": "polisyos.scientist.methods.search.strategies.types",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "f6c9ec8dda39abdb3f48a4be31e7fd59c1afd22b",
+          "bytes": 8448,
+          "sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe._receipt",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+          "bytes": 3768,
+          "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.analysis",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+          "bytes": 19279,
+          "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.designs",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705",
+          "bytes": 14391,
+          "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8"
+        },
+        {
+          "module": "polisyos.scientist.methods.doe.sampling",
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+          "bytes": 3949,
+          "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+        },
+        {
+          "module": "polisyos.core.artifacts.store",
+          "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+          "bytes": 185595,
+          "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+        },
+        {
+          "module": "polisyos.core.artifacts._integrity_ops",
+          "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+          "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+          "blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+          "bytes": 10425,
+          "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+        }
+      ],
+      "backend_paths": {
+        "torch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+        "botorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+        "gpytorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py"
+      }
+    }
+  ],
+  "additional_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-049-verify.py.txt.gz",
+      "encoding": "gzip",
+      "raw_bytes": 2204,
+      "raw_sha256": "ec427cbfe8adcab81d304de23bddcfc5ff3ed6057dd73ffeb30302fa703368ee",
+      "encoded_bytes": 865,
+      "encoded_sha256": "97a7b8cff1dacfe92ec92e52e9203da51535df5ba5c791d9e16e0ea58f6a05c0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-ccc-verify.py.txt.gz",
+      "encoding": "gzip",
+      "raw_bytes": 2261,
+      "raw_sha256": "7422d5e30060cef2d73e3c4660f6a82506b69b6507b5171dfd6e228982bb5130",
+      "encoded_bytes": 897,
+      "encoded_sha256": "8e5e98f4ace106a8fef3daf0b8b6594da37ed1d8ff233a18ab694ac2f860579d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-65e-verify.py.txt.gz",
+      "encoding": "gzip",
+      "raw_bytes": 2204,
+      "raw_sha256": "1e27977e2c29f30939cc469c166c36317983d371163b6be17bb107e8b076c389",
+      "encoded_bytes": 863,
+      "encoded_sha256": "4de8932624c78a4112b37e99d1890eda8ec077cf2d6479eef9bbdf8003065891"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-f320-verify.py.txt.gz",
+      "encoding": "gzip",
+      "raw_bytes": 2236,
+      "raw_sha256": "e724a14ab4537e98e9d60f57f468aa5026787d2f792d37b5df13b9669e7162cd",
+      "encoded_bytes": 877,
+      "encoded_sha256": "6d95f4a5d68fcf83e95d914b727f62beb018a5f310be92a3c847b8c03e71c773"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-0188-verify.py.txt.gz",
+      "encoding": "gzip",
+      "raw_bytes": 2206,
+      "raw_sha256": "9d8e5ae8fec28b33283a22ce55c18db3ead01d36cc3e1c62a1a4bb19543feebc",
+      "encoded_bytes": 864,
+      "encoded_sha256": "824ca77ac781f2f663dcefd33c18b6f08f23958737eac9594ade16aaba23bf45"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-0188-removal.py.txt.gz",
+      "encoding": "gzip",
+      "raw_bytes": 3513,
+      "raw_sha256": "967c78fca7cdda229060600dbf45df483410effaf1da84f29bc1bf1779a5be1f",
+      "encoded_bytes": 1311,
+      "encoded_sha256": "263684602ba0413bbf49eba7d228f246ea34875a68d5bc70f2cf50a2a23c4720"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-6fe-verify.py.txt.gz",
+      "encoding": "gzip",
+      "raw_bytes": 2787,
+      "raw_sha256": "fba81f30cf6efedb8412fbb378f44b1f22aeb88a83c873f9abf76d169c9793b8",
+      "encoded_bytes": 1060,
+      "encoded_sha256": "1267d426bd876a67abb9d92aa9aa9676ff8e6563604e50f9639be777f3822adf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-final-caller-inventory.json.gz",
+      "encoding": "gzip",
+      "raw_bytes": 22041,
+      "raw_sha256": "18e2965e32cad7812f8d2197bc0ad86437cb61ea47066a8256d9756cb7b50801",
+      "encoded_bytes": 4212,
+      "encoded_sha256": "03c9e410d8a64e837cd1f87d6f3b7a49b7cda51e999feaf84e13bdd597d72b87"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-package.py.txt.gz",
+      "encoding": "gzip",
+      "raw_bytes": 7141,
+      "raw_sha256": "c168594191ff5ba245c6daa325170da626d31f0c4e7ed6fb943c92015688fb62",
+      "encoded_bytes": 2886,
+      "encoded_sha256": "b98e0f9e841d2df66845c38a1cb8d32447107cc0985cc2791bf0993296550b80"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/native-index-split-applied.json",
+      "encoding": "identity",
+      "bytes": 1198,
+      "sha256": "5e8349c21e27421f4e41e387ac607c301262a355bd20b18e441303687f4ff277"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/release-companion-preclassification.json",
+      "encoding": "identity",
+      "bytes": 1874,
+      "sha256": "b1a66f37b8029dcb07e7476778188766e01b043e50f28b7253894654fd881920"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/release-companion-final.json",
+      "encoding": "identity",
+      "bytes": 2573,
+      "sha256": "5e94e992fbeee1ba0b06d803fbbb61b1cc310bee8964f7275be79a408584bd13"
+    }
+  ],
+  "actual_inputs": {
+    "regular_files": 1217,
+    "raw_bytes": 4649093,
+    "full_preserved_bytes": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/actual-input-bytes.json.xz",
+      "encoding": "xz",
+      "raw_bytes": 6806490,
+      "raw_sha256": "c6c6870c93fc9034e6ef3a193f68cb2bbed86ba13bc73d03cb113609ea72db78",
+      "encoded_bytes": 101340,
+      "encoded_sha256": "8ac27c489e775e4e2201a6ddfb38f96ef4c7d2a1c058e3b6fbb254185189b8e2"
+    },
+    "index": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/actual-input-index.json.gz",
+      "encoding": "gzip",
+      "raw_bytes": 635551,
+      "raw_sha256": "8fb102dc650197613af4bd603c7c43a77b33c568e82e6fee407f2d2cfd1a1343",
+      "encoded_bytes": 32224,
+      "encoded_sha256": "0f01162e4337f749ff0606a9973ff36384a4c711a6628e500647c4b83ed8b008"
+    },
+    "all_current_source_files_preserved_and_hashed": true,
+    "no_manual_cleanup": true,
+    "scope": "only listed regular files presently existing under eight fresh unique child basetemps; symlinks excluded; no global/framework-history preservation claim"
+  },
+  "footprint_since_previous_own_source": [
+    {
+      "path": "policy-engine/README.md",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "7c199f4c6880beaefa7a36174a8a25351ab3d162",
+      "bytes": 19028,
+      "sha256": "679c456c357893eb9d80a83feefde27bb5bb47f72797594470e29b17013bbb3d"
+    },
+    {
+      "path": "policy-engine/docs/how-to/search-exploratory-coordinate-order.md",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "a767eec7957a33c92d561abcd68525ad42aac016",
+      "bytes": 3052,
+      "sha256": "337c090f80f1077d3463343b16a26cbb75d630fae7912dcb6f1038727a942270"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/DOE-native-selected-dependency.json",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "ccbc5c3cff82525116a143432bd27f1edac2d006",
+      "bytes": 11210,
+      "sha256": "657d8780acf5656a8c3308d81c9e73d235e85b412d02bc851b0e7c65c64dfe89"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication.json",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "cc7320ab8ecc5466178663ad3334f7c02ffa7f33",
+      "bytes": 179990,
+      "sha256": "f30c1ed99a02549de5d695cdd45ff821f62b26de6277ce2c33f1590e946b623d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/actual-cas-pointer-inputs.json.gz",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "f3f5f10ae44da849891eec43d16044541e0a84f1",
+      "bytes": 46610,
+      "sha256": "ea70125803614ea4b401766d0932c26db7ed54045c0657935caf22516f410b83"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-ask-precommit-complete.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "95e7b26ff209707103b48868d79ff02bc9dc4d1f",
+      "bytes": 759,
+      "sha256": "607bc4d4514e39651f012f5a494ea10603a661c98d057d54707eb087a25a0b88"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-negative-complete.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "ad0621b33650ff2e263ebe71ae1e040150bc93c3",
+      "bytes": 6867,
+      "sha256": "c24e3c8a443209d26d5c3851e1f5e3abed0c0ee392f5f5f9124433890660c456"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-negative-junit.xml",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "c56a170070e44ff3027b0596d1a05e8ea53a5699",
+      "bytes": 7744,
+      "sha256": "f22afccf1af40e1bc57f5af99841ea8e7b8bc1970e1ad188cbd94c95e5f2a1fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-positive-complete.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "b64873f528b30a71ed9893e5e3f2e4e5b1467060",
+      "bytes": 21,
+      "sha256": "a9685a0c9db42a4e9dfa410a0951569c430ab99d6f70eb15b161026d48977cc2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-seed-positive-junit.xml",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "78f6c32ba468cb010e5350ddbf850404c2232c29",
+      "bytes": 623,
+      "sha256": "efa880bf1e2bffe1e1f576942992b1a732456bc561b32cd691d85fbd50988d46"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-current-positive-complete.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "2ee06f5b0e05894d6a891a41d1cae3916fe3cb6f",
+      "bytes": 7509,
+      "sha256": "c36194a2f62fba0e705646ff7424447061fff4eac6761bf7cb3702494109062d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-current-verify.py.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "a532859a7e03966577269d12c6249e6dff6eeaa2",
+      "bytes": 2720,
+      "sha256": "01626d847b2355b5d8c04d961433535ecbea8861e88c03589d76273774ef49b6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-final-positive-complete.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "4020734b5e32942d926d05af363e842c25d3e71c",
+      "bytes": 21736,
+      "sha256": "46bcd0ed9a62d756e745b26e06279a474f91dd4394f2eb42d03cabb05b7782bf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-final-positive-junit.xml",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "db3f730cfc9585d2d5d81a980671823b20f565cc",
+      "bytes": 29439,
+      "sha256": "47e6150750e3403318e5791389b921dc6c120c60ffd8500364e8f640c21c0842"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-final-verify.py.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "a509adbb886c53570a10476e8dfd3f9393bdd808",
+      "bytes": 2716,
+      "sha256": "7db02f048b6e4fab1d0b73282339c6a349f90c29fbc0730f406d37c22906f6aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-focused-complete.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "c4d613c51aa03e173b6fc784372b1c3de543987c",
+      "bytes": 20168,
+      "sha256": "e4bc31719cd1844115911e4f4d21f20f607e4ff27eab64977e86e325875842e7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-focused-junit.xml",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "dfc03ac384985d4a945f8846f281897ce776acb3",
+      "bytes": 32789,
+      "sha256": "67ccc5390221829063642c70f3a61fa8934bf57be7d393e312e48232a5abc911"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-focused-verify.py.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "576ba9ec7b4e533346cc76b335aaeb546e1abb32",
+      "bytes": 2190,
+      "sha256": "2761c40d8d3a95e26a644156764161993418e65c566c94e7e4520bc1d17bb69a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-negative-complete.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "ee9351a1e3f4cc6087f042a16a925ec1d19efe71",
+      "bytes": 6355,
+      "sha256": "3e4d99f219bea320c8cb23fba0ad6e9bf87d4fca7d795244690193aa9f533b1c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-negative-fresh-reader.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "0f9c92a13ea610e0969a998351b68e1c2a5fdd19",
+      "bytes": 4293,
+      "sha256": "93452dfcf416a00c57ca451d18179a6e399758c96af1ad1f1244dbe9664e66a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-negative-junit.xml",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "88cdffc082cd0f0ffaaf8d013a5e0b3072754d3c",
+      "bytes": 6377,
+      "sha256": "9bc642f84044acd66b8c7733b1a1e0ffd5b58b74d852b36c45694e4866806c0f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-positive-complete.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "f0e3d81a07664380fe0cf0e296881ab34a93f7f3",
+      "bytes": 12425,
+      "sha256": "0f57e50a76817e480c80c3037256f112fcd5498f18141cca3cd84901e08737fc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-precommit-2-complete.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "a96961ce3b62d6e34d6612428ffbd7cdcf9e250a",
+      "bytes": 2917,
+      "sha256": "3bead0e27bf8cfc3f93269d438008ad4047bfc6611f95a893c534184a4c401a3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-precommit-complete.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "d3b7fc1043154846e2ff81c74200c31eec16ccf9",
+      "bytes": 14344,
+      "sha256": "ff573abcbbe1eacf03a7f024421ae45711491d100c0eced7e1efe88d6e15a5f2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-removal.py.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "bc4d345b15d3a74ec9852e68269b89e312bdf18c",
+      "bytes": 1835,
+      "sha256": "2126e5469ebcb842aa16945d8dd02dbf1d73b629d5c539769ef85d3172419fe0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-verify.py.txt",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "008913b675d7427bc725b85db4f877e19a5197d5",
+      "bytes": 2723,
+      "sha256": "7c0b552e21edb02445ab16016ff42a5dfde9036ee90dd7314b6fc8bbf4452f2b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/current-full-run-status.json",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "6440916e3d75896bfcac885bd52a4b5abeb75406",
+      "bytes": 562,
+      "sha256": "3d60e3ad03e8459c9b450fa8d49918416eab8d09c9c8dbb1f77a331e01a0a948"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/fixture-assertion-preservation.json",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "8f2973930a228a1811fa851d0d1448c0dab4114c",
+      "bytes": 411,
+      "sha256": "895890717613c65868394bd258806b30ed3d54a448f05a1ce078912b583a5b60"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/focused-run-status.json",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "1f42d50c9fedb30f8f612f470a89991927a3d032",
+      "bytes": 616,
+      "sha256": "3b6328b1f5ae3deeb5c3f0b4d1ba3223e8e2f85e1e2a32dcdb3ed14af75de664"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/lossless-output-encoding.json",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "6ef04adcdb1381d528975212f3d0b0dbf2442d53",
+      "bytes": 2586,
+      "sha256": "dc89a36930edf1e3fa2be272e68863d0ae29bcbc3abfe530bb8e03fbf6453eb9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/original-finite-criteria.json",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "2dc9127326921a8da55d65df1b622fe9b6161a78",
+      "bytes": 89116,
+      "sha256": "a590b4df8c4fa93a0724b8738521f726992b2afbdcee343efee20a62a23552b1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/preserved-input-index.json.gz",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "14ea322e98c897adb91df43382871a18925a3415",
+      "bytes": 75932,
+      "sha256": "f86d0dd050cb89c3aec068df19bdcd6362b9f3ebc89f9f424c1a45a6da8b0ad4"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-D-exploratory-coordinate-order.toml",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "6d4f1e28651f5908e2e55ff482867cbc3599ca1b",
+      "bytes": 1902,
+      "sha256": "f12476d1f9bd955195543b1db5b813d37b866aceb4656d07ee6a40a48f41845a"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-D-space-numeric-admission.toml",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "7f18ddc32fe474342fb352625a82323faf89154b",
+      "bytes": 1159,
+      "sha256": "deded7362b65a24dd5bf2b62f63cd9a2c2e76992d5d401f897806cab8b045b6f"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-doe-block-replay.toml",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "595c6431fa25a23437fe55aaabb91b785ca28c7c",
+      "bytes": 1211,
+      "sha256": "e197a9245b43a638c8350d40ff06ce49fdd5b976f1525588085fcc6d19bb464c"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-native-search-resume.toml",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "3bde6e63a4722c57bba6cd2334b8bb4b8867f929",
+      "bytes": 7466,
+      "sha256": "1e93cf3c2364bae0af511b7a96b105389d14f48cb6e9b4d20b411cffc502d261"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "d587877989f627888a8ede1aebd5be22ca69dd5b",
+      "bytes": 39125,
+      "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786",
+      "bytes": 29441,
+      "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "1d19a338b05604f574cd39dcef59b5622df038eb",
+      "bytes": 19483,
+      "sha256": "168431c4d10c9f9fb9c13242676a5a062299a10f45b19965f1f6d8fd1ac3e528"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "fceb09fe88a052c48799f310b3e8caef9cae6c1c",
+      "bytes": 7148,
+      "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "2e36f3eed57f5f20e6221d685b168e0819f148a5",
+      "bytes": 7496,
+      "sha256": "def483b2be73f87f912c8d75fb2805ce9d6d0dc5c6447753ba1160775bff3b00"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "312e1c86c0f6a9eaeec403ee91330b90edbf1bbe",
+      "bytes": 3768,
+      "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+      "bytes": 19279,
+      "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705",
+      "bytes": 14391,
+      "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+      "bytes": 3949,
+      "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "a24805e9abefb4b3826f424c0c6dfd529c2ea338",
+      "bytes": 6384,
+      "sha256": "5ceaaa52de62ed0723a522a3b500100c8571409a55d961bad3f3eb0756fba24e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "da51fc9a687935293d7989d9a1c1712c870fe5b1",
+      "bytes": 8472,
+      "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "1f5dbec29500d1014098805e752d92a27072e729",
+      "bytes": 45505,
+      "sha256": "44e3d754ff360641c3921f5c99d77592960ead0a3c04e9ffc7b7674ef1bf2f06"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "0819532200aa6cf4e78819554200fc29e6f4eb14",
+      "bytes": 12118,
+      "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "f6c9ec8dda39abdb3f48a4be31e7fd59c1afd22b",
+      "bytes": 8448,
+      "sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "84e9d16e35d68707c8706b54dccf0694611b0072",
+      "bytes": 14460,
+      "sha256": "6b507d47432a84194e9700074baf65471adb8bead27807170d30d372af01af1c"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "5ad3ff55e491f270a145f21becc376053cf2604f",
+      "bytes": 2180,
+      "sha256": "15c36e5b510be10cbfb9b08cacedb38b2daecddd3550b1f80965ae8ccc0a18cb"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "538ee91fe204b9588c9aa9be00b071c9e76c4f0b",
+      "bytes": 13164,
+      "sha256": "1c71cd158bee77610026fb2f9eda36200064d81dc885d4b12f47451b9b7d50e2"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "af15f454e4dddac5bd51b362b1656bc97243f7a5",
+      "bytes": 6731,
+      "sha256": "eb2ab3f3a1b72402685bb5d386be57b4f42de5e64a3eeb679d320fc9cc277a28"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "efe66bc736ce77927165a468fef12be63bf4e4e8",
+      "bytes": 12547,
+      "sha256": "66a3482c1f54f768287a907f0809e5e061d204de2db80cd4467be840908fdf98"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "blob": "adc92646413d42b9fe027e6f88f9fdab7cc35ed2",
+      "bytes": 4265,
+      "sha256": "f6dbbacce844d0a7945fcf82fe2785491296d894aae45a041e5f86d8be8ff0ac"
+    }
+  ],
+  "method_equivalence_for_removal_bound": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "names": [
+        "_ask_proposals",
+        "_bind_native_candidate_identity",
+        "_canonical_native_generator",
+        "_validate_native_candidate_identity",
+        "restore"
+      ],
+      "source_a": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+      "source_b": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "all_ast_equal": true,
+      "function_ast_sha256": {
+        "restore": "647eb2dab1f5bd368c1d430ba29dc67d8c3c6275d859b0eab089d472bea03607",
+        "_canonical_native_generator": "e32b46143a7600da1cb87727cda12935184e2f6525175cf65a816be35c9c4d63",
+        "_bind_native_candidate_identity": "4b62d803340b7e1067432efd05695de4bdcff8701b36e1cf15d0dc09a28d2fad",
+        "_validate_native_candidate_identity": "1ca8895dcb34ad10ea166ceb547e4eb7aff45bdf07965a206a54d93fe9ed7296",
+        "_ask_proposals": "af9247681260b588bb992a861ebb18bbf9041ad5c45e5f715d5de29937961b68"
+      }
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "names": [
+        "_codec_payload",
+        "_configured_generator",
+        "_evaluate_candidate",
+        "create_service"
+      ],
+      "source_a": "0188e7c4602fe10281cc70316d475cdd56d3c307",
+      "source_b": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "all_ast_equal": true,
+      "function_ast_sha256": {
+        "create_service": "cded24e2c31eb213df70d2c38dd683c2662f9f72b5bea3c5a592322718f573b2",
+        "_configured_generator": "040f12370c8424b46064a3c604aa90bb83638aeab5160ed80c075acc7d81d2b1",
+        "_codec_payload": "2a984791be026a073dc4b1152785acd31230e362ee4362a30f9d73fa20192d87",
+        "_evaluate_candidate": "1a35ee38d80765b18c48ddc57ee4de47f887049cd794b305133bd525ff2ad788"
+      }
+    }
+  ],
+  "service_module_size": {
+    "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+    "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "physical_lines": 1029,
+    "canonical_logical_lines": 949,
+    "canonical_count_function": "policy-engine/tools/quality/validation/architecture_report_only_contracts.py:_count_lines",
+    "default_warning": 1000,
+    "service_entry_present": false,
+    "overthreshold": false,
+    "new_registry_entry_required": false
+  },
+  "lossless_output_recompression": {
+    "action": "lossless same-inode recompression of only fresh untracked own deciding-output copy then rename .xz",
+    "original_encoded": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/actual-input-bytes.json.gz",
+      "encoding": "gzip",
+      "raw_bytes": 6806490,
+      "raw_sha256": "c6c6870c93fc9034e6ef3a193f68cb2bbed86ba13bc73d03cb113609ea72db78",
+      "encoded_bytes": 1861461,
+      "encoded_sha256": "9c1b40c631dddd2db673ee5a089d37d1d420e16e28080d66c6c64d10127ca163"
+    },
+    "original_gzip_backup": "/tmp/e02-D-native-doe-original-input-gzip-6fe",
+    "raw_bytes": 6806490,
+    "raw_sha256": "c6c6870c93fc9034e6ef3a193f68cb2bbed86ba13bc73d03cb113609ea72db78",
+    "new_encoded": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/actual-input-bytes.json.xz",
+      "encoding": "xz",
+      "raw_bytes": 6806490,
+      "raw_sha256": "c6c6870c93fc9034e6ef3a193f68cb2bbed86ba13bc73d03cb113609ea72db78",
+      "encoded_bytes": 101340,
+      "encoded_sha256": "8ac27c489e775e4e2201a6ddfb38f96ef4c7d2a1c058e3b6fbb254185189b8e2"
+    },
+    "inode_before_after": 952000,
+    "all1217_actual_source_regular_files_verified_preserved": true,
+    "filesystem_available_before": 0,
+    "filesystem_available_after": 372736,
+    "bytes_recovered": 1760121,
+    "no_cleanup_unlink_source_fixture_env_index_or_refs_mutation": true
+  },
+  "documentation_companion_sha": "b411ad2fa4e8f0104f4676f3c102ce7f2eaea3e1",
+  "documentation_companion_tree": "35ca42df40fa1d98414261214a5a8326d56bee4c",
+  "documentation_companion_paths": [
+    {
+      "path": "policy-engine/README.md",
+      "source_sha": "b411ad2fa4e8f0104f4676f3c102ce7f2eaea3e1",
+      "blob": "1cb51ee61a8e5e1ec981ae583e6b5d3d77c6f69c",
+      "bytes": 19915,
+      "sha256": "665ec9a0b29cd8e8af4adc792e120ecf7b484fb3e69c9f57632808feb6744275"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-native-search-resume.toml",
+      "source_sha": "b411ad2fa4e8f0104f4676f3c102ce7f2eaea3e1",
+      "blob": "87bf9d8c126afaf6eddafe35ff6ee52eda977d79",
+      "bytes": 7488,
+      "sha256": "859fa058fd133fb053e7a833624da71131d9e6ad336f16bcb7fa89e43b2aa1e6"
+    }
+  ],
+  "documentation_companion_production_delta": [],
+  "root_actual_public_surface_review": {
+    "source_sha": "5eca5d0df09f3296aefe20a0797aa14837da01ff",
+    "path": "policy-engine/architecture/public_surface/inventory.json",
+    "blob": "f670668140d8c91a23d8ec32d53d2e021154d91d",
+    "bytes": 220938,
+    "sha256": "c2b799aa89eb54ae98a746e8a46fb1d17da184f13fbf7e05b527844a4a792224",
+    "scientist_export_count": 42,
+    "own_actual_stable_exports": [
+      "NativeSearchService",
+      "SearchServiceCheckpoint",
+      "SearchLoopRunner"
+    ],
+    "unlisted_child_classes_are_internal": true,
+    "own_fragment_flag_remains_false_not_blanket_authority": true,
+    "local_inventory_stale39_is_not_fullgate_PASS": true
+  },
+  "preparation_error": "first metadata extension failed at ambiguous abbreviated Git5eca; all32payloadfiles were committed normally1e8. This append resolves full matching actual5eca5d0df source and adds the three previously uncatalogued observer/metadata files; no scientific outputs changed."
+}

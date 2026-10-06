@@ -284,8 +284,13 @@ def _real_n5_observation(
     return problem, context, candidate, observation, produced_result, store
 
 
-def _persist_n5_identity_variant(result: Any, *, store: Any, mismatch: str) -> dict[str, Any]:
-    """Persist a receipt-valid N5 artifact with one selected-identity defect."""
+def _persist_n5_content_valid_variant(
+    result: Any,
+    *,
+    store: Any,
+    mismatch: str,
+) -> dict[str, Any]:
+    """Persist a receipt-valid N5 artifact with one semantic defect."""
 
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationResult,
@@ -301,6 +306,7 @@ def _persist_n5_identity_variant(result: Any, *, store: Any, mismatch: str) -> d
     assert len(selected) == 1
     selected_decision = selected[0]
     receipt_engine_kind = result.receipt.engine_kind
+    point_outcome_probe: dict[str, Any] | None = None
     identity = tuple(
         selected_decision[field] for field in ("engine_kind", "method_fqn", "objective_ref")
     )
@@ -329,8 +335,26 @@ def _persist_n5_identity_variant(result: Any, *, store: Any, mismatch: str) -> d
             == identity
         )
         trajectory["objective_ref"] = f"{trajectory['objective_ref']}#foreign"
+    elif mismatch == "missing_selected_point_outcome":
+        selected_outcome = payload["selected_outcomes"][0]
+        trajectory = next(
+            trajectory
+            for trajectory in payload["trajectories"]
+            if any(selected_outcome in point["effect"] for point in trajectory["points"])
+        )
+        point = next(point for point in trajectory["points"] if selected_outcome in point["effect"])
+        assert selected_outcome in point["outcomes"]
+        point_outcome_probe = {
+            "selected_outcome": selected_outcome,
+            "step": point["step"],
+            "effect_retained": selected_outcome in point["effect"],
+        }
+        del point["outcomes"][selected_outcome]
+        point_outcome_probe["outcome_removed_from_point"] = (
+            selected_outcome not in point["outcomes"]
+        )
     else:
-        raise ValueError(f"unknown_n5_identity_mismatch:{mismatch}")
+        raise ValueError(f"unknown_n5_content_variant:{mismatch}")
 
     receipt = build_content_bound_simulation_receipt(
         engine_kind=str(getattr(receipt_engine_kind, "value", receipt_engine_kind)),
@@ -343,10 +367,15 @@ def _persist_n5_identity_variant(result: Any, *, store: Any, mismatch: str) -> d
     variant._content_payload = payload
     verify_simulation_receipt(variant.receipt, variant.content_bound_payload())
     ref = persist_joint_simulation_result(variant, store=store)
-    return {
+    persisted = {
         "simulation_result_ref": ref.model_dump(mode="json"),
         "simulation_ref": receipt.payload_hash,
     }
+    if point_outcome_probe is not None:
+        point_outcome_probe["cas_present"] = store.has(ref)
+        point_outcome_probe["receipt_payload_hash"] = receipt.payload_hash
+        persisted["point_outcome_probe"] = point_outcome_probe
+    return persisted
 
 
 def _n5_binding_producer_process(store_root: Path, *, project_root: Path) -> dict[str, Any]:
@@ -363,6 +392,7 @@ def _n5_binding_producer_process(store_root: Path, *, project_root: Path) -> dic
     problem, context, candidate, simulation, result, supplied_store = _real_n5_observation(
         store_root.parent,
         artifact_store=store,
+        single_step_horizon=True,
         single_atom_candidate=True,
     )
     assert supplied_store is store
@@ -513,7 +543,7 @@ def _n5_binding_consumer_process(handoff: dict[str, Any], *, project_root: Path)
     }
 
     identity_variants = {
-        mismatch: _persist_n5_identity_variant(result, store=store, mismatch=mismatch)
+        mismatch: _persist_n5_content_valid_variant(result, store=store, mismatch=mismatch)
         for mismatch in (
             "no_selected_decision",
             "multiple_selected_decisions",
@@ -530,6 +560,38 @@ def _n5_binding_consumer_process(handoff: dict[str, Any], *, project_root: Path)
             }
         )
         negative_consumers[f"identity_{mismatch}"] = consume(simulation_value=variant_simulation)
+
+    point_outcome_variant = _persist_n5_content_valid_variant(
+        result,
+        store=store,
+        mismatch="missing_selected_point_outcome",
+    )
+    point_outcome_ref = CASArtifactRef.model_validate(
+        point_outcome_variant["simulation_result_ref"]
+    )
+    point_outcome_simulation = simulation.model_copy(
+        update={
+            "simulation_result_ref": point_outcome_ref,
+            "simulation_ref": point_outcome_variant["simulation_ref"],
+        }
+    )
+    negative_consumers["missing_selected_point_outcome"] = consume(
+        simulation_value=point_outcome_simulation
+    )
+    point_outcome_probe = point_outcome_variant["point_outcome_probe"]
+    point_outcome_probe.update(
+        {
+            "original_status": simulation.status,
+            "variant_status": point_outcome_simulation.status,
+            "original_blockers": list(simulation.authority_blockers),
+            "variant_blockers": list(point_outcome_simulation.authority_blockers),
+            "original_result_ref": simulation.simulation_result_ref.model_dump(mode="json"),
+            "variant_result_ref": point_outcome_simulation.simulation_result_ref.model_dump(
+                mode="json"
+            ),
+            "variant_payload_hash": point_outcome_simulation.simulation_ref,
+        }
+    )
 
     blob_path, _ = store._paths(result_ref.artifact_id)
     original_blob = blob_path.read_bytes()
@@ -584,6 +646,7 @@ def _n5_binding_consumer_process(handoff: dict[str, Any], *, project_root: Path)
             "original_payload_hash": simulation.simulation_ref,
             "mismatch_payload_hash": sibling_mismatch.simulation_ref,
         },
+        "point_outcome_probe": point_outcome_probe,
     }
 
 
@@ -746,6 +809,7 @@ def test_n5_fresh_process_readback_binds_default_n8_to_cas_identity(
         "identity_multiple_selected_decisions",
         "identity_receipt_engine",
         "identity_trajectory_identity",
+        "missing_selected_point_outcome",
         "tampered_cas_bytes",
     }
     for name, negative in negatives.items():
@@ -772,6 +836,19 @@ def test_n5_fresh_process_readback_binds_default_n8_to_cas_identity(
     )
     assert consumed["casless_consumer"]["status"] == "value_blocked"
     assert consumed["casless_consumer"].get("value_receipt") is None
+
+    point_outcome_probe = consumed["point_outcome_probe"]
+    assert point_outcome_probe["effect_retained"] is True
+    assert point_outcome_probe["outcome_removed_from_point"] is True
+    assert point_outcome_probe["cas_present"] is True
+    assert (
+        point_outcome_probe["variant_payload_hash"] == point_outcome_probe["receipt_payload_hash"]
+    )
+    assert point_outcome_probe["variant_payload_hash"] != simulation["simulation_ref"]
+    assert point_outcome_probe["variant_result_ref"] != point_outcome_probe["original_result_ref"]
+    assert point_outcome_probe["variant_status"] == point_outcome_probe["original_status"]
+    assert point_outcome_probe["variant_blockers"] == point_outcome_probe["original_blockers"]
+    assert negatives["missing_selected_point_outcome"]["status"] == "value_blocked"
 
 
 class _RecursiveGenerationPort:

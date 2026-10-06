@@ -87,15 +87,13 @@ def _extract_confidence_interval(estimate: Any) -> tuple[float, float] | None:
         raw = np.asarray(interval.to_numpy(), dtype=float)
     else:
         raw = np.asarray(interval, dtype=float)
-    flat = raw.reshape(-1)
-    if flat.size < 2:
+    if raw.shape not in {(2,), (1, 2)}:
         return None
-    lower = float(flat[0])
-    upper = float(flat[1])
+    lower, upper = (float(x) for x in raw.reshape(2))
     if not np.isfinite(lower) or not np.isfinite(upper):
         return None
     if lower > upper:
-        lower, upper = upper, lower
+        return None
     return lower, upper
 
 
@@ -174,6 +172,11 @@ def _base_signature() -> MethodSignature:
         parameters=(
             ParameterSpec(name="estimand_type", default="nonparametric-ate"),
             ParameterSpec(name="method_name", default="backdoor.linear_regression"),
+            ParameterSpec(name="execution_profile", default="dowhy-014"),
+            ParameterSpec(name="control_value", default=0),
+            ParameterSpec(name="treatment_value", default=1),
+            ParameterSpec(name="target_units", default="ate"),
+            ParameterSpec(name="confidence_level", default=0.95),
         ),
         fidelity=FidelityLevel.HIGH,
         complexity=ComplexityClass.O_N2,
@@ -201,7 +204,7 @@ _BASE_METADATA = MethodMetadata(
 )
 
 
-def _run_dowhy(
+def _run_legacy_dowhy(
     *,
     data: GraphCausalData | GraphCausalDataV1,
     params: Mapping[str, Any],
@@ -419,6 +422,135 @@ def _run_dowhy(
             "graph_supplied": graph_text is not None,
             "graph_field": graph_field,
         },
+    )
+    return wrap_causal_output(report)
+
+
+def _run_dowhy(
+    *,
+    data: GraphCausalData | GraphCausalDataV1,
+    params: Mapping[str, Any],
+    graph_text: str | None,
+    graph_field: str,
+    assumptions: Mapping[str, str],
+) -> dict[str, Any]:
+    """Route the selected production profile through the source-bound worker."""
+    from ._dowhy_worker import WorkerBindingError, WorkerUnavailableError, run_worker
+
+    profile = params.get("execution_profile", "dowhy-014")
+    if profile == "legacy-inprocess":
+        return _run_legacy_dowhy(
+            data=data,
+            params=params,
+            graph_text=graph_text,
+            graph_field=graph_field,
+            assumptions=assumptions,
+        )
+    requested = {
+        "estimand_type": params.get("estimand_type", "nonparametric-ate"),
+        "method_name": params.get("method_name", "backdoor.linear_regression"),
+        "control_value": params.get("control_value", 0),
+        "treatment_value": params.get("treatment_value", 1),
+        "target_units": params.get("target_units", "ate"),
+        "confidence_level": params.get("confidence_level", 0.95),
+    }
+    treatment = data.data[:, data.column_names.index(data.treatment)]
+    common = {
+        "method": _METHOD_MAP.get(str(requested["method_name"]), CausalMethod.DOWHY_BACKDOOR),
+        "estimand": str(requested["estimand_type"]),
+        "sample_size": data.sample_size,
+        "n_treated": int(np.sum(treatment == 1)),
+        "n_control": int(np.sum(treatment == 0)),
+        "pre_periods": 0,
+        "post_periods": 0,
+        "assumptions": dict(assumptions),
+        "method_params": _sanitize_method_params(params),
+        "estimand_type": str(requested["estimand_type"]),
+        "graph_ref": data.graph_ref,
+    }
+    supported = {
+        "estimand_type": "nonparametric-ate",
+        "method_name": "backdoor.linear_regression",
+        "control_value": 0,
+        "treatment_value": 1,
+        "target_units": "ate",
+        "confidence_level": 0.95,
+    }
+    if profile != "dowhy-014" or requested != supported or not isinstance(data, GraphCausalData):
+        reason = "unsupported selected DoWhy profile/estimand/estimator/contrast/target/level"
+        report = build_failure_report(
+            **common,
+            status=EstimationStatus.INPUT_INVALID,
+            reason=reason,
+            confidence_level=None,
+            metadata={
+                "capability": "unsupported_worker_profile",
+                "execution_profile": profile,
+                "requested": requested,
+            },
+        )
+        return wrap_causal_output(report, warnings=[reason])
+    try:
+        response = run_worker(
+            operation="linear_ate",
+            state=data,
+            payload={
+                **requested,
+                "treatment": data.treatment,
+                "outcome": data.outcome,
+                "adjustment_set": data.covariates,
+            },
+            seed=int(params.get("__seed__", 0)),
+        )
+    except (WorkerUnavailableError, WorkerBindingError) as exc:
+        reason = str(exc)
+        status = (
+            EstimationStatus.INPUT_INVALID
+            if isinstance(exc, WorkerBindingError)
+            else EstimationStatus.NUMERICAL_FAILURE
+        )
+        report = build_failure_report(
+            **common,
+            status=status,
+            reason=reason,
+            confidence_level=None,
+            metadata={
+                "capability": "worker_binding_refused"
+                if isinstance(exc, WorkerBindingError)
+                else "backend_unavailable",
+                "execution_profile": profile,
+            },
+        )
+        return wrap_causal_output(report, warnings=[reason])
+    result = response["result"]
+    metadata = {
+        "execution_profile": profile,
+        "worker": response,
+        "inference_status": result["inference_status"],
+        "authority": "candidate_computation_only",
+        "scientific_scope": "declared graph; IID full-rank constant-effect Gaussian linear profile",
+    }
+    details = {
+        **common,
+        "point_estimate": result["point"],
+        "standard_error": result["standard_error"],
+        "identified_estimand": result["identified_estimand"],
+        "metadata": metadata,
+    }
+    if result["interval"] is None:
+        reason = "DoWhy point estimate retained without an available confidence interval"
+        report = build_failure_report(
+            **details,
+            status=EstimationStatus.NUMERICAL_FAILURE,
+            reason=reason,
+            confidence_level=None,
+        )
+        return wrap_causal_output(report, warnings=[reason])
+    report = build_success_report(
+        **details,
+        confidence_interval=tuple(result["interval"]),
+        inference_method=result["method_name"],
+        confidence_level=0.95,
     )
     return wrap_causal_output(report)
 

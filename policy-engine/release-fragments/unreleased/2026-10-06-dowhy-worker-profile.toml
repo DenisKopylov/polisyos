@@ -1,0 +1,10 @@
+id = "2026-10-06-dowhy-worker-profile"
+title = "Execute selected DoWhy linear ATE through an isolated pinned worker"
+type = "fixed"
+component = "foundry-causal"
+owner = "team-policyos-runtime"
+surface_classification = "internal"
+summary = "Route the selected causal method profile through real Python 3.12 DoWhy 0.14 identification and linear estimation, with source-bound JSON and strict 95% intervals. Share the same worker owner for genuine explicit GCM fitting."
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py", "workers/dowhy-014/tests/test_worker.py"]
+compatibility = "The application remains Python 3.14. Selected production execution requires a configured standalone interpreter and actual source-resolved job context. Existing direct in-process callers must explicitly select legacy-inprocess; unsupported estimands and targets receive typed refusals."
+limitations = "Known Gaussian synthetic DGP checks do not establish real-data causal assumptions or publishable authority. EconML, mediation and other estimators are outside this profile. The worker never owns CAS or scientific authority."

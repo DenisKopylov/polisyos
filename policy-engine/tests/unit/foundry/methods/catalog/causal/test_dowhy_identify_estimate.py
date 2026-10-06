@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog.causal import dowhy_identify_estimate as dowhy_module
 from polisyos.foundry.methods.causal import (
@@ -120,7 +121,7 @@ def _dispatch_report(
         method_class=method_cls,
         signature=method_cls.signature,
         state=data,
-        params=params or {},
+        params={"execution_profile": "legacy-inprocess", **(params or {})},
         seed=seed,
     )
     return result.output["report"]

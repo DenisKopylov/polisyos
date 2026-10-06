@@ -80,7 +80,7 @@
     },
     {
       "source": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py:458-520",
-      "statement": "Before durable delivery retain event+reservation; per-key event ID and payload digest call actual middleware. Receipt validates event/digest/key/amount/provider; only success releases reserve and clears unknown. Reuse does not create a second physical-provider ledger charge."
+      "statement": "Before durable ledger delivery retain event+reservation; per-key event ID/digest call actual middleware. Exact receipt validation permits reserve release/unknown-map retirement for ledger delivery. A later separate legacy audit append may fail after this retirement; its owner contract and known-ledger status remain distinct. Reuse has no second physical-provider ledger charge."
     },
     {
       "source": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py:522-563",
@@ -164,9 +164,19 @@
     "legacy_audit_source_candidate": {
       "source": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py:480-493",
       "profile": "Configured audit_log.append(BUDGET_COMMITTED) fails only after exact durable receipts; prior RESERVED/RELEASED accepted.",
-      "source_observation": "Reserve release and unknown-map pop precede audit append; Traced can report LLMAccountingError while this enforcer no longer retains settlement unknown. Next _pre_check does not block on that missing audit. Existing durable fixtures supply audit_log=None; required callback test does not establish legacy audit reconciliation.",
-      "runtime_status": "UNRUN; no native falsifier executed and no financial duplicate/zero finding asserted",
-      "next_owner": "Root adjudicates separate mandatory-audit scope/oracle; no production edit in this metadata slice"
+      "source_observation": "Actual receipt validation and reserve release/unknown-map pop precede legacy audit append. If this append refuses, the ledger charge tuple may remain known .02 while the broader owner operation has not returned its ACK; Traced reports LLMAccountingError. That error does not prove the durable ledger is unknown. The enforcer next-call unknown-map guard has no retained entry for this sink alone; it may still fail at a subsequent configured audit call. Existing durable fixtures supply audit_log=None, so callback tests do not verify this distinct sink behavior.",
+      "runtime_status": "UNRUN source candidate, not reproduced bug or financial failure; known ledger ACK must remain separately known. No automatic accounting-error-to-financial-UNKNOWN inference.",
+      "next_owner": "Root/independent reviewer resolves canonical scope plus actual audit-owner contract; no new law or production edit supplied here.",
+      "authority_classification": "audit_log is optional Any at this API; being configured does not by itself establish an institutional mandatory-audit or persistent-reconciliation law. Exact owner requirement must be resolved before adjudicating this finite source candidate."
+    },
+    "canonical_B65_scope": {
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md@dd9584728bd96f204983615216efdbc58117e713",
+      "lines": [
+        80,
+        101
+      ],
+      "law": "Optional exporter failure must preserve received result/provider count; mandatory accounting/audit cannot be swallowed, distinguish received response from no computation and bound further expenditure when required accounting unavailable. This criterion does not prescribe an unknown-reservation protocol for a separate legacy audit sink after already-known ledger ACK.",
+      "reread": "Full source block reread before disposition; sink authority/mandatory reconciliation classification requires actual owner law, not its parameter name."
     }
   },
   "held_contracts": {

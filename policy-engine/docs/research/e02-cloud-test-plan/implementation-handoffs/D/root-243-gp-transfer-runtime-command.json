@@ -1,0 +1,99 @@
+{
+  "source_commit": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "source_tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+  "root": "/workspace/e02-D-published-root",
+  "expected_modules": {
+    "polisyos.scientist.methods.search.strategies.bayesian": {
+      "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "bytes": 48512,
+      "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6"
+    },
+    "polisyos.scientist.methods.search.strategies.transfer": {
+      "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "bytes": 32366,
+      "sha256": "1feadfaa836580cc26c551cd75a607396402dc718f96e3b3aca4d681932a2df3"
+    },
+    "polisyos.scientist.methods.autotune.bayesian_generator": {
+      "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "bytes": 21632,
+      "sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c"
+    },
+    "polisyos.scientist.methods.autotune.models": {
+      "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "bytes": 27900,
+      "sha256": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf"
+    },
+    "polisyos.scientist.methods.autotune.registry": {
+      "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "bytes": 26820,
+      "sha256": "2da84438a8707bcdd8da5ec7af93076d6b1765e65f0b0468ff37f758393bb78c"
+    },
+    "polisyos.scientist.methods.autotune.warm_start": {
+      "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "bytes": 4727,
+      "sha256": "d2d1d6ba7ac45a473a2a185410d0e0b132eb72582fc4796dcb639b24e835adb7"
+    }
+  },
+  "tests": [
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "bytes": 31836,
+      "sha256": "95bb5e2137d807bd3d005c27b240c8b1d86d7ccffc65a3da045721fc55d79265"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "bytes": 7616,
+      "sha256": "9e81703687536e65ea452ea84a1bbc2a554fd14592a1e7c6af621d197d8ef885"
+    }
+  ],
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/e02-oracle-final243-gp-transfer-744e953a05d046e7a98868197834ee61/new-fixtures",
+    "--junitxml",
+    "/dev/shm/e02-oracle-final243-gp-transfer-744e953a05d046e7a98868197834ee61/result.xml",
+    "-q",
+    "-s",
+    "-rA",
+    "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+    "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+  ],
+  "origin_output": "/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-actual-origin-cells.json",
+  "basetemp_before_exists": false,
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "/dev/shm/e02-oracle-final243-gp-transfer-744e953a05d046e7a98868197834ee61/run_exact_candidate.py",
+    "/dev/shm/e02-oracle-final243-gp-transfer-744e953a05d046e7a98868197834ee61/request.json"
+  ],
+  "environment_overrides": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+  },
+  "started_at_utc": "2026-10-06T12:20:01Z",
+  "finished_at_utc": "2026-10-06T12:20:22Z",
+  "wall_seconds": 20.56707147999259,
+  "exit_code": 0,
+  "parent_backend_imports": false,
+  "added_caps": false,
+  "scratch": "/dev/shm/e02-oracle-final243-gp-transfer-744e953a05d046e7a98868197834ee61",
+  "basetemp_after_exists": true,
+  "log": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent26.txt",
+    "bytes": 9636,
+    "sha256": "39a2db70b4de14a85d487d2ef6f8b28060917c735fccf8c035802a7d4ae7d80a"
+  },
+  "source_after": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "status_after": "",
+  "actual_JUnit_counts": {
+    "collected": 26,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 26
+  }
+}

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import signal
 import subprocess
@@ -117,6 +118,11 @@ def _validate_reply(response: Any, request: Mapping[str, Any], lock: Mapping[str
         _validate_reply_fields(response, request, lock)
 
 
+def _finite_json_number(value: Any) -> bool:
+    """Admit finite JSON numbers, never booleans or numeric-looking strings."""
+    return type(value) in {int, float} and math.isfinite(value)
+
+
 def _validate_reply_fields(
     response: Any, request: Mapping[str, Any], lock: Mapping[str, Any]
 ) -> None:
@@ -181,8 +187,6 @@ def _validate_reply_fields(
     }
     if not isinstance(result, dict) or set(result) != expected:
         raise WorkerBindingError("unexpected ATE result fields")
-    import numpy as np
-
     p = request["parameters"]
     for key in ("estimand_type", "method_name", "control_value", "treatment_value", "target_units"):
         if result[key] != p[key]:
@@ -190,13 +194,14 @@ def _validate_reply_fields(
     if sorted(result["adjustment_set"]) != sorted(p["adjustment_set"]):
         raise WorkerBindingError("worker adjustment binding mismatch")
     if (
-        type(result["point"]) not in {float, int}
-        or not np.isfinite(result["point"])
+        not _finite_json_number(result["point"])
+        or any(
+            not _finite_json_number(result[key]) for key in ("control_value", "treatment_value")
+        )
         or (
             result["standard_error"] is not None
             and (
-                type(result["standard_error"]) not in {float, int}
-                or not np.isfinite(result["standard_error"])
+                not _finite_json_number(result["standard_error"])
                 or result["standard_error"] < 0
             )
         )
@@ -215,11 +220,12 @@ def _validate_reply_fields(
         ):
             raise WorkerBindingError("point-only result must not assert an interval/level")
     else:
-        array = np.asarray(ci, dtype=float)
         if (
-            array.shape != (2,)
-            or not np.isfinite(array).all()
-            or not array[0] <= result["point"] <= array[1]
+            not isinstance(ci, list)
+            or len(ci) != 2
+            or not all(_finite_json_number(value) for value in ci)
+            or not ci[0] <= result["point"] <= ci[1]
+            or not _finite_json_number(result["effective_confidence_level"])
             or result["effective_confidence_level"] != 0.95
             or result["inference_status"] != "confidence_interval"
         ):

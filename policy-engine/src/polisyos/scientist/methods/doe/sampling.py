@@ -11,6 +11,7 @@ from .designs import (
     AdversarialStrategy,
     SensitivityMethod,
     SensitivityPlan,
+    _admit_sensitivity_plan,
     _build_salib_problem,
     _derive_backend_seed,
 )
@@ -18,6 +19,7 @@ from .designs import (
 
 def generate_sensitivity_samples(plan: SensitivityPlan) -> np.ndarray:
     """Generate parameter samples for the configured sensitivity plan."""
+    plan = _admit_sensitivity_plan(plan)
     _admit_sobol_input_law(plan)
     problem = _plan_to_salib_problem(plan)
     backend_seed = _derive_backend_seed(plan.seed, f"sampling:{plan.method.value}")

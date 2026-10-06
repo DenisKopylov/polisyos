@@ -21,6 +21,16 @@ ablation и adversarial планы, генерацию sample sets и пост-�
 
 ## Bounded distribution contract (DOE-02)
 
+`SensitivityPlan` remains mutable for compatibility. Sampling, analysis,
+design/receipt identity, persistence, adaptive execution, PCA and ranking
+stability reconstruct a defensive admitted snapshot before native work. This
+reuses constructor structural validation and the per-design estimated-run
+predicate, including nested parameter specifications and unvalidated
+`model_copy`/`model_construct` updates. A previously admitted object is not
+permission for its later over-cap state. Explicit `allow_large_run=true`
+remains supported; this guard is not a global cumulative budget or authority
+check. Caller mutation during a callback does not change the effective snapshot.
+
 `ParameterSpec.lower_bound` and `upper_bound` are always physical support.  The
 legacy uniform form remains unchanged.  A non-uniform parameter must carry an
 explicit versioned `DistributionSpecV1`:

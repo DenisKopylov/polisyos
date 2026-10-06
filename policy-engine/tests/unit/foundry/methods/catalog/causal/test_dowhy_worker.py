@@ -150,6 +150,58 @@ def test_source_row_permutation_refused_before_worker(tmp_path, selected_worker)
     assert "resolved source rows" in report.status_reason
 
 
+def test_real_persisted_binding_missing_and_malformed_fields_are_typed_refusals(
+    tmp_path, selected_worker
+):
+    data = dgp(n=80)
+    store, source = admit(tmp_path, data)
+    with bridge.worker_execution_context(store=store, source_ref=source):
+        response = DoWhyIdentifyEstimate.pure_step(data, {})["report"].metadata["worker"]
+    # Derive the deletion set from the actual non-default producer object.
+    required_paths = [(key,) for key in response]
+    required_paths += [
+        ("parent_observed", key)
+        for key in response["parent_observed"]
+        if key in {"worker_lock_sha256", "worker_code_sha256", "request_binding"}
+    ]
+    required_paths += [
+        ("parent_observed", "request_binding", key)
+        for key in response["parent_observed"]["request_binding"]
+    ]
+    required_paths += [("result", key) for key in response["result"]]
+    for path in required_paths:
+        changed = copy.deepcopy(response)
+        parent = changed
+        for key in path[:-1]:
+            parent = parent[key]
+        del parent[path[-1]]
+        with pytest.raises(bridge.WorkerBindingError):
+            bridge.validate_persisted_worker_response(
+                response=changed, state=data, store=store, source_ref=source
+            )
+    for key in ["versions", "result", "parent_observed"]:
+        changed = copy.deepcopy(response)
+        changed[key] = []
+        with pytest.raises(bridge.WorkerBindingError):
+            bridge.validate_persisted_worker_response(
+                response=changed, state=data, store=store, source_ref=source
+            )
+    with bridge.worker_execution_context(store=store, source_ref=source):
+        request = bridge._bound_request(
+            operation="linear_ate",
+            state=data,
+            payload=response["parent_observed"]["request_binding"]["payload"],
+            seed=0,
+        )
+    import tomllib
+
+    lock = tomllib.loads((bridge._worker_directory() / "uv.lock").read_text())
+    malformed = {key: value for key, value in response.items() if key != "parent_observed"}
+    malformed["versions"] = []
+    with pytest.raises(bridge.WorkerBindingError):
+        bridge._validate_reply(malformed, request, lock)
+
+
 @pytest.mark.parametrize(
     "params",
     [

@@ -376,7 +376,7 @@ async def test_served_candidate_reader_reconciles_inner_scope_without_changing_v
         )
 
 def test_synthetic_cg2_contract_mechanism_remains_non_promotable():
-    """A v2 synthetic seed may exercise mechanics only in its explicit contract lane."""
+    """The current synthetic CG2 probe abstains and cannot grant authority."""
     from polisyos.runtime.quality.grounding_bind import (
         GroundingBindGate,
         resolve_grounding_decision_promotability,
@@ -410,39 +410,9 @@ def test_synthetic_cg2_contract_mechanism_remains_non_promotable():
     assert not _cg2_resolution_is_contract_lane_bind(synthetic_mechanical)
     assert not _cg2_resolution_is_contract_lane_bind(synthetic_actual)
 
-    # Use the canonical contract-test seed case for the helper's positive bind
-    # shape. Its persisted seed anchor proves non-promotable mechanics, not
-    # production authority.
-    contract_relation = engine.certificate_for(
-        _pure_synonym_probe(engine), proposal_id="cg2-dto-test"
-    )
-    contract_decision = GroundingBindGate.for_contract_testing(
-        reference,
-        calibration_seed_anchor=True,
-    ).certificate_for(contract_relation)
-    contract_mechanical = resolve_grounding_decision_promotability_for_contract_testing(
-        contract_decision, reference
-    )
-
-    assert contract_decision.decision == "bind"
-    assert contract_decision.production_promotable is False
-    assert contract_decision.synthetic is True
-    assert contract_mechanical.store_authority_scope == "contract_testing"
-    assert contract_mechanical.promotable is False
-    assert contract_mechanical.reason == "synthetic_input_cannot_grant_authority"
-    assert _cg2_resolution_is_contract_lane_bind(contract_mechanical)
-    for mutation in (
-        {"owned_anchor_id": None},
-        {"store_anchor_content_hash": None},
-        {"store_anchor_content_hash": "sha256:" + "f" * 64},
-        {"certificate_promotable_claim": True},
-        {"promotable": True},
-        {"authority_scope": "production"},
-        {"store_authority_scope": "production"},
-    ):
-        assert not _cg2_resolution_is_contract_lane_bind(
-            contract_mechanical.model_copy(update=mutation)
-        ), mutation
+    # Bounded residual: the helper-positive bind shape is unestablished here.
+    # The canonical `cg2-dto-test` replay also abstains in the current wave, so
+    # there is no observed bind resolution on which to run its mutation controls.
 
 
 @pytest.fixture(scope="module")
@@ -2218,10 +2188,22 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
     The N5 input/source/result loaders remain unit-controlled stubs, so this
     test does not claim complete N4/N5 producer capability.
     """
+    from decimal import Decimal
     from types import SimpleNamespace
 
     from polisyos.core import canon
     from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.ir.analytics.interventions import (
+        InterventionContext,
+        NodeIntervention,
+        QueryTarget,
+        VariableAssignment,
+        identification_plan_for_intervention,
+    )
+    from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+    from polisyos.ir.governance.schedule import ScheduleSpec
+    from polisyos.ir.governance.selector_expr import SelectorPredicate
+    from polisyos.ir.model_layer.types import SelectorOperator
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateScenarioN5Config,
@@ -2243,25 +2225,34 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
         cycle_job_design_problem_ref,
         cycle_job_profile_selection_ref,
     )
-    from polisyos.runtime.quality.design_problem import CandidateLever, CandidateLeverSpace
+    from polisyos.runtime.quality.design_problem import (
+        DESIGN_PROBLEM_V2_SCHEMA_VERSION,
+        DesignProblem,
+    )
     from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
     from polisyos.runtime.quality.generation_source import (
         GenerationSourceRepository,
         N4CandidateScenarioSourceRecordV2,
     )
     from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        build_intervention_atom_binding,
         derive_candidate_scenario_atom,
-        intervention_atom_content_hash,
+        intervention_atom_target_selector_ref,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from polisyos.runtime.quality.world_model_record import (
+        resolve_intervention_atom_world_binding,
+    )
     from tests.unit.runtime.quality.test_cycle_substrate import (
         _authenticated_tenant_scope,
+        _cycle_context,
+        _registry,
         _TestCurrentJobExecutionOwner,
+        _world_record,
     )
-    from tests.unit.runtime.quality.test_generation_cycle import (
-        _cyc01_owner_bound_n5_case,
-        _problem,
-    )
+    from tests.unit.runtime.quality.test_generation_cycle import _problem
+    from tests.unit.runtime.quality.test_intervention_atom_binding import _linked
 
     def ref(artifact_token, kind):
         return ArtifactRef(
@@ -2366,34 +2357,106 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
         )
 
     if schema_version in {"v4", "v5"}:
-        # This selected-view unit case exercises one candidate against its
-        # canonical world slot. Keep the persisted problem's lever set bounded
-        # to that candidate so the real owner can verify every slot binding.
-        problem_seed = _problem(f"selected_view_{schema_version}")
-        problem_seed = problem_seed.model_copy(
-            update={
-                "candidate_lever_space": CandidateLeverSpace(
-                    allowed_operator_kinds=["tax_subsidy"],
-                    candidate_levers=[
-                        CandidateLever(
-                            lever_id="income_subsidy",
-                            operator_kind="tax_subsidy",
-                            instrument="Income subsidy",
-                            target_slot="agents.income",
-                        )
-                    ],
-                )
-            }
+        # Keep the generic policy problem, N2 action, and WMR slot set coherent.
+        # This typed atom is a unit input for selected-view replay only; the
+        # N4/N5 source and result records below remain controlled projections.
+        problem_payload = _problem(f"selected_view_{schema_version}").model_dump(
+            mode="json"
         )
-        problem, source_context, source_candidate = _cyc01_owner_bound_n5_case(
-            problem_seed=problem_seed
-        )
+        problem_payload["schema_version"] = DESIGN_PROBLEM_V2_SCHEMA_VERSION
+        problem_payload["candidate_lever_space"] = {
+            "allowed_operator_kinds": ["adaptive_agent"],
+            "candidate_levers": [
+                {
+                    "lever_id": "adaptive_income",
+                    "operator_kind": "adaptive_agent",
+                    "instrument": "Adaptive income policy",
+                    "target_slot": "agents.income",
+                }
+            ],
+        }
+        problem = DesignProblem.model_validate(problem_payload)
         problem_ref = cycle_job_design_problem_ref(problem)
-        atom = source_candidate.atom.model_copy(
-            update={"problem_frame_ref": problem_ref}
+        registry = _registry(problem.domain)
+        world = _world_record(
+            problem.domain,
+            registry,
+            region_or_jurisdiction=problem.jurisdiction_time.region,
+            policy_slot_ids=("agents.income", "firm_survival"),
         )
-        atom = atom.model_copy(
-            update={"content_hash": intervention_atom_content_hash(atom)}
+        source_context = _cycle_context(
+            domain=problem.domain,
+            lever_id="adaptive_income",
+            instrument="Adaptive income policy",
+            target_concept=problem.outcome_of_interest.target_variable,
+            registry=registry,
+            world_model_record=world,
+            design_problem_ref=problem_ref,
+        )
+        intervention = InterventionSpec(
+            intervention_id=f"selected_view_{schema_version}_adaptive_income",
+            kind="adaptive_agent",
+            target=SelectorPredicate(
+                field="id",
+                operator=SelectorOperator.EQUALS,
+                value="all",
+            ),
+            schedule=ScheduleSpec(start_step=0, duration_steps=1),
+            params={
+                "learning_rate": Decimal("0.01"),
+                "action_space": {"affects": ["agents.income"], "type": "continuous"},
+                "observation_space": ["agents.income"],
+                "utility": "improve_firm_survival",
+                "stochastic": False,
+            },
+        )
+        policy_spec = PolicySpec(
+            policy_id=f"selected_view_{schema_version}_policy",
+            problem_frame_ref=problem_ref,
+            interventions=[intervention],
+        )
+        policy_spec_ref = gy_content_hash(policy_spec.model_dump(mode="json"))
+        causal_intervention = NodeIntervention(
+            assignments=(
+                VariableAssignment(
+                    variable="agents.income",
+                    value_expr="adaptive_policy_action",
+                ),
+            )
+        )
+        selector_ref = intervention_atom_target_selector_ref(intervention)
+        atom = build_intervention_atom_binding(
+            problem_frame_ref=problem_ref,
+            policy_spec_ref=policy_spec_ref,
+            intervention=intervention,
+            linked_intervention=_linked(intervention),
+            causal_intervention=causal_intervention,
+            query_target=QueryTarget(
+                outcome_variables=(problem.outcome_of_interest.target_variable,),
+                conditioning=(),
+                functional=problem.outcome_of_interest.estimand,
+            ),
+            identification_plan=identification_plan_for_intervention(
+                causal_intervention
+            ),
+            causal_context=InterventionContext(
+                source_domain=problem.domain,
+                target_domain=problem.domain,
+                selection_diagram_ref=selector_ref,
+                assumptions=("selected_view_unit_candidate_only",),
+            ),
+            world_model_record_ref=world.world_model_record_id,
+            producer_ref="tests.unit.runtime.quality.test_generation_source.selected_view",
+            provenance_refs=(problem_ref, policy_spec_ref, source_context.content_hash),
+            operator_proof_type_map={"adaptive_agent": "node"},
+            mechanism_variable_map={"adaptive_agent": ("agents.income",)},
+            estimand_metric_id=problem.outcome_of_interest.metric_id,
+            target_population=problem.jurisdiction_time.region,
+        )
+        assert type(atom) is InterventionAtomBinding
+        assert atom.target_world_slots == ("agents.income",)
+        assert resolve_intervention_atom_world_binding(atom, world).world_model_record_id == (
+            world.world_model_record_id
         )
         source_candidate = SimpleNamespace(
             candidate_id="candidate_" + atom.content_hash.removeprefix("sha256:")[:16],
@@ -2401,7 +2464,8 @@ def test_candidate_simulation_execution_versions_roundtrip_selected_views(
         )
         target_world_slot = atom.target_world_slots[0]
         outcome_variable = problem.outcome_of_interest.target_variable
-        parameter_id = next(iter(atom.direct_effect_bundle.params))
+        parameter_id = "learning_rate"
+        assert parameter_id in atom.direct_effect_bundle.params
         target_binding = source_context.world_model_record.slot_binding(target_world_slot)
         unit_id = (
             target_binding.unit

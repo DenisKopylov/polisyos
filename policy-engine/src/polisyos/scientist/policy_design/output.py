@@ -1026,7 +1026,13 @@ class PolicyArtifactBuilder:
                 for key, view_projection in all_projections.items()
             },
             view_projections=all_projections,
-            metadata={"hypervolume_by_view": dict(snapshot.hypervolume_by_view)},
+            metadata={
+                "hypervolume_by_view": dict(snapshot.hypervolume_by_view),
+                "hypervolume_assessments": {
+                    key: assessment.model_dump(mode="json")
+                    for key, assessment in snapshot.hypervolume_assessments.items()
+                },
+            },
         )
 
     def _build_constraint_report(

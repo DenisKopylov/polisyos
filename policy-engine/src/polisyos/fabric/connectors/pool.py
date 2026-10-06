@@ -344,9 +344,12 @@ class ConnectionPool(Generic[ConnectorT]):
             self._circuit_breaker.config.timeout_seconds,
         )
 
-    def _require_acquire_budget(self, deadline: float) -> None:
+    def _require_acquire_budget(self, deadline: float, cancellation_count: int) -> None:
         if asyncio.get_running_loop().time() >= deadline:
             raise PoolExhaustedError(self._pool_id, self._config.acquire_timeout_seconds)
+        task = asyncio.current_task()
+        if task is not None and task.cancelling() > cancellation_count:
+            raise asyncio.CancelledError
 
     async def _acquire_owned(
         self,
@@ -357,10 +360,13 @@ class ConnectionPool(Generic[ConnectorT]):
     ) -> tuple[SourceConnector, ConnectionHandle]:
         """Use one monotonic budget through final handle publication."""
         deadline = asyncio.get_running_loop().time() + self._config.acquire_timeout_seconds
+        task = asyncio.current_task()
+        cancellation_count = task.cancelling() if task is not None else 0
         async with asyncio.timeout_at(deadline) as acquisition_timer:
             try:
                 return await self._acquire_owned_before_deadline(
                     deadline=deadline,
+                    cancellation_count=cancellation_count,
                     live_acquire_permit=live_acquire_permit,
                     live_connector_id=live_connector_id,
                     live_dataset_id=live_dataset_id,
@@ -376,6 +382,7 @@ class ConnectionPool(Generic[ConnectorT]):
         self,
         *,
         deadline: float,
+        cancellation_count: int,
         live_acquire_permit: object | None = None,
         live_connector_id: str | None = None,
         live_dataset_id: str | None = None,
@@ -409,7 +416,7 @@ class ConnectionPool(Generic[ConnectorT]):
                 if self._closed:
                     raise PoolClosedError(self._pool_id)
             try:
-                self._require_acquire_budget(deadline)
+                self._require_acquire_budget(deadline, cancellation_count)
                 acquired = await self._semaphore.acquire()
             except TimeoutError as exc:
                 raise PoolExhaustedError(
@@ -424,14 +431,14 @@ class ConnectionPool(Generic[ConnectorT]):
                 if self._closed:
                     permit_release = True
                     raise PoolClosedError(self._pool_id)
-                self._require_acquire_budget(deadline)
+                self._require_acquire_budget(deadline, cancellation_count)
                 self._active_acquires += 1
                 registered = True
                 self._active_acquires_done.clear()
 
             while True:
                 async with self._lock:
-                    self._require_acquire_budget(deadline)
+                    self._require_acquire_budget(deadline, cancellation_count)
                     if self._closed:
                         permit_release = True
                         raise PoolClosedError(self._pool_id)
@@ -451,7 +458,7 @@ class ConnectionPool(Generic[ConnectorT]):
                         pooled = await self._create_connection()
                     async with self._lock:
                         self._register_pending_cleanup(pooled, pending_permit=True)
-                        self._require_acquire_budget(deadline)
+                        self._require_acquire_budget(deadline, cancellation_count)
                         if connection_timer.expired():
                             raise TimeoutError(
                                 "Connection creation exceeded its configured deadline"
@@ -480,7 +487,7 @@ class ConnectionPool(Generic[ConnectorT]):
                         continue
 
                 async with self._lock:
-                    self._require_acquire_budget(deadline)
+                    self._require_acquire_budget(deadline, cancellation_count)
                     if not self._closed and generation == self._generation:
                         pooled.mark_used()
                         self._in_use[pooled.handle.session_id] = pooled

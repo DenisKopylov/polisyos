@@ -274,3 +274,46 @@ async def test_both_acquisition_paths_share_deadline_admission() -> None:
     assert connector.disconnects == 1
     assert pool._semaphore._value == 1
     await pool.close_all()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("phase", ["connect", "health"])
+async def test_cancelled_caller_cannot_receive_suppressed_late_handle(phase: str) -> None:
+    connector = _GatedConnector(phase, suppress=True)
+    pool = _pool(connector, timeout=1.0)
+    owner = asyncio.create_task(pool.acquire())
+    await connector.started.wait()
+    owner.cancel()
+    await connector.cancelled.wait()
+    connector.release.set()
+    try:
+        with pytest.raises(asyncio.CancelledError):
+            await owner
+        assert connector.disconnects == 1
+        assert pool._active_acquires == 0
+        assert pool._semaphore._value == 1
+        assert pool.get_stats().in_use_connections == 0
+    finally:
+        await pool.close_all()
+
+
+@pytest.mark.asyncio
+async def test_preexisting_cancellation_count_is_not_a_new_pool_cancellation() -> None:
+    connector = _GatedConnector("none")
+    pool = _pool(connector)
+
+    async def previously_cancelled() -> ConnectionHandle:
+        task = asyncio.current_task()
+        assert task is not None
+        task.cancel()
+        try:
+            await asyncio.sleep(0)
+        except asyncio.CancelledError:
+            pass
+        assert task.cancelling() == 1
+        return await pool.acquire()
+
+    handle = await asyncio.create_task(previously_cancelled())
+    assert pool.get_stats().in_use_connections == 1
+    await pool.release(handle)
+    await pool.close_all()

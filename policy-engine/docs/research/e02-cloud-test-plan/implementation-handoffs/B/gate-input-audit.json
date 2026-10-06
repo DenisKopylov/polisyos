@@ -1,0 +1,414 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "gate-input-audit",
+  "scope": "read-only gate metadata/resources/provisioning audit, excludes CAS/JIT own-code acceptance",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "ce70b52f940a4e94d6e86276afe7d08a334fdd3a",
+  "implementation_commits": [
+    "591760bba1a261e64b538e5b4bbb656d2d7c48ef",
+    "daa5370c52fcee9cff50d15ebfda2c11ec1557e5",
+    "b7bf5377a962eecbd95119f3ca03df44d3efc918",
+    "fab2ec00efd62e72de0143d5473a63687355c797"
+  ],
+  "candidate_tree_sha": "26b8db7d211ec65e6b844e2e7784057c11d09937",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/environment.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/snapshot.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "PATH=\"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:$PATH\" UV_NO_SYNC=1 /workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py --product-root /workspace/e02-B-current-coordination/policy-engine --uv /workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv --suite verify -- --backend-only",
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "fab2ec00efd62e72de0143d5473a63687355c797",
+      "purpose": "metadata-only interception of canonical main; no gate",
+      "environment": {
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2",
+          "prefix": "/workspace/polisyos/policy-engine/.venv",
+          "base_prefix": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu"
+        },
+        "uv": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "version": "uv 0.9.21"
+        },
+        "UV_NO_SYNC": "1",
+        "other_ambient_values": "inherited; only cap names are emitted, no credentials"
+      },
+      "input_closure": {
+        "canonical_factory_ref": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+        "target_root_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+        "target_root_tree": "6781c0bae95eb108bcffff382abf3a50f0bd6734",
+        "instrument": "gate-input-audit/uncapped_constituents.py@fab2ec00efd62e72de0143d5473a63687355c797",
+        "live_factory_bytes_checked": true,
+        "original_cli_flags": [
+          "--backend-only"
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "_build/e02-B-current-cas-generation/raw/gate-audit-591/verify-plan-fab2.json",
+        "sha256": "0565eecfdc0bd0d312d17aea45c9e0c3b31a2465f603b85cb2852c2f0e69395d",
+        "bytes": 9317
+      },
+      "stderr": {
+        "path": "_build/e02-B-current-cas-generation/raw/gate-audit-591/verify-plan-fab2.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "qualification": "PASS establishes plan construction only; constituent product checks UNRUN",
+      "exit_code": 0,
+      "measurement_qualification": "metadata-only or instrument-style check; runtime wall/RSS acceptance not measured"
+    },
+    {
+      "command": "PATH=\"/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin:$PATH\" UV_NO_SYNC=1 /workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/uncapped_constituents.py --product-root /workspace/e02-B-current-coordination/policy-engine --uv /workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv --suite ci-parity -- --skip-browser",
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "fab2ec00efd62e72de0143d5473a63687355c797",
+      "purpose": "metadata-only interception of canonical main; no gate",
+      "environment": {
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2",
+          "prefix": "/workspace/polisyos/policy-engine/.venv",
+          "base_prefix": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu"
+        },
+        "uv": {
+          "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+          "version": "uv 0.9.21"
+        },
+        "UV_NO_SYNC": "1",
+        "other_ambient_values": "inherited; only cap names are emitted, no credentials"
+      },
+      "input_closure": {
+        "canonical_factory_ref": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+        "target_root_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+        "target_root_tree": "6781c0bae95eb108bcffff382abf3a50f0bd6734",
+        "instrument": "gate-input-audit/uncapped_constituents.py@fab2ec00efd62e72de0143d5473a63687355c797",
+        "live_factory_bytes_checked": true,
+        "original_cli_flags": [
+          "--skip-browser"
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "_build/e02-B-current-cas-generation/raw/gate-audit-591/parity-plan-fab2.json",
+        "sha256": "16a7aae9415d07bbf0e120487cb385ddcd171ce8b08e6d6efce27ae02c01b087",
+        "bytes": 19019
+      },
+      "stderr": {
+        "path": "_build/e02-B-current-cas-generation/raw/gate-audit-591/parity-plan-fab2.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "qualification": "PASS establishes plan construction only; constituent product checks UNRUN",
+      "exit_code": 0,
+      "measurement_qualification": "metadata-only or instrument-style check; runtime wall/RSS acceptance not measured"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/snapshot.py --root /workspace/e02-B-current-coordination",
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "b7bf5377a962eecbd95119f3ca03df44d3efc918",
+      "environment": "actual shared venv, no sync/backend import; input filesystem observation time in output",
+      "input_closure": {
+        "observed_root_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+        "observed_root_tree": "6781c0bae95eb108bcffff382abf3a50f0bd6734",
+        "instrument_unchanged_at_final_sha": "fab2ec00efd62e72de0143d5473a63687355c797"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/observation.json",
+        "sha256": "9cbc71b6533fab534c22405e9bc89173d8a8b4bb1989b32f543b7038e44d4022",
+        "bytes": 10817
+      },
+      "qualification": "metadata/locator census only; no test collection or complete dynamic gate read trace",
+      "exit_code": 0,
+      "measurement_qualification": "metadata-only or instrument-style check; runtime wall/RSS acceptance not measured"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/environment.py --pyproject /workspace/e02-B-current-coordination/policy-engine/pyproject.toml",
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "b7bf5377a962eecbd95119f3ca03df44d3efc918",
+      "environment": "actual shared venv, no sync/backend import; input filesystem observation time in output",
+      "input_closure": {
+        "observed_root_sha": "99af508a5282854f3e609c5a94bc19ac55893dde",
+        "observed_root_tree": "6781c0bae95eb108bcffff382abf3a50f0bd6734",
+        "instrument_unchanged_at_final_sha": "fab2ec00efd62e72de0143d5473a63687355c797"
+      },
+      "outcome": "PASS",
+      "output": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/environment-observation.json",
+        "sha256": "65737722875ebc3e56edb3daaf145d5df6d6a964a2ca9f9df8cbee77a578620e",
+        "bytes": 23254
+      },
+      "qualification": "metadata/locator census only; no test collection or complete dynamic gate read trace",
+      "exit_code": 0,
+      "measurement_qualification": "metadata-only or instrument-style check; runtime wall/RSS acceptance not measured"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit",
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "fab2ec00efd62e72de0143d5473a63687355c797",
+      "environment": "actual shared venv",
+      "input_closure": "three authored metadata-only .py instruments at exact source SHA; README excluded by Ruff",
+      "outcome": "PASS",
+      "output": "All checks passed!\n",
+      "qualification": "instrument author validation; not combined product gate",
+      "exit_code": 0,
+      "measurement_qualification": "metadata-only or instrument-style check; runtime wall/RSS acceptance not measured"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit",
+      "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+      "target_sha": "fab2ec00efd62e72de0143d5473a63687355c797",
+      "environment": "actual shared venv",
+      "input_closure": "three authored metadata-only .py instruments at exact source SHA; README excluded by Ruff",
+      "outcome": "PASS",
+      "output": "3 files already formatted\n",
+      "qualification": "instrument author validation; not combined product gate",
+      "exit_code": 0,
+      "measurement_qualification": "metadata-only or instrument-style check; runtime wall/RSS acceptance not measured"
+    }
+  ],
+  "property": {
+    "statement": "Construct the complete chosen canonical CommandSpec result; disclose uncapped environment and real coverage-consumer argv projections, without running/omitting gates.",
+    "runtime_path": [
+      "pinned verify/ci_parity main",
+      "run_command interception",
+      "full command plan",
+      "root future gate executor"
+    ],
+    "proxy_divergence": "Original ambient uncapped env cannot override verify numerical overlay; a parent-only edit cannot remove nested verify child caps. Top-level six-cap omission alone still leaves actual npm Vitest --maxWorkers=1. Plan exit0 is not native gate PASS.",
+    "negative_controls": []
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "metadata_plan_established; combined_native_verification_UNRUN",
+  "canonical_cli_profiles": {
+    "backend_only": "UNRUN/user_incompatible_due_to_six_numerical_caps",
+    "ci_parity_skip_browser": "UNRUN/user_incompatible_due_to_six_numerical_caps_and_Vitest_worker_cap",
+    "uncapped_constituents": "not_executed; backend15/parity35 complete plan only; original fail-fast success chaining preserved"
+  },
+  "numerical_projection": {
+    "environment_omission": {
+      "omit": [
+        "BLIS_NUM_THREADS",
+        "MKL_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+        "OMP_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "VECLIB_MAXIMUM_THREADS"
+      ],
+      "ambient_names_present": []
+    },
+    "additional_argv_projection": {
+      "original_argv": [
+        "npm",
+        "run",
+        "test:coverage"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+      "source": "policy-engine/apps/runtime-dashboard/package.json@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "removed_vitest_argument": "--maxWorkers=1",
+      "expanded_indices": [
+        31,
+        32
+      ],
+      "success_condition": "second command runs only after first succeeds",
+      "environment_qualification": "direct leaf execution inherits the same top-level environment; npm-generated lifecycle metadata is not reproduced"
+    },
+    "same_class_deeper_escape": "P40 nested real npm coverage worker cap; widened projection to actual leaf consumer; no canonical source changes"
+  },
+  "nested_doctor_and_runtime_consumers": [
+    {
+      "source": "policy-engine/tools/devx/workspace/doctor.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "applies": "both doctor profiles",
+      "argv": [
+        "node",
+        "-e",
+        "PLAYWRIGHT_SMOKE literal from pinned source"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard",
+      "environment": "inherited after six-cap omission",
+      "input": "Playwright package/browser cache; plain chromium.launch(), not configured Playwright test workers"
+    },
+    {
+      "source": "policy-engine/tools/devx/workspace/doctor.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "applies": "both profiles",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "lock",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": "inherited",
+      "input": "pyproject.toml/uv.lock and resolver toolchain"
+    },
+    {
+      "source": "policy-engine/tools/devx/workspace/doctor.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "applies": "both profiles",
+      "argv": [
+        "corepack",
+        "pnpm",
+        "install",
+        "--frozen-lockfile",
+        "--lockfile-only",
+        "--ignore-scripts"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": "inherited",
+      "input": "workspace manifests/pnpm-lock.yaml; governed lockfile-only contour"
+    },
+    {
+      "source": "policy-engine/tools/devx/workspace/doctor.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "applies": "outer parity doctor only",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--extra",
+        "ml",
+        "python",
+        "tools/quality/diagnostics/gen_schema.py",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine"
+    },
+    {
+      "source": "policy-engine/tools/devx/workspace/doctor.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "applies": "outer parity doctor only",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+        "run",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/check_runtime_api_contract.py"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine"
+    },
+    {
+      "source": "policy-engine/tools/devx/workspace/doctor.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "applies": "outer parity doctor only",
+      "argv": [
+        "corepack",
+        "pnpm",
+        "run",
+        "contracts:verify"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard"
+    },
+    {
+      "source": "policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py@933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "applies": "every runtime API check",
+      "argv": [
+        "corepack",
+        "pnpm",
+        "--dir",
+        "/workspace/e02-B-current-coordination/policy-engine/packages/runtime-api-client",
+        "run",
+        "generate",
+        "--",
+        "--openapi",
+        "/workspace/e02-B-current-coordination/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "--output-root",
+        "actual unique runtime_client_contract_ TemporaryDirectory"
+      ],
+      "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+      "environment": "inherited",
+      "qualification": "dynamic temp path is assigned during actual check; no actual argv/run claimed here"
+    }
+  ],
+  "input_denominator": {
+    "complete_metadata_census": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/observation.json",
+      "sha256": "9cbc71b6533fab534c22405e9bc89173d8a8b4bb1989b32f543b7038e44d4022",
+      "bytes": 10817
+    },
+    "configured_backend_pytest": "pytest.ini testpaths=tests; -m not integration; --ignore=tests/unit/runtime/http; full conftest/fixtures/imported product/config/dependency inputs, not merely B whole-file cohort",
+    "configured_runtime_pytest": "tests/unit/runtime/http under full shared pytest profile",
+    "guardrails": "public/generated/import/exception manifests and baselines; actual product AST/facades/package READMEs; generated owner probes in private copied source/env; committed generated/schema/client/docs/workflow inputs",
+    "docs_and_policy": "repo-wide source/docs/schema/architecture/workflow/test/receipt corpus; new receipts change JSON/test-quality input denominators",
+    "dynamic_complete_gate_read_set": "not_established_without_actual_collection/execution/import/read_trace",
+    "P41": "exact literal slice-base replay AND zero intersection against complete actual gate-input closure; counts or baseline summaries do not establish inherited red",
+    "observed_current_source_overlap": "observed Git diff198...99af contains source47/tests38/docs632 changed paths, excluding any claim that broad scopes are disjoint",
+    "illustrative_named_suite_command": "current coverage.json all127 bundles lack test_paths; original documented command cannot collect; canonical manifest has127 named selectors,85 tracked/42 missing; historical global context not current B acceptance",
+    "Ruff_source_scope": "future root must bind actual literal predecessor and complete changed currently admitted Python set; observed full198...99af census141 Python paths, not the illustrative G86 predecessor"
+  },
+  "resource_plan": {
+    "serialize_or_isolate": [
+      "duplicate standalone+parity backend constituents writing identical named output files",
+      "any sync into shared .venv; root chose isolated UV_PROJECT_ENVIRONMENT provisioning then no-sync execution",
+      "doctor pnpm lockfile-only contour vs governed workspace manifest/lock writers",
+      "same pytest _cache/pytest/benchmarks and default basetemp cleanup; actual durable fixture DB/ledger/source/port collisions",
+      "same frontend ESLint cache/coverage/Vite build/Storybook-static or browsercache install contour",
+      "governed generator/source mutation while source-dependent freshness checks read"
+    ],
+    "parallelizable": [
+      "different last-mile output filenames even under same parent directory",
+      "read-only source/import/logic/metadata/type/lint checks with isolated actual scratch",
+      "independent heavy fixture/probe contours as ready; no numeric/process/CPU quota",
+      "runtime client check uses independent TemporaryDirectory and committed read-only byte comparison"
+    ],
+    "not_proven_conflicting": [
+      "distinct reports merely because both use _build/.tmp/last-mile",
+      "Honest Diagnostics coverage and substrate drift: latter reads own configured source scope; no assumed dashboard output dependency"
+    ]
+  },
+  "environment_readiness": {
+    "observation": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/B/gate-input-audit/environment-observation.json",
+      "sha256": "65737722875ebc3e56edb3daaf145d5df6d6a964a2ca9f9df8cbee77a578620e",
+      "bytes": 23254
+    },
+    "actual_shared_env": "Python3.14.2/174 distributions; core/runtime/ml/lint/test direct metadata satisfied; docs3/research17 direct missing;3 Python-marker exclusions",
+    "qualification": "not external transitive/lock equality/native ABI/backend/service proof; no fake extras",
+    "root_next_profile": "root is provisioning admitted isolated core/lint/test/runtime/ml/docs environment; this observation predates it, shared env not mutated",
+    "unsupported_real_backends": "declared DoWhy<3.13/EconML<3.14 markers have no admitted currentproject>=3.14 in-repo native profile; Temporal service separate missing criterion/runtime contract; not productFAIL by optional absence"
+  },
+  "cleanup_candidates": {
+    "native_trash": "none of six checked executables available; observed home/workspace standardTrash directories absent; no alternate native API established",
+    "conditionally_reusable_derived_caches": [
+      "/workspace/e02-B-current-coordination/policy-engine/_cache/ruff",
+      "/workspace/e02-B-current-coordination/policy-engine/_cache/pytest"
+    ],
+    "hold_until_input/evidence_custody": [
+      "/workspace/e02-B-current-coordination/policy-engine/_cache/benchmarks",
+      "/workspace/e02-B-current-coordination/policy-engine/_cache/hypothesis"
+    ],
+    "preserve": [
+      "/workspace/e02-B-current-coordination/policy-engine/.venv symlink and its shared target",
+      "/workspace/e02-B-current-coordination/policy-engine/node_modules",
+      "/workspace/e02-B-current-coordination/policy-engine/apps/runtime-dashboard/node_modules",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools",
+      "all Git worktree registrations/code/docs/unique fixtures/probe source and deciding inputs"
+    ],
+    "actions_performed": "none; no deletion, prune, install or new checkout; no active-consumer safety claim"
+  },
+  "initial_metadata_attempts": {
+    "source": "591760bba",
+    "parity": "my mistyped --uv path correctly refused before any gate; corrected caller path",
+    "selector_census": "my initial coverage.test_paths binding raised KeyError before any gate; corrected instrument to canonical manifest; documented original command mismatch remains explicit",
+    "attribution": "own metadata construction/caller errors, not product failures or inherited reds"
+  },
+  "limitations_and_next_owner": [
+    "Root controls actual frozen combined source/admitted isolated environment and single final wave; this packet does not launch gates.",
+    "G/shared document owner must admit or repair canonical global named-selector command and retain missing/alternative criterion mapping; B changes no canonical source.",
+    "Root must preserve complete actual deciding stdout/stderr/exit/wall/RSS/module origins/cwd/env/input closure; repeated optional dependency absence is not a green check.",
+    "Historical ledger/baseline cells and global127 selector counts are context only; root/G finalall60 disposition ledger owns acceptance."
+  ],
+  "pattern_pass": [
+    "P29/P35 complete actual CommandSpec array and full Git/manifest/metadata census; no test verdict by plan markers/count/exit",
+    "P37/P38 environment/predicate distinctions and actual nested Vitest cap divergence",
+    "P39 required companions excluded from mechanism quota; no cloud quota",
+    "P40 same cap class widened to nested consumer",
+    "P41 exact attribution remains unestablished for unrun broad gates"
+  ]
+}

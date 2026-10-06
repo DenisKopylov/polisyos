@@ -25,6 +25,7 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.catalog._payloads import extract_model_payload
+from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
 from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
 from polisyos.ir.analytics.forecasting_uncertainty import (
     FanChartSpec,
@@ -595,6 +596,54 @@ def _summarize_interval_diagnostics(
     }
 
 
+def _calibration_projection(summary: Mapping[str, Any]) -> dict[str, Any]:
+    """Expose persisted diagnostic support without granting source authority."""
+    ref = summary["calibration_ref"]
+    receipt = summary["report"].to_truthfulness_receipt()
+    return {
+        "diagnostics_ref": None if ref is None else ref.model_dump(mode="json"),
+        "receipt": receipt.model_dump(mode="json"),
+        "persistence_status": "store_missing" if ref is None else "persisted_recomputed",
+        "gate_eligible": False,
+    }
+
+
+def _calibration_rows(
+    data: PanelData,
+    *,
+    entity_idx: int,
+    entities: np.ndarray,
+    times: np.ndarray,
+    start_idx: int,
+    end_idx: int,
+    payload: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Bind evaluated rows to the producer's exact panel entity/time join."""
+    entity = entities[entity_idx]
+    evaluation_start = end_idx - len(payload["eval_series"])
+    blocked = payload["evaluation_mode"] == "blocked_holdout"
+    training_end = evaluation_start - 1 if blocked else end_idx - 1
+    rows = []
+    for horizon, time_idx in enumerate(range(evaluation_start, end_idx), start=1):
+        source_positions = np.flatnonzero(
+            (np.asarray(data.entity_ids) == entity) & (np.asarray(data.time_ids) == times[time_idx])
+        )
+        if source_positions.size != 1:
+            raise ValueError("Calibration row must resolve to exactly one panel input row")
+        rows.append(
+            {
+                "source_row_index": int(source_positions[0]),
+                "entity_id": _python_scalar(entity),
+                "observation_time_id": _python_scalar(times[time_idx]),
+                "training_start_time_id": _python_scalar(times[start_idx]),
+                "training_end_time_id": _python_scalar(times[training_end]),
+                "forecast_horizon": horizon if blocked else None,
+                "evaluation_mode": payload["evaluation_mode"],
+            }
+        )
+    return rows
+
+
 def _select_group_breaks_by_bic(
     group_returns: np.ndarray,
     screened_breaks: list[int],
@@ -688,6 +737,10 @@ def _evaluate_panel_volatility_scenario(
     nominal_coverage: float,
     all_levels: tuple[float, ...],
     holdout_periods: int,
+    data: PanelData,
+    times: np.ndarray,
+    calibration_store: ArtifactStore | None = None,
+    source_binding: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     entity_list = entities.tolist()
     ordered_groups = sorted({str(group_map[entity]) for entity in entity_list})
@@ -696,6 +749,7 @@ def _evaluate_panel_volatility_scenario(
     evaluation_modes: set[str] = set()
     total_breaks = 0
     total_regimes = 0
+    evaluation_rows: list[dict[str, Any]] = []
 
     for group_label in ordered_groups:
         group_entity_indices = [
@@ -744,6 +798,17 @@ def _evaluate_panel_volatility_scenario(
                 if payload is None:
                     continue
                 y_values.extend(payload["eval_series"].tolist())
+                evaluation_rows.extend(
+                    _calibration_rows(
+                        data,
+                        entity_idx=entity_idx,
+                        entities=entities,
+                        times=times,
+                        start_idx=start_idx,
+                        end_idx=end_idx,
+                        payload=payload,
+                    )
+                )
                 for level in all_levels:
                     intervals_by_level[level].extend(payload["intervals"][level])
                 evaluation_modes.add(str(payload["evaluation_mode"]))
@@ -762,6 +827,12 @@ def _evaluate_panel_volatility_scenario(
         intervals_by_level=intervals_by_level,
         all_levels=all_levels,
         nominal_coverage=nominal_coverage,
+        calibration_store=calibration_store,
+        source_binding={
+            **dict(source_binding or {}),
+            "scenario": scenario_name,
+            "evaluated_rows": evaluation_rows,
+        },
     )
     empirical = diagnostics["empirical_coverage"]
     return {
@@ -784,6 +855,7 @@ def _evaluate_panel_volatility_scenario(
         "independence_pvalue": diagnostics["independence_pvalue"],
         "mean_interval_width": diagnostics["mean_interval_width"],
         "wis": diagnostics["wis"],
+        "calibration": _calibration_projection(diagnostics),
     }
 
 
@@ -1437,9 +1509,36 @@ class NonstationaryGARCHEstimator:
     def pure_step(
         state: PanelData | Mapping[str, Any], params: Mapping[str, Any]
     ) -> dict[str, Any]:
-        data = state if isinstance(state, PanelData) else PanelData.model_validate(state)
+        calibration_store = resolve_artifact_store(state, params)
+        data = (
+            state
+            if isinstance(state, PanelData)
+            else PanelData.model_validate(_panel_payload(state))
+        )
         y_matrix, x_tensor, entities, times = _balanced_panel_arrays(data)
         group_map, grouping_strategy = _resolve_entity_group_map(data, entities)
+        source_ref = None
+        if calibration_store is not None:
+            from polisyos.core.artifacts import ArtifactWriteOptions, SchemaInfo
+            from polisyos.core.canon import CanonSpec
+
+            source_ref = calibration_store.put_json(
+                data.model_dump(mode="json"),
+                ArtifactWriteOptions(
+                    kind="foundry.econometric_panel_data",
+                    media_type="application/json",
+                    schema=SchemaInfo(name=data.contract_id, version="1.0"),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+        source_binding = {
+            "source_data_ref": None if source_ref is None else source_ref.model_dump(mode="json"),
+            "method_fqn": NonstationaryGARCHEstimator.signature.fqn,
+            "seed": params.get("__seed__"),
+            "target_id": data.metadata.get("target_id"),
+            "unit": data.metadata.get("unit"),
+            "source_authority_basis": "not_established",
+        }
 
         p = max(1, int(params.get("p", 1)))
         q = max(1, int(params.get("q", 1)))
@@ -1524,6 +1623,8 @@ class NonstationaryGARCHEstimator:
         next_sigmas: list[float] = []
         next_means: list[float] = []
         global_evaluation_modes: set[str] = set()
+        global_evaluation_rows: list[dict[str, Any]] = []
+        calibration_artifact_refs: dict[str, Any] = {}
 
         for group_label in ordered_groups:
             group_entity_indices = [
@@ -1581,6 +1682,7 @@ class NonstationaryGARCHEstimator:
                 segment_next_means: list[float] = []
                 loss_diagnostics: list[dict[str, float]] = []
                 evaluation_modes: set[str] = set()
+                segment_evaluation_rows: list[dict[str, Any]] = []
 
                 for entity_idx in group_entity_indices:
                     series = np.asarray(y_matrix[entity_idx, start_idx:end_idx], dtype=float)
@@ -1613,6 +1715,17 @@ class NonstationaryGARCHEstimator:
                     segment_next_means.append(float(payload["next_mean"]))
                     loss_diagnostics.append(payload["loss_diag"])
                     segment_eval_y.extend(payload["eval_series"].tolist())
+                    segment_evaluation_rows.extend(
+                        _calibration_rows(
+                            data,
+                            entity_idx=entity_idx,
+                            entities=entities,
+                            times=times,
+                            start_idx=start_idx,
+                            end_idx=end_idx,
+                            payload=payload,
+                        )
+                    )
                     for level in all_levels:
                         segment_intervals[level].extend(payload["intervals"][level])
                     evaluation_modes.add(str(payload["evaluation_mode"]))
@@ -1661,7 +1774,19 @@ class NonstationaryGARCHEstimator:
                     intervals_by_level=segment_intervals,
                     all_levels=all_levels,
                     nominal_coverage=nominal_coverage,
+                    calibration_store=calibration_store,
+                    source_binding={
+                        **source_binding,
+                        "group": str(group_label),
+                        "segment_index": segment_index,
+                        "evaluated_rows": segment_evaluation_rows,
+                    },
                 )
+                if segment_summary["calibration_ref"] is not None:
+                    role = f"calibration.segment.{group_label}.{segment_index}"
+                    calibration_artifact_refs[role] = segment_summary["calibration_ref"].model_dump(
+                        mode="json"
+                    )
                 segment_y = segment_summary["y_true"]
                 primary_lower = segment_summary["lower"]
                 primary_upper = segment_summary["upper"]
@@ -1721,6 +1846,7 @@ class NonstationaryGARCHEstimator:
                                 )
                             ),
                             "break_selection": selection_metadata,
+                            "calibration": _calibration_projection(segment_summary),
                         },
                     )
                 )
@@ -1731,6 +1857,7 @@ class NonstationaryGARCHEstimator:
                 next_sigmas.extend(segment_next_sigmas)
                 next_means.extend(segment_next_means)
                 global_evaluation_modes.update(evaluation_modes)
+                global_evaluation_rows.extend(segment_evaluation_rows)
 
         if not segment_records or not flat_params:
             raise ValueError("nonstationary_garch could not fit any group-segment GARCH models")
@@ -1740,7 +1867,13 @@ class NonstationaryGARCHEstimator:
             intervals_by_level=global_intervals,
             all_levels=all_levels,
             nominal_coverage=nominal_coverage,
+            calibration_store=calibration_store,
+            source_binding={**source_binding, "evaluated_rows": global_evaluation_rows},
         )
+        if overall_summary["calibration_ref"] is not None:
+            calibration_artifact_refs["calibration.overall"] = overall_summary[
+                "calibration_ref"
+            ].model_dump(mode="json")
         overall_y = overall_summary["y_true"]
         overall_primary_lower = overall_summary["lower"]
         overall_primary_upper = overall_summary["upper"]
@@ -1784,6 +1917,7 @@ class NonstationaryGARCHEstimator:
                 "independence_pvalue": overall_independence_pvalue,
                 "mean_interval_width": mean_interval_width,
                 "wis": overall_wis,
+                "calibration": _calibration_projection(overall_summary),
             }
         }
         if run_policy_benchmark:
@@ -1806,6 +1940,10 @@ class NonstationaryGARCHEstimator:
                 nominal_coverage=nominal_coverage,
                 all_levels=all_levels,
                 holdout_periods=holdout_periods,
+                data=data,
+                times=times,
+                calibration_store=calibration_store,
+                source_binding=source_binding,
             )
             benchmark_scenarios["group_specific_stationary_garch"] = (
                 _evaluate_panel_volatility_scenario(
@@ -1826,6 +1964,10 @@ class NonstationaryGARCHEstimator:
                     nominal_coverage=nominal_coverage,
                     all_levels=all_levels,
                     holdout_periods=holdout_periods,
+                    data=data,
+                    times=times,
+                    calibration_store=calibration_store,
+                    source_binding=source_binding,
                 )
             )
             benchmark_scenarios["pooled_break_garch"] = _evaluate_panel_volatility_scenario(
@@ -1846,7 +1988,16 @@ class NonstationaryGARCHEstimator:
                 nominal_coverage=nominal_coverage,
                 all_levels=all_levels,
                 holdout_periods=holdout_periods,
+                data=data,
+                times=times,
+                calibration_store=calibration_store,
+                source_binding=source_binding,
             )
+
+        for scenario_name, scenario in benchmark_scenarios.items():
+            ref = scenario.get("calibration", {}).get("diagnostics_ref")
+            if ref is not None:
+                calibration_artifact_refs[f"calibration.scenario.{scenario_name}"] = ref
 
         coverage_summary = VolatilityCoverageSummary(
             primary_nominal_coverage=nominal_coverage,
@@ -1864,6 +2015,7 @@ class NonstationaryGARCHEstimator:
                 "coverage_scope": "group_segment_pooled",
                 "coverage_semantics": coverage_semantics,
                 "scenario_benchmarks": benchmark_scenarios,
+                "calibration": _calibration_projection(overall_summary),
             },
         )
         nonstationary_summary = NonstationaryVolatilitySummary(
@@ -1935,6 +2087,7 @@ class NonstationaryGARCHEstimator:
                 "coverage_recommended_action": overall_report.recommended_action,
                 "coverage_semantics": coverage_semantics,
                 "policy_risk_benchmark": benchmark_scenarios,
+                "calibration": _calibration_projection(overall_summary),
             },
             model_info={
                 "library": "arch+ruptures",
@@ -1951,6 +2104,7 @@ class NonstationaryGARCHEstimator:
                 param_name=params.get("envelope_param")
             ),
             "forecasting_uncertainty_bundle": uncertainty_bundle,
+            "__numpy_artifacts__": {"artifact_refs": calibration_artifact_refs},
         }
 
 

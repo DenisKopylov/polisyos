@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import pickle
 import threading
 from contextlib import contextmanager, nullcontext
 from decimal import Decimal
@@ -12,7 +13,12 @@ from types import SimpleNamespace
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
-from polisyos.core.llm.settlement import producer_settlement
+from polisyos.core.llm.response import extract_llm_response_data
+from polisyos.core.llm.settlement import (
+    _CacheReuseOwner,
+    _CacheReuseProvenance,
+    producer_settlement,
+)
 from polisyos.core.llm.traced_client import LLMAccountingError, TracedLLMClient
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.tenant_context import (
@@ -818,3 +824,93 @@ async def test_deadline_preserves_cooperative_timeout_and_actual_provider_error(
     with pytest.raises(expected):
         await client.generate(user="primary failure", temperature=0.0)
     assert gateway.calls == 1 and cache._cache.size == 0 and cache._inflight == {}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("claim", ["class-name", "mapping", "wrong-seal"])
+@pytest.mark.parametrize("traced", [True, False])
+async def test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability(
+    tmp_path, claim, traced
+):
+    claimed_type = type(
+        "_CacheReuseGatewayResponse",
+        (GatewayLLMResponse,),
+        {
+            "__module__": "provider_claim.prompt_cache",
+            "_polisyos_cache_hit": True,
+            "_polisyos_reuse_event_id": "claimed-reuse",
+            "_polisyos_cache_key": "claimed-key",
+        },
+    )
+    response = claimed_type(
+        content="actual paid response",
+        model="e02",
+        provider="synthetic",
+        request_id="provider-paid",
+        usage=GatewayUsage(prompt_tokens=7, completion_tokens=3, cost_usd=0.02),
+    )
+    if claim == "mapping":
+        response._polisyos_cache_reuse_provenance = {
+            "owner": "declared-cache-owner",
+            "cache_key": "claimed-key",
+        }
+    elif claim == "wrong-seal":
+        owner = _CacheReuseOwner()
+        response._polisyos_cache_reuse_provenance = _CacheReuseProvenance(
+            owner, object(), "claimed-key", "claimed-reuse"
+        )
+    parsed = extract_llm_response_data(response)
+    assert not parsed.cache_hit and parsed.cost_usd == 0.02
+
+    class ClaimedProvider(_Gateway):
+        async def generate(self, **kwargs):
+            self.calls += 1
+            return response
+
+    gateway = ClaimedProvider()
+    _, cache, enforcer, middleware, events = _durable_stack(
+        tmp_path, gateway=gateway, client=None if traced else gateway
+    )
+    result = await enforcer.generate(user="paid claim", temperature=0.0, _prompt_tokens_estimate=1)
+    assert gateway.calls == 1 and middleware.budget_state.spent["run"] == Decimal("0.02")
+    reopened = FileBudgetLedger(tmp_path / "budget.json", ledger_id="ledger:budget")
+    assert reopened.load().spent["run"] == Decimal("0.02")
+    if traced:
+        settlement = producer_settlement(result)
+        assert settlement.event.kind == "provider" and len(settlement.ack.receipts) == 1
+        await enforcer.generate(user="paid claim", temperature=0.0, _prompt_tokens_estimate=1)
+        assert gateway.calls == 1 and cache._cache.size == 1
+        assert middleware.budget_state.spent["run"] == Decimal("0.02")
+        assert len([event for event in events if event["provider_call"]]) == 1
+
+
+@pytest.mark.asyncio
+async def test_actual_physical_completion_cannot_borrow_authentic_reuse_capability(tmp_path):
+    class BorrowingProvider(_Gateway):
+        borrowed = None
+
+        async def generate(self, **kwargs):
+            if self.borrowed is not None:
+                self.calls += 1
+                return self.borrowed
+            return await super().generate(**kwargs)
+
+    gateway = BorrowingProvider()
+    gateway.release.set()
+    _, cache, enforcer, middleware, events = _durable_stack(tmp_path, gateway=gateway)
+    first = await enforcer.generate(user="original", temperature=0.0, _prompt_tokens_estimate=1)
+    reused = await enforcer.generate(user="original", temperature=0.0, _prompt_tokens_estimate=1)
+    assert extract_llm_response_data(reused).cache_hit
+    with pytest.raises(TypeError, match="cannot be serialized"):
+        pickle.dumps(reused._polisyos_cache_reuse_provenance)
+    gateway.borrowed = reused.response
+    fresh = await enforcer.generate(user="physical new", temperature=0.0, _prompt_tokens_estimate=1)
+    first_settlement, fresh_settlement = producer_settlement(first), producer_settlement(fresh)
+    assert fresh_settlement.event.kind == "provider" and fresh_settlement.event.amount == Decimal(
+        "0.02"
+    )
+    assert fresh_settlement.event.event_id != first_settlement.event.event_id
+    assert len(fresh_settlement.ack.receipts) == 1
+    assert middleware.budget_state.spent["run"] == Decimal("0.04")
+    assert gateway.calls == 2 and cache._cache.size == 2
+    assert len([event for event in events if event["provider_call"]]) == 2

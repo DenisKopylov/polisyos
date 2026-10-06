@@ -45,3 +45,10 @@ telemetry, cost estimation, response parsing, and retry logic so domain packages
   payload to the same trusted callback. A callback's successful return confirms local delivery;
   its owner must deduplicate ambiguous prior effects. This legacy callback is not a durable
   ledger acknowledgement; the initialized budget middleware supplies that separate capability.
+- Cache reuse carries an opaque capability issued by the actual cache wrapper, bound to its
+  runtime owner and consumption/key identity. Names, module suffixes, private flags and copied
+  mappings cannot mint that capability. It is an in-process contract between trusted components,
+  not serialized permission or protection against arbitrary code with access to process memory.
+  Known physical provider completion is always a provider event, even if its response borrows
+  authentic prior cache provenance; actual cache emission remains a separate zero-extra-charge
+  consumption event.

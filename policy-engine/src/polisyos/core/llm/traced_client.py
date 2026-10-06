@@ -24,7 +24,11 @@ from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.observability.pricing import estimate_llm_cost_usd
 
 from .protocols import LLMClientProtocol
-from .response import LLMResponseData, extract_llm_response_data
+from .response import (
+    LLMResponseData,
+    _extract_physical_provider_response_data,
+    extract_llm_response_data,
+)
 from .settlement import (
     LLMProducerEvent,
     LLMProducerSettlement,
@@ -566,7 +570,7 @@ class TracedLLMClient:
             try:
                 call_args, call_kwargs = self._sanitize_call_args((prompt,), kwargs)
                 response = self._client.invoke(*call_args, **call_kwargs)
-                parsed = extract_llm_response_data(response)
+                parsed = _extract_physical_provider_response_data(response)
                 provider = self._detect_provider(parsed.provider)
                 latency_ms = max(0, int((time.perf_counter() - start) * 1000))
                 settled = self._record_tokens(
@@ -614,7 +618,7 @@ class TracedLLMClient:
             try:
                 call_args, call_kwargs = self._sanitize_call_args((prompt,), kwargs)
                 response = await self._client.ainvoke(*call_args, **call_kwargs)
-                parsed = extract_llm_response_data(response)
+                parsed = _extract_physical_provider_response_data(response)
                 provider = self._detect_provider(parsed.provider)
                 latency_ms = max(0, int((time.perf_counter() - start) * 1000))
                 settled = self._record_tokens(
@@ -702,9 +706,13 @@ class TracedLLMClient:
             kind=_RuntimeSpanKind.CLIENT,
         ) as span:
 
-            def complete(response: Any) -> LLMSettledResponse:
+            def complete(response: Any, physical_provider: bool = False) -> LLMSettledResponse:
                 nonlocal completion_recorded
-                parsed = extract_llm_response_data(response)
+                parsed = (
+                    _extract_physical_provider_response_data(response)
+                    if physical_provider
+                    else extract_llm_response_data(response)
+                )
                 resolved_provider = self._detect_provider(parsed.provider)
                 origin = producer_settlement(response)
                 amount = (

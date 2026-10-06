@@ -8,7 +8,6 @@ import inspect
 import json
 import threading
 import time
-import uuid
 from collections import OrderedDict
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
@@ -19,6 +18,8 @@ from polisyos.common.serialization import stable_json_dumps, to_python_data
 from polisyos.core.llm.settlement import (
     LLMProducerSettlement,
     LLMSettledResponse,
+    _CacheReuseOwner,
+    _CacheReuseProvenance,
     _current_producer_completion,
     producer_settlement,
 )
@@ -188,6 +189,7 @@ class _CacheReuseGatewayResponse(GatewayLLMResponse):
     __slots__ = (
         "_polisyos_cache_hit",
         "_polisyos_cache_key",
+        "_polisyos_cache_reuse_provenance",
         "_polisyos_reuse_event_id",
         "_polisyos_settlement",
     )
@@ -197,6 +199,7 @@ class _CacheReuseGatewayResponse(GatewayLLMResponse):
         response: GatewayLLMResponse,
         *,
         cache_key: str,
+        provenance: _CacheReuseProvenance,
     ) -> None:
         super().__init__(
             content=response.content,
@@ -211,7 +214,8 @@ class _CacheReuseGatewayResponse(GatewayLLMResponse):
         self._polisyos_settlement = producer_settlement(response)
         self._polisyos_cache_hit = True
         self._polisyos_cache_key = cache_key
-        self._polisyos_reuse_event_id = f"cache-reuse:{uuid.uuid4().hex}"
+        self._polisyos_reuse_event_id = provenance.reuse_event_id
+        self._polisyos_cache_reuse_provenance = provenance
 
 
 class PromptCacheProtocol(Protocol):
@@ -407,6 +411,7 @@ class CachingLLMClient:
         self._inflight_timeout_s = _coerce_timeout(configured_timeout)
         self._inflight: dict[str, _ProducerFlight] = {}
         self._reuse_authorizer = reuse_authorizer
+        self._cache_reuse_owner = _CacheReuseOwner()
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self._client, name)
@@ -544,7 +549,9 @@ class CachingLLMClient:
             logger.debug("Prompt cache hit model={} key={}", self._model, cache_key[:12])
             if isinstance(cached, GatewayLLMResponse):
                 _mark_cache_response(cached, status="hit", cache_key=cache_key)
-                return _CacheReuseGatewayResponse(cached, cache_key=cache_key)
+                return _CacheReuseGatewayResponse(
+                    cached, cache_key=cache_key, provenance=self._cache_reuse_owner.issue(cache_key)
+                )
             return cached
 
         provider_kwargs = _provider_kwargs(kwargs)
@@ -579,11 +586,15 @@ class CachingLLMClient:
         if cached is not None:
             if isinstance(cached, GatewayLLMResponse):
                 _mark_cache_response(cached, status="hit", cache_key=cache_key)
-                return _CacheReuseGatewayResponse(cached, cache_key=cache_key)
+                return _CacheReuseGatewayResponse(
+                    cached, cache_key=cache_key, provenance=self._cache_reuse_owner.issue(cache_key)
+                )
             return cached
         if isinstance(response, GatewayLLMResponse):
             detached = _thaw_response(_freeze_response(response))
-            return _CacheReuseGatewayResponse(detached, cache_key=cache_key)
+            return _CacheReuseGatewayResponse(
+                detached, cache_key=cache_key, provenance=self._cache_reuse_owner.issue(cache_key)
+            )
         return response
 
     async def _produce(
@@ -602,7 +613,7 @@ class CachingLLMClient:
                 response = await self._call_provider(args, kwargs)
                 completion = _current_producer_completion()
                 if completion is not None:
-                    completed = completion.complete(response)
+                    completed = completion.complete(response, True)
                     raw_response = completed.response
                     if isinstance(raw_response, GatewayLLMResponse):
                         response = _ProducerGatewayResponse(

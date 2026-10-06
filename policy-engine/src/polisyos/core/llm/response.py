@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import Decimal
 from typing import Any
 
@@ -128,17 +128,26 @@ def _extract_cache_provenance(
     a provider-supplied ``_polisyos_cache`` mapping is intentionally ignored.
     """
 
-    response_type = type(response)
-    cache_hit = (
-        response_type.__name__ == "_CacheReuseGatewayResponse"
-        and response_type.__module__.endswith(".prompt_cache")
-        and getattr(response, "_polisyos_cache_hit", False) is True
-    )
-    if not cache_hit:
+    from .settlement import _cache_reuse_provenance
+
+    provenance = _cache_reuse_provenance(response)
+    if provenance is None:
         return False, "provider", None, None
-    reuse_event_id = _as_str(getattr(response, "_polisyos_reuse_event_id", None))
-    cache_key = _as_str(getattr(response, "_polisyos_cache_key", None))
-    return True, "provider", reuse_event_id, cache_key
+    return True, "provider", provenance.reuse_event_id, provenance.cache_key
+
+
+def _extract_physical_provider_response_data(response: Any) -> LLMResponseData:
+    """A known physical provider completion is billable even with borrowed reuse data."""
+    parsed = extract_llm_response_data(response)
+    return replace(
+        parsed,
+        prompt_tokens=parsed.origin_prompt_tokens or 0,
+        completion_tokens=parsed.origin_completion_tokens or 0,
+        cost_usd=parsed.origin_cost_usd,
+        cache_hit=False,
+        reuse_event_id=None,
+        cache_key=None,
+    )
 
 
 def _as_float(value: Any) -> float | None:

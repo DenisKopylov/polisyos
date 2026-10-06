@@ -124,6 +124,43 @@ class LLMSettledResponse:
         return str(self.response)
 
 
+class _CacheReuseOwner:
+    """Trusted in-process cache emitter; its opaque seal never crosses a wire."""
+
+    __slots__ = ("_seal",)
+
+    def __init__(self) -> None:
+        self._seal = object()
+
+    def issue(self, cache_key: str) -> _CacheReuseProvenance:
+        return _CacheReuseProvenance(self, self._seal, cache_key, f"cache-reuse:{uuid.uuid4().hex}")
+
+    def __reduce_ex__(self, protocol: int) -> Any:
+        raise TypeError("cache reuse authority is an in-process capability")
+
+
+@dataclass(frozen=True, slots=True)
+class _CacheReuseProvenance:
+    owner: _CacheReuseOwner
+    seal: object
+    cache_key: str
+    reuse_event_id: str
+
+    def __reduce_ex__(self, protocol: int) -> Any:
+        raise TypeError("cache reuse provenance cannot be serialized as authority")
+
+
+def _cache_reuse_provenance(response: Any) -> _CacheReuseProvenance | None:
+    value = getattr(response, "_polisyos_cache_reuse_provenance", None)
+    if (
+        isinstance(value, _CacheReuseProvenance)
+        and isinstance(value.owner, _CacheReuseOwner)
+        and value.seal is value.owner._seal
+    ):
+        return value
+    return None
+
+
 @dataclass(frozen=True, slots=True)
 class _SettlementOwner:
     scope_key: tuple[str, ...]
@@ -133,7 +170,7 @@ class _SettlementOwner:
 @dataclass(frozen=True, slots=True)
 class _ProducerCompletion:
     scope_key: tuple[str, ...]
-    complete: Callable[[Any], LLMSettledResponse]
+    complete: Callable[[Any, bool], LLMSettledResponse]
 
 
 _SETTLEMENT_OWNER: contextvars.ContextVar[_SettlementOwner | None] = contextvars.ContextVar(
@@ -169,7 +206,7 @@ def _settlement_owner_context(
 
 @contextmanager
 def _producer_completion_context(
-    scope_key: tuple[str, ...], complete: Callable[[Any], LLMSettledResponse]
+    scope_key: tuple[str, ...], complete: Callable[[Any, bool], LLMSettledResponse]
 ) -> Iterator[None]:
     token = _PRODUCER_COMPLETION.set(_ProducerCompletion(scope_key, complete))
     try:

@@ -250,7 +250,7 @@
     },
     {
       "id": "frozen-data-inspection-replay",
-      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt > /tmp/e02-B38-pg-frozen-inspection-adapters.json; byte-compare with committed immutable-artifact-inspection.json",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-postgres-fencing-independent-review/inspect-packet.source.txt > /tmp/e02-B38-pg-frozen-inspection-adapters.json",
       "target_sha": "4f47dfcbd1db4318d2373e577cf178ef6703c3f6",
       "environment": {
         "cwd": "/workspace/e02-B-current-adapters",

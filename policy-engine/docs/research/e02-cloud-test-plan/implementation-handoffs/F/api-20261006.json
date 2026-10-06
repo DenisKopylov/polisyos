@@ -14,7 +14,7 @@
   ],
   "candidate_tree_sha": "7ced77fdbd83e65efbd14d4bd518de2f786b1e9a",
   "branch": "codex/e02-F-api-20261006",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/59",
   "changed_paths": [
     "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/README.md",
     "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",

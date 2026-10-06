@@ -1,0 +1,1704 @@
+{
+  "DDM_unchanged_source_reuse": {
+    "authority": "Library consistency only; no current feed/time/institutional signoff/served deployment or LA054/055/056 closure",
+    "code_verdict": "GO_bounded_mechanism",
+    "independent_receipt_path": "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/review.json",
+    "independent_receipt_sha256": "032c1beef8ba54e2042926439852a13895c83d569c41dce7f5f2064edea314ec",
+    "new_DDM_code_review_performed": false,
+    "original_suite": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 82
+    },
+    "property_identities": [
+      {
+        "current": {
+          "blob": "2e6796867c4811868e291bc526a9c3c5999f7183",
+          "bytes": 31931,
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+          "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+          "sha256": "a735a52e743f835f5ff6251d82a8f55fb23affed19ae1b8d0ec5ebc2a5d66f10"
+        },
+        "identical": true,
+        "old": {
+          "blob": "2e6796867c4811868e291bc526a9c3c5999f7183",
+          "bytes": 31931,
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+          "sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+          "sha256": "a735a52e743f835f5ff6251d82a8f55fb23affed19ae1b8d0ec5ebc2a5d66f10"
+        }
+      },
+      {
+        "current": {
+          "blob": "0277bc66c1587a1ea4918de94cb79eac419d4956",
+          "bytes": 4485,
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json",
+          "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+          "sha256": "f67350d1606ccc754a446790db635a812f78bba3d492f7ffc123063a666b3c84"
+        },
+        "identical": true,
+        "old": {
+          "blob": "0277bc66c1587a1ea4918de94cb79eac419d4956",
+          "bytes": 4485,
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json",
+          "sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+          "sha256": "f67350d1606ccc754a446790db635a812f78bba3d492f7ffc123063a666b3c84"
+        }
+      },
+      {
+        "current": {
+          "blob": "25fd9d2faad3585e2ba87c72c41f63270687d1cb",
+          "bytes": 4074,
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.v1.schema.json",
+          "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+          "sha256": "92a594ac542a59e1d4dab4d867b11d9430ecd6f56ee2e6f3fea7c9b0b51089a7"
+        },
+        "identical": true,
+        "old": {
+          "blob": "25fd9d2faad3585e2ba87c72c41f63270687d1cb",
+          "bytes": 4074,
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.v1.schema.json",
+          "sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+          "sha256": "92a594ac542a59e1d4dab4d867b11d9430ecd6f56ee2e6f3fea7c9b0b51089a7"
+        }
+      },
+      {
+        "current": {
+          "blob": "c4e4ce09a4d3e0570a3db2a4aacd008861279236",
+          "bytes": 2235,
+          "path": "policy-engine/src/polisyos/ddm/__init__.py",
+          "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+          "sha256": "adbf26cc868a931b8ad4b2951558a065a52169a5d55acb3993e137d6657322fc"
+        },
+        "identical": true,
+        "old": {
+          "blob": "c4e4ce09a4d3e0570a3db2a4aacd008861279236",
+          "bytes": 2235,
+          "path": "policy-engine/src/polisyos/ddm/__init__.py",
+          "sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+          "sha256": "adbf26cc868a931b8ad4b2951558a065a52169a5d55acb3993e137d6657322fc"
+        }
+      },
+      {
+        "current": {
+          "blob": "570b29004553f80d63086804a8a782b9bb3d9b8b",
+          "bytes": 8495,
+          "path": "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py",
+          "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+          "sha256": "33ad1986cac616c0bf4fc4b5c67954310717ec6c5048c8002464fe4e21dc1504"
+        },
+        "identical": true,
+        "old": {
+          "blob": "570b29004553f80d63086804a8a782b9bb3d9b8b",
+          "bytes": 8495,
+          "path": "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py",
+          "sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+          "sha256": "33ad1986cac616c0bf4fc4b5c67954310717ec6c5048c8002464fe4e21dc1504"
+        }
+      }
+    ],
+    "source": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb"
+  },
+  "G_owner_decision": {
+    "blob": "72b607feb7a4c4f9bdf8f4e7a6c53a541819557e",
+    "bytes": 11071,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-r2-owner-actions-2026-10-06.md",
+    "sha": "53b309019913b938909d6dc0fc13f8edb409f368",
+    "sha256": "dfdf5e1803dbf8e31553b2d4bb5e4b71be58c3d498ccc9d6f35d8998f964bf4a"
+  },
+  "G_owner_decision_sha": "53b309019913b938909d6dc0fc13f8edb409f368",
+  "actual_native_errors": [],
+  "actual_native_findings": [],
+  "actual_native_parser": "tools.ops_runners.release.check_compatibility_release_gates._validate_fragments + build_release_notes.load_fragments/structured_compatibility_changes",
+  "base_sha": "a2677935015e8a0e7f2dfd5412b671e13fb3175a",
+  "canonical_owner_basis": {
+    "DDM_persisted_version_owner": "team-scientist per explicit G53 owner decision and canonical migration doc",
+    "contract": {
+      "blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "bytes": 19715,
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+    },
+    "public_version_owner": "team-architecture",
+    "selected_packages": {
+      "polisyos.calibration": {
+        "classification": "public_experimental",
+        "owner": "team-scientist",
+        "version_owner": "team-architecture"
+      },
+      "polisyos.ddm": {
+        "classification": "internal",
+        "owner": "team-scientist",
+        "version_owner": "team-architecture"
+      },
+      "polisyos.foundry.uncertainty": {
+        "classification": "public_stable",
+        "owner": "team-polisyos",
+        "version_owner": "team-architecture"
+      }
+    }
+  },
+  "code_schema_test_inventory_contract_changes": [],
+  "current_exports": {
+    "polisyos.calibration": {
+      "canonical_owner": "team-scientist",
+      "classification": "public_experimental",
+      "count": 29,
+      "exports": [
+        "PREDICTIVE_AUTHORITY_DENIALS",
+        "REFERENCE_PROFILES",
+        "CalibrationPoint",
+        "CalibrationResult",
+        "EmpiricalCalibrationContext",
+        "EmpiricalCalibrationEvidenceRef",
+        "EvidenceArtifactRef",
+        "ForecastCalibrationProfile",
+        "ForecastCandidateReceipt",
+        "ForecastCandidateReceiptRef",
+        "ForecastMeasurementBinding",
+        "apply_calibrator",
+        "compare_calibrators",
+        "compute_calibration_curve",
+        "evaluate_binary",
+        "evaluate_continuous",
+        "evaluate_multiclass",
+        "fit_calibrator",
+        "load_continuous_evaluation",
+        "load_empirical_calibration_evidence",
+        "load_forecast_calibration_profile",
+        "load_forecast_candidate_receipt",
+        "load_foundry_calibration_report",
+        "persist_continuous_evaluation",
+        "persist_empirical_calibration_evidence",
+        "persist_forecast_candidate_receipt",
+        "produce_empirical_calibration_evidence",
+        "resolve_forecast_measurement_binding",
+        "to_validation_report"
+      ],
+      "inventory_mode": "eager_exports",
+      "source": {
+        "blob": "941e326c19c3823a82756fb9053746b8aed05510",
+        "bytes": 2329,
+        "path": "policy-engine/src/polisyos/calibration/__init__.py",
+        "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+        "sha256": "90956911642839c4e79dc6ef30d4d581de88ccb02aa60894eaef0fe68d71a8b6"
+      }
+    },
+    "polisyos.ddm": {
+      "canonical_owner": "team-scientist",
+      "classification": "internal",
+      "count": 17,
+      "exports": [
+        "AffectedFeature",
+        "AffectedSlice",
+        "CalibrationAudit",
+        "DDMWindowResult",
+        "DataQualitySignal",
+        "DriftAndDegradationMonitor",
+        "IncidentPayload",
+        "MetricDirection",
+        "ModelRegistryReadinessRecord",
+        "MonitoringWindow",
+        "PerformanceDegradationEvent",
+        "ReadinessState",
+        "ReadinessStateEvent",
+        "RegistryGateDecision",
+        "RootCauseBundle",
+        "ShiftDetectedEvent",
+        "ShiftRiskEvent"
+      ],
+      "inventory_mode": "lazy_facade",
+      "source": {
+        "blob": "c4e4ce09a4d3e0570a3db2a4aacd008861279236",
+        "bytes": 2235,
+        "path": "policy-engine/src/polisyos/ddm/__init__.py",
+        "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+        "sha256": "adbf26cc868a931b8ad4b2951558a065a52169a5d55acb3993e137d6657322fc"
+      }
+    },
+    "polisyos.foundry.uncertainty": {
+      "canonical_owner": "team-polisyos",
+      "classification": "public_stable",
+      "count": 20,
+      "exports": [
+        "AdaptiveStoppingConfig",
+        "AggregationStrategy",
+        "BoundedIndicatorResponse",
+        "FabricUncertaintyContext",
+        "PropagationConfig",
+        "PropagationDispatcher",
+        "PropagationResult",
+        "PropagationStrategy",
+        "QuasiMCSampler",
+        "admit_empirical_weights",
+        "admit_unit_uniform",
+        "aggregate_envelopes",
+        "compute_first_order_indices",
+        "empirical_cdf",
+        "extract_std",
+        "fabric_uncertainty_context_from_decision_data",
+        "load_foundry_calibration_report",
+        "reconcile_draw_outcomes",
+        "sampling_content_digest",
+        "verify_mean_certificate"
+      ],
+      "inventory_mode": "eager_exports",
+      "source": {
+        "blob": "5a122baf833cf6e12c45aa5333e682ff35bfd5cf",
+        "bytes": 2176,
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+        "sha256": "339831fa41ff9e46842184fa01bbf2530db7317522bc2139c59343332f94d1ea"
+      }
+    }
+  },
+  "docs_and_evidence_refs": [
+    {
+      "blob": "7c687ca9119a7fbdce0e45ec57dfd4c61067d466",
+      "bytes": 10105,
+      "path": "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "26d7aa24cfb613bdd412ee6517a395a812b961acb8c54082f74f99215926dc03"
+    },
+    {
+      "blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+      "bytes": 5431,
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "2c1adc93937312772e66ae86662393a531cb779ce657caa1bf5c075445b57f14"
+    },
+    {
+      "blob": "f0fc340c5f85ac92bb1cbe178a5aa9455edb8cce",
+      "bytes": 4373,
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "1a15a4d19123aee3706d27a37b77d36dcd5dee80f2c3d34256e7a34af3d53a18"
+    },
+    {
+      "blob": "570b29004553f80d63086804a8a782b9bb3d9b8b",
+      "bytes": 8495,
+      "path": "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "33ad1986cac616c0bf4fc4b5c67954310717ec6c5048c8002464fe4e21dc1504"
+    },
+    {
+      "blob": "1b84e782c8f889e30d7f569e437070bc2a9d7b1c",
+      "bytes": 7873,
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry_gate.md",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "8365b630a97557f3483e7265145ac4b8b2306b6b438cf4257b3e7b72d9f79939"
+    },
+    {
+      "blob": "c6b650eca9d5fef504589021564a0b939ab1c485",
+      "bytes": 11261,
+      "path": "policy-engine/tests/unit/remediation/test_ddm_02.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "5ed6433c423ee9190cdfe2237a6cfc434180dad409721e0c64eb11f2795b799d"
+    },
+    {
+      "blob": "544adc5be28ed6d403098ca2b555099a231265b2",
+      "bytes": 30057,
+      "path": "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "22afba9f452e073cc8bd03b399ed17b1c240dd92257d13deaed94145cebcda53"
+    },
+    {
+      "blob": "7f71808fa8c56e861c9ed359c22c5297d2b3613d",
+      "bytes": 17995,
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "0d0127d5784ea5a265fcf20fb7a0551bc773f748f84b1e01de6c27eeb09eaef1"
+    },
+    {
+      "blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+      "bytes": 5431,
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "2c1adc93937312772e66ae86662393a531cb779ce657caa1bf5c075445b57f14"
+    },
+    {
+      "blob": "f0fc340c5f85ac92bb1cbe178a5aa9455edb8cce",
+      "bytes": 4373,
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "1a15a4d19123aee3706d27a37b77d36dcd5dee80f2c3d34256e7a34af3d53a18"
+    },
+    {
+      "blob": "25cb4c4885e00fb80c8703b24febc4cea8c3cea9",
+      "bytes": 4800,
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "8300a2ef7d851900a36a5615ab082ae41ceea9e3cf38a96a294200cf9b9c5c5f"
+    },
+    {
+      "blob": "52389e9eb467d2322f60e5dde11a55abe35ec90a",
+      "bytes": 3286,
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_sampling_real_domain.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "3e5229e3e6d9767c4d43eb65a1ffc369a6fe85dfff5b1244d2740b8f9b1245b2"
+    },
+    {
+      "blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+      "bytes": 5431,
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "2c1adc93937312772e66ae86662393a531cb779ce657caa1bf5c075445b57f14"
+    },
+    {
+      "blob": "25cb4c4885e00fb80c8703b24febc4cea8c3cea9",
+      "bytes": 4800,
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "8300a2ef7d851900a36a5615ab082ae41ceea9e3cf38a96a294200cf9b9c5c5f"
+    },
+    {
+      "blob": "7c687ca9119a7fbdce0e45ec57dfd4c61067d466",
+      "bytes": 10105,
+      "path": "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "26d7aa24cfb613bdd412ee6517a395a812b961acb8c54082f74f99215926dc03"
+    },
+    {
+      "blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+      "bytes": 5431,
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "2c1adc93937312772e66ae86662393a531cb779ce657caa1bf5c075445b57f14"
+    },
+    {
+      "blob": "25cb4c4885e00fb80c8703b24febc4cea8c3cea9",
+      "bytes": 4800,
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "8300a2ef7d851900a36a5615ab082ae41ceea9e3cf38a96a294200cf9b9c5c5f"
+    },
+    {
+      "blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+      "bytes": 5431,
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "2c1adc93937312772e66ae86662393a531cb779ce657caa1bf5c075445b57f14"
+    },
+    {
+      "blob": "7f98f28c26c94b010fce21977b8d56193c31c8de",
+      "bytes": 4137,
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "980adc4a330d8641e30e688449eecb31a0c3db82591a5f40539b89a14ef57015"
+    }
+  ],
+  "environment": {
+    "caps_added": false,
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "new_environment": false,
+    "new_worktree": false,
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "production_data_used": false,
+    "python": "3.14.7",
+    "python_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python"
+  },
+  "footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-uncertainty-evidence-facade.toml"
+  ],
+  "fragment_source": [
+    {
+      "blob": "dd18e0111e5d19b3db6dc0044ea63f5a2e9c5abf",
+      "bytes": 1717,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "0b456ba68cd4eeac86e31753fa3d9a787f95d6cea36d38a80b693c389fa6b09f"
+    },
+    {
+      "blob": "21bd1097123237519d17ae9a0555f9c33a40dc1e",
+      "bytes": 2796,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "01fc46a6268408570a2da271534187894f94797452385b9b7bfaa1d474267b32"
+    },
+    {
+      "blob": "398da121a350921287fe4dee0e1ad7e7226d63f2",
+      "bytes": 1744,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "0a706c0a24a48b352aa76e7a6bd93e2dc52a6b7a57c7caa77d050c9221243079"
+    },
+    {
+      "blob": "1699b60fe0ea1e65ccb814966528e2b90ba422b1",
+      "bytes": 1661,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "2569c02d06ab24a9a6ac008640e00c9ff3015d6d9a8d6e71a65287711ca64c4b"
+    },
+    {
+      "blob": "fbcd5df0ea0115683da3c2216bd00e3e2274d489",
+      "bytes": 1594,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "236ac0be019ec9893a7490e2d098e5065836b8c58ee26b48484c9ba431057b04"
+    },
+    {
+      "blob": "c0bba917f7e82fbfbb6d60324264e92dfd17eca4",
+      "bytes": 1764,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-uncertainty-evidence-facade.toml",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "8234df98d06ec176e2bc992442be6e733e07605a3f91e058c9d56006cecd251b"
+    }
+  ],
+  "historical_G53_counts": "G53 7f calibration28/uncertainty19 source is historical; current pinned source29/20 is verified against exact unchanged inventory",
+  "limits": [
+    "Selected six-row parser and canonical-owner reconciliation only; no generic/global CI PASS",
+    "No code/schema API semantics changed in this metadata delta",
+    "Structured parser presence checks alone do not establish canonical ownership",
+    "Current29/20 reconciliation is reused from independent r5 and verified from pinned source/inventory, no dynamic numerical family rerun",
+    "DDM17 internal facade and independently reviewed v1/v2 code are unchanged; deployment/version rollout and current-feed/signoff owner decisions remain separate",
+    "B197/B194/B201/B202 and remaining finding ledger statuses are unchanged"
+  ],
+  "native_parser_source": [
+    {
+      "blob": "bf4b94548619f4dcce395806a5ec70ea54b4847a",
+      "bytes": 26585,
+      "path": "policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "2b7ce18983e59a02ddeef457dfc5a39f83129514707b03da45099018f0104b75"
+    },
+    {
+      "blob": "6eaa5b247a81e07d4c5bb22570169a9a91c06baa",
+      "bytes": 8236,
+      "path": "policy-engine/tools/ops_runners/release/build_release_notes.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "e671c6ed806228c4223c0542e6cde4c203d648e3614a99deafb574ffd7bf3525"
+    },
+    {
+      "blob": "2d41d47837fdc6083d8a02bb46debddf303fb1af",
+      "bytes": 1623,
+      "path": "policy-engine/tools/lib/imports.py",
+      "sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+      "sha256": "f04010c5a61accc638d01ffcb0eceb788730eea4b1d74d015eadeed413951f95"
+    }
+  ],
+  "negative_controls": [
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `id`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-calibration-reader-facade.toml:<missing-id>"
+        }
+      ],
+      "field": "id",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-foundry-reader-alias"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `change_class`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-calibration-reader-facade.toml:calibration-foundry-reader-alias"
+        }
+      ],
+      "field": "change_class",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-foundry-reader-alias"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `impact`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-calibration-reader-facade.toml:calibration-foundry-reader-alias"
+        }
+      ],
+      "field": "impact",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-foundry-reader-alias"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `surface`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-calibration-reader-facade.toml:calibration-foundry-reader-alias"
+        }
+      ],
+      "field": "surface",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-foundry-reader-alias"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `owner`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-calibration-reader-facade.toml:calibration-foundry-reader-alias"
+        }
+      ],
+      "field": "owner",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-foundry-reader-alias"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `version_owner`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-calibration-reader-facade.toml:calibration-foundry-reader-alias"
+        }
+      ],
+      "field": "version_owner",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-foundry-reader-alias"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `deprecation_window`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-calibration-reader-facade.toml:calibration-foundry-reader-alias"
+        }
+      ],
+      "field": "deprecation_window",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-foundry-reader-alias"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `release_note`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-calibration-reader-facade.toml:calibration-foundry-reader-alias"
+        }
+      ],
+      "field": "release_note",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-foundry-reader-alias"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_owner_predicate": "REFUSED",
+      "kind": "present-but-fake-canonical-owner",
+      "location": "note",
+      "other_fields_retained": true,
+      "owner": "E",
+      "reason": "note owner must match its single canonical surface",
+      "row_id": "calibration-foundry-reader-alias"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_owner_predicate": "REFUSED",
+      "kind": "present-but-fake-canonical-owner",
+      "location": "row",
+      "other_fields_retained": true,
+      "owner": "E",
+      "reason": "structured owner must match canonical contract",
+      "row_id": "calibration-foundry-reader-alias"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_predicate": "REFUSED",
+      "field": "version_owner",
+      "kind": "canonical-field-corruption",
+      "other_fields_retained": true,
+      "reason": "",
+      "row_id": "calibration-foundry-reader-alias",
+      "value": "E"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_predicate": "REFUSED",
+      "field": "surface",
+      "kind": "canonical-field-corruption",
+      "other_fields_retained": true,
+      "reason": "row classification must match canonical contract",
+      "row_id": "calibration-foundry-reader-alias",
+      "value": "internal: polisyos.calibration"
+    },
+    {
+      "actual_generic_parser": "warning only",
+      "canonical_predicate": "REFUSED",
+      "kind": "structured-row-carrier-removal",
+      "reason": "one owner-scoped structured row is required",
+      "row_id": "calibration-foundry-reader-alias"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `id`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-ddm-source-binding.toml:<missing-id>"
+        }
+      ],
+      "field": "id",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "ddm-registry-record-v2-reader-migration"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `change_class`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-ddm-source-binding.toml:ddm-registry-record-v2-reader-migration"
+        }
+      ],
+      "field": "change_class",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "ddm-registry-record-v2-reader-migration"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `impact`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-ddm-source-binding.toml:ddm-registry-record-v2-reader-migration"
+        }
+      ],
+      "field": "impact",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "ddm-registry-record-v2-reader-migration"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `surface`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-ddm-source-binding.toml:ddm-registry-record-v2-reader-migration"
+        }
+      ],
+      "field": "surface",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "ddm-registry-record-v2-reader-migration"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `owner`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-ddm-source-binding.toml:ddm-registry-record-v2-reader-migration"
+        }
+      ],
+      "field": "owner",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "ddm-registry-record-v2-reader-migration"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `version_owner`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-ddm-source-binding.toml:ddm-registry-record-v2-reader-migration"
+        }
+      ],
+      "field": "version_owner",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "ddm-registry-record-v2-reader-migration"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `deprecation_window`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-ddm-source-binding.toml:ddm-registry-record-v2-reader-migration"
+        }
+      ],
+      "field": "deprecation_window",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "ddm-registry-record-v2-reader-migration"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `release_note`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-ddm-source-binding.toml:ddm-registry-record-v2-reader-migration"
+        }
+      ],
+      "field": "release_note",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "ddm-registry-record-v2-reader-migration"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_owner_predicate": "REFUSED",
+      "kind": "present-but-fake-canonical-owner",
+      "location": "note",
+      "other_fields_retained": true,
+      "owner": "E",
+      "reason": "note owner must match its single canonical surface",
+      "row_id": "ddm-registry-record-v2-reader-migration"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_owner_predicate": "REFUSED",
+      "kind": "present-but-fake-canonical-owner",
+      "location": "row",
+      "other_fields_retained": true,
+      "owner": "E",
+      "reason": "structured owner must match canonical contract",
+      "row_id": "ddm-registry-record-v2-reader-migration"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_predicate": "REFUSED",
+      "field": "version_owner",
+      "kind": "canonical-field-corruption",
+      "other_fields_retained": true,
+      "reason": "G53 and migration documentation name the DDM registry owner",
+      "row_id": "ddm-registry-record-v2-reader-migration",
+      "value": "E"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_predicate": "REFUSED",
+      "field": "surface",
+      "kind": "canonical-field-corruption",
+      "other_fields_retained": true,
+      "reason": "row classification must match canonical contract",
+      "row_id": "ddm-registry-record-v2-reader-migration",
+      "value": "public_experimental: polisyos.ddm"
+    },
+    {
+      "actual_generic_parser": "warning only",
+      "canonical_predicate": "REFUSED",
+      "kind": "structured-row-carrier-removal",
+      "reason": "one owner-scoped structured row is required",
+      "row_id": "ddm-registry-record-v2-reader-migration"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `id`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-evidence-facades.toml:<missing-id>"
+        }
+      ],
+      "field": "id",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-predictive-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `change_class`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-evidence-facades.toml:calibration-predictive-evidence-facade"
+        }
+      ],
+      "field": "change_class",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-predictive-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `impact`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-evidence-facades.toml:calibration-predictive-evidence-facade"
+        }
+      ],
+      "field": "impact",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-predictive-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `surface`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-evidence-facades.toml:calibration-predictive-evidence-facade"
+        }
+      ],
+      "field": "surface",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-predictive-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `owner`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-evidence-facades.toml:calibration-predictive-evidence-facade"
+        }
+      ],
+      "field": "owner",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-predictive-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `version_owner`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-evidence-facades.toml:calibration-predictive-evidence-facade"
+        }
+      ],
+      "field": "version_owner",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-predictive-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `deprecation_window`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-evidence-facades.toml:calibration-predictive-evidence-facade"
+        }
+      ],
+      "field": "deprecation_window",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-predictive-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `release_note`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-evidence-facades.toml:calibration-predictive-evidence-facade"
+        }
+      ],
+      "field": "release_note",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-predictive-evidence-facade"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_owner_predicate": "REFUSED",
+      "kind": "present-but-fake-canonical-owner",
+      "location": "note",
+      "other_fields_retained": true,
+      "owner": "E",
+      "reason": "note owner must match its single canonical surface",
+      "row_id": "calibration-predictive-evidence-facade"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_owner_predicate": "REFUSED",
+      "kind": "present-but-fake-canonical-owner",
+      "location": "row",
+      "other_fields_retained": true,
+      "owner": "E",
+      "reason": "structured owner must match canonical contract",
+      "row_id": "calibration-predictive-evidence-facade"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_predicate": "REFUSED",
+      "field": "version_owner",
+      "kind": "canonical-field-corruption",
+      "other_fields_retained": true,
+      "reason": "",
+      "row_id": "calibration-predictive-evidence-facade",
+      "value": "E"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_predicate": "REFUSED",
+      "field": "surface",
+      "kind": "canonical-field-corruption",
+      "other_fields_retained": true,
+      "reason": "row classification must match canonical contract",
+      "row_id": "calibration-predictive-evidence-facade",
+      "value": "internal: polisyos.calibration"
+    },
+    {
+      "actual_generic_parser": "warning only",
+      "canonical_predicate": "REFUSED",
+      "kind": "structured-row-carrier-removal",
+      "reason": "one owner-scoped structured row is required",
+      "row_id": "calibration-predictive-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `id`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-finite-law-admission-facade.toml:<missing-id>"
+        }
+      ],
+      "field": "id",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-finite-law-admission"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `change_class`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-finite-law-admission-facade.toml:foundry-finite-law-admission"
+        }
+      ],
+      "field": "change_class",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-finite-law-admission"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `impact`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-finite-law-admission-facade.toml:foundry-finite-law-admission"
+        }
+      ],
+      "field": "impact",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-finite-law-admission"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `surface`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-finite-law-admission-facade.toml:foundry-finite-law-admission"
+        }
+      ],
+      "field": "surface",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-finite-law-admission"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `owner`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-finite-law-admission-facade.toml:foundry-finite-law-admission"
+        }
+      ],
+      "field": "owner",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-finite-law-admission"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `version_owner`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-finite-law-admission-facade.toml:foundry-finite-law-admission"
+        }
+      ],
+      "field": "version_owner",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-finite-law-admission"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `deprecation_window`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-finite-law-admission-facade.toml:foundry-finite-law-admission"
+        }
+      ],
+      "field": "deprecation_window",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-finite-law-admission"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `release_note`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-finite-law-admission-facade.toml:foundry-finite-law-admission"
+        }
+      ],
+      "field": "release_note",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-finite-law-admission"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_owner_predicate": "REFUSED",
+      "kind": "present-but-fake-canonical-owner",
+      "location": "note",
+      "other_fields_retained": true,
+      "owner": "E",
+      "reason": "note owner must match its single canonical surface",
+      "row_id": "foundry-finite-law-admission"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_owner_predicate": "REFUSED",
+      "kind": "present-but-fake-canonical-owner",
+      "location": "row",
+      "other_fields_retained": true,
+      "owner": "E",
+      "reason": "structured owner must match canonical contract",
+      "row_id": "foundry-finite-law-admission"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_predicate": "REFUSED",
+      "field": "version_owner",
+      "kind": "canonical-field-corruption",
+      "other_fields_retained": true,
+      "reason": "",
+      "row_id": "foundry-finite-law-admission",
+      "value": "E"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_predicate": "REFUSED",
+      "field": "surface",
+      "kind": "canonical-field-corruption",
+      "other_fields_retained": true,
+      "reason": "row classification must match canonical contract",
+      "row_id": "foundry-finite-law-admission",
+      "value": "internal: polisyos.foundry.uncertainty"
+    },
+    {
+      "actual_generic_parser": "warning only",
+      "canonical_predicate": "REFUSED",
+      "kind": "structured-row-carrier-removal",
+      "reason": "one owner-scoped structured row is required",
+      "row_id": "foundry-finite-law-admission"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `id`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-foundry-calibration-reader.toml:<missing-id>"
+        }
+      ],
+      "field": "id",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-calibration-reader"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `change_class`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-foundry-calibration-reader.toml:foundry-uncertainty-calibration-reader"
+        }
+      ],
+      "field": "change_class",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-calibration-reader"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `impact`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-foundry-calibration-reader.toml:foundry-uncertainty-calibration-reader"
+        }
+      ],
+      "field": "impact",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-calibration-reader"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `surface`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-foundry-calibration-reader.toml:foundry-uncertainty-calibration-reader"
+        }
+      ],
+      "field": "surface",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-calibration-reader"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `owner`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-foundry-calibration-reader.toml:foundry-uncertainty-calibration-reader"
+        }
+      ],
+      "field": "owner",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-calibration-reader"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `version_owner`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-foundry-calibration-reader.toml:foundry-uncertainty-calibration-reader"
+        }
+      ],
+      "field": "version_owner",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-calibration-reader"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `deprecation_window`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-foundry-calibration-reader.toml:foundry-uncertainty-calibration-reader"
+        }
+      ],
+      "field": "deprecation_window",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-calibration-reader"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `release_note`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-foundry-calibration-reader.toml:foundry-uncertainty-calibration-reader"
+        }
+      ],
+      "field": "release_note",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-calibration-reader"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_owner_predicate": "REFUSED",
+      "kind": "present-but-fake-canonical-owner",
+      "location": "note",
+      "other_fields_retained": true,
+      "owner": "E",
+      "reason": "note owner must match its single canonical surface",
+      "row_id": "foundry-uncertainty-calibration-reader"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_owner_predicate": "REFUSED",
+      "kind": "present-but-fake-canonical-owner",
+      "location": "row",
+      "other_fields_retained": true,
+      "owner": "E",
+      "reason": "structured owner must match canonical contract",
+      "row_id": "foundry-uncertainty-calibration-reader"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_predicate": "REFUSED",
+      "field": "version_owner",
+      "kind": "canonical-field-corruption",
+      "other_fields_retained": true,
+      "reason": "",
+      "row_id": "foundry-uncertainty-calibration-reader",
+      "value": "E"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_predicate": "REFUSED",
+      "field": "surface",
+      "kind": "canonical-field-corruption",
+      "other_fields_retained": true,
+      "reason": "row classification must match canonical contract",
+      "row_id": "foundry-uncertainty-calibration-reader",
+      "value": "internal: polisyos.foundry.uncertainty"
+    },
+    {
+      "actual_generic_parser": "warning only",
+      "canonical_predicate": "REFUSED",
+      "kind": "structured-row-carrier-removal",
+      "reason": "one owner-scoped structured row is required",
+      "row_id": "foundry-uncertainty-calibration-reader"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `id`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-uncertainty-evidence-facade.toml:<missing-id>"
+        }
+      ],
+      "field": "id",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `change_class`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-uncertainty-evidence-facade.toml:foundry-uncertainty-evidence-facade"
+        }
+      ],
+      "field": "change_class",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `impact`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-uncertainty-evidence-facade.toml:foundry-uncertainty-evidence-facade"
+        }
+      ],
+      "field": "impact",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `surface`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-uncertainty-evidence-facade.toml:foundry-uncertainty-evidence-facade"
+        }
+      ],
+      "field": "surface",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `owner`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-uncertainty-evidence-facade.toml:foundry-uncertainty-evidence-facade"
+        }
+      ],
+      "field": "owner",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `version_owner`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-uncertainty-evidence-facade.toml:foundry-uncertainty-evidence-facade"
+        }
+      ],
+      "field": "version_owner",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `deprecation_window`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-uncertainty-evidence-facade.toml:foundry-uncertainty-evidence-facade"
+        }
+      ],
+      "field": "deprecation_window",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "fragment-compatibility",
+          "detail": "",
+          "message": "missing `release_note`",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-uncertainty-evidence-facade.toml:foundry-uncertainty-evidence-facade"
+        }
+      ],
+      "field": "release_note",
+      "kind": "required-row-field-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-evidence-facade"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_owner_predicate": "REFUSED",
+      "kind": "present-but-fake-canonical-owner",
+      "location": "note",
+      "other_fields_retained": true,
+      "owner": "E",
+      "reason": "note owner must match its single canonical surface",
+      "row_id": "foundry-uncertainty-evidence-facade"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_owner_predicate": "REFUSED",
+      "kind": "present-but-fake-canonical-owner",
+      "location": "row",
+      "other_fields_retained": true,
+      "owner": "E",
+      "reason": "structured owner must match canonical contract",
+      "row_id": "foundry-uncertainty-evidence-facade"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_predicate": "REFUSED",
+      "field": "version_owner",
+      "kind": "canonical-field-corruption",
+      "other_fields_retained": true,
+      "reason": "",
+      "row_id": "foundry-uncertainty-evidence-facade",
+      "value": "E"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_predicate": "REFUSED",
+      "field": "surface",
+      "kind": "canonical-field-corruption",
+      "other_fields_retained": true,
+      "reason": "row classification must match canonical contract",
+      "row_id": "foundry-uncertainty-evidence-facade",
+      "value": "internal: polisyos.foundry.uncertainty"
+    },
+    {
+      "actual_generic_parser": "warning only",
+      "canonical_predicate": "REFUSED",
+      "kind": "structured-row-carrier-removal",
+      "reason": "one owner-scoped structured row is required",
+      "row_id": "foundry-uncertainty-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "public-surface-review",
+          "detail": "",
+          "message": "python public API change requires public_surface_inventory_reviewed=true",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-calibration-reader-facade.toml:calibration-foundry-reader-alias"
+        }
+      ],
+      "both_fields_removed": true,
+      "kind": "inventory-review-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-foundry-reader-alias"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_G53_profile": "REFUSED",
+      "field": "impact",
+      "kind": "DDM-directional-migration-corruption",
+      "other_fields_retained": true,
+      "reason": "DDM version transition has directional reader migration",
+      "row_id": "ddm-registry-record-v2-reader-migration",
+      "value": "additive"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_G53_profile": "REFUSED",
+      "field": "change_class",
+      "kind": "DDM-directional-migration-corruption",
+      "other_fields_retained": true,
+      "reason": "DDM is a persisted format migration, not a facade API change",
+      "row_id": "ddm-registry-record-v2-reader-migration",
+      "value": "internal"
+    },
+    {
+      "actual_generic_parser": "PASS",
+      "canonical_G53_profile": "REFUSED",
+      "field": "migration_docs",
+      "kind": "DDM-directional-migration-corruption",
+      "other_fields_retained": true,
+      "reason": "DDM migration must bind its canonical reader migration document",
+      "row_id": "ddm-registry-record-v2-reader-migration",
+      "value": []
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "public-surface-review",
+          "detail": "",
+          "message": "python public API change requires public_surface_inventory_reviewed=true",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-evidence-facades.toml:calibration-predictive-evidence-facade"
+        }
+      ],
+      "both_fields_removed": true,
+      "kind": "inventory-review-removal",
+      "outcome": "REFUSED",
+      "row_id": "calibration-predictive-evidence-facade"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "public-surface-review",
+          "detail": "",
+          "message": "python public API change requires public_surface_inventory_reviewed=true",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-finite-law-admission-facade.toml:foundry-finite-law-admission"
+        }
+      ],
+      "both_fields_removed": true,
+      "kind": "inventory-review-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-finite-law-admission"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "public-surface-review",
+          "detail": "",
+          "message": "python public API change requires public_surface_inventory_reviewed=true",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-foundry-calibration-reader.toml:foundry-uncertainty-calibration-reader"
+        }
+      ],
+      "both_fields_removed": true,
+      "kind": "inventory-review-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-calibration-reader"
+    },
+    {
+      "actual_generic_parser": [
+        {
+          "check": "public-surface-review",
+          "detail": "",
+          "message": "python public API change requires public_surface_inventory_reviewed=true",
+          "severity": "error",
+          "subject": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-uncertainty-evidence-facade.toml:foundry-uncertainty-evidence-facade"
+        }
+      ],
+      "both_fields_removed": true,
+      "kind": "inventory-review-removal",
+      "outcome": "REFUSED",
+      "row_id": "foundry-uncertainty-evidence-facade"
+    }
+  ],
+  "reviewer": "independent backtest_r3 leaf; metadata only, no BKT/Welfare code review",
+  "schema": "e02.E.selected-compatibility-metadata-review.v1",
+  "selected_fragment_count": 6,
+  "source_sha": "25ab29c0f527c90f4281a4cf04256acb8f62f051",
+  "source_tree": "51343543823afdec2dd86f7e76e1590b1dca0a70",
+  "structured_rows": [
+    {
+      "change_class": "python-public-api",
+      "deprecation_window": "not_applicable",
+      "fragment": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-calibration-reader-facade.toml",
+      "generated_client_compatibility": "not_applicable",
+      "id": "calibration-foundry-reader-alias",
+      "impact": "additive",
+      "migration_docs": [
+        "src/polisyos/calibration/README.md"
+      ],
+      "owner": "team-scientist",
+      "public_surface_inventory_reviewed": true,
+      "release_note": "Calibration re-exports the strict canonical Foundry calibration reader by identity through the admitted Foundry uncertainty facade.",
+      "runbook_docs": [],
+      "surface": "public_experimental: polisyos.calibration",
+      "version_owner": "team-architecture"
+    },
+    {
+      "change_class": "persisted-artifact-format",
+      "deprecation_window": "Historical unversioned v1 records remain readable; upgrade served readers before v2 emission. No v1 removal date is declared.",
+      "fragment": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-ddm-source-binding.toml",
+      "generated_client_compatibility": "not_applicable",
+      "id": "ddm-registry-record-v2-reader-migration",
+      "impact": "compatible_with_migration",
+      "migration_docs": [
+        "src/polisyos/ddm/integration/model_registry_gate.md"
+      ],
+      "owner": "team-scientist",
+      "release_note": "DDM preserves original strict v1 bytes/schema identity and introduces distinct v2 registry records. New v2 output requires an upgraded reader; prerelease enriched records require explicit migration and fresh source rebind. Reading or migration does not grant promotion authority.",
+      "runbook_docs": [],
+      "surface": "internal: polisyos.ddm persisted ModelRegistryReadinessRecord v1/v2; existing 17-export facade unchanged",
+      "version_owner": "team-scientist"
+    },
+    {
+      "change_class": "python-public-api",
+      "deprecation_window": "not_applicable",
+      "fragment": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-evidence-facades.toml",
+      "generated_client_compatibility": "not_applicable",
+      "id": "calibration-predictive-evidence-facade",
+      "impact": "additive",
+      "migration_docs": [
+        "src/polisyos/calibration/README.md"
+      ],
+      "owner": "team-scientist",
+      "public_surface_inventory_reviewed": true,
+      "release_note": "Expose canonical predictive evidence writer and loader objects through the existing Calibration facade.",
+      "runbook_docs": [],
+      "surface": "public_experimental: polisyos.calibration",
+      "version_owner": "team-architecture"
+    },
+    {
+      "change_class": "python-public-api",
+      "deprecation_window": "not_applicable",
+      "fragment": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-finite-law-admission-facade.toml",
+      "generated_client_compatibility": "not_applicable",
+      "id": "foundry-finite-law-admission",
+      "impact": "additive",
+      "migration_docs": [
+        "src/polisyos/foundry/uncertainty/README.md"
+      ],
+      "owner": "team-polisyos",
+      "public_surface_inventory_reviewed": true,
+      "release_note": "Expose the canonical finite-weight, CDF and half-open uniform admission helpers through Foundry uncertainty.",
+      "runbook_docs": [],
+      "surface": "public_stable: polisyos.foundry.uncertainty",
+      "version_owner": "team-architecture"
+    },
+    {
+      "change_class": "python-public-api",
+      "deprecation_window": "not_applicable",
+      "fragment": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-foundry-calibration-reader.toml",
+      "generated_client_compatibility": "not_applicable",
+      "id": "foundry-uncertainty-calibration-reader",
+      "impact": "additive",
+      "migration_docs": [
+        "src/polisyos/foundry/uncertainty/README.md"
+      ],
+      "owner": "team-polisyos",
+      "public_surface_inventory_reviewed": true,
+      "release_note": "Expose the strict configured CAS CalibrationReport reader through the admitted Foundry uncertainty facade.",
+      "runbook_docs": [],
+      "surface": "public_stable: polisyos.foundry.uncertainty",
+      "version_owner": "team-architecture"
+    },
+    {
+      "change_class": "python-public-api",
+      "deprecation_window": "not_applicable",
+      "fragment": "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent/selected-fragments/2026-10-06-e02-uncertainty-evidence-facade.toml",
+      "generated_client_compatibility": "not_applicable",
+      "id": "foundry-uncertainty-evidence-facade",
+      "impact": "additive",
+      "migration_docs": [
+        "src/polisyos/foundry/uncertainty/README.md"
+      ],
+      "owner": "team-polisyos",
+      "public_surface_inventory_reviewed": true,
+      "release_note": "Expose canonical terminal-draw reconciliation and bounded mean certificate consumers through Foundry uncertainty.",
+      "runbook_docs": [],
+      "surface": "public_stable: polisyos.foundry.uncertainty",
+      "version_owner": "team-architecture"
+    }
+  ],
+  "verdict": "GO-bounded-canonical-owner-release-metadata"
+}

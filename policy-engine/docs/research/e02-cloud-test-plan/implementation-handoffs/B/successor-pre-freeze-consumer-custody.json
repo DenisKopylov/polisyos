@@ -1,0 +1,1632 @@
+{
+  "schema": "e02-implementation-handoff-v1",
+  "unit": "B",
+  "slice": "successor-pre-freeze-consumer-custody",
+  "owner": "B root",
+  "closure_ids": [],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "candidate_sha": "a6e803e574dcad0e558baa9cc8b9dcd61552ed95",
+  "candidate_tree_sha": "c9b5d46f111a7fe191f495eb7469a4913e722231",
+  "driver_implementation_commits": [
+    "fb97ad02bc29a08aa126c00d2ec9ef622a8e45cd",
+    "a6e803e574dcad0e558baa9cc8b9dcd61552ed95"
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_successor.py"
+  ],
+  "property": {
+    "runtime_path": "Combined actual checkpoint/CAS/async/resume/parallel-compensation/JIT consumers after canonical budget/type changes",
+    "defining_observations": "All18 wholefiles238 actual native PASS, including35sactual mutable head publication with original60s deadline; queuednot_admitted vs enteredunknown; freshverified head/history/cache and phase compensation; CAS corrupted bytes/manifest refusal, retry and verification; actual JAX retry/warm calls. Full XML/native stdout contain each case, no case filters.",
+    "independent_oracles": "DUR actual source-bound long/shortfilesystem andparallelcompensation inputs; ADAPTER actual JIT leaderterminalinputs. Source and property-removal evidence remains bound to original immutable slices, not relabeled as currentroot removal runs.",
+    "adversarial_control": "Prior literal independent budget/head/GC removals produced material filesystem FAIL; existing CAS bytes/options/fault/ownership and queued/entered cancellation negatives are wholefile inputs. No new allfinding closure from aggregate238.",
+    "consumer": "18actual native whole modules, complete commands andcase rows below"
+  },
+  "predicate_basis": "consumer_asserted",
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+        "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "tests/integration/scientist/test_checkpoint_resume.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+        "tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+        "tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+        "tests/unit/core/artifacts/test_put_integrity_retry.py",
+        "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+        "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+        "tests/unit/core/artifacts/test_cas_integrity_report.py",
+        "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+        "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+        "--basetemp",
+        "/tmp/e02-B-successor-targeted-0fd/pytest",
+        "-o",
+        "cache_dir=/tmp/e02-B-successor-targeted-0fd/cache",
+        "--junitxml",
+        "/tmp/e02-B-successor-targeted-0fd/native.xml"
+      ],
+      "source_sha": "0fdc39831bc95f059dd220c054494fd410bde9da",
+      "source_tree": "b75980daba837e15d8664785107e12d759101b82",
+      "source_after": "0fdc39831bc95f059dd220c054494fd410bde9da",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "UV_PROJECT_ENVIRONMENT": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment",
+        "UV_NO_SYNC": "1",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-coordination/policy-engine"
+      },
+      "numeric_caps": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "BLIS_NUM_THREADS": null
+      },
+      "input_closure": [
+        {
+          "path": "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+          "sha256": "3db521987208d8c01f2931a7b40f5c4da6746e0ad16b33c228bc35d84c984994"
+        },
+        {
+          "path": "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+          "sha256": "1e06eddf3a53bb96da51b5b233e8a5eb3421886585c114c36fcc8d29b122620c"
+        },
+        {
+          "path": "tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py",
+          "sha256": "c283ee687bd7722b02d4e02793daac83504410f6f816cd21a8fc9b9641f24ee9"
+        },
+        {
+          "path": "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+          "sha256": "88f9f7396627a53587be19fd1a5e4859c9bf15c36df272239dea8f354eea0d2c"
+        },
+        {
+          "path": "tests/unit/scientist/orchestration/engine/test_async_executor.py",
+          "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b"
+        },
+        {
+          "path": "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+          "sha256": "deceae4388fea387d81d3aa9e0ada4d5c797d545a2dcc998bd9e4ce0fbed8e9c"
+        },
+        {
+          "path": "tests/integration/scientist/test_checkpoint_resume.py",
+          "sha256": "c94e36b922f539c2256eefe1ad653b2c99c9fc73895c598b05c8034cdaf3bea2"
+        },
+        {
+          "path": "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+          "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58"
+        },
+        {
+          "path": "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+          "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a"
+        },
+        {
+          "path": "tests/integration/scientist/test_parallel_tier_compensation_oracle.py",
+          "sha256": "6e51e94a9c352d2452e2c79b5ab71001cbf98f1d78154ac8e9e759e97144f4b7"
+        },
+        {
+          "path": "tests/unit/foundry/methods/test_compiler_leader_termination_e02.py",
+          "sha256": "75afc999a46ea3e4697b79dbecbe0678e4946cd89e360754543a32a0ea15812f"
+        },
+        {
+          "path": "tests/unit/core/artifacts/test_put_integrity_retry.py",
+          "sha256": "1bb168058fbae8b00094c0cdec0f322bbfb5b9768ef4bafc0d5bc9f946327da7"
+        },
+        {
+          "path": "tests/unit/core/artifacts/test_import_admission_noop.py",
+          "sha256": "44b8e5d352da4ada1cc4a66b9f824776e38582d28424c408474769a6c0bb14a3"
+        },
+        {
+          "path": "tests/unit/core/artifacts/test_transfer_generation_publication.py",
+          "sha256": "8996cc5b02bf74aeda4d1ec36adb30cdf14bd9030c242f3425baad678b23d861"
+        },
+        {
+          "path": "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py",
+          "sha256": "16f2ac386885257997a58d97fabc78fe632c328fa6bca2780fcb35825c95fb32"
+        },
+        {
+          "path": "tests/unit/core/artifacts/test_cas_integrity_report.py",
+          "sha256": "cb4bb3f5564bfc4e9e602466989e622e114e725f16c4488b12c9a051d0bf2aa4"
+        },
+        {
+          "path": "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+          "sha256": "43c39a7064b161649c2a4cf65c1363ec4f2c02555f09523ebe47dc7a0ad36065"
+        },
+        {
+          "path": "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py",
+          "sha256": "ea350b993f693b6421ea0bab58c01e0acbf6f6a7e7c8152c7c3043d856d7f3e4"
+        }
+      ],
+      "outcome": "PASS",
+      "cases": 238,
+      "file_count": 18,
+      "wall_s": 163.05429196300975,
+      "rss_kib": 970844,
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-targeted-consumer-evidence/successor-targeted-0fd.txt",
+          "bytes": 37930,
+          "sha256": "3cf14b34f3ffafb743ddd340e3649891358896b9de34f7bf97cf2f114c28ef95",
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-targeted-0fd.txt"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-targeted-consumer-evidence/successor-targeted-0fd.json",
+          "bytes": 3518,
+          "sha256": "776a69fac54124f6405e94e76a86269a50e9e6717abe70de329fc9fe93b46c8d",
+          "source": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-targeted-0fd.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-targeted-consumer-evidence/native.xml",
+          "bytes": 42585,
+          "sha256": "c56907e82498dcab79822735d8424db796ee79af9818c1d0f11cc20d4713b3a7",
+          "source": "/tmp/e02-B-successor-targeted-0fd/native.xml"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-targeted-consumer-evidence/profile.json",
+          "bytes": 7134,
+          "sha256": "e34fa871501702a5c985189af61aa03ee3d41189a5174f114d8b6969955193e5",
+          "source": "/tmp/e02-B-successor-targeted-0fd/profile.json"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/successor-targeted-consumer-evidence/e02-B-successor-targeted-launch.source.txt",
+          "bytes": 3317,
+          "sha256": "87852f26fd30b2f580b54a151f0b273fff32136d79c460ce23989b17e8ba1fee",
+          "source": "/tmp/e02-B-successor-targeted-launch.py"
+        }
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_native_workflow_budget_replaces_hidden_helper_default[None-False-artifact]",
+      "time_s": "0.115",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_native_workflow_budget_replaces_hidden_helper_default[None-False-head]",
+      "time_s": "0.105",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_native_workflow_budget_replaces_hidden_helper_default[None-False-gc]",
+      "time_s": "0.108",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_native_workflow_budget_replaces_hidden_helper_default[None-True-artifact]",
+      "time_s": "0.106",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_native_workflow_budget_replaces_hidden_helper_default[None-True-head]",
+      "time_s": "0.106",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_native_workflow_budget_replaces_hidden_helper_default[None-True-gc]",
+      "time_s": "0.105",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_native_workflow_budget_replaces_hidden_helper_default[2-False-artifact]",
+      "time_s": "0.115",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_native_workflow_budget_replaces_hidden_helper_default[2-False-head]",
+      "time_s": "0.115",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_native_workflow_budget_replaces_hidden_helper_default[2-False-gc]",
+      "time_s": "0.107",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_native_workflow_budget_replaces_hidden_helper_default[2-True-artifact]",
+      "time_s": "0.108",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_native_workflow_budget_replaces_hidden_helper_default[2-True-head]",
+      "time_s": "0.107",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_native_workflow_budget_replaces_hidden_helper_default[2-True-gc]",
+      "time_s": "0.108",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_cancelled_checkpoint_cannot_adopt_reused_executor_owner",
+      "time_s": "0.080",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_entered_native_head_cancel_reports_unknown_and_completes_generation",
+      "time_s": "0.057",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_queued_native_cas_cancel_reports_not_admitted_without_publication",
+      "time_s": "0.087",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_real_head_fsync_fence_keeps_previous_generation[deadline]",
+      "time_s": "0.194",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_real_head_fsync_fence_keeps_previous_generation[cancel]",
+      "time_s": "0.047",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_entered_head_replace_finishes_history_but_has_no_ack_or_gc",
+      "time_s": "0.189",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_expired_budget_refuses_actual_cas_worker_before_artifact",
+      "time_s": "0.080",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_explicit_adapter_limit_is_one_budget_across_artifact_and_head",
+      "time_s": "0.139",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_real_gc_read_cannot_admit_expired_history_rewrite[deadline]",
+      "time_s": "0.212",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_real_gc_read_cannot_admit_expired_history_rewrite[cancel]",
+      "time_s": "0.058",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_publication_budget",
+      "name": "test_budgeted_tier_preserves_fixed_signature_subclass_override",
+      "time_s": "0.039",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_compute_workflow_fingerprint_changes_on_spec_change",
+      "time_s": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_checkpoint_head_roundtrip",
+      "time_s": "0.005",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_create_checkpoint_async_repeated_soak_smoke",
+      "time_s": "0.092",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_checkpoint_producers_reject_caller_asserted_scope[False]",
+      "time_s": "0.002",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_checkpoint_producers_reject_caller_asserted_scope[True]",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_checkpoint_producer_captures_active_scope_when_omitted",
+      "time_s": "0.005",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_checkpoint_hook_async_repeated_writes_soak_smoke",
+      "time_s": "0.099",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_checkpoint_head_invalid_json_raises_typed_error",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_checkpoint_history_invalid_json_raises_typed_error",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_resolve_latest_checkpoint_success",
+      "time_s": "0.008",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_resolve_latest_checkpoint_repairs_history_when_head_is_newer",
+      "time_s": "0.011",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_resolve_latest_checkpoint_rejects_head_history_conflict",
+      "time_s": "0.010",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_resolve_latest_checkpoint_rejects_divergent_latest_history_entries",
+      "time_s": "0.009",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_resolve_latest_checkpoint_rejects_head_artifact_metadata_mismatch",
+      "time_s": "0.006",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_resolve_latest_checkpoint_detects_corruption",
+      "time_s": "0.005",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_run_lock_conflict",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_checkpoint_hook_disabled_by_policy",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_checkpoint_hook_gc_failure_does_not_rollback_commit_bookkeeping",
+      "time_s": "0.029",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_checkpoint_hook_runtime_metadata_roundtrip_preserves_sequence",
+      "time_s": "0.016",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_checkpoint_hook_runtime_metadata_serializes_store_config",
+      "time_s": "0.002",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_restore_checkpoint_hook_from_runtime_metadata_rejects_invalid_store_config",
+      "time_s": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_checkpoint_hook_async_path_uses_async_artifact_store_adapter",
+      "time_s": "0.008",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_resume_allows_valid_state_without_cache_refs",
+      "time_s": "0.042",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_resume_refuses_status_blind_checkpoint_completed_nodes",
+      "time_s": "0.008",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_incremental_checkpoint_materializes_full_state",
+      "time_s": "0.012",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint",
+      "name": "test_incremental_checkpoint_rejects_cross_tenant_base",
+      "time_s": "0.012",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointGCPolicy",
+      "name": "test_defaults",
+      "time_s": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointGCPolicy",
+      "name": "test_extra_forbid",
+      "time_s": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointGCPolicy",
+      "name": "test_bounds",
+      "time_s": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestGCCheckpoints",
+      "name": "test_empty_dir_noop",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestGCCheckpoints",
+      "name": "test_with_head_returns_zero",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestGCCheckpoints",
+      "name": "test_history_is_written_alongside_head",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestGCCheckpoints",
+      "name": "test_gc_prunes_old_history_by_count_and_age",
+      "time_s": "0.002",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestGCCheckpoints",
+      "name": "test_gc_keeps_incremental_ancestors_needed_by_head",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointSchemaValidation",
+      "name": "test_same_version_passes",
+      "time_s": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointSchemaValidation",
+      "name": "test_minor_upgrade_passes",
+      "time_s": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointSchemaValidation",
+      "name": "test_minor_newer_warns",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointSchemaValidation",
+      "name": "test_major_mismatch_raises",
+      "time_s": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointSchemaValidation",
+      "name": "test_major_mismatch_reverse",
+      "time_s": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestCheckpointSchemaValidation",
+      "name": "test_invalid_format_raises",
+      "time_s": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestLockRetry",
+      "name": "test_single_attempt_default",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestLockRetry",
+      "name": "test_retry_succeeds_second_attempt",
+      "time_s": "0.051",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestLockRetry",
+      "name": "test_all_attempts_exhausted",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestFileSystemCheckpointStore",
+      "name": "test_roundtrip",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestFileSystemCheckpointStore",
+      "name": "test_read_missing_returns_none",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_gc.TestFileSystemCheckpointStore",
+      "name": "test_protocol_compliance",
+      "time_s": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[omitted-AsyncArtifactStoreAdapter]",
+      "time_s": "0.129",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[omitted-AsyncFileSystemArtifactStore]",
+      "time_s": "0.129",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[explicit_none-AsyncArtifactStoreAdapter]",
+      "time_s": "0.129",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[explicit_none-AsyncFileSystemArtifactStore]",
+      "time_s": "0.129",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[unbounded-AsyncArtifactStoreAdapter]",
+      "time_s": "0.130",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_real_cas_bridge_preserves_legacy_limit_and_explicit_unbounded[unbounded-AsyncFileSystemArtifactStore]",
+      "time_s": "0.130",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.workflow_spec]",
+      "time_s": "0.832",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.experiment_state]",
+      "time_s": "0.837",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[deadline-scientist.workflow_report]",
+      "time_s": "0.851",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[cancel-scientist.workflow_spec]",
+      "time_s": "0.034",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[cancel-scientist.experiment_state]",
+      "time_s": "0.039",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_workflow_cas_wait_cannot_admit_late_ref_or_next_producer[cancel-scientist.workflow_report]",
+      "time_s": "0.052",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_workflow_without_owner_deadline_uses_explicit_unbounded_cas",
+      "time_s": "0.184",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_expired_native_cache_lookup_cannot_refresh_provider_admission",
+      "time_s": "0.472",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_entered_mutable_publication_is_unacknowledged_unknown_not_rollback[checkpoint]",
+      "time_s": "0.856",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_entered_mutable_publication_is_unacknowledged_unknown_not_rollback[run.finalize]",
+      "time_s": "0.865",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody",
+      "name": "test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication",
+      "time_s": "0.055",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor",
+      "name": "test_simple_linear_dag",
+      "time_s": "0.007",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor",
+      "name": "test_parallel_tier",
+      "time_s": "0.014",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor",
+      "name": "test_failed_node_blocks_downstream",
+      "time_s": "0.009",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor",
+      "name": "test_max_parallelism_one_degrades_to_sequential",
+      "time_s": "0.012",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor",
+      "name": "test_metrics_tier_completed_called",
+      "time_s": "0.007",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor",
+      "name": "test_async_executor_persists_via_async_artifact_store_adapter",
+      "time_s": "0.005",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncWorkflowExecutor",
+      "name": "test_no_metrics_no_crash",
+      "time_s": "0.005",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries",
+      "name": "test_cache_hit_reads_with_exhausted_compute_budget_but_miss_does_not",
+      "time_s": "0.012",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries",
+      "name": "test_cache_io_does_not_block_independent_coroutine",
+      "time_s": "0.110",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries",
+      "name": "test_expired_workflow_cache_wait_refuses_producer_admission",
+      "time_s": "0.044",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries",
+      "name": "test_cache_put_does_not_block_and_failed_entry_is_not_published",
+      "time_s": "0.131",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries",
+      "name": "test_failed_cache_entry_does_not_publish_partial_cas_artifacts",
+      "time_s": "0.005",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncCacheBoundaries",
+      "name": "test_incompatible_cached_replay_is_discarded_and_recomputed",
+      "time_s": "0.017",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncFailFastAdmission",
+      "name": "test_fail_fast_rechecks_cancellation_after_semaphore_acquire",
+      "time_s": "0.046",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor.TestAsyncFailFastAdmission",
+      "name": "test_metric_failure_after_semaphore_acquire_releases_slot",
+      "time_s": "0.091",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestParallelStateIsolation",
+      "name": "test_parallel_nodes_get_independent_copies",
+      "time_s": "0.010",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestParallelStateIsolation",
+      "name": "test_bind_failure_becomes_typed_node_error",
+      "time_s": "0.006",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestParallelStateIsolation",
+      "name": "test_runtime_lookup_failure_becomes_typed_node_error",
+      "time_s": "0.007",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints",
+      "name": "test_tier_rollback_on_failure",
+      "time_s": "0.008",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints",
+      "name": "test_rollback_compensation_hook_receives_fail_fast_event",
+      "time_s": "0.009",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints",
+      "name": "test_failed_single_node_does_not_commit_state_in_continue_mode",
+      "time_s": "0.006",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints",
+      "name": "test_parallel_merge_conflict_rolls_back_whole_tier",
+      "time_s": "0.010",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestTierSavepoints",
+      "name": "test_parallel_merge_policy_can_resolve_conflict",
+      "time_s": "0.010",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestWorkflowTimeout",
+      "name": "test_workflow_timeout_raises",
+      "time_s": "0.135",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestWorkflowTimeout",
+      "name": "test_no_timeout_by_default",
+      "time_s": "0.009",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestBudgetIntegration",
+      "name": "test_budget_exhausted_fails_node",
+      "time_s": "0.005",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_async_executor_hardening.TestBackwardCompat",
+      "name": "test_new_params_have_defaults",
+      "time_s": "0.007",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.integration.scientist.test_checkpoint_resume",
+      "name": "test_resume_uses_checkpoint_cache_refs_when_trace_is_truncated",
+      "time_s": "0.122",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.integration.scientist.test_checkpoint_resume",
+      "name": "test_resume_rejects_mismatched_tenant_or_cell_before_protected_action[tenant-b-cell-a]",
+      "time_s": "0.140",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.integration.scientist.test_checkpoint_resume",
+      "name": "test_resume_rejects_mismatched_tenant_or_cell_before_protected_action[tenant-a-cell-b]",
+      "time_s": "0.138",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.integration.scientist.test_checkpoint_resume",
+      "name": "test_resume_falls_back_to_local_runner_when_distributed_backend_is_configured",
+      "time_s": "0.111",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.integration.scientist.test_checkpoint_resume",
+      "name": "test_resume_uses_configured_distributed_runner_with_pruned_workflow",
+      "time_s": "0.113",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.integration.scientist.test_checkpoint_resume",
+      "name": "test_async_executor_resume_uses_checkpoint_cache_refs_when_trace_is_truncated",
+      "time_s": "0.118",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.integration.scientist.test_checkpoint_resume",
+      "name": "test_parallel_tier_rejects_node_only_hook_before_any_side_effect",
+      "time_s": "0.032",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.integration.scientist.test_checkpoint_resume",
+      "name": "test_parallel_tier_checkpoint_survives_stop_without_reapplying_any_peer",
+      "time_s": "9.044",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.integration.scientist.test_checkpoint_resume",
+      "name": "test_async_executor_parallel_tier_checkpoints_merged_state_for_resume",
+      "time_s": "0.113",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.integration.scientist.test_checkpoint_resume",
+      "name": "test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier",
+      "time_s": "31.016",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.integration.scientist.test_checkpoint_resume",
+      "name": "test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successful_peer",
+      "time_s": "34.738",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_deadline_budget_oracle",
+      "name": "test_real_atomic_head_35_seconds_fits_original_60_second_workflow",
+      "time_s": "35.074",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+      "name": "test_real_checkpoint_healthy_control",
+      "time_s": "0.071",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+      "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[artifact-deadline]",
+      "time_s": "2.038",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+      "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[head_fsync-deadline]",
+      "time_s": "2.036",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+      "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[head_fsync-cancel]",
+      "time_s": "0.060",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+      "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[head_return-deadline]",
+      "time_s": "2.040",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.orchestration.engine.test_checkpoint_short_budget_oracle",
+      "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[gc_read-deadline]",
+      "time_s": "2.050",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.integration.scientist.test_parallel_tier_compensation_oracle",
+      "name": "test_parallel_compensation_matches_committed_frontier_and_retained_output[fail_fast]",
+      "time_s": "0.144",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.integration.scientist.test_parallel_tier_compensation_oracle",
+      "name": "test_parallel_compensation_matches_committed_frontier_and_retained_output[continue]",
+      "time_s": "0.150",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiler_leader_termination_e02",
+      "name": "test_actual_leader_terminal_fault_releases_follower_and_fresh_native_retry[cancelled]",
+      "time_s": "0.261",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiler_leader_termination_e02",
+      "name": "test_actual_leader_terminal_fault_releases_follower_and_fresh_native_retry[system-exit]",
+      "time_s": "0.078",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.foundry.methods.test_compiler_leader_termination_e02",
+      "name": "test_actual_leader_terminal_fault_releases_follower_and_fresh_native_retry[publication]",
+      "time_s": "0.088",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_put_integrity_retry",
+      "name": "test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[same_size_bytes]",
+      "time_s": "0.016",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_put_integrity_retry",
+      "name": "test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[short_bytes]",
+      "time_s": "0.013",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_put_integrity_retry",
+      "name": "test_duplicate_put_refuses_damage_before_exact_repair_and_reopened_retry[selected_manifest_size]",
+      "time_s": "0.014",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_put_integrity_retry",
+      "name": "test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view[default]",
+      "time_s": "0.012",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_put_integrity_retry",
+      "name": "test_duplicate_put_restores_a_missing_sidecar_and_reopens_its_exact_view[selected]",
+      "time_s": "0.012",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-directory]",
+      "time_s": "0.009",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-archive]",
+      "time_s": "0.009",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[unclaimed_unbound-exact]",
+      "time_s": "0.007",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-directory]",
+      "time_s": "0.014",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-archive]",
+      "time_s": "0.014",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[claimed_unbound-exact]",
+      "time_s": "0.012",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[foreign-directory]",
+      "time_s": "0.011",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[foreign-archive]",
+      "time_s": "0.011",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[foreign-exact]",
+      "time_s": "0.008",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[cell-directory]",
+      "time_s": "0.011",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[cell-archive]",
+      "time_s": "0.011",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_scoped_import_refuses_before_any_stage_or_claim[cell-exact]",
+      "time_s": "0.008",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[None-directory]",
+      "time_s": "0.018",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[None-archive]",
+      "time_s": "0.018",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[None-exact]",
+      "time_s": "0.017",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[cell-a-directory]",
+      "time_s": "0.017",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[cell-a-archive]",
+      "time_s": "0.018",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_exact_same_owner_import_is_a_real_noop[cell-a-exact]",
+      "time_s": "0.017",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-directory]",
+      "time_s": "0.031",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-archive]",
+      "time_s": "0.025",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[new_manifest_bytes-exact]",
+      "time_s": "0.022",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-directory]",
+      "time_s": "0.022",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-archive]",
+      "time_s": "0.022",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_claimed_view_requires_exact_metadata_and_signature[omitted_signature-exact]",
+      "time_s": "0.020",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_bound_unclaimed_import_recovers_exact_durable_intent[archive]",
+      "time_s": "0.028",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_bound_unclaimed_import_recovers_exact_durable_intent[exact]",
+      "time_s": "0.026",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_passive_unscoped_cache_is_not_scoped_admission[False]",
+      "time_s": "0.012",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_passive_unscoped_cache_is_not_scoped_admission[True]",
+      "time_s": "0.014",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_cell_none_is_exact_identity_not_a_query_wildcard[None-cell-a]",
+      "time_s": "0.008",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_cell_none_is_exact_identity_not_a_query_wildcard[cell-a-None]",
+      "time_s": "0.008",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_generic_put_refuses_explicit_bound_identity_mismatch_before_intent[context0]",
+      "time_s": "0.003",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_generic_put_refuses_explicit_bound_identity_mismatch_before_intent[context1]",
+      "time_s": "0.003",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_import_keeps_its_actual_artifact_lease_through_staging_and_publication",
+      "time_s": "0.132",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_import_admission_noop",
+      "name": "test_mixed_package_stages_only_unclaimed_artifact_members",
+      "time_s": "0.033",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_same_destination_retains_complete_history_and_exact_new_inventory[False]",
+      "time_s": "0.035",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_same_destination_retains_complete_history_and_exact_new_inventory[True]",
+      "time_s": "0.035",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_streamed_write_failure_preserves_old_generation_and_no_false_inventory[False]",
+      "time_s": "0.021",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_streamed_write_failure_preserves_old_generation_and_no_false_inventory[True]",
+      "time_s": "0.023",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_archive_refuses_nonregular_final_path_before_staging[regular_symlink]",
+      "time_s": "0.431",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_archive_refuses_nonregular_final_path_before_staging[dangling_symlink]",
+      "time_s": "0.436",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_archive_refuses_nonregular_final_path_before_staging[fifo]",
+      "time_s": "0.428",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_archive_refuses_nonregular_final_path_before_staging[socket]",
+      "time_s": "0.431",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_archive_refuses_nonregular_final_path_before_staging[directory]",
+      "time_s": "0.436",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation[False]",
+      "time_s": "0.397",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_process_interruption_after_each_publication_syscall_leaves_a_complete_generation[True]",
+      "time_s": "0.406",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_import_reader_remains_on_the_generation_pinned_before_concurrent_replacement[False]",
+      "time_s": "0.022",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_import_reader_remains_on_the_generation_pinned_before_concurrent_replacement[True]",
+      "time_s": "0.023",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_publication_syscall_failure_leaves_complete_previous_generation[False]",
+      "time_s": "0.023",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_publication_syscall_failure_leaves_complete_previous_generation[True]",
+      "time_s": "0.023",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_post_publication_directory_sync_failure_retains_old_and_new_readable_generations[False]",
+      "time_s": "0.032",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_post_publication_directory_sync_failure_retains_old_and_new_readable_generations[True]",
+      "time_s": "0.039",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_prepublication_directory_sync_refusal_keeps_the_old_package[False]",
+      "time_s": "0.026",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_prepublication_directory_sync_refusal_keeps_the_old_package[True]",
+      "time_s": "0.023",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_unavailable_native_exchange_refuses_before_removing_the_current_directory",
+      "time_s": "0.022",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[regular_symlink]",
+      "time_s": "0.433",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[dangling_symlink]",
+      "time_s": "0.430",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo]",
+      "time_s": "0.431",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[socket]",
+      "time_s": "0.434",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_transfer_generation_publication",
+      "name": "test_import_archive_binds_the_supplied_regular_path_before_streaming[fifo_at_open]",
+      "time_s": "0.434",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[corrupt-sha256 mismatch]",
+      "time_s": "0.011",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[same_size-sha256 mismatch]",
+      "time_s": "0.010",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_size-byte_size mismatch]",
+      "time_s": "0.010",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_profile-Selected manifest profile mismatch]",
+      "time_s": "0.011",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[invalid_manifest-manifest invalid:]",
+      "time_s": "0.011",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_integrity-manifest integrity mismatch]",
+      "time_s": "0.011",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_selected_snapshot_retains_actual_measurements_and_refusal[wrong_ref_type-Artifact reference type]",
+      "time_s": "0.010",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_report_cannot_reread_operator_repaired_bytes[False]",
+      "time_s": "0.005",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_failed_report_cannot_reread_operator_repaired_bytes[True]",
+      "time_s": "0.005",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_pre_read_failure_cannot_invent_blob_measurements",
+      "time_s": "0.005",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_public_verify_capture_remains_consumable_by_actual_owner_index[False]",
+      "time_s": "0.008",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_public_verify_capture_remains_consumable_by_actual_owner_index[True]",
+      "time_s": "0.008",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_valid_signature_cannot_admit_a_wrong_size_selected_snapshot",
+      "time_s": "0.007",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_verification_failure_snapshot_report",
+      "name": "test_actual_chronology_reader_classifies_observed_corruption_as_rejected",
+      "time_s": "0.005",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_cas_integrity_report",
+      "name": "test_cas_integrity_report_proves_authority_dedup_tamper_and_gc",
+      "time_s": "0.037",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestArtifactStoreProtocol",
+      "name": "test_core_artifacts_facade_exports_backend_factory",
+      "time_s": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestArtifactStoreProtocol",
+      "name": "test_filesystem_cas_satisfies_protocol",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestArtifactStoreProtocol",
+      "name": "test_protocol_is_runtime_checkable",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestArtifactStoreProtocol",
+      "name": "test_plain_object_does_not_satisfy",
+      "time_s": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestArtifactStoreProtocol",
+      "name": "test_protocol_required_methods",
+      "time_s": "0.000",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip",
+      "name": "test_put_get_bytes",
+      "time_s": "0.006",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip",
+      "name": "test_put_get_json",
+      "time_s": "0.005",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip",
+      "name": "test_verify",
+      "time_s": "0.005",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip",
+      "name": "test_iter_artifact_ids",
+      "time_s": "0.007",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip",
+      "name": "test_governed_public_read_closure_is_exact_and_does_not_override_tenant_owner",
+      "time_s": "0.023",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_artifact_store_protocol.TestFileSystemCASRoundTrip",
+      "name": "test_inventory_preserves_views_but_iter_returns_sorted_unique_blob_ids",
+      "time_s": "0.031",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_uncommitted_tenant_publication_is_unreadable_after_writer_interruption",
+      "time_s": "0.007",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_independent_cas_reader_waits_for_tenant_owner_generation",
+      "time_s": "0.209",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_second_process_reader_waits_on_the_canonical_root_stripe",
+      "time_s": "0.673",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_signature_only_pending_publication_is_denied_and_exact_retry_recovers",
+      "time_s": "0.027",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_nested_distinct_artifact_lease_fails_without_deadlock",
+      "time_s": "0.002",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_next_writer_recovers_unreferenced_private_stage_directory",
+      "time_s": "0.006",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_stage_recovery_never_follows_or_removes_symlink_targets",
+      "time_s": "0.001",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_unclaimed_candidate_put_has_and_read_still_succeed",
+      "time_s": "0.006",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_intent_completion_requires_each_exact_claim_in_one_owner_generation",
+      "time_s": "0.007",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_same_request_recovers_missing_stage_with_pinned_manifest_timestamp",
+      "time_s": "0.010",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_import_retry_reuses_pinned_manifest_after_transaction_stage_quarantine",
+      "time_s": "0.020",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.core.artifacts.test_multi_tenant_shared_cas",
+      "name": "test_exact_view_import_uses_deny_only_owner_transaction_and_exact_retry",
+      "time_s": "0.022",
+      "outcome": "PASS"
+    }
+  ],
+  "P38_divergence": "Historical6af/6d failures and wrong preentry publication premises preserved separately; this source-bound238PASS does not become whole-B/gate proof, installedwheel/PG8 successor proof, or productiondata proof. Mandatory finalPGformatter414 onlychangesoneunused-in-this-wave PG test; real runtime stays0fd.",
+  "P37_predicate_scope": "actualcall/builtincanonicalconsumer_asserted; full dynamic readset and independent execution of every case not_established",
+  "P40_boundary_and_falsifier": "Physical synchronous work can complete after caller refusal; admitted os.replace finishes complete head/history, yields unknown with no ACK. Queued cancellation must never enter CAS. Longpublication30s hiddenhelper reintroduction, preheadpost-fsync fence removal, or GC fence removal are finite falsifiers preserved inDUR receipt. Storage secondincident qualified via independent32flat-file evidence custody; no directory/env/data cleanup and no powerloss/multihost guarantee.",
+  "P41": "No inherited red waiver. Final8gates/fullcohort UNRUN at this receipt; exactcompleteinputzerointersection not_established.",
+  "future_inputs": "run_successor exact7wheelinput file/source guards+privateowner-onlyPGdsn/driver andoracle source root; installedwheelactualprofile andfreshwhole-B selector stillpending. NativeCLI no cap/worker filtering; onlyactualsharedlastmile writer suites serialized.",
+  "limitations_and_next_owner": [
+    "Full25bundles/60finding adjudication pending freshfinalnativephase outcomes; historical counts nottarget",
+    "All6owner-contract holds retained; Ccap1/recoverycleanup open; A/Gbindings/productiondata consumers unresolved",
+    "Largepreservedhistoricalraw/tmp currentbytealiases are not independentpowerloss or Gexternalavailability proof"
+  ],
+  "branch": "codex/e02-B-current-coordination",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/55"
+}

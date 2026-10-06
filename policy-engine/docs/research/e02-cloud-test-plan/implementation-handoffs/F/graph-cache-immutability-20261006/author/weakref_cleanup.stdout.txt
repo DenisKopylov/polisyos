@@ -1,0 +1,36 @@
+mode weakref_cleanup source /workspace/e02-F-graph-20261006/policy-engine/src/polisyos/ir/analytics/causal_graph.py sha256 b8cc85501f67668b61b6265abe7970026b5124dd9c2204205251697988bfb5cc frozen_marker True
+private_immutable_cache_marker True actual_adjacency_cache_marker True
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________________________ test_cached_adjacency_eviction ________________________
+
+    def test_cached_adjacency_eviction() -> None:
+        _reset_caches()
+        graph = _ba_like_graph(40, 2)
+        key = id(graph)
+        admg_ops.ancestors(graph, frozenset({"V39"}))
+        admg_ops.c_components(graph)
+        assert key in admg_ops._ADJ_CACHE
+        assert key in admg_ops._CC_CACHE
+        del graph
+        gc.collect()
+        gc.collect()
+>       assert key not in admg_ops._ADJ_CACHE
+E       assert 140332443871984 not in {140332443871984: <polisyos.foundry.methods.catalog.causal.admg_ops.CachedAdjacency object at 0x7fa1b140cf40>}
+E        +  where {140332443871984: <polisyos.foundry.methods.catalog.causal.admg_ops.CachedAdjacency object at 0x7fa1b140cf40>} = admg_ops._ADJ_CACHE
+
+tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py:89: AssertionError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_performance_primitives.py::test_cached_adjacency_eviction
+1 failed, 2 warnings in 0.92s

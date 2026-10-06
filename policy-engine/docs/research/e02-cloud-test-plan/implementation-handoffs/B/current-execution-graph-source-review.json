@@ -1,0 +1,384 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "B",
+  "slice": "current-execution-graph-source-review",
+  "reviewer": "cmp_res_probe",
+  "author": "exe_state_writer",
+  "branch": "codex/e02-B-current-composition",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
+  "reviewer_workspace_base_sha": "41fd9c0479606c4e1b461489b55190a1c43e03e7",
+  "reviewer_workspace_base_tree": "307baeeae904d49b76fa128b6388ce35395131f6",
+  "reviewed_source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+  "reviewed_tree_sha": "91a36bd54dec01963a45b19608f4b3b8508b89bf",
+  "diff_base_sha": "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+  "diff_base_tree_sha": "e9979738e8d9fa6ebce06592f2970b00d8c69625",
+  "read_only_source_tests": true,
+  "closure_ids": [],
+  "related_finding_ids": [
+    "B57",
+    "B58",
+    "B59"
+  ],
+  "bundle_ids": [
+    "STA-01"
+  ],
+  "review_verdict": "BLOCKING_SOURCE_SCOPE_CONTRACT",
+  "runtime_verdict": "UNRUN_BY_THIS_REVIEWER",
+  "formal_finding_closure": false,
+  "scope": "Independent source/contract review of complete nine-path delta 3b81 to frozen29da plus canonical branching, idempotency, merge, local entry/settlement, retry and remote/wire context. No new runtime tests, source edits, helpers or worktrees.",
+  "source_footprint": {
+    "command": [
+      "git",
+      "diff",
+      "--name-only",
+      "3b81bf197be10e20208f8d1925fd8d63eca74da9",
+      "29da3db1c351bcc1736283301fe9a2262135d449"
+    ],
+    "path_count": 9,
+    "changed_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-06-scientist-cache-recovery.toml",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+      "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/fixtures/list-journal-v1-cache.json",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py"
+    ],
+    "file_types": {
+      "python": 7,
+      "json": 1,
+      "toml": 1
+    },
+    "qualification": "Complete changed path denominator, not complete repository dependency closure."
+  },
+  "reviewed_source_bindings": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-scientist-cache-recovery.toml",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "5c9b3e34248c68dbee793ee8db04d35316d82fa8",
+      "sha256": "eb06869af8e445b838218b795602652712fbc249888ec9f26a7dc3ff88c1685b",
+      "bytes": 5204,
+      "read_scope": "whole delta; whole module for state_branching/idempotency/state_merge, defining entry + settlement context for executors, whole changed test/fixture/fragment"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "835b32bda58da3c26140ccf60d40a11ff72161e9",
+      "sha256": "0da9f89f0a33819ad326492b9de86dc49e0ce7004ddb9c9b4ab146e93b29b603",
+      "bytes": 102525,
+      "read_scope": "whole delta; whole module for state_branching/idempotency/state_merge, defining entry + settlement context for executors, whole changed test/fixture/fragment"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "20b0de21aafc7c7993997bda6dc4ba2db087dafb",
+      "sha256": "ff23bddb6f806b1d5807c287af7996ba3fda24f5245394b3077a8a5068774b06",
+      "bytes": 76836,
+      "read_scope": "whole delta; whole module for state_branching/idempotency/state_merge, defining entry + settlement context for executors, whole changed test/fixture/fragment"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "854aec5c890f52b20bacce7461c532b8d064d3ff",
+      "sha256": "3f8cb9bef47dbaf1a242fda929a4d71f4276ca4c0761b7392fef34e80c81e996",
+      "bytes": 34274,
+      "read_scope": "whole delta; whole module for state_branching/idempotency/state_merge, defining entry + settlement context for executors, whole changed test/fixture/fragment"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "7bdf0a613d7e22f4c86a130c701de2db8d772556",
+      "sha256": "7f87559224ac3baabac8475cfdd3ef8203bbee0a583f6335258e55ec9c5e6b2f",
+      "bytes": 34632,
+      "read_scope": "whole delta; whole module for state_branching/idempotency/state_merge, defining entry + settlement context for executors, whole changed test/fixture/fragment"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "5a5eb75880148ddd4cb7d9824085a96f2b22dedb",
+      "sha256": "527e5f610530165ffc5275eda52d3595a74e93c600d3dfbaf78d8c5ca1c3180c",
+      "bytes": 23952,
+      "read_scope": "whole delta; whole module for state_branching/idempotency/state_merge, defining entry + settlement context for executors, whole changed test/fixture/fragment"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "d9e2c51206c2e3667a768fd52212e85805b87905",
+      "sha256": "8e40af1bf154b28197d38e3eda51d44424b70d2db4891166f64cfaf85356ec04",
+      "bytes": 68664,
+      "read_scope": "whole delta; whole module for state_branching/idempotency/state_merge, defining entry + settlement context for executors, whole changed test/fixture/fragment"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/fixtures/list-journal-v1-cache.json",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "ab012f7ef93c3f3f3ed9ed2eea92a6cefa24ca52",
+      "sha256": "83f026c38977f42622718956aed0610231f8740e278933c2c32415b348893800",
+      "bytes": 20380,
+      "read_scope": "whole delta; whole module for state_branching/idempotency/state_merge, defining entry + settlement context for executors, whole changed test/fixture/fragment"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "62ad443eac32e33a447e9f1c06cf940f93c94a5e",
+      "sha256": "b21bf6a97c91912587b607fe116e13d36c7c490eb7e584575121d89cb3c389d8",
+      "bytes": 23826,
+      "read_scope": "whole delta; whole module for state_branching/idempotency/state_merge, defining entry + settlement context for executors, whole changed test/fixture/fragment"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "c044e57d14aba76e6caa49d43ded51a812fd7f99",
+      "sha256": "663b9e3277d3571762a591145bab4ec9ee32096dd6f9dd9f5fba8dba30b4ea3a",
+      "bytes": 6723,
+      "read_scope": "whole document"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "3724db92babaa2e2da1d1e35f8467159d3afe980",
+      "sha256": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+      "bytes": 3769,
+      "read_scope": "relevant DTO/field contract"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "260f34e3a52fcf3b82aec43023f45a392b5bdf6f",
+      "sha256": "b38481eec549e4bb999937c52f9fedc4269a78709f850adaa23b64f0032fba76",
+      "bytes": 8224,
+      "read_scope": "relevant NodeSpec/NodeOutcome contract"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "00c18c9a11fdaf69331651ee291fe0fec334e5ab",
+      "sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271",
+      "bytes": 79312,
+      "read_scope": "retry branch and spend-preservation consumers"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "cccc5bc78e255a6e5025eb81293a658b6817953b",
+      "sha256": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7",
+      "bytes": 30101,
+      "read_scope": "whole native journal wire context relevant to group transport"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+      "source_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "blob_oid": "cf3613c67755e170c51f06dcc3d2f831fd5de02a",
+      "sha256": "4ab2dbf51ce6b41d4b091557aca6794429cc526696f85632a970c94cca14309e",
+      "bytes": 17516,
+      "read_scope": "actual deserialization/branch/dispatch consumer"
+    }
+  ],
+  "canonical_criteria": {
+    "source": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "blob_oid": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "bytes": 1336380,
+      "read_scope": "complete B57/B58/B59 criterion sections"
+    },
+    "finding_locations": {
+      "B57": 1543,
+      "B58": 1559,
+      "B59": 1571
+    },
+    "basis": "Canonical recommended journal semantics and isolation/alias boundaries; no new scientific/authority rule."
+  },
+  "property": {
+    "statement": "Within the finite native JSON graph profile, ordinary supported mutations preserve complete live ownership, original producer state_writes and isolation; replay applies producer intent once per current physical target, preserves unrelated current values, and settled public state has neutral mutation lifetime. Legacy journals insufficient to establish ownership miss without deleting historical artifacts.",
+    "runtime_path": [
+      "native WorkflowExecutor / AsyncWorkflowExecutor node branch",
+      "branch_state tracked JSON graph",
+      "NodeResultCache.put immutable versioned operation payload + proof",
+      "actual selected ArtifactRef custody / load_entry / get",
+      "merge_parallel_outcomes current-state journal replay",
+      "settled public result / checkpoint/report publication",
+      "remote _activity_worker deserialization / branch / dispatch"
+    ],
+    "proxy_divergence": "An inherited boolean guard does not establish inherited original write scope: branch_state on an active guarded producer replaces isolated_paths with new caller paths. A guard around containers does not cover ordinary replacement of their top-level model field. A journal established after remote deserialization is neutral unless the actual entry requests producer enforcement.",
+    "predicate_basis": "Source identity independently reconciled through exact Git objects; behavioral property not established by this source-only review."
+  },
+  "source_comments": [
+    {
+      "id": "EXE-GRAPH-SCOPE-NESTED",
+      "severity": "blocking",
+      "classification": "SAME ownership/write-scope class one level deeper (P40)",
+      "evidence_kind": "source_inference",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "line": 190,
+      "property": "An active producer nested canonical branch preserves or attenuates the original declaration and cannot release it by supplying False.",
+      "implementation": "Only enforce_write_scope is inherited when argument is None; new isolated_paths is caller write_paths. Explicit False overrides the active flag.",
+      "distinguishing_input": "producer=branch_state(base, write_paths=[\"params.owned\"], enforce_write_scope=True); nested=branch_state(producer.state, write_paths=[\"params\"]); nested.state.params[\"other\"][\"v\"]=5. Also supplying enforce_write_scope=False on the active producer.",
+      "status": "Root confirmed this ordinary canonical API is in scope; sole author batching general attenuation. No probe executed by this reviewer."
+    },
+    {
+      "id": "EXE-GRAPH-SCOPE-MODEL",
+      "severity": "blocking",
+      "classification": "SAME ownership/write-scope class sibling quantity (P40)",
+      "evidence_kind": "source_inference",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "line": 102,
+      "property": "Ordinary active producer model assignment cannot replace an undeclared root and install an untracked mutable graph.",
+      "implementation": "__setattr__ records only an exact name in isolated_paths; all other assignments pass directly through super.",
+      "distinguishing_input": "An active producer declared only params.owned assigns state.params={\"owned\":{\"v\":1},\"other\":{\"v\":5}} and then uses normal mapping mutation on the replacement.",
+      "status": "Root grouped normal model assignment with nested scope/lifetime repair. No hostile Python object.__setattr__ assumption and no probe executed here."
+    },
+    {
+      "id": "EXE-GRAPH-SCOPE-REMOTE",
+      "severity": "blocking",
+      "classification": "SAME native producer-entry scope class sibling consumer (P40)",
+      "evidence_kind": "source_inference",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py",
+      "line": 87,
+      "property": "Remote native producer receives the same original declared-write guard after wire metadata removal.",
+      "implementation": "deserialize_state returns a neutral state and branch_state receives no enforce_write_scope=True, so the default is False.",
+      "status": "Root explicitly confirmed remote activity producer is in scope and allocated sole-owner minimal flag lease. No remote runtime verdict."
+    },
+    {
+      "id": "EXE-GRAPH-DICT-IOR",
+      "severity": "nonblocking",
+      "evidence_kind": "source_reconciled",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+      "line": 603,
+      "detail": "The exact29da candidate already delegates ordinary held-reference dict |= to guarded update. No duplicate named repair needed."
+    }
+  ],
+  "review_matrix": [
+    {
+      "property": "Local sync/async native producer entry",
+      "source_conclusion": "Two actual entries explicitly request enforcement from original node.spec.state_writes.",
+      "refs": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py:1355",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py:1649"
+      ],
+      "runtime": "UNRUN here"
+    },
+    {
+      "property": "Initial aliases / reparenting / reinsertion / multiple live owners",
+      "source_conclusion": "Strong isolation and wrapping memos reconcile raw identities; owner tuples retain every parent membership and live-path traversal checks all paths before tracked mutations. Removed references produce no live paths; reinsertion of same-journal views preserves working identity.",
+      "refs": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:244",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:427",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:875",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:904",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:976"
+      ],
+      "runtime": "UNRUN here; native tests read only"
+    },
+    {
+      "property": "Cycles and unsupported set/bytearray attachment",
+      "source_conclusion": "Finite graph attachment validation precedes tracked structural mutations and checks initial guarded surfaces. Native graph cycle/set negative cases included in frozen test delta.",
+      "refs": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:924",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py"
+      ],
+      "runtime": "UNRUN here"
+    },
+    {
+      "property": "Grouped replay shared and split current targets",
+      "source_conclusion": "Typed nonnegative integer group IDs bind equal intent excluding path/group. Replay dedups by node alias, group, current physical target and model/mapping leaf key; split current targets each receive the intent. Append/pop operate on current rows, without additive snapshot replacement. Existing conflict and protected deletion semantics remain.",
+      "refs": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:143",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py:379",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py:153",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py:516"
+      ],
+      "runtime": "UNRUN here; actual FileSystemCAS/reopened consumer native controls read"
+    },
+    {
+      "property": "Legacy actual artifacts",
+      "source_conclusion": "Algorithm1.2 proof includes the group field. Predecessor1.0/1.1 proof reconstruction strips only null group. Replay rejects nested/container/ambiguous predecessor intent and retains direct primitive model or first-level mapping set/delete. Full selected-reference custody and immutable epoch readback remain on both cache admission and get.",
+      "refs": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py:52",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py:144",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py:177",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py:560",
+        "policy-engine/tests/unit/scientist/orchestration/engine/fixtures/list-journal-v1-cache.json",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_native_list_journal.py:330"
+      ],
+      "runtime": "UNRUN here; literal actual producer payloads retained by author; no self-produced migration fixtures"
+    },
+    {
+      "property": "Public settled lifetime",
+      "source_conclusion": "Candidate29da retains guarded producer outcome.state directly in local settlement; parent reported actual native failures at public/finalization phase. Sole author batching explicit neutral settlement before host checkpoint/report writes and public return.",
+      "refs": [
+        "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py:1565",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py:1758",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py:741"
+      ],
+      "runtime": "No PASS inherited; parent-reported78PASS24FAIL must be bound by separate deciding packet"
+    }
+  ],
+  "prior_runtime_inputs": {
+    "at_commit": "bb544f3ad63b668e9843ff5f19faf1c40d2dab1b",
+    "bindings": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/ownership-graph-review.py",
+        "source_sha": "bb544f3ad63b668e9843ff5f19faf1c40d2dab1b",
+        "blob_oid": "cdca6fb128ba174fd29e90b03da1baa4b1a54e5a",
+        "sha256": "83a9f72ed63672d402d2cc2aea023025f3d5686da1f3ba17cca3fb7e1a07c4df",
+        "bytes": 14954,
+        "read_scope": "complete original independent packet read as prior inputs, not successor proof"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/review-negative.json",
+        "source_sha": "bb544f3ad63b668e9843ff5f19faf1c40d2dab1b",
+        "blob_oid": "42e6f7e274ca067fa2124622254375a3431a321a",
+        "sha256": "c6984b7181b0a4613d0076a16a65c9ec1807da1cb5e668e13d90485caa245ab1",
+        "bytes": 10772,
+        "read_scope": "complete original independent packet read as prior inputs, not successor proof"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/baseline-3b81.json",
+        "source_sha": "bb544f3ad63b668e9843ff5f19faf1c40d2dab1b",
+        "blob_oid": "4fc8fd3dba9183b704567b7866be08d6749986c7",
+        "sha256": "72d1a80f6c6a89925119439443344ff7ce996f22d381f46d810ab6e079e30746",
+        "bytes": 74712,
+        "read_scope": "complete original independent packet read as prior inputs, not successor proof"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-sta-ownership-independent-review/baseline-3b81.log",
+        "source_sha": "bb544f3ad63b668e9843ff5f19faf1c40d2dab1b",
+        "blob_oid": "4fc8fd3dba9183b704567b7866be08d6749986c7",
+        "sha256": "72d1a80f6c6a89925119439443344ff7ce996f22d381f46d810ab6e079e30746",
+        "bytes": 74712,
+        "read_scope": "complete original independent packet read as prior inputs, not successor proof"
+      }
+    ],
+    "qualification": "Original immutable independent83a9 packet is read as prior source/input context only. Its three-base controls and six reported failures do not establish successor behavior. Parent notes later raw alias DTO and neutral standalone-branch premise qualification; those updated oracle packets remain separate and are not fabricated here."
+  },
+  "checks": [
+    {
+      "kind": "manual_source_and_contract_review",
+      "target_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "target_tree": "91a36bd54dec01963a45b19608f4b3b8508b89bf",
+      "outcome": "FAIL",
+      "deciding_output": "Complete source delta review has active scope/nested API/model assignment/remote entry contract blockers. Positive grouped-replay and predecessor proof source mechanisms coherent within finite declared profile; no runtime PASS."
+    },
+    {
+      "kind": "defining_runtime_replay",
+      "target_sha": "29da3db1c351bcc1736283301fe9a2262135d449",
+      "outcome": "UNRUN",
+      "reason": "Explicit read-only source task; parent/runtime owner executes unchanged actual class oracles independently."
+    }
+  ],
+  "finite_boundaries": [
+    "Finite ordinary dict/list/tuple JSON value graph with supported immutable leaves and dotted string paths. This review does not establish arbitrary Python custom mutable object or hostile direct base-class/object mutator containment.",
+    "Persisted CAS JSON records value effects and operation intent; no complete persisted Python object-identity relationship claim.",
+    "Source-only path/hash identity is not runtime module provenance. No imported module census or per-test environment claim is made here.",
+    "No all-backend, full production dataset, physical I/O preemption or institutional/scientific authority claim.",
+    "No inherited-red attribution or P41 waiver. Original and intermediate deciding evidence stays append-only; G/root determine finding closure separately."
+  ],
+  "limitations_and_next_owner": [
+    "EXE sole owner batches original scope attenuation, ordinary model assignment, active-to-neutral settlement and actual remote entry before next freeze.",
+    "Independent RUN/root replay actual graph/original artifact controls on immutable successor; this reviewer performs source delta review only.",
+    "Root/G final affected whole-file cohort and canonical final adjudication remain pending."
+  ]
+}

@@ -2,9 +2,7 @@
   "schema": "policyos.e02.implementation_handoff.v1",
   "unit": "C",
   "slice": "catalog-c2-20261006",
-  "closure_ids": [
-    "LA-028"
-  ],
+  "closure_ids": [],
   "bundle_ids": [
     "DFK-02"
   ],
@@ -516,5 +514,17 @@
     ],
     "authorship_provenance": "This receipt attributes path ownership and commit role only; it does not infer provenance or authorship of any preserved earlier candidate edit beyond the exact committed history listed above.",
     "generated_artifact_policy": "No generated registry YAML or duplicate source registry copy was directly edited; the canonical source and projections are committed as listed in the Git delta."
+  },
+  "finding_ids": [
+    "LA-028"
+  ],
+  "criterion_ids": [
+    "LA-028"
+  ],
+  "finding_scope": {
+    "finding_id": "LA-028",
+    "candidate_verdict": "held",
+    "closure_claim": false,
+    "meaning": "LA-028 is the target finding in scope; it is not closed by this handoff."
   }
 }

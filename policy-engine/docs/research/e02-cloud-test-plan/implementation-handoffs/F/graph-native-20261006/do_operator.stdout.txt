@@ -1,0 +1,44 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________ test_b217_perfect_do_matches_latent_dag_for_all_action_sets __________
+
+    def test_b217_perfect_do_matches_latent_dag_for_all_action_sets() -> None:
+        """Every surgery in the finite domain cuts only incoming causal influence."""
+        graph_count = 0
+        for graph in _three_node_admgs():
+            latent_edges = _latent_edges(graph)
+            for action_mask in product((False, True), repeat=len(graph.nodes)):
+                action = frozenset(node for node, present in zip(graph.nodes, action_mask) if present)
+                actual_graph = do_operator(graph, action)
+                expected_edges = [
+                    (source, target) for source, target in latent_edges if target not in action
+                ]
+                for x, y in permutations(graph.nodes, 2):
+                    conditioned = frozenset(graph.nodes) - {x, y}
+                    for condition in (frozenset(), conditioned):
+>                       assert m_separation(
+                            actual_graph, frozenset({x}), frozenset({y}), condition
+                        ) == (_dag_separator(expected_edges, x, y, condition)), (
+                            graph.model_dump(),
+                            action,
+                            x,
+                            y,
+                            condition,
+                        )
+E                       AssertionError: ({'discovery_method': '', 'edges': [{'combined_confidence': None, 'data_confidence': None, 'dst': 'C', 'evidence_refs'...'graph_type': <GraphType.ADMG: 'admg'>, 'id_confidence_under_pag': None, ...}, frozenset({'C'}), 'B', 'C', frozenset())
+E                       assert False == True
+E                        +  where False = m_separation(CausalGraphModel(schema_version='1.0', graph_type=<GraphType.ADMG: 'admg'>, nodes=['A', 'B', 'C'], edges=[CausalEdge(s...dentification_policy=<PAGIdentificationPolicy.CONSERVATIVE: 'conservative'>, id_confidence_under_pag=None, metadata={}), frozenset({'B'}), frozenset({'C'}), frozenset())
+E                        +    where frozenset({'B'}) = frozenset({'B'})
+E                        +    and   frozenset({'C'}) = frozenset({'C'})
+E                        +  and   True = _dag_separator([('latent_0', 'B')], 'B', 'C', frozenset())
+
+tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py:121: AssertionError
+=============================== warnings summary ===============================
+../../e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py::test_b217_perfect_do_matches_latent_dag_for_all_action_sets
+1 failed, 1 warning in 0.24s

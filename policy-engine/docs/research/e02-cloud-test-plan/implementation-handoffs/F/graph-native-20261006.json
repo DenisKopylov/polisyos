@@ -1,0 +1,567 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "graph-native-20261006",
+  "closure_ids": [
+    "B214",
+    "B215",
+    "B216",
+    "B217",
+    "B218",
+    "B219",
+    "B220",
+    "B221",
+    "B222",
+    "B223",
+    "B224",
+    "B225",
+    "LA-007",
+    "LA-019"
+  ],
+  "bundle_ids": [
+    "GRF-01",
+    "GRF-02",
+    "GRF-03",
+    "SCM-01",
+    "SCM-02",
+    "SCM-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "07beb7c2986770e1b9901f3061a4768251c5a154"
+  ],
+  "candidate_tree_sha": "94ee1936893827c13316ee537e286d0791cd4854",
+  "branch": "codex/e02-F-graph-20261006",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+    "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py"
+  ],
+  "baseline_cells": [
+    {
+      "cell_id": "F08-P048",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "state": "FAILED",
+      "purpose": "historical source-reported compact-only native graph route; not candidate evidence"
+    },
+    {
+      "cell_id": "F01-P025",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "state": "FAILED",
+      "purpose": "historical SCM native DTO test harness; not addressed by graph-only source"
+    },
+    {
+      "cell_id": "F13-P030",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "state": "FAILED",
+      "purpose": "historical SCM native DTO test harness; not addressed by graph-only source"
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-F-graph-env/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+        "tests/unit/ir/test_causal_graph_contract.py",
+        "tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+        "tests/unit/remediation/test_grf_03.py",
+        "tests/unit/foundry/methods/catalog/causal/test_do_calculus_postpass.py"
+      ],
+      "target_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+      "environment": {
+        "python": "3.14.2",
+        "executable": "/workspace/e02-F-graph-env/bin/python",
+        "PYTHONPATH": "src:.:/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+        "module_origins": {
+          "networkx": {
+            "version": "3.6.1",
+            "file": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/networkx/__init__.py"
+          },
+          "polisyos.foundry.methods.catalog.causal.admg_ops": {
+            "version": null,
+            "file": "/workspace/e02-F-graph-review-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+          },
+          "polisyos.ir.analytics.causal_graph": {
+            "version": null,
+            "file": "/workspace/e02-F-graph-review-20261006/policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+          }
+        }
+      },
+      "input_closure": "complete finite synthetic graph selectors; no production inputs",
+      "outcome": "PASS",
+      "expected_negative": false,
+      "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.json"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-graph-env/bin/python",
+        "/workspace/e02-F-20261006-receipts/tmle/graph-review/removal_replayer.py",
+        "m_separation"
+      ],
+      "target_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+      "environment": {
+        "python": "3.14.2",
+        "executable": "/workspace/e02-F-graph-env/bin/python",
+        "PYTHONPATH": "src:.:/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+        "module_origins": {
+          "networkx": {
+            "version": "3.6.1",
+            "file": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/networkx/__init__.py"
+          },
+          "polisyos.foundry.methods.catalog.causal.admg_ops": {
+            "version": null,
+            "file": "/workspace/e02-F-graph-review-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+          },
+          "polisyos.ir.analytics.causal_graph": {
+            "version": null,
+            "file": "/workspace/e02-F-graph-review-20261006/policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+          }
+        }
+      },
+      "input_closure": "complete finite synthetic graph selectors; no production inputs",
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.json"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-graph-env/bin/python",
+        "/workspace/e02-F-20261006-receipts/tmle/graph-review/removal_replayer.py",
+        "do_operator"
+      ],
+      "target_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+      "environment": {
+        "python": "3.14.2",
+        "executable": "/workspace/e02-F-graph-env/bin/python",
+        "PYTHONPATH": "src:.:/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+        "module_origins": {
+          "networkx": {
+            "version": "3.6.1",
+            "file": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/networkx/__init__.py"
+          },
+          "polisyos.foundry.methods.catalog.causal.admg_ops": {
+            "version": null,
+            "file": "/workspace/e02-F-graph-review-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+          },
+          "polisyos.ir.analytics.causal_graph": {
+            "version": null,
+            "file": "/workspace/e02-F-graph-review-20261006/policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+          }
+        }
+      },
+      "input_closure": "complete finite synthetic graph selectors; no production inputs",
+      "outcome": "FAIL",
+      "expected_negative": true,
+      "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.json"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-graph-env/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "tests/unit/remediation/test_emp_01.py"
+      ],
+      "target_sha": "07beb7c2986770e1b9901f3061a4768251c5a154",
+      "environment": {
+        "python": "3.14.2",
+        "executable": "/workspace/e02-F-graph-env/bin/python",
+        "PYTHONPATH": "src:.:/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+        "module_origins": {
+          "networkx": {
+            "version": "3.6.1",
+            "file": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/networkx/__init__.py"
+          },
+          "polisyos.foundry.methods.catalog.causal.admg_ops": {
+            "version": null,
+            "file": "/workspace/e02-F-graph-review-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+          },
+          "polisyos.ir.analytics.causal_graph": {
+            "version": null,
+            "file": "/workspace/e02-F-graph-review-20261006/policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+          }
+        }
+      },
+      "input_closure": "complete finite synthetic graph selectors; no production inputs",
+      "outcome": "FAIL",
+      "expected_negative": false,
+      "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.stdout.txt",
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.json"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-graph-env/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "tests/unit/remediation/test_emp_01.py",
+        "-q"
+      ],
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "environment": {
+        "python": "3.14.2",
+        "executable": "/workspace/e02-F-graph-env/bin/python",
+        "PYTHONPATH": "src:.:/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages",
+        "module_origins": {
+          "networkx": {
+            "version": "3.6.1",
+            "file": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/networkx/__init__.py"
+          },
+          "polisyos.foundry.methods.catalog.causal.admg_ops": {
+            "version": null,
+            "file": "/workspace/e02-F-graph-review-20261006/policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py"
+          },
+          "polisyos.ir.analytics.causal_graph": {
+            "version": null,
+            "file": "/workspace/e02-F-graph-review-20261006/policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+          }
+        }
+      },
+      "input_closure": "entire existing EMP01 selector, full gate input denominator not established",
+      "outcome": "FAIL",
+      "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01-base198.txt",
+      "P41_inherited": "not_established"
+    },
+    {
+      "command": "python -m polisyos.runtime.quality.production_invocation --repo-root . --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt scratch/production-invocation-base.json",
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "environment": "Python3.14.2 baseline native application environment",
+      "input_closure": "broad invocation diagnostic attempted once",
+      "outcome": "ERROR",
+      "exit_code": 137,
+      "output": "process killed; empty stdout; requested receipt was not produced; diagnostic UNRUN to completion"
+    }
+  ],
+  "property": {
+    "statement": "Frozen graph runtime agrees with an independently derived finite latent-DAG oracle and actual native lossless mixed-edge export; runtime unchanged",
+    "runtime_path": [
+      "typed CausalGraphModel",
+      "IRCAS.persist",
+      "fresh FileSystemCAS graph reader",
+      "NetworkX3.6.1 MultiDiGraph exporter",
+      "actual Rule1/Rule3 consumers"
+    ],
+    "proxy_divergence": "finite method oracle and complete edge payload assertions fail with effective graph operations removed even though declared marks survive",
+    "negative_controls": [
+      {
+        "property": "collider endpoint semantics",
+        "runtime_mutation": "is_collider=False preserving graph marks",
+        "exit": 1,
+        "failed": 1,
+        "receipt": "/workspace/e02-F-20261006-receipts/tmle/graph-review/m_separation.json"
+      },
+      {
+        "property": "perfect-do bidirected surgery",
+        "runtime_mutation": "omit bidirected cut preserving graph declaration",
+        "exit": 1,
+        "failed": 1,
+        "receipt": "/workspace/e02-F-20261006-receipts/tmle/graph-review/do_operator.json"
+      },
+      {
+        "property": "actual multiedge export",
+        "runtime_mutation": "NetworkX MultiDiGraph replaced with DiGraph",
+        "expected": "full export assertion fails while all edge markers remain",
+        "covered_by": "native test_native_networkx_export_loss_is_detected_with_markers_preserved"
+      }
+    ],
+    "input_identity": {
+      "three_node_admgs": 200,
+      "m_separation_queries": 2400,
+      "perfect_do_queries": 19200,
+      "native_networkx_edge_orderings": 120,
+      "unique_orderings": 60,
+      "full_payload_multiset_after_fresh_cas": true
+    }
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "bounded synthetic graph GO; no ledger closures; B219 held until G accepts current actual-backend evidence",
+  "per_id": [
+    {
+      "finding_id": "B216",
+      "bundle_id": "GRF-01",
+      "criterion": "endpoint-aware m-separation",
+      "check": "2400 exact latent-DAG moralization comparisons + native Rule1",
+      "outcome": "bounded GO",
+      "negative_or_removal": "collider removal: 1 FAIL",
+      "limit_and_next_owner": "general PAG/ID completeness not established",
+      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+      "recorded_ledger_state": "partial"
+    },
+    {
+      "finding_id": "B217",
+      "bundle_id": "GRF-01",
+      "criterion": "perfect do removes incoming and bidirected influence",
+      "check": "19200 action/query comparisons + actual Rule3",
+      "outcome": "bounded GO",
+      "negative_or_removal": "bidirected surgery removal: 1 FAIL",
+      "limit_and_next_owner": "general PAG/ID completeness not established",
+      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+      "recorded_ledger_state": "partial"
+    },
+    {
+      "finding_id": "B219",
+      "bundle_id": "GRF-02",
+      "criterion": "genuine NetworkX backend and mixed multiedge readback",
+      "check": "native3.6.1 MultiDiGraph full payload through fresh CAS",
+      "outcome": "held pending G acceptance",
+      "negative_or_removal": "DiGraph substitution assertion fails preserving marks",
+      "limit_and_next_owner": "historical held ledger unchanged; G owns admission",
+      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+      "recorded_ledger_state": "held"
+    },
+    {
+      "finding_id": "B220",
+      "bundle_id": "GRF-02",
+      "criterion": "deep immutable topology and cold copy/cache semantics",
+      "check": "native graph contract and mutation/copy cache tests",
+      "outcome": "bounded GO",
+      "negative_or_removal": "mutation raises; empty copy differs from original warm topology",
+      "limit_and_next_owner": "public installed-wheel imports remain C/G packaging criterion",
+      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+      "recorded_ledger_state": "partial"
+    },
+    {
+      "finding_id": "B214",
+      "bundle_id": "GRF-03",
+      "criterion": "normalize known reverse marks and reject unknown orientation",
+      "check": "existing native GRF03 full selector",
+      "outcome": "bounded GO",
+      "negative_or_removal": "ambiguous partial graph/static projection rejected",
+      "limit_and_next_owner": "sound extension of arbitrary PAG not established",
+      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+      "recorded_ledger_state": "partial"
+    },
+    {
+      "finding_id": "B218",
+      "bundle_id": "GRF-03",
+      "criterion": "preserve lag payload and reject static lag consumer",
+      "check": "native fresh MultiDiGraph lag1/lag2 full payload + existing GRF03",
+      "outcome": "bounded GO",
+      "negative_or_removal": "lagged graph refused by static graph consumers",
+      "limit_and_next_owner": "temporal causal inference not implemented",
+      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+      "recorded_ledger_state": "partial"
+    },
+    {
+      "finding_id": "LA-007",
+      "bundle_id": "GRF-01",
+      "criterion": "only exact empty id_engine sibling retirement; package preserved",
+      "check": "graph owner source unchanged in slice",
+      "outcome": "limited",
+      "negative_or_removal": "installed-wheel remainder not executed",
+      "limit_and_next_owner": "C/G installed wheel and facade acceptance",
+      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+      "recorded_ledger_state": "partial"
+    },
+    {
+      "finding_id": "LA-019",
+      "bundle_id": "GRF-01",
+      "criterion": "only exact empty causal_engine/interference siblings; packages preserved",
+      "check": "graph owner source unchanged in slice",
+      "outcome": "limited",
+      "negative_or_removal": "installed-wheel remainder not executed",
+      "limit_and_next_owner": "API/C/G facade and installed wheel acceptance",
+      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+      "recorded_ledger_state": "partial"
+    },
+    {
+      "finding_id": "B215",
+      "bundle_id": "SCM-02",
+      "criterion": "original bundle criterion retained",
+      "check": "not executed by graph-only frozen slice",
+      "outcome": "limited",
+      "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
+      "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
+      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+      "recorded_ledger_state": "partial"
+    },
+    {
+      "finding_id": "B223",
+      "bundle_id": "SCM-02",
+      "criterion": "original bundle criterion retained",
+      "check": "not executed by graph-only frozen slice",
+      "outcome": "limited",
+      "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
+      "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
+      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+      "recorded_ledger_state": "partial"
+    },
+    {
+      "finding_id": "B221",
+      "bundle_id": "SCM-01",
+      "criterion": "original bundle criterion retained",
+      "check": "not executed by graph-only frozen slice",
+      "outcome": "limited",
+      "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
+      "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
+      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+      "recorded_ledger_state": "partial"
+    },
+    {
+      "finding_id": "B222",
+      "bundle_id": "SCM-01",
+      "criterion": "original bundle criterion retained",
+      "check": "not executed by graph-only frozen slice",
+      "outcome": "limited",
+      "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
+      "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
+      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+      "recorded_ledger_state": "partial"
+    },
+    {
+      "finding_id": "B224",
+      "bundle_id": "SCM-03",
+      "criterion": "original bundle criterion retained",
+      "check": "not executed by graph-only frozen slice",
+      "outcome": "limited",
+      "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
+      "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
+      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+      "recorded_ledger_state": "partial"
+    },
+    {
+      "finding_id": "B225",
+      "bundle_id": "SCM-03",
+      "criterion": "original bundle criterion retained",
+      "check": "not executed by graph-only frozen slice",
+      "outcome": "limited",
+      "negative_or_removal": "SCM authoring/actual backend controls in next separate slice",
+      "limit_and_next_owner": "F SCM next immutable candidate; real-data-dependent remainder G local run",
+      "authority": "F-W06 accountable method owner; G acceptance/ledger decision",
+      "recorded_ledger_state": "partial"
+    }
+  ],
+  "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/independent-review.json",
+  "source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "git_blob": "b60260eb81d537ddcf75d4a0e4c61c372a5aa968",
+      "sha256": "7ce7e791e0ae6390fcf2c33a09667b4d539a549b373ab7932d929b206b87e738",
+      "bytes": 40707
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "git_blob": "8787cd95d63b342b5d9f5e760ffc8d73b1b8985d",
+      "sha256": "121f33acc4b5bbc0541b3bb5cc331c3e77d9a3f2e684359af58211e56f44e1a1",
+      "bytes": 20114
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+      "git_blob": "99fc9cc09cc915cd5c555d61ff7dd585a519253f",
+      "sha256": "0babf1b38ae1e1146ddfc9ce5d04345601b67b1e60893d282f46fda9a6222867",
+      "bytes": 15982
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+      "git_blob": "4535a540ddeca9632b8e254848e28eddd352e941",
+      "sha256": "4ea4c07555000dee55d3b1b4d7ed15b07862899b3776c8362485322a9e64a253",
+      "bytes": 6926
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+      "git_blob": "e727129401c7de566e0dc6d68ea39db617ca47af",
+      "sha256": "7dff47e167e6ecbf5088b755a429047b6aa0586b8e27e927bff997c606a471ec",
+      "bytes": 3423
+    }
+  ],
+  "source_stack_note": "Graph source frozen at07beb. Subsequent fresh worker dependencies carried on same append-only topic: original70f160c and85cba8f4; graph handoff does not assert future dirty SCM source frozen. Select implementation SHA for graph-only replay.",
+  "limitations_and_next_owner": [
+    "B219 historical backend receipt is not established by this new finite test; G must admit current backend evidence",
+    "No general PAG/circle/ID/temporal method, package-wheel or admitted-real-data identification claim",
+    "120 edge permutations include two equal edge records and therefore 60 unique payload orderings",
+    "EMP01 FAIL is not assigned inherited status absent P41 exact base and disjoint full denominator",
+    "SCM result semantics, true GCM fit and refit-bootstrap are a separate pending frozen slice",
+    "Baseline Python3.14 DoWhy/EconML markers exclude those backends; absence is not PASS",
+    "Full production inputs remain local; exact data-dependent checks belong to G on accepted candidate SHA",
+    "Production-invocation diagnostic killed exit137: ERROR/UNRUN, not PASS or inherited red",
+    "EMP01 exact base and candidate both5FAIL5PASS; full disjoint input denominator absent so P41 inheritance not established"
+  ],
+  "transport_records": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.json",
+      "bytes": 332,
+      "sha256": "cd61b1904ae8d64880f77dc65b56bbb58733b4c36831b07cd5d4bb84bc7a1a21"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.stdout.txt",
+      "bytes": 3305,
+      "sha256": "1984ad9944a5dc703017f64c41cd28e946fb34bfa6c35decd53e11814c85d8c6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01-base198.txt",
+      "bytes": 31075,
+      "sha256": "a8e88705e8602da2fa3464ce335d9955caa7fb5c1b28747ea0c8348fee149a7d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.json",
+      "bytes": 447,
+      "sha256": "7547a513f91e28f3d8c59ab6438a264311e87c798938913ca003d5c622233beb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.stdout.txt",
+      "bytes": 31075,
+      "sha256": "ff8bb29c36a8d0cf3df1dff0122ae381c1b71a9929c34d51227e064bd12d9562"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/independent-review.json",
+      "bytes": 9137,
+      "sha256": "6a39c3d8f5c7c96dd6f7bfebf4f414a58eef122ece66b74c98fe4b5019c7d745"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.json",
+      "bytes": 333,
+      "sha256": "c12ede47663cb4ded6701f22fb0cf4ca5841a280492433b537396af06536500e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.stdout.txt",
+      "bytes": 2161,
+      "sha256": "10e9c65389f895ccd120a5373927ab9950f527e71d4cfd9a6a3f9e7f179e494f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.json",
+      "bytes": 734,
+      "sha256": "c375341018ac00d174999cd7ce7e81d59368bc33e6461757a4b694c1cfb1a720"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.stdout.txt",
+      "bytes": 100,
+      "sha256": "a22f013aaa5037bb4e606637b21a92b1d90c07994f8a795ada40871ef7cfa214"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/removal_replayer.py",
+      "bytes": 937,
+      "sha256": "916b996f5ee6e8690b1c88331999d4fdbdb07f65649ee821eae39bb304f5dd78"
+    }
+  ]
+}

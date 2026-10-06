@@ -72,13 +72,14 @@
         },
         "reference_scope": "Full immutable Git tree/diff/history and explicitly source-bound receipt/evidence objects. Source-derived full3332path tables remain ignored locators/hashes; literal instrument recomputes them. No product-runtime or receiver raw availability proof."
       },
-      "outcome": "PASS finite source/metadata correspondence with historical and receiver-availability limits preserved",
+      "outcome": "PASS",
       "output": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/source-full-stdout.json",
         "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
         "bytes": 14857,
         "sha256": "6354e324faa75972f2937e8c9a5bb8b17dfd4f0932362506f88ade7a7e27388a"
-      }
+      },
+      "outcome_qualification": "PASS finite source/metadata correspondence with historical and receiver-availability limits preserved"
     },
     {
       "name": "explicit-current-evidence-index-closure",
@@ -126,13 +127,14 @@
         },
         "reference_scope": "Full immutable Git tree/diff/history and explicitly source-bound receipt/evidence objects. Source-derived full3332path tables remain ignored locators/hashes; literal instrument recomputes them. No product-runtime or receiver raw availability proof."
       },
-      "outcome": "PASS finite source/metadata correspondence with historical and receiver-availability limits preserved",
+      "outcome": "PASS",
       "output": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/graph-full-stdout.json",
         "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
         "bytes": 27976,
         "sha256": "82ba18aca79681ad75d5de8e70766db41f4748808747a15eea74c8db4086f419"
-      }
+      },
+      "outcome_qualification": "PASS finite source/metadata correspondence with historical and receiver-availability limits preserved"
     },
     {
       "name": "nonresearch-companions-tests-tools-release",
@@ -174,13 +176,14 @@
         },
         "reference_scope": "Full immutable Git tree/diff/history and explicitly source-bound receipt/evidence objects. Source-derived full3332path tables remain ignored locators/hashes; literal instrument recomputes them. No product-runtime or receiver raw availability proof."
       },
-      "outcome": "PASS finite source/metadata correspondence with historical and receiver-availability limits preserved",
+      "outcome": "PASS",
       "output": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/companion-full-stdout.json",
         "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
         "bytes": 3892,
         "sha256": "5ed686d06b792e12f131e6190d0770eb2af92b60c2b6a0e238c0f89dd431a163"
-      }
+      },
+      "outcome_qualification": "PASS finite source/metadata correspondence with historical and receiver-availability limits preserved"
     },
     {
       "name": "retained-first-generic-parser-projection",
@@ -213,7 +216,7 @@
         },
         "qualification": "Initial generic parser version predates alias and annotated@SHA fixes. Original exact instrument version not persisted; independently exact replay not_established. Complete observed outputs remain; no product/source/runtime defect inferred."
       },
-      "outcome": "NOT_ESTABLISHED initial projection;41unavailable projections were parser limitations, corrected by reading explicit declared aliases; no product execution",
+      "outcome": "ERROR",
       "output": {
         "full_stdout": {
           "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/initial-parser-full-stdout.json",
@@ -227,7 +230,9 @@
           "bytes": 7345,
           "sha256": "89680b26351242a430653643ee4c4216a5b1646d7fa6b3056a3afe6535de1d61"
         }
-      }
+      },
+      "outcome_qualification": "NOT_ESTABLISHED initial projection;41unavailable projections were parser limitations, corrected by reading explicit declared aliases; no product execution",
+      "initial_instrument_exact_replay": "not_established; original source version not persisted; full observed stderr/stdout remain unchanged"
     }
   ],
   "property": {
@@ -290,5 +295,10 @@
     "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
     "bytes": 10432,
     "sha256": "2be6772283354ea393534a9a950bfbce965fc1aad6640629cc84ccc8589c8452"
+  },
+  "strict_outcome_forward_correction": {
+    "original_receipt_sha": "9cb17d4a2b512eef7e8448776a2f5a9b7bcb9b52",
+    "scope": "Forward enum normalization only; unchanged ac51 implementation/tree/12path footprint, source1862 and all deciding outputs. Original9cb retained in Git; no audit/native rerun.",
+    "caution": "Three metadata correspondence stages completed; original parser projection had actual invalid/missing ref errors, not a product failure. Exact initial instrument replay remains not_established. No universal outcome-enum claim for historical packets or new sourcecustody receipt from the older selected21 scan."
   }
 }

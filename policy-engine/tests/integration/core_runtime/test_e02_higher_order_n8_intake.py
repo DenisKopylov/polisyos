@@ -12,6 +12,7 @@ from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.ir.analytics.ncm import ExogenousSpec, NCMSpec, StructuralEquation
 from polisyos.runtime.quality.generation_cycle import (
@@ -311,7 +312,7 @@ def _case(
 def test_real_n5_cubic_cas_is_recomputed_by_fresh_default_n8_consumer(
     tmp_path: Path,
 ) -> None:
-    """The real N8 consumer accepts verified B26 evidence and rejects signed lies."""
+    """The real N8 consumer accepts verified B26 evidence and rejects content-valid false claims."""
 
     repo_root = Path(__file__).resolve().parents[3]
     request = _cubic_request()
@@ -395,7 +396,9 @@ def test_real_n5_cubic_cas_is_recomputed_by_fresh_default_n8_consumer(
     for name, persisted in forged.items():
         variant = simulation.model_copy(
             update={
-                "simulation_result_ref": persisted["simulation_result_ref"],
+                "simulation_result_ref": CASArtifactRef.model_validate(
+                    persisted["simulation_result_ref"]
+                ),
                 "simulation_ref": persisted["simulation_ref"],
                 "world_model_record": None,
             }
@@ -416,7 +419,9 @@ def test_real_n5_cubic_cas_is_recomputed_by_fresh_default_n8_consumer(
     )
     permuted = simulation.model_copy(
         update={
-            "simulation_result_ref": permuted_ref["simulation_result_ref"],
+            "simulation_result_ref": CASArtifactRef.model_validate(
+                permuted_ref["simulation_result_ref"]
+            ),
             "simulation_ref": permuted_ref["simulation_ref"],
             "world_model_record": None,
         }

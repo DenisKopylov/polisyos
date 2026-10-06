@@ -1,0 +1,421 @@
+{
+  "schema": "e02-D-continuation-handoff.v1",
+  "implementation_sha": "6b5195b5400ce10f5ed72e952a368648f0cc7ac9",
+  "implementation_tree": "4a64e5b6f3a313ec821ff0a03bca41427234db34",
+  "slice_base_sha": "c42096e1af07abc66f68e07491cab5021454c435",
+  "supplier_selected_sha": "28231314770215be0e646d33d8c1f567211f6c19",
+  "evidence_commit": "73f650a209410f93248b2710fbee5f0e81ea2c3a",
+  "status": "bounded defining evidence PASS; no global/appointed served/scientific closure",
+  "footprint": [
+    {
+      "path": "policy-engine/README.md",
+      "source_sha": "6b5195b5400ce10f5ed72e952a368648f0cc7ac9",
+      "blob": "3227a1316642f900c40034fa0b205372b4f2e80a",
+      "bytes": 16255,
+      "sha256": "4a029bdcff3a2fac1bf26f1ff37d8851698c4ef028131c5c0f850538febaf626"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-native-search-resume.toml",
+      "source_sha": "6b5195b5400ce10f5ed72e952a368648f0cc7ac9",
+      "blob": "2a931d52604367e72f6d5b84e0c8219c29b3509f",
+      "bytes": 4037,
+      "sha256": "21d8096c246ea13157421d2138d88afa6d3da4a2e5621ca58b87389d0e66a652"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "source_sha": "6b5195b5400ce10f5ed72e952a368648f0cc7ac9",
+      "blob": "7cb82b22969d78fdc21f055130d17e58faa51cc7",
+      "bytes": 14342,
+      "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "source_sha": "6b5195b5400ce10f5ed72e952a368648f0cc7ac9",
+      "blob": "e9b25eb5cad358f5a9f12a7f4c99e6150ee71feb",
+      "bytes": 54963,
+      "sha256": "a3aee419de367e81b197f217ee4de8a6cdf61c518d2c767d0d2db5aed4264eb5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "source_sha": "6b5195b5400ce10f5ed72e952a368648f0cc7ac9",
+      "blob": "24cb6d3bb3f0ace2379e75c7fa00a4c6fcb3c613",
+      "bytes": 17172,
+      "sha256": "d33a648c3c1ae05f94d8ed679b73eb617df232e089c0a2fec34c6188feb574a1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "source_sha": "6b5195b5400ce10f5ed72e952a368648f0cc7ac9",
+      "blob": "c2b0dcff86801b3ae90db1766a16d185f31bdb8c",
+      "bytes": 29060,
+      "sha256": "0cc646ebf8c0edd6a913a996a3bf97f58ab28bf3977a9d874f724c4a75057310"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "source_sha": "6b5195b5400ce10f5ed72e952a368648f0cc7ac9",
+      "blob": "b2dc829a6014f50ad42a89bba8b340a306f11da3",
+      "bytes": 19592,
+      "sha256": "585637a5ef51752c76aa50b7ec35a81088c70c4751c55f71a1a41b5e39a6316d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+      "source_sha": "6b5195b5400ce10f5ed72e952a368648f0cc7ac9",
+      "blob": "2125d24894222861dd7a7b064c4ed52e4198a36e",
+      "bytes": 29364,
+      "sha256": "07c76f6f59e7ad883a25bde6f7121af1899b5943cbd094ec9cea4d049bed34af"
+    }
+  ],
+  "original_criteria": [
+    {
+      "id": "LA-014@SRV-01",
+      "finding_id": "LA-014",
+      "criterion_card": "SRV-01",
+      "canonical_closure_owner": "SRV-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-srv-01",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          455,
+          481
+        ],
+        "byte_offset": 52637,
+        "bytes": 2835,
+        "sha256": "7846126004d9315f65d6e3dc9fa392b3942a05ba430f862e7c7176e87c11b0e2"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Импорт contract-only не загружает controller; прежний ask/tell, run_search, unknown/duplicate candidate IDs, typed policy evaluation, frontier и resumed state сохраняют согласованный смысл.",
+        "byte_offset": 54712,
+        "bytes": 284,
+        "sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd"
+      },
+      "canonical_card_pointer": "/canonical_cards/SRV-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/SRV-01",
+      "missing_input_pointer": "/findings/43/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "finding_id": "LA-015",
+      "criterion_card": "CTL-01",
+      "canonical_closure_owner": "SRV-03",
+      "role": "supplier_companion_only",
+      "task_anchor": "D.md#bundle-ctl-01",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          482,
+          512
+        ],
+        "byte_offset": 55472,
+        "bytes": 3232,
+        "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+        "byte_offset": 57790,
+        "bytes": 384,
+        "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-01",
+      "missing_input_pointer": "/findings/44/unreceived_inputs_or_APIs"
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "finding_id": "LA-015",
+      "criterion_card": "SRV-03",
+      "canonical_closure_owner": "SRV-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-srv-03",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          482,
+          512
+        ],
+        "byte_offset": 55472,
+        "bytes": 3232,
+        "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+        "byte_offset": 57790,
+        "bytes": 384,
+        "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+      },
+      "canonical_card_pointer": "/canonical_cards/SRV-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/SRV-03",
+      "missing_input_pointer": "/findings/44/unreceived_inputs_or_APIs"
+    }
+  ],
+  "criteria_source": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+    "source_sha": "5bd73d8d61f652e8628528bb9b49ef49c8e03a2a",
+    "git_blob": "04658d357e384d770c488d841cac7b17a64efebd",
+    "bytes": 176452,
+    "sha256": "fb6f8d6fd8e7ebaea6df25c469429cfe9d1f314a4e62caa6dbce514f164e76ad"
+  },
+  "actual_runtime": {
+    "argv": [
+      "tests/unit/scientist/methods/search/test_service_persistence.py",
+      "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+      "tests/unit/remediation/test_srv_01.py",
+      "tests/unit/remediation/test_srv_03.py",
+      "-s",
+      "--basetemp=/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8",
+      "--junitxml=/workspace/e02-D-continuation-receipts/champion-correction-positive-junit.xml"
+    ],
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "native_origins": {
+      "polisyos.core.artifacts._integrity_ops": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+        "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+      },
+      "polisyos.core.artifacts.store": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+      },
+      "polisyos.scientist": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/__init__.py",
+        "sha256": "e0bd86c731ef53a6d4bb9713589aadecf39742282471bc725bac4947f7594fe3"
+      },
+      "polisyos.scientist.methods.autotune.runtime": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "sha256": "4323418933e4a2e85eae7a090c0683d8bc800bd7bbc64d6a56942fe27dadb5cc"
+      },
+      "polisyos.scientist.methods.search": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+        "sha256": "28e4bd443b1a6a34e01d96fc197b5e89df77e5bb1d53b73f23f5857d3ad43ef7"
+      },
+      "polisyos.scientist.methods.search.contracts": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+        "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5"
+      },
+      "polisyos.scientist.methods.search.controller": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "sha256": "a3aee419de367e81b197f217ee4de8a6cdf61c518d2c767d0d2db5aed4264eb5"
+      },
+      "polisyos.scientist.methods.search.run_state": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "sha256": "d33a648c3c1ae05f94d8ed679b73eb617df232e089c0a2fec34c6188feb574a1"
+      },
+      "polisyos.scientist.methods.search.service": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "sha256": "0cc646ebf8c0edd6a913a996a3bf97f58ab28bf3977a9d874f724c4a75057310"
+      },
+      "polisyos.scientist.methods.search.stopping": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "sha256": "585637a5ef51752c76aa50b7ec35a81088c70c4751c55f71a1a41b5e39a6316d"
+      },
+      "polisyos.scientist.orchestration.engine.budget_ledger": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+      },
+      "polisyos.scientist.orchestration.engine.budget_middleware": {
+        "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+      }
+    },
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "source": "6b5195b5400ce10f5ed72e952a368648f0cc7ac9",
+    "tree": "4a64e5b6f3a313ec821ff0a03bca41427234db34"
+  },
+  "commands": {
+    "positive": {
+      "argv": [
+        "tests/unit/scientist/methods/search/test_service_persistence.py",
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/remediation/test_srv_01.py",
+        "tests/unit/remediation/test_srv_03.py",
+        "-s",
+        "--basetemp=/workspace/e02-D-continuation-receipts/champion-correction-positive-9615d218625d4e009ec15b42db9d31c8",
+        "--junitxml=/workspace/e02-D-continuation-receipts/champion-correction-positive-junit.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:."
+      },
+      "exit": 0,
+      "tests": 58,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "duration_reported_seconds": 7.19,
+      "case_ids": [
+        "tests.unit.scientist.methods.search.test_service_persistence::test_native_factory_failure_checkpoint_fresh_public_resume_retains_evaluated_subject",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_pending_and_completed_ids_survive_fresh_reader_and_failed_tell_rolls_back",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_stopped_checkpoint_is_terminal_and_wrong_rule_or_suite_refuses_without_effect",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_wall_clock_origin_survives_pause_and_empty_generation_is_terminal",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[version]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[counter_bool]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[history_count]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[generator_cursor]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[pending_order]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[cost_huge]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[cost_origin_claim]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_generator_without_checkpoint_contract_refuses_public_resume",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_actual_pending_batch_order_survives_canonical_json_key_sorting",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_initial_sentinel_failure_resume_preserves_initial_termination",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_registered_checkpoint_facade_and_normal_contract_imports_do_not_load_runtime",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_write]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_readback]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_custom_parameterized_objective_checkpoint_refuses_resume_instead_of_build_identity",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_actual_stateless_evaluator_defaults_and_objective_parameters_bind_resume",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_checkpoint_requires_exact_public_snapshot_profile_on_resume",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_actual_checkpoint_consumer_uses_one_public_verified_snapshot_without_split_reads",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_cost_budget_constructor_refuses_invalid_present_scalar[True]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_cost_budget_constructor_refuses_invalid_present_scalar[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_cost_budget_constructor_refuses_invalid_present_scalar[nan]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_cost_budget_constructor_refuses_invalid_present_scalar[inf]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_cost_budget_constructor_refuses_invalid_present_scalar[-1]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_cost_budget_constructor_refuses_invalid_present_scalar[0]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[True]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[nan]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[inf]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[-1]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[None]",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_recorded_cost_public_owner_port_reopens_without_receipt_or_provider_origin_authority",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_recorded_memory_zero_is_available_without_durable_identity_or_measured_zero",
+        "tests.unit.scientist.methods.search.test_service_persistence::test_original_v1_checkpoint_manifest_refuses_explicitly_before_effect",
+        "tests.unit.scientist.methods.autotune.test_native_search_lifecycle::test_native_route_forbids_private_full_evaluation_and_preserves_warm_sentinel_empty_stop",
+        "tests.unit.scientist.methods.autotune.test_native_search_lifecycle::test_native_failure_leaves_only_pending_candidate_then_same_instance_tell_continues",
+        "tests.unit.scientist.methods.autotune.test_native_search_lifecycle::test_native_partial_batch_stop_retains_unaccepted_pending_without_double_count",
+        "tests.unit.scientist.methods.autotune.test_native_search_lifecycle::test_public_call_removal_trap_is_reached_before_history_acceptance[ask]",
+        "tests.unit.scientist.methods.autotune.test_native_search_lifecycle::test_public_call_removal_trap_is_reached_before_history_acceptance[tell]",
+        "tests.unit.scientist.methods.autotune.test_native_search_lifecycle::test_public_runner_two_runs_detach_history_and_preserve_actual_cas_evaluation",
+        "tests.unit.scientist.methods.autotune.test_native_search_lifecycle::test_public_runner_refuses_zero_iteration_budget_before_any_evaluation",
+        "tests.unit.scientist.methods.autotune.test_native_search_lifecycle::test_native_empty_supplier_exhausts_without_accepting_history",
+        "tests.unit.remediation.test_srv_01::test_contracts_import_without_runtime_controller_or_funnel",
+        "tests.unit.remediation.test_srv_01::test_legacy_adapter_alias_is_lazy_and_points_to_canonical_bridge",
+        "tests.unit.remediation.test_srv_01::test_ask_tell_uses_owner_transition_and_resumes_frontier",
+        "tests.unit.remediation.test_srv_01::test_ask_tell_stage_a_rejection_does_not_count_stage_b",
+        "tests.unit.remediation.test_srv_01::test_ask_tell_disabled_stage_a_keeps_stage_b_counting",
+        "tests.unit.remediation.test_srv_01::test_unknown_and_duplicate_candidate_ids_do_not_create_history",
+        "tests.unit.remediation.test_srv_01::test_malformed_typed_feedback_cannot_fall_back_to_scalar_best",
+        "tests.unit.remediation.test_srv_01::test_run_search_compatibility_path_remains_available",
+        "tests.unit.remediation.test_srv_03::test_current_controller_trace_preserves_warm_sentinel_empty_error_resume",
+        "tests.unit.remediation.test_srv_03::test_native_service_rejects_explicit_falsy_candidate_id[0]",
+        "tests.unit.remediation.test_srv_03::test_native_service_rejects_explicit_falsy_candidate_id[]",
+        "tests.unit.remediation.test_srv_03::test_native_service_preserves_negative_string_candidate_id",
+        "tests.unit.remediation.test_srv_03::test_native_service_generates_id_only_when_candidate_id_is_absent",
+        "tests.unit.remediation.test_srv_03::test_current_autotune_runner_characterizes_real_cas_consumer_path"
+      ],
+      "optional_backend_imports": {
+        "torch": false,
+        "botorch": false,
+        "gpytorch": false
+      }
+    },
+    "remove_property": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python /workspace/e02-D-continuation-receipts/champion-tell-removal-probe.py",
+      "exit": 1,
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skips": 0,
+      "property_removed": "Deep run-ledger snapshot isolation replaced with same live ledger; real CAS write fails unchanged.",
+      "deciding_effect": "Unchanged actual tell failure witness observes accepted history/counters instead of empty prior ledger, fails test_service_persistence.py actual history assertion."
+    }
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/budget-snapshot-owner-input.json",
+      "source_sha": "73f650a209410f93248b2710fbee5f0e81ea2c3a",
+      "blob": "bda8312c7684862ee0e601442c48fc39232bf48d",
+      "bytes": 21340,
+      "sha256": "5e59aada57cb4b541eb210012ebed7c4439cd3f7670003cd7e7e688fda1b6818"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-correction/champion-correction-positive-complete.txt",
+      "source_sha": "73f650a209410f93248b2710fbee5f0e81ea2c3a",
+      "blob": "d2834a795fe6250bd98d1c80bd1fcf79eeee635c",
+      "bytes": 4447,
+      "sha256": "0c2720e6230feb007202db6c78bb32fa3330beb5468fec8d911b3f32bc1c8044"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-correction/champion-correction-positive-junit.xml",
+      "source_sha": "73f650a209410f93248b2710fbee5f0e81ea2c3a",
+      "blob": "9ca4c915c6715699b52ada36e1ca736909482d5f",
+      "bytes": 11216,
+      "sha256": "d6dc03202e628823f5ff75a1dbe089b04e5064c63c51016314a9239ed7c8f538"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-correction/champion-correction-verify.py.txt",
+      "source_sha": "73f650a209410f93248b2710fbee5f0e81ea2c3a",
+      "blob": "9e7ed063ae1fab3424dafadfbb282e9a486e8ce3",
+      "bytes": 2019,
+      "sha256": "d30b036b77793b6e2bd60d6e7a8643a6b2f16b4470665700691ea49671f98ab4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-correction/champion-tell-removal-complete.txt",
+      "source_sha": "73f650a209410f93248b2710fbee5f0e81ea2c3a",
+      "blob": "4d6467511d54eac3428835c0765ec5801a72a04d",
+      "bytes": 3122,
+      "sha256": "1bd18149e069594e8a676112e1f8936dd9f2c9a8a79443d256ba53852b361318"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-correction/champion-tell-removal-junit.xml",
+      "source_sha": "73f650a209410f93248b2710fbee5f0e81ea2c3a",
+      "blob": "9535e4ea51297f1f19a8bbe0288b01999c8c6f56",
+      "bytes": 2249,
+      "sha256": "a48118bb31a65bab323ae123bd08f7da37072c2b2d48d7a580e56791b27b1e15"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-correction/champion-tell-removal-probe.py.txt",
+      "source_sha": "73f650a209410f93248b2710fbee5f0e81ea2c3a",
+      "blob": "4eb89774b5cf47daa98ab23e59a6ec845e278f88",
+      "bytes": 1343,
+      "sha256": "34f38a125c2e7767a04dc0cdc040e0f70a704c04f160eccc86831618343ecd2b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-correction/preserved-fixture-index.json",
+      "source_sha": "73f650a209410f93248b2710fbee5f0e81ea2c3a",
+      "blob": "e1bbc3a9907a68aa8eb273d3fcf3e38371ba3ba7",
+      "bytes": 191142,
+      "sha256": "29a3682c4f23973fdc05b7db4b42c7501e85e9905ffa8c68cfb99e5f79bc37ac"
+    }
+  ],
+  "mechanism": {
+    "checkpoint_reader": "Current schema search-service.v2 / manifest2.0; exact selected manifest profile; one public B get_verified_snapshot byte/manifest view, actual checkpoint readback before reference publication. Legacyv1 and unknown schema refuse before generator/run admission.",
+    "supported_profile": "Actual canonical native factory code object/runner/codec/policy/suite/build; otherwise exactly four built-in objectives with all instance parameters plus stateless function source/defaults/keyword defaults/JSON globals and built-in objective build. Custom objective objects and closures persist but refuse resume.",
+    "local_tell": "Failed actual put_json or verified readback restores local controller run ledger, pending/completed/initial IDs and retains prior checkpoint reference; retry same detached evaluation produces one acknowledged local transition after actual readback.",
+    "cost": "Strict int/float/Decimal excludingbool, convert to consumerfloat before finite/nonnegative checks. Invalidpositive maximum refuses; unavailable/negative/huge observations stop without crash. Public middleware recorded-state only; optional owner identity; revision/receipt/provider cost origin unavailable; by-provider values labeled recorded_by_provider.",
+    "persisted_evidence": "One run-owned budget_evidence map, primitive/refusal checks prevent raw checkpoint provider-origin authority relabel; no new ledger or producer billing authority."
+  },
+  "limitations": [
+    "Appointed served hierarchical request owner/cutover remains external and held; existing served-search-owner-input.json packet is preserved.",
+    "Checkpoint identity/build profile does not appoint callback/promotion or scientific input authority. Current native evaluator callback state is caller-supplied on reopen; canonical paired incumbent reevaluation owns the local promotion comparison.",
+    "External registry/frontier publication and service checkpoint are distinct atomic boundaries. This local tell rollback is not distributed exactly-once, cross-registry rollback or persisted deployment rollback.",
+    "Warm-current BGCv2 configured actual persisted consumer and typed-policy frontier restart companion await exact selected supplier composition; unchanged GP26 was not rerun.",
+    "Current B middleware public port has no canonical typed snapshot delegation. Exact latest adapter/runtime/source denominator and minimum supplier request are in budget-snapshot-owner-input.json; current scalar does not claim receipt/revision/provider-reported origin.",
+    "Generic custom generators without atomic replay, custom criteria, arbitrary objective/evaluator closures and enabled diversity refuse resume. Generic module/default/global bindings are engineering replay identity, not external callback source authority.",
+    "Public surface inventory remains root-owned pending final source freeze; release fragment explicitly sets reviewedfalse."
+  ],
+  "preservation": {
+    "cleanup": "No intentional fixture/source/temp deletion or cleanup. Both runs used distinct fresh nonexistent disk-backed basetemp; all516 currently present regular fixture files totaling649702B indexed in tracked payload, original content remains at absolute locations. Index does not archive fixture bytes remotely.",
+    "resource_observation": "Immutable run startup was slow while cgroup memory.current17179467776 and disk163MiB free; no timeout/process/worker/numeric caps or resource termination used. Reported pytest execution7.19s does not include startup.",
+    "publication": "Normal commit/prepush hooks. Initial push succeeded; default fetch updated onlyFETCH_HEAD and remote-tracking name query errored. Explicit ordinary named-ref fetch then matched source6b on readback; no force/reset/rebase."
+  },
+  "pattern_pass": {
+    "P01/P02": "Actual existing evaluator→CAS→native tell→checkpoint→fresh public consumer; appointed served dependency still held.",
+    "P03/P04": "Single immutable checkpoint view; selected profile bound actualB supplier, no fabricated currentness/identity.",
+    "P40": "Actual cost scalar class, whole objective/evaluator replay profile and tell persistence refusal; source/guard removal negative discriminates rollback.",
+    "P41": "Source-bound immutable58 case outcomes; no baseline-absence inherited waiver or broad/GP package PASS claims."
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "mode": "candidate",
+  "base_sha": "a5077abe0f36976755f254b259b99652b8445e79",
+  "candidate_sha": "3f4455f11600f6a5c94e3a5dfbcd519d46ac6c6f",
+  "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+  "python": "/workspace/polisyos/policy-engine/.venv/bin/python",
+  "input_sha256": {
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py": "57a1ea6a58c8287935eed7d17679d229970c00c09be12cb3028cd808526014ba",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py": "32b226e00a61d66a2be221af8e9f1c37ba6ee3ae4a0471f3d9014f12a60d06ce",
+    "policy-engine/src/polisyos/common/async_tools.py": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py": "93c5f4b5577e00dd18e83ff4b4b4423d99706da90300d0ea44d74c2a06d96bb7"
+  },
+  "command": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/scientist/orchestration/engine/test_retry.py",
+    "-k",
+    "timeout_cleans_owned_process_descendant or cleanup_kills_descendant_after_worker_exit or owned_supervisor or real_process_start_failure or fork_transport_drains_small_and_large_outcomes",
+    "--junitxml=/workspace/e02-B-current-runtime/_build/e02-current-runtime/process-replay-candidate/native.xml"
+  ],
+  "PYTHONPATH": "/workspace/e02-B-current-runtime/policy-engine/src:/workspace/e02-B-current-runtime/policy-engine",
+  "exit_code": 0,
+  "stdout_sha256": "804a372fde4f8cadb240a0e98603f3919ae33b1fcd3b09963c27d0327866575e"
+}

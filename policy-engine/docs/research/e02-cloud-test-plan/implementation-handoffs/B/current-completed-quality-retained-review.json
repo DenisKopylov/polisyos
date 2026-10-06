@@ -139,7 +139,12 @@
       "samecanonicalguardrails retainedworkspace/privateenv+offlinecache",
       "all4actualgenerators/census/bytes (UNRUN)"
     ],
-    "proxy_divergence": "Cachepath/device/inode/CACHEDIR.TAG is not distributioncontent/offlineavailability or immutableexclusiveownership. Existingcacheinput cannotstandin foractualprivatefreshness completion. Other7gatebranches unchanged meanssource-equivalence, not repeatedruntimePASS."
+    "proxy_divergence": "Cachepath/device/inode/CACHEDIR.TAG is not distributioncontent/offlineavailability or immutableexclusiveownership. Existingcacheinput cannotstandin foractualprivatefreshness completion. Other7gatebranches unchanged meanssource-equivalence, not repeatedruntimePASS.",
+    "negative_controls": [
+      "NOT EXECUTED by reviewer: source helper refuses an existing/symlink retained workspace, empty/multiline UV query output, relative cache paths and non-directory cache inputs; no fallback is installed.",
+      "NOT EXECUTED by reviewer: the reviewed canonical owner refuses repository/actual-production-data caches, cache/workspace overlap and previously existing retained roots before exclusive creation.",
+      "NOT EXECUTED by reviewer: cache directory/marker identity cannot certify cached package contents, offline availability, task-exclusive ownership or immutability. Missing offline inputs must remain canonical UNRUN, not inferred freshness PASS."
+    ]
   },
   "predicate_basis": "independently_reconciled",
   "predicate_qualifications": {
@@ -185,5 +190,12 @@
       "sha256": "eb34c3cb27ca8dfc9b75ec120bb8abe0041f8a2fd113ccc8b962e4019e887e1a"
     }
   ],
-  "publication_status": "Localimmutableevidence; normaltopicpush/freshremote readback follows withoutfutureSHAclaim"
+  "publication_status": "Localimmutableevidence; normaltopicpush/freshremote readback follows withoutfutureSHAclaim",
+  "handoff_protocol_forward_qualification": {
+    "previous_alias_sha256": "17d61556174220071e2fdb533ff93fe90ebb83b6c4aed3a0ae14c5a30ccd490f",
+    "previous_alias_commit": "e0884a5d4ac0a7f0a58f3db5336ef30275995fc5",
+    "field_added": "property.negative_controls",
+    "grade": "Source-reviewed refusal branches and evidence limits; NOT EXECUTED by reviewer",
+    "preserved": "Original implementation commits/tree/three-path footprint, check commands/outcomes, source and full deciding bytes remain unchanged."
+  }
 }

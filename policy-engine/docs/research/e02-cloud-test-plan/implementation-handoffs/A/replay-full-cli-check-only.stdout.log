@@ -1,0 +1,14 @@
+{
+  "bundle_import": {
+    "imported_artifacts": 19,
+    "imported_files": 38,
+    "verification_failed": []
+  },
+  "corrupted": [],
+  "level": "complete",
+  "missing": [],
+  "present_artifacts": 19,
+  "reason_codes": [],
+  "strategy": "foundry",
+  "total_artifacts": 19
+}

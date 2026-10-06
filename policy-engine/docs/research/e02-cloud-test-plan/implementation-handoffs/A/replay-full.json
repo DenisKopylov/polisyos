@@ -12,7 +12,7 @@
     "code_acceptance_submitted": false,
     "finding_closed": false,
     "closure_now": "not_adjudicated",
-    "rationale": "This adds the genuine Foundry compile/execute/replay and installed-wheel ABI witnesses called for by A10. It does not complete every LA-033 acceptance item or adjudicate external caller scope."
+    "rationale": "The first-party migration and compatibility properties now have exact-head behavioral, wheel, CLI, artifact round-trip, import-budget, and FQN evidence. The row remains limited because the CLI resume checkpoint had no residual node to execute, no separately supplied historical artifact corpus was available, and external shim/FQN caller scope remains not_established."
   },
   "worktree": {
     "path": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos",
@@ -95,12 +95,17 @@
       "Scientist replay selects FOUNDRY, calls the real execute_foundry implementation exactly once, and persists a foundry.simulation_result plus post-execution state snapshot.",
       "A fresh process in a distinct scratch cwd under policy-engine/_build resolves and validates the simulation result and state snapshot from CAS using the explicit leaf-source PYTHONPATH; observed income is [90, 180, 270] and government balance is 60, matching an independently calculated 10-percent tax oracle.",
       "Absent plan ref, corrupted plan bytes, and removed-executor controls each reject replay; the failure/removal controls cannot pass from the presence of a stored result marker.",
-      "Direct Scientist/root/compatibility import identity, exact ten root names, exact twenty transitional exports, delayed CLI import, dynamic inventory, benchmark consumer, unknown-name refusal, and a fresh installed-wheel smoke with package-origin check are covered. The installed-wheel audit independently confirms identity and inspect.signature equality for all ten root exports plus all twenty shim exports."
+      "Direct Scientist/root/compatibility import identity, exact ten root names, exact twenty transitional exports, delayed CLI import, dynamic inventory, benchmark consumer, unknown-name refusal, and a fresh installed-wheel smoke with package-origin check are covered. The installed-wheel audit independently confirms identity and inspect.signature equality for all ten root exports plus all twenty shim exports.",
+      "The public CLI exported the 19-artifact income-tax packet (61,016 bytes), checked the imported bundle as complete (19/19, no missing/corrupt artifacts), and imported/replayed it through the actual Foundry strategy. CLI replay succeeded with result sha256:048e7f55489a04d7f27216f2e0d5ce0b8b9fca4ee8f0afd0699b85f1b3560a2e; --no-verify means this command did not itself check semantic equivalence.",
+      "A verified CAS import compared all 19 source/imported payload and manifest bytes plus kind and role edges. Current source-supported RunManifest v1 (schema 1.0) manifest/artifact bytes and roles round-tripped unchanged; current source-supported quality replay manifest v1 CAS bytes and embedded semantic role keys round-tripped unchanged.",
+      "Cold Runtime-root import measured 2.0715 ms with only polisyos and polisyos.runtime loaded; neither replay owner nor shim loaded. Resolving all ten exports loads the canonical Scientist module but not the shim. LA-033 states no numeric import-budget threshold.",
+      "Canonical-owner and Runtime-root FQN monkeypatch probes pass before lazy binding; retained-shim FQN patching is local after root migration. This observed external compatibility boundary is not a zero-traffic inference.",
+      "A complete tracked test-input census covered 2,762 Python files and 401 serialized JSON/YAML files; no static serialized replay_manifest marker was present. No external historic artifact corpus was supplied."
     ],
     "not_established_or_still_required_for_full_LA_033": [
-      "The full bundle import/export plus actual replay/resume CLI acceptance is not established by this slice; existing REP tests cover persisted --check-only and a resume dry-run, not the complete bundle/import/export/replay/resume matrix.",
-      "No complete external caller census or zero-traffic claim is established; retain the finding's not_established boundary for unsupported external reflection/string imports.",
-      "This test run does not independently prove historical v1.1 bytes or the distinct versioned v2 identity behavior. No production serialization or compatibility bytes were changed.",
+      "Public resume CLI dispatch and checkpoint validation returned status=ok for a source-generated scientist_default checkpoint with all 23 nodes complete; no residual node executed, so actual resume continuation is not established.",
+      "No complete external caller census or zero-traffic claim is established. Patching the retained compatibility shim FQN is local after the root moved to the canonical Scientist owner; external reflection/string/monkeypatch callers remain not_established.",
+      "No externally supplied historical RunManifest/replay_manifest artifact corpus was available. Current source-supported Runtime v1 shapes round-trip byte-for-byte, but they do not stand in for a separately supplied historic artifact set. Versioned v1.1-to-v2 identity belongs to B31/PublicIR, outside LA-033's RunManifest/runtime.replay_manifest artifact family.",
       "The wheel smoke installs with --no-deps into a fresh Python 3.14 venv using system_site_packages=True; it proves installed package resolution and replay ABI imports, not isolated dependency resolution."
     ],
     "bounded_property_vs_proxy": {
@@ -302,7 +307,7 @@
     {
       "tests": "test_built_wheel_replay_abi_imports_from_fresh_site_packages",
       "result": "1 passed in 22.41s after the follow-up test-only change; the built wheel resolved from the fresh venv purelib, and the separate audit checked identity/signatures for all ten root exports and all twenty compatibility exports.",
-      "installed_wheel_root_identity": "Only ReplayPlan is identity-compared in the wheel subprocess; the source-level root test checks all ten.",
+      "installed_wheel_root_identity": "The wheel subprocess checks identity and inspect.signature parity for all ten Runtime-root exports; the separate audit also checks all twenty compatibility exports.",
       "raw_stdout_preserved": false,
       "source_blob": "adcfcf23cdc25eff583ac4777928bf39e0903067",
       "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-wheel.stdout.log",
@@ -318,6 +323,192 @@
       "result": "passed before the numerical run"
     }
   ],
+  "supplemental_cli_and_artifact_checks": {
+    "cas_import_roundtrip": {
+      "all_kind_and_role_edges_identical": true,
+      "all_manifest_bytes_identical": true,
+      "all_payload_bytes_identical": true,
+      "artifacts": 19,
+      "mechanism": "FileSystemCAS.import_subgraph(..., verify_integrity=True) followed by per-artifact payload/manifest/kind/role-edge comparison",
+      "receipt": "policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/cli-acceptance/roundtrip-check.json@sha256:7eda27849262f894ef7f979cffe596854fc4fc76a3c18b3f5ac4572e89cca296"
+    },
+    "cli": [
+      {
+        "argv": [
+          "-m",
+          "tools.ops_runners.runtime_cli",
+          "replay",
+          "sha256:1ef8b28cb6aca3d8ac7043066c6270e2badd7862a1ddaa19dfabd03b94d20d21",
+          "--cas-root",
+          "<source-cas>",
+          "--export",
+          "<income-tax-replay.tar.gz>",
+          "--json"
+        ],
+        "operation": "public CLI export",
+        "result": "19 artifacts exported, 61,016 bytes; no missing artifacts or manifests",
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-cli-export.stdout.log@sha256:06294f255d53628aa9d8ee28951331a417cd6182002f49787e99a66c7d28d4da"
+      },
+      {
+        "argv": [
+          "-m",
+          "tools.ops_runners.runtime_cli",
+          "replay",
+          "sha256:1ef8b28cb6aca3d8ac7043066c6270e2badd7862a1ddaa19dfabd03b94d20d21",
+          "--bundle",
+          "<income-tax-replay.tar.gz>",
+          "--check-only",
+          "--json"
+        ],
+        "operation": "public CLI bundle --check-only",
+        "result": "complete; 19/19 present; bundle import 19 artifacts/38 files; no missing or corrupted artifacts",
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-cli-check-only.stdout.log@sha256:ad48a7a7eb71d8d66d7634a5fb5782207793f523a37fd033705270f7ce05265f"
+      },
+      {
+        "argv": [
+          "-m",
+          "tools.ops_runners.runtime_cli",
+          "replay",
+          "sha256:1ef8b28cb6aca3d8ac7043066c6270e2badd7862a1ddaa19dfabd03b94d20d21",
+          "--bundle",
+          "<income-tax-replay.tar.gz>",
+          "--strategy",
+          "foundry",
+          "--no-verify",
+          "--json"
+        ],
+        "operation": "public CLI bundle import plus actual Foundry replay",
+        "result": "success=true; strategy=foundry; 19 artifacts imported; replay result sha256:048e7f55489a04d7f27216f2e0d5ce0b8b9fca4ee8f0afd0699b85f1b3560a2e; --no-verify means this CLI result is not itself a semantic equivalence check",
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-cli-replay.stdout.log@sha256:c63508b1e9321efe803da0d67ee21ebb17d3de95eaa7183b53fcb953d0384dd1"
+      },
+      {
+        "argv": [
+          "-m",
+          "tools.ops_runners.runtime_cli",
+          "resume",
+          "R_rep_01_cli_resume_complete",
+          "--cas-root",
+          "<resume-cas>",
+          "--json"
+        ],
+        "operation": "public CLI resume dispatch/validation",
+        "result": "status=ok on scientist_default checkpoint with 23/23 completed nodes; no residual node ran, so this does not prove continuation execution",
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-cli-resume.stdout.log@sha256:9865cc636f80606f963f6350ac3aff5dca2ff55143cdd02971289bf276a16ad5"
+      }
+    ],
+    "cwd_for_public_cli": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine",
+    "dynamic_docs_and_current_internal_paths": {
+      "benchmark": "benchmarks/advanced/common.py imports polisyos.scientist.replay.deterministic",
+      "cli_handler": "src/polisyos/core/components/_cli_replay.py::polisyos.scientist.replay.deterministic via importlib.import_module",
+      "compatibility_shim": "src/polisyos/runtime/replay.py remains exact twenty-symbol facade",
+      "dynamic_inventory": "architecture/imports/dynamic.toml@dynamic-91fa7a3392e8 pattern=polisyos.scientist.replay.deterministic allowed-targets=same",
+      "external_and_old_shim_caller_census": "no production source imports this shim FQN; tests exercise the compatibility ABI, while external string/reflection imports are not established",
+      "quality_replay_docs": "docs/reference/runtime/deterministic-replay.md remains a separate runtime.replay_manifest v1 contract"
+    },
+    "environment": {
+      "JAX_PLATFORM_NAME": "cpu",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-replay-full/polisyos/policy-engine/src"
+    },
+    "fixture": {
+      "bundle_sha256": "9f9c4ad8524ef6b448e3dd748c328a873a5574462046382fca9f59d39673a502",
+      "exec_plan_ref": "sha256:315f116e4f3c7ab1765bb5497af32247e29fb730b384f213fada52617abd4127",
+      "packet_ref": "sha256:1ef8b28cb6aca3d8ac7043066c6270e2badd7862a1ddaa19dfabd03b94d20d21",
+      "receipt": "policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/cli-acceptance/fixture.json@sha256:c4f01cc19e7138034fe6041743773d307585686ef4fb8e6bb9b4dab573f10037",
+      "source": "tests/unit/remediation/test_rep_01_execution.py@adcfcf23cdc25eff583ac4777928bf39e0903067:_build_income_tax_packet"
+    },
+    "fqn_monkeypatch": {
+      "canonical_owner_pre_resolution_patch_seen_by_root": true,
+      "compatibility_shim_patch_is_local_after_root_migration": true,
+      "external_caller_scope": "not_established",
+      "tracked_shim_fqn_monkeypatch_caller_found": false,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-fqn-monkeypatch.json@sha256:0eb2630047b00ce5b8af1f9387083e2353a6049251b3c20f4bdab6fe5080c388",
+      "runtime_root_patch_and_undo": true
+    },
+    "python": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python (CPython 3.14.0)",
+    "resume_property_vs_proxy": {
+      "divergent_case": "The source-generated checkpoint had 23/23 scientist_default nodes completed; CLI returned ok without any residual execution.",
+      "measured_proxy": "CLI exit/status ok and checkpoint parse/dispatch succeed.",
+      "outcome": "continuation_execution_not_established",
+      "property": "A resume operation actually executes at least one remaining node from a real partial workflow checkpoint and persists the next checkpoint/result."
+    },
+    "root_import_budget": {
+      "all_ten_root_export_resolution_module_count": 839,
+      "all_ten_root_exports_load_canonical_scientist_owner": true,
+      "all_ten_root_exports_load_shim": false,
+      "cold_import_elapsed_ns": 2071500,
+      "cold_import_module_count": 2,
+      "cold_import_modules": [
+        "polisyos",
+        "polisyos.runtime"
+      ],
+      "measured_threshold": "no numeric threshold is stated in LA-033; timing is environment characterization",
+      "raw_receipt": "policy-engine/_build/e02-A-full-queue/replay_execution/raw/3334775bcad7045361c3c7e3395674b49fcebaab/cli-acceptance/root-import-budget.json@sha256:7c949bf12355b2be1db544983cde40c9ca76f3993abe5f571cc6a5e6f25108f7",
+      "runtime_replay_shim_loaded_cold": false,
+      "scientist_replay_loaded_cold": false
+    },
+    "source_commit": "3334775bcad7045361c3c7e3395674b49fcebaab",
+    "source_supported_legacy_artifacts": {
+      "quality_replay_manifest": {
+        "archive_sha256": "e54d01622d76f759f347c07ff77aa7ad57568b4738e86fad5d45ac7401f0753c",
+        "artifact_schema": "polisyos.runtime.ReplayManifest@1.0",
+        "cas_kind": "runtime.replay_manifest",
+        "cas_manifest_bytes": 620,
+        "cas_manifest_sha256": "5c25edec01a67f66d88d1c5749ae3dc53ab3d9197c62b502163f67d98a56df9c",
+        "cas_payload_and_manifest_bytes_roundtrip_identical": true,
+        "imported_artifacts": 1,
+        "imported_files": 2,
+        "payload_bytes": 2331,
+        "payload_sha256": "d423a37dc53424c7d76f4c92bee4a5e57c222b9de6084620772d9f276123e7f9",
+        "schema_version": "policyos.replay_manifest.v1",
+        "semantic_roles_unchanged": [
+          "cas_refs",
+          "data_refs",
+          "norm_refs",
+          "random_seeds",
+          "run_params",
+          "source_refs"
+        ],
+        "source": "tests/unit/runtime/quality/test_replay.py@bccee91816af2cdb562e0ee9164f4040705951c5"
+      },
+      "run_manifest": {
+        "artifact_roles": [
+          "audit_trail",
+          "rep_01_policy_output"
+        ],
+        "artifact_sha256": "9a8149ee4103f5b905de34b19bac1dc12eca499c0d429738ae8566aa95be5a88",
+        "manifest_and_artifact_bytes_roundtrip_identical": true,
+        "manifest_bytes": 1176,
+        "manifest_sha256": "53e79867baefb62e9de96ecbbfb8f6acc2fb88bd74e8d1b669f4d2fec32b0c95",
+        "schema_version": "1.0",
+        "source": "tests/unit/runtime/test_runtime_manifest_paths.py@706094e735e307993e2a642fac8d7e1548f030e2"
+      },
+      "supported_fixture_test": {
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-supported-fixtures.junit.xml@sha256:40921490da7d355c5a3abf45028159aaeace5ff739621bbbc281419cfc709c91",
+        "result": "3 passed",
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-supported-fixtures.stdout.log@sha256:cf426ab35f3b06fccef8290fde5325d90af130a79da1d1752031518df77c4236",
+        "tests": [
+          "tests/unit/runtime/test_runtime_manifest_paths.py::test_log_artifact_uses_relative_paths",
+          "tests/unit/runtime/test_runtime_manifest_paths.py::test_start_run_seeds_audit_trail_and_file",
+          "tests/unit/runtime/quality/test_replay.py::test_replay_manifest_records_sanitized_deterministic_refs_and_persists"
+        ]
+      },
+      "tracked_test_input_census": {
+        "external_historical_corpus": "not supplied in this checkout; no byte comparison claim is made",
+        "python_files": 2762,
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/replay-full-artifact-roundtrip.json@sha256:ac8afa6be6563f9f6e049b53f717cc32304b217a91f910b7277737afca7d5332",
+        "serialized_file_types": {
+          ".json": 390,
+          ".yaml": 11
+        },
+        "static_serialized_files": 401,
+        "static_serialized_replay_manifest_fixtures": 0
+      }
+    }
+  },
   "pattern_pass": {
     "relevant_ids": [
       "P06",
@@ -389,16 +580,20 @@
   "criterion_row_decision": {
     "source_row": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a:findings.LA-033",
     "historical_row_status": "partial",
-    "bounded_decision": "closed_bounded for the original first-party verification criterion exercised by A10",
+    "bounded_decision": "limited",
     "established": [
       "Runtime root remains lazy and the ten exported objects bind directly to canonical Scientist definitions with signature parity.",
       "The exact twenty-symbol transitional ABI remains available and identity-bound; runtime root and direct internal consumers work with the compatibility module import blocked.",
       "A schema-valid income-tax program compiles through Foundry, executes through replay_packet using the actual Foundry executor, persists a typed result and state snapshot, and a separate process recomputes the declared arithmetic from CAS.",
-      "The installed wheel resolves from fresh venv purelib and the wheel audit checks the ten root and twenty compatibility bindings against Scientist by identity and signature."
+      "The installed wheel resolves from fresh venv purelib and the wheel audit checks the ten root and twenty compatibility bindings against Scientist by identity and signature.",
+      "Public CLI export, bundle --check-only, bundle import plus real Foundry replay, and resume dispatch all ran. The resume checkpoint was 23/23 complete, so continuation execution remains a separate limitation.",
+      "Source-supported RunManifest v1 and quality replay manifest v1 bytes/roles round-tripped; cold import and FQN behavior were measured, with external shim caller scope still not_established."
     ],
     "separate_residuals": [
       "Keep runtime/replay.py until the supported window and external caller scope are resolved; no external-caller absence claim is made.",
-      "The broader bundle import/export and actual CLI replay/resume matrix, root import-budget threshold, and historical v1.1-byte/versioned-v2-identity behavior remain not established by this bounded slice."
+      "Actual resume continuation is not established: the only usable CLI checkpoint was COMPLETE with 23/23 nodes already finished, so resume status=ok was validation/dispatch without residual execution.",
+      "No separate externally supplied historical RunManifest/replay_manifest artifacts were available for byte/role comparison; current source-supported v1 shapes passed round-trip controls.",
+      "The shim FQN monkeypatch no longer controls the migrated root owner; no in-repository shim-FQN monkeypatch caller was found, but external callers remain not_established. Versioned v1.1-to-v2 identity is a distinct B31/PublicIR concern outside LA-033."
     ],
     "overall_finding": "The coverage row and overall LA-033 remain partial/not_adjudicated; this bounded criterion decision is not full finding closure and code acceptance was not submitted."
   }

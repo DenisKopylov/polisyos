@@ -1,0 +1,21 @@
+{
+  "conclusion": "canonical-owner/root and direct-root FQN patching pass; retained shim FQN does not patch the migrated root/canonical owner, so external monkeypatch callers of the shim are not covered by current in-repo inventory",
+  "probes": {
+    "canonical_owner_fqn_patch_is_seen_by_unresolved_lazy_root": {
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "pass: canonical FQN patch resolves through an unresolved root binding\n"
+    },
+    "compatibility_shim_fqn_is_local_and_no_longer_patches_root_owner": {
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "observed: patching the retained shim FQN is local; migrated Runtime root resolves canonical owner\n"
+    },
+    "runtime_root_fqn_patch_and_undo": {
+      "exit_code": 0,
+      "stderr": "",
+      "stdout": "pass: Runtime root FQN can be monkeypatched and restored\n"
+    }
+  },
+  "source_commit": "3334775bcad7045361c3c7e3395674b49fcebaab"
+}

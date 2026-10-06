@@ -1,0 +1,20 @@
+{
+  "checkpoint": {
+    "checkpoint_ref": "sha256:27c7bfb0b7ba19ea7241c8fcdc45ca5ae16219b26224f0e01a381011e3fdcca3",
+    "completed_nodes_count": 23,
+    "fsm_phase": "COMPLETE",
+    "node_alias": "build_decision_packet",
+    "run_id": "R_rep_01_cli_resume_complete",
+    "sequence_number": 22,
+    "updated_at": "2026-10-06T11:52:33.923774+00:00",
+    "workflow_fingerprint": "3745a64ab4d505a72c82a018ebfb9cdac4cb6bba018025ee8ce2770faa56bd9b",
+    "workflow_id": "scientist_default",
+    "writer_hostname": "rep-01-cli-evidence",
+    "writer_pid": 32172
+  },
+  "resume": {
+    "run_id": "R_rep_01_cli_resume_complete",
+    "run_ref": null,
+    "status": "ok"
+  }
+}

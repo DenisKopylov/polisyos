@@ -1,0 +1,110 @@
+{
+  "fixture_census": {
+    "denominator": {
+      "serialized_fixture_file_types": {
+        ".json": 390,
+        ".yaml": 11
+      },
+      "tracked_test_python_files": 2762,
+      "tracked_test_serialized_fixture_files": 401
+    },
+    "external_historical_artifact_input": "not supplied or established by this checkout; static tracked JSON/YAML test fixtures do not contain the current Runtime replay-manifest schema marker",
+    "source_fixture_and_owner_matches": {
+      "REPLAY_MANIFEST_KIND": [],
+      "RunManifest": [
+        "policy-engine/tests/unit/data_forge/domains/ukraine/test_builders.py",
+        "policy-engine/tests/unit/data_forge/domains/ukraine/test_orchestrator.py",
+        "policy-engine/tests/unit/data_forge/read_api/test_ukraine_stage_artifacts.py",
+        "policy-engine/tests/unit/foundry/data_plane/test_bindings_multiscale.py",
+        "policy-engine/tests/unit/remediation/test_mig_02.py",
+        "policy-engine/tests/unit/remediation/test_rep_01.py",
+        "policy-engine/tests/unit/remediation/test_run_03.py",
+        "policy-engine/tests/unit/remediation/test_udf_01.py",
+        "policy-engine/tests/unit/runtime/http/test_runs_api.py",
+        "policy-engine/tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+        "policy-engine/tests/unit/runtime/test_runtime_manifest_paths.py",
+        "policy-engine/tests/unit/scientist/governance/test_blueprint_release.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_retry_integration.py"
+      ],
+      "persist_replay_manifest": [
+        "policy-engine/tests/unit/runtime/quality/test_replay.py"
+      ]
+    },
+    "static_serialized_replay_manifest_fixtures": []
+  },
+  "legacy_corpus_scope": "source-defined current supported fixtures were exercised; no separate externally supplied historical artifact corpus was present to compare byte-for-byte",
+  "quality_replay_manifest_v1_cas_roundtrip": {
+    "archive_sha256": "e54d01622d76f759f347c07ff77aa7ad57568b4738e86fad5d45ac7401f0753c",
+    "artifact_id": "sha256:d423a37dc53424c7d76f4c92bee4a5e57c222b9de6084620772d9f276123e7f9",
+    "artifact_schema": {
+      "name": "polisyos.runtime.ReplayManifest",
+      "version": "1.0"
+    },
+    "cas_kind": "runtime.replay_manifest",
+    "cas_manifest_roundtrip_identical": true,
+    "cas_payload_roundtrip_identical": true,
+    "embedded_semantic_roles": {
+      "cas_refs": [
+        "policy_output"
+      ],
+      "data_refs": [
+        "production_snapshot"
+      ],
+      "norm_refs": [
+        "ua_credit_normpack"
+      ],
+      "random_seeds": [
+        "numpy",
+        "python"
+      ],
+      "run_params": [
+        "llm_gateway_api_key",
+        "max_iterations",
+        "run_budget_usd"
+      ],
+      "source_refs": [
+        "fabric_trace"
+      ]
+    },
+    "imported_artifacts": 1,
+    "imported_files": 2,
+    "input_role_edges": [],
+    "manifest_bytes": 620,
+    "manifest_sha256": "5c25edec01a67f66d88d1c5749ae3dc53ab3d9197c62b502163f67d98a56df9c",
+    "payload_bytes": 2331,
+    "payload_sha256": "d423a37dc53424c7d76f4c92bee4a5e57c222b9de6084620772d9f276123e7f9",
+    "schema_version": "policyos.replay_manifest.v1",
+    "semantic_fields_identical": true,
+    "verification_failed": []
+  },
+  "run_manifest_v1_roundtrip": {
+    "artifact_bytes_identical": true,
+    "artifact_ref": {
+      "artifact_type": "rep_01_policy_output",
+      "media_type": "application/json",
+      "path": "R_rep_01_legacy_manifest/artifacts/rep_01_policy_output/policy-output.json",
+      "relative_path": "R_rep_01_legacy_manifest/artifacts/rep_01_policy_output/policy-output.json",
+      "schema_version": "1.0",
+      "step": "replay"
+    },
+    "artifact_sha256": "9a8149ee4103f5b905de34b19bac1dc12eca499c0d429738ae8566aa95be5a88",
+    "bytes": 1176,
+    "role_order": [
+      "audit_trail",
+      "rep_01_policy_output"
+    ],
+    "roles_identical": [
+      "audit_trail",
+      "rep_01_policy_output"
+    ],
+    "roundtrip_bytes_identical": true,
+    "schema_version": "1.0",
+    "sha256": "53e79867baefb62e9de96ecbbfb8f6acc2fb88bd74e8d1b669f4d2fec32b0c95"
+  },
+  "source_commit": "3334775bcad7045361c3c7e3395674b49fcebaab",
+  "source_test_fixtures": {
+    "quality_replay_manifest": "tests/unit/runtime/quality/test_replay.py@bccee91816af2cdb562e0ee9164f4040705951c5",
+    "run_manifest": "tests/unit/runtime/test_runtime_manifest_paths.py@706094e735e307993e2a642fac8d7e1548f030e2"
+  }
+}

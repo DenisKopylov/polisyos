@@ -1,0 +1,26 @@
+2026-10-06 14:49:00.141 | INFO     | polisyos.common.logger:_call:120 - Environment captured
+2026-10-06 14:49:00 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.adaptive_agent@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['adaptive-agent', 'builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 14:49:00 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.income_tax@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'tax'] version=1.0.0
+2026-10-06 14:49:00 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.labor_market@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'labor', 'mechanism', 'runtime', 'structural'] version=1.0.0
+2026-10-06 14:49:00 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.queue@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'mechanism', 'queue', 'runtime', 'structural'] version=1.0.0
+2026-10-06 14:49:00 [info     ] method_registered              backend=numpy fqn=mechanism.runtime.tax_subsidy@1.0.0 lazy=True namespace=mechanism.runtime override=False tags=['builtin', 'domain:mechanism', 'estimation', 'family:mechanism', 'fiscal', 'mechanism', 'runtime', 'structural', 'subsidy'] version=1.0.0
+{
+  "bundle_import": {
+    "imported_artifacts": 19,
+    "imported_files": 38,
+    "verification_failed": []
+  },
+  "completeness": {
+    "level": "complete",
+    "strategy": "foundry"
+  },
+  "errors": [],
+  "original_packet_ref": "sha256:1ef8b28cb6aca3d8ac7043066c6270e2badd7862a1ddaa19dfabd03b94d20d21",
+  "replay_decision_packet_ref": null,
+  "replay_simulation_result_ref": "sha256:048e7f55489a04d7f27216f2e0d5ce0b8b9fca4ee8f0afd0699b85f1b3560a2e",
+  "run_id": "replay_20261006114859",
+  "strategy": "foundry",
+  "success": true,
+  "verification": null,
+  "warnings": []
+}

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/installed-hygiene-probe.py", line 23, in <module>
+    req(_common.GIT_ROOT==ROOT,"non-git frozen archive git-root fallback differs")
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/installed-hygiene-probe.py", line 6, in req
+    if not x: raise AssertionError(m)
+              ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: non-git frozen archive git-root fallback differs

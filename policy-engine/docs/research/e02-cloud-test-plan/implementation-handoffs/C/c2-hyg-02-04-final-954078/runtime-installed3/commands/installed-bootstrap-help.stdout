@@ -1,0 +1,20 @@
+usage: python -m tools.cli [-h] [--skip-frontend] [--skip-playwright]
+                           [--skip-hooks] [--skip-doctor] [--surface SURFACE]
+                           [--no-install-uv]
+                           [--profile {docs,minimal,research,runtime}]
+
+Install and verify the local contributor prerequisites for policy-engine.
+
+options:
+  -h, --help            show this help message and exit
+  --skip-frontend       Skip pnpm install for the JavaScript workspace.
+  --skip-playwright     Skip Playwright browser installation.
+  --skip-hooks          Skip pre-commit installation.
+  --skip-doctor         Do not run doctor at the end.
+  --surface SURFACE     Optional surface to validate when doctor runs
+                        (repeatable).
+  --no-install-uv       Fail instead of auto-installing uv when it is missing
+                        from PATH.
+  --profile {docs,minimal,research,runtime}
+                        Dependency tier to sync before optional
+                        frontend/bootstrap steps. Default: runtime.

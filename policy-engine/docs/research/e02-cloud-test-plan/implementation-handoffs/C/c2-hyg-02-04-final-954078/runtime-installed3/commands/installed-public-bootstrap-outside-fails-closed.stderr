@@ -1,0 +1,2 @@
+workspace.bootstrap: failed
+failed to import tools.devx.workspace.bootstrap: Could not resolve a PolicyOS workspace root from '/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/lib/python3.14/site-packages/tools/devx/workspace/_common.py'; enable CWD fallback from the expected workspace layout or provide a workspace_root.

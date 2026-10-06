@@ -1,0 +1,442 @@
+{
+  "artifacts": {
+    "doctor_consumer_probe_sha256": "9ed7e8f8b2a19b1cecdb483738978c94bbbafadf509c627472fb35e9d5e68115",
+    "package_census_sha256": "f8718118bb6e1ebb08244702bc37a52785c6b688659b42c5655079420b1a21d0",
+    "provider_consumer_probe_sha256": "a6ac2fa4d96bbe50413e614aea7d229da971793d0c563c0c8521d1b6430d24c9",
+    "sdist_sha256": "b548e7d475738a94e703aa378eb0cc9583ce15be1339c60eec580c032c9578df",
+    "wheel_sha256": "226d6fcfbea8d07a0264749dfec1d6c82d290e5f1b204618b65ae91f843e477f"
+  },
+  "candidate": {
+    "sdist_commit": "95407808d90bd7c5c7ca7898a8423fe6d4ee9180",
+    "sdist_tree": "77424caabdb0a4e0cdd7b6160de9beacceb944bf",
+    "wheel_commit": "1e8aa374829884fcab9b6eca6616c5a7df4beb16",
+    "wheel_tree": "23e5b56e2a42a652770a698a4259a23f4a41277e"
+  },
+  "commands": [
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/bin/python",
+        "-I",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/installed-hygiene-probe3.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source-extract/source/policy-engine",
+      "duration_seconds": 1.359251,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-common-root-origin-byteproof.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:15:46.196568+00:00",
+      "name": "installed-common-root-origin-byteproof",
+      "started_at_utc": "2026-10-06T16:15:44.837233+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-common-root-origin-byteproof.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-common-root-origin-byteproof.stdout",
+      "stdout_sha256": "82fbf32ed4ff4d88e91f91af7f5e1dd56d4afd9bd660f183613c82132b6b8184",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/bin/python",
+        "-I",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/installed-doctor-origin-probe.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source-extract/source/policy-engine",
+      "duration_seconds": 0.084055,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-doctor-module-origin-byteproof.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:15:46.280823+00:00",
+      "name": "installed-doctor-module-origin-byteproof",
+      "started_at_utc": "2026-10-06T16:15:46.196783+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-doctor-module-origin-byteproof.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-doctor-module-origin-byteproof.stdout",
+      "stdout_sha256": "369a893c3514eb7296c7cbb46ba330f66b3d57a6b96ef0046c505459492c26a7",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/bin/python",
+        "-I",
+        "-m",
+        "tools.cli",
+        "workspace",
+        "bootstrap",
+        "--help"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source-extract/source/policy-engine",
+      "duration_seconds": 1.207848,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-bootstrap-help.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:15:47.488771+00:00",
+      "name": "installed-bootstrap-help",
+      "started_at_utc": "2026-10-06T16:15:46.280946+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-bootstrap-help.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-bootstrap-help.stdout",
+      "stdout_sha256": "a45e9a213767987fcdfc72e99989969494ceab9fd01fec0fba7f413bbcd7e7e1",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/bin/python",
+        "-I",
+        "-m",
+        "tools.cli",
+        "workspace",
+        "doctor",
+        "--help"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source-extract/source/policy-engine",
+      "duration_seconds": 1.158972,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-doctor-help.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:15:48.647867+00:00",
+      "name": "installed-doctor-help",
+      "started_at_utc": "2026-10-06T16:15:47.488917+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-doctor-help.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-doctor-help.stdout",
+      "stdout_sha256": "ad89c34c85815aa7da1b67619f83c5b9e156139c5786930aa213b9d138ea855f",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/bin/python",
+        "-I",
+        "-m",
+        "tools.cli",
+        "workspace",
+        "bootstrap",
+        "--profile",
+        "docs",
+        "--skip-frontend",
+        "--skip-hooks",
+        "--skip-doctor",
+        "--no-install-uv"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source-extract/source/policy-engine",
+      "duration_seconds": 1.467648,
+      "environment_delta": {
+        "HYG_FAKE_UV_CAPTURE": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/fake-uv-capture.json",
+        "PATH": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/fakebin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.antigravity/antigravity/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-safe-bootstrap-dispatch-fake-uv.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:15:50.115665+00:00",
+      "name": "installed-safe-bootstrap-dispatch-fake-uv",
+      "started_at_utc": "2026-10-06T16:15:48.648036+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-safe-bootstrap-dispatch-fake-uv.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-safe-bootstrap-dispatch-fake-uv.stdout",
+      "stdout_sha256": "e0776cc147d22f84f8db63db40558e15ed4833e9ab943de447859f220da17e49",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/bin/python",
+        "-I",
+        "-c",
+        "from tools.lib.imports import RepositoryRootUnavailableError\ntry:\n from tools.devx.workspace import _common\nexcept RepositoryRootUnavailableError:print('RepositoryRootUnavailableError')\nelse:raise SystemExit('unexpected root')\n"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/outside",
+      "duration_seconds": 0.060408,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-common-outside-typed-unavailable.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:15:50.176399+00:00",
+      "name": "installed-common-outside-typed-unavailable",
+      "started_at_utc": "2026-10-06T16:15:50.116013+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-common-outside-typed-unavailable.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-common-outside-typed-unavailable.stdout",
+      "stdout_sha256": "874b0a4e18b1a63cb951f94b1bbe8c0b2b55629d183b4daca998a7e307a0ac16",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/bin/python",
+        "-I",
+        "-m",
+        "tools.cli",
+        "workspace",
+        "bootstrap",
+        "--help"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/outside",
+      "duration_seconds": 1.130369,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 1,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-public-bootstrap-outside-fails-closed.exit",
+      "exit_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "expected_exit_code": 1,
+      "finished_at_utc": "2026-10-06T16:15:51.306885+00:00",
+      "name": "installed-public-bootstrap-outside-fails-closed",
+      "started_at_utc": "2026-10-06T16:15:50.176538+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-public-bootstrap-outside-fails-closed.stderr",
+      "stderr_sha256": "5f643a6dee89725e75e83238bd21287df3ac3673bc2bdcd7b9f2e80149387c60",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/installed-public-bootstrap-outside-fails-closed.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/bin/python",
+        "-I",
+        "-c",
+        "from pathlib import Path\nfrom tools.lib.imports import RepositoryRootUnavailableError,repo_root_from\norigin='/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/lib/python3.14/site-packages/tools/lib/imports.py'\nres=[]\nfor mode in ('fallback','explicit'):\n try:\n  repo_root_from(origin,allow_cwd_fallback=True) if mode=='fallback' else repo_root_from(origin,workspace_root=Path.cwd())\n except RepositoryRootUnavailableError:res.append(mode+':typed')\n else:raise SystemExit(mode+':accepted')\ntry:\n from tools.devx.workspace import _common\nexcept RepositoryRootUnavailableError:res.append('workspace-consumer:typed')\nelse:raise SystemExit('workspace-consumer:accepted')\nprint('\\n'.join(res))\n"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/malformed-roots/pyproject-directory",
+      "duration_seconds": 0.058501,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-pyproject-directory.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:15:51.365853+00:00",
+      "name": "malformed-pyproject-directory",
+      "started_at_utc": "2026-10-06T16:15:51.307365+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-pyproject-directory.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-pyproject-directory.stdout",
+      "stdout_sha256": "f72bbeb2697d1d6afb3bdb31f01fc86f98aecc9b273a7571d2ea3c71a96048df",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/bin/python",
+        "-I",
+        "-m",
+        "tools.cli",
+        "workspace",
+        "bootstrap",
+        "--help"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/malformed-roots/pyproject-directory",
+      "duration_seconds": 1.119376,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 1,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-cli-pyproject-directory.exit",
+      "exit_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "expected_exit_code": 1,
+      "finished_at_utc": "2026-10-06T16:15:52.485369+00:00",
+      "name": "malformed-cli-pyproject-directory",
+      "started_at_utc": "2026-10-06T16:15:51.366010+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-cli-pyproject-directory.stderr",
+      "stderr_sha256": "5f643a6dee89725e75e83238bd21287df3ac3673bc2bdcd7b9f2e80149387c60",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-cli-pyproject-directory.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/bin/python",
+        "-I",
+        "-c",
+        "from pathlib import Path\nfrom tools.lib.imports import RepositoryRootUnavailableError,repo_root_from\norigin='/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/lib/python3.14/site-packages/tools/lib/imports.py'\nres=[]\nfor mode in ('fallback','explicit'):\n try:\n  repo_root_from(origin,allow_cwd_fallback=True) if mode=='fallback' else repo_root_from(origin,workspace_root=Path.cwd())\n except RepositoryRootUnavailableError:res.append(mode+':typed')\n else:raise SystemExit(mode+':accepted')\ntry:\n from tools.devx.workspace import _common\nexcept RepositoryRootUnavailableError:res.append('workspace-consumer:typed')\nelse:raise SystemExit('workspace-consumer:accepted')\nprint('\\n'.join(res))\n"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/malformed-roots/tools-regular-file",
+      "duration_seconds": 0.058642,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-tools-regular-file.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:15:52.544449+00:00",
+      "name": "malformed-tools-regular-file",
+      "started_at_utc": "2026-10-06T16:15:52.485826+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-tools-regular-file.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-tools-regular-file.stdout",
+      "stdout_sha256": "f72bbeb2697d1d6afb3bdb31f01fc86f98aecc9b273a7571d2ea3c71a96048df",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/bin/python",
+        "-I",
+        "-m",
+        "tools.cli",
+        "workspace",
+        "bootstrap",
+        "--help"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/malformed-roots/tools-regular-file",
+      "duration_seconds": 1.117505,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 1,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-cli-tools-regular-file.exit",
+      "exit_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "expected_exit_code": 1,
+      "finished_at_utc": "2026-10-06T16:15:53.662053+00:00",
+      "name": "malformed-cli-tools-regular-file",
+      "started_at_utc": "2026-10-06T16:15:52.544568+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-cli-tools-regular-file.stderr",
+      "stderr_sha256": "5f643a6dee89725e75e83238bd21287df3ac3673bc2bdcd7b9f2e80149387c60",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-cli-tools-regular-file.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/bin/python",
+        "-I",
+        "-c",
+        "from pathlib import Path\nfrom tools.lib.imports import RepositoryRootUnavailableError,repo_root_from\norigin='/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/lib/python3.14/site-packages/tools/lib/imports.py'\nres=[]\nfor mode in ('fallback','explicit'):\n try:\n  repo_root_from(origin,allow_cwd_fallback=True) if mode=='fallback' else repo_root_from(origin,workspace_root=Path.cwd())\n except RepositoryRootUnavailableError:res.append(mode+':typed')\n else:raise SystemExit(mode+':accepted')\ntry:\n from tools.devx.workspace import _common\nexcept RepositoryRootUnavailableError:res.append('workspace-consumer:typed')\nelse:raise SystemExit('workspace-consumer:accepted')\nprint('\\n'.join(res))\n"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/malformed-roots/src-regular-file",
+      "duration_seconds": 0.05888,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-src-regular-file.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:15:53.721359+00:00",
+      "name": "malformed-src-regular-file",
+      "started_at_utc": "2026-10-06T16:15:53.662493+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-src-regular-file.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-src-regular-file.stdout",
+      "stdout_sha256": "f72bbeb2697d1d6afb3bdb31f01fc86f98aecc9b273a7571d2ea3c71a96048df",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base/bin/python",
+        "-I",
+        "-m",
+        "tools.cli",
+        "workspace",
+        "bootstrap",
+        "--help"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/malformed-roots/src-regular-file",
+      "duration_seconds": 1.118522,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 1,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-cli-src-regular-file.exit",
+      "exit_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "expected_exit_code": 1,
+      "finished_at_utc": "2026-10-06T16:15:54.839975+00:00",
+      "name": "malformed-cli-src-regular-file",
+      "started_at_utc": "2026-10-06T16:15:53.721474+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-cli-src-regular-file.stderr",
+      "stderr_sha256": "5f643a6dee89725e75e83238bd21287df3ac3673bc2bdcd7b9f2e80149387c60",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/commands/malformed-cli-src-regular-file.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timeout_seconds": 120
+    }
+  ],
+  "doctor_path_behavior": "doctor module intentionally calls ensure_repo_import_roots; its isolated probe verifies site-packages origin then observes only the exact candidate checkout inserted, with no src root inserted. Core resolver and _common provider imports leave sys.path unchanged before doctor is loaded.",
+  "installed_profile": {
+    "exact_wheel_installed_no_deps": true,
+    "fresh_base_only_locked": true,
+    "project_install_by_sync": false,
+    "venv": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base"
+  },
+  "negative_controls": {
+    "malformed_root_layouts": [
+      {
+        "case": "pyproject-directory",
+        "cli_exit": 1,
+        "helper_exit": 0,
+        "public_cli_stderr_sha256": "5f643a6dee89725e75e83238bd21287df3ac3673bc2bdcd7b9f2e80149387c60",
+        "typed_helper_stdout_sha256": "f72bbeb2697d1d6afb3bdb31f01fc86f98aecc9b273a7571d2ea3c71a96048df"
+      },
+      {
+        "case": "tools-regular-file",
+        "cli_exit": 1,
+        "helper_exit": 0,
+        "public_cli_stderr_sha256": "5f643a6dee89725e75e83238bd21287df3ac3673bc2bdcd7b9f2e80149387c60",
+        "typed_helper_stdout_sha256": "f72bbeb2697d1d6afb3bdb31f01fc86f98aecc9b273a7571d2ea3c71a96048df"
+      },
+      {
+        "case": "src-regular-file",
+        "cli_exit": 1,
+        "helper_exit": 0,
+        "public_cli_stderr_sha256": "5f643a6dee89725e75e83238bd21287df3ac3673bc2bdcd7b9f2e80149387c60",
+        "typed_helper_stdout_sha256": "f72bbeb2697d1d6afb3bdb31f01fc86f98aecc9b273a7571d2ea3c71a96048df"
+      }
+    ],
+    "outside_workspace_typed_common_consumer": true
+  },
+  "safe_bootstrap": {
+    "actual_installed_cli_route_with_fake_uv_only": true,
+    "expected_dispatch": {
+      "argv": [
+        "sync",
+        "--frozen",
+        "--extra",
+        "lint",
+        "--extra",
+        "docs"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source-extract/source/policy-engine"
+    },
+    "fake_sync_not_executed": true,
+    "fake_uv_capture": {
+      "argv": [
+        "sync",
+        "--frozen",
+        "--extra",
+        "lint",
+        "--extra",
+        "docs"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source-extract/source/policy-engine",
+      "executable": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/runtime-installed3/fakebin/uv"
+    },
+    "fake_uv_capture_sha256": "7ca90209ad2bbd264f88cbea99c67419ff5f98abb6dd18a1259222fd840b3413"
+  }
+}

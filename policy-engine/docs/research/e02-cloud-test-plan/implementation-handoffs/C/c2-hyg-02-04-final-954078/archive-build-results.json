@@ -1,0 +1,200 @@
+{
+  "archives": {
+    "sdist_source": {
+      "archive_bytes": 459909120,
+      "archive_header": "95407808d90bd7c5c7ca7898a8423fe6d4ee9180",
+      "archive_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/sdist_source.tar",
+      "archive_sha256": "58a2ad52516759e0dfdf9241a1d16c321c6a53d069bf3e2b8c2815555cfd6b98",
+      "commit": "95407808d90bd7c5c7ca7898a8423fe6d4ee9180",
+      "source_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/sdist_source-extract/source/policy-engine",
+      "tree": "77424caabdb0a4e0cdd7b6160de9beacceb944bf"
+    },
+    "wheel_source": {
+      "archive_bytes": 459878400,
+      "archive_header": "1e8aa374829884fcab9b6eca6616c5a7df4beb16",
+      "archive_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source.tar",
+      "archive_sha256": "0683dc215abd2b9929756992222899b20419a2fb38c8124fb8eaaab72d89ff41",
+      "commit": "1e8aa374829884fcab9b6eca6616c5a7df4beb16",
+      "source_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source-extract/source/policy-engine",
+      "tree": "23e5b56e2a42a652770a698a4259a23f4a41277e"
+    }
+  },
+  "artifacts": {
+    "sdist": {
+      "bytes": 65222331,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/dist-sdist/policy_engine-0.1.0.tar.gz",
+      "sha256": "b548e7d475738a94e703aa378eb0cc9583ce15be1339c60eec580c032c9578df",
+      "source_commit": "95407808d90bd7c5c7ca7898a8423fe6d4ee9180",
+      "source_tree": "77424caabdb0a4e0cdd7b6160de9beacceb944bf"
+    },
+    "wheel": {
+      "bytes": 15015579,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/dist-wheel/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "226d6fcfbea8d07a0264749dfec1d6c82d290e5f1b204618b65ae91f843e477f",
+      "source_commit": "1e8aa374829884fcab9b6eca6616c5a7df4beb16",
+      "source_tree": "23e5b56e2a42a652770a698a4259a23f4a41277e"
+    }
+  },
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "build_backend": {
+    "hatchling": "1.32.0",
+    "offline": true,
+    "python": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv/bin/python",
+    "source_extracted_from_exact_git_archive": true
+  },
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "archive",
+        "--format=tar",
+        "--prefix=source/",
+        "1e8aa374829884fcab9b6eca6616c5a7df4beb16",
+        "policy-engine"
+      ],
+      "cwd": "/Users/deniskopylov/polisyos",
+      "duration_seconds": 1.154481,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset",
+        "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:05:30.690319+00:00",
+      "name": "wheel_source-git-archive",
+      "started_at_utc": "2026-10-06T16:05:29.535740+00:00",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source.archive.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 459878400,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source.archive-command-output",
+      "stdout_sha256": "0683dc215abd2b9929756992222899b20419a2fb38c8124fb8eaaab72d89ff41",
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "git",
+        "archive",
+        "--format=tar",
+        "--prefix=source/",
+        "95407808d90bd7c5c7ca7898a8423fe6d4ee9180",
+        "policy-engine"
+      ],
+      "cwd": "/Users/deniskopylov/polisyos",
+      "duration_seconds": 1.155974,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset",
+        "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:05:36.077527+00:00",
+      "name": "sdist_source-git-archive",
+      "started_at_utc": "2026-10-06T16:05:34.921587+00:00",
+      "stderr_bytes": 0,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/sdist_source.archive.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 459909120,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/sdist_source.archive-command-output",
+      "stdout_sha256": "58a2ad52516759e0dfdf9241a1d16c321c6a53d069bf3e2b8c2815555cfd6b98",
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "build",
+        "--offline",
+        "--no-build-isolation",
+        "--wheel",
+        "--clear",
+        "--python",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv/bin/python",
+        "--out-dir",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/dist-wheel",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source-extract/source/policy-engine"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel_source-extract/source/policy-engine",
+      "duration_seconds": 1.614449,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset",
+        "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:05:41.992467+00:00",
+      "name": "native-wheel-build-from-1e8-archive",
+      "started_at_utc": "2026-10-06T16:05:40.378013+00:00",
+      "stderr_bytes": 211,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel-build.stderr",
+      "stderr_sha256": "ee2ae47d4caca12b300ae9828227b7fb76b27ca864c64115ed55dd73eaeb912b",
+      "stdout_bytes": 0,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/wheel-build.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timeout_seconds": 900
+    },
+    {
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "build",
+        "--offline",
+        "--no-build-isolation",
+        "--sdist",
+        "--clear",
+        "--python",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv/bin/python",
+        "--out-dir",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/dist-sdist",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/sdist_source-extract/source/policy-engine"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/sdist_source-extract/source/policy-engine",
+      "duration_seconds": 12.282899,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset",
+        "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv"
+      },
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:05:54.275492+00:00",
+      "name": "native-sdist-build-from-954-archive",
+      "started_at_utc": "2026-10-06T16:05:41.992584+00:00",
+      "stderr_bytes": 215,
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/sdist-build.stderr",
+      "stderr_sha256": "1b1b1e3cbbc6891e8de7f70341db8540d2db13c763df50dde53c5884b530297c",
+      "stdout_bytes": 0,
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/sdist-build.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timeout_seconds": 900
+    }
+  ],
+  "sdist_candidate": "95407808d90bd7c5c7ca7898a8423fe6d4ee9180",
+  "sdist_tree": "77424caabdb0a4e0cdd7b6160de9beacceb944bf",
+  "unchanged_packaging_config_hashes": {
+    "LICENSE": {
+      "base": "c27179a1aec698f3f8cc3236fe3dc39378440271bdbfef4af9c2a637d7ccba53",
+      "sdist_source": "c27179a1aec698f3f8cc3236fe3dc39378440271bdbfef4af9c2a637d7ccba53",
+      "wheel_source": "c27179a1aec698f3f8cc3236fe3dc39378440271bdbfef4af9c2a637d7ccba53"
+    },
+    "README.md": {
+      "base": "1f2a8ccb86b9656ddf59e982b24354ba44e4b3526f6868fa0cfe973cad20e49c",
+      "sdist_source": "1f2a8ccb86b9656ddf59e982b24354ba44e4b3526f6868fa0cfe973cad20e49c",
+      "wheel_source": "1f2a8ccb86b9656ddf59e982b24354ba44e4b3526f6868fa0cfe973cad20e49c"
+    },
+    "hatch.toml": {
+      "base": "065c99c71b69bceac54e7d0083b7f261796f0733a4b721d1e6267fd6e28098a5",
+      "sdist_source": "065c99c71b69bceac54e7d0083b7f261796f0733a4b721d1e6267fd6e28098a5",
+      "wheel_source": "065c99c71b69bceac54e7d0083b7f261796f0733a4b721d1e6267fd6e28098a5"
+    },
+    "pyproject.toml": {
+      "base": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "sdist_source": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "wheel_source": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    "uv.lock": {
+      "base": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "sdist_source": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "wheel_source": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    }
+  },
+  "wheel_candidate": "1e8aa374829884fcab9b6eca6616c5a7df4beb16",
+  "wheel_tree": "23e5b56e2a42a652770a698a4259a23f4a41277e"
+}

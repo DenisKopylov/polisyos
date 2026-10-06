@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+import json,os,sys
+from pathlib import Path
+if sys.argv[1:]==["--version"]: print("uv 0.9.21")
+else: Path(os.environ["HYG_FAKE_UV_CAPTURE"]).write_text(json.dumps({"executable":sys.argv[0],"argv":sys.argv[1:],"cwd":os.getcwd()},sort_keys=True)+"\n",encoding="utf-8")

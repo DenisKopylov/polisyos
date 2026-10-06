@@ -1,0 +1,5 @@
+Using Python 3.14.0 environment at: /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/venv-base
+Resolved 1 package in 6ms
+Prepared 1 package in 234ms
+Installed 1 package in 48ms
+ + policy-engine==0.1.0 (from file:///Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/hygiene-1e8aa-954078/run2/dist-wheel/policy_engine-0.1.0-py3-none-any.whl)

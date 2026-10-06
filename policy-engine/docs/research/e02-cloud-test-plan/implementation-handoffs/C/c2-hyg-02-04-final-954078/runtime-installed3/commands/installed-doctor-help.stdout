@@ -1,0 +1,25 @@
+usage: python -m tools.cli [-h] [--worktree-admission {create,resume}]
+                           [--branch BRANCH] [--path PATH]
+                           [--surface {datasets-unpd,frontend-sentry-build,frontend-sentry-runtime,llm-anthropic,llm-openai,runtime-oidc,runtime-research-postgres,runtime-signing}]
+                           [--list-surfaces] [--skip-playwright]
+                           [--skip-lockfile-checks] [--skip-contract-checks]
+
+Validate local prerequisites for policy-engine.
+
+options:
+  -h, --help            show this help message and exit
+  --worktree-admission {create,resume}
+                        Read-only admission of an exact branch/path pair; emit
+                        a JSON receipt and exit.
+  --branch BRANCH       Exact short branch name; no ref expressions or
+                        substitutes.
+  --path PATH           Exact absolute worktree root, not its product
+                        subdirectory.
+  --surface {datasets-unpd,frontend-sentry-build,frontend-sentry-runtime,llm-anthropic,llm-openai,runtime-oidc,runtime-research-postgres,runtime-signing}
+                        Optional env surface to validate (repeatable).
+  --list-surfaces       Print known optional surfaces and exit.
+  --skip-playwright     Skip the Playwright browser smoke-check.
+  --skip-lockfile-checks
+                        Skip uv.lock and package-lock freshness checks.
+  --skip-contract-checks
+                        Skip generated-contract freshness checks.

@@ -224,7 +224,7 @@
     },
     {
       "id": "independent-full-output-and-source-map-reconciliation",
-      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -B /tmp/e02-B-completed-quality-retry-review-1862c021df74/package.source.txt then /workspace/polisyos/policy-engine/.venv/bin/python -B /tmp/e02-B-completed-quality-retry-review-1862c021df74/finalize.source.txt",
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -B /tmp/e02-B-completed-quality-retry-review-1862c021df74/package.source.txt",
       "cwd": "/workspace",
       "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
       "environment": {
@@ -270,7 +270,9 @@
         "bytes": 8820,
         "sha256": "2702965851ea63c6420ab29e185f2c11ccf89a9242747e8d3829cdee8ac02df6"
       },
-      "deciding_output": "Capture/output hashes andsource1862 exact; second5/final6 output maps complete; final four whole-byte matches andtwo mismatches recomputed against exact Gitbytes. First8/default+registered cache preparation retained via immutable receipts; captured prep-hash misbinding qualified forward, original bytes unchanged."
+      "deciding_output": "Capture/output hashes andsource1862 exact; second5/final6 output maps complete; final four whole-byte matches andtwo mismatches recomputed against exact Gitbytes. First8/default+registered cache preparation retained via immutable receipts; captured prep-hash misbinding qualified forward, original bytes unchanged.",
+      "followup_command": "/workspace/polisyos/policy-engine/.venv/bin/python -B /tmp/e02-B-completed-quality-retry-review-1862c021df74/finalize.source.txt",
+      "execution_sequence_qualification": "Two actual separately executed metadata reader commands in this order; each command is preserved as its own runnable string, not a shell literal then."
     }
   ],
   "property": {

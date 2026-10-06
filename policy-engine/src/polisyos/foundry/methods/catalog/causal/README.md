@@ -85,6 +85,28 @@ broader `polisyos.foundry.methods` facade.
 
 ## Extension Points
 
+### DiD diagnostic basis
+
+The dedicated Standard and Staggered DiD producers attach a separate
+`diagnostic_contract` and `diagnostic_binding` to computed reports. The contract
+binds the complete outcome, treatment membership and `time_treatment`, and the
+complete typed diagnostic list under the declared group-mean linear HC1/normal
+pretrend profile. These fields are separate from the staggered scalar target:
+changing only `time_treatment` can change diagnostics while leaving the fixed
+cohort target and its estimate unchanged.
+
+The internal `_diagnostic_contract` class method recomputes this projection for
+the Scientist consumer. A consumer must compare both metadata and the actual
+typed `report.diagnostics` against current-input recomputation. Hash presence or
+matching scalar-target markers alone does not validate a diagnostic. Historical
+reports remain readable; a current-input validator must recompute or refuse a
+report without its diagnostic contract.
+
+Insufficient preperiods and missing groups remain `not_testable`, with no test
+statistic or p-value and `passed=False`. Standard DiD with no preperiod remains
+`INPUT_INVALID` before diagnostic computation. Neither diagnostic non-rejection
+nor this provenance contract establishes parallel-trends identification.
+
 ### Causal engine and interference compatibility surface (LA-020)
 
 The existing `causal_engine` package explicitly exports `CausalEngine` and

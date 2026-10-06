@@ -1,0 +1,539 @@
+{
+  "candidate": "27f28925d8ecaa674ae7b553faa262b1cb624903",
+  "base": "ae9f30204c84cb3f9d1bd418752145eec2a5429d",
+  "other_entries_count": 97,
+  "other_entries": [
+    {
+      "key": "abm_alignment_report",
+      "semantic_canonical_bytes": 405,
+      "sha256": "c33fe85882e0a35b11edb6ae84d8e639feedf9f3a1e7c2e670a37be8e9057d2a"
+    },
+    {
+      "key": "abm_result",
+      "semantic_canonical_bytes": 391,
+      "sha256": "e53018877903366e0f434b3b8445b1cb735472938aa2210b046d6e6ee086c16a"
+    },
+    {
+      "key": "article_extraction_result",
+      "semantic_canonical_bytes": 415,
+      "sha256": "fb2e31fce1972a781a8014464b997d76badc46a98b1c7a9058d86187682612f1"
+    },
+    {
+      "key": "backtest_plan_bundle",
+      "semantic_canonical_bytes": 404,
+      "sha256": "344a231fc790635ad5f02c575ac51616268f7b75fdc97fc89741ac7ca776c979"
+    },
+    {
+      "key": "backtest_report",
+      "semantic_canonical_bytes": 394,
+      "sha256": "3cd76b3e2cff61c0e0cb25a2f6fda1d08bfc311a6b4ce5a1ffccbb15adb805f8"
+    },
+    {
+      "key": "bounds_estimation_bundle",
+      "semantic_canonical_bytes": 412,
+      "sha256": "8aa5561985c6ae436b4157b1e6fdc287cd54790da21caf9207d705309c43603e"
+    },
+    {
+      "key": "calibration_config",
+      "semantic_canonical_bytes": 403,
+      "sha256": "7982a7b3046f7d2177eeeb96bf57767d8c34c115226e112d7d522f8fbcd75e14"
+    },
+    {
+      "key": "calibration_target_bundle_manifest",
+      "semantic_canonical_bytes": 431,
+      "sha256": "11392c68141f542b67e2d1fa975f434a211dcb42a6a47fe64ff3d3b6eb49b1de"
+    },
+    {
+      "key": "causal_discovery_report",
+      "semantic_canonical_bytes": 417,
+      "sha256": "d6039fbad40b9ad68ee5ed6f2c7ff6cb22b618ea67ccdc3755c5f3f7f0f04aff"
+    },
+    {
+      "key": "causal_graph_model",
+      "semantic_canonical_bytes": 403,
+      "sha256": "bb918ce7b1763338b5c3589634008e9ae65ab4ecd794dc8d5895733bbf4caafe"
+    },
+    {
+      "key": "causal_model_ensemble",
+      "semantic_canonical_bytes": 412,
+      "sha256": "79720996eb70ea56cac88716ec4e0f3d2198c4c07ce3c523926dfb0674717e53"
+    },
+    {
+      "key": "causal_panel_bundle_manifest",
+      "semantic_canonical_bytes": 419,
+      "sha256": "e5b7e9b2f4abe93b61f9d627f4969aec52d2c22dc07198c5142821a096c8eedc"
+    },
+    {
+      "key": "causal_query",
+      "semantic_canonical_bytes": 393,
+      "sha256": "5e5c3c2d80f5a865df584ad5232ef2d1c8f65df52e9520bd1398990936bff26b"
+    },
+    {
+      "key": "causal_query_result",
+      "semantic_canonical_bytes": 407,
+      "sha256": "50af6f3f8dedcaa56f0fb8c522835fc584f21e46f7531cb57601526abc1062f7"
+    },
+    {
+      "key": "causal_sensitivity_result",
+      "semantic_canonical_bytes": 403,
+      "sha256": "4e322b104428c49ccdbfc363783a141486437ecffd972efe314631b633fbc7fe"
+    },
+    {
+      "key": "certification_result",
+      "semantic_canonical_bytes": 406,
+      "sha256": "df0b1c28c00c0673c7988ad672288e471723eafe13433b7eafb13628d129b5a5"
+    },
+    {
+      "key": "claim",
+      "semantic_canonical_bytes": 368,
+      "sha256": "a40e16eb3a212fe32fa70df9be14727ea00adc8a9c5c7d446968075decb5084a"
+    },
+    {
+      "key": "conflict_resolution",
+      "semantic_canonical_bytes": 398,
+      "sha256": "a1ceaa3a4795aef4be9c19e88b088dde3f969eb5d6664da0c09a03e3f75f846a"
+    },
+    {
+      "key": "conflict_set",
+      "semantic_canonical_bytes": 384,
+      "sha256": "4716d729b8545326d6b9208cc7ea04ddcfc57135e5c638f6b12d8e4f64422bd1"
+    },
+    {
+      "key": "conflict_set_resolution",
+      "semantic_canonical_bytes": 404,
+      "sha256": "483090bbfcb3b03c7de4ab88d2bbbf7d49bf8afd71edbe6ac7a336f67715a148"
+    },
+    {
+      "key": "context_adaptive_parameter_bundle",
+      "semantic_canonical_bytes": 430,
+      "sha256": "0252e93affe5cfe61f1746a09e8cdb833d54b6925a08453c5a4a674a1c8e144c"
+    },
+    {
+      "key": "data_view_request",
+      "semantic_canonical_bytes": 386,
+      "sha256": "dcc125b5bf72690bb42d41d8e0f2d6bea1fd9a76f0d65b122b35c61a552db871"
+    },
+    {
+      "key": "distributional_report",
+      "semantic_canonical_bytes": 412,
+      "sha256": "a5419b2f00d9f63c5e5e81476c149a85b3df29b0287c20d00c22a9e9664a94cd"
+    },
+    {
+      "key": "doc_fragment",
+      "semantic_canonical_bytes": 379,
+      "sha256": "29fdeaf33a5e10c9966cc410bc77ceee4e46fc0fcb345e50deb5f5223c1d7669"
+    },
+    {
+      "key": "doc_meta",
+      "semantic_canonical_bytes": 371,
+      "sha256": "b743745eca832cbc873fdde58ee12a0b304d1f2a0b44c651528f18c72dacbd9b"
+    },
+    {
+      "key": "dtr_treatment_sequence_bundle_manifest",
+      "semantic_canonical_bytes": 438,
+      "sha256": "2302996f9377dd6e6407730e6c7d438077a3b19fe387f3cb467e1cef091ae4f7"
+    },
+    {
+      "key": "dynamic_microsim_validation_report",
+      "semantic_canonical_bytes": 437,
+      "sha256": "937af7f0ed4254ef07c4d007bdc4f2a8a8f5ded9c579a6fac8fe1fe4f06c58f7"
+    },
+    {
+      "key": "entity_scope",
+      "semantic_canonical_bytes": 378,
+      "sha256": "dc548d32ed336adaaa05f5775d3a3dc366b03e91fcab282e222fb67082be2b06"
+    },
+    {
+      "key": "equilibrium_multiplicity_report",
+      "semantic_canonical_bytes": 426,
+      "sha256": "b8980e9fb683a1f3899007df333ca29fc7084c55e85f161113a33e230fbac501"
+    },
+    {
+      "key": "fact",
+      "semantic_canonical_bytes": 371,
+      "sha256": "58cf9b31a454f0d23b1f80776618276ed4764f01f3b9e974d64a62c877f69bf5"
+    },
+    {
+      "key": "fact_segment_manifest",
+      "semantic_canonical_bytes": 403,
+      "sha256": "54f335e3e433228139b65fdc3de9e311ef9a456b7958447627a5dc72adb9a949"
+    },
+    {
+      "key": "feedback_jacobian_diagnostics",
+      "semantic_canonical_bytes": 422,
+      "sha256": "50423d44a65873f33c1e306654bcbe16f5416aff0273dfbefff32d179b125445"
+    },
+    {
+      "key": "feedback_solve_result",
+      "semantic_canonical_bytes": 406,
+      "sha256": "458615a0663142e1897cb14376b3c23c273fe6bd7b8e09a07d313d386a8b27f7"
+    },
+    {
+      "key": "feedback_solver_config",
+      "semantic_canonical_bytes": 408,
+      "sha256": "e2c2292d8410fe9b34962c1136da15b0b9cc092a9b51b13eaf5763fe7b2eea17"
+    },
+    {
+      "key": "forecasting_uncertainty_bundle",
+      "semantic_canonical_bytes": 438,
+      "sha256": "98def8cb97ea6903e3c0bb17854f85abb09ee0a5dc911579fb061fa352e15283"
+    },
+    {
+      "key": "gate_context",
+      "semantic_canonical_bytes": 384,
+      "sha256": "cbec7a2127c1da84a08a898c5ef0c8cb31341b7037c99eb732438a9a0508af43"
+    },
+    {
+      "key": "gate_decision",
+      "semantic_canonical_bytes": 387,
+      "sha256": "9d487e03e4c3f9224b5a58255345503dd6c3b395931842d8adc591d2b7b7d602"
+    },
+    {
+      "key": "gate_event",
+      "semantic_canonical_bytes": 381,
+      "sha256": "546156de7d8d29d68937af762fcd13794b1a951af8a342e4be6fc12e11244902"
+    },
+    {
+      "key": "gate_request",
+      "semantic_canonical_bytes": 385,
+      "sha256": "3537fe535b51bd1e382b4abdf0da441ba6510710c6de7fb0bc249fc90fc42b84"
+    },
+    {
+      "key": "governance_pass_alias",
+      "semantic_canonical_bytes": 408,
+      "sha256": "0a1981dea875ecd5874dfc4e2f6cb5c593b0b0fa3edb18e2355abf8bb0de103d"
+    },
+    {
+      "key": "governance_pass_alias_registry",
+      "semantic_canonical_bytes": 426,
+      "sha256": "0b3de26f3b277740ed7cbbc5a06a7e630bc38a0286203d9368c708e005d3882b"
+    },
+    {
+      "key": "governance_pass_alias_status",
+      "semantic_canonical_bytes": 409,
+      "sha256": "4fe3225c7adae2fb71d6376ee7262c8863a33c3a66b87a886ec2f74d9f53fab7"
+    },
+    {
+      "key": "governance_pass_mapping_bundle",
+      "semantic_canonical_bytes": 423,
+      "sha256": "ebf3dc88d1b7af4259bbe29791ab1ea0e2810fab9f9d8f5d57aefe5c5da4a8fd"
+    },
+    {
+      "key": "identification_mode",
+      "semantic_canonical_bytes": 392,
+      "sha256": "603e5d841b2c5bcb6498fa88513225127cf3b7049d0e5b3355d446d7e7c6e70a"
+    },
+    {
+      "key": "intervention_cost_manifold",
+      "semantic_canonical_bytes": 424,
+      "sha256": "11aea5de238322266cf543d63c225eeb3265d1e3513c51785790b6ae74cec192"
+    },
+    {
+      "key": "leontief_io_bundle",
+      "semantic_canonical_bytes": 400,
+      "sha256": "dc5c8af5eaa841a448893b92f0070170e87bc9c3b47c8cd255930e242e976931"
+    },
+    {
+      "key": "lesson_registry_seed_bundle",
+      "semantic_canonical_bytes": 417,
+      "sha256": "43894f78a3656e5fb2f1e1890d25e56c622ec4055b33ea49423df16cc0d48842"
+    },
+    {
+      "key": "literature_causal_prior",
+      "semantic_canonical_bytes": 411,
+      "sha256": "e05b0463130ecaa5a1fc08d6f34523d7cb2c4353de72cbebcd66a7ae2375baa5"
+    },
+    {
+      "key": "measurement_aware_loss_config",
+      "semantic_canonical_bytes": 430,
+      "sha256": "558f2448efae53b166e01007617bdf63e5779089358cab1f13c9d30a51d7e6d0"
+    },
+    {
+      "key": "measurement_aware_target",
+      "semantic_canonical_bytes": 421,
+      "sha256": "fec36a6b68072e2dc47dd1063774de400d6f729aed70ec794dd140b2feffee20"
+    },
+    {
+      "key": "metric_validation_report",
+      "semantic_canonical_bytes": 427,
+      "sha256": "e145b8737938b7e0d9e0139f7782bb3ae0a510e4d30612776ebe801862d6253d"
+    },
+    {
+      "key": "microsim_survey_contract_bundle",
+      "semantic_canonical_bytes": 425,
+      "sha256": "4b4947c01010a759f0d92f7949525d48f33a6e5a38b1397d06bd8cde87312685"
+    },
+    {
+      "key": "model_spec",
+      "semantic_canonical_bytes": 388,
+      "sha256": "a0a7ba95f63f57bf845601b00950a2b058e4978989af84628df951d6f8467e6e"
+    },
+    {
+      "key": "multiplex_graph_layer_id",
+      "semantic_canonical_bytes": 400,
+      "sha256": "eb36483109af5eb02f418dfdab1d846b58adeb3cd831561d77bc2b9844de26d6"
+    },
+    {
+      "key": "network_causal_contract_bundle",
+      "semantic_canonical_bytes": 423,
+      "sha256": "60d621c3ab16a415fe7593790c32917e09d0f1b856eca12883411a0eb4ecdfba"
+    },
+    {
+      "key": "network_contract_bundle",
+      "semantic_canonical_bytes": 410,
+      "sha256": "f32bf13512d5674efdf2770652792ab3f3aeb981f74f1e0dcd18281b2e1558d6"
+    },
+    {
+      "key": "norm_pack",
+      "semantic_canonical_bytes": 381,
+      "sha256": "9ee745ff7b44f8de28114e5e797f8ad9964cd3c156a78962b4fee6fab9db82d3"
+    },
+    {
+      "key": "norm_ref",
+      "semantic_canonical_bytes": 379,
+      "sha256": "795b162a651bd9d270ffd96341de022fd5ca2700fbbb0c6b924175f161926bd0"
+    },
+    {
+      "key": "norm_rule",
+      "semantic_canonical_bytes": 381,
+      "sha256": "e28ba80d4382abdcb0f56574b103b92cd30488b3b1b2ccbf0534ac7a32189e88"
+    },
+    {
+      "key": "observation_family",
+      "semantic_canonical_bytes": 390,
+      "sha256": "18853536af22711bbafba489598cc48497a8325c0115a38d211dd8b51f328af6"
+    },
+    {
+      "key": "observation_family_policy",
+      "semantic_canonical_bytes": 417,
+      "sha256": "2863d4ce29dba24d60f671ac3070693b73069f6fb1b37dee2497adebda6aec7c"
+    },
+    {
+      "key": "observation_family_policy_registry",
+      "semantic_canonical_bytes": 434,
+      "sha256": "6800fc1b8298aba706377dabcdd342566810e3095832786ea32936dd66db863c"
+    },
+    {
+      "key": "observation_panel",
+      "semantic_canonical_bytes": 401,
+      "sha256": "2e3f0d1b98e7ae34c913558e0bf1d29ec2124738b7a0fd0cca5d401eb4752b15"
+    },
+    {
+      "key": "observation_record",
+      "semantic_canonical_bytes": 403,
+      "sha256": "7c69cddc8e097803cae5bb26078ccb644b7989c14ef253ce0cf6cd17c095b63e"
+    },
+    {
+      "key": "observation_to_contract_manifest",
+      "semantic_canonical_bytes": 427,
+      "sha256": "082dee4f76a33d5ebf339e0141a7b885d2d2e8a21cf04a0433f9647e0ef7e0e3"
+    },
+    {
+      "key": "optimal_recourse_intervention_bundle",
+      "semantic_canonical_bytes": 443,
+      "sha256": "4a579215a3fda85c1ab80ea30380d1cc9b045ca04c42ec3ae41205d06c8a3097"
+    },
+    {
+      "key": "optimal_recourse_intervention_query",
+      "semantic_canonical_bytes": 441,
+      "sha256": "1c429c5c0e971f6f3358b47e23cd7deb8f2b715fd30405d7eb5af720254fc7c7"
+    },
+    {
+      "key": "outer_search_result",
+      "semantic_canonical_bytes": 403,
+      "sha256": "fdcfea54bfe06ac26d79f71f76dd23d415686e3219741b6743df934d7920045f"
+    },
+    {
+      "key": "panel_econometric_bundle_manifest",
+      "semantic_canonical_bytes": 429,
+      "sha256": "f4893eaeb5f89fa2b59e49eb67a85958bb31813a9d2a2b44c2470357bd5ebcee"
+    },
+    {
+      "key": "partial_identification_result",
+      "semantic_canonical_bytes": 435,
+      "sha256": "8f8cfa2c69d79c6edb9de06f88dd9df50a9421ae6b0a8314949af49b044427e7"
+    },
+    {
+      "key": "phase4_temporal_policy_gate_verdict",
+      "semantic_canonical_bytes": 438,
+      "sha256": "8cd197aca87fce692c1410d296dab8714beafc06effa1da38acf3e8e74db0d7f"
+    },
+    {
+      "key": "policy_portfolio",
+      "semantic_canonical_bytes": 395,
+      "sha256": "0ffd445a2bbb7cd235e186aa926dd97a7cd707c84bcc0493273bf3e2eee99f9c"
+    },
+    {
+      "key": "policy_recommendation",
+      "semantic_canonical_bytes": 401,
+      "sha256": "8ca66470f912e016c771054c863d7797e7c3677ca26859ae9c33ad27a3a21c96"
+    },
+    {
+      "key": "policy_spec",
+      "semantic_canonical_bytes": 390,
+      "sha256": "df152c907ef82de9e5f620318a5022220a3cf682f14a9411387a10e162fa0d08"
+    },
+    {
+      "key": "problem_frame",
+      "semantic_canonical_bytes": 396,
+      "sha256": "9da0e4604c9810765b0185493ed982a46bf3721585e4ca1d1068fed66054cb75"
+    },
+    {
+      "key": "prov_activity",
+      "semantic_canonical_bytes": 382,
+      "sha256": "37519480ecca2e2956cb7c4b0a53655975e7df1d8adbdffa9794a37133dbe70a"
+    },
+    {
+      "key": "proxy_identification_bundle",
+      "semantic_canonical_bytes": 418,
+      "sha256": "843df6951f5ec16faeed17c43df19598b1867cc537d94d8cd5d702258c6cfa49"
+    },
+    {
+      "key": "quality_report",
+      "semantic_canonical_bytes": 387,
+      "sha256": "e6cd8fe5f136f9652f7b0940d3b534265a0b703143b798d49fa3e40ae1d3450c"
+    },
+    {
+      "key": "recourse_feasibility_certificate",
+      "semantic_canonical_bytes": 436,
+      "sha256": "e1a823f583dfa0e3524075822820646d6e141ec1e5c0cbe96945a47ec4c83156"
+    },
+    {
+      "key": "recourse_proof_bundle",
+      "semantic_canonical_bytes": 414,
+      "sha256": "0d7f29274130f147b03c81c4229d6fdf73c949c9a052e9e29ac56fe61d7bf952"
+    },
+    {
+      "key": "refutation_result",
+      "semantic_canonical_bytes": 395,
+      "sha256": "712218f3da722796767b0d3c4c169f888b1983c28c6fb97bdc490929858eaad1"
+    },
+    {
+      "key": "regime_shift_forecast_bundle",
+      "semantic_canonical_bytes": 431,
+      "sha256": "a85f17163903a3486e091b1d02bc7dd30ea0ba4d76b94c3bb8df2fdfa3cc275c"
+    },
+    {
+      "key": "source_confidence_tier",
+      "semantic_canonical_bytes": 397,
+      "sha256": "bd95417dce5ecd695c4467b2b0462d6baa5204e34b48dc11d6d1a2cf0a994fa3"
+    },
+    {
+      "key": "space_time_causal_certificate",
+      "semantic_canonical_bytes": 427,
+      "sha256": "d9873dce311a52f188023cee9e30e3b414650392658f89f29431230e9560d54b"
+    },
+    {
+      "key": "specification_curve_bundle",
+      "semantic_canonical_bytes": 416,
+      "sha256": "296f87d6b6d025f67c9bb00aa4a2d77757a6053fa3151725bf1c8cd518041d58"
+    },
+    {
+      "key": "strategic_response_channel",
+      "semantic_canonical_bytes": 405,
+      "sha256": "72e39cba486f479ab636ad85b8403864c2367e707d8d9b0ab35de7ec5c4340ec"
+    },
+    {
+      "key": "strategic_response_specs_bundle",
+      "semantic_canonical_bytes": 425,
+      "sha256": "d2718ddd1a3379f1b64c2a028b1bba9bfe9c919faaee99a646356b8baefc202a"
+    },
+    {
+      "key": "structural_causal_model_spec",
+      "semantic_canonical_bytes": 433,
+      "sha256": "294f22490a08533b7ccb84b28a3e3663b38bd8d1ab7290d02174543b151e4b90"
+    },
+    {
+      "key": "survival_data_bundle_manifest",
+      "semantic_canonical_bytes": 421,
+      "sha256": "4f3ada39bd2fa929649adf550faa2742f95ab291de78d440a8b9d9986f25913d"
+    },
+    {
+      "key": "temporal_graph_causal_certificate",
+      "semantic_canonical_bytes": 435,
+      "sha256": "ab1c0ef41f240e5ecc8d2d6b0f95a7ea5c5a1a5d9ec584355b3b59564d4921bf"
+    },
+    {
+      "key": "temporal_intervention_sequence",
+      "semantic_canonical_bytes": 427,
+      "sha256": "616f48c040030ee385d5f0be3747edb321a3a2c41b580d84cdc09fa1e74070a0"
+    },
+    {
+      "key": "temporal_intervention_step",
+      "semantic_canonical_bytes": 418,
+      "sha256": "6e3a28da75bc09ce48a9298fecc7e3c5136f76f8856b19ef9f141c8ed3075e3c"
+    },
+    {
+      "key": "transportability_result",
+      "semantic_canonical_bytes": 418,
+      "sha256": "8158cc5de520676650e93e05253ed17c033e6dc9a36353f6686b4460757cb4bb"
+    },
+    {
+      "key": "trinity_bundle",
+      "semantic_canonical_bytes": 381,
+      "sha256": "fe107ca6c6d77bc7beab930d6595749e69ef22741106e7ddf01bbbbdf57ed9e8"
+    },
+    {
+      "key": "trust_assessment",
+      "semantic_canonical_bytes": 389,
+      "sha256": "50aee6ca35223d82572ff818a0a01345577685b11f8dc026687152356a37c4be"
+    },
+    {
+      "key": "uncertainty_envelope",
+      "semantic_canonical_bytes": 407,
+      "sha256": "cab41f5cf0e131b581a6987c34a04e9f9ef70b1595a651dcb5117e94adb6054b"
+    },
+    {
+      "key": "world_event",
+      "semantic_canonical_bytes": 379,
+      "sha256": "a64729372e2be9ea3fc59ca0340d597173ebd07242f55be302c97e80c078a751"
+    }
+  ],
+  "provenance_headers": {
+    "compatibility": {
+      "breaking_change_requires_fragment": "true",
+      "compatibility_class": "persisted-artifact-format",
+      "deprecation_window": "2 minor releases",
+      "release_fragment_change_class": "persisted-artifact-format",
+      "version_owner": "team-ir"
+    },
+    "generated_at": "2026-09-22T16:59:24+00:00",
+    "generator_version": "1.0.0",
+    "module": "ir",
+    "pydantic_version": "2.12.5",
+    "python_version": "3.14.3"
+  },
+  "provenance_headers_identical": true,
+  "dependent_content_hash": {
+    "old": "5011cb1a2c9ca6e6b9dbcf4325d0854219b3a1b8d46fb975406488ff237b94d3",
+    "current": "f0fb5b7e7fd92570cf46fa834835702ff9b36e8954ced8adab1e84ffd8e769bc",
+    "derived_model_count": 99
+  },
+  "unchanged_numerical_and_report_providers": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+      "bytes": 31756,
+      "sha256": "d8d0057a48beb6cbbfb1659890af37f3e8ed78303e49ffaa0df514610689b331",
+      "same_as_numerical_producer": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "bytes": 76429,
+      "sha256": "c7c6e0d382ce4d671ff1c783726a422464873bf7b3d93a602109f919222b7af7",
+      "same_as_numerical_producer": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "bytes": 59964,
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+      "same_as_numerical_producer": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+      "bytes": 22295,
+      "sha256": "92fb3ac07d2363197d3bd642562985a59386562e7798272dfd6cd9987a6ad86d",
+      "same_as_numerical_producer": "6c711bd2d4f1b6bf851c42a5f3d22b795efb020d"
+    }
+  ],
+  "docs_reference_schemas_md_identical": true
+}

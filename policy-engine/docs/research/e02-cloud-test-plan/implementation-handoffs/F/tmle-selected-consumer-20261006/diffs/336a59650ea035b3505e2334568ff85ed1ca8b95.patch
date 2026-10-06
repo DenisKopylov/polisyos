@@ -1,0 +1,65 @@
+commit 336a59650ea035b3505e2334568ff85ed1ca8b95
+Author:     Денис Копылов <skvidvard167m@gmail.com>
+AuthorDate: Tue Oct 6 16:45:42 2026 +0000
+Commit:     Денис Копылов <skvidvard167m@gmail.com>
+CommitDate: Tue Oct 6 16:45:42 2026 +0000
+
+    Compare causal report projections through their persisted JSON ABI
+
+diff --git a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
+index 3331361ff..e3daf4187 100644
+--- a/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
++++ b/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py
+@@ -483,6 +483,15 @@ def _run_primary_causal_job(
+         raise ValueError("primary causal job source reference mismatch")
+     refs[role] = source
+     bound_spec = spec.model_copy(update={"input_refs": refs})
++    tmle_data = None
++    if (spec.method_fqn or "").split("@", 1)[0] == "causal.treatment_effects.tmle":
++        tmle_data = _load_observational_data(ctx, state, spec.method_fqn)
++        if not isinstance(observational_data, HTEObservationalData) or not isinstance(
++            tmle_data, HTEObservationalData
++        ):
++            raise ValueError("selected TMLE requires its typed observational source")
++        if observational_data.model_dump(mode="json") != tmle_data.model_dump(mode="json"):
++            raise ValueError("selected TMLE materialization/source mismatch")
+     if is_dowhy:
+         with causal_worker_execution_context(store=ctx.store, source_ref=source):
+             result = run_job(bound_spec, cas_root=ctx.store.root, method_state=observational_data)
+@@ -495,7 +504,7 @@ def _run_primary_causal_job(
+             saved = from_canonical_bytes(ctx.store.get_bytes(result.method_result_ref))
+             report = CausalEffectReport.model_validate(saved["report"])
+             offered = CausalEffectReport.model_validate(result.final_state["report"])
+-            if report != offered:
++            if report.model_dump(mode="json") != offered.model_dump(mode="json"):
+                 raise ValueError("selected DoWhy persisted/offered report mismatch")
+             response = report.metadata.get("worker")
+             if response is not None:
+@@ -518,16 +527,10 @@ def _run_primary_causal_job(
+     did_method = (spec.method_fqn or "").split("@", 1)[0]
+     if not result.issues and did_method == "causal.treatment_effects.tmle":
+         _reconcile_selected_causal_output(ctx=ctx, result=result)
+-        bound_data = _load_observational_data(ctx, state, spec.method_fqn)
+-        if not isinstance(observational_data, HTEObservationalData) or not isinstance(
+-            bound_data, HTEObservationalData
+-        ):
+-            raise ValueError("selected TMLE requires its typed observational source")
+-        if observational_data.model_dump(mode="json") != bound_data.model_dump(mode="json"):
+-            raise ValueError("selected TMLE materialization/source mismatch")
++        assert isinstance(tmle_data, HTEObservationalData)
+         _verify_selected_tmle_projection(
+             result.final_state,
+-            observational_data=bound_data,
++            observational_data=tmle_data,
+             params=spec.method_params,
+         )
+     if not result.issues and did_method in {
+@@ -580,7 +583,7 @@ def _reconcile_selected_causal_output(*, ctx: ExecutionContext, result: JobResul
+     saved = from_canonical_bytes(ctx.store.get_bytes(result.method_result_ref))
+     report = CausalEffectReport.model_validate(saved["report"])
+     offered = CausalEffectReport.model_validate(result.final_state["report"])
+-    if report != offered:
++    if report.model_dump(mode="json") != offered.model_dump(mode="json"):
+         raise ValueError("selected causal persisted/offered report mismatch")
+     derived = report.to_uncertainty_envelope()
+     if (

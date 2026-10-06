@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.foundry.mechanisms.design import (
+
+from polisyos.foundry.methods.catalog.mechanism.families import (
     get_mechanism_family_spec,
     mechanism_family_catalog,
 )

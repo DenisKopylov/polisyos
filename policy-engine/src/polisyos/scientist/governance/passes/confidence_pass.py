@@ -13,8 +13,8 @@ from polisyos.core.contracts.foundry import SimulationResult
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.governance.accountability import resolve_governance_threshold
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 
 class ConfidencePass(ValidatorPass):
@@ -24,7 +24,9 @@ class ConfidencePass(ValidatorPass):
     `artifacts_index.simulation_result_ref` with embedded uncertainty envelopes
     or a causal-envelope ref. Thresholds are read from
     `uncertainty_max_ci_width_ratio`, `uncertainty_max_ci_width_abs`, and
-    `uncertainty_min_gate_eligible_ratio`.
+    `uncertainty_min_gate_eligible_ratio`. A causal-purpose input remains a
+    candidate: this pass has no accepted causal-identification verifier whose
+    current source, graph, estimand, and target admission it could check.
     """
 
     @property
@@ -38,6 +40,26 @@ class ConfidencePass(ValidatorPass):
     def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
         issues: list[ComplianceIssue] = []
 
+        causal_ref = _resolve_causal_envelope_ref(ctx.state)
+        if causal_ref is not None:
+            # The consumer role survives a producer's source relabeling and
+            # cannot be diluted by healthy simulation metrics or a zero ratio
+            # threshold. Numerical confidence is not causal identification.
+            issues.append(
+                ComplianceIssue(
+                    pass_id=self.pass_id,
+                    path=["artifacts_index", "causal_envelope_ref"],
+                    message=(
+                        "Causal effect remains a non-gating candidate: current "
+                        "source, graph, estimand, and target identification "
+                        "admission has not been established."
+                    ),
+                    severity=IssueSeverity.BLOCKER,
+                    code="CONFIDENCE_GATE_ELIGIBILITY_LOW",
+                    suggestion="Supply the accepted identification owner and verifier binding.",
+                )
+            )
+
         store = _resolve_store(ctx.state)
         if store is None:
             return issues
@@ -46,7 +68,6 @@ class ConfidencePass(ValidatorPass):
 
         sim_result_id = _resolve_simulation_result_id(ctx.state)
         if sim_result_id is None:
-            causal_ref = _resolve_causal_envelope_ref(ctx.state)
             if causal_ref is None:
                 return issues
             envelope_refs["causal_effect"] = causal_ref
@@ -82,7 +103,6 @@ class ConfidencePass(ValidatorPass):
             if sim_result.uncertainty_envelopes:
                 for metric_id, ref in sim_result.uncertainty_envelopes.items():
                     envelope_refs[str(metric_id)] = ref
-            causal_ref = _resolve_causal_envelope_ref(ctx.state)
             if causal_ref is not None:
                 envelope_refs["causal_effect"] = causal_ref
 
@@ -135,7 +155,7 @@ class ConfidencePass(ValidatorPass):
                 continue
 
             n_total += 1
-            if env.gate_eligible:
+            if env.gate_eligible and not (causal_ref is not None and metric_id == "causal_effect"):
                 n_gate_eligible += 1
 
             ci_width = float(env.confidence_interval[1] - env.confidence_interval[0])
@@ -232,12 +252,13 @@ def _resolve_causal_envelope_ref(state: dict[str, Any]) -> Any | None:
     artifacts_index = state.get("artifacts_index")
     if isinstance(artifacts_index, dict):
         ref = artifacts_index.get("causal_envelope_ref")
-        if ref is not None and hasattr(ref, "artifact_id"):
+        if ref is not None:
             return ref
     explicit = state.get("causal_envelope_ref")
-    if explicit is not None and hasattr(explicit, "artifact_id"):
-        return explicit
-    return None
+    # Preserve the causal consumer role even when its offered ref is malformed
+    # or unresolved. Shape is not identification admission, and dropping the
+    # role here would turn an unavailable input into an empty successful pass.
+    return explicit
 
 
 __all__ = ["ConfidencePass"]

@@ -6,7 +6,7 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-ir"
   },
-  "content_hash": "5011cb1a2c9ca6e6b9dbcf4325d0854219b3a1b8d46fb975406488ff237b94d3",
+  "content_hash": "f0fb5b7e7fd92570cf46fa834835702ff9b36e8954ced8adab1e84ffd8e769bc",
   "generated_at": "2026-09-22T16:59:24+00:00",
   "generator_version": "1.0.0",
   "models": {
@@ -126,8 +126,8 @@
       "priority": "p1",
       "schema_file": "causal_effect_report.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "194030c176abf384616a457089b80a832a7c5b6c6a4b548c707e0132a0e4a560",
-      "sha256_semantic": "6170ecdca3f6391e014f016046b4c9636551259146c6dd19f4153081d6b27dc3",
+      "sha256_full": "9b3c61fab918cd1291ed3fef560c78bd8172a9db42e66b621af4f2bb0b66ef70",
+      "sha256_semantic": "7aab181a683314bb4a5911c32dc7bb69bb6783c4aa60b6f35a654b737ceca3b3",
       "version_field": "schema_version"
     },
     "causal_graph_model": {
@@ -546,8 +546,8 @@
       "priority": "p1",
       "schema_file": "hte_result.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "f6adb9ae7fb2e83e64e2774aea018936e5bd551f72673e888ea85708e54bd69d",
-      "sha256_semantic": "f43b01f9a2ec97502f6dcc8fa134d593053f82401d42f11ccd2163208bc4ac5e",
+      "sha256_full": "6aa800d87fc38c2c060cb5c61ed56b060e0747ee4f5f7dbae08a6eca77960288",
+      "sha256_semantic": "e226880a23c5f4f8aaf0d1465cb148021723517ed1c1d4244655e1f50d2c6c30",
       "version_field": "schema_version"
     },
     "identification_mode": {

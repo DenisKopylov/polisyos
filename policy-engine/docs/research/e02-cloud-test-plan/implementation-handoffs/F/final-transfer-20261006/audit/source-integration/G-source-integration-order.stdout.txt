@@ -1,0 +1,131 @@
+{
+  "schema": "policyos.e02.G_source_integration_order.audit_output.v1",
+  "outcome": "PASS_BOUNDED_READ_ONLY_SOURCE_CUSTODY",
+  "source_mutations": 0,
+  "source_integration_actions": 0,
+  "topics": 12,
+  "own_scope_overlap_pairs": 0,
+  "all12receipt_source_trees_match": true,
+  "all12ownedcommits_path_scoped": true,
+  "all12published_owned_source_bindings_match": true,
+  "DW11mirroredpatches_match": true,
+  "newinstalled4mirrorpatches_match": true,
+  "latest_installed_source": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+  "latest_installed_tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+  "latest_installed_build_replay": "PENDING/UNRUN; do not claim PASS",
+  "consumer_assembled_source_scope": {
+    "slice_base": "e67860362fdf9f891755d8f7b3401147039e68fa",
+    "source": "7450e7ece415490cbf70a59871bdf1e17fb25abd",
+    "tree": "36f5f6dfc94e0990069204a90d539685e75864cb",
+    "total_paths": 50,
+    "own": 7,
+    "dependencies": 43,
+    "path_authority": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/causal-consumer-binding-20261006.json@92148340601ac6ea69f0dbd4764aae7428ad83d7"
+  },
+  "carry_comparison_deciding_output": [
+    {
+      "label": "DW423→graph6d",
+      "left_source": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "right_source": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "complete_path_count": 14,
+      "different_paths": [],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    },
+    {
+      "label": "DW423→installedab56",
+      "left_source": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "right_source": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+      "complete_path_count": 14,
+      "different_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml"
+      ],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    },
+    {
+      "label": "graph6d→installedab56",
+      "left_source": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "right_source": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+      "complete_path_count": 49,
+      "different_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py"
+      ],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    },
+    {
+      "label": "graph6d→consumerassembled745",
+      "left_source": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "right_source": "7450e7ece415490cbf70a59871bdf1e17fb25abd",
+      "complete_path_count": 49,
+      "different_paths": [],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    },
+    {
+      "label": "API729→installedab56",
+      "left_source": "729d137279b7d6334230045e420255762fe55f08",
+      "right_source": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+      "complete_path_count": 3,
+      "different_paths": [],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    },
+    {
+      "label": "DW423→latestinstalled5cd",
+      "left_source": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "right_source": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "complete_path_count": 14,
+      "different_paths": [],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    },
+    {
+      "label": "graph6d→latestinstalled5cd",
+      "left_source": "6dcb792b6f8c2d2dcfc04a5e04ea33135a2ad181",
+      "right_source": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "complete_path_count": 49,
+      "different_paths": [],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    },
+    {
+      "label": "B220source213→latestinstalled5cd",
+      "left_source": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+      "right_source": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "complete_path_count": 4,
+      "different_paths": [],
+      "comparison": "Every path in the relevant provider receipt changed_paths; B220 uses its two source commit deltas. Equal blobs are not copied as derived views."
+    }
+  ],
+  "observed_read_only_Git_commands": 1092,
+  "observed_nonzero_Git_commands": 0,
+  "manifest": {
+    "path": "/workspace/e02-F-20261006-receipts/fry/G-source-integration-order.json",
+    "bytes": 47193,
+    "sha256": "633e411bf7b88874e7ae24da4b8e7546edfcceb465f016d1e5d0561744483e0c"
+  },
+  "installed_owned4_delta": {
+    "bytes": 19437,
+    "sha256": "7f67cda94e3eef3c72d1d335fd75f3d9114dac8d6aa0227fab890b98d9c09315",
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "source": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "application": "Only four owned paths after canonical dependencies; never apply full cumulative source diff.",
+    "canonical_diff_argv": [
+      "git",
+      "diff",
+      "--binary",
+      "198076863e143dea9f89f02734b13d50dae3eed5",
+      "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+      "--",
+      "policy-engine/docs/research/e02-cloud-test-plan/verification/F/installed-worker-20261006/README.md",
+      "policy-engine/hatch.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-installed-dowhy-profile.toml",
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py"
+    ],
+    "transport": "No copied tracked source required. G reconstructs these exact patch bytes from the four immutable source paths at5cd and verifies size/SHA256 before applying; scratch patch is not an admitted companion."
+  },
+  "proposal_stage_count": 13,
+  "limitations": [
+    "No G integration or institutional acceptance.",
+    "B220 source LAST only after independent exact-source GO.",
+    "All12primaryreceipt limits remain authoritative.",
+    "Full candidate installed wheel/sdist must be measured after G assembly."
+  ]
+}

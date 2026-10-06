@@ -1,0 +1,66 @@
+{
+  "status": "pass",
+  "adaptation": "single exact replacement of the hardcoded cloud CAS output-root literal with ignored local R/results/fresh-reader-cas; helper runtime logic unchanged",
+  "adapted_source_sha256": "11b5efeff9500c0a794a57847fd665fa19836b0ecf236dbbe97272bad89c48ec",
+  "helper_source_sha256": "e666ba10f8d8d852b9d1bba4a1a0a6aa2683724d4ed58b0fff22105a9d00df4a",
+  "nested_process": {
+    "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-f-lex/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-f-lex/policy-engine",
+    "args": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "-c",
+      "import json,sys\nfrom polisyos.core.artifacts.store import FileSystemCAS\nfrom polisyos.core.artifacts.ids import ArtifactID\nfrom polisyos.core.canon import from_canonical_bytes\nfrom polisyos.lex.legal_evaluation.impact_diff import NormImpactReport\nfrom polisyos.lex.normpack.diff import NormDiff\nfrom polisyos.lex.simulator.cli import render_impact_markdown\ns=FileSystemCAS(sys.argv[1]);r=NormImpactReport.model_validate(from_canonical_bytes(s.get_bytes(ArtifactID.model_validate(sys.argv[2]))));d=NormDiff.model_validate(from_canonical_bytes(s.get_bytes(ArtifactID.model_validate(r.norm_diff_ref))));assert r.new_blockers==1 and r.passes_executed==['legal'];assert d.modified_count==1;assert all(t.estimated_direction=='unknown' for t in r.affected_kpis);assert 'Candidate Impact Topics' in render_impact_markdown(r);print(json.dumps({'passes':r.passes_executed,'blockers':r.new_blockers,'diff_ref':r.norm_diff_ref,'topics':[t.kpi_id for t in r.affected_kpis],'authority':'synthetic topic/compliance comparison only','reader_origin':sys.modules['polisyos.lex.legal_evaluation.impact_diff'].__file__}))",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/fresh-reader-cas",
+      "sha256:95f2c3948ce8b4f551b161e8b5ac2646c354cc1b8e95c319d11f89d10207ffc6"
+    ],
+    "child_max_rss_bytes": 210173952,
+    "child_system_seconds": 0.0964,
+    "child_user_seconds": 0.9407,
+    "elapsed_seconds": 1.0436,
+    "returncode": 0
+  },
+  "wall_seconds": 1.0615,
+  "wrapper_classification_note": "The committed helper intentionally raises SystemExit(a.returncode). Its subprocess returned 0 and emitted all expected assertions/output; the wrapper incorrectly treated the expected SystemExit(0) as an error. Status is corrected from captured actual returncode/output; no test/helper rerun.",
+  "helper_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/lex-pass-plan-receipts/fresh_reader.py@309a0be6630db3cfc8e410f7866f1ed4e95bb722",
+  "candidate_sha": "309a0be6630db3cfc8e410f7866f1ed4e95bb722",
+  "import_origins_before_after_matched": [
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-f-lex/policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "module": "polisyos.lex.legal_evaluation.impact_diff",
+      "sha256": "144030072b61170d93ba387cb9f8977ff73e867f7ba2bb5b873a979a3c3e8230",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-f-lex/policy-engine/src/polisyos/ir/loading/norm_pack.py",
+      "module": "polisyos.ir.loading.norm_pack",
+      "sha256": "6613777ebe6fb355d537b39b9b4968dd9dcc866a2173696f95207d5a0e21686d",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-f-lex/policy-engine/src/polisyos/lex/simulator/cli.py",
+      "module": "polisyos.lex.simulator.cli",
+      "sha256": "5d627f7f97e05096748d75e45aea5548526301dfce33f2bb6a53e8cc1bf86a68",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/current-f-lex/policy-engine/src/polisyos/core/artifacts/store.py",
+      "module": "polisyos.core.artifacts.store",
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+      "under_candidate": true
+    }
+  ],
+  "production_data_used": false,
+  "finding_closure": false,
+  "outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-second-wave/f-lex-fresh-reader.stdout",
+      "sha256": "6c6bd6d47f1ea1aba951c7ab31d9e0bfdde9b2a1f4c1d29b6733172d57468373",
+      "bytes": 438
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-second-wave/f-lex-fresh-reader.stderr",
+      "sha256": "42379020e6ce97b0cc92004f9964cf2b0b4d43e200da1bfdebe784e6bee3da3b",
+      "bytes": 1110
+    }
+  ]
+}

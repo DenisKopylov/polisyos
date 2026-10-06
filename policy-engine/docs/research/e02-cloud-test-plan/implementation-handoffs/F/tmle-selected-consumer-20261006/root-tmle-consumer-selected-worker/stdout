@@ -1,0 +1,10 @@
+........................................                                 [100%]
+=============================== warnings summary ===============================
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[False]
+tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py::test_actual_worker_result_cannot_be_replaced_by_consistent_report_projections[True]
+  /workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `DiagnosticTest` - serialized value may not be as expected [field_name='diagnostics', input_value={'test_name': 'fabricated...nostic', 'passed': True}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+40 passed, 2 warnings in 72.59s (0:01:12)

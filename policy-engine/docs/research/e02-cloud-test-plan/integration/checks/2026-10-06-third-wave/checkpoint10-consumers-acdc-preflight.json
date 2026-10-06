@@ -1,0 +1,146 @@
+{
+  "candidate_sha": "acdc3536f93f085d665a7b53460935525373d015",
+  "candidate_tree": "ff7cc9e6bb2cb0d826d977e7298020ee7af6e5cc",
+  "env": {
+    "PYTEST_ADDOPTS": null,
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src",
+    "VIRTUAL_ENV": null
+  },
+  "executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "imports": [
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "module": "polisyos.runtime.http.services.control_plane_store",
+      "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "module": "polisyos.runtime.http.services.control_worker",
+      "sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "module": "polisyos.runtime.http.services.control.run_lifecycle",
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine/src/polisyos/runtime/http/resilience.py",
+      "module": "polisyos.runtime.http.resilience",
+      "sha256": "aa060253ec9474db1446b7b048730be2284300a1378b87d9cd3dc9969d3b34a0",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine/src/polisyos/runtime/http/errors.py",
+      "module": "polisyos.runtime.http.errors",
+      "sha256": "bdbdc71b506420b0beae77a186066cecd7cfa52cee614eca38d4f61b88580ba6",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "module": "polisyos.core.artifacts.manifest",
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine/src/polisyos/core/artifacts/store.py",
+      "module": "polisyos.core.artifacts.store",
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "module": "polisyos.core.artifacts.write_contract",
+      "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine/src/polisyos/runtime/quality/event_log.py",
+      "module": "polisyos.runtime.quality.event_log",
+      "sha256": "dd477cbcc88ab5a464976285d72736c82a5ff9180681a44827f01b76fead3b28",
+      "under_candidate": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine/tests/_helpers/policy_design_case_projection.py",
+      "module": "tests._helpers.policy_design_case_projection",
+      "sha256": "4e8514c7c9e9a52d62c174e3ec24fc608bcdacaee6572e81d2b7f75229c05234",
+      "under_candidate": true
+    }
+  ],
+  "packages": {
+    "anyio": "4.12.0",
+    "fastapi": "0.128.6",
+    "httpx": "0.28.1",
+    "psycopg": null,
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "sqlalchemy": null,
+    "starlette": "0.52.1"
+  },
+  "platform": "darwin",
+  "product_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine",
+  "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "source_hashes": {
+    "release-fragments/unreleased/2026-10-06-e02-current-handler-publication.toml": {
+      "bytes": 1514,
+      "sha256": "8438e6ab76cd3939f456599c7c82dbf9f0bcefeb87e8faac130110152a058f85"
+    },
+    "src/polisyos/core/artifacts/manifest.py": {
+      "bytes": 12758,
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+    },
+    "src/polisyos/core/artifacts/store.py": {
+      "bytes": 173575,
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    },
+    "src/polisyos/core/artifacts/write_contract.py": {
+      "bytes": 1137,
+      "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef"
+    },
+    "src/polisyos/runtime/http/errors.py": {
+      "bytes": 23650,
+      "sha256": "bdbdc71b506420b0beae77a186066cecd7cfa52cee614eca38d4f61b88580ba6"
+    },
+    "src/polisyos/runtime/http/resilience.py": {
+      "bytes": 15123,
+      "sha256": "aa060253ec9474db1446b7b048730be2284300a1378b87d9cd3dc9969d3b34a0"
+    },
+    "src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+      "bytes": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+    },
+    "src/polisyos/runtime/http/services/control_plane_store.py": {
+      "bytes": 209996,
+      "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6"
+    },
+    "src/polisyos/runtime/http/services/control_worker.py": {
+      "bytes": 13613,
+      "sha256": "4b319c7b70d0664c2039676dc7424f71468faa9df2b45f95c605cc38831f9b5c"
+    },
+    "src/polisyos/runtime/quality/event_log.py": {
+      "bytes": 8268,
+      "sha256": "dd477cbcc88ab5a464976285d72736c82a5ff9180681a44827f01b76fead3b28"
+    },
+    "tests/_helpers/policy_design_case_projection.py": {
+      "bytes": 2717,
+      "sha256": "4e8514c7c9e9a52d62c174e3ec24fc608bcdacaee6572e81d2b7f75229c05234"
+    },
+    "tests/unit/runtime/http/test_control_plane_store.py": {
+      "bytes": 81515,
+      "sha256": "a21c740a7c4c038e3fbc1af90a45dd69d09710461a5c4ecb2cef601afb79cdb0"
+    }
+  },
+  "sys_path": [
+    "",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/checkpoint10-consumers-acdc/policy-engine/src",
+    "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python314.zip",
+    "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14",
+    "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/lib-dynload",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/src"
+  ]
+}

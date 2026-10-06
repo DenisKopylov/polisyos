@@ -82,10 +82,12 @@ class TemporalConsumptionMechanism(Mechanism):
         new_wealth = jnp.where(active, new_wealth, agents.wealth)
         new_values = jnp.where(active, values, agents.expected_lifetime_utility)
 
+        # Neural outputs may use a wider parameter dtype than the simulation
+        # carry. Preserve the declared state fields at this transition boundary.
         new_agents = agents.replace(
-            consumption=consumption,
-            wealth=new_wealth,
-            expected_lifetime_utility=new_values,
+            consumption=consumption.astype(agents.consumption.dtype),
+            wealth=new_wealth.astype(agents.wealth.dtype),
+            expected_lifetime_utility=new_values.astype(agents.expected_lifetime_utility.dtype),
         )
 
         active_count = jnp.sum(active)

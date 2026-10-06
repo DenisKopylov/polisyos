@@ -1,0 +1,471 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "F",
+  "slice": "tmle-20261006",
+  "closure_ids": [
+    "B54"
+  ],
+  "bundle_ids": [
+    "FIT-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "55d2e14755bda6af31c41acd4fe1dcb76f3814b1"
+  ],
+  "candidate_tree_sha": "4d87ce0690e001967b245ce18217cb36fff3c988",
+  "branch": "codex/e02-F-tmle-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/50",
+  "changed_paths": [
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py"
+  ],
+  "source_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/source-identity.json",
+  "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
+  "full_output_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/outputs.json",
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+        "tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py",
+        "tests/unit/remediation/test_fit_01.py",
+        "tests/unit/foundry/methods/catalog/causal/test_nuisance_layer.py",
+        "tests/unit/foundry/methods/catalog/causal/test_nuisance_resolver_wiring.py",
+        "tests/unit/foundry/methods/catalog/causal/test_stochastic_policies.py",
+        "-v",
+        "-s"
+      ],
+      "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
+      "input_closure": "six exact native selector files/current source+configured backend",
+      "outcome": "PASS",
+      "exit": 0,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-frozen.json",
+      "complete_output": "See lossless gzip refs in outputs.json; all original stdout/stderr bytes available",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-frozen.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-frozen.stderr.txt.gz"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
+      "input_closure": "actual scanner configured denominator; no disjointness claim",
+      "outcome": "UNRUN",
+      "exit": 2,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/architecture.json",
+      "complete_output": "See lossless gzip refs in outputs.json; all original stdout/stderr bytes available",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/architecture.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/architecture.stderr.txt.gz",
+      "partial_completed_findings": "FAIL",
+      "whole_command_status_basis": "Complete stdout: Architecture guardrail check UNRUN: required measurements unavailable; no complete verdict.",
+      "unavailable_measurements": [
+        "runtime-api-client generator exit254: openapi-typescript missing/node_modules unavailable",
+        "runtime-dashboard-api-types generator exit254: openapi-typescript missing/node_modules unavailable"
+      ]
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/workspace/e02-F-20261006-receipts/tmle/production-invocation-report.json"
+      ],
+      "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
+      "input_closure": "actual scanner configured denominator; no disjointness claim",
+      "outcome": "ERROR",
+      "exit": -9,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/production-invocation.json",
+      "complete_output": "See lossless gzip refs in outputs.json; all original stdout/stderr bytes available",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/production-invocation.stdout.txt.gz",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/production-invocation.stderr.txt.gz"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/tmle/removal_replayer.py",
+        "cache"
+      ],
+      "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
+      "input_closure": "same unchanged native tests; memory-only mutation at canonical property and consumer alias where needed",
+      "outcome": "FAIL",
+      "expected": true,
+      "negative_discriminator": "PASS: property removal detected",
+      "exit": 1,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/cache-removal-v2.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/cache-removal-v2.stdout.txt"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/tmle/removal_replayer.py",
+        "arrays"
+      ],
+      "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
+      "input_closure": "same unchanged native tests; memory-only mutation at canonical property and consumer alias where needed",
+      "outcome": "FAIL",
+      "expected": true,
+      "negative_discriminator": "PASS: property removal detected",
+      "exit": 1,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/arrays-removal-v2.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/arrays-removal-v2.stdout.txt"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/tmle/removal_replayer.py",
+        "logit"
+      ],
+      "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
+      "input_closure": "same unchanged native tests; memory-only mutation at canonical property and consumer alias where needed",
+      "outcome": "FAIL",
+      "expected": true,
+      "negative_discriminator": "PASS: property removal detected",
+      "exit": 1,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/logit-removal-v2.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/logit-removal-v2.stdout.txt"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/tmle/removal_replayer.py",
+        "eif"
+      ],
+      "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
+      "input_closure": "same unchanged native tests; memory-only mutation at canonical property and consumer alias where needed",
+      "outcome": "FAIL",
+      "expected": true,
+      "negative_discriminator": "PASS: property removal detected",
+      "exit": 1,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/eif-removal-v2.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/eif-removal-v2.stdout.txt"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/tmle/removal_replayer.py",
+        "eligibility"
+      ],
+      "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
+      "input_closure": "same unchanged native tests; memory-only mutation at canonical property and consumer alias where needed",
+      "outcome": "FAIL",
+      "expected": true,
+      "negative_discriminator": "PASS: property removal detected",
+      "exit": 1,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/eligibility-removal-v2.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/eligibility-removal-v2.stdout.txt"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-F-20261006-receipts/tmle/removal_replayer.py",
+        "serial"
+      ],
+      "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
+      "input_closure": "same unchanged native tests; memory-only mutation at canonical property and consumer alias where needed",
+      "outcome": "FAIL",
+      "expected": true,
+      "negative_discriminator": "PASS: property removal detected",
+      "exit": 1,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/serial-removal-v2.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/serial-removal-v2.stdout.txt"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "/workspace/e02-F-20261006-receipts/rdd/test_fit_independent.py",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+        "tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py",
+        "tests/unit/remediation/test_fit_01.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "-ra"
+      ],
+      "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "environment": "readonly root application Python3.14.7; PYTHONPATH=src:.",
+      "input_closure": "four exact selectors including all nine independent adversarial tests; hashes and full command in independent review",
+      "outcome": "PASS",
+      "exit": 0,
+      "passed": 73,
+      "warnings": 144,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/fit-independent-review.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/fit-independent-native.stdout"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+        "tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py"
+      ],
+      "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
+      "input_closure": "three exact changed Python paths",
+      "outcome": "PASS",
+      "exit": 0,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/ruff-check.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/ruff-check.stdout.txt"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+        "tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py"
+      ],
+      "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
+      "input_closure": "three exact changed Python paths",
+      "outcome": "PASS",
+      "exit": 0,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/ruff-format.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/ruff-format.stdout.txt"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+        "tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py",
+        "tests/unit/remediation/test_fit_01.py",
+        "tests/unit/foundry/methods/catalog/causal/test_nuisance_layer.py",
+        "tests/unit/foundry/methods/catalog/causal/test_nuisance_resolver_wiring.py",
+        "tests/unit/foundry/methods/catalog/causal/test_stochastic_policies.py",
+        "-v",
+        "-s"
+      ],
+      "target_sha": "58937768a8ce9ea7a445a9cdda60d3abf02553e6",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
+      "input_closure": "same complete six-selector native suite on release-companion commit; runtime/test blobs read back equal exact55d2",
+      "outcome": "PASS",
+      "exit": 0,
+      "passed": 82,
+      "warnings": 102,
+      "pytest_duration_s": 16.56,
+      "wall_s": 21.773692585993558,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-release.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-release.stdout.txt.gz"
+    }
+  ],
+  "property": {
+    "statement": "Nuisance reuse binds the recomputed fit basis while diagnostic views and immutable readers are isolated; all scientific folds run inside their admitted job; bounded TMLE uses a score-solving logistic submodel and conditional regular-iid EIF intervals.",
+    "runtime_path": [
+      "native sklearn/LightGBM fold fits",
+      "controlled immutable fit core/cache",
+      "materialize current contract",
+      "fit_tmle_ate",
+      "TMLEEstimator.pure_step",
+      "test-only registered StudyNode via real LocalWorkerPool/worker/retry/serialization",
+      "test result CAS/fresh FileSystemCAS readback"
+    ],
+    "production_consumer": "polisyos.foundry.methods.catalog.causal.treatment_effects.TMLEEstimator.pure_step",
+    "production_persistence_scope": "The source-card B54 cache property requires no invented persistence contract. Budget tests persist actual native results through a test node; root-owned RunCausalEvaluation/MethodJob persistence is a separate pending consumer witness.",
+    "proxy_divergence": "Identical supplied caller key with changed X/T/Y previously reused the old fit; read-only owning ndarray can regain write permission; requested worker metadata alone does not bound actual nested folds; logit label with identity updates leaves Q outside [0,1].",
+    "negative_controls": [
+      "same caller namespace with changed X/T/Y/seed/folds/model/calibration split",
+      "all 32 contract fields classified and exercised using real fit calls",
+      "reader write-permission/base/shape/nested-record isolation",
+      "precomputed offered predictions ignored in favor of controlled issued core; missing/mismatched/evicted identity refused",
+      "poor Q0/Q1=.99/.01 logit score and bounds",
+      "observed positivity failure and unsupported inference profile omit CI and remain non-gate-eligible",
+      "four native studies at actual LocalWorkerPool cap1/2; barriers/queue/24 executed folds/held-out row partition/CAS readback",
+      "six in-memory semantic removals against unchanged tests retain all declaration markers"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_annotations": {
+    "fit_basis": "recomputed",
+    "issued_core_resolution": "recomputed",
+    "current_diagnostic_view": "recomputed",
+    "bounded_score_oracle_known_dgp": "independently_reconciled",
+    "observed_positivity_diagnostic": "recomputed",
+    "iid_identification_regularity_for_real_data": "consumer_asserted",
+    "authority_eligibility": "not_established; false on all emitted TMLE results"
+  },
+  "capability_state_or_finding_state": "B54 generic cache contract witnessed; B56 limited to admitted LocalWorkerPool jobs pending common production MethodJob bridge; real-data scientific authority not established",
+  "finding_decisions": [
+    {
+      "id": "B54",
+      "criterion": "Diagnostics-only changes reuse fit and refresh current report; data/seed/split/fit changes invalidate; one reader cannot alter future hits.",
+      "criterion_ref": "closure-decisions/coverage.json#B54; bundles/FIT-01.md#B54",
+      "check": "PASS",
+      "outcome": "closed",
+      "scope": "Exact source-card generic cache/reader property on native synthetic inputs, not real-data causal identification.",
+      "negative": "cache removal 3FAIL/4positivecontrols; immutable-array removal1FAIL",
+      "limitation": "A precomputed identity must still resolve to the controlled in-process issued core; after eviction it is refused. No external supplied bundle provenance is accepted."
+    },
+    {
+      "id": "B56",
+      "criterion": "Shared admitted work stays within resource bounds; waits retain all folds/repeats/seeds/results/uncertainty.",
+      "criterion_ref": "closure-decisions/coverage.json#B56; bundles/FIT-01.md#B56",
+      "check": "PASS",
+      "outcome": "limited",
+      "scope": "Serial folds under the existing outer worker permit; real LocalWorkerPool cap1/2, four native studies, all24 folds, native serial/parallel-request numerical metamorphism.",
+      "negative": "Reintroducing nested ThreadPoolExecutor while leaving effective-worker metadata1 yields actual pressure-gate FAIL.",
+      "limitation": "This does not establish a cross-process/global CPU/native-thread quota or common production RunCausalEvaluation admission. Root owns that production bridge and G must repeat on integrated candidate."
+    }
+  ],
+  "scientific_profile": {
+    "method_decision": "F-M2",
+    "analytic_dgp": "W equiprobable −1/+1; A randomized Bernoulli(.5); Q0=.25+.1W,Q1=.55+.1W; Y Bernoulli(QA); population ATE=.3",
+    "pilot": {
+      "repetitions": 120,
+      "n": 1000,
+      "covered": 115,
+      "coverage": 0.9583333333333334,
+      "exact_binomial_95_bounds": [
+        0.9054412000240659,
+        0.9863346158833372
+      ],
+      "pvalue_for_nominal_0_95": 0.835210157527414,
+      "mean_error": -0.0020711693513645645
+    },
+    "interpretation": "Finite seeded synthetic pilot and algebraic EIF/target score oracle only. EIF interval is asymptotic conditional on regular iid units, positivity, nuisance behavior and identified target; declaring that profile is not proof. No heuristic overlap/ESS/K-fold widening in TMLE.",
+    "outcome_support": "Auto bounded observations or explicit binary/bounded family uses genuine logit fluctuation; declared continuous profile retains identity link. Unsupported family/input is refused.",
+    "authority": "candidate/limited, gate_eligible=false; null CI for observed positivity failure, trimmed target, unsupported profile or nonconverged score"
+  },
+  "limitations_and_next_owner": [
+    "Root F common consumer must preserve candidate/limited status, null CI and assumption basis through MethodJob→RunCausalEvaluation→CAS→fresh reader on integrated SHA.",
+    "G local real-data inference requires admitted source data, target/identification, independent-unit law and positivity/regularity evidence. Do not promote known synthetic DGP pilot to real-data coverage.",
+    "DoWhy/EconML excluded by Python3.14 markers and absent; optional external backend execution UNRUN, not PASS or FIT numeric oracle.",
+    "Architecture wholecommand UNRUN exit2; completed artifact findings FAIL under partialcoverage. Missing frontendgenerator measurements prevent a complete verdict. Attribution not_established without exact slice-base replay and complete disjoint denominator.",
+    "Production-invocation scanner was SIGKILL exit−9, no report, cause not established; static production invocation not established.",
+    "No cloud quota or thread-env cap introduced; existing model backend n_jobs settings preserved.",
+    "No Trash service used; cleanup candidates are only reusable pytest _cache and pytest temporary synthetic CAS trees, preserving all source and receipts."
+  ],
+  "harness_corrections": [
+    "Development native41 run had2 harness errors from nonexistent FileSystemCAS.get_json; corrected to get_bytes+JSON, full frozen82 pass.",
+    "First eligibility removal altered only helper while the facade held its old imported alias, so it passed without deleting consumer behavior. Replayer v2 also patches the actual consumer alias; expected1FAIL. Prior probe is not evidence of gate adequacy.",
+    "Initial82 run used uncommitted candidate bytes with launchHEAD base; only subsequent native-frozen exactSHA55d2 run is deciding."
+  ],
+  "p40_bucket_rule": "B54 fit-basis/reader class and B56 aggregate fold admission are distinct; second escape widens that mechanism or becomes a finite residual with falsifier. Bounded targeting/inference assumptions remain a separately named scientific profile.",
+  "p41_attribution": "not_established; no inherited gate claim",
+  "independent_review": {
+    "status": "GO bounded B54/B56 code",
+    "target_sha": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+    "target_tree": "4d87ce0690e001967b245ce18217cb36fff3c988",
+    "reviewer": "F/foundry; independent from FIT author",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/fit-independent-review.json",
+    "complete_summary": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/fit-independent-review.txt",
+    "independent_test_input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/test_fit_independent.py",
+    "complete_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/fit-independent-native.stdout",
+    "complete_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/fit-independent-native.stderr",
+    "passed": 73,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "warnings": 144,
+    "limitations": [
+      "regular_iid EIF normal interval remains asymptotic; no finite-sample arbitrary-DGP or admitted-real-data guarantee",
+      "public TMLE payload always candidate/limited and gate_eligiblefalse with consumer_asserted identification assumptions",
+      "120-seed known randomized binary DGP pilot replayed; not broad coverage for other laws",
+      "custom test StudyNode through actual LocalWorkerPool is bounded execution witness; actual production Scientist causal consumer and shared output ABI belong to root",
+      "serial folds prevent nested pool fanout; no claim of global BLAS/process/thread cap outside actual outer job admission",
+      "DoWhy/EconML are not exercised or required for this native nuisance owner; optional absent/marker excluded paths not counted as backend PASS"
+    ]
+  },
+  "baseline_cells": [
+    {
+      "finding_id": "B54",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/B54-baseline-query.json",
+      "all_routed_cell_ids": [
+        "F01-P016",
+        "F01-P109",
+        "F06-P031",
+        "F09-P024",
+        "F09-P111",
+        "F12-P023",
+        "F14-P128",
+        "F15-P021"
+      ],
+      "source_grade": "source_reported_compact_text_only; candidate_routes",
+      "raw_archives_received": 0,
+      "semantic_adequacy": "not_established; baseline route navigation only"
+    },
+    {
+      "finding_id": "B56",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/B56-baseline-query.json",
+      "all_routed_cell_ids": [
+        "F01-P016",
+        "F01-P109",
+        "F06-P031",
+        "F09-P024",
+        "F09-P111",
+        "F12-P023",
+        "F14-P128",
+        "F15-P021"
+      ],
+      "source_grade": "source_reported_compact_text_only; candidate_routes",
+      "raw_archives_received": 0,
+      "semantic_adequacy": "not_established; baseline route navigation only"
+    }
+  ],
+  "residual_classification": {
+    "B54": {
+      "code_mechanism": "recomputed fit basis and immutable current readers witnessed",
+      "verification_oracle": "native counting field denominator and independent adversarial review",
+      "missing_input": "none for generic cache property; full real-data inputs remain local",
+      "semantic_owner": "F canonical TMLE; real-data identification/authority not established"
+    },
+    "B56": {
+      "code_mechanism": "serial nested folds under actual outer LocalWorkerPool permits",
+      "verification_oracle": "barriers/native four-study/all24folds/CAS; independent replay",
+      "missing_input": "common production MethodJob bridge not yet integrated in this source",
+      "semantic_owner": "root F consumer; G exact integrated-SHA local rerun"
+    }
+  },
+  "release_companion": {
+    "implementation_doc_commit": "58937768a8ce9ea7a445a9cdda60d3abf02553e6",
+    "tree": "e83b4434309cb188ffbf0f32ff3b8c02f8cf7f71",
+    "path": "policy-engine/release-fragments/unreleased/2026-10-06-tmle-fit-contract.toml",
+    "sha256": "25cbd36a7541d8f0754784418681ae6015e35abba07a1a175a2d9092dbd00421",
+    "source_runtime_implementation": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+    "unchanged_runtime_and_test_blobs": true,
+    "release_class": "python-public-api",
+    "finding_decision_delta": "none; genericB54 closed andB56 limited remain exact originalscope"
+  },
+  "receipt_corrections": [
+    "Added mandatory output field to original three checks; exact complete committed deciding byte refs unchanged. No source, test, outcome or finding decision delta.",
+    "Reconciled wholecommand architecture UNRUN with complete stdout and separately retained completed partial findings FAIL; exit2 is not used as wholeproperty verdict. No rerun/source/test delta.",
+    "Normalized closure_ids to explicitly closed technical IDs only and retained every related finding ID. Metadata-only correction: implementation/source/test/evidence/check/finding decisions unchanged; no tests repeated."
+  ],
+  "finding_ids": [
+    "B54",
+    "B56"
+  ],
+  "related_finding_ids": [
+    "B54",
+    "B56"
+  ],
+  "closure_id_semantics": "Only findings explicitly closed by this receipt in their declared technical scope. Related limited/held/open findings are retained in finding_ids/related_finding_ids and their original decisions; accepted code and finite property PASS do not imply their closure."
+}

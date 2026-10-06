@@ -202,11 +202,7 @@ def compute_aggregates(
 
 
 def _gini_from_values(values: jnp.ndarray, active: jnp.ndarray) -> jnp.ndarray:
-    active_values = jnp.where(active > 0.0, values, 0.0)
-    sorted_vals = jnp.sort(active_values)
-    n = sorted_vals.shape[0]
-    cum = jnp.cumsum(sorted_vals)
-    total = cum[-1]
-    total = jnp.maximum(total, 1e-6)
-    gini = (n + 1 - 2.0 * jnp.sum(cum) / total) / n
-    return jnp.clip(gini, 0.0, 1.0)
+    """Use the exact owner for the participating population, excluding padding."""
+    from polisyos.foundry.agent_sim.distributions import compute_gini_hard
+
+    return compute_gini_hard(values, active > 0.0)

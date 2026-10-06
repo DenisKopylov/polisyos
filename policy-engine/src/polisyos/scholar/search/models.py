@@ -7,7 +7,9 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
-from polisyos.scholar.fetch_contracts import FetchFailureReason  # noqa: TC001 - Pydantic resolves DTO annotation aliases at runtime.
+from polisyos.scholar.fetch_contracts import (
+    FetchFailureReason,  # noqa: TC001 - Pydantic resolves DTO annotation aliases at runtime.
+)
 
 
 class SearchBudgetControls(BaseModel):

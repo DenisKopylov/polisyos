@@ -16,7 +16,9 @@ from polisyos.core.contracts.scholar import (
     SourceSpec,
     ThresholdsV1,
 )
-from polisyos.scholar.fetch_contracts import FetchFailureReason  # noqa: TC001 - keep runtime dataclass hints resolvable.
+from polisyos.scholar.fetch_contracts import (
+    FetchFailureReason,  # noqa: TC001 - keep runtime dataclass hints resolvable.
+)
 
 if TYPE_CHECKING:
     from polisyos.fabric.docs import DocSourceSpec

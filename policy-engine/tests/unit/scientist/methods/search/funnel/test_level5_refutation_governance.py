@@ -47,6 +47,7 @@ def report(*, finite, unknown, planned, violated=0):
         vulnerability_threshold=2,
     )
     return StressTestReport(
+        schema_version="1.1",
         report_id="stress-1",
         total_scenarios_evaluated=finite,
         robustness_score=(finite - violated) / finite if finite else None,
@@ -97,8 +98,16 @@ def test_real_level5_consumes_adequacy_scope_without_probability_claim(
     ],
 )
 def test_missing_or_malformed_scope_is_unassessed_even_with_score_one(corrupt):
-    stress = StressTestReport.model_validate(
-        report(finite=2, unknown=0, planned=2).model_dump(exclude={"scenario_evidence"})
+    observed = report(finite=2, unknown=0, planned=2)
+    # Legacy metadata remains readable, but cannot acquire a typed 1.1 basis
+    # simply by retaining its observed score and complete marker.
+    stress = StressTestReport(
+        schema_version="1.0",
+        report_id="legacy_metadata_stress",
+        total_scenarios_evaluated=2,
+        robustness_score=1,
+        set_adequacy_status="complete",
+        metadata=dict(observed.metadata),
     )
     stress.metadata = {} if not corrupt else {**stress.metadata, **corrupt}
     stage = Level5RefutationGovernanceStage(require_hidden_holdout=False)

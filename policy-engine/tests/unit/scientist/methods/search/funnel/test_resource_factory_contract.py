@@ -69,11 +69,11 @@ def test_ordinary_blueprint_actual_backend_refuses_missing_admission_without_deb
     )
     candidate = PolicyCandidateSchema.from_trinity_bundle(
         TrinityBundle(
-            problem_frame=ProblemFrame(problem_id="ordinary-problem", domain=ProblemDomain.FISCAL),
-            policy_spec=PolicySpec(policy_id="ordinary-policy"),
-            model_spec=ModelSpec(model_id="ordinary-model", data_snapshot_ref="sha256:" + "1" * 64),
+            problem_frame=ProblemFrame(problem_id="ordinary_problem", domain=ProblemDomain.FISCAL),
+            policy_spec=PolicySpec(policy_id="ordinary_policy"),
+            model_spec=ModelSpec(model_id="ordinary_model", data_snapshot_ref="sha256:" + "1" * 64),
         ),
-        candidate_id="ordinary-candidate",
+        candidate_id="ordinary_candidate",
     )
     state = ExperimentState(
         run_id="ordinary-node",

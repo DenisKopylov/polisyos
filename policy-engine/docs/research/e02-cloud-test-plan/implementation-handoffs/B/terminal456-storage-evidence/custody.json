@@ -26,7 +26,7 @@
     "Unique prior fixture tree and completed deciding outputs preserved; cleanup candidates require handoff, not automatic deletion."
   ],
   "preservation_ledger": {
-    "path": "preservation-ledger.jsonl",
+    "path": "preservation-ledger.txt",
     "bytes": 6213,
     "sha256": "bad95d596a63c794f2ad398c111e4df9af41ef8cd2d0b3efd726fbe8f2568402",
     "records": 18

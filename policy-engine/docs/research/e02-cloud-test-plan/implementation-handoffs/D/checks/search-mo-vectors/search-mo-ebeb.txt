@@ -1,0 +1,34 @@
+candidate_sha=ebeb7040dd66250752a1ccb10a28c939d201fb30
+archive_product=/dev/shm/search-mo-ebeb-f6ls6is6/policy-engine
+test_commit=ebeb7040dd66250752a1ccb10a28c939d201fb30
+argv=['/workspace/e02-D-locked-env/bin/python', '-m', 'pytest', '-o', 'addopts=', '-q', 'tests/unit/remediation/test_opt_01_mo_vectors.py', 'tests/unit/scientist/search/strategies/test_multi_objective.py', 'tests/unit/remediation/test_opt_02_strategy_consumers.py']
+PYTHONPATH=src:.
+3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]
+2.10.0+cu128 0.16.1 1.15.1
+/dev/shm/search-mo-ebeb-f6ls6is6/policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py
+.......................                                                  [100%]
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/search/strategies/test_multi_objective.py::test_mo_batch_shape_when_deps_available
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/multi_objective/monte_carlo.py:110: NumericsWarning: qExpectedHypervolumeImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 qExpectedHypervolumeImprovement 	 --> 	 qLogExpectedHypervolumeImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+tests/unit/remediation/test_opt_02_strategy_consumers.py::test_neural_actual_fit_and_acquisition_emits_attainable_action
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+23 passed, 4 warnings in 2.45s
+EXIT_CODE=0

@@ -200,4 +200,33 @@ def test_ten_same_issue_case_occurrences_remain_ten_after_presentation(
     observed = _recompute_stress_test_report(presentation)
     assert len(observed.vulnerabilities) == cap
     assert observed.robustness_score == 22 / 32
+
+
+def test_empty_component_stays_incomplete_beside_a_complete_case_set(tmp_path: Path) -> None:
+    from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+        _merge_stress_test_reports,
+        _recompute_stress_test_report,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    complete = _suite(store, [_case(index, True) for index in range(4)]).stress_test_report
+    empty = _suite(store, []).stress_test_report
+    empty.metadata["challenge_suite_id"] = "declared-empty-suite"
+    observed = _recompute_stress_test_report(_merge_stress_test_reports(complete, [empty]))
+    assert observed.total_scenarios_evaluated == 4
+    assert observed.robustness_score == 1.0  # Observed nonempty subset only.
+    assert observed.set_adequacy_status == "partial"
+    assert observed.is_robust is False
+    assert observed.metadata["completeness"] is False
+    assert observed.metadata["score_status"] == "conditional"
+    assert len(observed.scenario_evidence_components) == 2
+    ref = store.put_json(
+        observed,
+        PutOptions(kind="scientist.stress_test_report", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    restored = StressTestReport.model_validate(
+        from_canonical_bytes(FileSystemCAS(tmp_path / "cas").get_bytes(ref.artifact_id))
+    )
+    assert restored.set_adequacy_status == "partial" and restored.is_robust is False
     assert observed.scenario_evidence.violated_scenarios == 10

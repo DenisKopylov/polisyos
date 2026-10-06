@@ -200,6 +200,13 @@ def _extract_cache_provenance(
             or receipt.provider != event.provider
         ):
             raise ValueError("cache reuse receipt conflicts with original producer input")
+    reported = _extract_cost_usd(usage=getattr(response, "usage", None), payload=response)
+    if event.cost_origin == "reported" and (
+        reported is None or Decimal(str(reported)) != event.amount
+    ):
+        raise ValueError("cache reuse reported cost conflicts with original paid receipt")
+    if event.cost_origin == "estimated" and reported is not None:
+        raise ValueError("cache reuse cannot relabel an estimated origin as reported cost")
     return True, "provider", provenance.reuse_event_id, provenance.cache_key
 
 

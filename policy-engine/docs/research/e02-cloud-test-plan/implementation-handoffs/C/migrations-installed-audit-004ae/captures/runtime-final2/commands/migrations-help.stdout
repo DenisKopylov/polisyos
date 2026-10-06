@@ -1,0 +1,10 @@
+Usage: polisyos-tools migrations [OPTIONS] COMMAND [ARGS]...
+
+  migrations tooling commands
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  migrate               Migrate schema artifacts to their declared target...
+  migrate-duckdb-to-pg  Migrate tenant-scoped data from DuckDB to...

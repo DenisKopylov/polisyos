@@ -1,0 +1,439 @@
+{
+  "artifacts": {
+    "sdist_sha256": "7e3aad3ac493a781f15e169583a9465d565a462f54c266a164027434390ba357",
+    "source_archive_sha256": "f8e536ae0583c1c937cbacc364a63e613ce5fa2f1e4e4223865fc4ae6a840cc3",
+    "wheel_sha256": "6e675a4750312d28098b598abd595805152ffb71bfdef4795609861dee599eb9"
+  },
+  "candidate": {
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "commit": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
+    "tree": "5369c0167bc63096a12ee1bea666b42c837ea78b"
+  },
+  "commands": [
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/polisyos-tools",
+        "--help"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+      "duration_seconds": 1.50898,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/cli-help.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T15:59:42.733504+00:00",
+      "name": "cli-help",
+      "started_at_utc": "2026-10-06T15:59:41.223766+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/cli-help.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/cli-help.stdout",
+      "stdout_sha256": "c25e1f6471a6489bfadd36795f659605ff4ad1be2675f04941e13353c9f64713",
+      "timeout_seconds": 90
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/polisyos-tools",
+        "migrations",
+        "--help"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+      "duration_seconds": 1.290864,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/migrations-help.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T15:59:44.024961+00:00",
+      "name": "migrations-help",
+      "started_at_utc": "2026-10-06T15:59:42.733669+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/migrations-help.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/migrations-help.stdout",
+      "stdout_sha256": "3ffdd3acc5cd26611f6d987b4b0732ca8997d1bb14c113537df30d78d7e499b4",
+      "timeout_seconds": 90
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/polisyos-tools",
+        "migrations",
+        "migrate",
+        "--help"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+      "duration_seconds": 1.549508,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/json-migrate-help.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T15:59:45.575024+00:00",
+      "name": "json-migrate-help",
+      "started_at_utc": "2026-10-06T15:59:44.025075+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/json-migrate-help.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/json-migrate-help.stdout",
+      "stdout_sha256": "29b8f151261ae2d3b5928fdb442bb26ee7b5c2c22fb45ea94a17c86c1bf6184a",
+      "timeout_seconds": 90
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/polisyos-tools",
+        "migrations",
+        "migrate-duckdb-to-pg",
+        "--help"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+      "duration_seconds": 1.369395,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/duckdb-migrate-help.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T15:59:46.944965+00:00",
+      "name": "duckdb-migrate-help",
+      "started_at_utc": "2026-10-06T15:59:45.575141+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/duckdb-migrate-help.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/duckdb-migrate-help.stdout",
+      "stdout_sha256": "7c27ab3e5265464c947c39394866f2bb11a4de349475b4eb273336c720b30958",
+      "timeout_seconds": 90
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/polisyos-tools",
+        "migrations",
+        "migrate",
+        "dataset_manifest",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/manifest-0.9.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/manifest-1.0.json",
+        "--to",
+        "1.0"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+      "duration_seconds": 1.394893,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/dataset-manifest-public-migration.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T15:59:48.340446+00:00",
+      "name": "dataset-manifest-public-migration",
+      "started_at_utc": "2026-10-06T15:59:46.945093+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/dataset-manifest-public-migration.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/dataset-manifest-public-migration.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timeout_seconds": 90
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/polisyos-tools",
+        "migrations",
+        "migrate",
+        "dataset_manifest",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/unsupported-manifest-0.8.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/failure-preservation-output.json",
+        "--to",
+        "1.0"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+      "duration_seconds": 1.437676,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 1,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/dataset-manifest-failure-preserves-output.exit",
+      "exit_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "expected_exit_code": 1,
+      "finished_at_utc": "2026-10-06T15:59:49.778997+00:00",
+      "name": "dataset-manifest-failure-preserves-output",
+      "preserved_output_bytes_equal": true,
+      "preserved_output_sha256_before_after": "b7bf8855fb45ed41a60cd83c50b20a62d851fa35a5424694c09244ac6b6517ee",
+      "started_at_utc": "2026-10-06T15:59:48.340770+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/dataset-manifest-failure-preserves-output.stderr",
+      "stderr_sha256": "b30162674f7c9bf8512e2a208b2558b065d461ea9ccf02b803629f0d9427d71b",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/dataset-manifest-failure-preserves-output.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timeout_seconds": 90
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/python",
+        "-I",
+        "-c",
+        "import duckdb; c=duckdb.connect(r'/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/duckdb-private-fixture.duckdb'); c.execute('CREATE SCHEMA world'); c.execute('CREATE TABLE world.world_facts (fact_id VARCHAR, value DOUBLE)'); c.execute(\"INSERT INTO world.world_facts VALUES ('fixture-1', 1.25)\"); c.close(); print('created one world.world_facts row')"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+      "duration_seconds": 0.080747,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/create-private-duckdb-fixture.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T15:59:49.860425+00:00",
+      "name": "create-private-duckdb-fixture",
+      "started_at_utc": "2026-10-06T15:59:49.779182+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/create-private-duckdb-fixture.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/create-private-duckdb-fixture.stdout",
+      "stdout_sha256": "13dc990ee623cdbb1740d6dd3de20c6ce8e02286f22f2a22bcb10fbdef5fba12",
+      "timeout_seconds": 90
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/polisyos-tools",
+        "migrations",
+        "migrate-duckdb-to-pg",
+        "--duckdb-path",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/duckdb-private-fixture.duckdb",
+        "--pg-dsn",
+        "postgresql://127.0.0.1:1/unused",
+        "--tenant-id",
+        "11111111-1111-4111-8111-111111111111",
+        "--dry-run"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+      "duration_seconds": 2.456028,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/duckdb-public-dry-run.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T15:59:52.316984+00:00",
+      "name": "duckdb-public-dry-run",
+      "started_at_utc": "2026-10-06T15:59:49.860549+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/duckdb-public-dry-run.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/duckdb-public-dry-run.stdout",
+      "stdout_sha256": "6b42b99f878824b966d6db0f2889a558a1e719a8fbaf48451679570b1890bf08",
+      "timeout_seconds": 90
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/python",
+        "-I",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/installed-final-probe2.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+      "duration_seconds": 2.012708,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/installed-origin-contract-strict-readback.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T15:59:54.330418+00:00",
+      "name": "installed-origin-contract-strict-readback",
+      "started_at_utc": "2026-10-06T15:59:52.317100+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/installed-origin-contract-strict-readback.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/installed-origin-contract-strict-readback.stdout",
+      "stdout_sha256": "e06a4791195c8cc0d19f1ca056d9cd90f79f21a768a71e52bd0c3c2caa297a70",
+      "timeout_seconds": 90
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/polisyos-tools",
+        "migrations",
+        "migrate",
+        "dataset_manifest",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/manifest-0.9.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/outside-output.json"
+      ],
+      "boundary": "public CLI import fails closed; registry formats the internal RepositoryRootUnavailableError as user-facing text",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/outside-workspace",
+      "duration_seconds": 1.375258,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 1,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/public-cli-outside-workspace-fails-closed.exit",
+      "exit_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "expected_exit_code": 1,
+      "finished_at_utc": "2026-10-06T15:59:55.706327+00:00",
+      "name": "public-cli-outside-workspace-fails-closed",
+      "started_at_utc": "2026-10-06T15:59:54.330596+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/public-cli-outside-workspace-fails-closed.stderr",
+      "stderr_sha256": "aac4661f76ae109a9c20325c3b512dec1c646279b5bd6e29aa29e7b85e4c7c26",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/public-cli-outside-workspace-fails-closed.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timeout_seconds": 90
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/python",
+        "-I",
+        "-c",
+        "from tools.lib.imports import RepositoryRootUnavailableError, repo_root_from\ntry:\n repo_root_from('/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/lib/python3.14/site-packages/tools/lib/imports.py', allow_cwd_fallback=True)\nexcept RepositoryRootUnavailableError:\n print('RepositoryRootUnavailableError')\nelse: raise SystemExit('unexpected workspace root accepted')\n"
+      ],
+      "cwd": "/tmp",
+      "duration_seconds": 0.066194,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/outside-root-direct-typed-control.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T15:59:55.773203+00:00",
+      "name": "outside-root-direct-typed-control",
+      "started_at_utc": "2026-10-06T15:59:55.706588+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/outside-root-direct-typed-control.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/outside-root-direct-typed-control.stdout",
+      "stdout_sha256": "874b0a4e18b1a63cb951f94b1bbe8c0b2b55629d183b4daca998a7e307a0ac16",
+      "timeout_seconds": 90,
+      "typed_error_observed": "RepositoryRootUnavailableError"
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/python",
+        "-I",
+        "-c",
+        "from pathlib import Path\nfrom tools.lib.imports import RepositoryRootUnavailableError, repo_root_from\norigin='/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/lib/python3.14/site-packages/tools/lib/imports.py'\nfor mode in ('fallback','explicit'):\n try:\n  if mode=='fallback': repo_root_from(origin,allow_cwd_fallback=True)\n  else: repo_root_from(origin,workspace_root=Path.cwd())\n except RepositoryRootUnavailableError: print(mode+':RepositoryRootUnavailableError')\n else: raise SystemExit(mode+':unexpected root accepted')\n"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/malformed-roots/pyproject-directory",
+      "duration_seconds": 0.068174,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/malformed-root-pyproject-directory.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T15:59:55.842237+00:00",
+      "name": "malformed-root-pyproject-directory",
+      "started_at_utc": "2026-10-06T15:59:55.773625+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/malformed-root-pyproject-directory.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/malformed-root-pyproject-directory.stdout",
+      "stdout_sha256": "c9a8346d57cfc000c9e39f4bf3ae24ab645ab44473f5ccfb6d94f4b36554a2c0",
+      "timeout_seconds": 90,
+      "typed_error_observed": "RepositoryRootUnavailableError for fallback and explicit root"
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/python",
+        "-I",
+        "-c",
+        "from pathlib import Path\nfrom tools.lib.imports import RepositoryRootUnavailableError, repo_root_from\norigin='/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/lib/python3.14/site-packages/tools/lib/imports.py'\nfor mode in ('fallback','explicit'):\n try:\n  if mode=='fallback': repo_root_from(origin,allow_cwd_fallback=True)\n  else: repo_root_from(origin,workspace_root=Path.cwd())\n except RepositoryRootUnavailableError: print(mode+':RepositoryRootUnavailableError')\n else: raise SystemExit(mode+':unexpected root accepted')\n"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/malformed-roots/tools-regular-file",
+      "duration_seconds": 0.065936,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/malformed-root-tools-regular-file.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T15:59:55.909029+00:00",
+      "name": "malformed-root-tools-regular-file",
+      "started_at_utc": "2026-10-06T15:59:55.842643+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/malformed-root-tools-regular-file.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/malformed-root-tools-regular-file.stdout",
+      "stdout_sha256": "c9a8346d57cfc000c9e39f4bf3ae24ab645ab44473f5ccfb6d94f4b36554a2c0",
+      "timeout_seconds": 90,
+      "typed_error_observed": "RepositoryRootUnavailableError for fallback and explicit root"
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/python",
+        "-I",
+        "-c",
+        "from pathlib import Path\nfrom tools.lib.imports import RepositoryRootUnavailableError, repo_root_from\norigin='/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/lib/python3.14/site-packages/tools/lib/imports.py'\nfor mode in ('fallback','explicit'):\n try:\n  if mode=='fallback': repo_root_from(origin,allow_cwd_fallback=True)\n  else: repo_root_from(origin,workspace_root=Path.cwd())\n except RepositoryRootUnavailableError: print(mode+':RepositoryRootUnavailableError')\n else: raise SystemExit(mode+':unexpected root accepted')\n"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/malformed-roots/src-regular-file",
+      "duration_seconds": 0.065324,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/malformed-root-src-regular-file.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T15:59:55.975129+00:00",
+      "name": "malformed-root-src-regular-file",
+      "started_at_utc": "2026-10-06T15:59:55.909432+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/malformed-root-src-regular-file.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/malformed-root-src-regular-file.stdout",
+      "stdout_sha256": "c9a8346d57cfc000c9e39f4bf3ae24ab645ab44473f5ccfb6d94f4b36554a2c0",
+      "timeout_seconds": 90,
+      "typed_error_observed": "RepositoryRootUnavailableError for fallback and explicit root"
+    }
+  ],
+  "failure_preservation": {
+    "exit_code": 1,
+    "preexisting_output_unchanged": true,
+    "sentinel_sha256": "b7bf8855fb45ed41a60cd83c50b20a62d851fa35a5424694c09244ac6b6517ee"
+  },
+  "installed_profile": {
+    "base_only_profile": true,
+    "candidate_wheel_exact_install_no_deps": true,
+    "project_install": false,
+    "venv": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base"
+  },
+  "malformed_root_controls": [
+    {
+      "case": "pyproject-directory",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/malformed-roots/pyproject-directory",
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "c9a8346d57cfc000c9e39f4bf3ae24ab645ab44473f5ccfb6d94f4b36554a2c0"
+    },
+    {
+      "case": "tools-regular-file",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/malformed-roots/tools-regular-file",
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "c9a8346d57cfc000c9e39f4bf3ae24ab645ab44473f5ccfb6d94f4b36554a2c0"
+    },
+    {
+      "case": "src-regular-file",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/malformed-roots/src-regular-file",
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "c9a8346d57cfc000c9e39f4bf3ae24ab645ab44473f5ccfb6d94f4b36554a2c0"
+    }
+  ],
+  "outside_public_cli_boundary": "fails closed; registry prints formatted root-resolution message; direct resolver returns typed RepositoryRootUnavailableError",
+  "scope": {
+    "candidate_cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+    "module_origin_and_archive_wheel_installed_byte_identity": true,
+    "postgres_target_connection_attempted": false,
+    "private_duckdb_only": true,
+    "sys_path_unchanged": true
+  }
+}

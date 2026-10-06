@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/python",
+    "-I",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/migration-conversion-readback.py"
+  ],
+  "artifact": {
+    "source_archive_sha256": "f8e536ae0583c1c937cbacc364a63e613ce5fa2f1e4e4223865fc4ae6a840cc3",
+    "wheel_sha256": "6e675a4750312d28098b598abd595805152ffb71bfdef4795609861dee599eb9"
+  },
+  "candidate": {
+    "commit": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
+    "tree": "5369c0167bc63096a12ee1bea666b42c837ea78b"
+  },
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+  "duration_seconds": 0.7300629999954253,
+  "environment_delta": {
+    "PYTHONHOME": "unset",
+    "PYTHONPATH": "unset"
+  },
+  "exit_code": 0,
+  "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/installed-strict-dto-readback-verified.exit",
+  "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+  "finished_at_utc": "2026-10-06T16:21:48.910639+00:00",
+  "name": "installed-strict-dto-readback-verified",
+  "python_mode": "isolated -I",
+  "script_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/migration-conversion-readback.py",
+  "script_sha256": "69c1a8fc8d0f822027c684866bc02c9f0dc9a43d05378bd3e353900e27cedf9f",
+  "semantics": {
+    "installed_DatasetManifest_positive_readback_and_payload_equality": true,
+    "pre_post_sys_path_unchanged": true,
+    "preserved_alias_conflict_and_unknown_field_strict_refusals": true
+  },
+  "started_at_utc": "2026-10-06T16:21:48.180433+00:00",
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/installed-strict-dto-readback-verified.stderr",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/installed-strict-dto-readback-verified.stdout",
+  "stdout_sha256": "e99b8f25f4b39a8db342f1ed94ea247eb7100e967ced3171983fce015c9baa89",
+  "timeout_seconds": 120
+}

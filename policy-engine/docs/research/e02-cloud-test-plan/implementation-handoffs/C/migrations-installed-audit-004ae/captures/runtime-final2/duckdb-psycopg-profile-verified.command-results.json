@@ -1,0 +1,43 @@
+{
+  "candidate": {
+    "commit": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
+    "tree": "5369c0167bc63096a12ee1bea666b42c837ea78b"
+  },
+  "command": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/python",
+      "-I",
+      "-c",
+      "import importlib.metadata as m,importlib.util,json,sys; spec=importlib.util.find_spec('psycopg'); dists=sorted(d.metadata['Name'] for d in m.distributions() if d.metadata.get('Name') and d.metadata['Name'].lower().startswith(('psycopg','pg8000'))); print(json.dumps({'python':sys.executable,'psycopg_module_spec':spec is not None,'psycopg_extras_module_spec':(importlib.util.find_spec('psycopg.extras') is not None) if spec is not None else False,'postgres_driver_distributions':dists},sort_keys=True))"
+    ],
+    "cwd": "/tmp",
+    "duration_seconds": 0.09730391600169241,
+    "env_delta": {
+      "PYTHONHOME": "unset",
+      "PYTHONPATH": "unset"
+    },
+    "exit_code": 0,
+    "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/duckdb-psycopg-profile-verified.exit",
+    "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "finished_at_utc": "2026-10-06T16:45:10.108257+00:00",
+    "started_at_utc": "2026-10-06T16:45:10.010859+00:00",
+    "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/duckdb-psycopg-profile-verified.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/commands/duckdb-psycopg-profile-verified.stdout",
+    "stdout_sha256": "9019a02fa9c856d4e8681cc3792afb87f098a620d642cad6d9c809f56a97c716",
+    "timeout_seconds": 30
+  },
+  "dry_run_command_manifest": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/installed-final2.command-results.json@566ef406583c6c8a62f99728c295c6923286813cbce15ebbca54952fcf1b98c0",
+  "installed_wheel_sha256": "6e675a4750312d28098b598abd595805152ffb71bfdef4795609861dee599eb9",
+  "prior_failed_probe": {
+    "deciding": false,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/duckdb-psycopg-profile.command-results.json",
+    "reason": "profile probe attempted to find_spec psycopg.extras after psycopg was absent; child lookup raised as expected before printing",
+    "sha256": "1f1250095b4bcfa54144f7f99d94433f6ce5b9194a5d46ecdc61913af79d3eb8"
+  },
+  "source_path": {
+    "contract": "frozen source returns from the --dry-run branch before the later psycopg import/connect block",
+    "path": "source/policy-engine/tools/ops_runners/migrations/migrate_duckdb_to_pg.py",
+    "sha256": "3a24d2eb4b7df6f23eb3f83f39c7cfec3de73a6a00730330ef54b76f4ae516a0"
+  }
+}

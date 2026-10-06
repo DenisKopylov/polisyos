@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "datasetName": "baseline",
+  "rawHash": "sha256:abc",
+  "source": "catalog",
+  "license": "CC-BY-4.0",
+  "row_count": 2,
+  "pii_flags": {
+    "direct": false
+  },
+  "quality": {
+    "missing_rate": 0.0,
+    "duplicate_rate": 0.0,
+    "outlier_rate": 0.0,
+    "coverage": {
+      "region_coverage": "global"
+    }
+  },
+  "created_at": "2026-09-22T00:00:00+00:00",
+  "dataset_name": "different",
+  "raw_hash": "sha256:def"
+}

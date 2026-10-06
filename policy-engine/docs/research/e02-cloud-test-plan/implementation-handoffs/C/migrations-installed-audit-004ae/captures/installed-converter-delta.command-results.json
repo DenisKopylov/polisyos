@@ -1,0 +1,189 @@
+{
+  "artifact": {
+    "source_archive_sha256": "f8e536ae0583c1c937cbacc364a63e613ce5fa2f1e4e4223865fc4ae6a840cc3",
+    "wheel_sha256": "6e675a4750312d28098b598abd595805152ffb71bfdef4795609861dee599eb9"
+  },
+  "candidate": {
+    "commit": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
+    "tree": "5369c0167bc63096a12ee1bea666b42c837ea78b"
+  },
+  "commands": [
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/polisyos-tools",
+        "migrations",
+        "migrate",
+        "dataset_manifest",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/positive-input.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/positive-output.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+      "duration_seconds": 1.602044,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/positive-public-converter.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:18:28.914852+00:00",
+      "input_sha256_before": "c26cc1ac8629e94b3c86c8ff9f3d36a3042c1c0c2a723319f4b1b6539b537881",
+      "input_unchanged": true,
+      "name": "positive-public-converter",
+      "output_sha256": "cef17c34198b0b77eb678d6e036ba48964f2cb4bf34a7280ea60b756dc3bafed",
+      "started_at_utc": "2026-10-06T16:18:27.312680+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/positive-public-converter.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/positive-public-converter.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/polisyos-tools",
+        "migrations",
+        "migrate",
+        "dataset_manifest",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/conflicting-aliases-input.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/conflicting-aliases-output.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+      "duration_seconds": 1.473757,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/conflicting-aliases-public-converter.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:18:30.388866+00:00",
+      "input_sha256_before": "febd38b52b81abcac40b35934192f56364dd131234fec4da7feb6219bbf9392e",
+      "input_unchanged": true,
+      "name": "conflicting-aliases-public-converter",
+      "output_sha256": "175b153a83cae36745269a11a843ba31a1a5b71caf4398f3e5b1c8bd4fbe04d8",
+      "started_at_utc": "2026-10-06T16:18:28.915126+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/conflicting-aliases-public-converter.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/conflicting-aliases-public-converter.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/polisyos-tools",
+        "migrations",
+        "migrate",
+        "dataset_manifest",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/unknown-field-input.json",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/unknown-field-output.json"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+      "duration_seconds": 1.39926,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/unknown-field-public-converter.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:18:31.788696+00:00",
+      "input_sha256_before": "e991d3547c905ea7ea06ae31e61e6b4cd876a404ddd27cc4ad38fd264bb754d4",
+      "input_unchanged": true,
+      "name": "unknown-field-public-converter",
+      "output_sha256": "192e8b6ac7168cf5ea2f6cf0407606d99fe9bd533254ce7aea9e012261b0987b",
+      "started_at_utc": "2026-10-06T16:18:30.389442+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/unknown-field-public-converter.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/unknown-field-public-converter.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/python",
+        "-I",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/migration-conversion-readback.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/source/source/policy-engine",
+      "duration_seconds": 0.448564,
+      "environment_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/installed-strict-dto-readback.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "expected_exit_code": 0,
+      "finished_at_utc": "2026-10-06T16:18:32.237504+00:00",
+      "name": "installed-strict-dto-readback",
+      "started_at_utc": "2026-10-06T16:18:31.788959+00:00",
+      "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/installed-strict-dto-readback.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/commands/installed-strict-dto-readback.stdout",
+      "stdout_sha256": "e99b8f25f4b39a8db342f1ed94ea247eb7100e967ced3171983fce015c9baa89",
+      "timeout_seconds": 120
+    }
+  ],
+  "fixture": {
+    "generated_inputs": {
+      "conflicting-aliases": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/conflicting-aliases-input.json",
+        "sha256": "febd38b52b81abcac40b35934192f56364dd131234fec4da7feb6219bbf9392e"
+      },
+      "positive": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/positive-input.json",
+        "sha256": "c26cc1ac8629e94b3c86c8ff9f3d36a3042c1c0c2a723319f4b1b6539b537881"
+      },
+      "unknown-field": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/unknown-field-input.json",
+        "sha256": "e991d3547c905ea7ea06ae31e61e6b4cd876a404ddd27cc4ad38fd264bb754d4"
+      }
+    },
+    "helper": "_complete_current_manifest",
+    "semantic_payload": {
+      "created_at": "2026-09-22T00:00:00+00:00",
+      "datasetName": "baseline",
+      "license": "CC-BY-4.0",
+      "pii_flags": {
+        "direct": false
+      },
+      "quality": {
+        "coverage": {
+          "region_coverage": "global"
+        },
+        "duplicate_rate": 0.0,
+        "missing_rate": 0.0,
+        "outlier_rate": 0.0
+      },
+      "rawHash": "sha256:abc",
+      "row_count": 2,
+      "schema_version": "0.9",
+      "source": "catalog"
+    },
+    "tracked_source": "policy-engine/tests/unit/remediation/test_mig_04.py@004ae11f1a541e2035f71cefa92f89b71bd8f562",
+    "tracked_source_sha256": "4ad5c9b8d7a7c300acb3c6c882d6c895d2f806dff4433882a8308e39eecf4aa0"
+  },
+  "outputs": {
+    "conflicting-aliases": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/conflicting-aliases-output.json",
+      "sha256": "175b153a83cae36745269a11a843ba31a1a5b71caf4398f3e5b1c8bd4fbe04d8"
+    },
+    "positive": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/positive-output.json",
+      "sha256": "cef17c34198b0b77eb678d6e036ba48964f2cb4bf34a7280ea60b756dc3bafed"
+    },
+    "unknown-field": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/unknown-field-output.json",
+      "sha256": "192e8b6ac7168cf5ea2f6cf0407606d99fe9bd533254ce7aea9e012261b0987b"
+    }
+  },
+  "readback_script_sha256": "41624609df37144c782dfaebb7cf72f0443c8ccc6837b0b36337a03a934484a1",
+  "semantics": {
+    "conflict_and_unknown_extras_conversion_succeeds_but_strict_admission_refuses": true,
+    "positive_cli_conversion_and_strict_dto_acceptance": true,
+    "source_input_bytes_unchanged": true
+  }
+}

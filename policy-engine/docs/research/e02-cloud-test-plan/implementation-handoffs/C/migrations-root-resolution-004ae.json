@@ -560,7 +560,7 @@
     },
     "LA-048": {
       "disposition": "closed",
-      "basis": "Actual populated one-row DuckDB dry-run completed through the installed tool with a deliberately unusable PostgreSQL DSN; the route returned before psycopg import/connect. This proves the local dry-run route, not a PostgreSQL migration or durable database write."
+      "basis": "Actual populated one-row DuckDB dry-run completed through the installed tool with a deliberately unusable PostgreSQL DSN. The frozen source dry-run branch returns before its lazy psycopg import/connect, and the isolated no-extras profile records no PostgreSQL driver; this is not a live connection observer or PostgreSQL migration."
     },
     "LA-049": {
       "disposition": "closed",
@@ -568,7 +568,7 @@
     },
     "LA-050": {
       "disposition": "limited",
-      "basis": "Installed public CLI performed a synthetic v0.9→1.0 DatasetManifest conversion, strict persisted DTO readback, input preservation, and conflict/unknown-field controls. No real historical persisted DatasetManifest artifact was found; that card condition remains unresolved."
+      "basis": "Installed public CLI performed a synthetic v0.9\u21921.0 DatasetManifest conversion, strict persisted DTO readback, input preservation, and conflict/unknown-field controls. No real historical persisted DatasetManifest artifact was found; that card condition remains unresolved."
     }
   },
   "artifact_and_owner_boundaries": {
@@ -618,14 +618,21 @@
     },
     "distribution_sha256": "6e675a4750312d28098b598abd595805152ffb71bfdef4795609861dee599eb9",
     "combined_manifest": {
-      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/installed-final2.command-results.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-final2.command-results.json",
       "sha256": "566ef406583c6c8a62f99728c295c6923286813cbce15ebbca54952fcf1b98c0",
-      "coverage": "14 actual command records including installed v1.0 no-op/strict DTO, invalid-schema failure-preservation, populated DuckDB dry-run, direct outside/malformed root controls, CLI import-failure classification, and module/source identity."
+      "coverage": "14 actual command records: the public DatasetManifest CLI converts 0.9 to 1.0 and an installed strict DTO reads the persisted output; invalid-schema failure-preservation; populated DuckDB dry-run; direct outside/malformed root controls; public CLI outside-workspace failure; and module/source identity. No distinct 1.0-to-1.0 no-op is claimed.",
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-final2.command-results.json",
+      "source_raw_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/installed-final2.command-results.json",
+      "bytes": 30409
     },
     "converter_supplement": {
       "manifest": {
-        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/installed-converter-delta-verified.command-results.json",
-        "sha256": "cf3bffbdc962a9f83fbc71d6122711385600bc218510fdab6fa01b9ba80b775e"
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/installed-converter-delta-verified.command-results.json",
+        "sha256": "cf3bffbdc962a9f83fbc71d6122711385600bc218510fdab6fa01b9ba80b775e",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/installed-converter-delta-verified.command-results.json",
+        "source_raw_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/installed-converter-delta-verified.command-results.json",
+        "bytes": 2504,
+        "coverage": "Verified strict DTO readback and installed origin/sys.path record for the separate synthetic 0.9-to-1.0 public conversion."
       },
       "argv": "polisyos-tools migrations migrate dataset_manifest <input.json> <output.json> (default target 1.0)",
       "fixture": {
@@ -644,12 +651,95 @@
         "Installed module/origin and sys.path were captured; sys.path did not change."
       ],
       "raw_command_manifest": {
-        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final3/installed-converter-delta.command-results.json",
-        "sha256": "90b2f212a75273b768f512eb4c5f50e8ecde3b98d977fe1a037f61af3b1fa09c"
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-converter-delta.command-results.json",
+        "sha256": "90b2f212a75273b768f512eb4c5f50e8ecde3b98d977fe1a037f61af3b1fa09c",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-converter-delta.command-results.json",
+        "source_raw_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/installed-converter-delta.command-results.json",
+        "bytes": 11599
       }
     },
-    "duckdb_route_limit": "PostgreSQL DSN was deliberately pointed at 127.0.0.1:1; dry-run returned before importing or connecting psycopg. Not a live PostgreSQL integration test.",
-    "installed_scope": "Exact-wheel evidence for the named public and direct methods; not a whole-package installed GO."
+    "duckdb_route_limit": "The populated local DuckDB dry-run completed with DSN 127.0.0.1:1/unused. Frozen source returns from the dry-run branch before its lazy psycopg import/connect; the isolated profile probe reports no PostgreSQL driver in the measured no-extras environment. No socket/listener observer or live PostgreSQL integration was used.",
+    "installed_scope": "Exact-wheel evidence for the named public and direct methods; not a whole-package installed GO.",
+    "evidence_capture": {
+      "index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/evidence-index.json",
+      "index_sha256": "d4ce176a2b6375e1648bcab20295f54e7f9a4267481bb4c80f734177d243ef9c",
+      "index_bytes": 49577,
+      "capture_file_count": 86,
+      "capture_file_bytes": 622613,
+      "directory_markers": 6,
+      "retention": "Exact copied manifests, command stdout/stderr/exit files, scripts, fixtures, and modest readbacks are tracked under the capture bundle; large archive/wheel/sdist/censuses remain cited by source path, hash and size in the index."
+    },
+    "psycopg_profile": {
+      "tracked_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/duckdb-psycopg-profile-verified.command-results.json",
+      "source_raw_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/runtime-final2/duckdb-psycopg-profile-verified.command-results.json",
+      "sha256": "23f269fbed4266785272029727bbd3f7cd500127b811b9929bece083e7f3e096",
+      "bytes": 3133,
+      "stdout_sha256": "9019a02fa9c856d4e8681cc3792afb87f098a620d642cad6d9c809f56a97c716",
+      "recorded_fields": {
+        "psycopg_module_spec": false,
+        "psycopg_extras_module_spec": false,
+        "postgres_driver_distributions": []
+      },
+      "environment": "MIG venv-base Python -I; CWD /tmp; PYTHONPATH/PYTHONHOME unset.",
+      "limit": "This is measured driver-profile absence, not an observer of sockets or listeners. The separate DuckDB dry-run used postgresql://127.0.0.1:1/unused and source returns before the lazy driver import/connect.",
+      "source_file_path": "policy-engine/tools/ops_runners/migrations/migrate_duckdb_to_pg.py",
+      "source_file_sha256": "3a24d2eb4b7df6f23eb3f83f39c7cfec3de73a6a00730330ef54b76f4ae516a0"
+    },
+    "decision_outputs": {
+      "dataset_manifest_0_9_to_1_0": {
+        "public_command_exit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/dataset-manifest-public-migration.exit",
+        "source_fixture": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/manifest-0.9.json",
+        "persisted_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/manifest-1.0.json",
+        "strict_dto_readback_and_module_origins_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/installed-origin-contract-strict-readback.stdout"
+      },
+      "duckdb_one_row_dry_run": {
+        "private_fixture": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/duckdb-private-fixture.duckdb",
+        "public_command_exit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/duckdb-public-dry-run.exit",
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/duckdb-public-dry-run.stdout"
+      },
+      "invalid_manifest_failure_preserves_sentinel": {
+        "public_command_exit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/dataset-manifest-failure-preserves-output.exit",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/dataset-manifest-failure-preserves-output.stderr",
+        "preserved_sentinel": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/failure-preservation-output.json"
+      },
+      "direct_outside_typed_root_control": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/outside-root-direct-typed-control.stdout",
+      "malformed_root_controls": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/malformed-root-pyproject-directory.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/malformed-root-tools-regular-file.stdout",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/malformed-root-src-regular-file.stdout"
+      ],
+      "converter_delta": {
+        "positive_cli_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/positive-public-converter.stdout",
+        "conflicting_alias_cli_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/conflicting-aliases-public-converter.stdout",
+        "unknown_field_cli_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/unknown-field-public-converter.stdout",
+        "strict_readback_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/installed-strict-dto-readback.stdout",
+        "verified_readback_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/installed-strict-dto-readback-verified.stdout",
+        "positive_public_conversion": {
+          "input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/positive-input.json",
+          "persisted_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/positive-output.json",
+          "input_preserved_and_strict_dto_readback_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/installed-strict-dto-readback-verified.stdout"
+        },
+        "conflicting_alias_persist_then_strict_reject": {
+          "input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/conflicting-aliases-input.json",
+          "persisted_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/conflicting-aliases-output.json",
+          "public_cli_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/conflicting-aliases-public-converter.stdout",
+          "strict_readback_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/installed-strict-dto-readback-verified.stdout"
+        },
+        "unknown_field_persist_then_strict_reject": {
+          "input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/unknown-field-input.json",
+          "persisted_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/unknown-field-output.json",
+          "public_cli_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/unknown-field-public-converter.stdout",
+          "strict_readback_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/installed-strict-dto-readback-verified.stdout"
+        }
+      },
+      "module_origins": {
+        "final2_count": 12,
+        "final2_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/installed-origin-contract-strict-readback.stdout",
+        "converter_verified_additional_count": 7,
+        "converter_verified_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/installed-strict-dto-readback-verified.stdout"
+      },
+      "wrapped_cli_error_classification": "The public CLI output is preserved as user-facing text; no Python exception type is inferred from that wrapper literal. The direct outside resolver control separately records RepositoryRootUnavailableError."
+    }
   },
   "runtime_proof_and_limits": {
     "production_invocation_diagnostic": {

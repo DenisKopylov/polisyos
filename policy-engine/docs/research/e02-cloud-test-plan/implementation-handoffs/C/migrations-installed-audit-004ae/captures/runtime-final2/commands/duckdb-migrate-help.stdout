@@ -1,0 +1,16 @@
+usage: polisyos-tools migrations migrate-duckdb-to-pg [-h]
+                                                      --duckdb-path DUCKDB_PATH
+                                                      --pg-dsn PG_DSN
+                                                      --tenant-id TENANT_ID
+                                                      [--batch-size BATCH_SIZE]
+                                                      [--dry-run]
+
+DuckDB -> PostgreSQL tenant migration
+
+options:
+  -h, --help            show this help message and exit
+  --duckdb-path DUCKDB_PATH
+  --pg-dsn PG_DSN
+  --tenant-id TENANT_ID
+  --batch-size BATCH_SIZE
+  --dry-run

@@ -1,0 +1,14 @@
+usage: polisyos-tools migrations migrate [-h] [--to TARGET_VERSION]
+                                         {policy_ir,dataset_manifest,run_manifest}
+                                         input output
+
+Migrate schema artifacts to target version.
+
+positional arguments:
+  {policy_ir,dataset_manifest,run_manifest}
+  input
+  output
+
+options:
+  -h, --help            show this help message and exit
+  --to TARGET_VERSION

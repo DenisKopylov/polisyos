@@ -1,0 +1,34 @@
+Usage: polisyos-tools [OPTIONS] COMMAND [ARGS]...
+
+  Run policy-engine repository tools through one discoverable interface.
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  architecture          architecture tooling commands
+  benchmarks            benchmarks tooling commands
+  calibration           calibration tooling commands
+  ci                    ci tooling commands
+  cloud                 cloud tooling commands
+  completion            Print shell autocomplete installation snippets.
+  connectors            connectors tooling commands
+  data                  data tooling commands
+  demos                 demos tooling commands
+  deploy                deploy tooling commands
+  diagnostics           diagnostics tooling commands
+  docs                  Generate markdown reference documentation from...
+  foundry               foundry tooling commands
+  graph                 Render the declared tool dependency graph.
+  lint                  lint tooling commands
+  list                  List registered tools and lifecycle metadata.
+  migrations            migrations tooling commands
+  ops-experiments       ops-experiments tooling commands
+  release               release tooling commands
+  report-timing         Summarize recent tool timing records and budget...
+  research-experiments  research-experiments tooling commands
+  runtime               runtime tooling commands
+  testing               testing tooling commands
+  ukraine_data          ukraine_data tooling commands
+  validation            validation tooling commands
+  workspace             workspace tooling commands

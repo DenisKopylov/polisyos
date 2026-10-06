@@ -1,0 +1,17 @@
+dry-run world.world_facts: 1 rows, columns=fact_id, value, tenant_id
+skip world.world_nodes: source table missing
+skip world.world_edges: source table missing
+skip world.world_events: source table missing
+skip world.claims: source table missing
+skip world.claim_citations: source table missing
+skip world.doc_sources: source table missing
+skip world.doc_versions: source table missing
+skip world.doc_fragments: source table missing
+skip world.conflict_sets: source table missing
+skip world.conflict_members: source table missing
+skip world.trust_assessments: source table missing
+skip world.quality_reports: source table missing
+skip public.macro_history: source table missing
+skip public.agents_snapshot: source table missing
+skip public.run_records: source table missing
+dry-run completed

@@ -1,0 +1,744 @@
+{
+  "schema": "policyos.e02.installed_audit_capture_index.v1",
+  "unit": "C",
+  "slice": "migrations",
+  "source_candidate": {
+    "commit": "004ae11f1a541e2035f71cefa92f89b71bd8f562",
+    "tree": "5369c0167bc63096a12ee1bea666b42c837ea78b",
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "distribution_version": "0.1.0",
+    "wheel_sha256": "6e675a4750312d28098b598abd595805152ffb71bfdef4795609861dee599eb9"
+  },
+  "capture_source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11",
+  "capture_policy": "Copied exact raw manifests, scripts, fixture inputs/outputs, and all stdout/stderr/exit files for 14 final2 and 4 converter-delta command records, the verified strict-readback record, and the isolated psycopg-profile command. No command was rerun. Full source archive, wheel, source distribution and censuses remain ignored and are cited below by exact path/hash/size.",
+  "exact_manifest_copies": [
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-final2.command-results.json",
+      "source_sha256": "566ef406583c6c8a62f99728c295c6923286813cbce15ebbca54952fcf1b98c0",
+      "bytes": 30409
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-converter-delta.command-results.json",
+      "source_sha256": "90b2f212a75273b768f512eb4c5f50e8ecde3b98d977fe1a037f61af3b1fa09c",
+      "bytes": 11599
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/installed-converter-delta-verified.command-results.json",
+      "source_sha256": "cf3bffbdc962a9f83fbc71d6122711385600bc218510fdab6fa01b9ba80b775e",
+      "bytes": 2504
+    },
+    {
+      "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/duckdb-psycopg-profile-verified.command-results.json",
+      "source_sha256": "23f269fbed4266785272029727bbd3f7cd500127b811b9929bece083e7f3e096",
+      "bytes": 3133
+    }
+  ],
+  "install_profile": {
+    "tracked_install_command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/install-wheel.command.json",
+    "selected_extras": [],
+    "no_dependencies": true,
+    "candidate_wheel_exact_install_no_deps": true,
+    "project_install": false,
+    "auditor_reported_psycopg": "Install command records selected_extras=[] and no_dependencies=true. The separately retained isolated profile probe reports psycopg_module_spec=false, psycopg_extras_module_spec=false, and postgres_driver_distributions=[] under venv-base Python -I, CWD /tmp, PYTHONPATH/PYTHONHOME unset. This measures driver absence in that profile; it is not a socket/listener observer."
+  },
+  "actual_installed_commands": {
+    "final2_command_count": 14,
+    "converter_delta_command_count": 4,
+    "verified_converter_readback_command_count": 1,
+    "preserved_output_triplets": [
+      "stdout",
+      "stderr",
+      "exit status",
+      "isolated psycopg profile stdout/stderr/exit"
+    ],
+    "files": [
+      {
+        "source_raw_relative_path": "installed-final2.command-results.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-final2.command-results.json",
+        "bytes": 30409,
+        "sha256": "566ef406583c6c8a62f99728c295c6923286813cbce15ebbca54952fcf1b98c0",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "installed-converter-delta.command-results.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-converter-delta.command-results.json",
+        "bytes": 11599,
+        "sha256": "90b2f212a75273b768f512eb4c5f50e8ecde3b98d977fe1a037f61af3b1fa09c",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "installed-final-probe2.py",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/installed-final-probe2.py",
+        "bytes": 4247,
+        "sha256": "6e89a3610d3c5d4f5d07d9a08ac4793a6813d4d8c31cb4064b5df79dfc5f6a57",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "migration-conversion-readback.py",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/migration-conversion-readback.py",
+        "bytes": 4375,
+        "sha256": "69c1a8fc8d0f822027c684866bc02c9f0dc9a43d05378bd3e353900e27cedf9f",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "install-wheel.py",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/install-wheel.py",
+        "bytes": 2257,
+        "sha256": "51bdd929ab13b61cc0c1373a81712ea74270f78d7a4a51944bbfea35ae435b81",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "install-wheel.command.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/install-wheel.command.json",
+        "bytes": 1857,
+        "sha256": "5d8ba88ba8cc695d219de481b0941652fb295bbb1db0874dfdf0427b787b6419",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "install-wheel.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/install-wheel.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "install-wheel.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/install-wheel.stderr",
+        "bytes": 432,
+        "sha256": "0639f10cc990eaeed4a3eb527f2b18dd97fcdae1a52d375f7369b29b5e8eb336",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "install-wheel.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/install-wheel.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/manifest-0.9.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/manifest-0.9.json",
+        "bytes": 567,
+        "sha256": "26eca8600093d26b8233d599ecea7f7be624693c53f2bdc5f4baea6554f0d04d",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/manifest-1.0.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/manifest-1.0.json",
+        "bytes": 605,
+        "sha256": "1ba1bbb7d4fb304c5b864ae0d655dfd174d5c5acb404377b6e975e93b06ce836",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/unsupported-manifest-0.8.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/unsupported-manifest-0.8.json",
+        "bytes": 56,
+        "sha256": "24ad2e0fc931106f4531315776c4a9243cbd1dcf250f60ac9aac39ffd2eeb490",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/failure-preservation-output.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/failure-preservation-output.json",
+        "bytes": 31,
+        "sha256": "b7bf8855fb45ed41a60cd83c50b20a62d851fa35a5424694c09244ac6b6517ee",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/duckdb-private-fixture.duckdb",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/duckdb-private-fixture.duckdb",
+        "bytes": 536576,
+        "sha256": "11832c8f51e9880b056292d85b505360e06af69043753fe8b1187e732c6294ce",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/cli-help.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/cli-help.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/cli-help.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/cli-help.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/cli-help.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/cli-help.stdout",
+        "bytes": 1611,
+        "sha256": "c25e1f6471a6489bfadd36795f659605ff4ad1be2675f04941e13353c9f64713",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/create-private-duckdb-fixture.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/create-private-duckdb-fixture.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/create-private-duckdb-fixture.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/create-private-duckdb-fixture.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/create-private-duckdb-fixture.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/create-private-duckdb-fixture.stdout",
+        "bytes": 34,
+        "sha256": "13dc990ee623cdbb1740d6dd3de20c6ce8e02286f22f2a22bcb10fbdef5fba12",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/dataset-manifest-failure-preserves-output.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/dataset-manifest-failure-preserves-output.exit",
+        "bytes": 2,
+        "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/dataset-manifest-failure-preserves-output.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/dataset-manifest-failure-preserves-output.stderr",
+        "bytes": 114,
+        "sha256": "b30162674f7c9bf8512e2a208b2558b065d461ea9ccf02b803629f0d9427d71b",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/dataset-manifest-failure-preserves-output.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/dataset-manifest-failure-preserves-output.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/dataset-manifest-public-migration.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/dataset-manifest-public-migration.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/dataset-manifest-public-migration.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/dataset-manifest-public-migration.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/dataset-manifest-public-migration.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/dataset-manifest-public-migration.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/duckdb-migrate-help.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/duckdb-migrate-help.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/duckdb-migrate-help.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/duckdb-migrate-help.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/duckdb-migrate-help.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/duckdb-migrate-help.stdout",
+        "bytes": 644,
+        "sha256": "7c27ab3e5265464c947c39394866f2bb11a4de349475b4eb273336c720b30958",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/duckdb-public-dry-run.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/duckdb-public-dry-run.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/duckdb-public-dry-run.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/duckdb-public-dry-run.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/duckdb-public-dry-run.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/duckdb-public-dry-run.stdout",
+        "bytes": 791,
+        "sha256": "6b42b99f878824b966d6db0f2889a558a1e719a8fbaf48451679570b1890bf08",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/installed-origin-contract-strict-readback.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/installed-origin-contract-strict-readback.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/installed-origin-contract-strict-readback.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/installed-origin-contract-strict-readback.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/installed-origin-contract-strict-readback.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/installed-origin-contract-strict-readback.stdout",
+        "bytes": 7238,
+        "sha256": "e06a4791195c8cc0d19f1ca056d9cd90f79f21a768a71e52bd0c3c2caa297a70",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/json-migrate-help.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/json-migrate-help.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/json-migrate-help.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/json-migrate-help.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/json-migrate-help.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/json-migrate-help.stdout",
+        "bytes": 422,
+        "sha256": "29b8f151261ae2d3b5928fdb442bb26ee7b5c2c22fb45ea94a17c86c1bf6184a",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/malformed-root-pyproject-directory.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/malformed-root-pyproject-directory.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/malformed-root-pyproject-directory.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/malformed-root-pyproject-directory.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/malformed-root-pyproject-directory.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/malformed-root-pyproject-directory.stdout",
+        "bytes": 80,
+        "sha256": "c9a8346d57cfc000c9e39f4bf3ae24ab645ab44473f5ccfb6d94f4b36554a2c0",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/malformed-root-src-regular-file.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/malformed-root-src-regular-file.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/malformed-root-src-regular-file.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/malformed-root-src-regular-file.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/malformed-root-src-regular-file.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/malformed-root-src-regular-file.stdout",
+        "bytes": 80,
+        "sha256": "c9a8346d57cfc000c9e39f4bf3ae24ab645ab44473f5ccfb6d94f4b36554a2c0",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/malformed-root-tools-regular-file.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/malformed-root-tools-regular-file.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/malformed-root-tools-regular-file.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/malformed-root-tools-regular-file.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/malformed-root-tools-regular-file.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/malformed-root-tools-regular-file.stdout",
+        "bytes": 80,
+        "sha256": "c9a8346d57cfc000c9e39f4bf3ae24ab645ab44473f5ccfb6d94f4b36554a2c0",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/migrations-help.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/migrations-help.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/migrations-help.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/migrations-help.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/migrations-help.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/migrations-help.stdout",
+        "bytes": 301,
+        "sha256": "3ffdd3acc5cd26611f6d987b4b0732ca8997d1bb14c113537df30d78d7e499b4",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/outside-root-direct-typed-control.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/outside-root-direct-typed-control.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/outside-root-direct-typed-control.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/outside-root-direct-typed-control.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/outside-root-direct-typed-control.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/outside-root-direct-typed-control.stdout",
+        "bytes": 31,
+        "sha256": "874b0a4e18b1a63cb951f94b1bbe8c0b2b55629d183b4daca998a7e307a0ac16",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/public-cli-outside-workspace-fails-closed.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/public-cli-outside-workspace-fails-closed.exit",
+        "bytes": 2,
+        "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/public-cli-outside-workspace-fails-closed.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/public-cli-outside-workspace-fails-closed.stderr",
+        "bytes": 420,
+        "sha256": "aac4661f76ae109a9c20325c3b512dec1c646279b5bd6e29aa29e7b85e4c7c26",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/public-cli-outside-workspace-fails-closed.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/public-cli-outside-workspace-fails-closed.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/conflicting-aliases-public-converter.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/conflicting-aliases-public-converter.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/conflicting-aliases-public-converter.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/conflicting-aliases-public-converter.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/conflicting-aliases-public-converter.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/conflicting-aliases-public-converter.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/installed-strict-dto-readback-verified.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/installed-strict-dto-readback-verified.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/installed-strict-dto-readback-verified.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/installed-strict-dto-readback-verified.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/installed-strict-dto-readback-verified.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/installed-strict-dto-readback-verified.stdout",
+        "bytes": 4568,
+        "sha256": "e99b8f25f4b39a8db342f1ed94ea247eb7100e967ced3171983fce015c9baa89",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/installed-strict-dto-readback.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/installed-strict-dto-readback.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/installed-strict-dto-readback.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/installed-strict-dto-readback.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/installed-strict-dto-readback.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/installed-strict-dto-readback.stdout",
+        "bytes": 4568,
+        "sha256": "e99b8f25f4b39a8db342f1ed94ea247eb7100e967ced3171983fce015c9baa89",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/positive-public-converter.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/positive-public-converter.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/positive-public-converter.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/positive-public-converter.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/positive-public-converter.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/positive-public-converter.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/unknown-field-public-converter.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/unknown-field-public-converter.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/unknown-field-public-converter.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/unknown-field-public-converter.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/commands/unknown-field-public-converter.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/commands/unknown-field-public-converter.stdout",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/conflicting-aliases-input.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/conflicting-aliases-input.json",
+        "bytes": 454,
+        "sha256": "febd38b52b81abcac40b35934192f56364dd131234fec4da7feb6219bbf9392e",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/conflicting-aliases-output.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/conflicting-aliases-output.json",
+        "bytes": 454,
+        "sha256": "175b153a83cae36745269a11a843ba31a1a5b71caf4398f3e5b1c8bd4fbe04d8",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/installed-converter-delta-verified.command-results.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/installed-converter-delta-verified.command-results.json",
+        "bytes": 2504,
+        "sha256": "cf3bffbdc962a9f83fbc71d6122711385600bc218510fdab6fa01b9ba80b775e",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/positive-input.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/positive-input.json",
+        "bytes": 395,
+        "sha256": "c26cc1ac8629e94b3c86c8ff9f3d36a3042c1c0c2a723319f4b1b6539b537881",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/positive-output.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/positive-output.json",
+        "bytes": 397,
+        "sha256": "cef17c34198b0b77eb678d6e036ba48964f2cb4bf34a7280ea60b756dc3bafed",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/unknown-field-input.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/unknown-field-input.json",
+        "bytes": 438,
+        "sha256": "e991d3547c905ea7ea06ae31e61e6b4cd876a404ddd27cc4ad38fd264bb754d4",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final3/unknown-field-output.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final3/unknown-field-output.json",
+        "bytes": 440,
+        "sha256": "192e8b6ac7168cf5ea2f6cf0407606d99fe9bd533254ce7aea9e012261b0987b",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/malformed-roots/src-regular-file/pyproject.toml",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/malformed-roots/src-regular-file/pyproject.toml",
+        "bytes": 40,
+        "sha256": "6dc25a5143ef36a6a2b354ae943c679075403d53cfc95d043ecb236e78282960",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/malformed-roots/src-regular-file/src",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/malformed-roots/src-regular-file/src",
+        "bytes": 16,
+        "sha256": "2fa094a71c4db3487671e0e47c06e35146c20603ae81fd2a7b37b60066d4585d",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/malformed-roots/tools-regular-file/pyproject.toml",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/malformed-roots/tools-regular-file/pyproject.toml",
+        "bytes": 40,
+        "sha256": "6dc25a5143ef36a6a2b354ae943c679075403d53cfc95d043ecb236e78282960",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/malformed-roots/tools-regular-file/tools",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/malformed-roots/tools-regular-file/tools",
+        "bytes": 16,
+        "sha256": "2fa094a71c4db3487671e0e47c06e35146c20603ae81fd2a7b37b60066d4585d",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/duckdb-psycopg-profile-verified.command-results.json",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/duckdb-psycopg-profile-verified.command-results.json",
+        "bytes": 3133,
+        "sha256": "23f269fbed4266785272029727bbd3f7cd500127b811b9929bece083e7f3e096",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/duckdb-psycopg-profile-verified.stdout",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/duckdb-psycopg-profile-verified.stdout",
+        "bytes": 251,
+        "sha256": "9019a02fa9c856d4e8681cc3792afb87f098a620d642cad6d9c809f56a97c716",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/duckdb-psycopg-profile-verified.stderr",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/duckdb-psycopg-profile-verified.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byte_identical_copy": true
+      },
+      {
+        "source_raw_relative_path": "runtime-final2/commands/duckdb-psycopg-profile-verified.exit",
+        "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/duckdb-psycopg-profile-verified.exit",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "byte_identical_copy": true
+      }
+    ],
+    "generated_empty_directory_markers": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/malformed-roots/pyproject-directory/tools/.gitkeep",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/malformed-roots/pyproject-directory/pyproject.toml/.gitkeep",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/malformed-roots/pyproject-directory/src/.gitkeep",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/malformed-roots/src-regular-file/tools/.gitkeep",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/malformed-roots/tools-regular-file/src/.gitkeep",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/outside-workspace/.gitkeep"
+    ],
+    "marker_note": "Git omits empty directories. Zero-byte .gitkeep markers preserve only the original directory-vs-regular-file sentinel shapes; original command CWDs and stdout/stderr remain in unchanged raw command manifests and outputs.",
+    "psycopg_profile_command_count": 1
+  },
+  "preserved_semantics": {
+    "v0_9_real_conversion": "The separate converter delta uses the tracked synthetic 0.9 fixture for a public CLI conversion, preserved-input check, persisted output, and strict DTO readback; it is not a historical artifact.",
+    "negative_controls": [
+      "invalid 0.8 target preserves preexisting sentinel output",
+      "conflicting alias input converts and persists then strict DTO refuses",
+      "unknown extra input converts and persists then strict DTO refuses",
+      "outside workspace fails closed with exact CLI stderr",
+      "direct outside root resolver control reports its typed error in stdout",
+      "malformed pyproject directory/tools file/src file roots refuse through fallback and explicit-root routes"
+    ],
+    "duckdb": "Private one-row DuckDB file and exact public dry-run command/output are included. PostgreSQL DSN was 127.0.0.1:1/unused; no target connection was attempted per final2 manifest scope.",
+    "module_origins": "Final2 retained probe stdout reports 12 module origins with archive/wheel/installed byte identity. Verified converter stdout reports 7 additional module origins plus positive/negative strict DTO readback fields. These are the exact recorded counts, not estimates.",
+    "final2_dataset_manifest_conversion": "The final2 public CLI converts the retained schema_version 0.9 manifest to 1.0; the resulting persisted manifest is read back through the strict installed DatasetManifest DTO. These records do not include a distinct 1.0-to-1.0 no-op command, so no such claim is made.",
+    "psycopg_profile": {
+      "tracked_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/duckdb-psycopg-profile-verified.command-results.json",
+      "manifest_sha256": "23f269fbed4266785272029727bbd3f7cd500127b811b9929bece083e7f3e096",
+      "recorded_fields": {
+        "psycopg_module_spec": false,
+        "psycopg_extras_module_spec": false,
+        "postgres_driver_distributions": []
+      },
+      "environment": "venv-base Python -I, CWD /tmp, PYTHONPATH/PYTHONHOME unset",
+      "limit": "Driver absence in the measured profile; not a socket/listener observer.",
+      "tracked_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/duckdb-psycopg-profile-verified.stdout",
+      "stdout_sha256": "9019a02fa9c856d4e8681cc3792afb87f098a620d642cad6d9c809f56a97c716",
+      "tracked_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/duckdb-psycopg-profile-verified.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tracked_exit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations-installed-audit-004ae/captures/runtime-final2/commands/duckdb-psycopg-profile-verified.exit",
+      "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    }
+  },
+  "ignored_artifacts_not_copied": [
+    {
+      "source_raw_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/candidate.tar",
+      "bytes": 459929600,
+      "sha256": "f8e536ae0583c1c937cbacc364a63e613ce5fa2f1e4e4223865fc4ae6a840cc3",
+      "reason": "460 MB full source archive; cite, do not duplicate."
+    },
+    {
+      "source_raw_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15016674,
+      "sha256": "6e675a4750312d28098b598abd595805152ffb71bfdef4795609861dee599eb9",
+      "reason": "Installed wheel; cite exact distribution, do not duplicate."
+    },
+    {
+      "source_raw_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/dist/policy_engine-0.1.0.tar.gz",
+      "bytes": 65224070,
+      "sha256": "7e3aad3ac493a781f15e169583a9465d565a462f54c266a164027434390ba357",
+      "reason": "65 MB source distribution; cite, do not duplicate."
+    },
+    {
+      "source_raw_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/changed-source-map.json",
+      "bytes": 33239,
+      "sha256": "fcfb8a983d87fbea66cb5c190318ff0bdbb07e4d0fa4efbc3725c486db263648",
+      "reason": "Source census; parent directed census outputs to remain ignored and be cited by path/hash."
+    },
+    {
+      "source_raw_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/package-census.json",
+      "bytes": 35083,
+      "sha256": "5bd1407a8a40394bac67da183ad16780048e3f1cc289d992f16aeeee6344cb8c",
+      "reason": "Package census; parent directed census outputs to remain ignored and be cited by path/hash."
+    },
+    {
+      "source_raw_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/payload-scope.json",
+      "bytes": 5407,
+      "sha256": "1b80a47e647a684879475641298ec75e4535134d8dcfecfc207f5f645de40d5d",
+      "reason": "Payload census; parent directed census outputs to remain ignored and be cited by path/hash."
+    }
+  ],
+  "preexisting_source_evidence": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/migrations.json",
+    "git_blob_at_23711471": "156f5c74312ed375e7fc181b3fd76a005a6c3d09",
+    "role": "Existing tracked record retains source test totals, the five source CLI results, deep callback controls, unknown-version and same-basename RunManifest cases. Reuse this original Git record; do not reconstruct or substitute reviewer scratch logs."
+  },
+  "no_reruns_or_product_changes": true
+}

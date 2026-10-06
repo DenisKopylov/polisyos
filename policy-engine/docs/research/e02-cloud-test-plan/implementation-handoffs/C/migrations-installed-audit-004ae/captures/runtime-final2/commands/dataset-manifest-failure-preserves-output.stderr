@@ -1,0 +1,2 @@
+migrations.migrate: failed
+unhandled tool failure: ValueError: No migrator for 'dataset_manifest' from 0.8 to 1.0

@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "source": "public-fixture",
+  "license": "CC-BY-4.0",
+  "row_count": 12,
+  "pii_flags": {
+    "email": false,
+    "phone": false
+  },
+  "quality": {
+    "missing_rate": 0.0,
+    "duplicate_rate": 0.0,
+    "outlier_rate": 0.0,
+    "coverage": {
+      "time_start": "2026-10-01T00:00:00+00:00",
+      "time_end": "2026-10-02T00:00:00+00:00",
+      "region_coverage": "test-region"
+    }
+  },
+  "created_at": "2026-10-06T13:00:00+00:00",
+  "dataset_name": "installed-migration-fixture",
+  "raw_hash": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+}

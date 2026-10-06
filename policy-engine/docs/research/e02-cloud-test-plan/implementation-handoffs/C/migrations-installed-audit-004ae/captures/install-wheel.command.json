@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/uv",
+    "pip",
+    "install",
+    "--offline",
+    "--no-deps",
+    "--reinstall",
+    "--python",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/dist/policy_engine-0.1.0-py3-none-any.whl"
+  ],
+  "cwd": "/tmp",
+  "env": {
+    "HOME": "/Users/deniskopylov",
+    "PATH": "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    "TMPDIR": "/tmp",
+    "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv"
+  },
+  "exit_code": 0,
+  "exit_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/install-wheel.exit",
+  "exit_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+  "finished_at_utc": "2026-10-06T15:52:21.364802+00:00",
+  "no_dependencies": true,
+  "selected_extras": [],
+  "started_at_utc": "2026-10-06T15:52:21.110019+00:00",
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/install-wheel.stderr",
+  "stderr_sha256": "0639f10cc990eaeed4a3eb527f2b18dd97fcdae1a52d375f7369b29b5e8eb336",
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/install-wheel.stdout",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "timeout_seconds": 300,
+  "wheel_bytes": 15016674,
+  "wheel_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/dist/policy_engine-0.1.0-py3-none-any.whl",
+  "wheel_sha256": "6e675a4750312d28098b598abd595805152ffb71bfdef4795609861dee599eb9"
+}

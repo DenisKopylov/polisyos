@@ -1,0 +1,2 @@
+migrations.migrate: failed
+failed to import tools.ops_runners.migrations.migrate: Could not resolve a PolicyOS workspace root from PosixPath('/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-004ae11/venv-base/lib/python3.14/site-packages/tools/ops_runners/migrations/migrate.py'); enable CWD fallback from the expected workspace layout or provide a workspace_root.

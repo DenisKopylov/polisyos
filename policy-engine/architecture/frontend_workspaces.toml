@@ -115,3 +115,36 @@ ignored_outputs = [
 build_commands = ["corepack pnpm --filter @polisyos/cli run build"]
 test_commands = ["corepack pnpm --filter @polisyos/cli test"]
 drift_commands = ["corepack pnpm --filter @polisyos/cli run lint"]
+
+[[workspace]]
+id = "atlas-ui"
+path = "packages/atlas-ui"
+owner = "team-frontend / team-design"
+package_json = "packages/atlas-ui/package.json"
+lockfile = "pnpm-lock.yaml"
+source_of_truth = "package.json, src/index.ts, tokens/source/*.tokens.json, tokens/modes/*.tokens.json, and src/tokens/project.ts"
+public_entrypoints = ["src/index.ts"]
+schema_inputs = [
+  "tokens/source/*.tokens.json",
+  "tokens/modes/*.tokens.json",
+  "https://www.designtokens.org/schemas/2025.10/format.json",
+]
+generated_outputs = [
+  "src/generated/figma.json",
+  "src/generated/manifest.json",
+  "src/generated/tailwind.ts",
+  "src/generated/tokens.css",
+  "src/generated/tokens.ts",
+]
+ignored_outputs = [
+  "node_modules/",
+  "../../_cache/packages/atlas-ui/eslint/.eslintcache",
+]
+build_commands = []
+test_commands = ["corepack pnpm --filter @polisyos/atlas-ui test"]
+drift_commands = [
+  "corepack pnpm --filter @polisyos/atlas-ui run typecheck",
+  "corepack pnpm --filter @polisyos/atlas-ui run check:architecture",
+  "corepack pnpm --filter @polisyos/atlas-ui run tokens:check",
+]
+regenerate_commands = ["corepack pnpm --filter @polisyos/atlas-ui run tokens:generate"]

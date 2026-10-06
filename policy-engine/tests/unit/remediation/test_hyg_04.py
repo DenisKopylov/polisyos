@@ -407,6 +407,7 @@ def test_frontend_redirect_stub_is_retired_without_touching_live_workspaces() ->
     for protected in (
         "apps/runtime-dashboard",
         "apps/runtime-reference-shell",
+        "packages/atlas-ui",
         "packages/runtime-api-client",
         "tools/research/benchmarks",
     ):
@@ -429,21 +430,34 @@ def test_frontend_workspace_build_paths_and_python_package_boundaries() -> None:
     )
     assert "--workspace-concurrency=1" in root_manifest["scripts"]["build"]
 
+    workspace_contract = tomllib.loads(
+        (REPO_ROOT / "architecture/frontend_workspaces.toml").read_text(encoding="utf-8")
+    )
+    contract_roots = {workspace["path"] for workspace in workspace_contract["workspace"]}
     workspace_manifests = {
-        relative: json.loads((REPO_ROOT / relative / "package.json").read_text(encoding="utf-8"))
-        for relative in (
-            "apps/runtime-dashboard",
-            "apps/runtime-reference-shell",
-            "packages/runtime-api-client",
+        manifest_path.parent.relative_to(REPO_ROOT).as_posix(): json.loads(
+            manifest_path.read_text(encoding="utf-8")
         )
+        for workspace_glob in workspace_globs
+        for manifest_path in sorted(REPO_ROOT.glob(f"{workspace_glob}/package.json"))
     }
+    assert set(workspace_manifests) == contract_roots
     for manifest in workspace_manifests.values():
         assert manifest["private"] is True
-        assert manifest["engines"]["node"] == ">=22 <23"
-        assert "build" in manifest["scripts"]
+        if "engines" in manifest:
+            assert manifest["engines"]["node"] == ">=22 <23"
     assert "vite build" in workspace_manifests["apps/runtime-dashboard"]["scripts"]["build"]
     assert "typecheck" in workspace_manifests["apps/runtime-reference-shell"]["scripts"]["build"]
     assert "typecheck" in workspace_manifests["packages/runtime-api-client"]["scripts"]["build"]
+
+    atlas_manifest = workspace_manifests["packages/atlas-ui"]
+    assert atlas_manifest["name"] == "@polisyos/atlas-ui"
+    assert atlas_manifest["exports"]["."]["types"] == "./src/index.ts"
+    assert "build" not in atlas_manifest["scripts"]
+    assert (
+        workspace_manifests["apps/runtime-dashboard"]["dependencies"]["@polisyos/atlas-ui"]
+        == "workspace:*"
+    )
 
     pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     hatch_config = tomllib.loads((REPO_ROOT / "hatch.toml").read_text(encoding="utf-8"))
@@ -464,6 +478,7 @@ def test_frontend_workspace_build_paths_and_python_package_boundaries() -> None:
         input=(
             "apps/runtime-dashboard/dist/index.js\n"
             "packages/runtime-api-client/node_modules/.bin/tool\n"
+            "packages/atlas-ui/node_modules/.bin/tool\n"
         ),
         capture_output=True,
         text=True,
@@ -473,6 +488,7 @@ def test_frontend_workspace_build_paths_and_python_package_boundaries() -> None:
     assert set(ignored.stdout.splitlines()) == {
         "apps/runtime-dashboard/dist/index.js",
         "packages/runtime-api-client/node_modules/.bin/tool",
+        "packages/atlas-ui/node_modules/.bin/tool",
     }
 
 

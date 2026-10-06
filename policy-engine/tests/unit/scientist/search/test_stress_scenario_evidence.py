@@ -237,7 +237,7 @@ def test_anonymous_report_retry_is_counted_once_at_actual_cas_path(tmp_path: Pat
     child = _run([1.0, 1.0])
     ref = store.put_json(
         base.model_dump(mode="json"),
-        PutOptions(kind="scientist.stress_test_report"),
+        PutOptions(kind="scientist.stress_test_report", media_type="application/json"),
         canon_spec=CanonSpec(forbid_floats=False),
     )
     state = ExperimentState(

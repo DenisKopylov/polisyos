@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from enum import Enum
 from math import isfinite
-from typing import Literal
+from typing import Literal, cast
 
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator, model_validator
 
@@ -16,7 +16,7 @@ def admit_objective_threshold(value: object) -> float | None:
     if type(value) not in {int, float}:
         raise ValueError("vulnerability_threshold must be a finite number, not a coerced value")
     try:
-        threshold = float(value)
+        threshold = float(cast("int | float", value))
     except (OverflowError, ValueError) as exc:
         raise ValueError("vulnerability_threshold must be finite") from exc
     if not isfinite(threshold):
@@ -177,8 +177,10 @@ class StressTestReport(BaseModel):
         if evidence is None:
             return self
         if evidence.assessment_rule == "component_assessments":
-            components = list(self.scenario_evidence_components.values())
-            if not components or any(item is None for item in components):
+            components = [
+                item for item in self.scenario_evidence_components.values() if item is not None
+            ]
+            if not components or len(components) != len(self.scenario_evidence_components):
                 raise ValueError("aggregate scenario evidence requires every component basis")
             for name in (
                 "attempted",

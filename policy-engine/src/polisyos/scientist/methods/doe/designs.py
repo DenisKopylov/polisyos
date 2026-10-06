@@ -6,7 +6,7 @@ import hashlib
 import json
 import math
 from enum import StrEnum
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -19,7 +19,7 @@ class ScenarioSweep(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    scenarios: list[dict] = Field(default_factory=list)
+    scenarios: list[dict[Any, Any]] = Field(default_factory=list)
 
 
 class AblationPlan(BaseModel):

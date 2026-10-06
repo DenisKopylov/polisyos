@@ -1,0 +1,128 @@
+{
+  "schema": "policyos.e02.independent_minimal_optional_collection_handoff.v1",
+  "reviewer": "numerical_oracle",
+  "proof_commit": "fa4b6f12afdb254ec3f5abb3a7a762b9905fd85d",
+  "proof_tree": "44429d0733a3f3cece2f40ec965df3d7b5394a42",
+  "proof_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-profile-613-collection-independent/README.md",
+      "local_input": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/publication/README.md",
+      "git_blob": "835508533cbf958c51dff3c350e7afed6cff421d",
+      "bytes": 1261,
+      "sha256": "2833109b80eacb9dc19eb5ab6d9e5300e3105ece7528ffff93373f96a453dde1",
+      "uploaded_and_readback_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-profile-613-collection-independent/deciding-outputs.json.gz",
+      "local_input": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/publication/deciding-outputs.json.gz",
+      "git_blob": "53dd449d29ba8eb9f7578925965976cb356e643c",
+      "bytes": 1931217,
+      "sha256": "050d7a5593f51b4416b22235cf99fb2596c6eefd19bf36d9436d691e0b6b6a41",
+      "uploaded_and_readback_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-profile-613-collection-independent/review.json",
+      "local_input": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/publication/review.json",
+      "git_blob": "a41d39069b20d2370e9be0f638eca06494556740",
+      "bytes": 13754,
+      "sha256": "65b6841c8352b8358e27f42cca64e3234e61cbbd5cdce21a717639b39def9cf6",
+      "uploaded_and_readback_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-profile-613-collection-independent/runner.py.txt",
+      "local_input": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/publication/runner.py.txt",
+      "git_blob": "6b76d26701c90ae3f174de7f611d743a475ba607",
+      "bytes": 6574,
+      "sha256": "8b27ea5065f4d59aa4b49cbf287530dae292c2ac47b74d9264dd80e4c6777df2",
+      "uploaded_and_readback_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-profile-613-collection-independent/transport.json",
+      "local_input": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/publication/transport.json",
+      "git_blob": "6981c7032a0c5a9dcc44b5f45dfce94dad977f7f",
+      "bytes": 6303,
+      "sha256": "35036b59d17e84c3ba6e415a21fd0fd2ae73dfae90124d969593275623ea7695",
+      "uploaded_and_readback_equal": true
+    }
+  ],
+  "actual_runtime_source": {
+    "sha": "613343c3ef00379038b5ac07127605528f166531",
+    "tree": "f66e7144053be71db9840f9b7d468237fd1c809e",
+    "code_and_tests_byte_identical_to": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47"
+  },
+  "actual_environment": {
+    "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "native_profile_receipt_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+    "native_profile_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json",
+    "native_profile_sha256": "ffaad852c0b507931a7b2337a314446712aa9feb319d8450a9046068fe98d859",
+    "actual_distribution_count": 148,
+    "Torch_BoTorch_GPyTorch_HNSW_SALib_installed_or_loaded": false
+  },
+  "deciding_output": {
+    "complete_union_selected_files": 99,
+    "canonical_commands": 17,
+    "actual_collected_nodeids": 1202,
+    "collection_errors": 1,
+    "optional_backend_module_skips_UNRUN": 15,
+    "deselected": 0,
+    "test_body_phases": 0,
+    "actual_exit": 2,
+    "actual_status": "ERROR_PYTEST_COLLECTION",
+    "wall_seconds": 32.527832711988594,
+    "actual_unique_product_origin_paths": 1208,
+    "independent_frozen_Git_binding_errors": 0,
+    "before_after_HEAD_and_inputs_clean": true,
+    "full_output_member_count": 12,
+    "all_member_hashes_and_sizes_match": true,
+    "basetemp_created": false
+  },
+  "error_and_next_owner": {
+    "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+    "exact_boundary": "line8 imports nonexistent BudgetResourceEvent from engine.budget_ledger; stale fixture also calls absent reserve_resource/settle_resource.",
+    "classification": "Nonoptional native-fixture/API discovery seam; not missing Torch/HNSW/SALib.",
+    "next_owner": "funnel_owner, root granted fixture-only canonical owner-port migration",
+    "correction_candidate": "1264dfd94a84c4197144ff8b3b3836e8f612ccd0",
+    "candidate_runtime_verdict": "Not inherited: independent source/test review and author exact new execution are separate follow-up."
+  },
+  "properties": {
+    "optional_missing_backend_guard_behavior": "15 actual module collection skips observed; numerical properties UNRUN, not PASS.",
+    "full_union_collection": "ERROR until exact corrected-source replay; do not skip/ignore nonoptional failure.",
+    "GP26": "Not rerun or inherited.",
+    "numerical_fit": "No test body or fit executed/requested in collect-only."
+  },
+  "publication": {
+    "method": "GitHub Git API, existing topic only",
+    "branch": "codex/e02-D-published-oracle",
+    "proof_parent": "f102a63abc63e35aef2b4ed9e480ccc248c650a3",
+    "expected_head_lease_checked": true,
+    "force": false,
+    "all_uploaded_blobs_readback_hash_size_and_bytes_verified": true,
+    "reason": "Overlay had0B available at publication preparation; root explicitly authorized Git-API route. Later recovery does not change the remote-only nature of this publication.",
+    "local_HEAD": "f102a63abc63e35aef2b4ed9e480ccc248c650a3",
+    "local_HEAD_advanced": false,
+    "local_status": "clean",
+    "native_git_commit_or_push_or_hooks": "Not executed for these API commits. No bypass is presented as a native-hook PASS.",
+    "receipt_commit": "Separate append-only Git-API commit after proof commit"
+  },
+  "preservation": {
+    "actual_capture_root": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df",
+    "publication_inputs": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/publication",
+    "no_cleanup": true,
+    "original_before_after_manifests_events_stdout_stderr_JUnit_and_nodeids": "Lossless12member transport plus retained raw originals",
+    "original_source_body_copies": "Zero already-tracked input bodies; old helpers/profile resolve pinned Git refs and unique runner occurs once."
+  },
+  "limitations": [
+    "This is discovery/collection evidence, not scientific or numerical runtime success.",
+    "All collected but unexecuted properties remain UNRUN.",
+    "The15 optional skips do not conceal the one genuine collection error.",
+    "Current correction1264 is a pending independent follow-up, not source supersession of this original ERROR.",
+    "No product/tests/root tracked edits, child agents, introduced limits, markers/keywords/ignores/filters, fake backend packages or cleanup."
+  ],
+  "source_or_test_edits": 0,
+  "root_tracked_writes": 0,
+  "child_agents": 0,
+  "cleanup_actions": 0,
+  "formal_closed": 0,
+  "D_accepted_in_G": false,
+  "closure_ids": []
+}

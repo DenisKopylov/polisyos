@@ -34,7 +34,7 @@
   ],
   "documentation_tree_sha": "9844a995336a82bb2dabda98b4751eb48661276e",
   "branch": "codex/e02-E-backtest-20261006",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/51",
   "changed_paths": [
     "policy-engine/release-fragments/unreleased/2026-10-06-e02-backtest-replay-admission.toml",
     "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
@@ -652,5 +652,18 @@
     "shared_environment_retained": "/workspace/polisyos/policy-engine/.venv is read-only shared backend, used by other E leaves; retain, not an exclusive cleanup candidate.",
     "useful_worktree_retained": "/workspace/e02-E-backtest-20261006",
     "pnpm_cleanup_timing": "Only move repeatable dependency installation directories to Trash after root no longer needs this lane and all deciding outputs are committed."
-  }
+  },
+  "publication": {
+    "remote_branch": "codex/e02-E-backtest-20261006",
+    "receipt_and_full_output_checkpoint": "1a311b07e",
+    "PR_is_draft": true,
+    "base": "main",
+    "labels": [
+      "kind:runtime-behavior",
+      "compat:breaking",
+      "release:fix"
+    ],
+    "missing_remote_label": "release:breaking absent in GitHub despite tracked taxonomy; existing release:fix chosen for this fixed change and breaking compatibility retained."
+  },
+  "release_fragment_owner_note": "Use existing repository release owner team-polisyos. This metadata does not appoint or ratify the missing Scientist trust-purpose/profile owner."
 }

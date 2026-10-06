@@ -169,3 +169,35 @@ def test_duplicate_case_ids_refuse_and_nonboolean_outcome_is_unknown(tmp_path: P
     assert result.stress_test_report.robustness_score is None
     assert result.stress_test_report.scenario_evidence.unknown_or_nonfinite == 1
     assert result.benchmark_evaluation.promotable is False
+
+
+@pytest.mark.parametrize("malformed", [1, "false", float("nan"), float("inf")])
+def test_actual_case_intake_refuses_before_boolean_coercion(malformed: object) -> None:
+    with pytest.raises(TypeError, match="passed.*bool"):
+        build_challenge_case_result(
+            case=ChallengeCase(
+                case_id="raw", challenge_family="strategic", expected_outcome="declared_check"
+            ),
+            passed=malformed,
+            summary="raw intake",
+        )
+
+
+@pytest.mark.parametrize("cap", [1, 10])
+def test_ten_same_issue_case_occurrences_remain_ten_after_presentation(
+    cap: int, tmp_path: Path
+) -> None:
+    from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+        _recompute_stress_test_report,
+    )
+
+    report = _suite(
+        FileSystemCAS(tmp_path / "cas"), [_case(i, i < 22) for i in range(32)]
+    ).stress_test_report
+    assert report is not None and report.scenario_evidence is not None
+    assert report.scenario_evidence.violated_scenarios == 10
+    presentation = report.model_copy(update={"vulnerabilities": report.vulnerabilities[:cap]})
+    observed = _recompute_stress_test_report(presentation)
+    assert len(observed.vulnerabilities) == cap
+    assert observed.robustness_score == 22 / 32
+    assert observed.scenario_evidence.violated_scenarios == 10

@@ -34,8 +34,16 @@ from polisyos.ir.analytics.uncertainty import (
 )
 
 from .config import PropagationConfig
-from .covariance import extract_std, has_unknown_dependency
+from .covariance import build_covariance_matrix, extract_std, has_unknown_dependency
 from .protocol import PropagationResult
+from .sampling_admission import (
+    BoundedIIDMeanCertificate,
+    admit_bounded_mean_response,
+    admit_sampling_budget,
+    admit_sampling_support,
+    frozen_bernstein_budget,
+    joint_carrier_digest,
+)
 
 logger = get_logger(__name__)
 
@@ -52,6 +60,7 @@ class _QMCExecutionSummary:
     method: str
     scrambled: bool
     replicate_count: int
+    replicate_sizes: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -64,6 +73,38 @@ class _EmpiricalJointSpec:
     samples: Mapping[str, np.ndarray]
     probabilities: np.ndarray
     joint_sample_id: str | None
+
+
+@dataclass(frozen=True)
+class _ReplicaMeanEstimates:
+    """Observed estimator support, distinct from requested scramble markers."""
+
+    means: tuple[float, ...]
+    complete: bool
+    standard_error: float | None
+
+
+def _replica_mean_estimates(
+    values: np.ndarray, sizes: tuple[int, ...], attempted: int
+) -> _ReplicaMeanEstimates:
+    """Admit replicate error only when every requested output row is observed."""
+    means: list[float] = []
+    offset = 0
+    complete = bool(sizes) and sum(sizes) == attempted
+    for size in sizes:
+        replica = values[offset : offset + size]
+        if size > 0 and len(replica) == size and np.all(np.isfinite(replica)):
+            means.append(float(np.mean(replica)))
+        else:
+            complete = False
+        offset += size
+    complete = complete and len(means) == len(sizes)
+    error = (
+        float(np.std(means, ddof=1) / math.sqrt(len(means)))
+        if complete and len(means) >= 2
+        else None
+    )
+    return _ReplicaMeanEstimates(tuple(means), complete, error)
 
 
 class _DrawOutcomeCode(StrEnum):
@@ -198,6 +239,23 @@ def _build_empirical_joint_spec(
         if len(set(declared_ids)) != 1:
             return None, "incompatible_joint_law"
         joint_sample_id = declared_ids[0]
+
+        draw_ids = input_envelopes[param_names[0]].metadata.get("joint_draw_ids")
+        if (
+            not isinstance(draw_ids, list)
+            or not all(isinstance(value, str) for value in draw_ids)
+            or len(set(draw_ids)) != len(draw_ids)
+            or len(draw_ids) != len(next(iter(carriers.values())).samples)
+        ):
+            return None, "unestablished_joint_row_identity"
+        expected_digest = joint_carrier_digest(param_names, input_envelopes, draw_ids)
+        if any(
+            input_envelopes[name].metadata.get("joint_draw_ids") != draw_ids
+            or input_envelopes[name].metadata.get("joint_parameter_order") != param_names
+            or input_envelopes[name].metadata.get("joint_law_sha256") != expected_digest
+            for name in param_names
+        ):
+            return None, "incompatible_content_bound_joint_law"
 
     first = next(iter(carriers.values()))
     axis = first.sample_axis.strip()
@@ -334,6 +392,22 @@ class MonteCarloPropagator:
             return []
 
         param_names = sorted(input_envelopes.keys())
+        try:
+            admit_sampling_support(input_envelopes)
+            if any("covariance_row" in env.metadata for env in input_envelopes.values()):
+                build_covariance_matrix(
+                    param_names,
+                    input_envelopes,
+                    use_full_covariance=True,
+                    jitter=0.0,
+                    preserve_singular=True,
+                )
+        except (TypeError, ValueError, OverflowError):
+            return _unknown_joint_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure="unsupported_sampling_range_or_covariance",
+            )
         if has_unknown_dependency(input_envelopes):
             return _unknown_joint_results(
                 output_metric_ids,
@@ -353,11 +427,42 @@ class MonteCarloPropagator:
         level = self._config.confidence_level
         alpha = 1.0 - level
 
-        adaptive = self._config.adaptive_stopping
-        if adaptive.enabled:
-            n_samples = adaptive.max_samples
-        else:
-            n_samples = self._config.mc_n_samples
+        if self._config.bounded_iid_mean is not None:
+            return self._propagate_bounded_mean(
+                simulation_fn, nominal_params, input_envelopes, output_metric_ids, empirical_spec
+            )
+        # Legacy adaptive settings no longer authorize optional peeking. Without
+        # an admitted bounded mean target, execute the declared maximum once.
+        adaptive = self._config.adaptive_stopping.model_copy(update={"enabled": False})
+        configured_requested_count = (
+            self._config.adaptive_stopping.max_samples
+            if self._config.adaptive_stopping.enabled
+            else self._config.mc_n_samples
+        )
+        try:
+            budget = admit_sampling_budget(
+                configured_requested_count,
+                method=self._config.mc_sampling_method,
+                replicas=(self._config.mc_qmc_replicates if self._config.mc_qmc_scramble else 1),
+                minimum=max(
+                    self._config.mc_min_valid_samples,
+                    self._config.adaptive_stopping.min_samples
+                    if self._config.adaptive_stopping.enabled
+                    else 1,
+                ),
+                declared_maximum=(
+                    self._config.adaptive_stopping.max_samples
+                    if self._config.adaptive_stopping.enabled
+                    else None
+                ),
+            )
+        except ValueError:
+            return _unknown_joint_results(
+                output_metric_ids,
+                input_param_names=param_names,
+                failure="sampling_budget_not_admitted",
+            )
+        n_samples = budget.effective_draw_count
 
         batch_size = min(self._config.mc_batch_size, n_samples)
 
@@ -410,7 +515,7 @@ class MonteCarloPropagator:
             )
             stopped_early = adaptive.enabled and actual_n_samples < n_samples
 
-        return self._build_results(
+        results = self._build_results(
             sample_buffers.values,
             sample_buffers.input_samples,
             input_envelopes,
@@ -428,9 +533,174 @@ class MonteCarloPropagator:
             requested_n_samples=n_samples,
             qmc_summary=qmc_summary,
             sample_axis=(empirical_spec.sample_axis if empirical_spec is not None else "draw"),
-            joint_sample_id=(empirical_spec.joint_sample_id if empirical_spec is not None else None),
+            joint_sample_id=(
+                empirical_spec.joint_sample_id if empirical_spec is not None else None
+            ),
             parametric_fit_names=_parametric_fit_names(input_envelopes),
         )
+        budget_metadata = {
+            **budget.__dict__,
+            "basis": "declared_computational_budget_only",
+            "certificate": False,
+            "authority_scope": "computational_intent_display_only",
+            "nominal_evaluator_calls": 1,
+        }
+        return [
+            PropagationResult(
+                item.metric_id,
+                item.envelope.model_copy(
+                    update={
+                        "metadata": {
+                            **item.envelope.metadata,
+                            "sampling_budget": budget_metadata,
+                        }
+                    }
+                ),
+                item.input_envelopes_used,
+                item.method_used,
+                {**item.diagnostics, "sampling_budget": budget_metadata},
+            )
+            for item in results
+        ]
+
+    def _propagate_bounded_mean(
+        self, simulation_fn, nominal_params, input_envelopes, output_metric_ids, empirical_spec
+    ):
+        plan = self._config.bounded_iid_mean
+        assert plan is not None
+        names = sorted(input_envelopes)
+        try:
+            if self._config.mc_sampling_method != "random" or output_metric_ids != [plan.metric_id]:
+                raise ValueError("bounded IID certificate is only for one random mean")
+            law_digest, response_digest = admit_bounded_mean_response(
+                simulation_fn, input_envelopes, plan
+            )
+        except (TypeError, ValueError):
+            return _unknown_joint_results(
+                output_metric_ids,
+                input_param_names=names,
+                failure="bounded_iid_mean_law_not_admitted",
+            )
+        explicit_budget = self._config.adaptive_stopping.enabled
+        maximum = self._config.adaptive_stopping.max_samples
+        if explicit_budget and plan.pilot_samples >= maximum:
+            return _unknown_joint_results(
+                output_metric_ids,
+                input_param_names=names,
+                failure="frozen_budget_exceeds_declared_maximum",
+            )
+        # Independent child streams are selected before the pilot. Main stream
+        # generation never consumes, pools, or conditionally retries pilot draws.
+        children = np.random.SeedSequence(self._config.mc_seed).spawn(2)
+        pilot_seed, main_seed = [int(child.generate_state(1)[0]) for child in children]
+        pilot_inputs = np.random.default_rng(pilot_seed).uniform(size=plan.pilot_samples)
+        pilot = np.asarray(
+            [simulation_fn(**{names[0]: value})[plan.metric_id] for value in pilot_inputs],
+            dtype=np.float64,
+        )
+        upper, frozen_count = frozen_bernstein_budget(pilot, plan)
+        if frozen_count + (plan.pilot_samples if explicit_budget else 0) > maximum:
+            return _unknown_joint_results(
+                output_metric_ids,
+                input_param_names=names,
+                failure="frozen_budget_exceeds_declared_maximum",
+            )
+        main_inputs = np.random.default_rng(main_seed).uniform(size=frozen_count)
+        buffers = self._create_sample_buffers(
+            param_names=names, output_metric_ids=output_metric_ids, n_samples=frozen_count
+        )
+        missing = dict.fromkeys(output_metric_ids, 0)
+        outcomes = []
+        for index, value in enumerate(main_inputs):
+            self._eval_and_record(
+                simulation_fn,
+                {**nominal_params, names[0]: value},
+                names,
+                output_metric_ids,
+                buffers,
+                sample_idx=index,
+                missing_outputs=missing,
+                draw_outcomes=outcomes,
+            )
+        level = 1 - plan.delta_pilot - plan.delta_main
+        result = self._build_results(
+            buffers.values,
+            buffers.input_samples,
+            input_envelopes,
+            names,
+            output_metric_ids,
+            nominal_params,
+            None,
+            frozen_count,
+            0,
+            False,
+            level,
+            1 - level,
+            missing_outputs=missing,
+            draw_outcomes=outcomes,
+            requested_n_samples=frozen_count,
+            qmc_summary=None,
+            minimum_valid_samples=1,
+        )[0]
+        main_mean = float(np.mean(buffers.values[plan.metric_id]))
+        certificate = BoundedIIDMeanCertificate(
+            metric_id=plan.metric_id,
+            input_law_sha256=law_digest,
+            evaluator_sha256=response_digest,
+            input_law=input_envelopes[names[0]],
+            evaluator_recipe=simulation_fn.recipe(),
+            mc_seed=self._config.mc_seed,
+            pilot_samples=plan.pilot_samples,
+            pilot_mean=float(np.mean(pilot)),
+            pilot_second_moment=float(np.mean(pilot**2)),
+            variance_upper_bound=upper,
+            frozen_main_samples=frozen_count,
+            main_samples=frozen_count,
+            main_mean=main_mean,
+            absolute_error=plan.absolute_error,
+            delta_pilot=plan.delta_pilot,
+            delta_main=plan.delta_main,
+            pilot_stream=pilot_seed,
+            main_stream=main_seed,
+            declared_maximum=maximum,
+            computational_budget_scope="pilot_and_main" if explicit_budget else "main_only",
+        )
+        envelope = result.envelope.model_copy(
+            update={
+                "point_estimate": main_mean,
+                "metadata": {
+                    **result.envelope.metadata,
+                    "mean_estimator_certificate": certificate.model_dump(mode="json"),
+                    "predictive_interval_semantics": "empirical_output_quantiles_v1_compatibility",
+                    "mean_error_interval": [
+                        max(0.0, main_mean - plan.absolute_error),
+                        min(1.0, main_mean + plan.absolute_error),
+                    ],
+                    "sampling_budget": {
+                        "basis": "declared_computational_budget_only",
+                        "budget_scope": "pilot_and_main" if explicit_budget else "main_only",
+                        "declared_maximum": maximum,
+                        "pilot_draw_count": plan.pilot_samples,
+                        "frozen_main_draw_count": frozen_count,
+                        "total_stochastic_draw_count": plan.pilot_samples + frozen_count,
+                        "nominal_evaluator_calls": 0,
+                    },
+                },
+            }
+        )
+        return [
+            PropagationResult(
+                result.metric_id,
+                envelope,
+                result.input_envelopes_used,
+                result.method_used,
+                {
+                    **result.diagnostics,
+                    "pilot_draw_count": plan.pilot_samples,
+                    "frozen_main_count": frozen_count,
+                },
+            )
+        ]
 
     # ------------------------------------------------------------------
     # Sampling loops
@@ -470,6 +740,12 @@ class MonteCarloPropagator:
             )
             generated_this_replicate = 0
             actual_replicates += 1
+            if qmc_method == "sobol":
+                full_uniforms = sampler_state["sampler"].random_base2(
+                    int(math.log2(replicate_size))
+                )
+            else:
+                full_uniforms = sampler_state["sampler"].random(replicate_size)
 
             while generated_this_replicate < replicate_size:
                 this_batch = self._adaptive_batch_size(
@@ -478,10 +754,9 @@ class MonteCarloPropagator:
                     remaining=replicate_size - generated_this_replicate,
                     adaptive=adaptive,
                 )
-                uniform_samples, sampler_state = self._next_qmc_uniform_chunk(
-                    sampler_state,
-                    this_batch,
-                )
+                uniform_samples = full_uniforms[
+                    generated_this_replicate : generated_this_replicate + this_batch
+                ]
                 if uniform_samples.shape[0] > this_batch:
                     uniform_samples = uniform_samples[:this_batch]
                 qmc_transformed = self._transform_qmc_samples(
@@ -539,6 +814,7 @@ class MonteCarloPropagator:
                 method=qmc_method,
                 scrambled=scrambled,
                 replicate_count=actual_replicates,
+                replicate_sizes=tuple(replicate_sizes),
             ),
         )
 
@@ -558,39 +834,18 @@ class MonteCarloPropagator:
         draw_outcomes: list[_DrawOutcomeRecord],
         empirical_spec: _EmpiricalJointSpec | None,
     ) -> tuple[int, int]:
-        rng = jrandom.PRNGKey(self._config.mc_seed)
+        rng = np.random.default_rng(self._config.mc_seed)
         generated = 0
         failed = 0
-
+        all_samples = self._random_input_samples(
+            rng, param_names, input_envelopes, n_samples, empirical_spec
+        )
         while generated < n_samples:
-            this_batch = self._adaptive_batch_size(
-                generated=generated,
-                batch_size=batch_size,
-                remaining=n_samples - generated,
-                adaptive=adaptive,
-            )
-            batch_samples: dict[str, jnp.ndarray] = {}
-            shared_indices: jnp.ndarray | None = None
-            if empirical_spec is not None:
-                rng, shared_key = jrandom.split(rng)
-                shared_indices = jrandom.choice(
-                    shared_key,
-                    empirical_spec.sample_count,
-                    shape=(this_batch,),
-                    p=jnp.asarray(empirical_spec.probabilities, dtype=jnp.float32),
-                )
-            for name in param_names:
-                env = input_envelopes[name]
-                if empirical_spec is not None and name in empirical_spec.names:
-                    assert shared_indices is not None
-                    batch_samples[name] = jnp.asarray(
-                        empirical_spec.samples[name],
-                        dtype=jnp.float32,
-                    )[shared_indices]
-                    continue
-                rng, subkey = jrandom.split(rng)
-                batch_samples[name] = self._sample_from_envelope(subkey, env, this_batch)
-
+            this_batch = min(batch_size, n_samples - generated)
+            batch_samples = {
+                name: values[generated : generated + this_batch]
+                for name, values in all_samples.items()
+            }
             for i in range(this_batch):
                 params = dict(nominal_params)
                 params.update({name: batch_samples[name][i] for name in param_names})
@@ -620,6 +875,12 @@ class MonteCarloPropagator:
                 return generated, failed
 
         return n_samples, failed
+
+    def _random_input_samples(self, rng, param_names, input_envelopes, count, empirical_spec):
+        uniforms = rng.uniform(size=(count, len(_qmc_dimension_names(param_names, empirical_spec))))
+        return self._transform_qmc_samples(
+            uniforms, param_names, input_envelopes, empirical_spec=empirical_spec
+        )
 
     def _eval_and_record(
         self,
@@ -741,33 +1002,9 @@ class MonteCarloPropagator:
         next_boundary = ((generated // interval) + 1) * interval
         return min(this_batch, next_boundary - generated)
 
-    def _check_adaptive_stop(
-        self,
-        n_generated: int,
-        adaptive: Any,
-        values: dict[str, np.ndarray],
-        output_metric_ids: list[str],
-        alpha: float,
-    ) -> bool:
-        if n_generated < adaptive.min_samples:
-            return False
-        if n_generated % adaptive.check_interval != 0:
-            return False
-
-        for mid in output_metric_ids:
-            arr = values[mid][:n_generated]
-            valid = arr[np.isfinite(arr)]
-            if len(valid) < adaptive.min_samples:
-                return False
-            point = float(np.mean(valid))
-            lo = float(np.percentile(valid, 100.0 * alpha / 2.0))
-            hi = float(np.percentile(valid, 100.0 * (1.0 - alpha / 2.0)))
-            half_width = (hi - lo) / max(abs(point), 1e-12)
-            if half_width > adaptive.ci_half_width_target:
-                return False
-
-        logger.info("Adaptive MC stopping: converged after %d samples.", n_generated)
-        return True
+    def _check_adaptive_stop(self, *args, **kwargs) -> bool:
+        """Fixed-time intervals and predictive spread cannot authorize optional stopping."""
+        return False
 
     @staticmethod
     def _create_sample_buffers(
@@ -811,10 +1048,16 @@ class MonteCarloPropagator:
         sample_axis: str = "draw",
         joint_sample_id: str | None = None,
         parametric_fit_names: tuple[str, ...] = (),
+        minimum_valid_samples: int | None = None,
     ) -> list[PropagationResult]:
         from .sensitivity import compute_first_order_indices
 
         out: list[PropagationResult] = []
+        min_valid = (
+            self._config.mc_min_valid_samples
+            if minimum_valid_samples is None
+            else minimum_valid_samples
+        )
         qmc_method = None if qmc_summary is None else qmc_summary.method
         qmc_scrambled = False if qmc_summary is None else qmc_summary.scrambled
         qmc_replicates = 0 if qmc_summary is None else qmc_summary.replicate_count
@@ -834,8 +1077,7 @@ class MonteCarloPropagator:
         )
         qmc_has_full_certificate = qmc_method is not None and qmc_scrambled and qmc_replicates >= 2
         input_envelope_digests = {
-            name: _envelope_content_digest(envelope)
-            for name, envelope in input_envelopes.items()
+            name: _envelope_content_digest(envelope) for name, envelope in input_envelopes.items()
         }
         input_identity_complete = all(
             value is not None for value in input_envelope_digests.values()
@@ -864,10 +1106,30 @@ class MonteCarloPropagator:
             "implementation_identity_status": "not_established",
             "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
             "failure_records": [item.model_dump(mode="json") for item in draw_outcomes],
+            "draw_records": [
+                {
+                    "draw_index": index,
+                    "sampled_input_sha256": _sampled_input_digest(
+                        {
+                            **nominal_params,
+                            **{name: float(input_samples[name][index]) for name in param_names},
+                        }
+                    ),
+                    "successful_outputs": [
+                        mid for mid in output_metric_ids if math.isfinite(float(values[mid][index]))
+                    ],
+                    "failed_outputs": [
+                        mid
+                        for mid in output_metric_ids
+                        if not math.isfinite(float(values[mid][index]))
+                    ],
+                }
+                for index in range(actual_n_samples)
+            ],
         }
         for metric_id in output_metric_ids:
-            arr = jnp.asarray(values[metric_id][:actual_n_samples], dtype=jnp.float32)
-            valid = arr[jnp.isfinite(arr)]
+            arr = np.asarray(values[metric_id][:actual_n_samples], dtype=np.float64)
+            valid = arr[np.isfinite(arr)]
             n_valid = int(valid.shape[0])
             missing_count = int(missing_outputs.get(metric_id, 0))
             has_missing_output = missing_count > 0
@@ -875,14 +1137,37 @@ class MonteCarloPropagator:
             has_incomplete_draws = (
                 metric_failure_draw_count > 0 or stopped_early or not input_identity_complete
             )
+            replica_estimates = _replica_mean_estimates(
+                values[metric_id],
+                () if qmc_summary is None else qmc_summary.replicate_sizes,
+                actual_n_samples,
+            )
+            # Admission is per estimator/output: requested scrambles cannot
+            # certify an output whose support is missing in any replica.
+            qmc_has_full_certificate = (
+                qmc_method is not None
+                and qmc_scrambled
+                and qmc_replicates >= 2
+                and replica_estimates.complete
+                and replica_estimates.standard_error is not None
+                and not has_incomplete_draws
+            )
+            if qmc_method is not None:
+                certificate_kind = (
+                    CertificateKind.RQMC_REPLICATES
+                    if qmc_has_full_certificate
+                    else CertificateKind.QMC_VARIATION
+                )
             interval_semantics = IntervalSemantics.CONFIDENCE_INTERVAL
             confidence_level: float | None = level
             # Sampling cannot promote a non-gate-eligible input into a gate.
-            gate_eligible = all(
-                envelope.gate_eligible for envelope in input_envelopes.values()
-            )
+            gate_eligible = False  # Numerical execution does not verify source-law custody.
             exactness = ExactnessKind.APPROXIMATION
-            scope = ("expectation", "interval", "quantile", "cdf")
+            scope = (
+                ("expectation",)
+                if qmc_has_full_certificate
+                else ("expectation", "interval", "quantile", "cdf")
+            )
             sample_size_value: int | None = n_valid
             distribution_payload = None
             notes: dict[str, Any] = {}
@@ -906,7 +1191,7 @@ class MonteCarloPropagator:
                 # independently reconciled row-identity proof.
                 gate_eligible = False
 
-            if n_valid < self._config.mc_min_valid_samples:
+            if n_valid < min_valid:
                 if has_missing_output:
                     point = 0.0
                     point_source = "missing_output_unavailable"
@@ -991,22 +1276,22 @@ class MonteCarloPropagator:
                     ),
                 )
             else:
-                point = float(jnp.mean(valid))
+                point = float(np.mean(valid))
                 distribution_payload = PosteriorSamplesCarrier(
                     samples=tuple(float(value) for value in np.asarray(valid, dtype=np.float64)),
                     sample_axis=sample_axis,
                 )
                 if qmc_method is not None and not qmc_has_full_certificate:
-                    lo = float(jnp.min(valid))
-                    hi = float(jnp.max(valid))
+                    lo = float(np.min(valid))
+                    hi = float(np.max(valid))
                 else:
-                    lo = float(jnp.percentile(valid, 100.0 * alpha / 2.0))
-                    hi = float(jnp.percentile(valid, 100.0 * (1.0 - alpha / 2.0)))
+                    lo = float(np.percentile(valid, 100.0 * alpha / 2.0))
+                    hi = float(np.percentile(valid, 100.0 * (1.0 - alpha / 2.0)))
                 if lo > point:
                     lo = point
                 if hi < point:
                     hi = point
-                std = float(jnp.std(valid))
+                std = float(np.std(valid))
 
                 metadata: dict[str, Any] = {
                     "mc_n_samples": actual_n_samples,
@@ -1038,7 +1323,15 @@ class MonteCarloPropagator:
                             "candidate_only": True,
                         }
                     )
-                if qmc_method is not None:
+                if qmc_summary is not None:
+                    metadata["qmc_replicate_sizes"] = list(qmc_summary.replicate_sizes)
+                    metadata["qmc_replicate_means"] = list(replica_estimates.means)
+                    metadata["qmc_estimator_support"] = (
+                        "complete" if replica_estimates.complete else "incomplete"
+                    )
+                    if qmc_has_full_certificate:
+                        metadata["mean_estimator_standard_error"] = replica_estimates.standard_error
+                        metadata["mean_error_method"] = "independent_scramble_replication_v1"
                     metadata["qmc_scrambled"] = qmc_scrambled
                     metadata["qmc_replicates"] = qmc_replicates
                 if sample_axis != "draw":
@@ -1059,13 +1352,13 @@ class MonteCarloPropagator:
 
                 # Tail-risk metrics
                 if n_valid > 100:
-                    q05 = float(jnp.percentile(valid, 5.0))
+                    q05 = float(np.percentile(valid, 5.0))
                     tail_mask = valid <= q05
                     cvar_05 = float(jnp.mean(valid[tail_mask])) if jnp.any(tail_mask) else q05
                     metadata["tail_risk"] = {
                         "cvar_05": cvar_05,
-                        "quantile_01": float(jnp.percentile(valid, 1.0)),
-                        "quantile_99": float(jnp.percentile(valid, 99.0)),
+                        "quantile_01": float(np.percentile(valid, 1.0)),
+                        "quantile_99": float(np.percentile(valid, 99.0)),
                     }
 
                 # Sensitivity indices
@@ -1096,6 +1389,7 @@ class MonteCarloPropagator:
                     certificate_radius = {
                         "sample_size": float(n_valid),
                         "replicate_count": float(qmc_replicates),
+                        "mean_standard_error": float(metadata["mean_estimator_standard_error"]),
                     }
                 elif qmc_method is not None:
                     certificate_radius = None
@@ -1177,7 +1471,7 @@ class MonteCarloPropagator:
                         "draw_outcome_provenance": draw_outcome_provenance,
                         "executor_failed_batches": failed,
                         "stopped_early": stopped_early,
-                    "output_coverage_complete": not has_incomplete_draws,
+                        "output_coverage_complete": not has_incomplete_draws,
                         "qmc_method": qmc_method,
                         "qmc_scrambled": qmc_scrambled if qmc_method is not None else None,
                         "qmc_replicates": qmc_replicates if qmc_method is not None else None,
@@ -1236,7 +1530,7 @@ class MonteCarloPropagator:
                 std = extract_std(env)
             else:
                 mean, std = fit
-            return mean + max(std, 1e-12) * jrandom.normal(rng, shape=(n,))
+            return mean + std * jrandom.normal(rng, shape=(n,))
 
         if env.distribution_family == DistributionFamily.UNIFORM:
             return jrandom.uniform(rng, shape=(n,), minval=lo, maxval=hi)
@@ -1266,6 +1560,36 @@ class MonteCarloPropagator:
         from scipy.stats import norm as sp_norm
 
         result: dict[str, np.ndarray] = {}
+        if any("covariance_row" in input_envelopes[name].metadata for name in param_names):
+            if not all(
+                input_envelopes[name].distribution_family is DistributionFamily.NORMAL
+                for name in param_names
+            ):
+                raise ValueError("covariance alone does not define a non-Gaussian joint law")
+            covariance = np.asarray(
+                build_covariance_matrix(
+                    param_names,
+                    input_envelopes,
+                    use_full_covariance=True,
+                    jitter=0.0,
+                    preserve_singular=True,
+                ),
+                dtype=np.float64,
+            )
+            eigenvalues, eigenvectors = np.linalg.eigh(covariance)
+            factor = eigenvectors * np.sqrt(np.maximum(eigenvalues, 0.0))
+            normal = sp_norm.ppf(np.clip(uniform_samples, 1e-10, 1 - 1e-10))
+            means = np.asarray(
+                [
+                    (
+                        _normal_parametric_fit(input_envelopes[name])
+                        or (input_envelopes[name].point_estimate, 0)
+                    )[0]
+                    for name in param_names
+                ]
+            )
+            samples = normal @ factor.T + means
+            return {name: samples[:, index] for index, name in enumerate(param_names)}
         if empirical_spec is None:
             empirical_spec, failure = _build_empirical_joint_spec(
                 param_names,
@@ -1303,7 +1627,9 @@ class MonteCarloPropagator:
                     std = extract_std(env)
                 else:
                     mean, std = fit
-                result[name] = sp_norm.ppf(u, loc=mean, scale=max(std, 1e-12))
+                result[name] = (
+                    np.full_like(u, mean) if std == 0 else sp_norm.ppf(u, loc=mean, scale=std)
+                )
             elif env.distribution_family == DistributionFamily.UNIFORM:
                 result[name] = lo + u * (hi - lo)
             elif env.distribution_family == DistributionFamily.TRIANGULAR:

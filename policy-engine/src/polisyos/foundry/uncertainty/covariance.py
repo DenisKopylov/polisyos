@@ -11,8 +11,11 @@ import numpy as np
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     ParametricFitCarrier,
+    PosteriorSamplesCarrier,
     UncertaintyEnvelope,
 )
+
+from .sampling_admission import admit_float32_range
 
 CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1 = 1e-7
 CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1 = 1e-10
@@ -78,7 +81,7 @@ def build_covariance_matrix(
     *,
     use_full_covariance: bool,
     jitter: float,
-    preserve_singular: bool = False,
+    preserve_singular: bool = True,
 ) -> jnp.ndarray:
     """Build a validated covariance matrix, optionally retaining exact null spaces."""
     if not math.isfinite(float(jitter)) or jitter < 0.0:
@@ -100,11 +103,8 @@ def build_covariance_matrix(
         ):
             raise ValueError(f"declared std is invalid for parameter {name!r}")
         marginal_stds.append(float(declared_std))
-    stds = jnp.asarray(marginal_stds, dtype=jnp.float32)
-    diag_cov = jnp.diag(stds**2)
-
-    if not use_full_covariance:
-        return diag_cov
+    diagonal_values = admit_float32_range(np.diag(np.square(np.asarray(marginal_stds))))
+    diag_cov = jnp.asarray(diagonal_values, dtype=jnp.float32)
 
     rows: list[list[float]] = []
     expected_params: list[str] | None = None
@@ -115,6 +115,11 @@ def build_covariance_matrix(
         or "covariance_params" in input_envelopes[name].metadata
         for name in param_names
     )
+    # A numerical option may choose an algorithm, not replace a declared law.
+    # Full/partial supplied rows always enter the same admission path, even if
+    # an older caller requested the diagonal optimization.
+    if not use_full_covariance and not has_covariance_metadata:
+        return diag_cov
     for name in param_names:
         metadata = input_envelopes[name].metadata
         row = metadata.get("covariance_row")
@@ -166,7 +171,7 @@ def build_covariance_matrix(
     diagonal = np.diag(np.square(np.asarray(marginal_stds, dtype=np.float64)))
     if not np.all(np.isfinite(covariance)):
         raise ValueError("covariance matrix must contain finite values")
-    if not np.allclose(np.diag(covariance), np.diag(diagonal), rtol=1e-3, atol=1e-5):
+    if not np.allclose(np.diag(covariance), np.diag(diagonal), rtol=1e-3, atol=0.0):
         raise ValueError("covariance diagonal must match marginal standard deviations")
     if preserve_singular:
         covariance = preserve_singular_covariance(covariance)
@@ -183,7 +188,8 @@ def build_covariance_matrix(
 
     if not np.all(np.isfinite(covariance)):
         raise ValueError("covariance matrix must contain finite values")
-    return jnp.asarray(covariance, dtype=jnp.float32)
+    return jnp.asarray(admit_float32_range(covariance), dtype=jnp.float32)
+
 
 def preserve_singular_covariance(
     covariance: object,
@@ -201,11 +207,12 @@ def preserve_singular_covariance(
         raise ValueError("covariance matrix must be square")
     if not np.all(np.isfinite(matrix)):
         raise ValueError("covariance matrix must contain finite values")
+    scale = float(np.max(np.abs(matrix))) if matrix.size else 0.0
     if not np.allclose(
         matrix,
         matrix.T,
         rtol=symmetry_rtol,
-        atol=symmetry_atol,
+        atol=symmetry_atol * scale,
     ):
         raise ValueError("covariance matrix must be symmetric")
     symmetric = 0.5 * (matrix + matrix.T)
@@ -213,7 +220,6 @@ def preserve_singular_covariance(
         return symmetric
     eigenvalues = np.linalg.eigvalsh(symmetric)
     minimum_eigenvalue = float(np.min(eigenvalues))
-    scale = max(1.0, float(np.max(np.abs(symmetric))))
     # The tolerance is independent of jitter; regularization cannot make an
     # indefinite declared law acceptable.
     if minimum_eigenvalue < -1e-10 * scale:
@@ -245,7 +251,7 @@ def calibration_covariance_blocks_agree_v1(expected: object, actual: object) -> 
 
 
 def has_unknown_dependency(input_envelopes: Mapping[str, UncertaintyEnvelope]) -> bool:
-    """Return whether a producer explicitly withheld the input dependency law."""
+    """Treat missing multi-input dependence as unknown, never implicit independence."""
     unknown_values = {"unknown", "unverified", "not_established", "incompatible"}
     for envelope in input_envelopes.values():
         raw = envelope.metadata.get("dependency")
@@ -253,7 +259,18 @@ def has_unknown_dependency(input_envelopes: Mapping[str, UncertaintyEnvelope]) -
             raw = envelope.metadata.get("dependence")
         if raw is not None and str(raw).strip().lower() in unknown_values:
             return True
-    return False
+    if len(input_envelopes) <= 1:
+        return False
+    has_full_covariance = all(
+        "covariance_row" in envelope.metadata and "covariance_params" in envelope.metadata
+        for envelope in input_envelopes.values()
+    )
+    has_joint_carriers = all(
+        isinstance(envelope.distribution_payload, PosteriorSamplesCarrier)
+        and "joint_sample_id" in envelope.metadata
+        for envelope in input_envelopes.values()
+    )
+    return not (has_full_covariance or has_joint_carriers)
 
 
 def _repair_covariance(cov: jnp.ndarray, *, jitter: float) -> jnp.ndarray:

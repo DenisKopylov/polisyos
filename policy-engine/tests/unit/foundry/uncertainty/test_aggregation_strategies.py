@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.foundry.uncertainty.aggregator import AggregationStrategy, aggregate_envelopes
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
@@ -87,9 +88,9 @@ class TestPrecisionWeighted:
 
         assert result.point_estimate == pytest.approx(11.0, abs=0.01)
         assert result.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
-        assert result.gate_eligible is True
-        assert result.metadata["effective_information_count"] == 2
-        assert result.sample_size == 2
+        assert result.gate_eligible is False
+        assert result.metadata["effective_information_count"] is None
+        assert result.sample_size is None
 
     def test_precision_weighted_favors_precise(self) -> None:
         """Point estimate should be closer to the more precise (lower variance) source."""
@@ -139,10 +140,10 @@ class TestBayesianCombination:
         assert pw.ci_width == pytest.approx(bc.ci_width, abs=0.05)
         assert pw.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
         assert bc.interval_semantics is IntervalSemantics.CREDIBLE_INTERVAL
-        assert pw.gate_eligible is True
-        assert bc.gate_eligible is True
-        assert pw.metadata["effective_information_count"] == 2
-        assert bc.metadata["effective_information_count"] == 2
+        assert pw.gate_eligible is False
+        assert bc.gate_eligible is False
+        assert pw.metadata["effective_information_count"] is None
+        assert bc.metadata["effective_information_count"] is None
 
     def test_bayesian_interval_semantics(self) -> None:
         result = aggregate_envelopes(
@@ -163,8 +164,8 @@ class TestBayesianCombination:
             method=AggregationStrategy.BAYESIAN_COMBINATION,
         )
         assert result.interval_semantics == IntervalSemantics.CREDIBLE_INTERVAL
-        assert result.gate_eligible is True
-        assert result.metadata["effective_information_count"] == 2
+        assert result.gate_eligible is False
+        assert result.metadata["effective_information_count"] is None
 
 
 class TestWidestBackwardCompat:

@@ -16,6 +16,25 @@ output metric uncertainty in Foundry simulations.
 - **Monte Carlo** - sampling-based propagation when analytic assumptions fail.
 - **Aggregation** - envelope merging for multi-strategy or multi-run outputs.
 - **Config-driven fallback** - strategy choice is explicit and inspectable.
+- **Sampling admission** - `sampling_admission.py` rejects unsupported numeric
+  ranges before any sampler/evaluator; missing multi-input dependence is unknown.
+  Full Gaussian covariance preserves null spaces. Paired empirical laws require
+  content-bound coordinate order and ordered row identity.
+- **Mean planning** - `bounded_iid_mean` admits the canonical bounded indicator
+  response over an explicit Uniform[0,1] law, uses independent pilot/main streams,
+  and freezes a Bernstein main budget. Its numerical certificate is replayed from
+  persisted law/response/seed bytes; it does not verify production source authority.
+  Opaque callbacks cannot self-certify. Legacy adaptive settings execute the fixed
+  maximum without optional peeking at predictive spread.
+- **RQMC** - Sobol rounds to complete power-of-two nets per scramble. Mean error
+  uses replicate mean variation; predictive output spread remains separate.
+
+The Scientist node can configure the narrow indicator response with
+`bounded_iid_mean.response_threshold`. It persists/reloads the result and
+reconciles complete draw outcomes before publishing the candidate simulation.
+General served simulation-evaluator and production-law custody remain separate
+owner tasks. Uncertainty v1.1 read/replay and its wire schema are unchanged;
+independent point/interval functionals and v2 law storage require IR ratification.
 
 ## Public API
 
@@ -35,5 +54,5 @@ output metric uncertainty in Foundry simulations.
 ## Current State
 
 - Last updated: 2026-09-28
-- Files: 12 Python files in this package
+- Files: 13 Python files in this package
 - Exports: 12 names declared in `__all__`

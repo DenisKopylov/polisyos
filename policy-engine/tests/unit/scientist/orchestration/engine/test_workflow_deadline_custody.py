@@ -293,3 +293,87 @@ async def test_expired_native_cache_lookup_cannot_refresh_provider_admission(tmp
     assert node.calls == 1
     assert store.reads == 2
     assert len(node.refs) == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("operation", ["checkpoint", "run.finalize"])
+async def test_entered_mutable_publication_is_unacknowledged_unknown_not_rollback(
+    tmp_path, monkeypatch, operation
+):
+    from polisyos.scientist.orchestration.engine import checkpoint
+
+    store = _WriteGateCAS(tmp_path / "cas")
+    ctx, node, workflow, executor = _setup(store, timeout=0.5)
+    head_entered = threading.Event()
+    head_release = threading.Event()
+    head_finished = threading.Event()
+    if operation == "checkpoint":
+        original_update = checkpoint.update_checkpoint_head
+
+        def held_update(*args, **kwargs):
+            head_entered.set()
+            try:
+                assert head_release.wait(5)
+                return original_update(*args, **kwargs)
+            finally:
+                head_finished.set()
+
+        # Instrument the real filesystem boundary, then call its original
+        # atomic updater with the complete native checkpoint/ref/history.
+        monkeypatch.setattr(checkpoint, "update_checkpoint_head", held_update)
+        executor._checkpoint_hook = checkpoint.CASCheckpointHook(
+            store=store, run_dir=ctx.run.trace_path.parent
+        )
+
+        def release_head():
+            assert head_entered.wait(5)
+            time.sleep(0.8)
+            head_release.set()
+
+        release = threading.Thread(target=release_head)
+        release.start()
+    else:
+        store.target = "core.run_manifest"
+        release = _release_after_enter(store, 0.8)
+    try:
+        with pytest.raises(WorkflowTimeoutError) as failure:
+            await executor.execute(
+                workflow, ExperimentState(run_id="R_deadline", params={"seed": 7})
+            )
+        assert failure.value.details["execution_state"] == "unknown"
+        assert failure.value.details["publication_operation"] == operation
+        assert node.calls == 1
+        if operation == "checkpoint":
+            assert head_entered.is_set() and not head_release.is_set()
+            assert (
+                checkpoint.resolve_latest_checkpoint(FileSystemCAS(store.root), "R_deadline")
+                is None
+            )
+            assert ctx.run.run_manifest.outputs == []
+        else:
+            assert store.finished.is_set()
+            assert store.published is not None
+            reopened = FileSystemCAS(store.root)
+            assert reopened.verify(store.published).ok
+            manifest = json.loads(reopened.get_bytes(store.published))
+            assert manifest["status"] == "ok"
+            assert len(manifest["outputs"]) == 2
+            assert sum(event.get("event") == "RUN_FINALIZED" for event in _events(ctx)) == 1
+    finally:
+        head_release.set()
+        store.release.set()
+        release.join(5)
+    if operation == "checkpoint":
+        assert await asyncio.to_thread(head_finished.wait, 5)
+        reopened = FileSystemCAS(store.root)
+        resolved = checkpoint.resolve_latest_checkpoint(reopened, "R_deadline")
+        assert resolved is not None
+        head, dto = resolved
+        assert reopened.verify(head.checkpoint_ref).ok
+        assert dto.metadata.completed_nodes == ["compute"]
+        assert dto.state["params"] == {"seed": 7, "result": 14}
+        assert len(dto.metadata.cache_entry_refs) == 1
+        assert reopened.verify(dto.metadata.cache_entry_refs[0]).ok
+        assert not any(event.get("event") == "RUN_FINALIZED" for event in _events(ctx))
+    assert node.calls == 1
+    assert FileSystemCAS(store.root).verify(node.refs[0]).ok

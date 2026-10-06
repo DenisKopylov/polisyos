@@ -5,8 +5,11 @@
   "closure_ids": ["B16"],
   "bundle_ids": ["EMP-01"],
   "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
-  "implementation_commits": ["331cffecd64a98152a9933e0f3f3d19caae53dfb"],
-  "candidate_tree_sha": "fc9321208b738924fb4118ccce25f0ce130b2cd3",
+  "implementation_commits": [
+    "331cffecd64a98152a9933e0f3f3d19caae53dfb",
+    "263729e956c74e123695bd97edee0001d970aae3"
+  ],
+  "candidate_tree_sha": "e84673a5cc2439aab5e3af7f12986bc5778589b3",
   "branch": "codex/e02-A-s10-verifier",
   "pull_request": null,
   "changed_paths": [
@@ -63,10 +66,50 @@
       "input_closure": "EMP-01 B16 acceptance path in closure-decisions/A.md; no real profile substituted",
       "outcome": "UNRUN",
       "output": "No deciding output. Do not infer a positive S10 credibility result."
+    },
+    {
+      "command": "python3 -m ruff check policy-engine/src/polisyos/runtime/quality/design_axes/forecast_verification.py policy-engine/tests/unit/runtime/quality/test_forecast_verification.py",
+      "target_sha": "263729e956c74e123695bd97edee0001d970aae3",
+      "environment": "Python 3.14.0; macOS local A worktree",
+      "input_closure": "implementation commit 263729e956c74e123695bd97edee0001d970aae3; strict model/policy Core content binding",
+      "outcome": "PASS",
+      "output": "All checks passed!"
+    },
+    {
+      "command": "python3 -m py_compile policy-engine/src/polisyos/runtime/quality/design_axes/forecast_verification.py policy-engine/tests/unit/runtime/quality/test_forecast_verification.py",
+      "target_sha": "263729e956c74e123695bd97edee0001d970aae3",
+      "environment": "Python 3.14.0; macOS local A worktree",
+      "input_closure": "implementation commit 263729e956c74e123695bd97edee0001d970aae3; strict model/policy Core content binding",
+      "outcome": "PASS",
+      "output": "Exit 0; no diagnostics."
+    },
+    {
+      "command": "python3 -m pytest -q policy-engine/tests/unit/runtime/quality/test_forecast_verification.py",
+      "target_sha": "263729e956c74e123695bd97edee0001d970aae3",
+      "environment": "Python 3.14.0; macOS local A worktree",
+      "input_closure": "implementation commit 263729e956c74e123695bd97edee0001d970aae3; actual FileSystemCAS Core DTO resolution controls; no ETS execution",
+      "outcome": "PASS",
+      "output": "11 passed; one third-party JAX deprecation warning."
+    },
+    {
+      "command": "git diff --cached --check",
+      "target_sha": "263729e956c74e123695bd97edee0001d970aae3",
+      "environment": "Git pre-commit; macOS local A worktree",
+      "input_closure": "three leased source/test/documentation paths",
+      "outcome": "PASS",
+      "output": "Exit 0; no whitespace diagnostics."
+    },
+    {
+      "command": "git commit -m 'Bind forecast verification to Core specs' (pre-commit hook)",
+      "target_sha": "263729e956c74e123695bd97edee0001d970aae3",
+      "environment": "lefthook 2.1.6; macOS local A worktree",
+      "input_closure": "three leased source/test/documentation paths",
+      "outcome": "PASS",
+      "output": "lefthook completed; nonmatching frontend checks skipped; source commit created."
     }
   ],
   "property": {
-    "statement": "A's configured in-process verifier resolves the E report and source, independently runs the registered ETS using only the declared train slice, pairs the replayed predictions and intervals with the actual holdout, and recomputes counts, rate and threshold while binding request, evidence and report lineage and all six aware time roles.",
+    "statement": "A's configured in-process verifier resolves the E report and source, independently runs the registered ETS using only the declared train slice, pairs the replayed predictions and intervals with the actual holdout, and recomputes counts, rate and threshold while binding request, evidence and report lineage and all six aware time roles. Any supplied model/policy pair is also resolved from CAS and parsed with the strict canonical Trinity Core loaders.",
     "runtime_path": [
       "E forecast/calibration producer and CAS evidence (one-pass positive path unavailable on this base)",
       "persisted empirical-evidence, report, source and derived CAS artifacts",
@@ -79,7 +122,8 @@
       "self-consistent claimed interval count that disagrees with paired actual holdout hits is refused",
       "reported held-out outcome differing from resolved source bytes is refused",
       "duplicate identical manifest (artifact_id, role) edge is refused rather than deduplicated",
-      "persisted per-horizon uncertainty sample_count differing from replayed count is refused"
+      "persisted per-horizon uncertainty sample_count differing from replayed count is refused",
+      "model/policy CAS pair with wrong kind, invalid typed body, extra Core fields or incomplete pairing is refused"
     ]
   },
   "predicate_basis": "not_established",
@@ -87,6 +131,7 @@
   "limitations_and_next_owner": [
     "Root owns the default gateway and HTTP lifecycle composition; the verifier is not yet the production default consumer, and GET must rerun it from resolved inputs.",
     "The current main E owner does not provide the required one-pass configured empirical-evidence chain; do not manufacture one with a two-pass run or cast ForecastOwnerResult into evidence. Integrate only an accepted E producer contract.",
+    "Supplied model/policy content now has CAS integrity and strict Core DTO validation, but this does not establish profile admission, request provenance, model/policy authorization, or source scope.",
     "The admitted C observation projection has source_time_status=not_established and does not bind the target unit or full jurisdiction/scope profile; successful numeric replay therefore remains predictive-only and limited, never S10 authority.",
     "This base has no typed configured forecast-profile/request CAS binding; the verifier receives the strict request from its caller and reconciles it to E evidence/report/source bytes. Root composition must source that request from the trusted owner path, and this API alone does not establish C admission.",
     "Full CAS-backed content-valid forged-count, leakage, foreign-scope and temporal-role mutations, real ETS positive replay, changed-holdout response, and served POST→GET remain UNRUN; schedule the numeric path through the root-owned A queue after E/C prerequisites are admitted.",

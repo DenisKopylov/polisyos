@@ -79,6 +79,15 @@ filesystem failure raises `BudgetLedgerSettlementOutcomeUnknownError` rather
 than reporting zero spend. This contract acknowledges local ledger accounting;
 an external provider needs its own receipt or status/idempotency contract.
 
+The runtime control store admits worker writes in one database transaction.
+It checks the current job owner, attempt and live lease on the locked row before
+publication and commit. Lease renewal in that transaction remains valid; a
+stale bound worker cannot mutate through a sibling public method or raw SQL.
+Administrative mutations use a separate unbound store. Terminal continuation
+requires the immediately verified lifecycle transition, rather than a caller's
+claim that the job is terminal. See the
+[control-store contract](../../../runtime/http/services/README.md).
+
 ## Reference Docs
 
 - Scientist workflow reference: [`../../../../docs/reference/scientist/workflows.md`](../../../../docs/reference/scientist/workflows.md)

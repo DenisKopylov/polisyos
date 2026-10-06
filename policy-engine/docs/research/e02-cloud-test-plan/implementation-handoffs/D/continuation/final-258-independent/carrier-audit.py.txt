@@ -1,0 +1,141 @@
+"""Verify published corrective-wave transport, without executing product or tests."""
+from __future__ import annotations
+
+import base64
+import gzip
+import hashlib
+import json
+import lzma
+from pathlib import Path
+import subprocess
+
+REPO = '/workspace/e02-D-published-root'
+SOURCE = '258a6c89ea7cbb8394d39965a243a4bab3592358'
+TREE = '2528701d167b1c07efa96b8891c4d825eea5a1fd'
+CARRIER_COMMIT = 'ba9f1a664b818b37878e8c62454cb60bad80209c'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/'
+CARRIER_PATH = PREFIX + 'root-wave-258-final/complete-output.json.xz'
+MANIFEST_PATH = PREFIX + 'root-wave-258-final/manifest.json'
+CAPTURE = Path('/tmp/e02-D-final-root-wave-258a6c89-20261006')
+
+
+def git_bytes(commit: str, path: str) -> bytes:
+    return subprocess.check_output(['git', '-C', REPO, 'show', commit + ':' + path])
+
+
+def digest(raw: bytes) -> str:
+    return hashlib.sha256(raw).hexdigest()
+
+
+def identity(raw: bytes) -> dict[str, object]:
+    return {'bytes': len(raw), 'sha256': digest(raw)}
+
+
+carrier = git_bytes(CARRIER_COMMIT, CARRIER_PATH)
+manifest_raw = git_bytes(CARRIER_COMMIT, MANIFEST_PATH)
+manifest = json.loads(manifest_raw)
+decoded = lzma.decompress(carrier)
+bundle = json.loads(decoded)
+errors: list[str] = []
+if manifest['source_sha'] != SOURCE or bundle['source_sha'] != SOURCE:
+    errors.append('Wrong source SHA')
+if manifest['source_tree'] != TREE or bundle['source_tree'] != TREE:
+    errors.append('Wrong source tree')
+if manifest['carrier_bytes'] != len(carrier) or manifest['carrier_sha256'] != digest(carrier):
+    errors.append('Carrier identity mismatch')
+rows: list[dict[str, object]] = []
+bodies: dict[str, bytes] = {}
+for index, member in enumerate(bundle['members']):
+    if member['encoding'] != 'base64':
+        raise ValueError('Unexpected transport encoding')
+    raw = base64.b64decode(member['data'], validate=True)
+    meta = {key: value for key, value in member.items() if key != 'data'}
+    valid_identity = identity(raw) == {'bytes': member['bytes'], 'sha256': member['sha256']}
+    valid_manifest = meta == manifest['members'][index]
+    valid_original = raw == (CAPTURE / member['name']).read_bytes()
+    if not (valid_identity and valid_manifest and valid_original):
+        errors.append('Member mismatch: ' + member['name'])
+    bodies[member['name']] = raw
+    rows.append({'index': index, **meta, 'body_identity_MATCH': valid_identity,
+                 'manifest_record_MATCH': valid_manifest, 'original_capture_MATCH': valid_original})
+regular_files = sorted(str(path.relative_to(CAPTURE)) for path in CAPTURE.rglob('*') if path.is_file())
+member_names = sorted(bodies)
+if regular_files != member_names or len(bodies) != len(bundle['members']):
+    errors.append('Original retained regular-file denominator mismatch')
+if len(rows) != manifest['member_count'] or sum(len(raw) for raw in bodies.values()) != manifest['original_raw_bytes']:
+    errors.append('Manifest count/raw bytes mismatch')
+before = json.loads(bodies['before.json'])
+external = before['external_input_files']
+helper_specs = [
+    ('/tmp/e02-D-broad-wave-final.py', '69e2d477b7e8f2e213bf545fbbad42881a9aefce',
+     PREFIX + 'final-wave-input/runner.py.txt'),
+    ('/tmp/e02-D-broad-wave.py', 'e038bca98f9e33dca33cc49221a85311a5ab5704',
+     PREFIX + 'configured-transfer-8c-native-proof/broad-wave-source-helpers.py.txt'),
+    ('/tmp/e02_broad_observer.py', 'e038bca98f9e33dca33cc49221a85311a5ab5704',
+     PREFIX + 'configured-transfer-8c-native-proof/broad-runtime-observer.py.txt'),
+]
+helper_rows = []
+for original, commit, path in helper_specs:
+    raw = git_bytes(commit, path)
+    recorded = external[original]
+    matches = identity(raw) == {'bytes': recorded['bytes'], 'sha256': recorded['sha256']}
+    original_equal = raw == Path(original).read_bytes()
+    if not (matches and original_equal):
+        errors.append('External helper mismatch: ' + original)
+    helper_rows.append({'source_sha': commit, 'path': path, **identity(raw),
+                        'original_path': original, 'captured_identity_MATCH': matches,
+                        'retained_original_MATCH': original_equal})
+plan_commit = '6333d6205a4abd14e6ef246a668cbff51e72b482'
+plan_path = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption-proof/output.json.gz'
+plan_carrier = git_bytes(plan_commit, plan_path)
+plan_member = json.loads(gzip.decompress(plan_carrier))['members'][11]
+plan_raw = base64.b64decode(plan_member['content'], validate=True)
+plan_original = '/tmp/e02-D-final-selector-plan.py'
+plan_recorded = external[plan_original]
+plan_matches = identity(plan_raw) == {'bytes': plan_recorded['bytes'], 'sha256': plan_recorded['sha256']}
+plan_original_matches = plan_raw == Path(plan_original).read_bytes()
+if not (plan_matches and plan_original_matches):
+    errors.append('External selector-plan input mismatch')
+helper_rows.append({'source_sha': plan_commit, 'path': plan_path, 'member_pointer': '/members/11/content',
+                    'member_name': plan_member['name'], **identity(plan_raw),
+                    'original_path': plan_original, 'captured_identity_MATCH': plan_matches,
+                    'retained_original_MATCH': plan_original_matches})
+runner_ref = bundle['original_runner_git_ref']
+if runner_ref != {key: helper_rows[0][key] for key in ('source_sha', 'path', 'sha256')}:
+    errors.append('Declared original runner ref mismatch')
+result = json.loads(bodies['result.json'])
+report = {
+    'schema': 'polisyos.e02.independent_corrective_final_transport_binding.v1',
+    'source_sha': SOURCE, 'source_tree': TREE, 'metadata_only': True, 'new_runtime': False,
+    'carrier_commit': CARRIER_COMMIT,
+    'carrier_tree': subprocess.check_output(['git', '-C', REPO, 'rev-parse', CARRIER_COMMIT + '^{tree}'], text=True).strip(),
+    'carrier': {'path': CARRIER_PATH, **identity(carrier)},
+    'manifest': {'path': MANIFEST_PATH, **identity(manifest_raw)},
+    'decoded_transport': identity(decoded), 'member_count': len(rows),
+    'original_raw_bytes': sum(len(raw) for raw in bodies.values()), 'members': rows,
+    'retained_regular_file_names_MATCH': regular_files == member_names,
+    'existing_external_input_git_refs': helper_rows,
+    'discrepancies': errors, 'integrity_verdict': 'PASS' if not errors else 'FAIL',
+    'runtime_verdict': result['status'],
+    'runtime_source_is_carrier_source': result['source_sha'] == SOURCE,
+    'limitations': [
+        'Integrity PASS only; no new pytest/backend execution was performed.',
+        'The child SIGKILL (-9) ended before any case phase or completed collection event; all1249 recorded cases remain UNRUN.',
+        'A recorded collected-nodeids artifact does not establish completed collection, session success, JUnit or numerical fitting.',
+        'All thirteen retained regular outputs were checked; no additional retained regular fixture file was present.',
+        'Existing tracked helper bodies are referenced via exact Git and never recopied in this review.',
+        'Original runtime paths and metadata describe main-process partial observations, not full subprocess provenance.',
+    ],
+    'P41': 'not_established', 'formal_closed': 0, 'G_accepted': False,
+    'verifier_preparation': [
+        {'status': 'ERROR_METADATA_PREPARATION', 'detail': "An earlier interactive inspection used manifest['complete_members']; this carrier uses manifest['members']. The KeyError occurred before a binding verdict and was corrected without runtime or payload mutation."}
+    ],
+}
+destination = Path('/tmp/e02-oracle-258-carrier-independent-binding.json')
+if destination.exists():
+    raise ValueError('Fresh append-only metadata output required')
+destination.write_text(json.dumps(report, indent=2) + '\n')
+print(json.dumps({'output': str(destination), **identity(destination.read_bytes()),
+                  'members': len(rows), 'raw_bytes': report['original_raw_bytes'],
+                  'discrepancies': errors, 'integrity': report['integrity_verdict'],
+                  'runtime': report['runtime_verdict']}, indent=2))

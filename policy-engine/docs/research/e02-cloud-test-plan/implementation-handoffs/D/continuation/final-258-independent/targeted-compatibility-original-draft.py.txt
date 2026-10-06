@@ -1,0 +1,73 @@
+"""Compare immutable target inputs without rerunning any earlier test scope."""
+from __future__ import annotations
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+REPO = '/workspace/e02-D-published-root'
+FINAL = '258a6c89ea7cbb8394d39965a243a4bab3592358'
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/'
+
+
+def tree(sha: str) -> dict:
+    values = {}
+    for row in subprocess.check_output(['git', '-C', REPO, 'ls-tree', '-rz', sha]).split(b'\0'):
+        if row:
+            metadata, path = row.split(b'\t', 1)
+            values[path.decode()] = metadata.decode().split()[2]
+    return values
+
+
+final = tree(FINAL)
+scopes = [
+    ('optional38', 'b9fc7d005d39ded686f276fae8eae617b683bac6', [
+        'policy-engine/tests/unit/scientist/agent/test_vector_memory.py',
+        'policy-engine/tests/unit/remediation/test_trn_02.py',
+        'policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py'],
+        PREFIX + 'optional-native-profile-handoff.json',
+        '17 backend-independent PASS and21 native SKIP/UNRUN; not native numerical acceptance'),
+    ('paid_cache13', '06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04', [
+        'policy-engine/tests/unit/remediation/test_llm_01.py'],
+        PREFIX + 'llm-cache-native-custody.json',
+        '13 native paid-cache fixture/consumer cases PASS; bounded owner-recorded custody, not external billing authority'),
+    ('stress57', 'b9fc7d005d39ded686f276fae8eae617b683bac6', [
+        'policy-engine/tests/unit/scientist/search/test_stress_scenario_evidence.py',
+        'policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py',
+        'policy-engine/tests/unit/scientist/search/test_challenge_scenario_projection.py'],
+        PREFIX + 'final-stress-probes-independent-review.json',
+        'Healthy whole3files57PASS; property-removal2runs each53PASS4FAIL retained separately; no invented population/scientific authority'),
+    ('root44', 'f2d5401c9cd8a02a74579e4c47b836042a12eb99', [
+        'policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py',
+        'policy-engine/tests/unit/scientist/search/test_budget_ledger.py',
+        'policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py'],
+        PREFIX + 'root-composed-affected44.json',
+        '35node+7ledger+2ordinaryconsumer44PASS; original imported_bundle individually uncaptured historical scope caveat remains'),
+]
+rows = []
+for name, source, selected, receipt in scopes:
+    previous = tree(source)
+    python_paths = set(path for path in previous | final if path.startswith('policy-engine/src/') and path.endswith('.py'))
+    differences = sorted(path for path in python_paths if previous.get(path) != final.get(path))
+    inputs = []
+    for path in selected + ['policy-engine/pytest.ini', 'policy-engine/pyproject.toml', 'policy-engine/uv.lock']:
+        inputs.append({'path': path, 'prior_git_blob': previous.get(path), 'final_git_blob': final.get(path),
+                       'bytes_equal': previous.get(path) == final.get(path) and path in final})
+    rows.append({'scope': name, 'actual_previous_runtime_sha': source,
+        'final_source_sha': FINAL, 'production_python_differences': differences,
+        'test_and_config_binding_checks': inputs, 'existing_receipt_path_at_final': receipt,
+        'existing_receipt_git_blob': final.get(receipt), 'historical_outcome_scope': name,
+        'qualification': scopes[[x[0] for x in scopes].index(name)][4],
+        'new_runtime_or_aggregate_PASS': False})
+output = {'schema': 'polisyos.e02.independent_final_target_input_compatibility.v1',
+          'final_source_sha': FINAL, 'new_runtime': False, 'scopes': rows,
+          'interpretation': 'Equal immutable input blobs support bounded source compatibility only. Every historical result remains bound to its actual source, environment, input denominator and custody limits. The final1249case wave remains ERROR/UNRUN, not a sum or inheritance of targetedPASS.',
+          'P41': 'not_established', 'formal_closed': 0, 'G_accepted': False}
+destination = Path('/tmp/e02-oracle-258-targeted-source-compatibility.json')
+if destination.exists():
+    raise ValueError('Fresh metadata destination required')
+destination.write_text(json.dumps(output, indent=2) + '\n')
+print(json.dumps({'output': str(destination), 'bytes': len(destination.read_bytes()),
+    'sha256': hashlib.sha256(destination.read_bytes()).hexdigest(),
+    'scopes': [{'name': row['scope'], 'production_python_differences': row['production_python_differences'],
+               'input_mismatches': [x['path'] for x in row['test_and_config_binding_checks'] if not x['bytes_equal']]} for row in rows]}, indent=2))

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -9,6 +10,7 @@ import shutil
 import tempfile
 import uuid
 from collections.abc import Callable, Mapping, Sequence
+from contextlib import suppress
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, cast
@@ -18,6 +20,7 @@ import numpy as np
 from polisyos.data_forge.kernel.io.atomic import atomic_commit_path, atomic_write_json
 from polisyos.data_forge.kernel.io.generation_basis import (
     GENERATION_BASIS_SCHEMA_VERSION,
+    GenerationIdentity,
     build_generation_basis,
 )
 from polisyos.data_forge.kernel.io.hashing import sha256_bytes, sha256_file
@@ -60,6 +63,7 @@ def build_embedding_index(
     embedding_dimension: int = 1024,
     embedding_batch_size: int = 32,
     thermal_pause_seconds: float = 0.0,
+    encoder: object | None = None,
 ) -> tuple[int, int]:
     """Encode prepared ``(id, text)`` rows and write the legacy index pair.
 
@@ -75,7 +79,7 @@ def build_embedding_index(
 
     ids = [row[0] for row in rows]
     texts = [row[1] for row in rows]
-    model = SentenceTransformer(embedding_model, device=embedding_device)
+    model = encoder or SentenceTransformer(embedding_model, device=embedding_device)
 
     chunks: list[np.ndarray] = []
     for start in range(0, len(texts), embedding_batch_size):
@@ -127,6 +131,13 @@ def build_embedding_generation(
     own staging directory, leaving the previous selector and generation intact.
     """
     normalized_rows = _normalize_rows(rows)
+    encoder: object | None = None
+    encoder_identity: GenerationIdentity | None = None
+    if normalized_rows:
+        from sentence_transformers import SentenceTransformer
+
+        encoder = SentenceTransformer(embedding_model, device=embedding_device)
+        encoder_identity = derive_encoder_identity(encoder)
 
     def _stage(staging: Path) -> tuple[int, int]:
         if normalized_rows:
@@ -139,6 +150,7 @@ def build_embedding_generation(
                 embedding_dimension=embedding_dimension,
                 embedding_batch_size=embedding_batch_size,
                 thermal_pause_seconds=thermal_pause_seconds,
+                encoder=encoder,
             )
         dimension = int(embedding_dimension)
         np.savez(
@@ -155,6 +167,7 @@ def build_embedding_generation(
         embedding_device=embedding_device,
         basis_kind=basis_kind,
         projection_rule_version=projection_rule_version,
+        encoder_identity=encoder_identity,
         legacy_embeddings_path=legacy_embeddings_path,
         legacy_index_path=legacy_index_path,
         stage_builder=_stage,
@@ -171,6 +184,7 @@ def _build_embedding_generation_from_vectors(
     embedding_dimension: int,
     basis_kind: str,
     projection_rule_version: str,
+    encoder_identity: GenerationIdentity,
     legacy_embeddings_path: Path | None = None,
     legacy_index_path: Path | None = None,
 ) -> tuple[int, int]:
@@ -218,6 +232,7 @@ def _build_embedding_generation_from_vectors(
         embedding_device=embedding_device,
         basis_kind=basis_kind,
         projection_rule_version=projection_rule_version,
+        encoder_identity=encoder_identity,
         legacy_embeddings_path=legacy_embeddings_path,
         legacy_index_path=legacy_index_path,
         stage_builder=_stage,
@@ -232,6 +247,7 @@ def _publish_embedding_generation(
     embedding_device: str,
     basis_kind: str,
     projection_rule_version: str,
+    encoder_identity: GenerationIdentity | None,
     legacy_embeddings_path: Path | None,
     legacy_index_path: Path | None,
     stage_builder: Callable[[Path], tuple[int, int]],
@@ -263,8 +279,11 @@ def _publish_embedding_generation(
             embedding_model=embedding_model,
             embedding_device=embedding_device,
             embedding_dimension=actual_dimension,
+            encoder_identity=encoder_identity,
         )
         if normalized_rows:
+            if encoder_identity is None:
+                raise ValueError("non-empty embedding generation requires encoder identity")
             basis = build_generation_basis(
                 basis_kind=basis_kind,
                 generator_rule_version=generator_rule_version,
@@ -317,12 +336,15 @@ def _publish_embedding_generation(
             "inventory_sha256": sha256_file(inventory_path),
         }
 
+        atomic_write_json(index_dir / GENERATION_SELECTOR_FILENAME, selector)
+        # The selector commits the immutable generation. Compatibility aliases
+        # are projections only and may fail independently after readers have a
+        # complete authoritative generation to resolve.
         if status == "complete":
             if legacy_embeddings_path is not None:
                 _atomic_copy_file(final_dir / "embeddings.npz", legacy_embeddings_path)
             if legacy_index_path is not None:
                 _atomic_copy_file(final_dir / "index.hnsw", legacy_index_path)
-        atomic_write_json(index_dir / GENERATION_SELECTOR_FILENAME, selector)
         return count, actual_dimension
     finally:
         if staging is not None and staging.exists():
@@ -364,7 +386,22 @@ def resolve_embedding_generation(
         return None
     try:
         ids, dimension = _read_embedding_matrix(legacy_embeddings_path)
-    except (OSError, TypeError, ValueError, KeyError, json.JSONDecodeError):
+        if not _legacy_index_matches_matrix(
+            embeddings_path=legacy_embeddings_path,
+            index_path=legacy_index_path,
+            ids=ids,
+            dimension=dimension,
+        ):
+            return None
+    except (
+        ImportError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+        KeyError,
+        json.JSONDecodeError,
+    ):
         return None
     return EmbeddingGenerationRef(
         generation_id="legacy-flat",
@@ -453,11 +490,263 @@ def _generator_rule_version(
     embedding_model: str,
     embedding_device: str,
     embedding_dimension: int,
+    encoder_identity: GenerationIdentity | None = None,
 ) -> str:
+    encoder_content = (
+        encoder_identity.content_identity if encoder_identity is not None else "unbound"
+    )
     return (
         f"{projection_rule_version}|model={embedding_model}|device={embedding_device}"
-        f"|dimension={embedding_dimension}"
+        f"|dimension={embedding_dimension}|encoder={encoder_content}"
     )
+
+
+def derive_encoder_identity(encoder: object) -> GenerationIdentity:
+    """Fingerprint loaded encoder weights, tokenizer assets, and architecture.
+
+    Model names are labels and can resolve to changed assets. The identity
+    therefore includes the live state dictionary and tokenizer vocabulary/config
+    that produced the vectors. Unsupported encoder objects fail closed.
+    """
+    state_dict_method = getattr(encoder, "state_dict", None)
+    if not callable(state_dict_method):
+        raise ValueError("encoder does not expose a state dictionary")
+    state_dict = state_dict_method()
+    if not isinstance(state_dict, Mapping) or not state_dict:
+        raise ValueError("encoder state dictionary is empty or malformed")
+
+    digest = hashlib.sha256()
+    for name in sorted(str(key) for key in state_dict):
+        value = state_dict[name]
+        raw, dtype, shape = _tensor_bytes(value)
+        _hash_frame(digest, name.encode("utf-8"))
+        _hash_frame(digest, dtype.encode("utf-8"))
+        _hash_frame(digest, _canonical_json(list(shape)))
+        _hash_frame(digest, raw)
+
+    modules_method = getattr(encoder, "modules", None)
+    modules = list(modules_method()) if callable(modules_method) else [encoder]
+    module_config: list[dict[str, object]] = []
+    tokenizers: list[tuple[str, object]] = []
+    for module_index, module in enumerate(modules):
+        module_config.append(
+            {
+                "class": f"{type(module).__module__}.{type(module).__qualname__}",
+                "config": _module_config(module),
+            }
+        )
+        tokenizer = getattr(module, "tokenizer", None)
+        if tokenizer is not None:
+            tokenizers.append((str(module_index), tokenizer))
+    direct_tokenizer = getattr(encoder, "tokenizer", None)
+    if direct_tokenizer is not None and all(
+        direct_tokenizer is not existing for _index, existing in tokenizers
+    ):
+        tokenizers.append(("direct", direct_tokenizer))
+    if not tokenizers:
+        raise ValueError("encoder does not expose its tokenizer assets")
+
+    tokenizer_material: list[dict[str, object]] = []
+    for name, tokenizer in tokenizers:
+        vocab_method = getattr(tokenizer, "get_vocab", None)
+        vocabulary = vocab_method() if callable(vocab_method) else None
+        if not isinstance(vocabulary, Mapping) or not vocabulary:
+            raise ValueError("encoder tokenizer vocabulary is unavailable")
+        backend = getattr(tokenizer, "backend_tokenizer", None)
+        backend_json = backend.to_str() if callable(getattr(backend, "to_str", None)) else None
+        sentencepiece = getattr(tokenizer, "sp_model", None)
+        sentencepiece_bytes = None
+        if callable(getattr(sentencepiece, "serialized_model_proto", None)):
+            sentencepiece_bytes = sentencepiece.serialized_model_proto().hex()
+        tokenizer_material.append(
+            {
+                "name": name,
+                "class": f"{type(tokenizer).__module__}.{type(tokenizer).__qualname__}",
+                "vocabulary": sorted(
+                    (str(token), int(index)) for token, index in vocabulary.items()
+                ),
+                "special_tokens": _jsonable(getattr(tokenizer, "special_tokens_map", {})),
+                "settings": _tokenizer_settings(tokenizer),
+                "added_vocabulary": _jsonable(
+                    getattr(tokenizer, "get_added_vocab", lambda: {})()
+                ),
+                "backend": backend_json,
+                "sentencepiece": sentencepiece_bytes,
+            }
+        )
+    _hash_frame(digest, _canonical_json(module_config))
+    _hash_frame(digest, _canonical_json(tokenizer_material))
+    return GenerationIdentity(content_identity=f"sha256:{digest.hexdigest()}")
+
+
+def _tensor_bytes(value: object) -> tuple[bytes, str, tuple[int, ...]]:
+    detach = getattr(value, "detach", None)
+    if callable(detach):
+        tensor = detach().cpu().contiguous()
+        dtype = str(getattr(tensor, "dtype", ""))
+        shape_value = getattr(tensor, "shape", ())
+        shape = tuple(int(item) for item in shape_value)
+        view = getattr(tensor, "view", None)
+        if callable(view):
+            with suppress(ImportError, TypeError, RuntimeError):
+                tensor = view(__import__("torch").uint8)
+        numpy_value = tensor.numpy()
+    else:
+        numpy_value = np.asarray(value)
+        dtype = str(numpy_value.dtype)
+        shape = tuple(int(item) for item in numpy_value.shape)
+    if not hasattr(numpy_value, "tobytes"):
+        raise ValueError("encoder state dictionary contains an unsupported tensor")
+    return numpy_value.tobytes(order="C"), dtype, shape
+
+
+def _module_config(module: object) -> object:
+    module_config_method = getattr(module, "get_config_dict", None)
+    if callable(module_config_method):
+        config_value = module_config_method()
+    else:
+        config = getattr(module, "config", None)
+        to_dict = getattr(config, "to_dict", None)
+        config_value = to_dict() if callable(to_dict) else config
+    projection_fields = (
+        "pooling_mode_cls_token",
+        "pooling_mode_mean_tokens",
+        "pooling_mode_max_tokens",
+        "pooling_mode_mean_sqrt_len_tokens",
+        "pooling_mode_weightedmean_tokens",
+        "pooling_mode_lasttoken",
+        "max_seq_length",
+        "do_lower_case",
+        "normalize_embeddings",
+    )
+    return {
+        "config": _jsonable(config_value) if config_value is not None else {},
+        "projection": {
+            name: _jsonable(getattr(module, name))
+            for name in projection_fields
+            if hasattr(module, name)
+        },
+    }
+
+
+def _tokenizer_settings(tokenizer: object) -> dict[str, object]:
+    """Capture tokenizer behavior settings without binding cache locations."""
+    settings: dict[str, object] = {}
+    for name in (
+        "model_max_length",
+        "padding_side",
+        "truncation_side",
+        "clean_up_tokenization_spaces",
+        "model_input_names",
+        "do_lower_case",
+        "add_prefix_space",
+        "strip_accents",
+        "tokenize_chinese_chars",
+    ):
+        if hasattr(tokenizer, name):
+            settings[name] = _jsonable(getattr(tokenizer, name))
+    init_kwargs = getattr(tokenizer, "init_kwargs", None)
+    if isinstance(init_kwargs, Mapping):
+        settings["init_kwargs"] = {
+            str(key): _jsonable(value)
+            for key, value in init_kwargs.items()
+            if not str(key).endswith(("_file", "_path"))
+            and str(key) not in {"name_or_path", "_name_or_path"}
+        }
+    return settings
+
+
+def _jsonable(value: object) -> object:
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, Mapping):
+        return {str(key): _jsonable(item) for key, item in value.items()}
+    if isinstance(value, set):
+        return sorted((_jsonable(item) for item in value), key=repr)
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(item) for item in value]
+    if hasattr(value, "item") and callable(value.item):
+        return _jsonable(value.item())
+    if isinstance(value, Path):
+        return str(value)
+    if isinstance(getattr(value, "content", None), str):
+        return {
+            "content": value.content,
+            "lstrip": bool(getattr(value, "lstrip", False)),
+            "rstrip": bool(getattr(value, "rstrip", False)),
+            "normalized": bool(getattr(value, "normalized", False)),
+            "special": bool(getattr(value, "special", False)),
+        }
+    raise ValueError(f"encoder configuration contains unsupported value: {type(value)!r}")
+
+
+def _hash_frame(digest: hashlib._Hash, raw: bytes) -> None:
+    digest.update(len(raw).to_bytes(8, "big"))
+    digest.update(raw)
+
+
+def _legacy_index_matches_matrix(
+    *,
+    embeddings_path: Path,
+    index_path: Path,
+    ids: tuple[str, ...],
+    dimension: int,
+) -> bool:
+    """Prove a selector-less legacy HNSW index matches its flat matrix."""
+    import hnswlib
+
+    with np.load(str(embeddings_path), allow_pickle=True) as payload:
+        vectors = np.asarray(payload["vectors"], dtype=np.float32)
+    if not index_path.is_file() or vectors.shape != (len(ids), dimension) or not len(ids):
+        return False
+    index = hnswlib.Index(space="cosine", dim=dimension)
+    index.load_index(str(index_path), max_elements=len(ids))
+    return hnsw_index_matches_vectors(index, vectors)
+
+
+def hnsw_index_matches_vectors(index: object, vectors: np.ndarray) -> bool:
+    """Check that HNSW labels and stored vectors bind to the supplied matrix."""
+    matrix = np.asarray(vectors, dtype=np.float32)
+    if matrix.ndim != 2 or not matrix.shape[0] or not np.isfinite(matrix).all():
+        return False
+    try:
+        if int(index.get_current_count()) != matrix.shape[0]:
+            return False
+        labels = tuple(int(value) for value in index.get_ids_list())
+        if set(labels) != set(range(matrix.shape[0])):
+            return False
+        stored = np.asarray(index.get_items(np.arange(matrix.shape[0])), dtype=np.float32)
+    except (AttributeError, RuntimeError, TypeError, ValueError):
+        return False
+    return stored.shape == matrix.shape and bool(
+        np.allclose(stored, matrix, rtol=0.0, atol=1e-6)
+    )
+
+
+def generation_basis_matches_members(
+    reference: EmbeddingGenerationRef,
+    *,
+    basis_kind: str,
+    members: Sequence[tuple[str, bytes]],
+) -> bool:
+    """Reconcile a selected generation basis against current consumer inputs."""
+    if not reference.selected or reference.status != "complete":
+        return False
+    raw_basis = reference.inventory.get("basis")
+    if not isinstance(raw_basis, Mapping):
+        return False
+    generator_rule_version = raw_basis.get("generator_rule_version")
+    if not isinstance(generator_rule_version, str) or not generator_rule_version:
+        return False
+    try:
+        current = build_generation_basis(
+            basis_kind=basis_kind,
+            generator_rule_version=generator_rule_version,
+            members=members,
+        )
+    except (TypeError, ValueError):
+        return False
+    return current.to_dict() == dict(raw_basis)
 
 
 def _empty_generation_basis(*, basis_kind: str, generator_rule_version: str) -> dict[str, object]:
@@ -720,5 +1009,7 @@ __all__ = [
     "build_embedding_generation",
     "build_embedding_index",
     "embedding_generation_manifest",
+    "generation_basis_matches_members",
+    "hnsw_index_matches_vectors",
     "resolve_embedding_generation",
 ]

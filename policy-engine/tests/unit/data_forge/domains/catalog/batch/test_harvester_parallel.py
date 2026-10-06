@@ -6,6 +6,21 @@ from polisyos.data_forge.domains.catalog.batch import harvester as harvester_mod
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.harvester import harvest_sources
 from polisyos.data_forge.domains.catalog.batch.source_registry import SourceRegistry, SourceSpec
+from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest
+
+
+def _write_fake_harvest_artifacts(config, spec, rows) -> None:
+    snapshot_dir = config.raw_dir / spec.name / config.snapshot_root.name
+    payload_path = snapshot_dir / "payload.jsonl"
+    manifest_path = snapshot_dir / "manifest.json"
+    harvester_module._write_jsonl(payload_path, rows)
+    write_raw_manifest(
+        manifest_path=manifest_path,
+        source=spec.name,
+        endpoint=spec.endpoint,
+        payload_path=payload_path,
+        count=len(rows),
+    )
 
 
 def test_harvest_sources_runs_independent_sources_in_parallel(monkeypatch, tmp_path) -> None:
@@ -34,7 +49,9 @@ def test_harvest_sources_runs_independent_sources_in_parallel(monkeypatch, tmp_p
         await asyncio.sleep(0.05)
         async with gate:
             state["active"] -= 1
-        return [{"id": spec.name}]
+        rows = [{"id": spec.name}]
+        _write_fake_harvest_artifacts(config, spec, rows)
+        return rows
 
     monkeypatch.setattr(harvester_module, "harvest_one_source", _fake_harvest_one_source)
 
@@ -104,7 +121,9 @@ def test_harvest_sources_respects_seed_dependencies_and_keeps_broad_ckan_serial(
             if spec.name in {"data_gov_ua_broad", "data_gov_ro_broad"}:
                 state["active_broad_ckan"] -= 1
             state["active_total"] -= 1
-        return [{"id": spec.name}]
+        rows = [{"id": spec.name}]
+        _write_fake_harvest_artifacts(config, spec, rows)
+        return rows
 
     monkeypatch.setattr(harvester_module, "harvest_one_source", _fake_harvest_one_source)
 

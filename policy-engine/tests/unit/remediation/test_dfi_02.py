@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import asyncio
 
+from polisyos.data_forge.domains.catalog.batch import pipeline
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    CoreSourcesCompatibilityContext,
+    CoreSourcesIngestStats,
+    bind_core_sources_compatibility_context,
+)
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.core_sources import api, loaders, transformers
-from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
-    CoreSourcesIngestStats,
-)
-from polisyos.data_forge.domains.catalog.batch import pipeline
 from polisyos.fabric.connectors.base import DatasetCapabilitySnapshot
 
 
@@ -94,9 +96,59 @@ def test_facade_override_is_scoped_to_supported_loader_binding(monkeypatch) -> N
     from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as facade
 
     original = transformers._to_iso3
-    replacement = lambda _country: "BOUND"
+
+    def replacement(_country: str) -> str:
+        return "BOUND"
+
     monkeypatch.setattr(facade, "_to_iso3", replacement)
 
     assert facade._bulk_country_values("ilo", ("UA",)) == ["BOUND"]
 
+    assert transformers._to_iso3 is original
+
+
+def test_facade_override_does_not_mutate_owner_module_during_call(monkeypatch) -> None:
+    from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as facade
+
+    original = transformers._to_iso3
+
+    def _replacement(_country: str) -> str:
+        assert transformers._to_iso3 is original
+        return "REQUEST"
+
+    monkeypatch.setattr(facade, "_to_iso3", _replacement)
+
+    assert facade._bulk_country_values("ilo", ("UA",)) == ["REQUEST"]
+
+
+def test_overlapping_compatibility_contexts_keep_sibling_dependencies_isolated() -> None:
+    original = transformers._to_iso3
+    contexts = [
+        CoreSourcesCompatibilityContext(
+            bindings={
+                (transformers.__name__, "_to_iso3"): lambda _country, label=label: label
+            }
+        )
+        for label in ("REQUEST_A", "REQUEST_B")
+    ]
+
+    async def _run_siblings() -> list[list[str]]:
+        ready = asyncio.Event()
+        waiting = 0
+
+        async def _load(context: CoreSourcesCompatibilityContext) -> list[str]:
+            nonlocal waiting
+            with bind_core_sources_compatibility_context(context):
+                waiting += 1
+                if waiting == 2:
+                    ready.set()
+                await ready.wait()
+                return loaders._bulk_country_values("ilo", ("UA", "PL"))
+
+        return await asyncio.gather(*(_load(context) for context in contexts))
+
+    assert asyncio.run(_run_siblings()) == [
+        ["REQUEST_A", "REQUEST_A"],
+        ["REQUEST_B", "REQUEST_B"],
+    ]
     assert transformers._to_iso3 is original

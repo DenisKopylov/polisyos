@@ -13,6 +13,9 @@ transportability layer over the dataset catalog built by the batch pipeline.
 ## Key Concepts
 
 - **Hybrid search** - `DatasetCatalogGraph` combines text and vector retrieval.
+- **Embedding projection** - `embedding_projection.py` keeps the Catalog
+  title/description/keyword/variable text projection shared by the batch writer
+  and the read-only store's generation membership check.
 - **Dataset registry** - `DatasetRegistry` resolves datasets for canonical variables and P*(Z) estimates.
 - **Proxy resolution** - `proxy_resolver.py` builds fallback chains when direct observations are missing.
 - **Variable alignment** - `variable_alignment.py` maps canonical SKG variables onto dataset variables.

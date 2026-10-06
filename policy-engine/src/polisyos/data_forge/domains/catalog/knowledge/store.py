@@ -7,9 +7,13 @@ import json
 import re
 from typing import TYPE_CHECKING
 
+import duckdb
 import numpy as np
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.catalog.knowledge.embedding_projection import (
+    dataset_embedding_text,
+)
 from polisyos.data_forge.domains.catalog.knowledge.overlay import open_catalog_read_session
 from polisyos.data_forge.domains.catalog.knowledge.types import (
     CatalogContentIdentity,
@@ -24,7 +28,11 @@ from polisyos.data_forge.domains.catalog.knowledge.types import (
     MetricBindingMatch,
     ResolvedFetchTarget,
 )
-from polisyos.data_forge.kernel.embeddings import resolve_embedding_generation
+from polisyos.data_forge.kernel.embeddings import (
+    generation_basis_matches_members,
+    hnsw_index_matches_vectors,
+    resolve_embedding_generation,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -234,10 +242,31 @@ class DatasetCatalogStore:
 
             with np.load(str(generation.embeddings_path), allow_pickle=True) as data:
                 ids = [str(identifier) for identifier in data["ids"].tolist()]
+                vectors = np.asarray(data["vectors"], dtype=np.float32)
+            current_rows = self._con.execute(
+                "SELECT id, title, description, keywords, variables "
+                "FROM ds_datasets ORDER BY id"
+            ).fetchall()
+            database_ids = [str(row[0]) for row in current_rows]
+            current_members = [
+                (identifier, dataset_embedding_text(row).encode("utf-8"))
+                for identifier, row in zip(database_ids, current_rows, strict=True)
+            ]
+            if (
+                ids != database_ids
+                or not generation_basis_matches_members(
+                    generation,
+                    basis_kind="catalog_dataset_embedding",
+                    members=current_members,
+                )
+            ):
+                raise ValueError("selected dataset basis differs from current datasets")
             idx = hnswlib.Index(space="cosine", dim=generation.dimension)
             idx.load_index(str(generation.index_path), max_elements=len(ids))
+            if not hnsw_index_matches_vectors(idx, vectors):
+                raise ValueError("selected dataset HNSW vectors differ from its matrix")
             idx.set_ef(100)
-        except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        except (duckdb.Error, ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
             logger.warning("Selected dataset index is unreadable: {}", exc)
             self._dataset_index = None
             self._dataset_ids = None

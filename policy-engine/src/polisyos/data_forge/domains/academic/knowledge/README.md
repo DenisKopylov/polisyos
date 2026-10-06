@@ -15,6 +15,9 @@ selection.
 ## Key Concepts
 
 - **Hybrid search** - `ScholarKnowledgeGraph` combines text and vector retrieval.
+- **Embedding projection** - `embedding_projection.py` is shared by the Academic
+  batch writer and read-only store so indexed text and current-membership checks
+  use the same bounded title/abstract representation.
 - **SKG queries** - `SKGQuery` reads the `ac_skg_*` tables for edge and parameter evidence.
 - **Parameter selection** - `ParameterSelector` scores candidates for the current context.
 - **Canonical variables** - `VariableCanonizer` and the runtime registry normalize naming across domains.

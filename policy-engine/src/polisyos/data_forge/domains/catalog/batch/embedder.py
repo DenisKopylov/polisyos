@@ -8,6 +8,9 @@ from typing import TYPE_CHECKING
 import duckdb
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.catalog.knowledge.embedding_projection import (
+    dataset_embedding_text,
+)
 from polisyos.data_forge.kernel.embeddings import (
     build_embedding_generation,
     embedding_generation_manifest,
@@ -41,18 +44,7 @@ def build_hnsw_index(
     finally:
         con.close()
 
-    prepared_rows: list[tuple[object, str]] = []
-    for row in rows:
-        title = row[1] or ""
-        desc = (row[2] or "")[:500]
-        keywords = list(row[3] or [])
-        variables = list(row[4] or [])
-        prepared_rows.append(
-            (
-                row[0],
-                f"{title} {desc} {' '.join(keywords[:20])} {' '.join(variables[:20])}".strip(),
-            )
-        )
+    prepared_rows = [(row[0], dataset_embedding_text(row)) for row in rows]
 
     count, _dimension = build_embedding_generation(
         rows=prepared_rows,

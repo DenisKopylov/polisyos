@@ -21,6 +21,10 @@ analysis flows.
 ## Key Concepts
 
 - **Staged pipeline** - harvest, normalize, merge/dedup, graph load/index, core source ingest, embed, benchmark, QC, publish.
+- **Content-bound receipts** - benchmark, QC, and publish receipts bind the
+  selected source/config/database/report inputs to required output bytes.
+  `run_content_stage_with_receipt()` dispatches the canonical producer and
+  refuses to record a receipt if inputs change during execution.
 - **Observation mode** - `observation_mode` controls whether runs build core, backfill, or all observations.
 - **Benchmarking** - the benchmark stage now folds in core-ingest context and bulk-equivalence metrics.
 - **Readiness gating** - QC and publish use the benchmark/readiness outputs to decide whether the snapshot is consumer-ready.

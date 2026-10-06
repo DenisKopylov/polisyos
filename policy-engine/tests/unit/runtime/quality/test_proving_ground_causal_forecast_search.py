@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import sys
+import types
 from datetime import UTC, datetime
 from importlib import import_module
 from pathlib import Path
@@ -1966,6 +1968,34 @@ def test_g2_complete_selected_generation_separates_search_and_evidence(
     monkeypatch: Any,
 ) -> None:
     """A complete selected generation reports two searched members only."""
+
+    class _FixtureTokenizer:
+        def get_vocab(self) -> dict[str, int]:
+            return {"fixture": 0}
+
+        @property
+        def special_tokens_map(self) -> dict[str, str]:
+            return {}
+
+        def get_added_vocab(self) -> dict[str, int]:
+            return {}
+
+    class _FixtureEncoder:
+        def __init__(self, *_args: object, **_kwargs: object) -> None:
+            self.config = {"model_type": "fixture"}
+            self.tokenizer = _FixtureTokenizer()
+
+        def state_dict(self) -> dict[str, np.ndarray]:
+            return {"weight": np.asarray([1.0], dtype=np.float32)}
+
+        def modules(self) -> list[_FixtureEncoder]:
+            return [self]
+
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        types.SimpleNamespace(SentenceTransformer=_FixtureEncoder),
+    )
 
     from polisyos.data_forge.kernel import embeddings as embedding_kernel
 

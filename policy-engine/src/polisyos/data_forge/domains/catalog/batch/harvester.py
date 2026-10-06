@@ -15,13 +15,13 @@ import aiohttp
 
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.catalog.batch.checkpoints import (
-    hash_payload,
     load_json,
     write_json,
 )
 from polisyos.data_forge.domains.catalog.batch.ckan_curation import curate_ckan_package
 from polisyos.data_forge.domains.catalog.batch.normalizer import map_to_polisyos_metrics
 from polisyos.data_forge.domains.catalog.metrics_map import load_metrics_map
+from polisyos.data_forge.kernel.io.hashing import sha256_file
 from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest, write_stage_manifest
 
 if TYPE_CHECKING:
@@ -1067,23 +1067,53 @@ async def harvest_sources(config: DatasetBatchConfig) -> dict[str, list[dict]]:
     semaphore = asyncio.Semaphore(_HARVEST_MAX_PARALLELISM)
     completed_names: set[str] = set()
     pending_specs = list(specs)
+    source_outcomes: dict[str, dict[str, object]] = {}
 
     async def _record_success(spec: SourceSpec, rows: list[dict]) -> None:
-        payload_path = _current_snapshot_payload_path(config, spec.name)
+        try:
+            payload_path, manifest_path = _source_snapshot_artifacts(config, spec.name)
+            manifest = load_json(manifest_path, default=None)
+            if not payload_path.is_file() or not manifest_path.is_file():
+                raise ValueError("successful harvest has no payload manifest")
+            payload_digest = sha256_file(payload_path)
+            if (
+                not isinstance(manifest, dict)
+                or manifest.get("source") != spec.name
+                or Path(str(manifest.get("payload", ""))).resolve() != payload_path.resolve()
+                or manifest.get("sha256") != payload_digest
+            ):
+                raise ValueError("harvest manifest does not bind its payload")
+            with payload_path.open(encoding="utf-8") as payload_file:
+                payload_rows = sum(1 for line in payload_file if line.strip())
+            if int(manifest.get("count", -1)) != payload_rows:
+                raise ValueError("harvest manifest count differs from payload")
+        except (OSError, TypeError, ValueError, KeyError) as exc:
+            await _record_failure(spec, exc)
+            return
         async with state_lock:
             out[spec.name] = rows
             checkpoint[spec.name] = {
                 "status": "complete",
-                "records_fetched": len(rows),
+                "records_fetched": payload_rows,
                 "row_bytes": int(payload_path.stat().st_size) if payload_path.exists() else 0,
                 "cursor": None,
                 "offset": 0,
                 "page": 0,
                 "etag": None,
                 "last_modified": None,
-                "payload_hash": _payload_hash(payload_path) if payload_path.exists() else "",
+                "payload_hash": payload_digest,
+                "payload_path": str(payload_path.resolve()),
+                "manifest_path": str(manifest_path.resolve()),
                 "last_success_at": datetime.now(UTC).isoformat(),
                 "error": "",
+            }
+            source_outcomes[spec.name] = {
+                "status": "complete",
+                "payload_path": str(payload_path.resolve()),
+                "manifest_path": str(manifest_path.resolve()),
+                "payload_sha256": payload_digest,
+                "records_fetched": payload_rows,
+                "records_returned": len(rows),
             }
             completed_names.add(spec.name)
             write_json(config.harvest_checkpoint_path, checkpoint)
@@ -1103,6 +1133,10 @@ async def harvest_sources(config: DatasetBatchConfig) -> dict[str, list[dict]]:
                 "last_modified": None,
                 "payload_hash": "",
                 "last_success_at": "",
+                "error": str(exc)[:500],
+            }
+            source_outcomes[spec.name] = {
+                "status": "failed",
                 "error": str(exc)[:500],
             }
             completed_names.add(spec.name)
@@ -1151,18 +1185,35 @@ async def harvest_sources(config: DatasetBatchConfig) -> dict[str, list[dict]]:
         pending_specs = [spec for spec in pending_specs if spec.name not in ready_names]
 
     stage_manifest = config.manifests_dir / "harvest.json"
+    selected_sources = [spec.name for spec in specs]
+    successful_sources = [
+        name for name in selected_sources if source_outcomes.get(name, {}).get("status") == "complete"
+    ]
+    failed_sources = [name for name in selected_sources if name not in successful_sources]
     write_stage_manifest(
         manifest_path=stage_manifest,
         stage="harvest",
-        status="ok",
+        status="ok" if not failed_sources else "partial",
         metrics={
             "wave": config.wave or "ALL",
             "sources": len(specs),
             "records": sum(len(v) for v in out.values()),
+            "selected_sources": selected_sources,
+            "successful_sources": successful_sources,
+            "failed_sources": failed_sources,
+            "source_outcomes": source_outcomes,
         },
-        artifacts=[],
+        artifacts=[
+            str(source_outcomes[name]["payload_path"])
+            for name in selected_sources
+            if source_outcomes.get(name, {}).get("status") == "complete"
+        ],
         started_at=started_at,
     )
+    if failed_sources:
+        raise RuntimeError(
+            "harvest incomplete; failed selected sources: " + ", ".join(failed_sources)
+        )
     return out
 
 
@@ -1198,7 +1249,10 @@ async def harvest_one_source(
         )
         return _apply_limit(rows, _effective_dataset_limit(config))
 
-    if config.resume and latest_payload and latest_payload.exists():
+    retrying_failed_source = (
+        isinstance(existing_entry, dict) and str(existing_entry.get("status")) == "failed"
+    )
+    if config.resume and latest_payload and latest_payload.exists() and not retrying_failed_source:
         logger.info("Using cached raw snapshot for {}: {}", spec.name, latest_payload)
         rows = _read_jsonl(latest_payload)
         rows = _prioritize_rows_for_sampling(
@@ -1285,13 +1339,17 @@ def _current_snapshot_payload_path(config: DatasetBatchConfig, source_name: str)
     return _current_source_snapshot_dir(config, source_name) / "payload.jsonl"
 
 
-def _payload_hash(path: Path) -> str:
-    if not path.exists():
-        return ""
-    stat = path.stat()
-    return hash_payload(
-        {"path": str(path), "size": int(stat.st_size), "mtime_ns": int(stat.st_mtime_ns)}
-    )
+def _source_snapshot_artifacts(config: DatasetBatchConfig, source_name: str) -> tuple[Path, Path]:
+    """Return the current complete snapshot or latest reusable source snapshot."""
+    current_dir = _current_source_snapshot_dir(config, source_name)
+    current_payload = current_dir / "payload.jsonl"
+    current_manifest = current_dir / "manifest.json"
+    if current_payload.is_file() and current_manifest.is_file():
+        return current_payload, current_manifest
+    latest_dir = _latest_snapshot_dir(config.raw_dir / source_name)
+    if latest_dir is not None:
+        return latest_dir / "payload.jsonl", latest_dir / "manifest.json"
+    return current_payload, current_manifest
 
 
 def _flatten_text_values(value: Any) -> list[str]:

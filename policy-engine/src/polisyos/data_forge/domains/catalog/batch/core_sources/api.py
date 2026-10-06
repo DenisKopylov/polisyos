@@ -88,6 +88,10 @@ from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 if TYPE_CHECKING:
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    resolve_core_sources_compatibility_binding,
+)
+
 logger = get_logger(__name__)
 
 _TRANSPORT_SOURCES = frozenset(
@@ -213,6 +217,11 @@ __OWNER_BOUND_PROXIES: dict[str, Any] = {}
 
 def __resolve_implementation_dependency(name: str, owner: str) -> Any:
     """Resolve a split-module dependency without facade-global injection."""
+    has_context_override, context_override = resolve_core_sources_compatibility_binding(
+        f"{__package__}.{owner}", name
+    )
+    if has_context_override:
+        return context_override
     override = globals().get(name)
     if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
         return override
@@ -320,7 +329,9 @@ def run_core_sources_ingest(config: DatasetBatchConfig) -> CoreSourcesIngestStat
 async def run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSourcesIngestStats:
     """Async entrypoint for ingesting registry/observation data used by DatasetRegistry."""
     started_at = datetime.now(UTC).isoformat()
-    stats = await _run_core_sources_ingest_async(config)
+    stats = await __resolve_implementation_dependency(
+        "_run_core_sources_ingest_async", "api"
+    )(config)
     write_stage_manifest(
         manifest_path=config.manifests_dir / "core_sources_ingest.json",
         stage="core_sources_ingest",
@@ -370,7 +381,9 @@ async def _run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSour
             catalog_alignments,
             config=config,
         )
-        ingest_stats = await _ingest_catalog_observations(config.db_path, plans, config=config)
+        ingest_stats = await __resolve_implementation_dependency(
+            "_ingest_catalog_observations", "api"
+        )(config.db_path, plans, config=config)
         stats.observations += ingest_stats.observations
         stats.observations_attempted += ingest_stats.observations_attempted
         stats.observations_inserted += ingest_stats.observations_inserted
@@ -581,7 +594,9 @@ async def _ingest_catalog_observations_parallel(
 
     source_queues: dict[str, asyncio.Queue[ObservationShard]] = {}
     source_policies: dict[str, SourceExecutionPolicy] = {
-        plan.source: _resolve_source_execution_policy(
+        plan.source: __resolve_implementation_dependency(
+            "_resolve_source_execution_policy", "api"
+        )(
             source=plan.source, profile_id=plan.profile_id
         )
         for plan in plans
@@ -1643,7 +1658,9 @@ async def _ingest_catalog_observations_legacy(
                 ):
                     continue
                 try:
-                    policy = _resolve_source_execution_policy(
+                    policy = __resolve_implementation_dependency(
+                        "_resolve_source_execution_policy", "api"
+                    )(
                         source=shard.plan.source, profile_id=shard.plan.profile_id
                     )
                     logger.info(
@@ -1884,7 +1901,9 @@ async def _invoke_fetch_observation_rows(
     budget_wait_observer: Any | None = None,
 ) -> list[dict[str, Any]]:
     try:
-        return await _fetch_observation_rows(
+        return await __resolve_implementation_dependency(
+            "_fetch_observation_rows", "api"
+        )(
             shard,
             cache,
             config=config,
@@ -1908,7 +1927,9 @@ async def _invoke_fetch_observation_rows(
         )
         if not unexpected_policy_args:
             raise
-        return await _fetch_observation_rows(shard, cache, config=config)  # type: ignore[call-arg]
+        return await __resolve_implementation_dependency(
+            "_fetch_observation_rows", "api"
+        )(shard, cache, config=config)  # type: ignore[call-arg]
 
 
 def _counts_toward_observation_failure_budget(exc: Exception) -> bool:

@@ -1,0 +1,306 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "ddm-registry-source-binding",
+  "closure_ids": [
+    "LA-054",
+    "LA-055"
+  ],
+  "bundle_ids": [
+    "DDM-02"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "927b8fdd8b2ecb804a9bba55c9b9535406f17e9d",
+    "052135e93a5c61dab854e17656feef3903042999"
+  ],
+  "candidate_tree_sha": "2732a4183cbfd385ccce02f097d6feee08a6b12d",
+  "branch": "codex/e02-E-ddm-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/41",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+    "policy-engine/src/polisyos/ddm/README.md",
+    "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+    "policy-engine/src/polisyos/ddm/integration/model_registry_gate.md",
+    "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json",
+    "policy-engine/src/polisyos/ddm/integration/monitor.py",
+    "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+    "policy-engine/tests/unit/remediation/test_ddm_02.py"
+  ],
+  "baseline_cells": [
+    {
+      "cell": {
+        "id": "F14-P043",
+        "job": "F14",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "path": "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+        "state": "PASS",
+        "collected": "28",
+        "calls": "28",
+        "call_pass": "28",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "4.68595690300026",
+        "rss_kib": "111232",
+        "receipt_status": "valid_reconciled",
+        "source_file": "received/F14.txt",
+        "source_line": "393",
+        "extra_json": "{}"
+      },
+      "source_ref": "integration_head",
+      "environment": "received/F14.txt:4-110@198076863e143dea9f89f02734b13d50dae3eed5; source-reported Python3.14.2 uv0.9.21 Node22.16.0 frozen-union-1",
+      "data_identity": "synthetic native DDM test inputs at source0213101b6d124e6f855b1aff7c442bb0912a61c2; manifest6d22c80796c9d830c55b3b68393f43cd90593f7cb4bfa57643bc32a2da53debf",
+      "backend": "native Python/Pydantic DDM and fixture contexts; raw source outputs not transferred",
+      "grade": "transfer_and_navigation_only"
+    }
+  ],
+  "source_instructions": {
+    "closure_decisions": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/{E,method-decisions,runtime-profiles,cross-unit-contracts,verification-and-closeout}.md@198076863e143dea9f89f02734b13d50dae3eed5",
+    "criteria": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DDM-02.md@198076863e143dea9f89f02734b13d50dae3eed5",
+    "ledger": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@198076863e143dea9f89f02734b13d50dae3eed5#LA-054,LA-055"
+  },
+  "admission": {
+    "branch": "codex/e02-E-ddm-20261006",
+    "path": "/workspace/e02-E-ddm-20261006",
+    "mode_order": [
+      "create before worktree",
+      "resume same pair after worktree"
+    ],
+    "full_json_custody": "root saved /workspace/e02-E-20261006-receipts/ddm-create.json and ddm-resume.json; root admission receipt owns exact outputs"
+  },
+  "checks": [
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/unit/ddm",
+        "tests/unit/remediation/test_ddm_02.py"
+      ],
+      "stdin_mutation": null,
+      "cwd": "policy-engine",
+      "target_sha": "052135e93a5c61dab854e17656feef3903042999",
+      "environment": "isolated uv frozen lint+test, Python3.14.7; see origins/schema output",
+      "input_closure": "tracked candidate source/tests plus declared synthetic streams in tests/unit/remediation/test_ddm_02.py",
+      "outcome": "PASS",
+      "interpretation": "positive gate",
+      "exit_code": 0,
+      "wall_s": 2.6483238249929855,
+      "peak_child_rss_kib": 112568,
+      "output": "ddm-registry-source-binding-native-final.stdout.txt"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-"
+      ],
+      "stdin_mutation": "import pytest\nimport polisyos.ddm.integration.model_registry as registry\nimport polisyos.ddm.integration.monitor as monitor\ndef removed(**kwargs):\n    return ()\nregistry._registry_source_binding_reasons = removed\nmonitor._registry_source_binding_reasons = removed\nraise SystemExit(pytest.main([\"-o\",\"addopts=\",\"-q\",\"-p\",\"no:cacheprovider\",\"tests/unit/remediation/test_ddm_02.py::test_monitor_reconciles_every_shared_calibration_identity\",\"tests/unit/remediation/test_ddm_02.py::test_monitor_reconciles_every_declared_metric_budget_field\",\"tests/unit/remediation/test_ddm_02.py::test_readiness_recomputes_budget_quantity_before_accepting_source\",\"tests/unit/remediation/test_ddm_02.py::test_nonfinite_budget_inputs_do_not_become_clean_readiness\"]))\n",
+      "cwd": "policy-engine",
+      "target_sha": "052135e93a5c61dab854e17656feef3903042999",
+      "environment": "isolated uv frozen lint+test, Python3.14.7; see origins/schema output",
+      "input_closure": "tracked candidate source/tests plus declared synthetic streams in tests/unit/remediation/test_ddm_02.py",
+      "outcome": "FAIL",
+      "interpretation": "expected negative: deleting runtime property while retaining fields/status/digests makes its tests fail",
+      "exit_code": 1,
+      "wall_s": 2.350395187997492,
+      "peak_child_rss_kib": 107748,
+      "output": "ddm-registry-source-binding-removal-source-final.stdout.txt"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-"
+      ],
+      "stdin_mutation": "import pytest\nimport polisyos.ddm.integration.model_registry as registry\nregistry._registry_source_block_reason = lambda record: None\nraise SystemExit(pytest.main(['-o', 'addopts=', '-q', '-p', 'no:cacheprovider', 'tests/unit/remediation/test_ddm_02.py::test_fresh_read_refuses_present_but_fake_metric_payload', 'tests/unit/remediation/test_ddm_02.py::test_source_context_is_required_after_reload', 'tests/unit/remediation/test_ddm_02.py::test_persisted_veto_cannot_be_restored_by_mutating_rebound_permission', 'tests/unit/remediation/test_ddm_02.py::test_readiness_expiry_remains_distinct_from_report_expiry']))\n",
+      "cwd": "policy-engine",
+      "target_sha": "052135e93a5c61dab854e17656feef3903042999",
+      "environment": "isolated uv frozen lint+test, Python3.14.7; see origins/schema output",
+      "input_closure": "tracked candidate source/tests plus declared synthetic streams in tests/unit/remediation/test_ddm_02.py",
+      "outcome": "FAIL",
+      "interpretation": "expected negative: deleting runtime property while retaining fields/status/digests makes its tests fail",
+      "exit_code": 1,
+      "wall_s": 1.6947687389911152,
+      "peak_child_rss_kib": 110008,
+      "output": "ddm-registry-source-binding-removal-consumer-final.stdout.txt"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-"
+      ],
+      "stdin_mutation": "import pytest\nimport polisyos.ddm.integration.model_registry as registry\nregistry._degradation_budget_binding_reason = lambda policy, event: None\nraise SystemExit(pytest.main(['-o','addopts=','-q','-p','no:cacheprovider','tests/unit/remediation/test_ddm_02.py::test_readiness_recomputes_budget_quantity_before_accepting_source','tests/unit/remediation/test_ddm_02.py::test_nonfinite_budget_inputs_do_not_become_clean_readiness']))\n",
+      "cwd": "policy-engine",
+      "target_sha": "052135e93a5c61dab854e17656feef3903042999",
+      "environment": "isolated uv frozen lint+test, Python3.14.7; see origins/schema output",
+      "input_closure": "tracked candidate source/tests plus declared synthetic streams in tests/unit/remediation/test_ddm_02.py",
+      "outcome": "FAIL",
+      "interpretation": "expected negative: deleting runtime property while retaining fields/status/digests makes its tests fail",
+      "exit_code": 1,
+      "wall_s": 1.9043860969977686,
+      "peak_child_rss_kib": 109580,
+      "output": "ddm-registry-source-binding-removal-quantity-final.stdout.txt"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-"
+      ],
+      "target_sha": "052135e93a5c61dab854e17656feef3903042999",
+      "outcome": "PASS",
+      "output": "ddm-registry-source-binding-origins-schema-final.stdout.txt",
+      "stdin_oracle": "import importlib.metadata, json, pathlib, platform, runpy, subprocess, sys\nimport jsonschema\nimport polisyos.ddm.calibration.calibrate as calibrate\nimport polisyos.ddm.calibration.audit as audit\nimport polisyos.ddm.integration.monitor as monitor\nimport polisyos.ddm.integration.model_registry as registry\nroot=pathlib.Path.cwd().resolve()\nfor module in [calibrate,audit,monitor,registry]:\n    path=pathlib.Path(module.__file__).resolve()\n    assert path.is_relative_to(root/'src'), path\n    print('SOURCE_ORIGIN',module.__name__,path)\nfixtures=runpy.run_path('tests/unit/remediation/test_ddm_02.py')\nreport, projected_audit, budget, result=fixtures['_run'](degradation_event=fixtures['_degradation']())\nrecord=result.registry_record\nschema=json.loads((root/'src/polisyos/ddm/integration/model_registry_record.schema.json').read_text())\njsonschema.Draft202012Validator.check_schema(schema)\njsonschema.validate(record.model_dump(mode='json'),schema,format_checker=jsonschema.FormatChecker())\nassert report.empirical_stationary_holdout.alerts == 0\nassert report.empirical_stationary_holdout.windows == 100\nassert record.readiness_effective_at == result.readiness_event.timestamp\nassert record.readiness_expires_at == result.readiness_event.expires_at\nassert registry.evaluate_registry_gate(record).promotion_allowed\nprint('REAL_PRODUCER',json.dumps({'method':report.calibration_method,'seed':report.random_seed,'requested_streams':100,'eligible_streams':100,'observed_streams':report.empirical_stationary_holdout.windows,'alerts':report.empirical_stationary_holdout.alerts,'fp_upper95':report.empirical_stationary_holdout.confidence_interval_95[1],'historical_pass':report.empirical_stationary_holdout.pass_,'report_valid_until':report.expiration.valid_until.isoformat(),'readiness_effective_at':record.readiness_effective_at.isoformat(),'readiness_expires_at':record.readiness_expires_at.isoformat(),'source_binding_digest':record.source_binding_digest,'report_digest':record.calibration_validity.report_digest,'canonical_degradation_budget':result.degradation_event.budget_used}))\nprint('SCHEMA native producer registry validation PASS')\nprint('ENV',json.dumps({'python':sys.version,'executable':sys.executable,'platform':platform.platform(),'packages':{name:importlib.metadata.version(name) for name in ['pytest','pydantic','jsonschema','numpy','scipy','jax','jaxlib']},'uv':subprocess.check_output(['uv','--version'],text=True).strip(),'selected_extras':['lint','test'],'install_mode':'uv sync --frozen --extra lint --extra test','numeric_caps_added':False}))\n"
+    },
+    {
+      "target_sha": "052135e93a5c61dab854e17656feef3903042999",
+      "outcome": "PASS",
+      "output": "ddm-registry-source-binding-ruff-final.stdout.txt",
+      "commands": [
+        [
+          ".venv/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "src/polisyos/ddm/integration/model_registry.py",
+          "src/polisyos/ddm/integration/monitor.py",
+          "tests/unit/remediation/test_ddm_02.py",
+          "tests/unit/ddm/test_full_acceptance.py"
+        ],
+        [
+          ".venv/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "src/polisyos/ddm/integration/model_registry.py",
+          "src/polisyos/ddm/integration/monitor.py",
+          "tests/unit/remediation/test_ddm_02.py",
+          "tests/unit/ddm/test_full_acceptance.py"
+        ]
+      ]
+    }
+  ],
+  "property": {
+    "statement": "Canonical DDM calibration and metric contracts reconcile every shared field, recompute finite degradation budget through the existing metric_budget_used owner, preserve report identity/digest and distinct readiness time roles, and require exact source reconciliation after persisted JSON readback; source-derived permissions cannot silently regain a persisted veto.",
+    "runtime_path": [
+      "calibration.calibrate_detector -> CalibrationReport",
+      "calibration.audit.build_calibration_audit -> canonical bound calibration checker",
+      "integration.monitor.evaluate_window -> actual readiness mapper and registry producer",
+      "ModelRegistryReadinessRecord.model_dump_json -> file persist/read -> model_validate_json",
+      "integration.model_registry.rebind_calibration_validity -> exact source reconciliation -> evaluate_registry_gate"
+    ],
+    "artifact": "native DDM registry JSON with canonical report digest, ordered full-source DTO digest, readiness event ID/effective time/expiry and separate calibration validity projection",
+    "consumer": "standalone public DDM registry gate; fresh consumer readback exercised; served deployment consumer_missing",
+    "independent_oracles": [
+      "same-model wrong calibration/detector/regime must fail before readiness",
+      "independent bounded ratio for ref=.9, floor=.8, low=.69 equals clipped budget1; supplied0 refused",
+      "readiness expiry May3 is distinct from report validity May26; exact expiry remains valid, one microsecond later refused",
+      "raw report rule-method mutation with same historical pass cannot bind digest",
+      "persisted false veto remains false through source rebind; post-rebind public mutation to true fails"
+    ],
+    "proxy_divergence": "Model-only identity checks accept foreign calibration and same-model wrong metric; status=true plus hash-shaped fields accept fake persisted metric; supplied budget_used=0 can claim clean readiness where canonical consumed quantity is1; refreshing report validity must not refresh readiness TTL.",
+    "negative_controls": [
+      "10 source-admission tests fail when source reconciliation removed",
+      "2 numeric controls fail when only canonical quantity verification removed",
+      "4 consumer readback/time/veto controls fail when source binding/time gate removed",
+      "public validity projection mutation cannot mutate private checker evidence"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_bases": {
+    "shared_field_equality": "recomputed",
+    "budget_used": "recomputed from canonical helper and exact metric inputs",
+    "report_digest_and_json_source_reconciliation": "recomputed",
+    "readiness_expiry": "recomputed at fresh checker effective time",
+    "calibration_invalidation_feed_completeness": "not_established; trigger list is supplied input, not proof of complete feed",
+    "institutional_owner_signoff": "not_established; bool does not establish authorization",
+    "production_stationarity_and_metric_law": "not_established"
+  },
+  "capability_state_or_finding_state": "standalone producer/artifact/source-rebind/consumer verified; served consumer_missing; findings limited",
+  "finding_verdicts": [
+    {
+      "id": "LA-054",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "DDM applicability owner and deployment/live-feed data owner: bind complete observed source/rule/window profile and served consumer"
+    },
+    {
+      "id": "LA-055",
+      "recorded_ledger_status": "partial",
+      "verdict": "limited",
+      "next_owner": "Principal/DDM semantic owner: versioned deployment-purpose policy and actual institutional R2 signoff boundary"
+    }
+  ],
+  "review": {
+    "author": "ddm_r3",
+    "independent_reviewer": "root",
+    "initial_review_sha": "927b8fdd8b2ecb804a9bba55c9b9535406f17e9d",
+    "root_review_control": "persisted False then post-rebind True mutation added and passed",
+    "P40": "numeric quantity bypass discovered by author was tested, independently classified same source/gate class by root, and widened through the existing canonical helper in052135e93; immutable delta review belongs to root receipt"
+  },
+  "P41": {
+    "inherited_red_claims": [],
+    "old_source_pass": "navigation only, not a product replay",
+    "no_new_inherited_red_attribution": true
+  },
+  "execution_environment": {
+    "python": "3.14.7",
+    "uv": "0.12.19 (actual tool differs from contributor canonical0.9.21)",
+    "node_used_for_frozen_workspace_install": "22.23.3",
+    "pnpm": "10.33.2",
+    "extras": [
+      "lint",
+      "test"
+    ],
+    "offline_attempt": "UNRUN provisioning: absent cached jaxlib wheel; online frozen sync then succeeded",
+    "numerical_process_caps_added": false,
+    "GNU_time": "unavailable; runner exit127 preserved locally; deciding runs measured by stdlib monotonic/resource child RSS",
+    "source_origins_output": "ddm-registry-source-binding-origins-schema-final.stdout.txt"
+  },
+  "limitations_and_next_owner": [
+    "No finding ledger reclassification; code acceptance by G and closure are separate.",
+    "Synthetic streams establish generic source-binding/time mechanics; they are not production stationarity evidence.",
+    "Calibration method/source-law claim, complete live-feed observation, freshness profile, institutional signoff and served deployment integration remain independent required owner inputs.",
+    "No executable direct named caller outside DDM public definitions was found by tracked src search; alias/dynamic callers were not established.",
+    "No new calibration, drift or inferential method is claimed; canonical metric budget arithmetic is reused.",
+    "Broad architecture/backend wave is reserved for root frozen combined candidate after independent reviews."
+  ],
+  "G_local_recipe": {
+    "candidate_sha": "052135e93a5c61dab854e17656feef3903042999",
+    "generic_repeat_command": "cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/ddm tests/unit/remediation/test_ddm_02.py",
+    "required_real_inputs_if_deployment_claimed": [
+      "owner-issued report with exact bytes/digest/model/detector/regime/rule/expiration",
+      "original readiness event and declared time/source profile",
+      "exact metric policy and performance event current estimate/CI/canonical budget",
+      "ordered shift events with corresponding calibration identities",
+      "complete owner-issued invalidation observation context and policy/signoff evidence"
+    ],
+    "production_data_policy": "read-only local only; owner supplies actual paths and content identity before a production check is scheduled; no cloud transfer or synthetic-production substitution"
+  },
+  "cleanup": {
+    "trash_available": false,
+    "action": "no permanent removal; exact repeatable cleanup candidates retained for root handoff",
+    "candidates": [
+      "/workspace/e02-E-ddm-20261006/policy-engine/.venv",
+      "/workspace/e02-E-ddm-20261006/policy-engine/node_modules",
+      "/workspace/e02-E-ddm-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "/workspace/e02-E-ddm-20261006/policy-engine/_cache/pytest"
+    ],
+    "preserve": [
+      "all implementation code/docs/tests/commits",
+      "all deciding output logs in this handoff",
+      "/workspace/e02-E-20261006-receipts/ddm-* unique author outputs"
+    ]
+  }
+}

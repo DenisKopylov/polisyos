@@ -16,14 +16,14 @@ from typing import Any, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.analytics.uncertainty import (
+from polisyos.ir.analytics import (
     DistributionFamily,
     IntervalSemantics,
-    PosteriorSamplesCarrier,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
 )
+from polisyos.ir.analytics.uncertainty import PosteriorSamplesCarrier
 
 
 def sampling_content_digest(value: Any) -> str:
@@ -81,6 +81,68 @@ def admit_sampling_support(envelopes: Mapping[str, UncertaintyEnvelope]) -> None
             support = getattr(payload, "support", None)
             if support is not None:
                 admit_float32_range(support)
+
+
+def admit_covariance_sampling_family(envelopes: Mapping[str, UncertaintyEnvelope]) -> None:
+    """Reject covariance-only non-Gaussian laws before any producer callback.
+
+    Covariance defines this backend's joint transform only for its declared
+    Gaussian profile. It does not select a copula for arbitrary marginals.
+    """
+    if any("covariance_row" in env.metadata for env in envelopes.values()) and not all(
+        env.distribution_family is DistributionFamily.NORMAL
+        and not isinstance(env.distribution_payload, PosteriorSamplesCarrier)
+        for env in envelopes.values()
+    ):
+        raise ValueError("covariance alone does not define a supported joint sampling law")
+
+
+def empirical_cdf(probabilities: object) -> np.ndarray:
+    """Admit a finite float64 CDF without erasing any positive category.
+
+    The final boundary is exactly one. Positive categories must occupy distinct
+    representable CDF boundaries; zero-mass categories have no interval. This
+    is a finite-machine law, not a promise of arbitrary real-valued precision.
+    """
+    probabilities = np.asarray(probabilities, dtype=np.float64)
+    if (
+        probabilities.ndim != 1
+        or probabilities.size == 0
+        or not np.all(np.isfinite(probabilities))
+        or np.any(probabilities < 0)
+        or not math.isclose(math.fsum(probabilities), 1.0, rel_tol=0, abs_tol=2e-15)
+    ):
+        raise ValueError("invalid canonical empirical probabilities")
+    cumulative = np.cumsum(probabilities, dtype=np.float64)
+    last_positive = np.flatnonzero(probabilities > 0)[-1]
+    cumulative[last_positive:] = 1.0
+    masses = np.diff(np.concatenate(([0.0], cumulative)))
+    if np.any(masses < 0) or not np.array_equal(masses > 0, probabilities > 0):
+        raise ValueError("positive empirical category collapses in the finite CDF")
+    return cumulative
+
+
+def admit_empirical_weights(weights: object, sample_count: int) -> np.ndarray:
+    """Canonicalize weights once; aligned carriers must agree exactly afterward."""
+    weights = np.asarray(weights, dtype=np.float64)
+    if weights.shape != (sample_count,) or not np.all(np.isfinite(weights)) or np.any(weights < 0):
+        raise ValueError("invalid empirical weights")
+    total = math.fsum(weights)
+    if not math.isfinite(total) or total <= 0:
+        raise ValueError("invalid empirical weight total")
+    probabilities = weights / total
+    if not np.array_equal(probabilities > 0, weights > 0):
+        raise ValueError("positive empirical weight underflows in normalization")
+    empirical_cdf(probabilities)
+    return probabilities
+
+
+def admit_unit_uniform(values: object) -> np.ndarray:
+    """Admit the half-open domain used by random and QMC inverse transforms."""
+    array = np.asarray(values, dtype=np.float64)
+    if not np.all(np.isfinite(array)) or np.any(array < 0) or np.any(array >= 1):
+        raise ValueError("uniform transform requires finite coordinates in [0, 1)")
+    return array
 
 
 @dataclass(frozen=True)

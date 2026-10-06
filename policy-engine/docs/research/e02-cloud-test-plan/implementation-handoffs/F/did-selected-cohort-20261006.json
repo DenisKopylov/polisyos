@@ -437,16 +437,7 @@
       "outcome": "FAIL",
       "exit": 1,
       "summary": "24 FAILED/1 PASS aggregate on exact baseline owner with captured original new-test inputs; aggregate is not a count of independent behavioral classes.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red.stdout.txt.json",
-        "bytes": 89224,
-        "sha256": "300be981e6dd866fbd56850e187a78447b4fc266ea32b889cf5dec64d8e1af0c",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/red.stdout.txt",
-        "original_bytes": 87963,
-        "original_sha256": "0cad0c44b8d56cc3e54e6343f5a3928033285b817e07239b74b9774549487260",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red.stderr.txt.json",
         "bytes": 161,
@@ -457,7 +448,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-red.stdout.txt.json",
+        "bytes": 89224,
+        "sha256": "300be981e6dd866fbd56850e187a78447b4fc266ea32b889cf5dec64d8e1af0c",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/red.stdout.txt",
+        "original_bytes": 87963,
+        "original_sha256": "0cad0c44b8d56cc3e54e6343f5a3928033285b817e07239b74b9774549487260",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "published-native",
@@ -501,16 +502,7 @@
       "outcome": "PASS",
       "exit": 0,
       "summary": "73 passed, 1 MC deselected, 0 skipped, 10 real warnings.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.stdout.txt.json",
-        "bytes": 3274,
-        "sha256": "7899ef1094b316fef1d3f9d309f4cd2d07d4628a0b52e389112cd8f82816cd0c",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-native.stdout.txt",
-        "original_bytes": 3070,
-        "original_sha256": "5954e97d9ba660006ad445c12b76d501aed94387db632566407036b9b8ceade0",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.stderr.txt.json",
         "bytes": 161,
@@ -521,7 +513,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-native.stdout.txt.json",
+        "bytes": 3274,
+        "sha256": "7899ef1094b316fef1d3f9d309f4cd2d07d4628a0b52e389112cd8f82816cd0c",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-native.stdout.txt",
+        "original_bytes": 3070,
+        "original_sha256": "5954e97d9ba660006ad445c12b76d501aed94387db632566407036b9b8ceade0",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "head-caller-native",
@@ -560,16 +562,7 @@
       "outcome": "PASS",
       "exit": 0,
       "summary": "Two genuine maintained benchmark callers produce hand ATT=3 with historical aggregate producer poisoned.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-native.stdout.txt.json",
-        "bytes": 808,
-        "sha256": "f69e02050654bad249c38ce137c3a93905575454dff8c6b36c9f13a15b10927f",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-caller-native.stdout.txt",
-        "original_bytes": 633,
-        "original_sha256": "1d794416f59c8e47102295ac448bf1c176e8244cfba11718801a103366d4f3c2",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-native.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-native.stderr.txt.json",
         "bytes": 161,
@@ -580,7 +573,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-native.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-native.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-native.stdout.txt.json",
+        "bytes": 808,
+        "sha256": "f69e02050654bad249c38ce137c3a93905575454dff8c6b36c9f13a15b10927f",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-caller-native.stdout.txt",
+        "original_bytes": 633,
+        "original_sha256": "1d794416f59c8e47102295ac448bf1c176e8244cfba11718801a103366d4f3c2",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "head-dgp",
@@ -618,16 +621,7 @@
       "outcome": "PASS",
       "exit": 0,
       "summary": "160 iid-unit serial-panel repetitions; null-size, null-CI coverage, alternative-CI coverage and power measured with prespecified bounds.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-dgp.stdout.txt.json",
-        "bytes": 913,
-        "sha256": "772f72ad229465507b379d94503b1abb7041b93fd013db963a0333b14d078f06",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-dgp.stdout.txt",
-        "original_bytes": 737,
-        "original_sha256": "f4d638dd03697877638c1931bd75344baaec7ce5204783c0c1638fa97b6d455a",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-dgp.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-dgp.stderr.txt.json",
         "bytes": 161,
@@ -638,7 +632,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-dgp.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-dgp.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-dgp.stdout.txt.json",
+        "bytes": 913,
+        "sha256": "772f72ad229465507b379d94503b1abb7041b93fd013db963a0333b14d078f06",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-dgp.stdout.txt",
+        "original_bytes": 737,
+        "original_sha256": "f4d638dd03697877638c1931bd75344baaec7ce5204783c0c1638fa97b6d455a",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "final-cell-oracle",
@@ -669,16 +673,7 @@
       "outcome": "PASS",
       "exit": 0,
       "summary": "All six actual public ATT(g,t) cells agree with hand contrasts; theta_sel41/6 and estimated-share ratio influence SE1.3271848978.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-cell-oracle.stdout.txt.json",
-        "bytes": 787,
-        "sha256": "3ce6367034befd3fba142631aafe2786b2809e014e8d8e2527009559f3ee2009",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-cell-oracle.stdout.txt",
-        "original_bytes": 561,
-        "original_sha256": "a82f5441bc4cfb1aec7e8b3d24e62342bf7a4c9a764002f90c4d83009aef0719",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-cell-oracle.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-cell-oracle.stderr.txt.json",
         "bytes": 161,
@@ -689,7 +684,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-cell-oracle.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-cell-oracle.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-cell-oracle.stdout.txt.json",
+        "bytes": 787,
+        "sha256": "3ce6367034befd3fba142631aafe2786b2809e014e8d8e2527009559f3ee2009",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-cell-oracle.stdout.txt",
+        "original_bytes": 561,
+        "original_sha256": "a82f5441bc4cfb1aec7e8b3d24e62342bf7a4c9a764002f90c4d83009aef0719",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "final-removal-share",
@@ -720,16 +725,7 @@
       "outcome": "FAIL",
       "exit": 1,
       "summary": "Removing only cohort-share ratio IF makes native unequal-followup analytic derivative/SE assertion FAIL while marker/profile names remain. Expected behavioral removal rejection, not a product-candidate failure.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-share.stdout.txt.json",
-        "bytes": 3511,
-        "sha256": "f4d46a65840f8b2f515c8ce07a179d36b6236b6789ae965f853be9be53e1fa91",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-share.stdout.txt",
-        "original_bytes": 3269,
-        "original_sha256": "120357b583116e97808253a3267f887f71253c2a76bab2fdd1aa8d9bc5049f0c",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-share.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-share.stderr.txt.json",
         "bytes": 161,
@@ -740,7 +736,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-share.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-share.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-share.stdout.txt.json",
+        "bytes": 3511,
+        "sha256": "f4d46a65840f8b2f515c8ce07a179d36b6236b6789ae965f853be9be53e1fa91",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-share.stdout.txt",
+        "original_bytes": 3269,
+        "original_sha256": "120357b583116e97808253a3267f887f71253c2a76bab2fdd1aa8d9bc5049f0c",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "final-removal-uncentered",
@@ -771,16 +777,7 @@
       "outcome": "FAIL",
       "exit": 1,
       "summary": "Moving centered null law around the observed estimate makes native law/CI/p oracle FAIL while success/profile markers remain. Expected behavioral removal rejection, not a product-candidate failure.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-uncentered.stdout.txt.json",
-        "bytes": 3095,
-        "sha256": "54971bc67a05bd5730021179832d590e1e0e1ffb340c1a1f5b7fe45c823a8878",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-uncentered.stdout.txt",
-        "original_bytes": 2872,
-        "original_sha256": "93fd7d2dbcda4093f78a5a1c99bb0096b9d6de8f46923e5b5db2b1ec737027bf",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-uncentered.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-uncentered.stderr.txt.json",
         "bytes": 161,
@@ -791,7 +788,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-uncentered.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-uncentered.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-uncentered.stdout.txt.json",
+        "bytes": 3095,
+        "sha256": "54971bc67a05bd5730021179832d590e1e0e1ffb340c1a1f5b7fe45c823a8878",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-uncentered.stdout.txt",
+        "original_bytes": 2872,
+        "original_sha256": "93fd7d2dbcda4093f78a5a1c99bb0096b9d6de8f46923e5b5db2b1ec737027bf",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "final-removal-no-pre",
@@ -822,16 +829,7 @@
       "outcome": "FAIL",
       "exit": 1,
       "summary": "Removing actual standard zero-pre admission guard makes original B204 selector FAIL. Expected behavioral removal rejection, not a product-candidate failure.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-no-pre.stdout.txt.json",
-        "bytes": 3251,
-        "sha256": "43ed9091c1ff240e79d26de335664dbb638bb8da03639840e68b96a0636cf465",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-no-pre.stdout.txt",
-        "original_bytes": 3011,
-        "original_sha256": "e9470c3944b2bb57077a2cea74dc1d81618b1c30cf2ce86dda8520da87909043",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-no-pre.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-no-pre.stderr.txt.json",
         "bytes": 161,
@@ -842,7 +840,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-no-pre.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-no-pre.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-no-pre.stdout.txt.json",
+        "bytes": 3251,
+        "sha256": "43ed9091c1ff240e79d26de335664dbb638bb8da03639840e68b96a0636cf465",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-no-pre.stdout.txt",
+        "original_bytes": 3011,
+        "original_sha256": "e9470c3944b2bb57077a2cea74dc1d81618b1c30cf2ce86dda8520da87909043",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "final-removal-cluster",
@@ -873,16 +881,7 @@
       "outcome": "FAIL",
       "exit": 1,
       "summary": "Substituting HC1 for CR0 makes independent real Statsmodels cluster oracle FAIL. Expected behavioral removal rejection, not a product-candidate failure.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-cluster.stdout.txt.json",
-        "bytes": 3477,
-        "sha256": "f5c883a953513aa11ea4dcafc2d115afc1a750dfbfd3dae1d70506427c10f022",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-cluster.stdout.txt",
-        "original_bytes": 3230,
-        "original_sha256": "728ac8e76a8f4485aab1b2ce3cff1ef3bb98cbfc6ee64691c41e4addc9a69c8d",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-cluster.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-cluster.stderr.txt.json",
         "bytes": 161,
@@ -893,7 +892,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-cluster.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-cluster.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-cluster.stdout.txt.json",
+        "bytes": 3477,
+        "sha256": "f5c883a953513aa11ea4dcafc2d115afc1a750dfbfd3dae1d70506427c10f022",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-cluster.stdout.txt",
+        "original_bytes": 3230,
+        "original_sha256": "728ac8e76a8f4485aab1b2ce3cff1ef3bb98cbfc6ee64691c41e4addc9a69c8d",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "final-removal-critical",
@@ -924,16 +933,7 @@
       "outcome": "FAIL",
       "exit": 1,
       "summary": "Substituting fixed95 critical value makes actual requested-level interval selector FAIL. Expected behavioral removal rejection, not a product-candidate failure.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-critical.stdout.txt.json",
-        "bytes": 2826,
-        "sha256": "cb2e52c5d2c463e582e3453527cf0468dfd2b6e0770fd6f6e0a0d2d5ddab99b0",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-critical.stdout.txt",
-        "original_bytes": 2593,
-        "original_sha256": "c8dcefe99c1f3336ea49b7c45bec27cc7d5c751a73f3e79954eb26334ff2d46c",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-critical.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-critical.stderr.txt.json",
         "bytes": 161,
@@ -944,7 +944,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-critical.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-critical.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-final-removal-critical.stdout.txt.json",
+        "bytes": 2826,
+        "sha256": "cb2e52c5d2c463e582e3453527cf0468dfd2b6e0770fd6f6e0a0d2d5ddab99b0",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/final-removal-critical.stdout.txt",
+        "original_bytes": 2593,
+        "original_sha256": "c8dcefe99c1f3336ea49b7c45bec27cc7d5c751a73f3e79954eb26334ff2d46c",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "published-benchmark-removal",
@@ -974,16 +984,7 @@
       "outcome": "FAIL",
       "exit": 1,
       "summary": "Both actual caller bindings switched back to the historical producer are rejected; before removal both genuine calls produce ATT3. Expected removal exit1.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-removal.stdout.txt.json",
-        "bytes": 1060,
-        "sha256": "2fc90d56aaf580fc5b05e08c56767f0d6ea369047fc44d1aa2e7351e74e2c5eb",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-removal.stdout.txt",
-        "original_bytes": 826,
-        "original_sha256": "b940e746fe4bbc697d0d1be3da48dba6922ead4d20eab5da36433ab466505f65",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-removal.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-removal.stderr.txt.json",
         "bytes": 161,
@@ -994,7 +995,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-removal.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-removal.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-removal.stdout.txt.json",
+        "bytes": 1060,
+        "sha256": "2fc90d56aaf580fc5b05e08c56767f0d6ea369047fc44d1aa2e7351e74e2c5eb",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-removal.stdout.txt",
+        "original_bytes": 826,
+        "original_sha256": "b940e746fe4bbc697d0d1be3da48dba6922ead4d20eab5da36433ab466505f65",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "published-benchmark-interference",
@@ -1027,16 +1038,7 @@
       "outcome": "PASS",
       "exit": 0,
       "summary": "3/3 cases pass, exit0.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-interference.stdout.txt.json",
-        "bytes": 2399,
-        "sha256": "f20b168560cf41d1bd4d12da08ef2279b6811f93a8cbed254c88f68d8b3890ff",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-interference.stdout.txt",
-        "original_bytes": 2046,
-        "original_sha256": "7a96b7d4853154684151e57d1b448936f387fc4295c383d8d714a814f198fb53",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-interference.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-interference.stderr.txt.json",
         "bytes": 161,
@@ -1047,7 +1049,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-interference.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-interference.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-interference.stdout.txt.json",
+        "bytes": 2399,
+        "sha256": "f20b168560cf41d1bd4d12da08ef2279b6811f93a8cbed254c88f68d8b3890ff",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-interference.stdout.txt",
+        "original_bytes": 2046,
+        "original_sha256": "7a96b7d4853154684151e57d1b448936f387fc4295c383d8d714a814f198fb53",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "published-benchmark-natural",
@@ -1080,16 +1092,7 @@
       "outcome": "FAIL",
       "exit": 1,
       "summary": "2/3 cases pass; clean_rollout fails because checker demands passed pretrend with2pre periods, actual diagnostic not_testable.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-natural.stdout.txt.json",
-        "bytes": 2443,
-        "sha256": "53210f12c958912a042bdfcc9a6709571cefe93876cef6d0a3b2b3b96e803bfe",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-natural.stdout.txt",
-        "original_bytes": 2088,
-        "original_sha256": "b67eb3069ebaaf329b6cfd415c627bbb73499e3d4b86db1d92e98bff0de0dae1",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-natural.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-natural.stderr.txt.json",
         "bytes": 161,
@@ -1100,7 +1103,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-natural.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-natural.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-published-benchmark-natural.stdout.txt.json",
+        "bytes": 2443,
+        "sha256": "53210f12c958912a042bdfcc9a6709571cefe93876cef6d0a3b2b3b96e803bfe",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/published-benchmark-natural.stdout.txt",
+        "original_bytes": 2088,
+        "original_sha256": "b67eb3069ebaaf329b6cfd415c627bbb73499e3d4b86db1d92e98bff0de0dae1",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "historical-consumers",
@@ -1141,16 +1154,7 @@
       "outcome": "FAIL",
       "exit": 1,
       "summary": "4 PASS/1 FAIL; HTTP materialization fails in DatasetCatalogStore before causal consumer: configured production catalog unreadable.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-historical-consumers.stdout.txt.json",
-        "bytes": 9990,
-        "sha256": "92e1859d7515b54ed7bb3ef5eee8c64fab8ad2080a1c074c56539413b602ccb2",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/historical-consumers.stdout.txt",
-        "original_bytes": 9416,
-        "original_sha256": "84de826600433791e32c55c4a09290861c0800f4a7886b56b5d383b577b5b5e4",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-historical-consumers.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-historical-consumers.stderr.txt.json",
         "bytes": 161,
@@ -1161,7 +1165,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-historical-consumers.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-historical-consumers.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-historical-consumers.stdout.txt.json",
+        "bytes": 9990,
+        "sha256": "92e1859d7515b54ed7bb3ef5eee8c64fab8ad2080a1c074c56539413b602ccb2",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/historical-consumers.stdout.txt",
+        "original_bytes": 9416,
+        "original_sha256": "84de826600433791e32c55c4a09290861c0800f4a7886b56b5d383b577b5b5e4",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "invocation-base",
@@ -1195,16 +1209,7 @@
       "outcome": "UNRUN",
       "exit": -9,
       "summary": "Exit-9, ~243s, no deciding native raw receipt; killed before completion.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-invocation-base.stdout.txt.json",
-        "bytes": 161,
-        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/invocation-base.stdout.txt",
-        "original_bytes": 0,
-        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-invocation-base.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-invocation-base.stderr.txt.json",
         "bytes": 161,
@@ -1215,7 +1220,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-invocation-base.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-invocation-base.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-invocation-base.stdout.txt.json",
+        "bytes": 161,
+        "sha256": "ad636e87b2fec77cdaffbd2a8732321f129ac826ec167702c05689252bf91261",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/invocation-base.stdout.txt",
+        "original_bytes": 0,
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "head-invocation",
@@ -1249,16 +1264,7 @@
       "outcome": "FAIL",
       "exit": 3,
       "summary": "Native static diagnostic exit3: partial UNRESOLVED, not runtime non-invocation/PASS.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-invocation.stdout.txt.json",
-        "bytes": 1670,
-        "sha256": "479a639f3abe3fb5055394575e43369e680d68eb048744de397e8b6504d27fbc",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-invocation.stdout.txt",
-        "original_bytes": 1453,
-        "original_sha256": "49e30fee90c2265f76bb4da94b45ffcad5cd0451a6e61a0332bf17ee1d2616c7",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-invocation.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-invocation.stderr.txt.json",
         "bytes": 161,
@@ -1269,7 +1275,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-invocation.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-invocation.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-invocation.stdout.txt.json",
+        "bytes": 1670,
+        "sha256": "479a639f3abe3fb5055394575e43369e680d68eb048744de397e8b6504d27fbc",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-invocation.stdout.txt",
+        "original_bytes": 1453,
+        "original_sha256": "49e30fee90c2265f76bb4da94b45ffcad5cd0451a6e61a0332bf17ee1d2616c7",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "head-benchmark-lint",
@@ -1299,16 +1315,7 @@
       "outcome": "PASS",
       "exit": 0,
       "summary": "Exact full two-file baseline and final diagnostic code/message lists equal after accounting for two added import lines; original5+2 lint diagnostics remain FAIL.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-benchmark-lint.stdout.txt.json",
-        "bytes": 14235,
-        "sha256": "43946a53c8923e8f977260776c7473294ec1270f870a68b7a8f74204bc88134c",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-benchmark-lint.stdout.txt",
-        "original_bytes": 12027,
-        "original_sha256": "e25372e5277f408eca59bb1c07344034b25ebf8a042c5cfafad27ed5261dbe0b",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-benchmark-lint.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-benchmark-lint.stderr.txt.json",
         "bytes": 161,
@@ -1319,7 +1326,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-benchmark-lint.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-benchmark-lint.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-benchmark-lint.stdout.txt.json",
+        "bytes": 14235,
+        "sha256": "43946a53c8923e8f977260776c7473294ec1270f870a68b7a8f74204bc88134c",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-benchmark-lint.stdout.txt",
+        "original_bytes": 12027,
+        "original_sha256": "e25372e5277f408eca59bb1c07344034b25ebf8a042c5cfafad27ed5261dbe0b",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "head-caller-census",
@@ -1349,16 +1366,7 @@
       "outcome": "PASS",
       "exit": 0,
       "summary": "Full tracked source/text census and all6441 Python ASTs read; no decode/parse errors; maintained legacy benchmark imports removed.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-census.stdout.txt.json",
-        "bytes": 888,
-        "sha256": "3d64f5cd3c8f5dfec1b7e354f20dc4595d98a12b0f72e86adf40044630e0f925",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-caller-census.stdout.txt",
-        "original_bytes": 678,
-        "original_sha256": "ad6d940e9b13f4768abf6901ed282ad4dee3e8981f2df441e6e1f95313a87cb7",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-census.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-census.stderr.txt.json",
         "bytes": 161,
@@ -1369,7 +1377,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-census.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-census.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-caller-census.stdout.txt.json",
+        "bytes": 888,
+        "sha256": "3d64f5cd3c8f5dfec1b7e354f20dc4595d98a12b0f72e86adf40044630e0f925",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-caller-census.stdout.txt",
+        "original_bytes": 678,
+        "original_sha256": "ad6d940e9b13f4768abf6901ed282ad4dee3e8981f2df441e6e1f95313a87cb7",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "head-style",
@@ -1406,16 +1424,7 @@
       "outcome": "PASS",
       "exit": 0,
       "summary": "Ruff check passes on own numerical module and four changed method tests.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-style.stdout.txt.json",
-        "bytes": 182,
-        "sha256": "5285b2b8c9618968dfb0439fc1b0f7e74afb4ff56ec36867709cd0b7ce9d23d9",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-style.stdout.txt",
-        "original_bytes": 19,
-        "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-style.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-style.stderr.txt.json",
         "bytes": 161,
@@ -1426,7 +1435,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-style.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-style.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-style.stdout.txt.json",
+        "bytes": 182,
+        "sha256": "5285b2b8c9618968dfb0439fc1b0f7e74afb4ff56ec36867709cd0b7ce9d23d9",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-style.stdout.txt",
+        "original_bytes": 19,
+        "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "head-format",
@@ -1466,16 +1485,7 @@
       "outcome": "PASS",
       "exit": 0,
       "summary": "Ruff format check passes on seven complete owned changed Python paths.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-format.stdout.txt.json",
-        "bytes": 189,
-        "sha256": "bb0fa7243b9f38244f6ad601d0a9042e2170dc9526a78b61be20f3130680eaa1",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-format.stdout.txt",
-        "original_bytes": 26,
-        "original_sha256": "0321fffcb91606a42c0a19d8c1121d5c544379d663821fce616c71a7bb62f6b5",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-format.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-format.stderr.txt.json",
         "bytes": 161,
@@ -1486,7 +1496,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-format.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-format.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-format.stdout.txt.json",
+        "bytes": 189,
+        "sha256": "bb0fa7243b9f38244f6ad601d0a9042e2170dc9526a78b61be20f3130680eaa1",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-format.stdout.txt",
+        "original_bytes": 26,
+        "original_sha256": "0321fffcb91606a42c0a19d8c1121d5c544379d663821fce616c71a7bb62f6b5",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     },
     {
       "id": "head-release-gate",
@@ -1521,16 +1541,7 @@
       "outcome": "FAIL",
       "exit": 1,
       "summary": "Full compatibility release gate result preserved; own breaking fragment is reviewed separately, broad gate not promoted.",
-      "output": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-release-gate.stdout.txt.json",
-        "bytes": 1564,
-        "sha256": "9b07092ff4155582cacbd7471cddb92f5db02ef07ab7cce6edcd6daecf769c52",
-        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-release-gate.stdout.txt",
-        "original_bytes": 1280,
-        "original_sha256": "0a685f431454f4fb6ac606933d8fa4718a88cbbf0a2d1f951854198a1f659018",
-        "encoding": "utf8-json-string",
-        "category": "complete_stream"
-      },
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-release-gate.stdout.txt.json",
       "stderr": {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-release-gate.stderr.txt.json",
         "bytes": 161,
@@ -1541,7 +1552,17 @@
         "encoding": "utf8-json-string",
         "category": "complete_stream"
       },
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-release-gate.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-release-gate.json",
+      "output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/did-selected-cohort-20261006-head-release-gate.stdout.txt.json",
+        "bytes": 1564,
+        "sha256": "9b07092ff4155582cacbd7471cddb92f5db02ef07ab7cce6edcd6daecf769c52",
+        "original_scratch_path": "/workspace/e02-F-20261006-receipts/cau/head-release-gate.stdout.txt",
+        "original_bytes": 1280,
+        "original_sha256": "0a685f431454f4fb6ac606933d8fa4718a88cbbf0a2d1f951854198a1f659018",
+        "encoding": "utf8-json-string",
+        "category": "complete_stream"
+      }
     }
   ],
   "per_finding": {
@@ -3538,7 +3559,14 @@
       "held",
       "open"
     ],
-    "decision_basis": "Exact original source-card acceptance text, retained actual positive/negative/removal outputs and independent source-bound review; finding closure is distinct from broad gates, product approval and empirical identification. Opaque earlier blanket labels are retained as explicitly superseded history."
+    "decision_basis": "Exact original source-card acceptance text, retained actual positive/negative/removal outputs and independent source-bound review; finding closure is distinct from broad gates, product approval and empirical identification. Opaque earlier blanket labels are retained as explicitly superseded history.",
+    "canonical_output_normalization": {
+      "previous_head": "0c2086d6a31dcef1b5b201861b11639a226c2a70",
+      "checks_normalized": 21,
+      "output_field": "committed complete stdout artifact path string",
+      "output_ref": "unchanged complete bytes/hash/encoding/raw decoded bytes hash object",
+      "runtime_change": false
+    }
   },
   "closed_finding_ids": [
     "B204",
@@ -3558,5 +3586,16 @@
     "B208",
     "B209",
     "LA-016"
-  ]
+  ],
+  "narrow_graph_intake_read_only_audit": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-intake-review-20261006.json",
+    "bytes": 34553,
+    "sha256": "eea70a5e18fb463309efb98d531f2d911e2eaf1090c81119a2f25035a1f94a82",
+    "source_sha": "0c2086d6a31dcef1b5b201861b11639a226c2a70",
+    "production_changes": false,
+    "native_check": "PASS10",
+    "consumer_semantic_check": "FAIL_CACHE_CUSTODY_AND_ENDPOINT_LOSS",
+    "outcome": "limited",
+    "success_is_not_protected_policy_authority": true
+  }
 }

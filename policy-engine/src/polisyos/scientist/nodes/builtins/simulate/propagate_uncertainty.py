@@ -9,7 +9,6 @@ from typing import Any, Protocol, cast
 
 from pydantic import ValidationError
 
-from polisyos.calibration import load_foundry_calibration_report
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
@@ -19,6 +18,7 @@ from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import Metrics, SimulationResult, SimulationResultRef
 from polisyos.foundry.uncertainty import (
     BoundedIndicatorResponse,
+    load_foundry_calibration_report,
     reconcile_draw_outcomes,
     verify_mean_certificate,
 )

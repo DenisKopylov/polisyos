@@ -28,10 +28,12 @@ separate `scientist/calibration` package root.
 
 ## Predictive evidence entrypoints
 
-`load_foundry_calibration_report` is the canonical Foundry CAS reader exported
-under an explicit name. The legacy uncertainty Node consumes this entrypoint
-to verify report kind, schema, payload and configured companion refs before
-dispatch. It does not load a FunnelCalibrationReport or grant source/fit authority.
+The legacy uncertainty Node imports `load_foundry_calibration_report` directly
+from `polisyos.foundry.uncertainty`. That canonical Foundry CAS reader verifies
+report kind, schema, payload and configured companion refs before dispatch.
+Calibration does not re-export this reader or depend on Foundry. The unreleased
+E-topic alias was removed; callers of that alias use the Foundry facade directly.
+The reader does not load a FunnelCalibrationReport or grant source/fit authority.
 
 Scientist imports the typed profile, context, candidate references and
 producer/readback functions from `polisyos.calibration`. These typed exports

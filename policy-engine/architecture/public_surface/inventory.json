@@ -2449,9 +2449,11 @@
         },
         {
           "module": "polisyos.foundry.uncertainty",
-          "facade_mode_observed": "eager_exports",
-          "export_count": 20,
+          "facade_mode_observed": "lazy_facade",
+          "export_count": 25,
           "exports": [
+            "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
+            "CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1",
             "AdaptiveStoppingConfig",
             "AggregationStrategy",
             "BoundedIndicatorResponse",
@@ -2464,16 +2466,19 @@
             "admit_empirical_weights",
             "admit_unit_uniform",
             "aggregate_envelopes",
+            "build_covariance_matrix",
+            "calibration_covariance_blocks_agree_v1",
             "compute_first_order_indices",
             "empirical_cdf",
             "extract_std",
             "fabric_uncertainty_context_from_decision_data",
             "load_foundry_calibration_report",
+            "preserve_singular_covariance",
             "reconcile_draw_outcomes",
             "sampling_content_digest",
             "verify_mean_certificate"
           ],
-          "has___getattr__": false,
+          "has___getattr__": true,
           "has___dir__": false,
           "source_file": "src/polisyos/foundry/uncertainty/__init__.py",
           "summary": "Expose uncertainty propagation helpers used around Foundry simulation outputs."
@@ -5347,7 +5352,7 @@
         "polisyos.calibration"
       ],
       "major_subsystem": false,
-      "export_count": 29,
+      "export_count": 28,
       "exports": [
         "PREDICTIVE_AUTHORITY_DENIALS",
         "REFERENCE_PROFILES",
@@ -5371,7 +5376,6 @@
         "load_empirical_calibration_evidence",
         "load_forecast_calibration_profile",
         "load_forecast_candidate_receipt",
-        "load_foundry_calibration_report",
         "persist_continuous_evaluation",
         "persist_empirical_calibration_evidence",
         "persist_forecast_candidate_receipt",
@@ -5388,7 +5392,7 @@
         {
           "module": "polisyos.calibration",
           "facade_mode_observed": "eager_exports",
-          "export_count": 29,
+          "export_count": 28,
           "exports": [
             "PREDICTIVE_AUTHORITY_DENIALS",
             "REFERENCE_PROFILES",
@@ -5412,7 +5416,6 @@
             "load_empirical_calibration_evidence",
             "load_forecast_calibration_profile",
             "load_forecast_candidate_receipt",
-            "load_foundry_calibration_report",
             "persist_continuous_evaluation",
             "persist_empirical_calibration_evidence",
             "persist_forecast_candidate_receipt",

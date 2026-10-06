@@ -31,21 +31,19 @@ from polisyos.foundry.calibration.report import (
     load_calibration_report,
 )
 from polisyos.foundry.uncertainty import (
+    CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
+    CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
     admit_empirical_weights,
     admit_unit_uniform,
+    build_covariance_matrix,
+    calibration_covariance_blocks_agree_v1,
     empirical_cdf,
+    preserve_singular_covariance,
     reconcile_draw_outcomes,
     sampling_content_digest,
 )
 from polisyos.foundry.uncertainty import extract_std as _extract_typed_std
 from polisyos.foundry.uncertainty.config import PropagationConfig
-from polisyos.foundry.uncertainty.covariance import (
-    CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
-    CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
-    build_covariance_matrix,
-    calibration_covariance_blocks_agree_v1,
-    preserve_singular_covariance,
-)
 from polisyos.ir.analytics.dependence_structure import (
     DependenceStructure,
     load_dependence_structure,

@@ -55,7 +55,7 @@ independent point/interval functionals and v2 law storage require IR ratificatio
 
 - Last updated: 2026-09-28
 - Files: 13 Python files in this package
-- Exports: 20 names declared in `__all__`
+- Exports: 25 names declared in `__all__`
 # Sampling consumer entrypoints
 
 Scientist consumes `BoundedIndicatorResponse`, `reconcile_draw_outcomes`,
@@ -76,5 +76,15 @@ Nonzero real values that become zero during float64 conversion also refuse;
 canonicalization cannot silently delete a positive category or covariance.
 
 `load_foundry_calibration_report` exposes the canonical report reader for
-uncertainty consumers. Calibration re-exports the same object; both entrypoints
-retain exact Foundry CAS kind/schema/payload validation and grant no fit authority.
+uncertainty consumers. The legacy uncertainty Node imports this entrypoint
+directly. It retains exact Foundry CAS kind/schema/payload validation and grants
+no fit authority; Calibration does not re-export it.
+
+Welfare consumes `build_covariance_matrix`,
+`calibration_covariance_blocks_agree_v1`, `preserve_singular_covariance` and
+the two `CALIBRATION_COVARIANCE_RECONCILIATION_*_V1` tolerances through this
+facade. Lazy resolution preserves the canonical covariance objects without
+adding an eager covariance import; requesting them retains genuine missing
+numeric-dependency errors. Their
+existing covariance axes, calibrated projection and null-space semantics are
+unchanged; these entrypoints grant no source-law or calibration authority.

@@ -103,7 +103,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 25 | `team-polisyos` | `src/polisyos/scholar/README.md` |
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
 | `polisyos.berl` | `public_experimental` | `eager_exports` | 11 | `team-scientist` | `src/polisyos/berl/README.md` |
-| `polisyos.calibration` | `public_experimental` | `eager_exports` | 29 | `team-scientist` | `src/polisyos/calibration/README.md` |
+| `polisyos.calibration` | `public_experimental` | `eager_exports` | 28 | `team-scientist` | `src/polisyos/calibration/README.md` |
 | `polisyos.ddm` | `internal` | `lazy_facade` | 17 | `team-scientist` | `src/polisyos/ddm/README.md` |
 | `polisyos.foundry.agent_sim.world` | `public_experimental` | `eager_exports` | 23 | `team-foundry` | `src/polisyos/foundry/agent_sim/world/README.md` |
 
@@ -2309,7 +2309,7 @@ world
 | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
 | `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 1 |
 | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 3 |
-| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `eager_exports` | 20 |
+| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `lazy_facade` | 25 |
 
 #### `polisyos.foundry`
 
@@ -2400,12 +2400,14 @@ resolve_execution_posture
 #### `polisyos.foundry.uncertainty`
 
 - Source: `src/polisyos/foundry/uncertainty/__init__.py`
-- Facade: `eager_exports`
+- Facade: `lazy_facade`
 - Summary: Expose uncertainty propagation helpers used around Foundry simulation outputs.
 
-<details><summary>Entrypoint exports (20)</summary>
+<details><summary>Entrypoint exports (25)</summary>
 
 ```text
+CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1
+CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1
 AdaptiveStoppingConfig
 AggregationStrategy
 BoundedIndicatorResponse
@@ -2418,11 +2420,14 @@ QuasiMCSampler
 admit_empirical_weights
 admit_unit_uniform
 aggregate_envelopes
+build_covariance_matrix
+calibration_covariance_blocks_agree_v1
 compute_first_order_indices
 empirical_cdf
 extract_std
 fabric_uncertainty_context_from_decision_data
 load_foundry_calibration_report
+preserve_singular_covariance
 reconcile_draw_outcomes
 sampling_content_digest
 verify_mean_certificate
@@ -5368,7 +5373,7 @@ validate_explanation_bundle
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.calibration` | `src/polisyos/calibration/__init__.py` | `eager_exports` | 29 |
+| `polisyos.calibration` | `src/polisyos/calibration/__init__.py` | `eager_exports` | 28 |
 
 #### `polisyos.calibration`
 
@@ -5376,7 +5381,7 @@ validate_explanation_bundle
 - Facade: `eager_exports`
 - Summary: Calibration diagnostics public entrypoints.
 
-<details><summary>Entrypoint exports (29)</summary>
+<details><summary>Entrypoint exports (28)</summary>
 
 ```text
 PREDICTIVE_AUTHORITY_DENIALS
@@ -5401,7 +5406,6 @@ load_continuous_evaluation
 load_empirical_calibration_evidence
 load_forecast_calibration_profile
 load_forecast_candidate_receipt
-load_foundry_calibration_report
 persist_continuous_evaluation
 persist_empirical_calibration_evidence
 persist_forecast_candidate_receipt
@@ -5412,7 +5416,7 @@ to_validation_report
 
 </details>
 
-<details><summary>Supported exports (29)</summary>
+<details><summary>Supported exports (28)</summary>
 
 ```text
 PREDICTIVE_AUTHORITY_DENIALS
@@ -5437,7 +5441,6 @@ load_continuous_evaluation
 load_empirical_calibration_evidence
 load_forecast_calibration_profile
 load_forecast_candidate_receipt
-load_foundry_calibration_report
 persist_continuous_evaluation
 persist_empirical_calibration_evidence
 persist_forecast_candidate_receipt

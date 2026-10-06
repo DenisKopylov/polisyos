@@ -15,17 +15,22 @@ from polisyos.foundry import uncertainty
 
 def test_foundry_report_reader_is_canonical_and_refuses_funnel_kind(tmp_path: Path) -> None:
     owner = importlib.import_module("polisyos.foundry.calibration.report")
-    assert calibration.load_foundry_calibration_report is owner.load_calibration_report
+    node = importlib.import_module(
+        "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty"
+    )
     assert uncertainty.load_foundry_calibration_report is owner.load_calibration_report
+    assert node.load_foundry_calibration_report is owner.load_calibration_report
     assert "load_foundry_calibration_report" in uncertainty.__all__
-    assert "load_foundry_calibration_report" in calibration.__all__
+    assert "load_foundry_calibration_report" not in calibration.__all__
+    with pytest.raises(AttributeError):
+        _ = calibration.load_foundry_calibration_report
     store = FileSystemCAS(tmp_path / "foundry-report-cas")
     wrong = store.put_json(
         {"report_present": True},
         PutOptions(kind="funnel.calibration_report", media_type="application/json"),
     )
     with pytest.raises(ValueError, match="manifest kind/schema"):
-        calibration.load_foundry_calibration_report(store, wrong)
+        uncertainty.load_foundry_calibration_report(store, wrong)
 
 
 def test_forecast_exports_preserve_canonical_types_and_refuse_authority(tmp_path: Path) -> None:

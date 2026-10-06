@@ -38,7 +38,6 @@ from polisyos.calibration.recalibration import (
     compare_calibrators,
     fit_calibrator,
 )
-from polisyos.foundry.uncertainty import load_foundry_calibration_report
 
 __all__ = [
     "PREDICTIVE_AUTHORITY_DENIALS",
@@ -63,7 +62,6 @@ __all__ = [
     "load_empirical_calibration_evidence",
     "load_forecast_calibration_profile",
     "load_forecast_candidate_receipt",
-    "load_foundry_calibration_report",
     "persist_continuous_evaluation",
     "persist_empirical_calibration_evidence",
     "persist_forecast_candidate_receipt",

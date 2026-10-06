@@ -6,6 +6,21 @@ from dataclasses import replace
 
 import pytest
 
+pytest.importorskip(
+    "torch", reason="UNRUN: optional numerical runtime unavailable", exc_type=ImportError
+)
+pytest.importorskip(
+    "botorch", reason="UNRUN: optional numerical runtime unavailable", exc_type=ImportError
+)
+pytest.importorskip(
+    "gpytorch", reason="UNRUN: optional numerical runtime unavailable", exc_type=ImportError
+)
+pytest.importorskip(
+    "hnswlib", reason="UNRUN: optional numerical runtime unavailable", exc_type=ImportError
+)
+
+pytestmark = pytest.mark.integration
+
 from polisyos.scientist.methods.autotune.bayesian_generator import (
     BayesianCandidateGenerator,
     SearchSpace,

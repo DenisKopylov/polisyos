@@ -4,6 +4,18 @@ from fractions import Fraction
 
 import pytest
 
+pytest.importorskip(
+    "torch", reason="UNRUN: optional numerical runtime unavailable", exc_type=ImportError
+)
+pytest.importorskip(
+    "botorch", reason="UNRUN: optional numerical runtime unavailable", exc_type=ImportError
+)
+pytest.importorskip(
+    "gpytorch", reason="UNRUN: optional numerical runtime unavailable", exc_type=ImportError
+)
+
+pytestmark = pytest.mark.integration
+
 from polisyos.scientist.methods.search.strategies.bayesian import BayesianConfig, BayesianOptimizer
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import Evaluation, ParameterBounds

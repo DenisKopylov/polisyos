@@ -327,7 +327,9 @@ async def test_actual_join_retires_only_undispatched_intent_after_terminal_failu
         assert results[0] is results[1]
         original = results[0].event["producer_event"]
         assert original.amount is None and original.cost_origin == "unknown"
-        assert state.spent["run"] == 0 and state.reserved["run"] > 0
+        event_id, _ = enforcer._ledger_event_identity(original, "run")
+        assert reopened.resolve_spend(event_id) is None
+        assert state.spent.get("run", Decimal(0)) == 0 and state.reserved["run"] > 0
         assert len(pending) == 1 and pending[0].phase == "cost_unknown"
         assert pending[0].event_payload["event_id"] == original.event_id
         assert state.reserved["run"] == pending[0].reserved_amounts["run"]

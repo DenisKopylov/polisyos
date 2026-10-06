@@ -1,0 +1,66 @@
+{
+  "schema": "policyos.e02.facade_owner_packet.v1",
+  "audited_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "audited_candidate_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "G_audit_sha": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+  "denominators": {
+    "new_E_cross_root_edges": 12,
+    "E_changed_path_report_rows": 35,
+    "all_report_rows": 163
+  },
+  "E_fix_sha": "14d6dd4c4f8e61857bc2216a270090aafb0cd72e",
+  "E_owned_fixes": [
+    "Scientist forecast owner uses Calibration root canonical typed evidence exports, preserving declared eager mode",
+    "Scientist uncertainty/welfare nodes use Foundry uncertainty root canonical sampling exports",
+    "PCL uses Calibration root persistence/readback exports"
+  ],
+  "Core_owner": "Canonical Core artifacts/canon and public-surface owner",
+  "Core_decision": {
+    "option_A": "Admit existing curated polisyos.core.artifacts and polisyos.core.canon entrypoints in the public-surface contract, with supported-symbol census and behavioral API tests.",
+    "option_B": "Narrow canonical root re-exports for ArtifactRef, ArtifactStore, ArtifactWriteOptions, SchemaInfo, CanonSpec and from_canonical_bytes; E then rewires exact callers.",
+    "consumer_edges": [
+      "calibration.continuous\u2192core.artifacts",
+      "calibration.continuous\u2192core.canon",
+      "foundry.methods.catalog.econometrics.advanced\u2192core.artifacts",
+      "scientist.methods.autotune.sensitivity_bridge\u2192core.artifacts (TYPE_CHECKING)",
+      "scientist.methods.doe._receipt\u2192core.artifacts",
+      "scientist.methods.doe._receipt\u2192core.canon",
+      "scientist.methods.search.sensitivity_adapter\u2192core.artifacts (TYPE_CHECKING)"
+    ]
+  },
+  "IR_owner": "Canonical IR analytics/public-surface owner",
+  "IR_decision": {
+    "existing_reuse": [
+      "DistributionFamily",
+      "IntervalSemantics",
+      "PropagationMethod",
+      "UncertaintyEnvelope",
+      "UncertaintySource"
+    ],
+    "needed_narrow_exports": [
+      "PosteriorSamplesCarrier",
+      "load_forecasting_uncertainty_bundle",
+      "persist_forecasting_uncertainty_bundle"
+    ],
+    "consumer_edges": [
+      "foundry.uncertainty.sampling_admission\u2192ir.analytics.uncertainty",
+      "calibration.forecast_bridge\u2192ir.analytics.forecasting_uncertainty"
+    ],
+    "compatibility": "Identity-preserving exports only; no B201/B202 wire ratification is inferred."
+  },
+  "owner_write_paths": [
+    "policy-engine/architecture/public_surface/contract.toml",
+    "policy-engine/architecture/public_surface/inventory.json (canonical generator)",
+    "policy-engine/src/polisyos/core/__init__.py or existing subfacade admission",
+    "policy-engine/src/polisyos/ir/api.py",
+    "public API docs/release companions"
+  ],
+  "next_verifiable_result": "Core/IR owner supplies an admitted entrypoint decision/commit; E rewires remaining exact callers and runs architecture guard plus actual CAS/persist/readback consumers. No deep-import baseline or exception expansion substitutes for the decision.",
+  "remaining_global_owners": {
+    "OpenAPI confidence projection/dependency drift": "A/G and canonical generator owner",
+    "FeedbackSolveResult schema/_manifest": "Canonical IR/schema generator owner",
+    "trust-posture drift": "A/G contract generator owner",
+    "Foundry native snapshot reader/writer/path facade": "Canonical Foundry execution/public API owner; BKT needs load_state_snapshot, put_state_snapshot, get_state_path identity exports through admitted execute facade"
+  },
+  "P41": "not_established; old global red is not waived by reported-path overlap"
+}

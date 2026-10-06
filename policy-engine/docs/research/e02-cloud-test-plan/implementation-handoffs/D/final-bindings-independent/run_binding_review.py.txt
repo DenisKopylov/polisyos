@@ -1,0 +1,300 @@
+"""Independently read immutable Git bytes; never import or rerun a backend."""
+
+from __future__ import annotations
+
+import base64
+import collections
+import gzip
+import hashlib
+import json
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+from pathlib import Path
+from typing import Any
+
+REPO = Path("/workspace/e02-D-published-oracle")
+PREFIX = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/"
+ROOT = "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3"
+REFS = {
+    "gp": ("a474ff675264e2264d24e49814f29d873320b1ee", "root-243-gp-transfer-independent-review.json"),
+    "quality": ("56708f9e38b44352e4e38ffe8808f1797764f3dc", "champion-backend-extension-243.json"),
+    "frontend": ("7c04c45bbc8b7f63f544cc49ec6686c5a65b45da", "champion-frontend-ci-243.json"),
+    "accounting": ("fed62e39b486827f18bdfd5a9d7fc916ea58ecee", "published-criterion-accounting-delta.json"),
+    "fun": ("128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d", "published-fun03-fixture-migration.json"),
+    "search": ("262749db1965726ee02c1e7618db99493eceb1fe", "search-canonical-243.json"),
+}
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise ValueError(message)
+
+
+def git(*args: str) -> bytes:
+    return subprocess.check_output(["git", "--no-optional-locks", *args], cwd=REPO)
+
+
+def blob(sha: str, path: str) -> bytes:
+    return git("show", f"{sha}:{path}")
+
+
+def digest(raw: bytes) -> str:
+    return hashlib.sha256(raw).hexdigest()
+
+
+def describe(raw: bytes) -> dict[str, Any]:
+    return {"bytes": len(raw), "sha256": digest(raw)}
+
+
+def normalize(path: str) -> str:
+    if path.startswith("implementation-handoffs/"):
+        return "policy-engine/docs/research/e02-cloud-test-plan/" + path
+    if path.startswith("docs/"):
+        return "policy-engine/" + path
+    return path
+
+
+def checked(sha: str, path: str, expected: str, length: int | None) -> dict[str, Any]:
+    path = normalize(path)
+    raw = blob(sha, path)
+    require(digest(raw) == expected, f"hash mismatch {sha}:{path}")
+    require(length is None or len(raw) == length, f"length mismatch {sha}:{path}")
+    return {"source_sha": sha, "path": path, **describe(raw), "status": "MATCH"}
+
+
+def path_cells(value: Any, publisher: str, at: str = "") -> list[dict[str, Any]]:
+    cells: list[dict[str, Any]] = []
+    if isinstance(value, dict):
+        path = value.get("path")
+        expected = value.get("sha256")
+        if isinstance(path, str) and not path.startswith("/") and isinstance(expected, str):
+            sha = value.get("source_sha", value.get("sha", publisher))
+            cell = checked(sha, path, expected, value.get("bytes"))
+            cell["receipt_pointer"] = at
+            if "decoded_sha256" in value:
+                decoded = gzip.decompress(blob(sha, normalize(path)))
+                require(digest(decoded) == value["decoded_sha256"], f"decoded hash {at}")
+                require(len(decoded) == value["decoded_bytes"], f"decoded length {at}")
+                cell["decoded"] = describe(decoded)
+            cells.append(cell)
+        for key, child in value.items():
+            child_publisher = publisher
+            if at == "" and key == "unchanged_tests" and "source_commit" in value:
+                child_publisher = value["source_commit"]
+            cells.extend(path_cells(child, child_publisher, f"{at}/{key}"))
+    elif isinstance(value, list):
+        for i, child in enumerate(value):
+            cells.extend(path_cells(child, publisher, f"{at}/{i}"))
+    return cells
+
+
+def junit(raw: bytes) -> dict[str, Any]:
+    tree = ET.fromstring(raw)
+    tests = list(tree.iter("testcase"))
+    failed = [t.get("name") for t in tests if t.find("failure") is not None]
+    errors = [t.get("name") for t in tests if t.find("error") is not None]
+    skipped = [t.get("name") for t in tests if t.find("skipped") is not None]
+    counts = {"tests": len(tests), "failures": len(failed), "errors": len(errors), "skipped": len(skipped)}
+    suites = list(tree.iter("testsuite"))
+    declared = {k: sum(int(s.get(k, "0")) for s in suites) for k in counts}
+    require(declared == counts, "JUnit declared/case counts disagree")
+    return {**counts, "passed": len(tests) - len(failed) - len(errors) - len(skipped), "failed_names": failed}
+
+
+def encoded_bundle(sha: str, output: dict[str, Any], path_key: str) -> tuple[dict[str, Any], dict[str, bytes]]:
+    path = normalize(output[path_key])
+    packed = blob(sha, path)
+    require(digest(packed) == output.get("compressed_rawfile_sha256", output.get("rawfile_sha256")), "bundle compressed hash")
+    require(len(packed) == output["compressed_bytes"], "bundle compressed length")
+    raw = gzip.decompress(packed)
+    require(digest(raw) == output["uncompressed_rawfile_sha256"], "bundle decoded hash")
+    require(len(raw) == output["uncompressed_bytes"], "bundle decoded length")
+    payload = json.loads(raw)
+    entries = payload["complete_raw_files"]
+    require(len(entries) == output.get("file_count", output.get("full_raw_files")), "bundle denominator")
+    files: dict[str, bytes] = {}
+    cells = []
+    for item in entries:
+        name = item["path"]
+        require(name not in files, f"duplicate bundle path {name}")
+        content = base64.b64decode(item["content_base64"], validate=True)
+        require(digest(content) == item["rawfile_sha256"], f"bundle file hash {name}")
+        require(len(content) == item["bytes"], f"bundle file bytes {name}")
+        files[name] = content
+        cells.append({"path": name, **describe(content), "status": "MATCH"})
+    return {"source_sha": sha, "path": path, "compressed": describe(packed), "decoded": describe(raw), "file_count": len(files), "unique_paths": len(files), "files": cells}, files
+
+
+def main() -> dict[str, Any]:
+    receipts = {}
+    report: dict[str, Any] = {
+        "schema": "e02.independent.final_git_payload_binding.v1",
+        "reviewer_lane_head_before": git("rev-parse", "HEAD").decode().strip(),
+        "runtime_source": {"sha": ROOT, "tree": git("rev-parse", ROOT + "^{tree}").decode().strip()},
+        "method": "Read exact Git blobs; validate SHA256/byte counts, strict base64/gzip roundtrips, unique full pathsets, actual XML case totals, JSONL session completion, declared recorded source bindings. No backend import/re-execution, new snapshot, cap or cleanup.",
+        "receipts": {},
+        "closure_ids": [],
+    }
+    for name, (sha, filename) in REFS.items():
+        raw = blob(sha, PREFIX + filename)
+        receipt = json.loads(raw)
+        receipts[name] = receipt
+        report["receipts"][name] = {"publisher_sha": sha, "publisher_tree": git("rev-parse", sha + "^{tree}").decode().strip(), "path": PREFIX + filename, **describe(raw), "direct_path_hash_cells": path_cells(receipt, sha)}
+
+    quality_sha = REFS["quality"][0]
+    prior_raw = blob(quality_sha, PREFIX + "champion-backend-parity-243.json")
+    prior = json.loads(prior_raw)
+    backend, backend_files = encoded_bundle(quality_sha, prior["outputs"], "lossless_bundle")
+    extension_receipt = receipts["quality"]
+    extension, extension_files = encoded_bundle(quality_sha, extension_receipt["output_bundle"], "path")
+    report["encoded_backend"] = backend
+    report["encoded_extension"] = extension
+    report["backend_prior_receipt"] = {"source_sha": quality_sha, "path": PREFIX + "champion-backend-parity-243.json", **describe(prior_raw)}
+    extension_refs = []
+    prior_ref = extension_receipt["prior_first_wave_receipt"]
+    extension_refs.append(checked(prior_ref["sha"], prior_ref["path"], prior_ref["rawfile_sha256"], None))
+    browser_ref = extension_receipt["doctor_browser_successor"]
+    extension_refs.append(checked(browser_ref["receipt_sha"], browser_ref["receipt_path"], browser_ref["receipt_rawfile_sha256"], None))
+    extension_stdout = extension_receipt["B21"]["stdout"]
+    extension_refs.append(checked(quality_sha, extension_stdout["path"], extension_stdout["rawfile_sha256"], extension_stdout["bytes"]))
+    entrypoint_cells = []
+    for entry in extension_receipt["runtime_environment"]["installed_actual_entrypoints"]:
+        path = entry["actual_entrypoint_file"].removeprefix("/workspace/e02-D-published-root/")
+        entrypoint_cells.append(checked(ROOT, path, entry["entrypoint_rawfile_sha256"], None))
+    report["extension_reference_bindings"] = {"Git_refs": extension_refs, "seven_actual_declared_entrypoint_files": entrypoint_cells, "B21": extension_receipt["B21"], "final_backend_denominator": extension_receipt["source_derived_final_backend_denominator"]}
+
+    failure_records = []
+    backend_counter = collections.Counter()
+    for gate in prior["gates"]:
+        if gate["id"].startswith("B"):
+            backend_counter[gate["status"]] += 1
+        if gate["status"] == "UNRUN":
+            continue
+        record = json.loads(backend_files[gate["record_relative_path"]])
+        folder = gate["record_relative_path"].rsplit("/", 1)[0]
+        stdout = backend_files[folder + "/complete.txt"]
+        require(digest(stdout) == gate["stdout"]["rawfile_sha256"], f"gate stdout hash {gate['id']}")
+        require(len(stdout) == gate["stdout"]["bytes"], f"gate stdout length {gate['id']}")
+        require(record["exit_code"] == gate["actual_exit_code"], f"gate exit {gate['id']}")
+        for key in ("source_before", "source_after"):
+            require(gate[key]["head"] == ROOT and gate[key]["tracked_status"] == "" and gate[key]["tracked_diff"] == "", f"gate source {gate['id']}")
+        if gate["status"] == "FAIL_COMPLETED_CONTRACT":
+            failure_records.append({"id": gate["id"], "label": gate["label"], "exit_code": gate["actual_exit_code"], "full_stdout_bundle_path": folder + "/complete.txt", **describe(stdout), "complete_output": stdout.decode()})
+    require(dict(backend_counter) == prior["denominator"]["backend_counts"], "backend gate counts")
+    module_path = "results-v2/B19/artifacts/_build/.tmp/last-mile/module-size.json"
+    module_artifact = json.loads(backend_files[module_path])
+    require(module_artifact["contract_error_count"] == len(module_artifact["contract_errors"]) == 77, "module contract errors")
+    require(module_artifact["finding_count"] == len(module_artifact["findings"]) == 6, "module report-only findings")
+    report["semantic_backend"] = {"overall": prior["overall_status"], "first_wave_backend_counts": dict(backend_counter), "completed_contract_failures": failure_records, "full_B19_artifact": {"bundle_path": module_path, **describe(backend_files[module_path]), "complete_deciding_artifact": module_artifact}, "extension_successor": extension_receipt["overall_status"], "P41": "No inherited-red waiver; no exact base/input-intersection replay performed by reviewer. Complete error/UNRUN outputs remain nonpassing."}
+
+    front_sha = REFS["frontend"][0]
+    manifest_path = PREFIX + "frontend-ci-243-payload/manifest.json"
+    front_manifest = json.loads(blob(front_sha, manifest_path))
+    require(len(front_manifest["files"]) == front_manifest["file_count"] == 44, "frontend denominator")
+    front_files = {}
+    front_cells = []
+    for cell in front_manifest["files"]:
+        path = cell["path"]
+        require(path not in front_files, "duplicate frontend path")
+        packed = blob(front_sha, path)
+        require(digest(packed) == cell["gzip_sha256"] and len(packed) == cell["gzip_bytes"], "frontend compressed cell")
+        raw = gzip.decompress(packed)
+        require(digest(raw) == cell["original_sha256"] and len(raw) == cell["original_bytes"], "frontend raw cell")
+        front_files[path] = raw
+        front_cells.append({"path": path, "compressed": describe(packed), "decoded": describe(raw), "status": "MATCH"})
+    require(sum(c["decoded"]["bytes"] for c in front_cells) == front_manifest["original_bytes"], "frontend total raw bytes")
+    require(sum(c["compressed"]["bytes"] for c in front_cells) == front_manifest["compressed_bytes"], "frontend total compressed bytes")
+    report["encoded_frontend"] = {"publisher_sha": front_sha, "manifest_path": manifest_path, **describe(blob(front_sha, manifest_path)), "file_count": len(front_files), "files": front_cells, "overall": receipts["frontend"]["overall"], "gates": receipts["frontend"]["gates"], "readiness_scope": "Genuine bounded doctor/Chromium/CDP/DOM readiness, not whole frontend gate or backend acceptance. External294 browser assets are recorded dependency bytes, not embedded in this44-file payload; not recensed by this review."}
+    frontend_plan = json.loads(front_files[PREFIX + "frontend-ci-243-payload/source-plan.json.gz"])
+    report["frontend_source_input_bindings"] = path_cells(frontend_plan, ROOT)
+
+    search_sha = REFS["search"][0]
+    search_prefix = PREFIX + "checks/search-canonical-243/"
+    search_manifest = json.loads(blob(search_sha, search_prefix + "manifest.json"))
+    manifest_cells = [checked(search_sha, path, cell["sha256"], cell["bytes"]) for path, cell in search_manifest["files"].items()]
+    command_results = []
+    total = collections.Counter()
+    source_cells = {}
+    for path in search_manifest["files"]:
+        if not path.endswith("/result.json"):
+            continue
+        result = json.loads(blob(search_sha, path))
+        folder = path.rsplit("/", 1)[0]
+        counts = junit(blob(search_sha, folder + "/junit.xml"))
+        require({k: counts[k] for k in ("tests", "errors", "failures", "skipped")} == result["junit"]["counts"], "result/XML mismatch")
+        for k in ("tests", "errors", "failures", "skipped", "passed"):
+            total[k] += counts[k]
+        events = [json.loads(line) for line in blob(search_sha, folder + "/events.jsonl.txt").splitlines()]
+        require(events[0]["kind"] == "session_start" and events[-1]["kind"] == "session_finish", "incomplete event session")
+        require(events[-1]["exitstatus"] == result["exit_code"], "event/result exit mismatch")
+        for key in ("source_before", "source_after"):
+            require(result[key]["head"] == ROOT and result[key]["tracked_status"] == "" and result[key]["full_tracked_diff"] == "", "command source mismatch")
+        for native in events[-1].get("native_sources", {}).values():
+            filename = native["filename"]
+            actual_hash = native["source_sha256"]
+            root_prefix = "/workspace/e02-D-published-root/"
+            if filename.startswith(root_prefix) and actual_hash is not None:
+                source_path = filename.removeprefix(root_prefix)
+                source_cells[source_path] = checked(ROOT, source_path, actual_hash, None)
+        command_results.append({"ordinal": result["ordinal"], "bundle": result["bundle"], "result_path": path, "actual_exit_code": result["exit_code"], "outcome": result["outcome"], "counts": counts, "events": len(events), "source_before_after_match": True, "full_failure_output_path": folder + "/complete.txt" if counts["failures"] else None})
+    require(len(command_results) == 17, "command denominator")
+    require({k: total[k] for k in ("tests", "errors", "failures", "skipped")} == search_manifest["actual_junit_counts"], "aggregate XML counts")
+    require(total["passed"] == search_manifest["passed_execution_occurrences"], "aggregate pass counts")
+    ruff_raw = blob(search_sha, search_prefix + "measurement-helper-ruff.txt")
+    report["search_canonical"] = {"manifest_files": len(manifest_cells), "file_cells": manifest_cells, "complete_commands": sorted(command_results, key=lambda c: c["ordinal"]), "actual_execution_occurrences": dict(total), "unique_observed_native_Git_source_files": len(source_cells), "native_source_cells": list(source_cells.values()), "helper_quality": {**describe(ruff_raw), "status": "FAIL", "tail": ruff_raw.decode().splitlines()[-3:]}, "semantic_status": "15PASS2FAIL commands;7FAIL/737PASS execution occurrences. These are repeated literal command occurrences, not distinct test IDs; no incomplete wide run promoted to complete acceptance."}
+
+    gp = receipts["gp"]
+    report["gp_recorded_cases"] = junit(blob(REFS["gp"][0], gp["actual_JUnit"]["path"]))
+    fun = receipts["fun"]
+    fun_green = junit(blob(REFS["fun"][0], fun["checks"][0]["junit"]["path"]))
+    require(fun_green["tests"] == fun_green["passed"] == 52, "FUN52 actual XML")
+    target = fun["checks"][0]["target_sha"]
+    require(git("diff", "--name-only", ROOT, target, "--", "policy-engine/src") == b"", "FUN production changed")
+    fun_metadata = json.loads(blob(REFS["fun"][0], fun["checks"][0]["raw_metadata"]["path"]))
+    report["fun_fixture_migration"] = {"target_sha": target, "source_tree": git("rev-parse", target + "^{tree}").decode().strip(), "production_src_equal_root243": True, "cases": fun_green, "native_source_provenance": "Receipt/source identity is author recomputation, not observed imported module origins; no current final-root runtime inferred.", "recorded_metadata": fun_metadata, "guard_removal": fun["checks"][1]["property_signal"], "remaining_authority": fun["limitations_and_next_owner"]}
+
+    accounting = receipts["accounting"]
+    ids = [row["id"] for row in accounting["findings"]]
+    require(len(ids) == len(set(ids)) == 45, "accounting45 distinct IDs")
+    disposition = dict(collections.Counter(row["accounting_disposition_now"] for row in accounting["findings"]))
+    require(disposition == accounting["denominator"]["accounting_dispositions_now"], "accounting disposition counts")
+    source_docs = {}
+    for key, cell in accounting["canonical_inputs"]["original_documents"].items():
+        source_docs[key] = blob(cell["source_sha"], cell["path"]).decode().splitlines(keepends=True)
+    fragments = []
+    coverage_cell = accounting["canonical_inputs"]["coverage"]
+    coverage = json.loads(blob(coverage_cell["source_sha"], coverage_cell["path"]))
+    card_paths = {c["id"]: c["criterion_card"] for c in coverage["bundles"]}
+    prior_cell = accounting["prior_snapshot"]["receipt"]
+    prior_accounting = json.loads(blob(prior_cell["source_sha"], prior_cell["path"]))
+    for row in accounting["findings"]:
+        require(coverage["findings"][int(row["coverage_pointer"].split("/")[-1])]["id"] == row["id"], "coverage pointer")
+        require(prior_accounting["findings"][int(row["prior_row_pointer"].split("/")[-1])]["id"] == row["id"], "prior pointer")
+        for block in row["original_source_blocks"]:
+            first, last = block["lines"]
+            raw = "".join(source_docs[block["document_key"]][first - 1:last]).encode()
+            require(digest(raw) == block["fragment_sha256"], f"criterion fragment {row['id']}")
+            require(raw in blob(coverage_cell["source_sha"], card_paths[block["card"]]), f"full criterion containment {row['id']}")
+            fragments.append({"id": row["id"], "document": block["document_key"], "lines": block["lines"], **describe(raw)})
+    require(len(fragments) == 46, "criterion occurrences")
+    report["accounting_scope"] = {"distinct_findings": len(ids), "criterion_fragment_occurrences": len(fragments), "fragment_bindings": fragments, "dispositions": disposition, "closed": 0, "current_runtime_claim": "Historical exact425 frontier40 is not243 runtime: controller/service differ; current joined caller remains verification_missing until authorized bounded replay. Accounting status is not institutional finding adjudication."}
+    source_replays = {"receiver": "c812510541c898d7118004661ce07335823d2209", "legacy_frontier": "425c90e8a698edf40f345baf1395d11545bb01d1", "Gateway": "1ca25193d10787cbc545490c4a954b15b8a6b227"}
+    equivalence = []
+    for cell in accounting["named_execution_module_equivalence"]:
+        previous = checked(source_replays[cell["role"]], cell["path"], cell["executed_sha256"], None)
+        current = checked(ROOT, cell["path"], cell["freeze_sha256"], None)
+        equal = previous["sha256"] == current["sha256"]
+        require(equal == cell["equal"], "named equivalence claim")
+        equivalence.append({"role": cell["role"], "previous": previous, "root243": current, "equal": equal})
+    report["accounting_named_source_equivalence"] = equivalence
+    report["preparation_corrections"] = ["Initial generic path traversal tried to read nativeCAS test from oracle publisher; the file exists only in explicitly declared runtime source243. Corrected traversal to use source_commit for unchanged_tests, not an arbitrary matching commit.", "Initial extension receipt parser expected outputs/file_count/compressed_rawfile_sha256; actual schema uses output_bundle/full_raw_files/rawfile_sha256. Corrected schema mapping without changing any expected hash, bytes or denominator.", "Initial criterion-containment preparation checked summary taskcard D.md instead of the criterion_card path declared by coverage for each bundle. Corrected the target card, retaining all46 original exact fragment hash/byte expectations. Initial verifier startup failures were not backend or product test results."]
+    report["integrity_verdict"] = "PASS for the explicitly enumerated Git payloads/hash cells and426 decoded files; not a quality/runtime/closure verdict."
+    report["limitations"] = ["No new backend execution, no full doctored/backend/frontend/CI PASS; failures and signal/resource-blocked checks retained.", "External environment/browser/provider dependencies were not whole-byte recensed; captured native source binding is limited to recorded origin cells.", "Parent's own root decode and deciding receipts are not input to this independent verifier; Git objects above are inputs.", "Future final test-only candidate and current joined fiscal/frontier40 plus native102 runtime remain pending; no source-equivalence proxy substitutes for that execution."]
+    return report
+
+
+if __name__ == "__main__":
+    result = main()
+    Path(sys.argv[1]).write_text(json.dumps(result, indent=2) + "\n")
+    sys.stdout.write(json.dumps({"integrity": result["integrity_verdict"], "decoded_files": sum(result[k]["file_count"] for k in ("encoded_backend", "encoded_extension", "encoded_frontend")), "search": result["search_canonical"]["actual_execution_occurrences"], "receipts": list(result["receipts"]), "backend_completed_failures": [r["id"] for r in result["semantic_backend"]["completed_contract_failures"]]}, indent=2) + "\n")

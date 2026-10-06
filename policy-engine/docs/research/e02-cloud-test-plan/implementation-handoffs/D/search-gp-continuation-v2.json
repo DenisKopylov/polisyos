@@ -1,0 +1,260 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "search-gp-continuation-v2",
+  "finding_ids": [
+    "B112",
+    "B113",
+    "B114",
+    "B115",
+    "B124",
+    "B125",
+    "B126",
+    "B127"
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "OPT-02",
+    "OPT-03",
+    "CTL-02",
+    "CTL-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [
+    "4c337ca58a87d6b7d4458113af4ff5c07fb3b6b5"
+  ],
+  "candidate_tree_sha": "ae6f687cb1edb76e61aa380c263a2a91d3966eab",
+  "branch": "codex/e02-D-published-search",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-baseline-198.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-candidate-2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-candidate.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-gp-final.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-native-candidate.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-gp-continuation.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+    "policy-engine/tests/unit/remediation/test_ctl_03_nested.py",
+    "policy-engine/tests/unit/remediation/test_opt_03_continuation.py",
+    "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py"
+  ],
+  "baseline_cells": {
+    "B112": [
+      "F02-P057",
+      "F02-P095",
+      "F06-P080",
+      "F06-P112",
+      "F08-P061",
+      "F08-P096",
+      "F10-P086",
+      "F12-P063",
+      "F13-P108",
+      "F15-P069"
+    ],
+    "B113": [
+      "F02-P057",
+      "F02-P095",
+      "F06-P080",
+      "F06-P112",
+      "F08-P061",
+      "F08-P096",
+      "F10-P086",
+      "F12-P063",
+      "F13-P108",
+      "F15-P069"
+    ],
+    "B114": [
+      "F02-P095",
+      "F06-P112",
+      "F08-P096",
+      "F10-P086",
+      "F13-P108"
+    ],
+    "B115": [
+      "F02-P095",
+      "F06-P112",
+      "F08-P096",
+      "F10-P086",
+      "F13-P108"
+    ],
+    "B124": [
+      "F01-P128",
+      "F03-P073",
+      "F03-P121",
+      "F05-P094",
+      "F05-P133",
+      "F05-P140",
+      "F07-P065",
+      "F08-P121",
+      "F09-P126",
+      "F11-P076",
+      "F11-P115",
+      "F12-P108",
+      "F14-P085",
+      "F14-P151",
+      "F15-P143"
+    ],
+    "B125": [
+      "F01-P128",
+      "F03-P073",
+      "F03-P121",
+      "F05-P094",
+      "F05-P133",
+      "F05-P140",
+      "F07-P065",
+      "F08-P121",
+      "F09-P126",
+      "F11-P076",
+      "F11-P115",
+      "F12-P108",
+      "F14-P085",
+      "F14-P151",
+      "F15-P143"
+    ],
+    "B126": [
+      "F01-P128",
+      "F03-P073",
+      "F03-P121",
+      "F05-P094",
+      "F05-P133",
+      "F05-P140",
+      "F07-P065",
+      "F08-P121",
+      "F09-P126",
+      "F11-P076",
+      "F11-P115",
+      "F12-P108",
+      "F14-P085",
+      "F14-P151",
+      "F15-P143"
+    ],
+    "B127": [
+      "F02-P057",
+      "F02-P095",
+      "F06-P080",
+      "F06-P112",
+      "F08-P061",
+      "F08-P096",
+      "F10-P086",
+      "F12-P063",
+      "F13-P108",
+      "F15-P069"
+    ]
+  },
+  "environment": {
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "ruff": "0.14.10",
+    "PYTHONPATH": "src:.",
+    "product_cwd": "/workspace/e02-D-published-search/policy-engine"
+  },
+  "checks": [
+    {
+      "target_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-baseline-198.txt",
+      "sha256": "62d2b5bbc78920e24267acc97c026b46972a2dd442137c6760a19d468b55e26d",
+      "bytes": 14871,
+      "deciding_output": "11 failed, 6 warnings in 4.00s",
+      "outcome": "FAIL",
+      "scope": "baseline"
+    },
+    {
+      "target_sha": "4c337ca58a87d6b7d4458113af4ff5c07fb3b6b5",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-candidate.txt",
+      "sha256": "f999518c24ce7460e78468df6842c9193d01df92c1f52e3cc166490a58794977",
+      "bytes": 32457,
+      "deciding_output": "2 failed, 9 passed, 5 warnings in 13.31s",
+      "outcome": "FAIL",
+      "scope": "pre-fix candidate retained history; blanket nonfinite-buffer guard rejected legitimate Infinity constraint buffers"
+    },
+    {
+      "target_sha": "4c337ca58a87d6b7d4458113af4ff5c07fb3b6b5",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-candidate-2.txt",
+      "sha256": "78714cc5b7f305c96be9cf2c5119ef61e50fd37c651d5862560ed87ea136890a",
+      "bytes": 1219,
+      "deciding_output": "11 passed, 12 warnings in 13.84s",
+      "outcome": "PASS",
+      "scope": "bounded runtime"
+    },
+    {
+      "target_sha": "4c337ca58a87d6b7d4458113af4ff5c07fb3b6b5",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-native-candidate.txt",
+      "sha256": "d2a9170e3314ce96b5a5f57e775a25937bf91c251fc7d40f14e3ce027b1c84ed",
+      "bytes": 2354,
+      "deciding_output": "8 passed, 8 warnings in 6.15s",
+      "outcome": "PASS",
+      "scope": "bounded runtime"
+    },
+    {
+      "target_sha": "4c337ca58a87d6b7d4458113af4ff5c07fb3b6b5",
+      "log": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-gp-final.txt",
+      "sha256": "cab8f3785aeafd3ba77e47bcbb38ea1c93677561c350b854c5c7b6bdc763966b",
+      "bytes": 1884,
+      "deciding_output": "55 passed, 18 warnings in 12.68s",
+      "outcome": "PASS",
+      "scope": "bounded runtime"
+    }
+  ],
+  "commands": {
+    "final": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "tests/unit/remediation/test_opt_03_continuation.py",
+      "tests/unit/remediation/test_ctl_03_nested.py",
+      "tests/unit/scientist/search/strategies/test_bayesian.py",
+      "tests/unit/scientist/search/strategies/test_bayesian_adaptive.py",
+      "tests/unit/scientist/search/strategies/test_space_codec.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_generator.py"
+    ]
+  },
+  "input_closure": {
+    "profile": "finite synthetic measured rows; no external dataset/source authorization",
+    "GP_seed": 37,
+    "RL_base_seed": 38,
+    "RL_wrapper_seed": 39,
+    "native_seed_inputs": "complete fixed fixtures in changed-path test blobs at candidate SHA; native warm fixture seed21 now configures context/run-1 synthetic target explicitly",
+    "GP_points": "(i+1)/16 for i=0..5, append i=6; due producer 3->4; score4+(x-.4)^2",
+    "resource_policy": "actual ResourceArbiter hard_rss_mb0 then13000; enable_cleanupFalse",
+    "time_roles": "Evaluation.timestamp serialized ISO as record metadata; warm numerical context explicit; iteration current-row clock differs from warm corpus count; future refit clocks refused, legitimately deferred past-due clock admitted"
+  },
+  "property": {
+    "statement": "Complete supported state reaches actual native GP conditioning/acquisition and nested RL random/Sobol consumers; same-basis resume/append incurs no MLL fit, due/basis changes refit.",
+    "runtime_path": [
+      "actual SingleTaskGP+fit_gpytorch_mll",
+      "StrategyState JSON commonv2 with GP statev2/model/corpus bindings",
+      "set_state validates numerical/config/backend/refit/warm/RNG basis atomically",
+      "actual GP suggest/condition/optimize_acqf and RL nested suggest"
+    ],
+    "negative_controls": [
+      "unchanged198 actual continuation11FAIL",
+      "raw fitted/full-refit X/Y altered with saved model/corpus binding markers intact -> atomic refusal",
+      "future refit clock after real hard-limit fallback -> atomic refusal",
+      "six malformed nested JSON objects/types -> controlled refusal without wrapper/base mutation"
+    ],
+    "proxy_divergence": "Counts/state labels alone cannot establish numerical continuation. Independent original-unit Cholesky full covariance oracle538f is authored by sibling; candidate replay remains pending and is not claimed here."
+  },
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Bounded synthetic engineering continuation; no institutional authorization, deployed consumer or scientific optimization quality assertion",
+  "capability_state_or_finding_state": "partial; mechanism implemented, independent analytic and composed CAS transfer consumer pending",
+  "limitations_and_next_owner": [
+    "Configured numeric_transfer_basis.v1 generator bridge hook is authored, but transfer-owner source not yet present in this lane; actual composed CAS workflow is UNRUN here until exact transfer slice integrated.",
+    "No production runtime constructor registration or deployment claim from fixture/public API.",
+    "SingleTaskGP locked0.16.1 already passed original-unit transform restoration numerics at198; this slice does not claim that supported backend had a transform numerical defect.",
+    "GP checkpoints without completev2 basis and RL checkpoints without nested/profile basis are explicitly refused; no inferred legacy compatibility.",
+    "Native acquisition policy sobol_ranked_restarts.v1 changes restart ranking; EI/qEI method remains existing, no superiority/convergence claim.",
+    "Theoretical exact replay is action/numerical semantics; UUID candidate IDs and creation metadata are newly produced.",
+    "Independent analytic oracle and independent initializer RNG discriminator owner numerical_oracle; G accepts closure separately."
+  ]
+}

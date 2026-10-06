@@ -1,0 +1,30 @@
+id = "2026-10-06-structural-causal-result-semantics"
+title = "Separate SCM distributions, Gaussian posteriors and refitted estimator intervals"
+type = "fixed"
+component = "foundry-causal"
+owner = "team-policyos-runtime"
+summary = "Use actual source-bound DoWhy GCM fitting and versioned causal results with separate fixed-model distributions and iid-row bootstrap intervals from complete mechanism refits."
+change_class = "persisted-artifact-format"
+surface_classification = "public_stable: polisyos.ir"
+compatibility = "CausalQueryResult 1.2 and TwinNetworkResult 1.1 retain historical decoding as limited non-gating distributions. Selected source-bound GCM models use schema 1.1; historical/manual schema 1.0 remains readable without a new backend claim."
+migration = "Read result_kind and optional estimator_interval separately; do not interpret result_ci or ite_ci as estimator confidence intervals. Select native_hybrid explicitly for the legacy research fit, or configure the pinned GCM worker with an actual resolved source."
+api = "Export CausalResultKind and CausalEstimatorInterval from polisyos.ir and polisyos.ir.analytics; export SCMTrainingRows and SCMFitProvenance from polisyos.ir."
+limitations = "The selected GCM profile supports a fully observed static declared DAG with empirical roots and linear additive-noise conditionals. Bootstrap inference requires an explicit iid-row sampling law and fixed identified graph. Synthetic DGP checks do not establish real-data identification, nominal coverage or governance authority; no global uncertainty schema is ratified."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/reference/foundry/structural-causal-models.md"]
+runbook_docs = ["workers/dowhy-014/README.md"]
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py", "tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py", "schemas/snapshots/ir/causal_query_result.schema.json", "schemas/snapshots/ir/structural_causal_model_spec.schema.json"]
+
+[[compatibility_change]]
+id = "causal-query-result-interval-kind"
+change_class = "persisted-artifact-format"
+impact = "migration"
+surface = "public_stable: polisyos.ir"
+owner = "team-policyos-runtime"
+version_owner = "team-ir"
+deprecation_window = "2 minor releases"
+release_note = "Causal result readers retain historical payloads as non-gating distributions and expose refitted estimator confidence intervals through a separate typed field."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/foundry/structural-causal-models.md"]
+runbook_docs = ["workers/dowhy-014/README.md"]

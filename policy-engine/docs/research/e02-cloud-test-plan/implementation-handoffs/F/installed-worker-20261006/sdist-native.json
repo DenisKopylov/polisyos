@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/workspace/e02-F-20261006-receipts/installed-worker/sdist-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/installed-worker/final_launch.py",
+    "sdist"
+  ],
+  "cwd": "/workspace/e02-F-20261006-receipts/installed-worker/sdist-consumer",
+  "source_sha_start": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+  "source_sha_end": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+  "environment": {
+    "PYTHONPATH": "src:."
+  },
+  "exit": 0,
+  "wall_s": 63.31386683200253,
+  "rss_kib": 669812
+}

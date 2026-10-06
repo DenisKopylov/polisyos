@@ -1,0 +1,78 @@
+{
+  "schema": "policyos.e02.independent-installed-latest-review.v1",
+  "reviewer": "F/graph_scm",
+  "decision": "GO",
+  "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+  "source_tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+  "check": "PASS",
+  "outcome": "limited",
+  "native_counts": {
+    "passed": 25,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "warnings": 10
+  },
+  "pytest_wall_s": 17.6,
+  "wrapper_wall_s": 26.50216988399916,
+  "actual_product_module_origins_checked": 911,
+  "source_composition_review": {
+    "path": "/workspace/e02-F-20261006-receipts/protocol-audit/installed-latest-source-review.json",
+    "bytes": 3985,
+    "sha256": "7b19917dec087b622b188a5f9139c1c2530499caf1f358332408a65a50580bac"
+  },
+  "source_archive_binding_records": 2917,
+  "installed_unchanged_before_after_records": 2917,
+  "exact_case_partition": {
+    "new_B220_cases": 11,
+    "existing_nested_copy_weakref_cases": 8,
+    "independent_CAS_CSV_unicode_cache_controls": 4,
+    "canonical_public4_helpers_pickle_identity": 1,
+    "genuine_GCM_400_rows_40_refits_fresh_CAS_Scientist": 1
+  },
+  "whole_case_source_binding": "Actual isolated wheel imports, five byte-pinned source test carriers, genuine installed worker resources, complete source/wheel/sdist equality over2917 records; no source fallback. Two native API/GCM cases selected; asset-retirement case omitted so installed files remain immutable throughout.",
+  "full_companions": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/installed-latest-independent/launch.py",
+      "bytes": 1799,
+      "sha256": "54cb8b9ee084a8536e7892ae2774693e9166527c5703506ef203c5618ef4fcdc"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/installed-latest-independent/native.json",
+      "bytes": 3513,
+      "sha256": "8c08a8270307592856b76b7934142e2b927bf56a0603100af87c07a47a839db9"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/installed-latest-independent/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/installed-latest-independent/native.stdout.txt",
+      "bytes": 306027,
+      "sha256": "9da3be0a5d4cdeecbf776498e3dee0aa45ef94cd50ed4462cdefd18a15e86282"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/installed-latest-independent/run.py",
+      "bytes": 3526,
+      "sha256": "2111bb36a41468f0354e08f2120e8fe5c3b69887cba584554cbf576695dd6e19"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/installed-latest-independent/run.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/installed-latest-independent/run.stdout.txt",
+      "bytes": 208,
+      "sha256": "305e34ab3be1fc189b6abf9ca60c9df84c09d05ceb919f7ece22583692ac2fc5"
+    }
+  ],
+  "limits": [
+    "Read-only wheel consumer independent native witness; sdist native run remains separately author-bound.",
+    "Live Kuzu database UNRUN; actual CSV and to_kuzu plain-dict parameter reader only.",
+    "All bootstrap computations known synthetic DGP; no admitted real-data or protected gate authority.",
+    "Source/e2c historicalB220 tests are not relabeled to installed5cd; this is fresh execution."
+  ],
+  "authority": "Known synthetic candidate computation only. No new primary finding closure or protected production authority. Live Kuzu UNRUN. Sdist archive equality independently recomputed but fresh sdist native remains separately author-bound."
+}

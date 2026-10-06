@@ -1,0 +1,25 @@
+id = "2026-10-06-installed-dowhy-profile"
+title = "Include canonical selected-worker assets in installed distributions"
+type = "fixed"
+component = "foundry-causal"
+owner = "team-policyos-runtime"
+surface_classification = "internal"
+change_class = "internal"
+summary = "Project the six canonical DoWhy worker assets into the private wheel profile and preserve their source paths in the sdist for rebuilding."
+evidence = ["tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py"]
+compatibility = "Keep application Python 3.14 dependencies and markers unchanged. Configured selected-worker execution uses the installed product's canonical projected assets; missing assets remain typed unavailability."
+migration = "Configure the server-owned absolute Python 3.12 worker interpreter with the separately locked standalone dependencies. No application dependency change or worker source fork is introduced."
+limitations = "This packaging repair establishes known-synthetic computation and installed reader compatibility, not real-data causal assumptions, scientific authority or production Scientist admission."
+
+[[compatibility_change]]
+id = "causal-installed-selected-worker-assets"
+change_class = "internal"
+impact = "added"
+surface = "private installed causal/_dowhy_profile assets"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Installed wheel and rebuilt sdist expose the same canonical selected-worker assets and preserve typed missing-profile refusals."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/research/e02-cloud-test-plan/verification/F/installed-worker-20261006/README.md", "workers/dowhy-014/README.md"]
+runbook_docs = ["workers/dowhy-014/README.md"]

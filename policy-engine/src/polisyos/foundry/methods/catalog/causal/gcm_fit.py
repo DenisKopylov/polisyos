@@ -27,6 +27,8 @@ from polisyos.ir.analytics.structural_causal_model import (
     MechanismFamily,
     MechanismSource,
     NodeMechanism,
+    SCMFitProvenance,
+    SCMTrainingRows,
     StructuralCausalModelSpec,
 )
 
@@ -254,13 +256,275 @@ def _fit_method_from_summary(summary: Mapping[str, int]) -> str:
     return "hybrid"
 
 
+def _gcm_number(value: Any) -> float:
+    """Require an actual finite JSON number before interpreting a GCM export."""
+    if type(value) not in {int, float}:
+        raise ValueError("GCM numerical exports require finite JSON numbers, not coercible values")
+    try:
+        number = float(value)
+    except OverflowError as exc:
+        raise ValueError("GCM numerical export is outside finite floating-point range") from exc
+    if not np.isfinite(number):
+        raise ValueError("GCM numerical exports must be finite")
+    return number
+
+
+def _gcm_vector(value: Any) -> np.ndarray:
+    if not isinstance(value, list):
+        raise ValueError("GCM numerical export vector must be a JSON array")
+    return np.asarray([_gcm_number(item) for item in value], dtype=float)
+
+
+def _gcm_spec_from_worker(
+    payload: SCMFitData,
+    response: Mapping[str, Any],
+    model: Mapping[str, Any],
+    *,
+    seed: int,
+    resample_indices: list[int] | None = None,
+) -> StructuralCausalModelSpec:
+    """Validate exported fitted mechanisms against the bound parent rows."""
+    data = np.asarray(payload.data, dtype=float)
+    graph = payload.graph
+    parents = _parents_by_node(graph)
+    if set(model) - {"bootstrap_models"} != {"mechanisms", "fit_function", "row_ids"}:
+        raise ValueError("unexpected GCM fitted model fields")
+    if model["fit_function"] != "dowhy.gcm.fit":
+        raise ValueError("selected GCM model must be produced by dowhy.gcm.fit")
+    source = response["source"]
+    source_ref = source["artifact_ref"]
+    row_ids = [f"{source_ref['artifact_id']}:{i}" for i in range(len(data))]
+    selected = resample_indices if resample_indices is not None else list(range(len(data)))
+    selected_ids = [row_ids[i] for i in selected]
+    if model["row_ids"] != selected_ids:
+        raise ValueError("GCM fitted rows differ from the bound source row identities")
+    fitted = model["mechanisms"]
+    if not isinstance(fitted, Mapping) or set(fitted) != set(graph.nodes):
+        raise ValueError("GCM fitted mechanisms must cover the exact declared graph")
+    mechanisms: list[NodeMechanism] = []
+    columns = {name: i for i, name in enumerate(payload.column_names)}
+    frame = data[selected]
+    for node in graph.nodes:
+        result = fitted[node]
+        expected_parents = sorted(parents[node])
+        if not isinstance(result, Mapping) or result.get("parents") != expected_parents:
+            raise ValueError(f"GCM parent binding mismatch for {node}")
+        y = frame[:, columns[node]]
+        if not expected_parents:
+            if (
+                set(result) != {"parents", "family", "observed_samples"}
+                or result["family"] != "empirical"
+            ):
+                raise ValueError(f"unsupported GCM root mechanism for {node}")
+            observed = _gcm_vector(result["observed_samples"])
+            if observed.shape != y.shape or not np.array_equal(observed, y):
+                raise ValueError(f"GCM root samples differ from source rows for {node}")
+            family = MechanismFamily.EMPIRICAL
+            params = {
+                **_empirical_params(y),
+                "observed_samples": observed.tolist(),
+                "observed_samples_source": source_ref["artifact_id"],
+                "observed_sample_alignment": "source_row_ids",
+                "observed_row_ids": selected_ids,
+                "joint_sample_group": response["data_sha256"],
+            }
+        else:
+            fields = {
+                "parents",
+                "family",
+                "intercept",
+                "coefficients",
+                "residual_samples",
+                "noise_std",
+            }
+            if set(result) != fields or result["family"] != "linear_additive_noise":
+                raise ValueError(f"unsupported GCM conditional mechanism for {node}")
+            coefficients = result["coefficients"]
+            if not isinstance(coefficients, Mapping) or set(coefficients) != set(expected_parents):
+                raise ValueError(f"GCM coefficient binding mismatch for {node}")
+            intercept = _gcm_number(result["intercept"])
+            coefficients = {parent: _gcm_number(value) for parent, value in coefficients.items()}
+            noise_std = _gcm_number(result["noise_std"])
+            residual = _gcm_vector(result["residual_samples"])
+            prediction = intercept + sum(
+                float(coefficients[parent]) * frame[:, columns[parent]]
+                for parent in expected_parents
+            )
+            # Numerical fields of a persisted reply require a source-row
+            # oracle too. This verifies the actual worker export; it never
+            # substitutes a native fit for selected backend execution.
+            design = np.column_stack(
+                [np.ones(len(frame)), frame[:, [columns[p] for p in expected_parents]]]
+            )
+            if np.linalg.matrix_rank(design) != design.shape[1]:
+                raise ValueError(f"GCM linear mechanism is unidentified on source rows for {node}")
+            oracle = np.linalg.lstsq(design, y, rcond=None)[0]
+            actual = np.asarray(
+                [intercept, *(coefficients[p] for p in expected_parents)], dtype=float
+            )
+            if not np.allclose(actual, oracle, atol=1.0e-8, rtol=1.0e-8):
+                raise ValueError(
+                    f"GCM exported linear fit differs from source-row oracle for {node}"
+                )
+            if (
+                residual.shape != y.shape
+                or not np.isfinite(residual).all()
+                or not np.allclose(residual, y - prediction, atol=1.0e-8, rtol=1.0e-8)
+            ):
+                raise ValueError(f"GCM fitted residuals differ from source rows for {node}")
+            if not np.isfinite(prediction).all() or noise_std < 0:
+                raise ValueError(f"nonfinite GCM conditional mechanism for {node}")
+            if not np.isclose(noise_std, float(np.std(residual)), atol=1.0e-8, rtol=1.0e-8):
+                raise ValueError(
+                    f"GCM residual scale differs from actual source-row residuals for {node}"
+                )
+            family = MechanismFamily.LINEAR
+            params = {
+                "intercept": intercept,
+                "coefficients": dict(coefficients),
+                "noise_std": noise_std,
+                "residual_samples": residual.tolist(),
+                "fit_mode": "dowhy_linear_additive_noise",
+            }
+        mechanisms.append(
+            NodeMechanism(
+                variable=node,
+                parents=expected_parents,
+                family=family,
+                family_params=params,
+                noise_distribution="empirical",
+                source=MechanismSource.DATA_FITTED,
+            )
+        )
+    training = SCMTrainingRows(
+        rows=data.tolist(),
+        columns=list(payload.column_names),
+        row_ids=row_ids,
+        source_ref=source_ref,
+        source_sha256=source["content_sha256"],
+        data_sha256=response["data_sha256"],
+        row_sha256=response["row_sha256"],
+        graph_sha256=response["graph_sha256"],
+        graph_payload={"nodes": list(graph.nodes), "edges": [[e.src, e.dst] for e in graph.edges]},
+        fit_input=payload.model_dump(mode="json"),
+    )
+    provenance = SCMFitProvenance(
+        python=response["python"],
+        versions={
+            name.lower().replace("_", "-"): version
+            for name, version in response["versions"].items()
+        },
+        seed=seed,
+        request_id=response["request_id"],
+        request_sha256=response["request_sha256"],
+        worker_code_sha256=response["parent_observed"]["worker_code_sha256"],
+        worker_lock_sha256=response["parent_observed"]["worker_lock_sha256"],
+        worker_response=dict(response),
+        resample_indices=resample_indices,
+    )
+    return StructuralCausalModelSpec(
+        schema_version="1.1",
+        graph=graph,
+        mechanisms=mechanisms,
+        fitted=True,
+        fit_method="gcm",
+        training_rows=training,
+        fit_provenance=provenance,
+        fit_metrics={"dowhy_available": 1.0, "n_nodes": float(len(graph.nodes))},
+        mechanism_source_summary={"data_fitted": len(mechanisms)},
+        skg_snapshot_ref=payload.skg_snapshot_ref,
+    )
+
+
+def _fit_gcm_specs(
+    payload: SCMFitData,
+    *,
+    seed: int,
+    bootstrap_indices: list[list[int]] | None = None,
+) -> tuple[StructuralCausalModelSpec, list[StructuralCausalModelSpec]]:
+    """Run actual selected GCM fits on complete source-bound frames."""
+    if payload.graph.graph_type is not GraphType.DAG or set(payload.column_names) != set(
+        payload.graph.nodes
+    ):
+        raise ValueError("selected GCM profile requires a fully observed declared static DAG")
+    if payload.literature_priors:
+        raise ValueError("selected GCM profile does not support literature-prior mechanism fitting")
+    parents = _parents_by_node(payload.graph)
+    try:
+        from polisyos.foundry.methods.catalog.causal._dowhy_worker import run_worker
+    except ModuleNotFoundError as exc:
+        raise RuntimeError("selected GCM worker bridge unavailable") from exc
+    indices = bootstrap_indices or []
+    response = run_worker(
+        operation="gcm_fit",
+        state=payload,
+        seed=seed,
+        payload={
+            "graph": {
+                "nodes": list(payload.graph.nodes),
+                "edges": [[e.src, e.dst] for e in payload.graph.edges],
+            },
+            "mechanisms": {
+                node: "linear_additive_noise" if parents[node] else "empirical"
+                for node in payload.graph.nodes
+            },
+            "bootstrap_indices": indices,
+        },
+    )
+    model = response["result"]
+    replicas = model.get("bootstrap_models")
+    if not isinstance(replicas, list) or len(replicas) != len(indices):
+        raise ValueError("GCM worker must refit every requested bootstrap replicate")
+    base = _gcm_spec_from_worker(payload, response, model, seed=seed)
+    refits = [
+        _gcm_spec_from_worker(payload, response, replica, seed=seed, resample_indices=index)
+        for replica, index in zip(replicas, indices, strict=True)
+    ]
+    return base, refits
+
+
+def validate_persisted_gcm_spec(scm_spec: StructuralCausalModelSpec, store: Any) -> None:
+    """Resolve source custody and reconcile the actual persisted GCM consumer.
+
+    Args:
+        scm_spec: The model freshly decoded from its CAS artifact.
+        store: The enclosing Scientist job's existing authorized artifact store.
+    """
+    if scm_spec.schema_version != "1.1" or scm_spec.fit_method != "gcm":
+        return  # Historical/manual research models make no new backend assertion.
+    from polisyos.core import artifacts
+    from polisyos.foundry.methods.catalog.causal._dowhy_worker import (
+        validate_persisted_worker_response,
+    )
+
+    training, provenance = scm_spec.training_rows, scm_spec.fit_provenance
+    if training is None or provenance is None:
+        raise ValueError("persisted selected GCM model lacks source-bound fit records")
+    state = SCMFitData.model_validate(training.fit_input)
+    validate_persisted_worker_response(
+        response=provenance.worker_response,
+        state=state,
+        store=store,
+        source_ref=artifacts.ArtifactRef.model_validate(training.source_ref.model_dump(mode="json")),
+    )
+    expected = _gcm_spec_from_worker(
+        state,
+        provenance.worker_response,
+        provenance.worker_response["result"],
+        seed=provenance.seed,
+        resample_indices=provenance.resample_indices,
+    )
+    if expected.model_dump(mode="json") != scm_spec.model_dump(mode="json"):
+        raise ValueError("persisted GCM model differs from its content-bound fitted worker output")
+
+
 @foundry_method(
     namespace="causal.structural",
     version="1.0.0",
     tags={"causal", "gcm", "structural", "hybrid"},
 )
 class HybridSCMFit:
-    """Hybrid SCM fitting: DoWhy GCM (when available) + literature priors."""
+    """Selected actual GCM fit, or an explicit native hybrid research profile."""
 
     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STATISTICAL
 
@@ -288,6 +552,7 @@ class HybridSCMFit:
             }
         ),
         parameters=(
+            ParameterSpec(name="fit_backend", default="dowhy_gcm"),
             ParameterSpec(name="latent_sensitivity_threshold", default=0.3),
             ParameterSpec(name="bayes_ridge", default=1e-6),
         ),
@@ -300,10 +565,10 @@ class HybridSCMFit:
     )
 
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
-        description="Fit StructuralCausalModelSpec mechanisms from data and literature priors.",
+        description="Fit declared empirical/linear mechanisms with the selected source-bound DoWhy GCM worker, or explicitly request native_hybrid research fitting.",
         tags=frozenset({"causal", "gcm", "structural", "hybrid"}),
         assumptions={
-            "graph_validity": "Input causal graph is valid and acyclic after PAG projection.",
+            "graph_validity": "Selected GCM requires a fully observed declared static DAG; no automatic mechanism or DAG assignment is claimed.",
             "linear_hybrid_scope": (
                 "Strict Bayesian hybrid fit is implemented for linear-gaussian mechanisms."
             ),
@@ -313,7 +578,7 @@ class HybridSCMFit:
         citations=(
             "Pearl, J. (2009). Causality: Models, Reasoning, and Inference. Cambridge University Press.",
         ),
-        when_not_to_use="DAG unknown and no prior to guide structure; no software dependency on dowhy-gcm",
+        when_not_to_use="Selected GCM worker/profile or actual source custody unavailable; unknown DAG or undeclared iid sampling law for bootstrap inference.",
         typical_min_obs=200,
         output_interpretation="Fitted causal mechanisms (noise models) per node. Use downstream for counterfactual/attribution queries.",
     )
@@ -333,6 +598,19 @@ class HybridSCMFit:
                 "gcm_fit is a static consumer; temporal edges require a temporal "
                 "fit/expansion before GCM fitting"
             )
+        backend = str(params.get("fit_backend", "dowhy_gcm"))
+        if backend == "dowhy_gcm":
+            scm_spec, _ = _fit_gcm_specs(payload, seed=int(params.get("__seed__", 0) or 0))
+            return {
+                "structural_causal_model_spec": scm_spec,
+                "scm_spec": scm_spec,
+                "projected_graph": scm_spec.graph,
+                "latent_vars": [],
+                "warnings": [],
+                "__determinism_tier__": DeterminismTier.STATISTICAL,
+            }
+        if backend != "native_hybrid":
+            raise ValueError("fit_backend must be dowhy_gcm or native_hybrid")
         threshold = float(params.get("latent_sensitivity_threshold", 0.3))
         ridge = float(params.get("bayes_ridge", 1e-6))
         warnings: list[str] = []
@@ -343,13 +621,6 @@ class HybridSCMFit:
             projected_graph, latent_vars = pag_to_dag_projection(graph)
 
         dowhy_available = 0.0
-        try:
-            _load_dowhy_gcm_dependencies()
-            dowhy_available = 1.0
-        except ModuleNotFoundError:
-            warnings.append("DoWhy GCM backend unavailable; using numpy fallback fitting.")
-        except Exception as exc:
-            warnings.append(f"DoWhy GCM backend unavailable ({exc}); using numpy fallback fitting.")
 
         data = np.asarray(payload.data, dtype=float)
         column_index = {name: idx for idx, name in enumerate(payload.column_names)}
@@ -494,9 +765,7 @@ class HybridSCMFit:
             "latent_vars_count": float(len(latent_vars)),
             "unstable_due_to_latent": 1.0 if unstable_due_to_latent else 0.0,
         }
-        fit_method = (
-            "hybrid" if dowhy_available == 0.0 else _fit_method_from_summary(source_summary)
-        )
+        fit_method = "native_hybrid"
         scm_spec = StructuralCausalModelSpec(
             graph=projected_graph,
             mechanisms=mechanisms,
@@ -508,6 +777,7 @@ class HybridSCMFit:
         )
 
         return {
+            "structural_causal_model_spec": scm_spec,
             "scm_spec": scm_spec,
             "projected_graph": projected_graph,
             "latent_vars": latent_vars,

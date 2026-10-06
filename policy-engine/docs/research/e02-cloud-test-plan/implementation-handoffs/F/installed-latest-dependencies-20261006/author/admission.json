@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.cli",
+    "workspace",
+    "doctor",
+    "--worktree-admission",
+    "resume",
+    "--branch",
+    "codex/e02-F-installed-worker-20261006",
+    "--path",
+    "/workspace/e02-F-installed-worker-20261006"
+  ],
+  "cwd": "/workspace/e02-F-installed-worker-20261006/policy-engine",
+  "env": {
+    "PYTHONPATH": "src:."
+  },
+  "exit": 0,
+  "wall_s": 2.2870540618896484
+}

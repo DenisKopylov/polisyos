@@ -1,0 +1,35 @@
+{
+  "source_sha": "d3961a101ca6bb0aa9d3e927cc6d62eae09c403d",
+  "assets": {
+    "worker.py": {
+      "git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+      "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+      "bytes": 10652
+    },
+    "protocol.py": {
+      "git_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+      "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+      "bytes": 4704
+    },
+    "pyproject.toml": {
+      "git_blob": "770a46160a0b13614507d345f729910c9e81acde",
+      "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+      "bytes": 379
+    },
+    "uv.lock": {
+      "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+      "bytes": 98340
+    },
+    ".python-version": {
+      "git_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+      "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+      "bytes": 5
+    },
+    "README.md": {
+      "git_blob": "84528b455b39585aa3e507e4c6697213c7f7365a",
+      "sha256": "fc4b60aecff0f52a19866c17da419ac4583de6fe09d74b424f8f9908f795f198",
+      "bytes": 4934
+    }
+  }
+}

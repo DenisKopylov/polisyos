@@ -1,0 +1,13 @@
+Using CPython 3.14.7 interpreter at: /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python
+Creating virtual environment at: sdist-env
+error: Failed to create virtual environment
+  cause: A virtual environment already exists at: sdist-env
+
+hint: Use the `--clear` flag or set `UV_VENV_CLEAR=1` to replace the existing virtual environment
+Traceback (most recent call last):
+  File "/workspace/e02-F-20261006-receipts/installed-latest/final_setup.py", line 13, in <module>
+    for argv in commands:subprocess.run(argv,check=True,env=setup_env)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['uv', 'venv', '/workspace/e02-F-20261006-receipts/installed-latest/sdist-env', '--python', '/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python']' returned non-zero exit status 2.

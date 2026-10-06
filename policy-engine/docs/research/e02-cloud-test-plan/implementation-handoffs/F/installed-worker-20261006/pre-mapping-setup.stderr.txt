@@ -1,0 +1,8 @@
+Using CPython 3.14.7 interpreter at: /workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python
+Creating virtual environment at: /workspace/e02-F-20261006-receipts/installed-worker/pre-mapping-env
+Activate with: source /workspace/e02-F-20261006-receipts/installed-worker/pre-mapping-env/bin/activate
+Using Python 3.14.7 environment at: /workspace/e02-F-20261006-receipts/installed-worker/pre-mapping-env
+Resolved 1 package in 4ms
+Prepared 1 package in 149ms
+Installed 1 package in 40ms
+ + policy-engine==0.1.0 (from file:///workspace/e02-F-20261006-receipts/installed-worker/pre-mapping-dist/policy_engine-0.1.0-py3-none-any.whl)

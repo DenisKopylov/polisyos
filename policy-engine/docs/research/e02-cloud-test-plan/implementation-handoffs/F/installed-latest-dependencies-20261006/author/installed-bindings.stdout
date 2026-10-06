@@ -1,0 +1,15 @@
+{
+  "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+  "profiles": {
+    "wheel": {
+      "site": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/lib/python3.14/site-packages",
+      "byte_bindings": 2917,
+      "unexpected_product_files": 0
+    },
+    "sdist": {
+      "site": "/workspace/e02-F-20261006-receipts/installed-latest/sdist-env/lib/python3.14/site-packages",
+      "byte_bindings": 2917,
+      "unexpected_product_files": 0
+    }
+  }
+}

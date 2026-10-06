@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/installed-latest/environment_probe.py"
+  ],
+  "cwd": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-consumer",
+  "source_before": {
+    "head": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "status": ""
+  },
+  "source_after": {
+    "head": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "status": ""
+  },
+  "started_utc": "2026-10-06T12:43:57.229840+00:00",
+  "ended_utc": "2026-10-06T12:43:57.867337+00:00",
+  "wall_seconds": 0.6374990839976817,
+  "child_maxrss_kib": 109948,
+  "exit_code": 0,
+  "outcome": "PASS",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/environment.stdout",
+      "sha256": "dcd64a57f72ac4c63765f9bb80874b40766adb9da959b86a7c4c2c5f68f1ebf3",
+      "bytes": 1693
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/environment.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "environment": {
+    "PYTHONPATH": null,
+    "worker_python": null
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "schema": "policyos.e02.independent_native_run.v1",
+  "source_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+  "tree": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e",
+  "command": [
+    "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/installed-worker/final_launch.py",
+    "wheel"
+  ],
+  "cwd": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-consumer",
+  "environment": {
+    "python_isolated": "-I",
+    "PYTHONPATH": "unset",
+    "worker_interpreter": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python",
+    "application_dependencies": "owned installed product plus readonly shared third-party .pth; no independently resolved whole app environment"
+  },
+  "process_exit_code": 0,
+  "wall_s": 53.888936254996224,
+  "rss_kib": 663768,
+  "manifest": {
+    "path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-setup-manifest.json",
+    "sha256": "0578fcaedfc77bb35813a68fd0da3fef8e85a0e25bb2ee8abb920a60e93e1be0",
+    "bytes": 3841
+  },
+  "launcher": {
+    "path": "/workspace/e02-F-20261006-receipts/installed-worker/final_launch.py",
+    "sha256": "b59ab8838685777576373b0de9aa9ac6ea0ba59bb8542ae7315b5419ec3c5c0f",
+    "bytes": 972
+  },
+  "artifact": {
+    "path": "/workspace/e02-F-20261006-receipts/installed-worker/final-dist/policy_engine-0.1.0-py3-none-any.whl",
+    "sha256": "c4940f8d1e8aceeefb4e04a96d2f1e03207a885b6c85225c1ff361a10cb7f13f",
+    "bytes": 15078579
+  },
+  "bindings": [
+    {
+      "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/_dowhy_profile/worker.py",
+      "source_path": "policy-engine/workers/dowhy-014/worker.py",
+      "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+      "bytes": 10652
+    },
+    {
+      "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/_dowhy_profile/protocol.py",
+      "source_path": "policy-engine/workers/dowhy-014/protocol.py",
+      "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+      "bytes": 4704
+    },
+    {
+      "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/_dowhy_profile/pyproject.toml",
+      "source_path": "policy-engine/workers/dowhy-014/pyproject.toml",
+      "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+      "bytes": 379
+    },
+    {
+      "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/_dowhy_profile/uv.lock",
+      "source_path": "policy-engine/workers/dowhy-014/uv.lock",
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+      "bytes": 98340
+    },
+    {
+      "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/_dowhy_profile/.python-version",
+      "source_path": "policy-engine/workers/dowhy-014/.python-version",
+      "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+      "bytes": 5
+    },
+    {
+      "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-env/lib/python3.14/site-packages/polisyos/foundry/methods/catalog/causal/_dowhy_profile/README.md",
+      "source_path": "policy-engine/workers/dowhy-014/README.md",
+      "sha256": "fc4b60aecff0f52a19866c17da419ac4583de6fe09d74b424f8f9908f795f198",
+      "bytes": 4934
+    },
+    {
+      "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-consumer/test_installed_worker_profile.py",
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+      "sha256": "b8f9227a18737490a539a70cbace221344a72e4935c6f28d9a7f35b65dc40f42",
+      "bytes": 11758
+    },
+    {
+      "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-consumer/test_dowhy_worker.py",
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "sha256": "3ab405d256bd4ff53b2d4e04afadc7f1ae3ebe50d5d029f290862f1bb259c095",
+      "bytes": 16553
+    },
+    {
+      "installed_path": "/workspace/e02-F-20261006-receipts/installed-worker/wheel-consumer/test_gcm_backend_contract.py",
+      "source_path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "sha256": "acd5d0bd70fa0768df0e517882501d7c8ea836038102f046dac42888e7776d40",
+      "bytes": 21216
+    }
+  ],
+  "complete_wheel_python_input_denominator": {
+    "file_type_paths": "All actual wheel polisyos/**/*.py + tools/**/*.py including projected private worker Python assets",
+    "files": 3146,
+    "path_content_sha256": "d65a7d62d5e4541c976b31cd2d934bd4375e679b95431e05c02d327ff54e9d43",
+    "archive_installed_git_discrepancies": 0
+  },
+  "source_after": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+  "tracked_source_after_clean": true,
+  "actual_status_after": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/",
+  "all_assets_and_runtime_code_restored_exact": true,
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/dowhy/installed-wheel-ab56-independent.stdout",
+      "sha256": "ff8e72c2a31dbc641d74b680ad59ff24c68b2f19e14e2b4df2da542c1187b919",
+      "bytes": 595516
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/dowhy/installed-wheel-ab56-independent.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

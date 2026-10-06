@@ -1,0 +1,24 @@
+{
+  "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+  "source_tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+  "slice_base_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+  "branch": "codex/e02-F-installed-worker-20261006",
+  "carried_source_commits": [
+    "b69208e65b9dcfa4c7de690ace071abdc9c1fed6",
+    "423165322e508a293ffd23918c039c99fb37e7a7",
+    "e2c4eb3142f329dfee798d22cea3ae1035306ab0",
+    "2137961b0d3a2b39b85c5a57bf774777d2a4204e"
+  ],
+  "implementation_commits": [
+    "ac03ec44e0d1074fb609f35221b0c088522cdbd2",
+    "7fb1f5c243c18de89fb11a0f664ae07cb0801eb2",
+    "74c0355f07834c28527200f5827ac2ab352ac313",
+    "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6"
+  ],
+  "owned_original_paths_byte_identical": {
+    "policy-engine/hatch.toml": "a23fb874185dd4c1213c43984ba31986fa2d5884b93e5a640e6f5b7eb8db3f4a",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py": "b8f9227a18737490a539a70cbace221344a72e4935c6f28d9a7f35b65dc40f42",
+    "policy-engine/docs/research/e02-cloud-test-plan/verification/F/installed-worker-20261006/README.md": "3b726a5374e67f295baf3d42b152a8955dabb8e089815d0d8bd175c0da8ee5a9",
+    "policy-engine/release-fragments/unreleased/2026-10-06-installed-dowhy-profile.toml": "45cd33002924e236d8a61256d93584e1924432f2c882b74cd7965b836664e635"
+  }
+}

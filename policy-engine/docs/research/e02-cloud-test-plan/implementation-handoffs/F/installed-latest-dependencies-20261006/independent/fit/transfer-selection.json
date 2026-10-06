@@ -1,0 +1,131 @@
+{
+  "schema": "policyos.e02.transfer-selection.v1",
+  "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+  "source_tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+  "decision": "GO_bounded",
+  "files": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/review.json",
+      "bytes": 35133,
+      "sha256": "84d13632b7e027ee0877ca401f42ef00ff6ec94b33dc7717b1c567a0b98b32db"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/cache-abi-pair.json",
+      "bytes": 2633,
+      "sha256": "8d650a66d1a964f456099d3e4926728e4bf1aafce389c1ff93d3db8bd52a179f"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/cache-abi-pair.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/cache-abi-pair.stdout.txt",
+      "bytes": 2633,
+      "sha256": "8d650a66d1a964f456099d3e4926728e4bf1aafce389c1ff93d3db8bd52a179f"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/cache_abi_launch.py",
+      "bytes": 2105,
+      "sha256": "8b254c24a31bcffe34acd8928e75181ffd9fc95d187414dd8a8df0c11e0abb76"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/cache_abi_pair.py",
+      "bytes": 1643,
+      "sha256": "af1e7a955418e08f26945ee9689d09f799c0bbbd5c37abd781079bbda93e2061"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/finish-review-first-observer-error.stderr.txt",
+      "bytes": 425,
+      "sha256": "826496abc8b3825d934535c371d7a4e6d3add4a73c026fcec24c6e5dbf2ca7d8"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/finish-review-first-observer-error.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/finish_review.py",
+      "bytes": 10024,
+      "sha256": "49531c16cbc6e61f3465da39f2861275ac76f9b4e8cdefbf84839352d906ee69"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/finish_review_first_observer_error.py",
+      "bytes": 9520,
+      "sha256": "c1fb0a397ab137e9ce25ead59a0b1ffd1b26d9a00971e8cb24792d29c60646a0"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/full-source-archive-installed-bindings.json",
+      "bytes": 3390541,
+      "sha256": "6f76f03f631abd268971da586b9c5c6060d4e66b950176ebe0b9add2fd20f38a"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/replay-and-bind.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/replay-and-bind.stdout.txt",
+      "bytes": 288873,
+      "sha256": "fb8bb1cf858a257062f54331cec7ca6178204ec3177c08da1ce93e67d6332e47"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/replay-summary.json",
+      "bytes": 2618,
+      "sha256": "4cc93dca8ddc5b50b73ca36b5d6c823533a722c28d32a972642f6143e52913f4"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/replay_and_bind.py",
+      "bytes": 6005,
+      "sha256": "941828b7d817a9acfe8a8f9a00793098db8226311ef0f0fbc66c60b97613ab0a"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/sdist-cache-abi.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/sdist-cache-abi.stdout.txt",
+      "bytes": 144171,
+      "sha256": "6919e87365c3b1270b9dcf9050d23d1edd3d4ac7f116fd310dd5349167ef84f3"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/sdist-compatibility.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/sdist-compatibility.stdout.txt",
+      "bytes": 144237,
+      "sha256": "2ed8d20b54410462f00badbdb875c5269f432afa97c676ff4bb1936a60c1dd5c"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/test_b220_independent.py",
+      "bytes": 4167,
+      "sha256": "10e8ddd855f765ca7023bc9689c672024ccd139eafabad172a41bcf41e99832f"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/wheel-cache-abi.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/wheel-cache-abi.stdout.txt",
+      "bytes": 144171,
+      "sha256": "40a3c0f0c53414b17d77a2b5ea812739fe6b290783407f6f28c72e9b3d4c2a36"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/wheel-compatibility.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/final-root/installed-latest-independent/wheel-compatibility.stdout.txt",
+      "bytes": 144237,
+      "sha256": "5191d6133ab7e753c5e9bd151bbe5a2085b668dafb433a376dd1232b1ee95b7b"
+    }
+  ],
+  "file_count": 24,
+  "total_bytes": 4333136,
+  "sanitation": "none; no credential/signedquery pattern hits; complete moderate logs/proofs/replayers required"
+}

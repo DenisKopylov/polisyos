@@ -1,0 +1,70 @@
+{
+  "schema": "policyos.e02.independent-installed-native-review.v1",
+  "reviewer": "F/graph_scm",
+  "source_sha": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+  "source_tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+  "command": [
+    "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/bin/python",
+    "-I",
+    "/workspace/e02-F-20261006-receipts/protocol-audit/installed-latest-independent/launch.py"
+  ],
+  "cwd": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-consumer",
+  "environment": {
+    "isolated": true,
+    "interpreter": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-env/bin/python",
+    "third_party": "read-only shared third-party via literal .pth; installed own product",
+    "dowhy_worker": "/workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/bin/python"
+  },
+  "input_closure": "Complete synthetic B220 node/edge/cache/CAS/CSV controls; installed canonical public4helpers+pure factory identity/pickle; trueGCM400rowknownDGP+40actualIIDrefits+freshCASScientistconsumer. No product source fallback or liveKuzuDB.",
+  "outcome": "PASS",
+  "exit_code": 0,
+  "observed_utc": "2026-10-06T12:46:43.990447+00:00",
+  "wall_time_s": 26.50216988399916,
+  "archive_source_binding_records": 2917,
+  "before_after_installed_records": 2917,
+  "installed_product_and_seven_resources_unchanged": true,
+  "full_companions": [
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/installed-latest-independent/launch.py",
+      "bytes": 1799,
+      "sha256": "54cb8b9ee084a8536e7892ae2774693e9166527c5703506ef203c5618ef4fcdc"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/installed-latest-independent/native.stdout.txt",
+      "bytes": 306027,
+      "sha256": "9da3be0a5d4cdeecbf776498e3dee0aa45ef94cd50ed4462cdefd18a15e86282"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/protocol-audit/installed-latest-independent/native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/archive-source-bindings.json",
+      "bytes": 1368033,
+      "sha256": "de1f6bfae4e06dca42c0d3c4554551f98dc3fa610629f82fbf272eed27b30e9b"
+    },
+    {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/wheel-setup-manifest.json",
+      "bytes": 4451,
+      "sha256": "ace3f2f20a09eb066243a118689f8024ad5ad577cbe42d10027d89d0c6596a2e"
+    }
+  ],
+  "wheel_identity": {
+    "path": "/workspace/e02-F-20261006-receipts/installed-latest/dist/policy_engine-0.1.0-py3-none-any.whl",
+    "sha256": "3ca350edb9ece34937555aad15540d6981a8ec46cf97c4f8594dd4de36cb6376",
+    "bytes": 15078639
+  },
+  "sdist_identity": {
+    "path": "/workspace/e02-F-20261006-receipts/installed-latest/dist/policy_engine-0.1.0.tar.gz",
+    "sha256": "bcd8b27b291172f42c1a2ccf4b2d07e56d66f76235971b47aff413019a659bab",
+    "bytes": 71441223
+  },
+  "source_delta_review": "/workspace/e02-F-20261006-receipts/protocol-audit/installed-latest-source-review.json",
+  "limits": [
+    "Read-only wheel consumer independent native witness; sdist native run remains separately author-bound.",
+    "Live Kuzu database UNRUN; actual CSV and to_kuzu plain-dict parameter reader only.",
+    "All bootstrap computations known synthetic DGP; no admitted real-data or protected gate authority.",
+    "Source/e2c historicalB220 tests are not relabeled to installed5cd; this is fresh execution."
+  ]
+}

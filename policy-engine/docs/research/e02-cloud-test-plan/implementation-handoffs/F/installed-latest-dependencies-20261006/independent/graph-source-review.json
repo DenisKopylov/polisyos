@@ -1,0 +1,77 @@
+{
+  "schema": "policyos.e02.independent-installed-delta-review.v1",
+  "reviewer": "F/graph_scm",
+  "observed_utc": "2026-10-06T12:38:39.168910+00:00",
+  "head": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+  "tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+  "base_sha": "e9bd25f05f063dd823d27a44b3c1c740e940751c",
+  "check": "PASS",
+  "outcome": "limited",
+  "decision": "GO for exact source composition only",
+  "changed_paths_denominator": 7,
+  "source_bindings": [
+    {
+      "path": "policy-engine/docs/reference/ir/causal-graph-cache-rows.md",
+      "source_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+      "bytes": 895,
+      "sha256": "69eb12bd7c92fc6c9b23acdf9815b7cb8503e19d02abe581d23f8df0c4700a3e",
+      "git_blob": "4ab466c03e1181b1ace66c131c35e45a1d508efe",
+      "source_byte_equal": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-cache-rows.toml",
+      "source_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+      "bytes": 1640,
+      "sha256": "3d7d75c328e06b1b630793fe0b2932f179c18517b22fb1fa6fc6360f3404e8be",
+      "git_blob": "8babc3559ad750e50bca7f1bb74d15f1e6c81540",
+      "source_byte_equal": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+      "source_sha": "423165322e508a293ffd23918c039c99fb37e7a7",
+      "bytes": 2580,
+      "sha256": "83fe1b1ce98c096d63ba8c71f371e71a5217ed3b7a5103316a8e5cd93642d15f",
+      "git_blob": "16f15d40edd3c1b9838c2d1a125d2cf60808e419",
+      "source_byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "source_sha": "b69208e65b9dcfa4c7de690ace071abdc9c1fed6",
+      "bytes": 32094,
+      "sha256": "cb6dfd9197b0f93fde517e96b6dcaf6eda1a2bcba82b83c3be7f43a6d3773568",
+      "git_blob": "7536aba1de5b2019424afa52bdf0814a9bc85cfa",
+      "source_byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "source_sha": "b69208e65b9dcfa4c7de690ace071abdc9c1fed6",
+      "bytes": 74551,
+      "sha256": "f9a826aa9659d261153aaa577b417041cb14748afd888d500935d0d39bc87a87",
+      "git_blob": "31d3a9093cc5927d360f680da811e2a33b222239",
+      "source_byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "source_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+      "bytes": 20746,
+      "sha256": "b8cc85501f67668b61b6265abe7970026b5124dd9c2204205251697988bfb5cc",
+      "git_blob": "342d416961ec817441574253320a9054c00d969e",
+      "source_byte_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py",
+      "source_sha": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+      "bytes": 4320,
+      "sha256": "3a060e7207d024f11e6c98353524d22ccb63f1e10c81a63d1b5d1ecc96ce480b",
+      "git_blob": "46fc62eb211a1cd47922450a195c0d55a2ff005f",
+      "source_byte_equal": true
+    }
+  ],
+  "review": "All seven complete deltas read. Two GCM late imports resolve the existing Core artifacts facade to the identical ArtifactRef class. DoWhy change is one required compatibility metadata field. B220 uses per-version immutable JSON preparation and fresh exact plain tuple/dict rows, clears private/legacy caches on copy, and preserves native CSV/to_kuzu ABI. Owned fragment is structured compatible and native tests are carried byte-identically. No custom source or worker math/protocol changes.",
+  "runtime_review": "UNRUN in installed site at this source-only review; author builds new archives/sites before installed native consumer checks. Source e2c B22075PASS and independent23PASS remain their exact-source witnesses, not relabeled installed PASS.",
+  "limits": [
+    "No live Kuzu execution claim",
+    "No repository-wide architecture/CI or P41 attribution",
+    "DoWhy actual installed GCM40refits will be separately source-bound to new archives/sites"
+  ]
+}

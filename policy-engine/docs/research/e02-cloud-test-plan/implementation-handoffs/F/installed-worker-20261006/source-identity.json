@@ -1,0 +1,513 @@
+{
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_sha": "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5",
+  "implementation_tree": "bcb403872a3b1e3e6cac5b7624ab80136ca12b4e",
+  "attached_branch": "codex/e02-F-installed-worker-20261006",
+  "origin_main_at_admission": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "complete_implementation_commits": [
+    "157ee9e96477e67f0e3962c1114909ccc51c03c0",
+    "a02590326060d0f071693a4e99334a3debf13641",
+    "ea90b8f314c316d4a4460ec948aea0f4c311b7b7",
+    "736179db05fcce7c928cf7cb8bfd4531fc691c99",
+    "23ba331382f5d9eb1dd63b93f0ea808c88d8efe7",
+    "1ed5de613966e07515f809a1ca5e2d37639311d9",
+    "2873986cbbf42afe45a7a9b97ba7bd41cf3119c0",
+    "07b08423a09c44bab6c93dcd666e7b25ea69c859",
+    "564e1646923371ffa0d1d5c0119df7d35795a5f6",
+    "b95f2d2d5a0d96e3616059203565fe5eff40f47d",
+    "b14536b66843005be0e668e6a0ef8dc394f7e960",
+    "8d7d240a9f56e07e6d8418845d5e8162f40a1b92",
+    "838845d98c47318d1a669d1594de91cbc9153e95",
+    "d3961a101ca6bb0aa9d3e927cc6d62eae09c403d",
+    "850c97defd07beb738ddb42266ce8e2e6c4c7898",
+    "153ca918b1c35bd4ffbf6218a28b7e1ac98d4b6b",
+    "1ebca076a6afb453096409d8b3d91bab94a8ac39",
+    "ab56a0f3414c6e903f7dcdaaa7b7ed540b1923c5"
+  ],
+  "complete_changed_paths": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/foundry/structural-causal-models.md",
+    "policy-engine/docs/reference/ir/schema-catalog.md",
+    "policy-engine/docs/reference/public-surface.md",
+    "policy-engine/docs/reference/schemas.md",
+    "policy-engine/docs/reference/scientist/structural-causal-queries.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/verification/F/installed-worker-20261006/README.md",
+    "policy-engine/hatch.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-installed-dowhy-profile.toml",
+    "policy-engine/release-fragments/unreleased/structural-causal-result-semantics.toml",
+    "policy-engine/schemas/snapshots/ir/_manifest.json",
+    "policy-engine/schemas/snapshots/ir/causal_query_result.schema.json",
+    "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+    "policy-engine/src/polisyos/foundry/README.md",
+    "policy-engine/src/polisyos/foundry/__init__.py",
+    "policy-engine/src/polisyos/foundry/methods/README.md",
+    "policy-engine/src/polisyos/foundry/methods/api.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+    "policy-engine/src/polisyos/ir/README.md",
+    "policy-engine/src/polisyos/ir/__init__.py",
+    "policy-engine/src/polisyos/ir/analytics/README.md",
+    "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+    "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+    "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+    "policy-engine/src/polisyos/ir/api.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+    "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+    "policy-engine/tests/unit/ir/test_causal_queries_contract.py",
+    "policy-engine/tests/unit/remediation/test_cau_04.py",
+    "policy-engine/tests/unit/remediation/test_scm_01.py",
+    "policy-engine/tests/unit/remediation/test_scm_02.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py",
+    "policy-engine/workers/dowhy-014/.python-version",
+    "policy-engine/workers/dowhy-014/README.md",
+    "policy-engine/workers/dowhy-014/protocol.py",
+    "policy-engine/workers/dowhy-014/pyproject.toml",
+    "policy-engine/workers/dowhy-014/tests/test_worker.py",
+    "policy-engine/workers/dowhy-014/uv.lock",
+    "policy-engine/workers/dowhy-014/worker.py"
+  ],
+  "source_bindings": [
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "git_blob": "0ba3d788bb8184eccb1c5e4e2894e8e65b6c4887",
+      "sha256": "ddcb1ae0f632c5e9e59aa55852a47d07b04034aac6a6cdeac8457e8ac4995ecb",
+      "bytes": 221406
+    },
+    {
+      "path": "policy-engine/docs/reference/foundry/structural-causal-models.md",
+      "git_blob": "a6c0d9952c24e38093fefd973961029c3bfddb61",
+      "sha256": "3f7dd385fee74bbef605dedb955f214981c1c9da101b59c4514c51f21d93af5a",
+      "bytes": 5399
+    },
+    {
+      "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+      "git_blob": "1aeebf1485bfe2d0e9ec27d89c3eb537e19e1c98",
+      "sha256": "03d37a6c16fe61b0b0ec0a3b3536e20c7121ec39fd1b3adbac180c828f7eeada",
+      "bytes": 1641802
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "git_blob": "68e4cd5c8bf59b83ed0d099e47e369a53e27f471",
+      "sha256": "939a51eb09207225f6ccf71c6b6f63f12980146a8707329566077c7f6d6c66b1",
+      "bytes": 153173
+    },
+    {
+      "path": "policy-engine/docs/reference/schemas.md",
+      "git_blob": "486e96471ba0b794b18a3ee5da195002e935c49f",
+      "sha256": "02c3503d4c07dd737103dbaf1f3c80ca25637198513c5b415be5cded36d9d389",
+      "bytes": 29371
+    },
+    {
+      "path": "policy-engine/docs/reference/scientist/structural-causal-queries.md",
+      "git_blob": "8f3fbfa1a2fb3dd12469e13932e9abd4f20b7c68",
+      "sha256": "c85c0f31c370dbc7ff885fc7aa79b6a588d5e5a42f65d2d321e1fc2fc911c9df",
+      "bytes": 3384
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/README.md",
+      "git_blob": "bbad3db5ed05313b269533e3cbfbc97564e0e0d8",
+      "sha256": "b053d4c1785be2db9990c2fd712bc44a1e2f71c4b407fb64eb6db9faf0c8b361",
+      "bytes": 3220
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+      "git_blob": "1165f7f02f7469154fae23cc37c4b26304aaaa83",
+      "sha256": "b37d0f16ded8f7fe54690ab3d3bd0971a08765af99f6db7666a1ebc700655e88",
+      "bytes": 15455
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/verification/F/installed-worker-20261006/README.md",
+      "git_blob": "599f174d118778b7d1430b33b2d728e8e076a0f9",
+      "sha256": "3b726a5374e67f295baf3d42b152a8955dabb8e089815d0d8bd175c0da8ee5a9",
+      "bytes": 3023
+    },
+    {
+      "path": "policy-engine/hatch.toml",
+      "git_blob": "37a9763de588c676d8590b8d00a5bb3891f98ab8",
+      "sha256": "a23fb874185dd4c1213c43984ba31986fa2d5884b93e5a640e6f5b7eb8db3f4a",
+      "bytes": 1480
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-dowhy-worker-profile.toml",
+      "git_blob": "a98d7f52e9f0b4cf6184ab7c8c950cf8a5624abb",
+      "sha256": "4f6393d629a728855ba14eaf4be3a7d79069b50aaf6cb74503aeaf4b55da33d8",
+      "bytes": 2449
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-installed-dowhy-profile.toml",
+      "git_blob": "e4390bac207a04974c2df77fd9ff5e6c89f9cf10",
+      "sha256": "45cd33002924e236d8a61256d93584e1924432f2c882b74cd7965b836664e635",
+      "bytes": 1790
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/structural-causal-result-semantics.toml",
+      "git_blob": "488bcbef4ab0b8dafffae1f80f3d5729aec4ebdd",
+      "sha256": "2f0accd782f61a4dfa0154ad844a2a8cc769a1a83d5feb73d2c1f6d8f5a76660",
+      "bytes": 2704
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "git_blob": "743caaf9a9287df4ccbe8c7a8a0b8066962cca05",
+      "sha256": "28c3d16267ad9de8c7f741c2547055fafd60275bc0f9f9d9bfee9b5b6abf21ae",
+      "bytes": 52447
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/causal_query_result.schema.json",
+      "git_blob": "6e94e0ce215e5d0a76548d73f27d07f91e1a8ca4",
+      "sha256": "b86f113bcc605935333601130f235242849ee7ff8bc418954ef3ea32b33bb775",
+      "bytes": 12179
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/structural_causal_model_spec.schema.json",
+      "git_blob": "e306c803b9165b644462e1fc2100a4b71606ec55",
+      "sha256": "6af18c2cdb9901cd54568d0b1e83676ced66d809dc7851817c6efc1def40fde5",
+      "bytes": 15243
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/README.md",
+      "git_blob": "e2ad30f7a316d58969d06930420b652fd581d8e2",
+      "sha256": "05399f18ea677713279b4ff4e9c6a3100ba00c8c4670dbdbb3ac7a2af32f8b72",
+      "bytes": 10085
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/__init__.py",
+      "git_blob": "d663620e99bb1e5434ac9a12a69e9541dd797ada",
+      "sha256": "174daddab888edb803bca47fd1cd5b45d21f15a5a57383f937f964f2f033aaf6",
+      "bytes": 9930
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/README.md",
+      "git_blob": "bc3487e1c22b921abb675a67a16dc503447d9433",
+      "sha256": "241962a02e0e02386d2812c5fb30c44aeffd9af6bd61b9f0ca1946026ca21bb6",
+      "bytes": 9910
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/api.py",
+      "git_blob": "2fe084b25f0d97a624382f344fcbda13d9802a25",
+      "sha256": "ba60c5f67c777c4ab4ce3e76d366956f2ab08fc31cf0065df139d5de4361c1b1",
+      "bytes": 23763
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/README.md",
+      "git_blob": "63c48e186a542a069a14ad96e3331dc4a3744a37",
+      "sha256": "2edb42da1222cb5fbc4d43a7df1355a3990d58d66293ee035b1cf79d687b1a19",
+      "bytes": 10959
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+      "git_blob": "0473a4280ff55fb23e73cf7c561ae3d7e2149519",
+      "sha256": "582ad243fec5406d577154b7bc1f97e03664cf01843e1fa6f23c3ea28746db56",
+      "bytes": 16599
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+      "git_blob": "749154a57340793c223da2b40d02bd5bcd8e7fea",
+      "sha256": "50e0b78c639b52444cc97abe35f8b71a5ce66c8c33cb2c920c34cbe42633c04e",
+      "bytes": 23546
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "git_blob": "96b564306d240bb55cccb77fa03756756d1fb58a",
+      "sha256": "7a29bfa1be4a16452b480c59bf7a73eb5fb8d83f78d7f9f3b345d3b9231f8754",
+      "bytes": 32105
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "git_blob": "b80b6558e677b9426084b8730b006168ece65329",
+      "sha256": "2f8aa68fdfa8bf9ab076ec982b24b6a0e02d74448fe5b93529bb09c2a73e6db3",
+      "bytes": 74562
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+      "git_blob": "858c24199eed73f364186e0befe1ae934efd640f",
+      "sha256": "1fc139c4f81799f801e53e1abaf6db9cbd7a7d0f2e290f42694d5bb4f9367aeb",
+      "bytes": 26474
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/README.md",
+      "git_blob": "382d844aa91a3ecfb5fd2273128c15d2aefdd87c",
+      "sha256": "136e54f03910db4df31d78c7dacccc3ac200df8260a35b70c13b860cd92b6b14",
+      "bytes": 11429
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "git_blob": "2b0699140cb734b833204332398d05ff3bc8faa2",
+      "sha256": "48610c596a941bb1c0b53d761d93d2a60e0f8ecda035681500e53e1f5bce8954",
+      "bytes": 39303
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "git_blob": "8d212f50c6d9396cbcdde928958ee261ad46c46e",
+      "sha256": "4362ff74bf4ff073ed5b6731f33bfacae6dab6194c8accc2311f1efc7691b4f3",
+      "bytes": 8553
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+      "git_blob": "5c87f7122a5eb816187eb05054d155dde81a802b",
+      "sha256": "704676490c54d5ce21f03d93f8273940b8145c9595cd8ab8b3fa651f53aa7f59",
+      "bytes": 29803
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "git_blob": "f8b14ea9e8fd4a43100193e2781353777f714d2d",
+      "sha256": "a235e72714e9c6709c63ff12cce64251293f63d44be171d55672d693db5502d0",
+      "bytes": 14630
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+      "git_blob": "4da51eb88ac226df1b01f4c1ffd3997304c55512",
+      "sha256": "3dda67abbeca3e6180e8215fe1e55e0699ba3084ee0521ea37ed63a447ab6189",
+      "bytes": 11571
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "git_blob": "d0a7d0e26e625e38557e1cf7b88853bf1cac1d6b",
+      "sha256": "5330aa6b4da8b3f61df54006e193b879c0acb2d52a1f19e779ddf3332a788372",
+      "bytes": 48048
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+      "git_blob": "84d60e4ee6c17067b0df1e6b9f605cddb9e5ad8f",
+      "sha256": "4ed78953c80ee719ec29d5a7bfb1d8d1bb24c49a500f971a3940dfb5c14f0b2e",
+      "bytes": 16537
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+      "git_blob": "4535a540ddeca9632b8e254848e28eddd352e941",
+      "sha256": "4ea4c07555000dee55d3b1b4d7ed15b07862899b3776c8362485322a9e64a253",
+      "bytes": 6926
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_identify_estimate.py",
+      "git_blob": "cf30a5b76ea038d3b394f5d9f79198cc61812d82",
+      "sha256": "b1ab54dad1f2aef2d310a3145dee2970b1f7c703ac8b198fbc156ed7486a34b6",
+      "bytes": 7177
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "git_blob": "5f41c64d6f2df411a0cf49f2d4d19f9dd672ab39",
+      "sha256": "3ab405d256bd4ff53b2d4e04afadc7f1ae3ebe50d5d029f290862f1bb259c095",
+      "bytes": 16553
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "git_blob": "1ba29602702927e3aa80b6d85f017ea71d4afd89",
+      "sha256": "acd5d0bd70fa0768df0e517882501d7c8ea836038102f046dac42888e7776d40",
+      "bytes": 21216
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+      "git_blob": "7d3c969bbaeaf8bbf96a11bb35fdff05cdc863c1",
+      "sha256": "545a1ea96087f8564ad9956d4ba2b7bca1667543dd4249af6b54f37b9a6f0520",
+      "bytes": 5469
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py",
+      "git_blob": "0c5cb53789dbc5b12d2712af17b541c16b11975e",
+      "sha256": "43ffef1dc0db7445a4eea648fb60c7523b38cf145d09412ef70855b83d11e73b",
+      "bytes": 11559
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+      "git_blob": "093d88257fe28274fc01b8ae9daa140c31a2ad77",
+      "sha256": "b8f9227a18737490a539a70cbace221344a72e4935c6f28d9a7f35b65dc40f42",
+      "bytes": 11758
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_scm_result_semantics.py",
+      "git_blob": "523d7934401abe599eb47def2f953398897f9632",
+      "sha256": "ec9b57479a47f26edcee9ee3821dba285ca290b0674d8bd5f20588d17e07f354",
+      "bytes": 13402
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_twin_network_query.py",
+      "git_blob": "bff3501b591107f234606eb7001eefff479abf74",
+      "sha256": "3ae76719c0a4951ee8d40f7e95b8d6d60e6926d98e4dcdebcd2c3fc0f813c54b",
+      "bytes": 12941
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+      "git_blob": "e727129401c7de566e0dc6d68ea39db617ca47af",
+      "sha256": "7dff47e167e6ecbf5088b755a429047b6aa0586b8e27e927bff997c606a471ec",
+      "bytes": 3423
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_causal_queries_contract.py",
+      "git_blob": "ac8feabbba013add015544ed4fbff7c0601f641d",
+      "sha256": "2cbfdf509b1bf12259c5f9beded7e1aaf49f2dcb059768a1b9396a05a1bacb00",
+      "bytes": 4158
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_cau_04.py",
+      "git_blob": "7991bd45f484ebd01199a5ed092fd58179de6033",
+      "sha256": "7f75f0c230186d6219265df1ce63c94c33012d9720843335089db89c003f8ce2",
+      "bytes": 7543
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_scm_01.py",
+      "git_blob": "d726ce8d81cae1c0a32731613b523af1ac5c3202",
+      "sha256": "540cea3d50bae0d1fed9126800e6142c73cc312f05357c591d8e9876173fb7ce",
+      "bytes": 13073
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_scm_02.py",
+      "git_blob": "2cda4a15513639b37567535daefe4ae3618c93c6",
+      "sha256": "767b12baaaefb3c39d253d8f2adae9b98fc7114a9b7c9d29d70fee4010d66a22",
+      "bytes": 38324
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_run_causal_queries.py",
+      "git_blob": "f786c5289eeb1fd613c8b67725d16015992b2904",
+      "sha256": "0459c52da8f553800e4d5ff3bf0244981c76a82f675b9414d13f6ade04bc20b1",
+      "bytes": 8149
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/.python-version",
+      "git_blob": "e4fba2183587225f216eeada4c78dfab6b2e65f5",
+      "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+      "bytes": 5
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/README.md",
+      "git_blob": "84528b455b39585aa3e507e4c6697213c7f7365a",
+      "sha256": "fc4b60aecff0f52a19866c17da419ac4583de6fe09d74b424f8f9908f795f198",
+      "bytes": 4934
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/protocol.py",
+      "git_blob": "ca392779e3351e4cf13b23db0a27077487a29368",
+      "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+      "bytes": 4704
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/pyproject.toml",
+      "git_blob": "770a46160a0b13614507d345f729910c9e81acde",
+      "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+      "bytes": 379
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/tests/test_worker.py",
+      "git_blob": "c3c81a4f426e3e1301ad986f34925360e08063b6",
+      "sha256": "cd0e9f0547e711c0d5763e91d9ea04e0a9424ec81f52d829b3dc5cff094aca46",
+      "bytes": 10899
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/uv.lock",
+      "git_blob": "77ce3b5392703b452d70da87c0f57372b88e9117",
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+      "bytes": 98340
+    },
+    {
+      "path": "policy-engine/workers/dowhy-014/worker.py",
+      "git_blob": "8e4ea39ce6b4f03626b30fb674b0d3f881557aef",
+      "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+      "bytes": 10652
+    }
+  ],
+  "owned_implementation_paths": [
+    "policy-engine/hatch.toml",
+    "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/verification/F/installed-worker-20261006/README.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-installed-dowhy-profile.toml"
+  ],
+  "source_dependency_boundary": {
+    "parent_canonical_factory": "f6e80c4cb812f2e561791df9d323ebfbe40f7dd9",
+    "worker_numeric_protocol_profile": "e5895da2ebbb5f6108e398d78258b973dbdc7b68",
+    "worker_test_only_pydoc": "66c46c32a2a99a4f218a5853174671139252e0db",
+    "root_foundry_public_helpers": "0b6d2f779dbf8b0c2abe53448906f32d719696b1",
+    "causal_package_abi_companion": "729d137279b7d6334230045e420255762fe55f08",
+    "not_carried_later_import_only_delta": "b69208e65b9dcfa4c7de690ace071abdc9c1fed6"
+  },
+  "history_policy": "ordinary append-only cherry-picks and commits; no main publication/force/rewrite",
+  "policy_and_original_criterion_bindings": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+      "bytes": 22656,
+      "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98"
+    },
+    {
+      "path": "policy-engine/CONTRIBUTING.md",
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+      "bytes": 10553,
+      "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+      "bytes": 20260,
+      "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/F.md",
+      "sha256": "abeb9509f01fce62922070bc7ce642c00ec88a5fdef1bcfd65e73717bc48d97b",
+      "bytes": 14670,
+      "git_blob": "39f0ea06f7c5dec2121b89d5072ee5315351106e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "bytes": 9504,
+      "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+      "bytes": 549568,
+      "git_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md",
+      "sha256": "0f09c4d8e28888bb1262b007b771c586e0dbb057ea24173a8e1dddbb378b97c8",
+      "bytes": 144848,
+      "git_blob": "f3248e61065316f06f7b1dbe5476f09cb3a4588a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md",
+      "sha256": "35e15ee0f92a76df0af8cbef16cda9bc3d6b21838a7f81c868c71db3e1d317f0",
+      "bytes": 46944,
+      "git_blob": "e939b0ef5f8ee2553648e1537268c70dc29a2b20"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAU-04.md",
+      "sha256": "ad9beb6d4a04a014986ed9cba4a4067eec486dae15ea997501cf81ca4833956c",
+      "bytes": 10849,
+      "git_blob": "72843e24065005efd2bd5d09a7855a65c25a8f8a"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-01.md",
+      "sha256": "3a6fd6b5ba4b4283ca75516a5dfdf4ef697d694544347932b5760b4a8667ced1",
+      "bytes": 12090,
+      "git_blob": "20fc17b509d287f25404ef642f19dda66d214a18"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SCM-02.md",
+      "sha256": "aa7488b1bc894c2c7b843cb9ec011273cf798cbaa1c2d0d3a4f066dd3e6c4f49",
+      "bytes": 12188,
+      "git_blob": "05fcca4604bcdd2204df1410a5578b1c5c8d5451"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/API-01.md",
+      "sha256": "c8df3064d70055fc4cbb49d5d440a8b64cfc7d09983b2e3786299ace270d57b3",
+      "bytes": 11112,
+      "git_blob": "9517facd14cda8d71844d0fc6387d1dfa0e67c61"
+    }
+  ]
+}

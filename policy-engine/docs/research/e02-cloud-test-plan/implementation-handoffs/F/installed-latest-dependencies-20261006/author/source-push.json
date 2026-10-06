@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "git",
+    "push",
+    "origin",
+    "HEAD:refs/heads/codex/e02-F-installed-worker-20261006"
+  ],
+  "cwd": "/workspace/e02-F-installed-worker-20261006",
+  "source_before": {
+    "head": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "status": ""
+  },
+  "source_after": {
+    "head": "5cd190d24d133f618fcc66ecc01f70c8a1b4f1f6",
+    "tree": "c75afd88c27037708844f48d7789fbcbe84a4797",
+    "status": ""
+  },
+  "started_utc": "2026-10-06T12:45:48.923626+00:00",
+  "ended_utc": "2026-10-06T12:45:51.486842+00:00",
+  "wall_seconds": 2.5632205069996417,
+  "child_maxrss_kib": 10624,
+  "exit_code": 0,
+  "outcome": "PASS",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/source-push.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/installed-latest/source-push.stderr",
+      "sha256": "b587923608eaa3a7035942d0ba1b1026df03df0dc23ab0a099ecb9a44018678c",
+      "bytes": 119
+    }
+  },
+  "environment": {
+    "PYTHONPATH": null,
+    "worker_python": null
+  }
+}

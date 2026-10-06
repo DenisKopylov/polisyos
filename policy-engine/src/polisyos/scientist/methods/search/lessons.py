@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import re
 from collections.abc import Iterable
@@ -470,6 +471,7 @@ class LessonRegistry:
             context,
             target_context=active_target,
             policy=policy,
+            exclude_cards=results,
         ):
             materialized = self.materialize_transfer(
                 candidate,
@@ -490,6 +492,7 @@ class LessonRegistry:
         *,
         target_context: TransferContext,
         policy: TransferPolicy | None = None,
+        exclude_cards: Iterable[LessonCard] = (),
     ) -> list[LessonCard]:
         matches: list[tuple[float, datetime, LessonCard]] = []
         self._query_time(context, target_context=target_context)
@@ -535,7 +538,34 @@ class LessonRegistry:
                 matches.append((weight, entry.last_seen, normalized))
 
         matches.sort(key=lambda item: (item[0], item[1].timestamp()), reverse=True)
-        return [card for _, _, card in matches[: context.limit]]
+        seen = {self._evidence_identity(card) for card in exclude_cards}
+        candidates: list[LessonCard] = []
+        for _, _, card in matches:
+            identity = self._evidence_identity(card)
+            if identity in seen:
+                continue
+            seen.add(identity)
+            candidates.append(card)
+            if len(candidates) >= context.limit:
+                break
+        return candidates
+
+    @staticmethod
+    def _evidence_identity(card: LessonCard) -> str:
+        """Keep original content and source identity, excluding route/access metadata."""
+        evidence = card.model_dump(
+            mode="json",
+            exclude={
+                "lesson_id",
+                "domain",
+                "trust_level",
+                "provenance_weight",
+                "last_accessed_at",
+                "transfer_chain",
+            },
+        )
+        evidence["metadata"].pop("materialized_transfer", None)
+        return json.dumps(evidence, sort_keys=True, separators=(",", ":"))
 
     def materialize_transfer(
         self,

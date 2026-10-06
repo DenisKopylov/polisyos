@@ -1,0 +1,1142 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-stub-freshness",
+  "owner": "/root/cmp_res_probe",
+  "closure_ids": [],
+  "finding_ids": [
+    "B43"
+  ],
+  "criterion_ids": [
+    "B43"
+  ],
+  "bundle_ids": [
+    "CMP-01"
+  ],
+  "slice_base_sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+  "implementation_commits": [
+    "d6c5a9b18b5caef0e0cdb1ded43052c47f334442",
+    "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+    "24adbe3178bf949ea6656f5f65433b1928fc30c2",
+    "066e4b64ceca30282912002c2f06d229ac8dc266",
+    "b7d966af6551fc0ff63d3a830c70fe300c320967",
+    "9fba2e79095bb0eca4b50603df34cbac2b1fab9a"
+  ],
+  "implementation_sha": "9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+  "candidate_tree_sha": "7dd1afbed7cefc0288963d261e1860a135f87636",
+  "production_source_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+  "production_source_tree_sha": "f13c9eaa85b45bf00032bf321f2ee33b3a2f8e06",
+  "branch": "codex/e02-B-current-composition",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/before-check.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/before-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-check.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-dry-run.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-dry-run.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-format.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-producer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-producer.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-ruff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture-initial.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/corrected-stale-copy.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/corrected-stale-copy.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/facade-producer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/facade-producer.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-check.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-check.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-format.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-format.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-producer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-producer.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-ruff.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-ruff.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/package.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/producer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/producer.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/source-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/stale-copy-initial.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/stale-copy.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/stale-copy.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/stale-copy.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/stale-expected-base.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/summary.json",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-stub-freshness.toml",
+    "policy-engine/src/polisyos/foundry/methods/composer.pyi",
+    "policy-engine/src/polisyos/foundry/methods/registry.pyi",
+    "policy-engine/tools/devx/foundry/README.md",
+    "policy-engine/tools/devx/foundry/generate_stubs.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F02-P117",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.77",
+      "rss_kib": "168580",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "245",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P010",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/test_composer.py",
+      "state": "PASS",
+      "collected": "25",
+      "calls": "25",
+      "call_pass": "25",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.57",
+      "rss_kib": "169160.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "140",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F08-P117",
+      "job": "F08",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "11.026620626449585",
+      "rss_kib": "256836",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F08.txt",
+      "source_line": "240",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F15-P137",
+      "job": "F15",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_cmp_01.py",
+      "state": "PASS",
+      "collected": "4",
+      "calls": "4",
+      "call_pass": "4",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "4.87",
+      "rss_kib": "254332",
+      "receipt_status": "valid",
+      "source_file": "received/F15.txt",
+      "source_line": "292",
+      "extra_json": "{\"reason\":\"null\"}"
+    }
+  ],
+  "baseline_source_ref_and_input_closure": {
+    "routes": [
+      {
+        "finding_id": "B43",
+        "unit": "B",
+        "cell_id": "F02-P117",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "research_main",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B43"
+      },
+      {
+        "finding_id": "B43",
+        "unit": "B",
+        "cell_id": "F03-P010",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "research_main",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B43"
+      },
+      {
+        "finding_id": "B43",
+        "unit": "B",
+        "cell_id": "F08-P117",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "e02_head",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B43"
+      },
+      {
+        "finding_id": "B43",
+        "unit": "B",
+        "cell_id": "F15-P137",
+        "source_status": "partial",
+        "route_grade": "candidate_unverified",
+        "source_ref": "integration_head",
+        "semantic_adequacy": "not_established",
+        "canonical_route": "../full-run/finding-routes.json#B43"
+      }
+    ],
+    "grade": "source_reported_compact_text_only; candidate_routes",
+    "exact_full_query": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-compiled-chain-plan-evidence/baseline-B43-query.json@85e97d91801bac9a4314655e81a4fe8c68a17235",
+    "canonical_criterion": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CMP-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#B43",
+    "raw_archives_received": 0,
+    "qualification": "Four source-reported PASS cells/declared F02/F03/F08/F15 environment and input locators are navigation, never a new persisted-plan proof. Current source admission/real CAS consumer results are separate."
+  },
+  "checks": [
+    {
+      "name": "before-check",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "foundry",
+        "generate-stubs",
+        "--check"
+      ],
+      "target_sha": "d6c5a9b18b5caef0e0cdb1ded43052c47f334442",
+      "target_tree_sha": "b14bd94ab38f9c5a5e32f685cbe7cbd364c624a5",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "versions": {
+          "mypy": "1.19.1",
+          "ruff": "0.14.10"
+        },
+        "variables": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        }
+      },
+      "input_closure": {
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/before-check.json@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "source_before_after_named_inputs_and_output_hashes": "Full policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/before-check.json contains exact declared source/config/lock/tool inputs and all4 output hashes/HEAD byte matching, no universal child-module readset.",
+        "instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture-initial.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "stale_instrument": null
+      },
+      "outcome": "FAIL",
+      "actual_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/before-check.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "output_sha256": "54f58e7ba21248a1f6fa21d97af6e1a38c658903b1a0a0aee8be7129591bc300",
+      "output_bytes": 856,
+      "wall_seconds": 3.6075268699933076,
+      "max_rss_kib": 56052,
+      "source_before_after": {
+        "before_sha": "d6c5a9b18b5caef0e0cdb1ded43052c47f334442",
+        "after_sha": "d6c5a9b18b5caef0e0cdb1ded43052c47f334442",
+        "before_status": "",
+        "after_status": ""
+      },
+      "qualification": "Wrong explicit pyproject config:2drift, not actual repository Ruff profile."
+    },
+    {
+      "name": "producer",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "foundry",
+        "generate-stubs"
+      ],
+      "target_sha": "d6c5a9b18b5caef0e0cdb1ded43052c47f334442",
+      "target_tree_sha": "b14bd94ab38f9c5a5e32f685cbe7cbd364c624a5",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "versions": {
+          "mypy": "1.19.1",
+          "ruff": "0.14.10"
+        },
+        "variables": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        }
+      },
+      "input_closure": {
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/producer.json@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "source_before_after_named_inputs_and_output_hashes": "Full policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/producer.json contains exact declared source/config/lock/tool inputs and all4 output hashes/HEAD byte matching, no universal child-module readset.",
+        "instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture-initial.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "stale_instrument": null
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/producer.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "output_sha256": "99949fca65dd3e83b22540433174e0e79355bfb5ca922bb552f18e0a329bc6ba",
+      "output_bytes": 771,
+      "wall_seconds": 3.6038857310049934,
+      "max_rss_kib": 56040,
+      "source_before_after": {
+        "before_sha": "d6c5a9b18b5caef0e0cdb1ded43052c47f334442",
+        "after_sha": "d6c5a9b18b5caef0e0cdb1ded43052c47f334442",
+        "before_status": "",
+        "after_status": "M policy-engine/src/polisyos/foundry/methods/base.pyi\n M policy-engine/src/polisyos/foundry/methods/components/composer.pyi"
+      },
+      "qualification": "Wrong-config producer layout; acknowledged generation is not freshness acceptance."
+    },
+    {
+      "name": "canonical-producer",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "foundry",
+        "generate-stubs"
+      ],
+      "target_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+      "target_tree_sha": "ea6281dc94b89a8b83736762a8cef20a5df8539e",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "versions": {
+          "mypy": "1.19.1",
+          "ruff": "0.14.10"
+        },
+        "variables": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        }
+      },
+      "input_closure": {
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-producer.json@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "source_before_after_named_inputs_and_output_hashes": "Full policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-producer.json contains exact declared source/config/lock/tool inputs and all4 output hashes/HEAD byte matching, no universal child-module readset.",
+        "instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "stale_instrument": null
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-producer.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "output_sha256": "99949fca65dd3e83b22540433174e0e79355bfb5ca922bb552f18e0a329bc6ba",
+      "output_bytes": 771,
+      "wall_seconds": 3.7129774219938554,
+      "max_rss_kib": 56036,
+      "source_before_after": {
+        "before_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+        "after_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+        "before_status": "M policy-engine/src/polisyos/foundry/methods/base.pyi\n M policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+        "after_status": ""
+      },
+      "qualification": "Actual ruff.toml recipe restores canonical outputs; before snapshot has prior generated overlay, after clean7eb."
+    },
+    {
+      "name": "canonical-check",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "foundry",
+        "generate-stubs",
+        "--check"
+      ],
+      "target_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+      "target_tree_sha": "ea6281dc94b89a8b83736762a8cef20a5df8539e",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "versions": {
+          "mypy": "1.19.1",
+          "ruff": "0.14.10"
+        },
+        "variables": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        }
+      },
+      "input_closure": {
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-check.json@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "source_before_after_named_inputs_and_output_hashes": "Full policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-check.json contains exact declared source/config/lock/tool inputs and all4 output hashes/HEAD byte matching, no universal child-module readset.",
+        "instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "stale_instrument": null
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-check.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "output_sha256": "b0c6acdff490393fe1e1e042d4892f4daca329c0b1a0ec1708e420d68291b23a",
+      "output_bytes": 767,
+      "wall_seconds": 3.7652454390045023,
+      "max_rss_kib": 55968,
+      "source_before_after": {
+        "before_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+        "after_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+        "before_status": "",
+        "after_status": ""
+      },
+      "qualification": "Actual bounded tooling observation on its recorded source/input profile; no runtime/scientific result."
+    },
+    {
+      "name": "stale-copy",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/dev/shm/e02-B-cmp-stub-freshness/stale_copy.py"
+      ],
+      "target_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+      "target_tree_sha": "ea6281dc94b89a8b83736762a8cef20a5df8539e",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "versions": {
+          "mypy": "1.19.1",
+          "ruff": "0.14.10"
+        },
+        "variables": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        }
+      },
+      "input_closure": {
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/stale-copy.json@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "source_before_after_named_inputs_and_output_hashes": "Full policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/stale-copy.json contains exact declared source/config/lock/tool inputs and all4 output hashes/HEAD byte matching, no universal child-module readset.",
+        "instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "stale_instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/stale-copy-initial.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a"
+      },
+      "outcome": "ERROR",
+      "actual_exit_code": 2,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/stale-copy.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "output_sha256": "119beac6d0203ec75849bc2466fba631ad81e774c267c3bbc0f159caa4d58ee9",
+      "output_bytes": 104,
+      "wall_seconds": 0.26170253999589477,
+      "max_rss_kib": 17760,
+      "source_before_after": {
+        "before_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+        "after_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+        "before_status": "",
+        "after_status": ""
+      },
+      "qualification": "Foreign old tools module rejects --check argument; intended property not reached."
+    },
+    {
+      "name": "canonical-dry-run",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "foundry",
+        "generate-stubs",
+        "--dry-run"
+      ],
+      "target_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+      "target_tree_sha": "ea6281dc94b89a8b83736762a8cef20a5df8539e",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "versions": {
+          "mypy": "1.19.1",
+          "ruff": "0.14.10"
+        },
+        "variables": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        }
+      },
+      "input_closure": {
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-dry-run.json@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "source_before_after_named_inputs_and_output_hashes": "Full policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-dry-run.json contains exact declared source/config/lock/tool inputs and all4 output hashes/HEAD byte matching, no universal child-module readset.",
+        "instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "stale_instrument": null
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-dry-run.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "output_sha256": "05172052e2b6b87bbd515646b0209860cdb90ce8e9839f3983f1cdffe685ce4f",
+      "output_bytes": 829,
+      "wall_seconds": 3.7163672960014082,
+      "max_rss_kib": 55988,
+      "source_before_after": {
+        "before_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+        "after_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+        "before_status": "",
+        "after_status": ""
+      },
+      "qualification": "Actual7eb only, all four outputs described without target changes; not a newb7 dry-run outcome."
+    },
+    {
+      "name": "canonical-ruff",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tools/devx/foundry/generate_stubs.py",
+        "src/polisyos/foundry/methods/base.pyi",
+        "src/polisyos/foundry/methods/registry.pyi",
+        "src/polisyos/foundry/methods/composer.pyi",
+        "src/polisyos/foundry/methods/components/composer.pyi"
+      ],
+      "target_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+      "target_tree_sha": "ea6281dc94b89a8b83736762a8cef20a5df8539e",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "versions": {
+          "mypy": "1.19.1",
+          "ruff": "0.14.10"
+        },
+        "variables": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        }
+      },
+      "input_closure": {
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-ruff.json@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "source_before_after_named_inputs_and_output_hashes": "Full policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-ruff.json contains exact declared source/config/lock/tool inputs and all4 output hashes/HEAD byte matching, no universal child-module readset.",
+        "instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "stale_instrument": null
+      },
+      "outcome": "FAIL",
+      "actual_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-ruff.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "output_sha256": "d0bea6f3ebec5710cdef0effb8e5ff89add2e91d693565d10a8f1c6f5676e8a5",
+      "output_bytes": 595,
+      "wall_seconds": 0.209904606002965,
+      "max_rss_kib": 25984,
+      "source_before_after": {
+        "before_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+        "after_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+        "before_status": "",
+        "after_status": ""
+      },
+      "qualification": "Two actual facade F403 diagnostics retained; no inherited attribution."
+    },
+    {
+      "name": "canonical-format",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tools/devx/foundry/generate_stubs.py",
+        "src/polisyos/foundry/methods/base.pyi",
+        "src/polisyos/foundry/methods/registry.pyi",
+        "src/polisyos/foundry/methods/composer.pyi",
+        "src/polisyos/foundry/methods/components/composer.pyi"
+      ],
+      "target_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+      "target_tree_sha": "ea6281dc94b89a8b83736762a8cef20a5df8539e",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "versions": {
+          "mypy": "1.19.1",
+          "ruff": "0.14.10"
+        },
+        "variables": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        }
+      },
+      "input_closure": {
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-format.json@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "source_before_after_named_inputs_and_output_hashes": "Full policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-format.json contains exact declared source/config/lock/tool inputs and all4 output hashes/HEAD byte matching, no universal child-module readset.",
+        "instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "stale_instrument": null
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/canonical-format.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "output_sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+      "output_bytes": 26,
+      "wall_seconds": 0.23304829001426697,
+      "max_rss_kib": 17828,
+      "source_before_after": {
+        "before_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+        "after_sha": "7eb3b372b7a66ed31f6498f1fcfeb3b840ac4e58",
+        "before_status": "",
+        "after_status": ""
+      },
+      "qualification": "Actual bounded tooling observation on its recorded source/input profile; no runtime/scientific result."
+    },
+    {
+      "name": "facade-producer",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "foundry",
+        "generate-stubs"
+      ],
+      "target_sha": "24adbe3178bf949ea6656f5f65433b1928fc30c2",
+      "target_tree_sha": "d46c98cf00b0fe66af2a99790edc8bcae515aadf",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "versions": {
+          "mypy": "1.19.1",
+          "ruff": "0.14.10"
+        },
+        "variables": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        }
+      },
+      "input_closure": {
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/facade-producer.json@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "source_before_after_named_inputs_and_output_hashes": "Full policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/facade-producer.json contains exact declared source/config/lock/tool inputs and all4 output hashes/HEAD byte matching, no universal child-module readset.",
+        "instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "stale_instrument": null
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/facade-producer.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "output_sha256": "99949fca65dd3e83b22540433174e0e79355bfb5ca922bb552f18e0a329bc6ba",
+      "output_bytes": 771,
+      "wall_seconds": 3.698401469999226,
+      "max_rss_kib": 56036,
+      "source_before_after": {
+        "before_sha": "24adbe3178bf949ea6656f5f65433b1928fc30c2",
+        "after_sha": "24adbe3178bf949ea6656f5f65433b1928fc30c2",
+        "before_status": "",
+        "after_status": "M policy-engine/src/polisyos/foundry/methods/composer.pyi\n M policy-engine/src/polisyos/foundry/methods/registry.pyi"
+      },
+      "qualification": "Actual bounded tooling observation on its recorded source/input profile; no runtime/scientific result."
+    },
+    {
+      "name": "final-producer",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "foundry",
+        "generate-stubs"
+      ],
+      "target_sha": "066e4b64ceca30282912002c2f06d229ac8dc266",
+      "target_tree_sha": "dccf58c812b2da191a197b8af5fe50990ac8557c",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "versions": {
+          "mypy": "1.19.1",
+          "ruff": "0.14.10"
+        },
+        "variables": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        }
+      },
+      "input_closure": {
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-producer.json@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "source_before_after_named_inputs_and_output_hashes": "Full policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-producer.json contains exact declared source/config/lock/tool inputs and all4 output hashes/HEAD byte matching, no universal child-module readset.",
+        "instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "stale_instrument": null
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-producer.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "output_sha256": "99949fca65dd3e83b22540433174e0e79355bfb5ca922bb552f18e0a329bc6ba",
+      "output_bytes": 771,
+      "wall_seconds": 3.727226303992211,
+      "max_rss_kib": 56032,
+      "source_before_after": {
+        "before_sha": "066e4b64ceca30282912002c2f06d229ac8dc266",
+        "after_sha": "066e4b64ceca30282912002c2f06d229ac8dc266",
+        "before_status": "M policy-engine/src/polisyos/foundry/methods/composer.pyi\n M policy-engine/src/polisyos/foundry/methods/registry.pyi",
+        "after_status": "M policy-engine/src/polisyos/foundry/methods/composer.pyi\n M policy-engine/src/polisyos/foundry/methods/registry.pyi"
+      },
+      "qualification": "Actual066 recipe produces final two facade comments; expected dirty outputs subsequently committed asb7."
+    },
+    {
+      "name": "final-check",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "foundry",
+        "generate-stubs",
+        "--check"
+      ],
+      "target_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+      "target_tree_sha": "f13c9eaa85b45bf00032bf321f2ee33b3a2f8e06",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "versions": {
+          "mypy": "1.19.1",
+          "ruff": "0.14.10"
+        },
+        "variables": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        }
+      },
+      "input_closure": {
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-check.json@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "source_before_after_named_inputs_and_output_hashes": "Full policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-check.json contains exact declared source/config/lock/tool inputs and all4 output hashes/HEAD byte matching, no universal child-module readset.",
+        "instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "stale_instrument": null
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-check.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "output_sha256": "b0c6acdff490393fe1e1e042d4892f4daca329c0b1a0ec1708e420d68291b23a",
+      "output_bytes": 767,
+      "wall_seconds": 3.925750601993059,
+      "max_rss_kib": 55960,
+      "source_before_after": {
+        "before_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+        "after_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+        "before_status": "",
+        "after_status": ""
+      },
+      "qualification": "Literal cleanb7, all four outputs current and unchanged."
+    },
+    {
+      "name": "corrected-stale-copy",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/dev/shm/e02-B-cmp-stub-freshness/stale_copy.py"
+      ],
+      "target_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+      "target_tree_sha": "f13c9eaa85b45bf00032bf321f2ee33b3a2f8e06",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "versions": {
+          "mypy": "1.19.1",
+          "ruff": "0.14.10"
+        },
+        "variables": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        }
+      },
+      "input_closure": {
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/corrected-stale-copy.json@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "source_before_after_named_inputs_and_output_hashes": "Full policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/corrected-stale-copy.json contains exact declared source/config/lock/tool inputs and all4 output hashes/HEAD byte matching, no universal child-module readset.",
+        "instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "stale_instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/stale-copy.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a"
+      },
+      "outcome": "FAIL",
+      "actual_exit_code": 1,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/corrected-stale-copy.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "output_sha256": "702e50ded7b809c274d9bcedbd8afdde9f8a60c1ee6b66c9a7a2fd21fade247b",
+      "output_bytes": 3268,
+      "wall_seconds": 2.165810301012243,
+      "max_rss_kib": 43080,
+      "source_before_after": {
+        "before_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+        "after_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+        "before_status": "",
+        "after_status": ""
+      },
+      "qualification": "Expected actual failure: stale full-definition-preserving expected file refuses; actual owner origin/hash guarded, four temporary expected files and four repository outputs unchanged."
+    },
+    {
+      "name": "final-ruff",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tools/devx/foundry/generate_stubs.py",
+        "src/polisyos/foundry/methods/base.pyi",
+        "src/polisyos/foundry/methods/registry.pyi",
+        "src/polisyos/foundry/methods/composer.pyi",
+        "src/polisyos/foundry/methods/components/composer.pyi"
+      ],
+      "target_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+      "target_tree_sha": "f13c9eaa85b45bf00032bf321f2ee33b3a2f8e06",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "versions": {
+          "mypy": "1.19.1",
+          "ruff": "0.14.10"
+        },
+        "variables": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        }
+      },
+      "input_closure": {
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-ruff.json@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "source_before_after_named_inputs_and_output_hashes": "Full policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-ruff.json contains exact declared source/config/lock/tool inputs and all4 output hashes/HEAD byte matching, no universal child-module readset.",
+        "instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "stale_instrument": null
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-ruff.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "output_bytes": 19,
+      "wall_seconds": 0.20679304099758156,
+      "max_rss_kib": 25472,
+      "source_before_after": {
+        "before_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+        "after_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+        "before_status": "",
+        "after_status": ""
+      },
+      "qualification": "Literal cleanb7, complete generator+four outputs Ruff PASS."
+    },
+    {
+      "name": "final-format",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tools/devx/foundry/generate_stubs.py",
+        "src/polisyos/foundry/methods/base.pyi",
+        "src/polisyos/foundry/methods/registry.pyi",
+        "src/polisyos/foundry/methods/composer.pyi",
+        "src/polisyos/foundry/methods/components/composer.pyi"
+      ],
+      "target_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+      "target_tree_sha": "f13c9eaa85b45bf00032bf321f2ee33b3a2f8e06",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python": {
+          "executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+        },
+        "versions": {
+          "mypy": "1.19.1",
+          "ruff": "0.14.10"
+        },
+        "variables": {
+          "PYTHONPATH": "src",
+          "POLISYOS_METRICS_PORT": "0",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "XLA_FLAGS": null
+        }
+      },
+      "input_closure": {
+        "wrapper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-format.json@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "source_before_after_named_inputs_and_output_hashes": "Full policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-format.json contains exact declared source/config/lock/tool inputs and all4 output hashes/HEAD byte matching, no universal child-module readset.",
+        "instrument": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/capture.source.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "stale_instrument": null
+      },
+      "outcome": "PASS",
+      "actual_exit_code": 0,
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-format.txt@9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+      "output_sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+      "output_bytes": 26,
+      "wall_seconds": 0.22450403800758068,
+      "max_rss_kib": 17792,
+      "source_before_after": {
+        "before_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+        "after_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+        "before_status": "",
+        "after_status": ""
+      },
+      "qualification": "Literal cleanb7, complete generator+four outputs format PASS."
+    }
+  ],
+  "property": {
+    "statement": "All four canonical Foundry stubs use the same actual stubgen/re-export/private-field cleanup/Ruff import-sort and format pipeline in write, dry-run and readonly freshness check; --check compares complete regenerated bytes and refuses stale expected output without target writes.",
+    "runtime_path": [
+      "actual Python tools.cli foundry generate-stubs -> current Foundry modules / mypy.stubgen / declared facade recipes",
+      "scratch stub -> actual repository ruff.toml import-sort + formatter -> AST-valid canonical generated bytes",
+      "default atomic_write_text producer OR --dry-run descriptions OR --check full existing-target bytes -> actual exit status and complete stdout"
+    ],
+    "proxy_divergence": "A temporary base stub preserves every original class/method/field definition and AST while adding a stale comment. Its markers/AST remain satisfactory, but the actual owned four-target --check refuses full byte drift; all temporary expected files and repository targets remain unchanged.",
+    "negative_controls": [
+      "Literal b7 actual checker against four copied expected outputs, one stale base comment: actual exit1/drift refusal, exact loaded generator Git-byte guard, no copied/repository target mutation.",
+      "Initial foreign-module stale invocation failed argument parsing before the property; full exit2 ERROR is preserved and excluded from the negative-control acceptance.",
+      "Initial wrong pyproject Ruff config and intermediate two F403 facade diagnostics retained; canonical ruff.toml and only two intentional compatibility import-line comments repair the generator class without suppressing other diagnostics."
+    ],
+    "authority_purpose": "Tooling/generated-companion byte freshness under actual admitted Python/mypy/Ruff/config profile. No execution-plan, historical source, scientific, cache, checkpoint or publication authority.",
+    "versions": {
+      "python": "3.14.2",
+      "mypy": "1.19.1",
+      "ruff": "0.14.10",
+      "evidence_index": "policyos.e02.evidence_index.v1"
+    },
+    "output_paths": [
+      "policy-engine/src/polisyos/foundry/methods/base.pyi",
+      "policy-engine/src/polisyos/foundry/methods/registry.pyi",
+      "policy-engine/src/polisyos/foundry/methods/composer.pyi",
+      "policy-engine/src/polisyos/foundry/methods/components/composer.pyi"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_by_quantity": {
+    "actual_exit_stdout_hashes_source_snapshots_four_output_bytes_AST_full_py_path_denominator": "recomputed",
+    "stale_refusal_copy_original_file_invariance": "recomputed",
+    "independent_source_review": "independently_reconciled",
+    "formal_B43_root_G_closure_future_combined_gates": "not_established"
+  },
+  "capability_state_or_finding_state": "Tooling property demonstrated on literal finalb7; companion code/evidence ready for independent custody review and root global family/generated registration acceptance. B43 runtime/formal closure is not newly asserted; closure_ids remains empty.",
+  "source_binding": {
+    "source_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+    "source_tree": "f13c9eaa85b45bf00032bf321f2ee33b3a2f8e06",
+    "base_sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+    "all_four_outputs": [
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/base.pyi",
+        "before": {
+          "source_sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+          "bytes": 10329,
+          "sha256": "44ed7feb6deee222ce6ac8980cceb92c3b4cb264ccb5f6f9ee9d9ce6ed9d9cb3"
+        },
+        "after": {
+          "source_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+          "bytes": 10329,
+          "sha256": "44ed7feb6deee222ce6ac8980cceb92c3b4cb264ccb5f6f9ee9d9ce6ed9d9cb3",
+          "git_blob": "d2948f0f0648bc77881acb4f8a0d7a3d7489b12c"
+        },
+        "ast_equal": true,
+        "ast_sha256": "0c0237483951bb46d660cc1d9f5ea6ebd6cc802cb84f30d790ca63689b86e83e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/registry.pyi",
+        "before": {
+          "source_sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+          "bytes": 58,
+          "sha256": "57f3509e55e92e57e7c5cc3fd6f257c0ff433bfefcb3d6286747126eae1377ef"
+        },
+        "after": {
+          "source_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+          "bytes": 117,
+          "sha256": "f8edc807f8cc38140afe51f899925dd86576d506cd1f80362cfb8b594dbf34bd",
+          "git_blob": "ed79a6db4c5114bff5a8b4e442cd6492f6a0efb6"
+        },
+        "ast_equal": true,
+        "ast_sha256": "399f09748ecc513ef93908a8cc2687a170b480f4d188c74c4f63eba03bae0678"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/composer.pyi",
+        "before": {
+          "source_sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+          "bytes": 59,
+          "sha256": "46d5d113361d487abf5cef5c85f88b8bbe1cd22f70ba266d763a1deb4aa4e781"
+        },
+        "after": {
+          "source_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+          "bytes": 118,
+          "sha256": "f3a8a6c3055389a21652307f66be1b1d8c6db72fad25d599cac2f4aca801ef83",
+          "git_blob": "9b82928df2ab84115a3b116e4a8f6b96a294018b"
+        },
+        "ast_equal": true,
+        "ast_sha256": "bf060d1f352fcf9a87ac8c76218d2c57d6cedf77b7674682b7e8c13132bf24de"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+        "before": {
+          "source_sha": "75ec14287da9e1f288de4699ff01240682bffe89",
+          "bytes": 5970,
+          "sha256": "1657ceac5b499914d5f7c2b8ff0f17ad366abe19b9aac0ad474d9975433fc241"
+        },
+        "after": {
+          "source_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+          "bytes": 5970,
+          "sha256": "1657ceac5b499914d5f7c2b8ff0f17ad366abe19b9aac0ad474d9975433fc241",
+          "git_blob": "b6995f23f3dbd65b85d02b70eedfcf7744b2a3f1"
+        },
+        "ast_equal": true,
+        "ast_sha256": "0ab6cf3accc5ee40798438f55e2ea1f9b79c8b57ca0dfcb542ee868bd4056135"
+      }
+    ],
+    "runtime_test_py_denominator": 5468,
+    "runtime_test_py_changed": [],
+    "complete_src_test_changed_paths": [
+      "policy-engine/src/polisyos/foundry/methods/composer.pyi",
+      "policy-engine/src/polisyos/foundry/methods/registry.pyi"
+    ],
+    "meaning": "Complete Git path comparison for tracked .py runtime/test source, not a new runtime PASS or complete execution import/resource closure. Four stubs parsed wholly; only comments changed in two facades."
+  },
+  "deciding_evidence": {
+    "implementation_sha": "9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence",
+    "index": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/index.json",
+      "bytes": 9557,
+      "sha256": "b0c7a9cdc779b1c9ffd81b33402d638e9772169335721cc87f98723318586f55"
+    },
+    "file_count_including_index": 37,
+    "bytes_including_index": 456406,
+    "all_committed_objects_hash_size_recomputed": true
+  },
+  "independent_review": {
+    "reviewer": "/root/cas_probe",
+    "frozen_source": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+    "source_only_message": "Full generator/README/release/four outputs read; narrow contract nonblocking, no reviewer execution. Immutable reviewer custody packet pending; this message is not a future Git receipt."
+  },
+  "limitations_and_next_owner": [
+    "Initial d6 explicit pyproject config was not actual repository Ruff owner; its2drift/producer layout outcomes do not establish proper freshness.",
+    "7eb actual ruff.toml four-target producer/check and dry-run succeeded; two F403 facade lines still failed full Ruff and were corrected generically in the declared re-export recipes.",
+    "Initial stale-copy invocation resolved a foreign old tools module and failed argument parsing exit2 before the freshness predicate; source provenance was not established for that attempt.",
+    "Corrected stale-copy instrument inserts exact product tool root and checks actual generator file/Git bytes before invoking unchanged final --check against a four-file expected-map copy with one stale full-definition-preserving comment.",
+    "Final producer ran066 with generated target overlay and ended with two expected facade changes; final checker/style/negative ran literal clean b7; no prior outcome relabeled as b7 runtime evidence.",
+    "No native tests, product workflows, scientific body, architecture/gate, collection or broad suite executed by this companion slice.",
+    "P41 inherited red not_established; no inherited waiver used.",
+    "Readonly means no generated target writes; generation still uses scratch files and tooling caches. Four-target default atomic writes are per-file, not one cross-file transactional publication.",
+    "Actual missing/unreadable expected targets and subprocess failure paths are reviewed source behavior, not separately claimed runtime test observations.",
+    "Global generated_artifacts.toml/generated-artifacts docs/public inventory/reviewed release flag are ROOT-owned; parent supplied b4dbcfb26 family checkpoint, final authoritative source/generator registration validation remains root-owned.",
+    "Full runtime/test5468 .py source comparison is zero delta; all4stubAST unchanged; this proves the finite Git comparison, never new scientific/native/cohort PASS or complete import/resource/network closure.",
+    "Final producer actual066 and final checker/styles/negative actualb7 are separate recorded source points. No dry-run or broad runtime outcome is relabeled to a future source.",
+    "A/C protected consumers are unchanged by this companion; typed crossunit/production-data limits remain active."
+  ],
+  "created_at_utc": "2026-10-06T22:04:29.217090+00:00"
+}

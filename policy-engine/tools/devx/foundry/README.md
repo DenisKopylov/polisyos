@@ -21,7 +21,7 @@ breaking/non-breaking API changes.
 
 | Entrypoint                                                            | Purpose                                                     |
 | --------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `uv run polisyos-tools foundry generate-stubs [--dry-run]`            | Регенерировать public method stubs для Foundry facade.      |
+| `uv run polisyos-tools foundry generate-stubs [--dry-run \| --check]`  | Регенерировать или сверить method stubs для Foundry facade. |
 | `uv run polisyos-tools foundry update-signature-baseline [--dry-run]` | Пересчитать stable digests и обновить signature baseline.   |
 
 ## Depends On / Depended On By
@@ -67,10 +67,28 @@ breaking/non-breaking API changes.
   private dataclass fields, нужные canonical artifact intake. Base stub
   также сохраняет typed private helpers, используемые canonical composer.
 
+- Генератор строит ожидаемый stub каждой цели во временном каталоге,
+  применяет `ruff check --select I --fix`, затем `ruff format` с repository
+  `ruff.toml`. Обычный режим атомарно записывает канонические bytes.
+  `--check` строит те же bytes и сравнивает каждую из четырёх целей без записи
+  checked-in файлов; missing/unreadable target, drift или ошибка producer
+  возвращают ненулевой exit. Freshness command:
+  `uv run polisyos-tools foundry generate-stubs --check`.
+  `--dry-run` по-прежнему только описывает предполагаемые записи и не
+  проверяет freshness; он несовместим с `--check`.
+
+- Source of truth для base/canonical composer — соответствующие `.py`
+  модули; registry/composer facade stubs производятся из заданных в
+  `REEXPORT_STUBS` re-export recipes. Их единственный wildcard import
+  намеренно передаёт canonical facade exports; producer добавляет локальный
+  `F403` suppression только к этой строке. Воспроизводимость проверки зависит от
+  admitted Python, `mypy.stubgen`, Ruff и repository configuration; совпадение
+  stubs само по себе не проверяет runtime execution или научную валидность.
+
 - Signature baseline хранится в тестовых fixtures и нужен для осознанного ABI
   review, а не для silent drift.
 
 - Канонический surface — `polisyos-tools foundry ...`; product-root
   `scripts/` retired during Repository SOTA closeout.
 
-- Last updated: 2026-04-17
+- Last updated: 2026-10-06 (старые smoke-status rows выше сохраняют свой профиль).

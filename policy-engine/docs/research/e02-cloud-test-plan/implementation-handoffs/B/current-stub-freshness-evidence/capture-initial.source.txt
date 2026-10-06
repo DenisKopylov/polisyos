@@ -1,0 +1,86 @@
+from __future__ import annotations
+
+import argparse
+import datetime
+import hashlib
+import importlib.metadata
+import json
+import os
+import pathlib
+import subprocess
+import sys
+import time
+
+ROOT = pathlib.Path('/workspace/e02-B-current-composition')
+CWD = ROOT / 'policy-engine'
+OUT = pathlib.Path(__file__).parent
+PYTHON = '/workspace/polisyos/policy-engine/.venv/bin/python'
+TARGETS = [
+    'policy-engine/src/polisyos/foundry/methods/base.pyi',
+    'policy-engine/src/polisyos/foundry/methods/registry.pyi',
+    'policy-engine/src/polisyos/foundry/methods/composer.pyi',
+    'policy-engine/src/polisyos/foundry/methods/components/composer.pyi',
+]
+SOURCES = [
+    'policy-engine/tools/devx/foundry/generate_stubs.py',
+    'policy-engine/tools/lib/fs.py',
+    'policy-engine/tools/lib/imports.py',
+    'policy-engine/tools/lib/runner.py',
+    'policy-engine/tools/registry.py',
+    'policy-engine/pyproject.toml',
+    'policy-engine/uv.lock',
+    'policy-engine/src/polisyos/foundry/methods/base.py',
+    'policy-engine/src/polisyos/foundry/methods/registry.py',
+    'policy-engine/src/polisyos/foundry/methods/composer.py',
+    'policy-engine/src/polisyos/foundry/methods/components/composer.py',
+    'policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py',
+]
+
+def git(*args: str) -> str:
+    return subprocess.check_output(['git', *args], cwd=ROOT, text=True).strip()
+
+def identity(path: pathlib.Path) -> dict[str, object]:
+    raw = path.read_bytes()
+    return {'path': str(path), 'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}
+
+def snapshot() -> dict[str, object]:
+    head = git('rev-parse', 'HEAD')
+    paths = {}
+    for rel in SOURCES + TARGETS:
+        raw = (ROOT / rel).read_bytes()
+        blob = subprocess.check_output(['git', 'show', f'{head}:{rel}'], cwd=ROOT)
+        paths[rel] = {**identity(ROOT / rel), 'git_blob': git('rev-parse', f'{head}:{rel}'), 'matches_HEAD': raw == blob}
+    return {'sha': head, 'tree': git('rev-parse', 'HEAD^{tree}'), 'branch': git('symbolic-ref', '--short', 'HEAD'), 'status': git('status', '--porcelain'), 'named_inputs': paths}
+
+p = argparse.ArgumentParser()
+p.add_argument('stage')
+p.add_argument('mode', choices=['producer', 'check', 'dry-run', 'negative', 'ruff', 'format'])
+args = p.parse_args()
+env = os.environ.copy()
+caps = ['OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'NUMEXPR_NUM_THREADS', 'XLA_FLAGS']
+for key in caps:
+    env.pop(key, None)
+env.update(PYTHONPATH='src', POLISYOS_METRICS_PORT='0', PYTHONDONTWRITEBYTECODE='1')
+if args.mode == 'negative':
+    argv = [PYTHON, str(OUT / 'stale_copy.py')]
+elif args.mode in {'ruff', 'format'}:
+    argv = [PYTHON, '-m', 'ruff', 'check' if args.mode == 'ruff' else 'format']
+    if args.mode == 'format':
+        argv += ['--check']
+    argv += ['tools/devx/foundry/generate_stubs.py'] + [str((ROOT / rel).relative_to(CWD)) for rel in TARGETS]
+else:
+    argv = [PYTHON, '-m', 'tools.cli', 'foundry', 'generate-stubs']
+    if args.mode != 'producer':
+        argv += ['--' + args.mode]
+before = snapshot()
+packet = {'schema': 'policyos.e02.command_capture.v1', 'stage': args.stage, 'mode': args.mode, 'argv': argv, 'cwd': str(CWD), 'source_before': before, 'start_utc': datetime.datetime.now(datetime.UTC).isoformat(), 'environment': {key: env.get(key) for key in ['PYTHONPATH', 'POLISYOS_METRICS_PORT', 'PYTHONDONTWRITEBYTECODE', *caps]}, 'versions': {name: importlib.metadata.version(name) for name in ['mypy', 'ruff']}, 'python': {'executable': PYTHON, 'version': sys.version}, 'scope': 'Actual tooling generation/check; no scientific/native/runtime/cohort replay or full child import/resource/network readset.'}
+start = time.perf_counter()
+stdout = OUT / (args.stage + '.txt')
+with stdout.open('xb') as stream:
+    child = subprocess.Popen(argv, cwd=CWD, env=env, stdout=stream, stderr=subprocess.STDOUT)
+    _, status, usage = os.wait4(child.pid, 0)
+    child.returncode = os.waitstatus_to_exitcode(status)
+packet.update(source_after=snapshot(), exit_code=child.returncode, wall_seconds=time.perf_counter() - start, end_utc=datetime.datetime.now(datetime.UTC).isoformat(), max_rss_kib=usage.ru_maxrss, resource_method='direct wait4 child rusage, Linux KiB', stdout=identity(stdout))
+(OUT / (args.stage + '.json')).write_text(json.dumps(packet, indent=2) + '\n')
+print(json.dumps({'stage': args.stage, 'exit': child.returncode, 'wall_seconds': packet['wall_seconds'], 'stdout': packet['stdout'], 'before': before['sha'], 'after': packet['source_after']['sha'], 'status_after': packet['source_after']['status']}))
+raise SystemExit(child.returncode)

@@ -1,0 +1,173 @@
+{
+  "schema_version": "e02.D.independent-search-coordinate-review.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "proof_commit": "eb401c24e6cd65bf6c57ae8ea223a83a7ad23f48",
+  "proof_tree": "0eddb01f07bfd7d0983038fb682a0c74c100b189",
+  "production_writes": false,
+  "source_target": {
+    "commit": "cb47af447e3d9dd73bdf95bb7a211f2110995248",
+    "tree": "1597ea3091679bdc57fc997861e51252103064e8",
+    "snapshot_root": "/dev/shm/e02-oracle-search-cb47/archive",
+    "selected_inputs": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-input-manifest.json",
+      "sha256": "4a23205a93e349429190cdad6667352a7643bf3312d26e63fd3f96538058f95b",
+      "bytes": 1741211
+    },
+    "tracked_input_count": 7630,
+    "omitted_scope": "Docs/apps/data/examples/vendor/release omitted; no claim for tests requiring these inputs"
+  },
+  "environment": {
+    "source_commit": "cb47af447e3d9dd73bdf95bb7a211f2110995248",
+    "source_tree": "1597ea3091679bdc57fc997861e51252103064e8",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "torch": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "modules": [
+      {
+        "name": "polisyos.scientist.methods.search.strategies.bayesian",
+        "origin": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6"
+      },
+      {
+        "name": "polisyos.scientist.methods.search.strategies.types",
+        "origin": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+        "sha256": "a639dffa9612eea5f26aee6a4f17434e2d319c5a51672bf7a4704998da367d26"
+      },
+      {
+        "name": "polisyos.scientist.methods.search.strategies.space",
+        "origin": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "sha256": "9dbafe98111b04b926b4473beb76eda8b6241f8ce84f5beee09a814ad96e0a0e"
+      },
+      {
+        "name": "polisyos.scientist.methods.search.strategies.multi_objective",
+        "origin": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+        "sha256": "62dede2310a8f1e27fe33a11604312080d1aeab1073821eb1d98a8f33ab80382"
+      },
+      {
+        "name": "polisyos.scientist.methods.search.strategies.neural",
+        "origin": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "sha256": "967537bae0621de234920c9eee941fb7bf1364cf6272443337f55290f374bec6"
+      },
+      {
+        "name": "polisyos.scientist.methods.autotune.bayesian_generator",
+        "origin": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "sha256": "a2a8df9800a7bd173c5930deeaa22fc0b5a453bf2d842fef162d36886218f48f"
+      }
+    ]
+  },
+  "source_cells": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-source-cells.txt",
+    "sha256": "74839c0b73dd8ea6c17bd1295245d9f5042af49928be1cc24ab40007f2aa4ba5",
+    "bytes": 2114
+  },
+  "source_review": "Full source/test/release delta from87f22 read: ParameterBounds representable-span admission, exact bounded log endpoints, MO canonical conversion with explicit unavailable scalar predictor and relaxed acquisition basis, neural actual executed-point prediction/acquisition. Also before-use transferred-row CAS re-admission and generator metric/direction/split target binding; transfer composition not executed in this slice.",
+  "cells": [
+    {
+      "scope": "Unchanged independent GP",
+      "test_commit": "ed84bcda1aecaa9a73f5f95fbaa95bbcd9de03a8",
+      "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py -o addopts='' -q -s -rA",
+      "cwd": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-cb47-review.txt",
+        "sha256": "07fe9cbf76c4f8b5e078f572c8446dd9c3b38b88a779d27221865b6e95735eeb",
+        "bytes": 8446
+      },
+      "exit_code": 0,
+      "result": "PASS",
+      "summary": "23 passed,4 warnings in25.47s"
+    },
+    {
+      "scope": "Affected native coordinate/MO/neural",
+      "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/remediation/test_opt_02.py tests/unit/remediation/test_opt_02_strategy_consumers.py tests/unit/scientist/search/strategies/test_multi_objective.py tests/unit/scientist/search/strategies/test_neural.py -o addopts='' -q -s -rA",
+      "cwd": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-native-coordinate-consumers.txt",
+        "sha256": "427e17e56ae52a6c75974c405086e0a4b9945c4e146f9a8522b9ef9d17813d4b",
+        "bytes": 4620
+      },
+      "exit_code": 0,
+      "result": "PASS",
+      "summary": "22 passed,5 warnings in14.70s",
+      "boundary": "Some existing native tests permit fallback; independent actual-model cases below explicitly forbid treating fallback as real model evidence."
+    },
+    {
+      "scope": "Independent coordinates and complete vectors",
+      "test_commit": "eb401c24e6cd65bf6c57ae8ea223a83a7ad23f48",
+      "test_path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py",
+      "test_sha256": "bdfe1321d6b167f570792974a0d0a9f79800784c75de4825eb184275f7c72731",
+      "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py -o addopts='' -q -s -rA",
+      "cwd": "/dev/shm/e02-oracle-search-cb47/archive/policy-engine",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-independent-coordinate-consumers.txt",
+        "sha256": "5937fd9325c0365cccdaea5508248c41bd21a2f05a745b3b71c9bf800603f6d4",
+        "bytes": 4591
+      },
+      "exit_code": 1,
+      "result": "FAIL",
+      "summary": "1 failed,6 passed,3 warnings in10.29s"
+    }
+  ],
+  "approved_domain_limitation": "Root explicitly approved admission refusal for finite affine bounds whose span is nonfinite. Original4c midpoint/endpoint red remains at1dc3c7436 and is not rewritten. New separate admission control checks refusal before candidate generation; it claims no new affine midpoint.",
+  "independent_geometry": {
+    "logarithmic": "Declared positive bounds1e-308..1e308 => endpoints exactly bounds, geometric midpoint1 in original physical units; normalized0,.5,1",
+    "integer": "n bounds.2..1.8 => ceil/floor singleton1; normalized n=.5",
+    "categorical": "False/True declared canonical one-hot => False=(1,0),True=(0,1)",
+    "MO": "Actual ModelListGP/SumMarginalLogLikelihood fit1 and actual EHVI optimizer1; independently enumerated raw normalized3D input and -cost/+benefit target matrices; typed output canonical; controlled relaxed vector(.24,.73,.37) maps tophysical(1,False),normalized(.5,1,0). Scalar prediction explicitly unavailable; acquisition remains marked relaxed.",
+    "neural": "Actual SingleTaskGP MLLfit1, actual EI/optimize_acqf delegate; then deliberate adversarial latent(.24,.73,.37) and false acquisition987654321 at final mapping boundary. Observe real posterior/EI consumed(.5,1,0) and returned finite prediction/acquisition, not the false proxy. No model.posterior expected numerical calculation; this is an independent geometric consumption assertion."
+  },
+  "finding": {
+    "classification": "P40 existing OPT01 complete objective coordinate invariant; no inherited/base-denominator or new-delta causality classification",
+    "severity": "P1",
+    "source_location": "MOBayesianOptimizer._objective_vector /get_pareto_front",
+    "input": "Declared cost minimize and benefit maximize; complete(cost1,benefit1) plus scalar-valid missing-cost row(benefit100)",
+    "observed": "Missing cost imputed0; only invalid row retained as Pareto front, complete row discarded",
+    "required": "Exclude incomplete declared vector or controlled explicit refusal; do not fabricate0",
+    "test": "test_multiobjective_incomplete_vector_is_excluded_or_explicitly_refused[missing]",
+    "owner": "search_owner",
+    "status": "FAIL atcb47; corrective immutableebeb7040 received but not yet tested",
+    "related_control": "NaN equivalent row correctly excluded, PASS"
+  },
+  "nondeciding_attempts": [
+    {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-coordinate-initial-fixtures.txt",
+        "sha256": "9a3e711c9f5373027bd6da0ec96cddc4541144cb115e4b19bbab0caaf6403e48",
+        "bytes": 13099
+      },
+      "summary": "3 failed4 passed10.29s",
+      "classification": "Two own fixture errors plus missing-cost source regression",
+      "reason": "Initial categorical fixture incorrectly supplied2D instead of canonical3D one-hot; posterior observer missed keywordX. Fixed independently from canonical representation/API; no source verdict from these two errors."
+    },
+    {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-coordinate-before-format.txt",
+        "sha256": "1e8db26192042a43f905fece889276954c5fa8e6684715f0accaf214e97a8eb5",
+        "bytes": 4521
+      },
+      "summary": "1 failed6 passed10.97s",
+      "classification": "Before final formatting/observer argument convention; confirming source red retained, final deciding cell uses exact committed test."
+    }
+  ],
+  "lint": {
+    "command": "/workspace/e02-D-locked-env/bin/python -m ruff check tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-coordinate-oracle-ruff.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    "exit_code": 0
+  },
+  "closure_ids": [],
+  "verdict": "GP and executed coordinate/runtime consumption PASS atcb47; wider MO complete-vector invariant FAIL until immutable corrective replay. No five-queue aggregate or source eligibility closure.",
+  "limitations": [
+    "No independent mathematical neural/MO posterior claim from geometric observers; independent full original-unit GP mean/covariance remains the unchanged23-case oracle.",
+    "No MO/neural checkpoint/history equivalence or optimization-quality claim.",
+    "Transfer end-to-end composition and all other queues remain separately pending."
+  ],
+  "cleanup_candidates": [
+    "/dev/shm/e02-oracle-search-cb47/archive",
+    "Fresh pytest temporary state; native Trash absent, no permanent deletion."
+  ]
+}

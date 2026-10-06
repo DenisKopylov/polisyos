@@ -181,9 +181,7 @@ class TestExecuteWithRetrySync:
         attempt.claim_ledger_owner.persist_candidate_ledger(ledger="late")
         target.claim_ledger_owner.persist_candidate_ledger.assert_not_called()
 
-    def test_claim_capable_execute_preserves_type_and_manifest_authority(
-        self, state, monkeypatch
-    ):
+    def test_claim_capable_execute_preserves_type_and_manifest_authority(self, state, monkeypatch):
         class _RecordingStore:
             def __init__(self) -> None:
                 self.put_json_calls: list[tuple[object, object]] = []
@@ -329,9 +327,7 @@ class TestExecuteWithRetrySync:
         assert audit.append_calls
         assert claim_owner.persist_calls == [{"ledger": "on_time"}]
 
-    def test_claim_capable_execute_preserves_real_run_sinks_on_time(
-        self, state, monkeypatch
-    ):
+    def test_claim_capable_execute_preserves_real_run_sinks_on_time(self, state, monkeypatch):
         class _RecordingStore:
             def put_json(self, payload: object, options: object) -> object:
                 return object()
@@ -744,6 +740,7 @@ class TestExecuteWithRetrySync:
                 alias="late-async-write",
             )
         )
+
         async def _release_later() -> None:
             await asyncio.sleep(0.05)
             release.set()
@@ -1098,9 +1095,7 @@ class _StoppedProcessHandle:
 
 def test_unknown_process_group_cleanup_is_not_reported_complete() -> None:
     """A stopped worker without a group cannot prove descendants are gone."""
-    assert (
-        retry_module._terminate_owned_process(_StoppedProcessHandle(), None) is False
-    )
+    assert retry_module._terminate_owned_process(_StoppedProcessHandle(), None) is False
 
 
 class _ImmediateResultQueue:
@@ -1119,7 +1114,7 @@ def test_late_worker_completion_is_not_delivery_success(mode) -> None:
     result_queue = _ImmediateResultQueue()
     compute_deadline = _time.monotonic() - 1.0
 
-    with pytest.raises(retry_module._WorkerComputeTimeout):
+    def invoke():
         if mode == "sync":
             retry_module._drain_result_sync(
                 process,
@@ -1135,6 +1130,9 @@ def test_late_worker_completion_is_not_delivery_success(mode) -> None:
                 )
             )
 
+    with pytest.raises(retry_module._WorkerComputeTimeout):
+        invoke()
+
 
 class _DescendantProcessNode:
     """Keep an owned descendant alive long enough to exercise group cleanup."""
@@ -1143,9 +1141,7 @@ class _DescendantProcessNode:
         self.pid_path = pid_path
 
     def execute(self, _ctx, _state):
-        child = subprocess.Popen(
-            [sys.executable, "-c", "import time; time.sleep(30)"]
-        )
+        child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
         self.pid_path.write_text(str(child.pid))
         _time.sleep(30)
         raise AssertionError("timeout should terminate the worker first")
@@ -1162,7 +1158,8 @@ def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> 
     descendant_pid: int | None = None
 
     try:
-        with pytest.raises(NodeTimeoutError):
+
+        def invoke():
             kwargs = {
                 "retry_policy": RetryPolicy(),
                 "timeout_s": 0.5,
@@ -1172,6 +1169,9 @@ def test_timeout_cleans_owned_process_descendant(tmp_path, ctx, state, mode) -> 
                 execute_with_retry_sync(node, ctx, state, **kwargs)
             else:
                 asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+
+        with pytest.raises(NodeTimeoutError):
+            invoke()
         assert pid_path.exists()
         descendant_pid = int(pid_path.read_text())
         with pytest.raises(ProcessLookupError):
@@ -1191,9 +1191,7 @@ class _ExitedWorkerWithDescendantNode:
         self.pid_path = pid_path
 
     def execute(self, _ctx, _state):
-        child = subprocess.Popen(
-            [sys.executable, "-c", "import time; time.sleep(30)"]
-        )
+        child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
         self.pid_path.write_text(str(child.pid))
         os._exit(0)
 
@@ -1270,3 +1268,197 @@ def test_output_aware_fork_retry_preserves_complete_outcome(tmp_path, ctx, mode)
     assert int(worker_pid_path.read_text()) != os.getpid()
     assert type(restored) is OutputAwareNodeOutcome
     assert restored.model_dump(mode="json") == outcome.model_dump(mode="json")
+
+
+class _OwnedProcessTreeNode:
+    """Run a real new-session, TERM-resistant grandchild with observable writes."""
+
+    def __init__(self, directory, *, finish):
+        self.directory = directory
+        self.finish = finish
+
+    def execute(self, _ctx, state):
+        effects = self.directory / "grandchild-effects.txt"
+        identities = self.directory / "process-identities.json"
+        leaf = (
+            "import os,signal,time\n"
+            "signal.signal(signal.SIGTERM,signal.SIG_IGN)\n"
+            f"f=open({str(effects)!r},'a',buffering=1)\n"
+            "while True:\n f.write('effect\\n')\n time.sleep(.002)\n"
+        )
+        ancestor = (
+            "import json,os,signal,subprocess,sys,time; "
+            "signal.signal(signal.SIGTERM,signal.SIG_IGN); "
+            f"p=subprocess.Popen([sys.executable,'-c',{leaf!r}],start_new_session=True); "
+            f"open({str(identities)!r},'w').write(json.dumps([os.getppid(),os.getpid(),p.pid])); "
+            "time.sleep(30)"
+        )
+        subprocess.Popen([sys.executable, "-c", ancestor], start_new_session=True)
+        deadline = _time.monotonic() + 2
+        while not effects.exists() or not effects.stat().st_size:
+            if _time.monotonic() >= deadline:
+                raise RuntimeError("real grandchild did not enter its filesystem effect")
+            _time.sleep(0.001)
+        if self.finish:
+            return _ok_outcome(state)
+        _time.sleep(30)
+        return _ok_outcome(state)
+
+
+def _assert_real_tree_reaped(directory):
+    import json
+
+    pids = json.loads((directory / "process-identities.json").read_text())
+    assert len(pids) == 3 and len(set(pids)) == 3
+    for pid in pids:
+        with pytest.raises(ProcessLookupError):
+            os.kill(pid, 0)
+    effects = directory / "grandchild-effects.txt"
+    observed = effects.read_bytes()
+    assert observed.startswith(b"effect\n")
+    _time.sleep(0.02)
+    assert effects.read_bytes() == observed
+
+
+def _caller_subreaper_flag():
+    import ctypes
+
+    flag = ctypes.c_int()
+    assert ctypes.CDLL(None).prctl(37, ctypes.byref(flag), 0, 0, 0) == 0
+    return flag.value
+
+
+@pytest.fixture
+def owned_tree_dir(tmp_path):
+    """Keep failed negative controls from leaving running effect producers."""
+    import json
+
+    try:
+        yield tmp_path
+    finally:
+        identities = tmp_path / "process-identities.json"
+        if identities.exists():
+            for pid in reversed(json.loads(identities.read_text())):
+                try:
+                    os.kill(pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux child subreaper contract")
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("finish", [True, False], ids=["returned", "expired"])
+def test_owned_supervisor_reaps_real_new_session_grandchild(
+    owned_tree_dir, ctx, state, mode, finish
+):
+    tmp_path = owned_tree_dir
+    original_flag = _caller_subreaper_flag()
+    node = _OwnedProcessTreeNode(tmp_path, finish=finish)
+    kwargs = {"retry_policy": RetryPolicy(), "timeout_s": 0.3, "alias": "actual-tree"}
+    if finish:
+        outcome = (
+            execute_with_retry_sync(node, ctx, state, **kwargs)
+            if mode == "sync"
+            else asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+        )
+        assert outcome.status == "ok"
+    else:
+
+        def invoke():
+            if mode == "sync":
+                return execute_with_retry_sync(node, ctx, state, **kwargs)
+            return asyncio.run(execute_with_retry_async(node, ctx, state, **kwargs))
+
+        with pytest.raises(NodeTimeoutError) as expired:
+            invoke()
+    _assert_real_tree_reaped(tmp_path)
+    if not finish:
+        assert expired.value.details["execution_state"] == "owned_processes_reaped"
+        assert expired.value.details["cleanup_complete"] is True
+    assert _caller_subreaper_flag() == original_flag
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux child subreaper contract")
+def test_owned_supervisor_reaps_tree_on_async_caller_cancellation(owned_tree_dir, ctx, state):
+    tmp_path = owned_tree_dir
+    original_flag = _caller_subreaper_flag()
+
+    async def exercise():
+        task = asyncio.create_task(
+            execute_with_retry_async(
+                _OwnedProcessTreeNode(tmp_path, finish=False),
+                ctx,
+                state,
+                retry_policy=RetryPolicy(),
+                timeout_s=5,
+                alias="cancel-tree",
+            )
+        )
+        deadline = _time.monotonic() + 2
+        effects = tmp_path / "grandchild-effects.txt"
+        while not effects.exists() or not effects.stat().st_size:
+            assert _time.monotonic() < deadline
+            await asyncio.sleep(0.002)
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+    asyncio.run(exercise())
+    _assert_real_tree_reaped(tmp_path)
+    assert _caller_subreaper_flag() == original_flag
+
+
+def test_framed_result_reader_never_blocks_on_an_actual_partial_pipe():
+    channel = retry_module._WorkerResultChannel(mp.get_context("fork"))
+    try:
+        os.write(channel._writer.fileno(), (100).to_bytes(8, "big") + b"abc")
+        started = _time.monotonic()
+        with pytest.raises(retry_module.queue.Empty):
+            channel.get_nowait()
+        assert _time.monotonic() - started < 0.05
+        channel.close_writer()
+        with pytest.raises(EOFError):
+            channel.get_nowait()
+    finally:
+        channel.close()
+
+
+def test_real_process_start_failure_preserves_original_error_and_no_body_effect(
+    tmp_path, ctx, state, monkeypatch
+):
+    entered = tmp_path / "entered.txt"
+
+    class Node:
+        def execute(self, _ctx, passed_state):
+            entered.write_text("physical body")
+            return _ok_outcome(passed_state)
+
+    def denied(_process):
+        raise OSError("actual process start denied")
+
+    monkeypatch.setattr(mp.get_context("fork").Process, "start", denied)
+    with pytest.raises(OSError, match="actual process start denied"):
+        retry_module._execute_with_timeout_process(Node(), ctx, state, timeout_s=0.1)
+    assert not entered.exists()
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux child subreaper contract")
+def test_supervisor_setup_failure_is_transported_without_starting_node(
+    tmp_path, ctx, state, monkeypatch
+):
+    entered = tmp_path / "entered.txt"
+
+    class Node:
+        def execute(self, _ctx, passed_state):
+            entered.write_text("physical body")
+            return _ok_outcome(passed_state)
+
+    def denied():
+        raise OSError("subreaper capability denied")
+
+    monkeypatch.setattr(retry_module, "_enable_child_subreaper", denied)
+    before = _caller_subreaper_flag()
+    with pytest.raises(RuntimeError, match="subreaper capability denied"):
+        retry_module._execute_with_timeout_process(Node(), ctx, state, timeout_s=0.5)
+    assert not entered.exists()
+    assert _caller_subreaper_flag() == before

@@ -1,0 +1,28 @@
+"""Counterfactual: retain blocked result/markers while allowing callback effects."""
+import json
+from pathlib import Path
+import resource
+import sys
+import time
+import uuid
+import pytest
+from polisyos.scientist.methods.search.funnel.level6_promotion import Level6PromotionStage
+
+original = Level6PromotionStage.evaluate
+observed = []
+def removed_guard(self, candidate, context):
+    result = original(self, candidate, context)
+    if self._promotion_runner is not None and context.get("promotion_result") is None and context.get("funnel_degradation_mode", "normal") == "normal":
+        assert result.feedback["promotion_admission_status"] == "bridge_missing"
+        assert result.feedback["promotion_required_contract"] == "owner_issued_promotion_permit_and_revoke_serialized_commit"
+        self._promotion_runner(candidate, context)
+        observed.append({"status": result.feedback["promotion_admission_status"], "contract": result.feedback["promotion_required_contract"], "terminal_action": result.terminal_action})
+    return result
+Level6PromotionStage.evaluate = removed_guard
+base = Path("/dev/shm") / ("e02-D-FUN03-a935-removal-" + uuid.uuid4().hex)
+assert not base.exists()
+args = ["-vv", "--basetemp", str(base), "tests/unit/remediation/test_fun_03.py::test_level6_normal_path_bool_preflight_cannot_admit_runner_effects", "tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_refuses_bool_admission_after_real_l4_work"]
+start = time.monotonic()
+exit_code = pytest.main(args)
+print("REMOVAL_EVIDENCE=" + json.dumps({"pytest_exit": int(exit_code), "wall_seconds": time.monotonic() - start, "self_peak_rss_kib": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss, "basetemp": str(base), "basetemp_existed_before": False, "observed_effectful_callbacks": observed, "pytest_args": args}), flush=True)
+sys.exit(exit_code)

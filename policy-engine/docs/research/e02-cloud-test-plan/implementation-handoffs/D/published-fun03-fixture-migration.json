@@ -1,0 +1,268 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "FUN03-current-contract-fixture-migration",
+  "closure_ids": [],
+  "finding_ids": [
+    "B164"
+  ],
+  "covered_finding_ids": [
+    "B164"
+  ],
+  "bundle_ids": [
+    "FUN-03"
+  ],
+  "finding_state": "partial",
+  "slice_base_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "original_D_slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "base_tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+  "implementation_commits": [
+    "a9356a5a9240384d890bc42e7c529b687be2e6c3"
+  ],
+  "candidate_tree_sha": "17ce701ed5093953d1e08415da1b5c1e6943f5d0",
+  "branch": "codex/e02-D-published-funnel",
+  "pull_request": null,
+  "composition": {
+    "preserved_own_predecessor": "9465c74a4bc4bdc12b2901104c2d4478cec415a1",
+    "ordinary_append_only_merge": "aed2ca482e6142258c144fb58fe4455ce5d0c0f0",
+    "merged_frozen_root": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "all_production_src_diff_root243_to_candidate_empty": true,
+    "changed_paths": [
+      "policy-engine/tests/unit/remediation/test_fun_03.py"
+    ],
+    "same_original_test_blob_root243_and_own946": "f513cb6a5c40921af317c943990bc2a287be4661",
+    "mandatory_companion": "Required Ruff formatting across touched test file; whitespace-only preexisting assertions retain their AST semantics. No runtime/product/authority subsystem or factory changes."
+  },
+  "original_red": {
+    "target_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "result": "50 PASS /2 FAIL /0 ERROR /0 SKIP",
+    "complete_git_refs": {
+      "complete.txt": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/complete.txt",
+        "bytes": 11470,
+        "sha256": "b22ab673644a51f84342371ec9125ece4ce50dd51eb0af972d71d0bf9adcb75f"
+      },
+      "result.json": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/result.json",
+        "bytes": 5301,
+        "sha256": "4aaa6c4e50dc50085a0f22984674b878e4930244d1c8a32eb70ea8b990ffa81a"
+      },
+      "events.jsonl.txt": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/events.jsonl.txt",
+        "bytes": 96899,
+        "sha256": "f27a650818595791547423f91661e47f5094752ca7eaf8fdb900c246e42f702e"
+      },
+      "junit.xml": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/junit.xml",
+        "bytes": 12657,
+        "sha256": "691e5f3ec316aca04a59b6aa7e74cfc7296e84a7ef36009dc9c41a2f72492f38"
+      },
+      "environment.json": {
+        "sha": "0c235483c7368fbf8f004e7aba4e499d4db5870d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/06-FUN-03/environment.json",
+        "bytes": 6955,
+        "sha256": "02a24226ed889c3696b259b98d768c95d45863ab54bd5173bbd41b9a014675b7"
+      }
+    },
+    "failed_nodeids": [
+      "tests/unit/remediation/test_fun_03.py::test_level6_normal_path_calls_runner_after_owner_recheck",
+      "tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_rechecks_owner_at_commit"
+    ],
+    "interpretation": "Original red is retained, not attributed as inherited or waived. Generic bool-only expected-positive fixture contradicts current fail-closed contract. Native fixture lacks prioritize and masks the same stale bool-as-authority expectation."
+  },
+  "masked_fixture_failure": {
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/native-intermediate.txt",
+      "bytes": 3232,
+      "sha256": "760936074963662fa31347d9458a1b90ec24a9f5318eaa9fc27821bd9d18c6f9"
+    },
+    "observed": "1 PASS /1 FAIL: migrated generic zero-effect control passes; real scheduler reaches native L4, then obsolete runner-called assertion fails with actual runner_calls=[].",
+    "source_provenance": "Own946 production and original identicalf513 test, with uncommitted intermediate test-only bool-negative/real-PredictiveVOI edits, before root243 strict/shared composition. No immutable intermediate commit or current243 acceptance is claimed. The exact final52-case source is frozena935 after ordinary243 merge.",
+    "command": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-vv",
+      "--basetemp",
+      "/dev/shm/e02-D-FUN03-native-intermediate-37d8091ebd5649f1a58f5794cbb7678d",
+      "tests/unit/remediation/test_fun_03.py::test_level6_normal_path_bool_preflight_cannot_admit_runner_effects",
+      "tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_rechecks_owner_at_commit"
+    ],
+    "wall_seconds": 15.316893476992846
+  },
+  "property": {
+    "statement": "Fixture consumers honor the current normal-mode fail-closed promotion boundary without supplying authority through a bool or replacing the real existing scheduler.",
+    "runtime_path": [
+      "actual Level6PromotionStage.evaluate",
+      "actual RunPolicyBlueprintRuntimeNode.execute -> actual FunnelOrchestrator -> existing PredictiveVOIScheduler",
+      "actual L4 stage with controlled backend -> actual Level6 admission guard",
+      "observable callback/write counts and FunnelOutcome feedback"
+    ],
+    "class_not_instance": "Both generic and native obsolete positives are manifestations of bool/preflight-as-promotion-authority. Migrate collectively to zero callback/write effects and bridge_missing; preserve completion only as read-only prepared-result interpretation. No typed issuer/verifier/serialized writer is invented.",
+    "proxy_divergence": "A blocked result retaining admission markers can coexist with an invoked effectful callback when the call guard is removed. Both current controls fail on the actual callback-count assertion under that counterfactual.",
+    "negative_controls": [
+      "Original24350PASS2FAIL retained",
+      "Masked native bool-expectation1FAIL after real scheduler restored retained",
+      "Exacta935 in-memory callback guard removal keeps result/markers but causes2FAIL on expected zero callbacks"
+    ]
+  },
+  "fixture_changes": {
+    "generic": "test_level6_normal_path_bool_preflight_cannot_admit_runner_effects: normal boolTrue preflight does not execute either callback; terminal defer/bridge_missing. Prepared result then completes read-only with zero callbacks.",
+    "native": "test_run_policy_blueprint_execute_refuses_bool_admission_after_real_l4_work: real node/L4/orchestrator/real scheduler reaches Level6, invokes neither legacy preflight nor runner, writes0 promotions, returns bridge_missing/defer and creates no promotion result.",
+    "scheduler": "Existing PredictiveVOIScheduler replaces the partial _VOIScheduler fake. No scheduler implementation is introduced or changed.",
+    "legacy_revoke_marker": "Fixture flag renamed revoke_legacy_marker_on_callback. Protected normal path never invokes that callback; this is not a revoke-serialized typed-commit witness."
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "tests/unit/remediation/test_fun_03.py",
+        "-ra",
+        "--basetemp",
+        "/dev/shm/e02-D-FUN03-a935-f13236d34ad443399eb5dc7e32381692",
+        "--junitxml",
+        "/workspace/e02-D2-receipts/funnel/fun03-fixture-migration/canonical-a935.xml"
+      ],
+      "target_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+      "environment": {
+        "PYTHONPATH": "src:.",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+        "added_cpu_process_worker_limits": false
+      },
+      "cwd": "/workspace/e02-D-published-funnel/policy-engine",
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "input_closure": "Entire exact canonical FUN03 three test files; all production src bytes equal frozenroot243. Controlled unrelated benchmark/backend dependencies remain fixture inputs; actual node/orchestrator/L4/L6/scheduler execute.",
+      "outcome": "PASS",
+      "passed": 52,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 10.621,
+      "wall_seconds": 15.678895449993433,
+      "maxrss_kib": 1168872,
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935.txt",
+        "bytes": 634,
+        "sha256": "ce30af50c864f42e8aecb5fe574f6cdf58e7af9d0171b8457d4b87cc76db9678"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935.xml",
+        "bytes": 8648,
+        "sha256": "68ad14ba4e08d64f82c4b400f337c54ed4d503e70401d945d8ce167c8ae75a0a"
+      },
+      "raw_metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935-result.json",
+        "bytes": 1287,
+        "sha256": "1c20c540c88a4bc002c3b0b73438a9c78b22524d56b07461318dfb5fbdc8c47c"
+      },
+      "fresh_basetemp": "/dev/shm/e02-D-FUN03-a935-f13236d34ad443399eb5dc7e32381692",
+      "basetemp_existed_before": false
+    },
+    {
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "/workspace/e02-D2-receipts/funnel/fun03-fixture-migration/fun03_guard_removal.py"
+      ],
+      "target_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+      "outcome": "FAIL_EXPECTED",
+      "executed": 2,
+      "passed": 0,
+      "failed": 2,
+      "errors": 0,
+      "skipped": 0,
+      "pytest_seconds": 2.65,
+      "wall_seconds": 16.15457320299174,
+      "maxrss_kib": 1185140,
+      "mutation": "In a dedicated child process only, call original Level6 evaluator and retain its result/bridge_missing/contract/terminal markers, then invoke the effectful callback before returning that unchanged blocked result. Production files are untouched.",
+      "property_signal": "Both migrated tests fail exactly on callback list expected[] but observed[runner];2 observed callbacks retain bridge_missing + requiredcontract + defer markers. Native writer remains0 because legacy callback also refuses its revoked marker; no authorized positive is claimed.",
+      "complete_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/guard-removal.txt",
+        "bytes": 5528,
+        "sha256": "d34e3ddd3f44661ca8cdef7ddd45f98af2ca944c251b2f6a50b991b891a7563f"
+      },
+      "raw_metadata": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/guard-removal-result.json",
+        "bytes": 390,
+        "sha256": "9779553e87e70de0d04209d4a95982f87497d1d280b3172890c4b2314a065c2c"
+      },
+      "exact_probe_code": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/fun03_guard_removal.py.txt",
+        "bytes": 1849,
+        "sha256": "800f0c9e0f992cc7be1fbfc1017d9c4cb266ca386bb010a4aff6e9c2abb41762"
+      }
+    },
+    {
+      "command": "locked Python -m ruff format/check tests/unit/remediation/test_fun_03.py; git diff --check",
+      "target_sha": "a9356a5a9240384d890bc42e7c529b687be2e6c3",
+      "outcome": "PASS",
+      "interpretation": "Formatting/style only; does not establish promotion authority or a runtime finding closure."
+    }
+  ],
+  "predicate_basis": {
+    "production_src_identity": "independently_reconciled via complete src Git diff",
+    "callback_and_write_counts": "recomputed by actual tests/counterfactual",
+    "typed_permit_issuer_verifier_revoke_serialized_writer": "not_established"
+  },
+  "capability_state_or_finding_state": "engineering zero-effect boundary verified_bounded; valid typed promotion positive remains bridge_missing/UNRUN",
+  "canonical_criterion_ref": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json",
+    "pointer": "/findings/B164"
+  },
+  "limitations_and_next_owner": [
+    "B/A appointed promotion-purpose issuer/verifier/commit writer: typed permit bound to exact candidate/run/ticket/attempt/purpose/current admission generation and independent current verifier; commit serialized with revocation. Valid typed permit positive and revoke-after-preflight serialized writer remain UNRUN. Fixture True is not authority.",
+    "D/G: root independently reviews test-only delta and reruns the defining command on its later exact test candidate after current243 gates finish. This owner52PASS is not an independent review or final aggregate PASS.",
+    "Controlled native fixture backend is not actual policy sample/draw scientific execution, real provider billing, deployed factory wiring or proof of whole finding closure. Those earlier declared boundaries remain unchanged.",
+    "No xfail, skip, relaxed product guard, new permission subsystem, new worktree, root edit, cleanup/deletion or history rewrite was used."
+  ],
+  "outputs": {
+    "canonical-a935.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935.txt",
+      "bytes": 634,
+      "sha256": "ce30af50c864f42e8aecb5fe574f6cdf58e7af9d0171b8457d4b87cc76db9678"
+    },
+    "canonical-a935.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935.xml",
+      "bytes": 8648,
+      "sha256": "68ad14ba4e08d64f82c4b400f337c54ed4d503e70401d945d8ce167c8ae75a0a"
+    },
+    "canonical-a935-result.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/canonical-a935-result.json",
+      "bytes": 1287,
+      "sha256": "1c20c540c88a4bc002c3b0b73438a9c78b22524d56b07461318dfb5fbdc8c47c"
+    },
+    "native-intermediate.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/native-intermediate.txt",
+      "bytes": 3232,
+      "sha256": "760936074963662fa31347d9458a1b90ec24a9f5318eaa9fc27821bd9d18c6f9"
+    },
+    "guard-removal.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/guard-removal.txt",
+      "bytes": 5528,
+      "sha256": "d34e3ddd3f44661ca8cdef7ddd45f98af2ca944c251b2f6a50b991b891a7563f"
+    },
+    "guard-removal-result.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/guard-removal-result.json",
+      "bytes": 390,
+      "sha256": "9779553e87e70de0d04209d4a95982f87497d1d280b3172890c4b2314a065c2c"
+    },
+    "fun03_guard_removal.py": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration/fun03_guard_removal.py.txt",
+      "bytes": 1849,
+      "sha256": "800f0c9e0f992cc7be1fbfc1017d9c4cb266ca386bb010a4aff6e9c2abb41762"
+    }
+  },
+  "publication": "Implementationa935 committed/pushed/readback before this separate evidence receipt; exact receipt commit/remote head supplied after ordinary publication."
+}

@@ -223,6 +223,17 @@ print(json.dumps({'mean':output['query_result'].result_mean,'profile':model.fit_
     assert interval.to_uncertainty_envelope().confidence_level == 0.95
     assert not interval.to_uncertainty_envelope().gate_eligible
     assert not persisted.to_uncertainty_envelope().gate_eligible
+    for key in ("point_estimate", "confidence_level", "n_units", "replicate_count", "seed"):
+        raw = interval.model_dump(mode="json")
+        raw[key] = str(raw[key])
+        with pytest.raises(ValueError):
+            ir.CausalEstimatorInterval.model_validate(raw)
+    for key in ("interval", "replicate_estimates"):
+        for substitute in ("0.0", False):
+            raw = interval.model_dump(mode="json")
+            raw[key][0] = substitute
+            with pytest.raises(ValueError, match="finite JSON number primitives"):
+                ir.CausalEstimatorInterval.model_validate(raw)
     validate_persisted_estimator_interval(
         interval, model, persisted.query, FileSystemCAS(store.root)
     )
@@ -266,6 +277,28 @@ def test_row_permutation_source_and_effective_mechanism_tampering_refused(
     )
     with pytest.raises(ValueError, match="differs from source-row oracle"):
         validate_persisted_gcm_spec(forged, store)
+    from polisyos.foundry.methods.catalog.causal.gcm_fit import _gcm_spec_from_worker
+
+    for node, field in (
+        ("X", "observed_samples"),
+        ("Y", "residual_samples"),
+        ("Y", "intercept"),
+        ("Y", "coefficients"),
+        ("Y", "noise_std"),
+    ):
+        for boolean in (False, True):
+            response = json.loads(json.dumps(model.fit_provenance.worker_response))
+            export = response["result"]["mechanisms"][node]
+            value = export[field]
+            # Numeric strings preserve the value; bools are separate wrong primitive controls.
+            if isinstance(value, list):
+                value[0] = boolean if boolean else str(value[0])
+            elif isinstance(value, dict):
+                value["X"] = boolean if boolean else str(value["X"])
+            else:
+                export[field] = boolean if boolean else str(value)
+            with pytest.raises(ValueError, match="finite JSON numbers"):
+                _gcm_spec_from_worker(data, response, response["result"], seed=23)
     noniid = model.model_copy(deep=True)
     noniid.training_rows.fit_input["metadata"]["sampling_unit"] = "panel_row"
     with pytest.raises(ValueError, match="explicit iid observation-row"):

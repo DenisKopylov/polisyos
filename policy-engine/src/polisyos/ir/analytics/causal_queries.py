@@ -336,9 +336,9 @@ class CausalEstimatorInterval(BaseModel):
     graph_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
     resample_indices_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
     target_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
-    n_units: int = Field(ge=2)
-    replicate_count: int = Field(ge=2)
-    seed: int
+    n_units: int = Field(ge=2, strict=True)
+    replicate_count: int = Field(ge=2, strict=True)
+    seed: int = Field(strict=True)
     refit_scope: tuple[str, ...] = Field(min_length=1)
     fit_profile: str = Field(min_length=1)
     fit_request_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
@@ -347,6 +347,22 @@ class CausalEstimatorInterval(BaseModel):
     coverage_profile: Literal["approximate_iid_percentile_fixed_identified_graph"] = (
         "approximate_iid_percentile_fixed_identified_graph"
     )
+
+    @field_validator("point_estimate", "confidence_level", mode="before")
+    @classmethod
+    def _require_numeric_scalar(cls, value: Any) -> Any:
+        if type(value) not in {float, int}:
+            raise ValueError("estimator inference requires finite JSON number primitives")
+        return value
+
+    @field_validator("interval", "replicate_estimates", mode="before")
+    @classmethod
+    def _require_numeric_vector(cls, value: Any) -> Any:
+        if not isinstance(value, (list, tuple)) or any(
+            type(item) not in {float, int} for item in value
+        ):
+            raise ValueError("estimator inference requires arrays of finite JSON number primitives")
+        return value
 
     @model_validator(mode="after")
     def _validate_replicates(self) -> CausalEstimatorInterval:

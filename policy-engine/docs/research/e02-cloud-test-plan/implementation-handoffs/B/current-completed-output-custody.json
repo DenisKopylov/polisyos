@@ -3,7 +3,33 @@
   "unit": "B",
   "slice": "current-completed-output-custody",
   "closure_ids": [],
-  "bundle_ids": [],
+  "bundle_ids": [
+    "CAS-01",
+    "CAS-02",
+    "CAS-03",
+    "CMP-01",
+    "CMP-02",
+    "CMP-03",
+    "DUR-01",
+    "DUR-02",
+    "EXE-01",
+    "EXE-02",
+    "JIT-01",
+    "LLM-01",
+    "LLM-02",
+    "NET-01",
+    "NET-02",
+    "RES-01",
+    "RES-02",
+    "RES-03",
+    "RES-04",
+    "RUN-01",
+    "RUN-02",
+    "RUN-03",
+    "STA-01",
+    "STA-02",
+    "WIRE-01"
+  ],
   "slice_base_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
   "slice_base_tree_sha": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
   "implementation_commits": [
@@ -240,7 +266,16 @@
     },
     {
       "command": [
-        "prepared run_completed_cohort_filebacked_retry.py --sha1862 --selector exact250 --scratch fresh file-backed overlay --wheel-input exact final7field profile"
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/run_completed_cohort_filebacked_retry.py",
+        "--sha",
+        "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "--selector",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/completed-final-selector.json",
+        "--scratch",
+        "/workspace/e02-B-completed-native-filebacked-retry-1862c021df74",
+        "--wheel-input",
+        "/tmp/e02-B-la057-final-1862c021df74-run/cohort-input-environment.json"
       ],
       "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
       "environment": "NOT_EXECUTED; proposed source-preserving resource prerequisite only",
@@ -288,5 +323,6 @@
     "Global all8quality gates+cache-ready retries and source/owner/property adjudication remain separate Git-bound packets; no passing claim from aggregate counts.",
     "A/C source ownership, production-data read-only admission, held semantic-owner contracts and exact original baselines remain qualified.",
     "No nativeTrash exists; all temporary fixtures/environments and unique raw preserved, cleanup candidates only in finalhandoff. No main/force/rewrite/chat publication."
-  ]
+  ],
+  "output_custody_receipt_amendment": "Forward metadata correction: full25 bundle scope explicit; exact preparedUNRUNargv supplied. Original deciding bytes/implementation120/tree unchanged; no additional native execution."
 }

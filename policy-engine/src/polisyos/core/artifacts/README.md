@@ -27,6 +27,10 @@ environment fingerprints.
 
 - storage: `FileSystemCAS`, `PutOptions`
 - manifests/refs: `ArtifactManifest`, `ArtifactRef`, `InputRef`, `SchemaInfo`
+- selected-view profile: `artifact_manifest_profile_projection` and
+  `artifact_manifest_profile_sha256` delegate to the existing versioned CAS lifecycle
+  projection and digest. Cross-layer consumers import these from the artifacts facade;
+  they do not copy the projection algorithm or import its private lifecycle owner.
 - integrity errors: `polisyos.core.artifacts.ArtifactIntegrityError` (the canonical
   facade export for read-time CAS integrity failures)
 - signing: `SigningConfig`, `sign_artifact`, `verify_signature`, `sign_all_artifacts`, `verify_all_signatures`

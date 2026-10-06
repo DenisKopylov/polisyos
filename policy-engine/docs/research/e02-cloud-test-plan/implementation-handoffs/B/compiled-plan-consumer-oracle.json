@@ -2369,6 +2369,7 @@
         "--junitxml=/tmp/e02-B-reopened-compiled-plan-fce1b198228c/native.xml"
       ],
       "claim_grade": "Seven actual source producer-selected-ref gaps; three own malformed-wire fixture ref preconditions missing; B43 scientific/intake quantities not established at defining inlet. B53 six actualPASS separately. Original10FAIL retained.",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p plan_origins tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape --basetemp /tmp/e02-B-reopened-compiled-plan-fce1b198228c/pytest -o cache_dir=/tmp/e02-B-reopened-compiled-plan-fce1b198228c/cache --junitxml=/tmp/e02-B-reopened-compiled-plan-fce1b198228c/native.xml",
       "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
       "elapsed_seconds": 10.411521719011944,
       "environment": {
@@ -2435,6 +2436,7 @@
       },
       "label": "first-f563",
       "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/first-f563/native-stdout.txt@ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256:9ddecf3ee06cc24da4f99859ac13acab8df06eaccab5abf2ce2136f388ea892c bytes:46231 (full deciding stdout/stderr; JUnit/phases/result refs retained separately)",
       "phases": {
         "bytes": 46791,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/first-f563/phases.jsonl",
@@ -2505,6 +2507,7 @@
         "--junitxml=/tmp/e02-B-reopened-compiled-plan-3849170cd3eb/native.xml"
       ],
       "claim_grade": "Real canonical selected-ref producer and seven B43 defining profiles PASS; three own heterogeneous runner/compiler registry composition premises fail before scientific work. Original3FAIL retained; source e69 before/after exact despite later9ce edit.",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p plan_origins tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape --basetemp /tmp/e02-B-reopened-compiled-plan-3849170cd3eb/pytest -o cache_dir=/tmp/e02-B-reopened-compiled-plan-3849170cd3eb/cache --junitxml=/tmp/e02-B-reopened-compiled-plan-3849170cd3eb/native.xml",
       "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
       "elapsed_seconds": 11.121817434002878,
       "environment": {
@@ -2571,6 +2574,7 @@
       },
       "label": "second-e69",
       "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/second-e69/native-stdout.txt@ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256:e2d1ed4a6594d9de9c1fbc51593c50f14568522532c47252727ef339204b79b6 bytes:28211 (full deciding stdout/stderr; JUnit/phases/result refs retained separately)",
       "phases": {
         "bytes": 32385,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/second-e69/phases.jsonl",
@@ -2641,6 +2645,7 @@
         "--junitxml=/tmp/e02-B-reopened-compiled-plan-31cd17fe6c7a/native.xml"
       ],
       "claim_grade": "Actual16PASS on9ce predecessor. Final typing-companion source gets separately executed final16; no aggregate or future candidate proof.",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p plan_origins tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape --basetemp /tmp/e02-B-reopened-compiled-plan-31cd17fe6c7a/pytest -o cache_dir=/tmp/e02-B-reopened-compiled-plan-31cd17fe6c7a/cache --junitxml=/tmp/e02-B-reopened-compiled-plan-31cd17fe6c7a/native.xml",
       "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
       "elapsed_seconds": 11.102140301998588,
       "environment": {
@@ -2707,6 +2712,7 @@
       },
       "label": "final-9ce",
       "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-9ce/native-stdout.txt@ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256:819484317b4403b0da130701f0925ef3fda8d2004c9d06f4caf7158f6b2e8204 bytes:8257 (full deciding stdout/stderr; JUnit/phases/result refs retained separately)",
       "phases": {
         "bytes": 12416,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-9ce/phases.jsonl",
@@ -2778,6 +2784,7 @@
         "--junitxml=/tmp/e02-B-reopened-compiled-plan-61c1037763cd/native.xml"
       ],
       "claim_grade": "After genuine guardedCASload, in-memory drop only effective predecessors/successors while retaining nodes/wire/ABI/parameters/order/markers; actual async body result0.0 fails unchanged numerical expectation17.144009055176273. Full actual ref/wirehash/numeric arrays and changed node-result order recorded.",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p plan_origins -p removal_plan 'tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_canonical_plan_cas_reopen_preserves_requires_only_numerical_execution[async]' --basetemp /tmp/e02-B-reopened-compiled-plan-61c1037763cd/pytest -o cache_dir=/tmp/e02-B-reopened-compiled-plan-61c1037763cd/cache --junitxml=/tmp/e02-B-reopened-compiled-plan-61c1037763cd/native.xml",
       "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
       "elapsed_seconds": 4.349796897004126,
       "environment": {
@@ -2850,6 +2857,7 @@
       },
       "label": "removal-plan",
       "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-plan/native-stdout.txt@ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256:3de114c88d9c756e08c730c3a688d25be894916eddaaec94b66a08dce88b99d6 bytes:10151 (full deciding stdout/stderr; JUnit/phases/result refs retained separately)",
       "phases": {
         "bytes": 5325,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-plan/phases.jsonl",
@@ -2922,6 +2930,7 @@
         "--junitxml=/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/native.xml"
       ],
       "claim_grade": "Original compilation followed by real numerical execution during preparation twice; totals16.244426727294922 recorded; unchanged zero-scientific-preparation assertion fails.",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p plan_origins -p removal_preparation 'tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]' --basetemp /tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/pytest -o cache_dir=/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/cache --junitxml=/tmp/e02-B-reopened-compiled-plan-b8ea465a0e86/native.xml",
       "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
       "elapsed_seconds": 4.553490543999942,
       "environment": {
@@ -2994,6 +3003,7 @@
       },
       "label": "removal-preparation",
       "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-preparation/native-stdout.txt@ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256:1861bcd797764c69d827ce199733c05cbef4614bca6000dadc8cadc6f35f7f0e bytes:4518 (full deciding stdout/stderr; JUnit/phases/result refs retained separately)",
       "phases": {
         "bytes": 2176,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-preparation/phases.jsonl",
@@ -3066,6 +3076,7 @@
         "--junitxml=/tmp/e02-B-reopened-compiled-plan-a489c1a67492/native.xml"
       ],
       "claim_grade": "Only explicit seed overrides forced to11 during actual compiled execution; requested23 retained in output; all4draws differ from independent expectedseed23 and original numerical assertion fails.",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p plan_origins -p removal_seed 'tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py::test_cold_warm_preparation_preserves_independent_seeded_numerical_repetitions[True-True]' --basetemp /tmp/e02-B-reopened-compiled-plan-a489c1a67492/pytest -o cache_dir=/tmp/e02-B-reopened-compiled-plan-a489c1a67492/cache --junitxml=/tmp/e02-B-reopened-compiled-plan-a489c1a67492/native.xml",
       "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
       "elapsed_seconds": 4.4695876670011785,
       "environment": {
@@ -3138,6 +3149,7 @@
       },
       "label": "removal-seed",
       "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-seed/native-stdout.txt@ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256:ab32e7d59feaad6f6f7dfb7dbd28260ce35a11ec0deefcd9966b08d6badb5ad9 bytes:5185 (full deciding stdout/stderr; JUnit/phases/result refs retained separately)",
       "phases": {
         "bytes": 2863,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/removal-seed/phases.jsonl",
@@ -3209,6 +3221,7 @@
         "--junitxml=/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/native.xml"
       ],
       "claim_grade": "Actual16PASS on literal clean6d7 checkout with independently reconciled885 src/tests/config/module-byte projection. Actual15owned cases plus one reused unknown-shape control. Does not establish final combined root, strict scientific output schemas, scientific validity, RNG distribution, legacy-source/cache-prefix authority or absent Ray deployment.",
+      "command": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python -m pytest -vv -p plan_origins_final tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape --basetemp /tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/pytest -o cache_dir=/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/cache --junitxml=/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41/native.xml",
       "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
       "elapsed_seconds": 12.04389361399808,
       "environment": {
@@ -3276,6 +3289,7 @@
       },
       "label": "final-6d7",
       "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/native-stdout.txt@ec8ec7c3eeb708bb82975be18b7750d8951e811d sha256:7eb649d830dc263750aae0b41238c94ccf41a6ed3311f89bb469e5875d5b8724 bytes:8263 (full deciding stdout/stderr; JUnit/phases/result refs retained separately)",
       "phases": {
         "bytes": 12415,
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence/final-6d7/phases.jsonl",
@@ -3412,6 +3426,13 @@
         "Static specialization and dynamicseed repetitions11/23/47/11 produce independently checked numerical outputs; preparation records zero scientific body entries."
       ]
     },
+    "proxy_divergence": "A valid guarded selected ref, unchanged CAS wire/ABI/nodes/parameters/markers and original producer-before-dependent execution_order can all remain true while only returned effective predecessor/successor edges are removed in memory. The real async consumer then executes both scientific bodies in one level and produces total0.0 instead of the independent17.144009055176273 expectation. Thus ref/marker/order checks alone do not prove retained effective dependency custody; full actual numerical FAIL and output are pinned in removal-plan.",
+    "runtime_path": [
+      "Producer: actual MethodComposer.build/freeze -> CompiledChainPlan.from_chain on canonical Foundry production source885, executed in byte-identical clean6d7 checkout.",
+      "Artifact: store_compiled_chain_plan -> actual FileSystemCAS.put_bytes and selected guarded persisted manifest/profile; immutable canonical wire and full exact ArtifactRef retained.",
+      "Bridge: fresh FileSystemCAS instance -> load_compiled_chain_plan -> guarded get_manifest/get_bytes -> CompiledChainPlan.from_canonical_bytes/to_chain -> canonical MethodComposer.from_nodes/connect/build with current registry ABI reconciliation.",
+      "Consumer: actual execute_heterogeneous_chain sequential/async/auto with real same-registry JaxRunner/MethodDispatcher, MethodCompiler.compile_chain jit/nonjit, and real two-thread barrier/numerical sibling execution; separate actual MethodCompiler.warmup and seeded repeated compiled evaluations."
+    ],
     "scope": "Cold actual current-registry ABI-bound plan; no historical-source checkpoint/cache-prefix, A publication, C stream or held semantic promotion authority.",
     "source_failure_and_own_input_premise_attribution": {
       "final-9ce": {
@@ -3428,13 +3449,19 @@
         "own_fixture_input_gap": "Three heterogeneous JAX profiles used a fresh registry with a default JaxRunner owning the unrelated global compiler and failed MethodNotFoundError before numerical body.",
         "source_producer_repair": "Actual guarded-manifest/public-profile producer now works; two compiler numerical profiles, two physical parallel profiles and all three selected-wire graph errors reached their defining predicates."
       }
-    }
+    },
+    "statement": "The actual frozen effective composition graph, including ordering-only requires, persists as a selected typed CAS plan and reopens through the canonical current-registry ABI-bound consumer; real numerical and parallel execution preserve dependencies. Compiler preparation stays separate from explicit warmup and independently checked seeded numerical repetitions."
   },
   "proposed_criterion_ids": [
     "B43",
     "B53"
   ],
   "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "receipt_schema_correction": {
+    "created_utc": "2026-10-06T21:39:44.114663+00:00",
+    "predecessor_receipt_commit": "2e6b1ace52044052bfe298f64babb9d0fde7c82a",
+    "scope": "Forward metadata-only addition of mandatory HANDOFF command/output aliases on all seven checks and property statement/runtime_path/proxy_divergence. Original implementation SHA/tree/314 paths, test/source/log bytes, outcomes and claims unchanged; no native/style/gate/source replay."
+  },
   "schema": "policyos.e02.implementation_handoff.v1",
   "scoped_static_checks": {
     "diff_full_stdout": {

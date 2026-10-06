@@ -1,0 +1,336 @@
+{
+  "schema": "policyos.e02.test_companion.v1",
+  "unit_id": "B",
+  "bundle_ids": [
+    "WIRE-01"
+  ],
+  "finding_ids": [
+    "B94"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "250df6ec8366659c13b72b6a33cedf4dba5ec24a",
+  "implementation_commits": [
+    "3543f89a3a247bf01294d98e5dfa0f36cfefd958"
+  ],
+  "candidate_tree_sha": "7f0dbd51b8ce0178415a3694158f42e65f18e381",
+  "changed_paths": [
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py"
+  ],
+  "production_wire_source": "Unchanged db88/126 production wire; test-only companion adapts real ancestry to RUN owning supervisor contract.",
+  "property": "Actual attempt records live OS PID\u2192PPid chain before process reap; current worker is an ancestor, attempt PID distinct, effect exactly once and all strict Decimal/outcome assertions unchanged. Linux procfs decided; real ps fallback exists but macOS fallback remains UNRUN.",
+  "checks": [
+    {
+      "id": "currenta6-adapters-full15",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+        "tests/unit/fabric/connectors/test_pool_e02.py",
+        "tests/unit/fabric/connectors/test_resilience.py",
+        "tests/unit/fabric/connectors/test_resilience_e02.py",
+        "tests/unit/fabric/connectors/test_registry.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "tests/unit/scientist/orchestration/llm/test_factory.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+        "tests/unit/core/test_llm_core.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "--basetemp",
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta6-adapters-full15-pytest",
+        "-o",
+        "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta6-adapters-full15-cache",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/currenta6-adapters-full15.xml"
+      ],
+      "target_sha": "a6a621cd908fa477b62524a86aef316db8ee6d72",
+      "target_tree_sha": "093d4dc665038dca26f8ae7f56ec9d3b021b6926",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "python_version": "3.14.2 (shared tool independently recorded in current-adapters environment)",
+        "module_origin_limit": "This independent root wrapper records PYTHONPATH/head/tree; it does not recapture per-module __file__ origins in this wave."
+      },
+      "input_closure": {
+        "test_files": [
+          {
+            "path": "policy-engine/tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+            "sha256": "44ab7e31733758219627e35d32facd9fb7bb7ee3e8cac30aa995334a6e42421f"
+          },
+          {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+            "sha256": "a9ec798fc3e2e36c2e99c171526c3fa7a00027947f3f8776513de8b717bb11bf"
+          },
+          {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+            "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73"
+          },
+          {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+            "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049"
+          },
+          {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+            "sha256": "f37a87d195dbf8a09d8d98d9f8307c9ea4026d562797c9e8846c4220cfa2b598"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+            "sha256": "b85a152ba32ac72aa4586f40f562c008a1e01479307032f5a466faac0f90a02b"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+            "sha256": "acf11eee561f833de25be229e4de1086aef6a7e6f625148f765a8e687adf3682"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+            "sha256": "6d5e5e45cf8404f72105c76cee31ff57206598cfcffb8ebe3ba486085cfc7f91"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+            "sha256": "bef7aa0de4133162c63515a6614b47ff3492ddc7a668971e20ddd9b3f4fd6464"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py",
+            "sha256": "0c9582814b5e82cce3c45ad48025af72c663be2ee0759a60862b62ccf9a1c301"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+            "sha256": "733452c3d753d3f66464152c7b11628b8a57cbb2ed12387375127d50a5ca09b0"
+          },
+          {
+            "path": "policy-engine/tests/unit/core/test_llm_core.py",
+            "sha256": "5de4046006fb35942a30eb161d7e403d6eceee7067c22deae8bbec1972c5da5d"
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+            "sha256": "b247897d69ec0c990aeb94700db0d471a46890e77ea6f181190e3eaa40d7b5de"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+            "sha256": "d46a9978d496042c2372bc5ec99bc93fa6cedc0ee61e2db70a66a0cbb71f081f"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+            "sha256": "3bde5c3324c0c95fa7bbcc6aa405a85da46a58e5227601ace5a2708fc5cceedb"
+          }
+        ],
+        "fixture_contract": "Whole15 pytest native fixture closure at exact root Git source, real worker process/native retry supervisor and actual filesystem effects; no live network. Existing root owner receipt binds additional environment/tool context.",
+        "tokenizer": "Fresh genuine cl100k_base bytes SHA256223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7; cache path recorded above."
+      },
+      "outcome": {
+        "exit_code": 1,
+        "junit": {
+          "tests": 353,
+          "failures": 2,
+          "errors": 0,
+          "skipped": 0
+        },
+        "passed": 351,
+        "wall_s": 17.138489539996954,
+        "maxrss_kib": 628096,
+        "failure_class": "Only hardcoded immediatePPid==workerPID assertions fail in both real_worker backends; all typed Decimal/outcome/effect assertions PASS"
+      },
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/currenta6-adapters-full15.json",
+          "bytes": 2806,
+          "sha256": "ba764f313b446c6c5352edd44f495ce5f6c775fb5ccd46cf72d43551961a3321"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/currenta6-adapters-full15.txt",
+          "bytes": 9581,
+          "sha256": "90fd6ca77cf0fed0be67112c581a5da61e9a0f31e9ad761a7c1dac77f49aae31"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/currenta6-adapters-full15.xml",
+          "bytes": 65775,
+          "sha256": "f2484f0914e2fae1c5d352b6d43692b33f0482c5ec62c3e85f5b3046395f45b7"
+        }
+      ]
+    },
+    {
+      "id": "current933-adapters-full15",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+        "tests/unit/fabric/connectors/test_pool_e02.py",
+        "tests/unit/fabric/connectors/test_resilience.py",
+        "tests/unit/fabric/connectors/test_resilience_e02.py",
+        "tests/unit/fabric/connectors/test_registry.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+        "tests/unit/scientist/orchestration/llm/test_factory.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+        "tests/unit/core/test_llm_core.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+        "-o",
+        "addopts=",
+        "-q",
+        "--tb=short",
+        "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current933-adapters-full15.xml",
+        "--basetemp=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/current933-adapters-pytest"
+      ],
+      "target_sha": "933a0ef4f548eaa7e3c0f1c6324a0d4fe4729022",
+      "target_tree_sha": "d6d049c59286c09a1eafc0285bc8c33887987bfe",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+        "PYTHONPATH": "/workspace/e02-B-current-coordination/policy-engine/src:/workspace/e02-B-current-coordination/policy-engine",
+        "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+        "LANG": "C.UTF-8",
+        "POLISYOS_METRICS_PORT": "0",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/tokenizer-input/cache",
+        "E02_B_PROPERTY_REMOVAL": null,
+        "python_version": "3.14.2 (shared tool independently recorded in current-adapters environment)",
+        "module_origin_limit": "This independent root wrapper records PYTHONPATH/head/tree; it does not recapture per-module __file__ origins in this wave."
+      },
+      "input_closure": {
+        "test_files": [
+          {
+            "path": "policy-engine/tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+            "sha256": "44ab7e31733758219627e35d32facd9fb7bb7ee3e8cac30aa995334a6e42421f"
+          },
+          {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py",
+            "sha256": "a9ec798fc3e2e36c2e99c171526c3fa7a00027947f3f8776513de8b717bb11bf"
+          },
+          {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+            "sha256": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73"
+          },
+          {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_resilience_e02.py",
+            "sha256": "20d6d959e58d65e676945766f3be4ceb32c5c5bc5d134659138e55c64a813049"
+          },
+          {
+            "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+            "sha256": "f37a87d195dbf8a09d8d98d9f8307c9ea4026d562797c9e8846c4220cfa2b598"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+            "sha256": "b85a152ba32ac72aa4586f40f562c008a1e01479307032f5a466faac0f90a02b"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+            "sha256": "acf11eee561f833de25be229e4de1086aef6a7e6f625148f765a8e687adf3682"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+            "sha256": "6d5e5e45cf8404f72105c76cee31ff57206598cfcffb8ebe3ba486085cfc7f91"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+            "sha256": "bef7aa0de4133162c63515a6614b47ff3492ddc7a668971e20ddd9b3f4fd6464"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_factory.py",
+            "sha256": "0c9582814b5e82cce3c45ad48025af72c663be2ee0759a60862b62ccf9a1c301"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py",
+            "sha256": "733452c3d753d3f66464152c7b11628b8a57cbb2ed12387375127d50a5ca09b0"
+          },
+          {
+            "path": "policy-engine/tests/unit/core/test_llm_core.py",
+            "sha256": "5de4046006fb35942a30eb161d7e403d6eceee7067c22deae8bbec1972c5da5d"
+          },
+          {
+            "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+            "sha256": "b247897d69ec0c990aeb94700db0d471a46890e77ea6f181190e3eaa40d7b5de"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+            "sha256": "d46a9978d496042c2372bc5ec99bc93fa6cedc0ee61e2db70a66a0cbb71f081f"
+          },
+          {
+            "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+            "sha256": "a0a2bb4190a150b76c09239056e7f97ec9ff8506d133fb3333d8e741770f7e03"
+          }
+        ],
+        "fixture_contract": "Whole15 pytest native fixture closure at exact root Git source, real worker process/native retry supervisor and actual filesystem effects; no live network. Existing root owner receipt binds additional environment/tool context.",
+        "tokenizer": "Fresh genuine cl100k_base bytes SHA256223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7; cache path recorded above."
+      },
+      "outcome": {
+        "exit_code": 0,
+        "junit": {
+          "tests": 353,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "passed": 353,
+        "wall_s": 17.107621394010494,
+        "maxrss_kib": 643452,
+        "failure_class": "Full15 and both actualworker backends PASS with OS ownership chain assertion"
+      },
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/current933-adapters-full15.json",
+          "bytes": 2707,
+          "sha256": "a76dc4c71eafd4322a6c7762f4688c8b96eeef026c5425e7bc85db78fee6e142"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/current933-adapters-full15.txt",
+          "bytes": 1158,
+          "sha256": "59abafe822538195a0e38f4e01317c90df77ee9582d4645f4e4e37d413430f3d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/current933-adapters-full15.xml",
+          "bytes": 57583,
+          "sha256": "5eef4d4c46d6c847bf3d23bd7d14a100245a69e31f2effacf8f436b10ce5e78a"
+        }
+      ]
+    }
+  ],
+  "companion_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/currenta6-adapters-full15.json",
+      "bytes": 2806,
+      "sha256": "ba764f313b446c6c5352edd44f495ce5f6c775fb5ccd46cf72d43551961a3321"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/currenta6-adapters-full15.txt",
+      "bytes": 9581,
+      "sha256": "90fd6ca77cf0fed0be67112c581a5da61e9a0f31e9ad761a7c1dac77f49aae31"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/currenta6-adapters-full15.xml",
+      "bytes": 65775,
+      "sha256": "f2484f0914e2fae1c5d352b6d43692b33f0482c5ec62c3e85f5b3046395f45b7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/current933-adapters-full15.json",
+      "bytes": 2707,
+      "sha256": "a76dc4c71eafd4322a6c7762f4688c8b96eeef026c5425e7bc85db78fee6e142"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/current933-adapters-full15.txt",
+      "bytes": 1158,
+      "sha256": "59abafe822538195a0e38f4e01317c90df77ee9582d4645f4e4e37d413430f3d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-adapters-evidence/current933-adapters-full15.xml",
+      "bytes": 57583,
+      "sha256": "5eef4d4c46d6c847bf3d23bd7d14a100245a69e31f2effacf8f436b10ce5e78a"
+    }
+  ],
+  "limitations": [
+    "Root native15 runs bind complete root candidate933 rather than leaf354 in isolation; author did not rerun another redundant wave.",
+    "Full15 PASS is bounded native evidence, no all-B closure/institutional grant/deployed profile claim.",
+    "Original a6 failures retained complete and classified as test topology assumption; no production serialization bug inferred."
+  ]
+}

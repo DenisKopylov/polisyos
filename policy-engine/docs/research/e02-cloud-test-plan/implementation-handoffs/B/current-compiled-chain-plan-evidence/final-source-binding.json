@@ -1,0 +1,69 @@
+{
+  "candidate_sha": "7cecfd7efbfe0e1d17d9513def504455f222cc1c",
+  "candidate_tree": "e40ec2802f8e9957b07b3271ae06c3ac7532daa6",
+  "native_actual_sha": "6d7f42f0f2b19e98685c21e512e040b6ddd69a37",
+  "native_actual_tree": "cff82fb64cf0627a71c4616e5c8b453c441c31dd",
+  "runtime_files": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+      "sha256": "b02420a2681c335cc67a07b34ba3179f33d27a898556c46d79a94ffdc6cce73a",
+      "bytes": 5236,
+      "native_to_candidate_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/_chain.py",
+      "sha256": "6b6a46c9a585f05fc39a62737c501cab9d0536e349867752d1e79becbc75b51c",
+      "bytes": 24555,
+      "native_to_candidate_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/artifacts/parts.py",
+      "sha256": "5e897d5bf6ca57ecda7a3fcca4c2480206a9c1fa6d889c735cbe0d9ce53c2092",
+      "bytes": 7030,
+      "native_to_candidate_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/base.pyi",
+      "sha256": "44ed7feb6deee222ce6ac8980cceb92c3b4cb264ccb5f6f9ee9d9ce6ed9d9cb3",
+      "bytes": 10329,
+      "native_to_candidate_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/README.md",
+      "sha256": "54e9916a2650c4932b63f20433bda5ea6c6cf7e095b474d01813c3adaf972d01",
+      "bytes": 11084,
+      "native_to_candidate_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.py",
+      "sha256": "4f6d6672a3af7a8dca845b26b91436fa3af68b34445fa9c09c8b6b2b39cfeb2a",
+      "bytes": 37147,
+      "native_to_candidate_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+      "sha256": "1657ceac5b499914d5f7c2b8ff0f17ad366abe19b9aac0ad474d9975433fc241",
+      "bytes": 5970,
+      "native_to_candidate_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py",
+      "sha256": "07057da879f17797318fd14b7bc1f2bd3a1645d12cfa873e4ac71b1f2a149c00",
+      "bytes": 10318,
+      "native_to_candidate_equal": true
+    },
+    {
+      "path": "policy-engine/tools/devx/foundry/README.md",
+      "sha256": "1509ed8233d10ecdcb8cb00d76beb77fe400a385672e76584ed3416dc7b9bb8c",
+      "bytes": 5277,
+      "native_to_candidate_equal": true
+    }
+  ],
+  "qualification": "Byte projection establishes unchanged finite runtime/test input files across formatter-only tool delta. It does not relabel actual native command target or establish any future whole-source gate result.",
+  "native_cases": {
+    "total": 81,
+    "failed": 0,
+    "errors": 0,
+    "skip": 0
+  }
+}

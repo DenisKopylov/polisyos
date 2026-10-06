@@ -68,6 +68,10 @@
       "bytes": 1682,
       "sha256": "7a590e9b9a65a813d36bbb021561166ac0b15fade0ebc9fae773e56cef2931af"
     },
+    "final-source-binding.json": {
+      "bytes": 2744,
+      "sha256": "42c3406f6fcddae6b4636f447fa05447ca26441cbc39effa87ce0fd6e76a2f68"
+    },
     "format-9ce.json": {
       "bytes": 5402,
       "sha256": "895597df2778ecf6aa0ad49a486abfd2244d808e2a9f3c26516b7c5e612232e3"
@@ -76,9 +80,41 @@
       "bytes": 26,
       "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209"
     },
+    "format-candidate.json": {
+      "bytes": 5955,
+      "sha256": "ff9bf071cf3d535a81f0a8f3e848b5997b549f3666ab3805f3562beca9ac8aa9"
+    },
+    "format-candidate.txt": {
+      "bytes": 26,
+      "sha256": "0321fffcb91606a42c0a19d8c1121d5c544379d663821fce616c71a7bb62f6b5"
+    },
+    "format-final.json": {
+      "bytes": 5954,
+      "sha256": "333e9302a9488c3857bf7e27404793d24d277f813d2e6958ff8f3157cd90d399"
+    },
+    "format-final.txt": {
+      "bytes": 108,
+      "sha256": "39fa7e3a974f69038cf6ddf26ef3eb97aa2a696d82eff7303d6c95171790463a"
+    },
+    "formatter-source-delta.json": {
+      "bytes": 637,
+      "sha256": "c1dce47d26eab81a424d56d6f9a8c96688839afd921e504cc7f77d9123d27c8e"
+    },
     "generate_selected_stub.source.txt": {
       "bytes": 327,
       "sha256": "9d2ad4b59be7b27fbb2e06a38aba944cd569f70dc45a1fa3b022e65faa68ab50"
+    },
+    "generate_typing_stub.source.txt": {
+      "bytes": 391,
+      "sha256": "4691af61bdfe5a9be8e24ce504dea1e57ce5f6326e1103536609a54e23137260"
+    },
+    "generator-format-correction.json": {
+      "bytes": 5659,
+      "sha256": "f3f49d7497da967172e29eb7f22531dd1c26549f9f484f68dd95e4d3e46bf0d2"
+    },
+    "generator-format-correction.txt": {
+      "bytes": 19,
+      "sha256": "413a709001976657cb743636fd34e48fc41d8d302d665460d3f874b3313da127"
     },
     "mypy-e69.json": {
       "bytes": 5278,
@@ -88,6 +124,14 @@
       "bytes": 1751,
       "sha256": "ad2531130c67344b69340cedf53c6cf1181366082f874fc2c60a5badb5c81623"
     },
+    "mypy-final.json": {
+      "bytes": 5788,
+      "sha256": "3d6d5fe8f1b86b86f96b9d3c1d326678ede7ecd65fd46d4085552bc53aab50e9"
+    },
+    "mypy-final.txt": {
+      "bytes": 43,
+      "sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8"
+    },
     "mypy-imported-9ce.json": {
       "bytes": 5284,
       "sha256": "6acc1feeb31352e2a2adc0b638974e0f36674bb4e75581692c8929637f94e6c1"
@@ -96,9 +140,25 @@
       "bytes": 485,
       "sha256": "7356c860b1de7c107ae3588844e8f18a5fa8fca8d5eb2e1ad35eb8a3393b24ff"
     },
+    "native-final.json": {
+      "bytes": 6016,
+      "sha256": "8f6911624a55252420a58be9d31a908b3158a82191aec975f143dfc169079742"
+    },
+    "native-final.txt": {
+      "bytes": 160,
+      "sha256": "3d62d17cda0245ac103dacbc19a54714f32a472955ffa1297184c4315837fbd1"
+    },
+    "native-final.xml": {
+      "bytes": 11998,
+      "sha256": "858255aa4f502a99beeb63ad48bba288841416897dffa9a5b38aeebd8104afe1"
+    },
     "package.source.txt": {
       "bytes": 4175,
       "sha256": "06bb4f83c078673a731ba358da22b32ea9fb36a975b044f74f6a64c3aedb07df"
+    },
+    "package_final.source.txt": {
+      "bytes": 3109,
+      "sha256": "4db2495d7f4e53613719a0c7b2754e01fc3999c85c2eacd74f8a52c86597a87f"
     },
     "query-B-failures.txt": {
       "bytes": 47140,
@@ -112,9 +172,45 @@
       "bytes": 874,
       "sha256": "7b24e364de042b2e8738ebf41c49d86038af24d5706adf4f9c429d0b8672ac92"
     },
+    "ruff-candidate.json": {
+      "bytes": 5937,
+      "sha256": "b2716a0f8c82939f24477ba39756cf313942c649e04ff131101f2b35c1601e35"
+    },
+    "ruff-candidate.txt": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "ruff-final.json": {
+      "bytes": 5933,
+      "sha256": "1ba63f1879b301f53cb88f64c834976320c3dcdf7ab1ae88c965fda8ee5da06c"
+    },
+    "ruff-final.txt": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
     "run_capture.source.txt": {
       "bytes": 2586,
       "sha256": "c4f52d697075519de731cd9c5638d7e45edb658d66778e0b004fdfd3de9dd182"
+    },
+    "run_capture_typing.source.txt": {
+      "bytes": 2695,
+      "sha256": "7190a40f71a15baf07df9d882af7cb1a868c441a39e954493e1a043bfd90b6b4"
+    },
+    "stub-base-final.json": {
+      "bytes": 6241,
+      "sha256": "5e51685091bcbe21162f69d61f7754270f10b6fa8c07d67071f046eeb106a8d8"
+    },
+    "stub-base-final.txt": {
+      "bytes": 420,
+      "sha256": "9f1adedde2a3a382b7c87232c468d158e09548202ad3cac60ef83972404b8fec"
+    },
+    "stub-composer-final.json": {
+      "bytes": 6399,
+      "sha256": "112f7a3b0011b9c2c3521fe33320448eaebda4b2478e30c0da610926ac85b7f3"
+    },
+    "stub-composer-final.txt": {
+      "bytes": 480,
+      "sha256": "07fb4a4928d61d4d73df8e4db7f112caec06f2d599d3859a0b7630797c5c31d8"
     },
     "stub-corrected.json": {
       "bytes": 5538,
@@ -123,6 +219,22 @@
     "stub-corrected.txt": {
       "bytes": 480,
       "sha256": "73a399b8d9c5f28439d33f0668418094e80e73e9c054697b51c77cbd97a5c9f3"
+    },
+    "stub-format-final.json": {
+      "bytes": 6498,
+      "sha256": "613f7ebc358c494223884b769d56f3989dd7e34ba07e005a7eba12cf858c1a63"
+    },
+    "stub-format-final.txt": {
+      "bytes": 20,
+      "sha256": "96a977f329ec3c59092d40e041a019b49dcf03ca04055e177aa0ccb8c27234df"
+    },
+    "stub-sort-final.json": {
+      "bytes": 6533,
+      "sha256": "05a0545be9d6d3e3ea1a46c94493e3e82a44c25733ae8b5da2b9690a8e3b1e3c"
+    },
+    "stub-sort-final.txt": {
+      "bytes": 39,
+      "sha256": "6f4e3c8cb6a43f32a8b47add0b65207f17bd814c84308623b3720ad789c0d769"
     },
     "stub.json": {
       "bytes": 6306,
@@ -133,6 +245,6 @@
       "sha256": "9afeba35bb6d6938ae373a6ecc223644891dc08fc6b80b9307939500dd091b67"
     }
   },
-  "total_bytes": 279404,
-  "note": "Complete moderate files; self excluded. Executed scratch .py drivers archived as literal .source.txt with identical bytes; actual argv paths and hashes retained. Independent peer packets referenced separately, not copied."
+  "total_bytes": 369244,
+  "qualification": "Full moderate deciding stdout/XML/wrappers and exact executed scratch source bytes. Self index excluded; independent peer packets are distinct exact Git references, not duplicated."
 }

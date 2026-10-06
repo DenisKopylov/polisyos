@@ -1,0 +1,47 @@
+{
+  "argv": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/package_target_members.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/candidate.tar",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/dist/policy_engine-0.1.0-py3-none-any.whl",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/dist/policy_engine-0.1.0.tar.gz"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos",
+  "env_delta": {},
+  "exit_code": 0,
+  "inputs": [
+    {
+      "bytes": 460001280,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/candidate.tar",
+      "sha256": "52351c2185833b6ccab8bc3d99a717e9bdedaa210de3e1549a34185315bea971"
+    },
+    {
+      "bytes": 15026317,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "74b74c062c4f57d11e0d83bd1655c4209b3ae3383b9b54753ed7ad1920490c79"
+    },
+    {
+      "bytes": 65185430,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "7d0f40eb90f23e1a19ed87c7489cf02f3286a50f9765eacff37d4f758a238f95"
+    }
+  ],
+  "name": "read-only exact DFK package target member census",
+  "schema": "polisyos.e02.command-result.v1",
+  "script": {
+    "bytes": 5443,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/package_target_members.py",
+    "sha256": "de195a9efb76538971289c8a9490ca072e384ccea6f9272dbebbae93f16784bd"
+  },
+  "shell_redirections": {
+    "stderr": "inherited and empty",
+    "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/package-target-members.result.json"
+  },
+  "stdout": {
+    "bytes": 3707,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/schema-fqn-census-final/package-target-members.result.json",
+    "sha256": "49c11a0fcd2fffa2be8610aa815a87df8f5659fb366760019e64840a7f4bfe8e"
+  },
+  "timeout_ms": null,
+  "timeout_recorded": false
+}

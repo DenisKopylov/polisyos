@@ -1,0 +1,7 @@
+Using Python 3.14.0 environment at: /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv
+Resolved 1 package in 22ms
+Prepared 1 package in 3ms
+Uninstalled 1 package in 316ms
+Installed 1 package in 82ms
+ - policy-engine==0.1.0 (from file:///Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl-87999/dist/policy_engine-0.1.0-py3-none-any.whl)
+ + policy-engine==0.1.0 (from file:///Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/dist/policy_engine-0.1.0-py3-none-any.whl)

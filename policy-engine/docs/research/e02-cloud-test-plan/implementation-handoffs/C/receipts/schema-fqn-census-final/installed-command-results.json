@@ -1,0 +1,262 @@
+{
+  "artifacts": {
+    "package_census": {
+      "bytes": 35029,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/package-census.json",
+      "sha256": "cad13b740602d87abeb0b7d1ed20b03c4ea8cd4e6ac75c1c67902c3a7424b0ba"
+    },
+    "runtime_census": {
+      "bytes": 6072405,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/runtime-census.stdout",
+      "sha256": "ae58cac5df1f4c65b07b7550d044bf894affd20e49707f6eb1f9138eeb521a2a"
+    },
+    "sdist": {
+      "bytes": 65185430,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "7d0f40eb90f23e1a19ed87c7489cf02f3286a50f9765eacff37d4f758a238f95"
+    },
+    "successful_module_origin": {
+      "bytes": 347,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/module-origin.stdout",
+      "sha256": "9283a8988077dad13187bea7ef7569997018d50bb07d61d3768834fbe7bfcc67"
+    },
+    "wheel": {
+      "bytes": 15026317,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "74b74c062c4f57d11e0d83bd1655c4209b3ae3383b9b54753ed7ad1920490c79"
+    }
+  },
+  "candidate": {
+    "archive": {
+      "bytes": 460001280,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/candidate.tar",
+      "sha256": "52351c2185833b6ccab8bc3d99a717e9bdedaa210de3e1549a34185315bea971"
+    },
+    "base_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "commit": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+    "handoff_docs_only_commit": "cf751b1b4bec5f7ef97d965370e8562f3b4c5b49",
+    "tree": "ec6137a453d3aafdfd46e1c6304e4cf3a9de3da5"
+  },
+  "commands": {
+    "archive": {
+      "argv": [
+        "git",
+        "archive",
+        "--format=tar",
+        "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos",
+      "env_delta": {},
+      "exit_code": 0,
+      "stderr": null,
+      "stdout": {
+        "bytes": 460001280,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/candidate.tar",
+        "sha256": "52351c2185833b6ccab8bc3d99a717e9bdedaa210de3e1549a34185315bea971"
+      },
+      "timeout_ms": null,
+      "timeout_recorded": false
+    },
+    "build": {
+      "argv": [
+        "uv",
+        "build",
+        "--offline",
+        "--no-build-isolation",
+        "--out-dir",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/dist"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/source/policy-engine",
+      "env_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": [
+          "/Users/deniskopylov/.cache/uv/archive-v0/YUs921CMN7bGtgwyMykk3",
+          "/Users/deniskopylov/.cache/uv/archive-v0/QE6DREbYsK8sTuZOeKsM8",
+          "/Users/deniskopylov/.cache/uv/archive-v0/CYuBuDi6eT8vqgBcw1xmt",
+          "/Users/deniskopylov/.cache/uv/archive-v0/0_OIyaIgWrA6UuESVxSKg",
+          "/Users/deniskopylov/.cache/uv/archive-v0/fi4dB0uLY-31KEGEb5kjs",
+          "/Users/deniskopylov/.cache/uv/archive-v0/tS3T-feL91bRoib57dD1o"
+        ]
+      },
+      "exit_code": 0,
+      "stderr": {
+        "bytes": 411,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/build.stderr",
+        "sha256": "33a8664060908d845d480e5d8b284619fb8d60981c1c55e8044c504aba7d04df"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/build.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_ms": null,
+      "timeout_recorded": false
+    },
+    "install": {
+      "argv": [
+        "env",
+        "-u",
+        "PYTHONPATH",
+        "-u",
+        "PYTHONHOME",
+        "uv",
+        "pip",
+        "install",
+        "--offline",
+        "--no-deps",
+        "--reinstall",
+        "--python",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/bin/python",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/dist/policy_engine-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/tmp",
+      "env_delta": {},
+      "exit_code": 0,
+      "stderr": {
+        "bytes": 641,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/install-replay-origin.stderr",
+        "sha256": "62c49b13bca3b50d4c43223411c3ed0fea156a117a7e6898e58d17cee148f48a"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/install-replay-origin.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "timeout_ms": 30000,
+      "timeout_recorded": true
+    },
+    "installed_runtime": {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/bin/python",
+        "-I",
+        "-m",
+        "tools.quality.validation.schema_fqn_census",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-schema-20261006/polisyos/policy-engine"
+      ],
+      "cwd": "/tmp",
+      "env_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/runtime-census.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 6072405,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/runtime-census.stdout",
+        "sha256": "ae58cac5df1f4c65b07b7550d044bf894affd20e49707f6eb1f9138eeb521a2a"
+      },
+      "timeout_ms": null,
+      "timeout_recorded": false
+    },
+    "module_origin": {
+      "argv": [
+        "env",
+        "-u",
+        "PYTHONPATH",
+        "-u",
+        "PYTHONHOME",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/berl/venv/bin/python",
+        "-I",
+        "-c",
+        "import hashlib,json,pathlib,sys,tools.quality.validation.schema_fqn_census as census,tools.lib.fs as fs; site=next(pathlib.Path(p).resolve() for p in sys.path if p.endswith(\"site-packages\")); modules={\"tools.quality.validation.schema_fqn_census\":pathlib.Path(census.__file__).resolve(),\"tools.lib.fs\":pathlib.Path(fs.__file__).resolve()}; assert all(p.is_relative_to(site) for p in modules.values()); expected=\"8c43e21ab8c077c94c7e30bf23733fef0b1d329d0c6cac4f4c76eb8c2188ad9f\"; actual=hashlib.sha256(modules[\"tools.quality.validation.schema_fqn_census\"].read_bytes()).hexdigest(); assert actual==expected,(actual,expected); print(json.dumps({\"isolated\":sys.flags.isolated,\"site_packages\":str(site),\"modules\":{k:str(v) for k,v in modules.items()},\"module_sha256\":{k:hashlib.sha256(v.read_bytes()).hexdigest() for k,v in modules.items()},\"pytest_present\":__import__(\"importlib.util\",fromlist=[\"find_spec\"]).find_spec(\"pytest\") is not None},sort_keys=True))"
+      ],
+      "cwd": "/tmp",
+      "env_delta": {
+        "PYTHONHOME": "unset",
+        "PYTHONPATH": "unset"
+      },
+      "exit_code": 0,
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/module-origins-replay.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 838,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/module-origins-replay.stdout",
+        "sha256": "9b2cf16e0852d0acff425aa9c9ee5766d074e166f740ccde8ca4d53503bd429f"
+      },
+      "timeout_ms": 30000,
+      "timeout_recorded": true,
+      "verifies": [
+        "both imported module files are under site-packages",
+        "schema_fqn_census.py byte digest equals frozen source digest",
+        "isolated mode is enabled",
+        "pytest remains absent"
+      ]
+    },
+    "module_origin_initial": {
+      "argv": null,
+      "cwd": "/tmp",
+      "exit_code": 0,
+      "note": "Earlier successful 3-line origin output was retained but original argv was not captured; superseded by module_origin replay with exact command.",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/module-origin.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 347,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/module-origin.stdout",
+        "sha256": "9283a8988077dad13187bea7ef7569997018d50bb07d61d3768834fbe7bfcc67"
+      },
+      "timeout_ms": null,
+      "timeout_recorded": false
+    },
+    "package_census": {
+      "argv": [
+        "python3",
+        "package-census.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2",
+      "env_delta": {},
+      "exit_code": 0,
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/package-census.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 35029,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/package-census.stdout",
+        "sha256": "cad13b740602d87abeb0b7d1ed20b03c4ea8cd4e6ac75c1c67902c3a7424b0ba"
+      },
+      "timeout_ms": null,
+      "timeout_recorded": false
+    },
+    "post_slot_module_origins_diagnostic": {
+      "argv": null,
+      "cwd": null,
+      "deciding": false,
+      "exit_code": 1,
+      "note": "An intervening diagnostic after venv reuse got ModuleNotFoundError. Its exact argv is not reconstructed. Nondeciding and superseded by successful module_origin replay while exact DFK wheel is installed.",
+      "stderr": {
+        "bytes": 1134,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/module-origins.stderr",
+        "sha256": "cc57c2bcd1aa0eefeb135cef81c49b2f6579fbb53ce34b5a2a82b7b2b75a6c73"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/module-origins.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "limitations": [
+    "The schema census reports local selected text only; no dynamic-dispatch, external-consumer, retirement-authorization, or production-quality claim.",
+    "Original build/package-census/runtime tool timeouts were not preserved; command-specific nulls are explicit rather than reconstructed. The additional wheel reinstall and module-origin replay were run with a 30 s command timeout."
+  ],
+  "scope": {
+    "archive_contents_runtime_claim": false,
+    "dynamic_dispatch_and_external_consumers": "not_established",
+    "finding_closure": "none",
+    "package_census_receipt": "package-census.json",
+    "runtime_result": "complete_for_selected_local_text_inputs",
+    "verdict": "local_static_census_only"
+  }
+}

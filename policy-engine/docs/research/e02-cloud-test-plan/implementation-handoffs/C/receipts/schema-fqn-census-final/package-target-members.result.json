@@ -1,0 +1,97 @@
+{
+  "candidate_commit": "8ac2c232445eb78b1689fe2f6fb5e1830ccd5b35",
+  "candidate_tree": "ec6137a453d3aafdfd46e1c6304e4cf3a9de3da5",
+  "complete_file_denominator": {
+    "git_archive_project_files": 13672,
+    "sdist_project_members_including_pkg_info": 8465,
+    "wheel_members_including_metadata": 3456,
+    "wheel_payload_files_excluding_dist_info": 3451
+  },
+  "finding_paths": {
+    "LA-005": [
+      {
+        "present_in_sdist": true,
+        "present_in_source_archive": true,
+        "present_in_wheel": true,
+        "sdist_bytes_equal_source": true,
+        "source_path": "src/polisyos/foundry/domain/schema.py",
+        "wheel_bytes_equal_source": true,
+        "wheel_path": "polisyos/foundry/domain/schema.py"
+      }
+    ],
+    "LA-006": [
+      {
+        "present_in_sdist": false,
+        "present_in_source_archive": false,
+        "present_in_wheel": false,
+        "sdist_bytes_equal_source": null,
+        "source_path": "src/polisyos/foundry/domain/mechanisms/__init__.py",
+        "wheel_bytes_equal_source": null,
+        "wheel_path": "polisyos/foundry/domain/mechanisms/__init__.py"
+      },
+      {
+        "present_in_sdist": false,
+        "present_in_source_archive": false,
+        "present_in_wheel": false,
+        "sdist_bytes_equal_source": null,
+        "source_path": "src/polisyos/foundry/domain/mechanisms/README.md",
+        "wheel_bytes_equal_source": null,
+        "wheel_path": "polisyos/foundry/domain/mechanisms/README.md"
+      }
+    ],
+    "LA-026": [
+      {
+        "present_in_sdist": true,
+        "present_in_source_archive": true,
+        "present_in_wheel": true,
+        "sdist_bytes_equal_source": true,
+        "source_path": "src/polisyos/data_forge/kernel/schemas/codegen.py",
+        "wheel_bytes_equal_source": true,
+        "wheel_path": "polisyos/data_forge/kernel/schemas/codegen.py"
+      }
+    ],
+    "LA-027": [
+      {
+        "present_in_sdist": true,
+        "present_in_source_archive": true,
+        "present_in_wheel": true,
+        "sdist_bytes_equal_source": true,
+        "source_path": "src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py",
+        "wheel_bytes_equal_source": true,
+        "wheel_path": "polisyos/data_forge/kernel/pipeline/schemas/__init__.py"
+      },
+      {
+        "present_in_sdist": true,
+        "present_in_source_archive": true,
+        "present_in_wheel": true,
+        "sdist_bytes_equal_source": true,
+        "source_path": "src/polisyos/data_forge/kernel/pipeline/schemas/README.md",
+        "wheel_bytes_equal_source": true,
+        "wheel_path": "polisyos/data_forge/kernel/pipeline/schemas/README.md"
+      }
+    ]
+  },
+  "inputs": {
+    "git_archive": {
+      "bytes": 460001280,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/candidate.tar",
+      "sha256": "52351c2185833b6ccab8bc3d99a717e9bdedaa210de3e1549a34185315bea971"
+    },
+    "sdist": {
+      "bytes": 65185430,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "7d0f40eb90f23e1a19ed87c7489cf02f3286a50f9765eacff37d4f758a238f95"
+    },
+    "wheel": {
+      "bytes": 15026317,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/schema-8ac2/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "74b74c062c4f57d11e0d83bd1655c4209b3ae3383b9b54753ed7ad1920490c79"
+    }
+  },
+  "schema": "polisyos.e02.dfk.package-target-members.v1",
+  "tombstone_files_under_prefix_present": {
+    "sdist": false,
+    "source_archive": false,
+    "wheel": false
+  }
+}

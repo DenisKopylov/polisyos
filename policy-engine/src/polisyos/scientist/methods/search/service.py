@@ -154,10 +154,10 @@ class NativeSearchService:
                 "max_empty_generation_attempts": config.max_empty_generation_attempts,
                 "stage_a_enabled": config.enable_stage_a,
                 "batch_size": config.batch_size,
-                "candidate_identity_profile": (
-                    "native_service_run_candidate.v1"
+                **(
+                    {"candidate_identity_profile": "native_service_run_candidate.v1"}
                     if self._canonical_native_generator() is not None
-                    else None
+                    else {}
                 ),
                 "budget_key": config.budget_key,
                 "budget_cost_key": config.budget_cost_key,

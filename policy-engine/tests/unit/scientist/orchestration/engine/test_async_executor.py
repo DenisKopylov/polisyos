@@ -395,9 +395,7 @@ class TestAsyncWorkflowExecutor:
 
 class TestAsyncCacheBoundaries:
     @pytest.mark.asyncio
-    async def test_cache_hit_reads_with_exhausted_compute_budget_but_miss_does_not(
-        self, tmp_path
-    ):
+    async def test_cache_hit_reads_with_exhausted_compute_budget_but_miss_does_not(self, tmp_path):
         """A permitted cache hit must not consume or require new compute budget."""
         node_id = "test.async_cache_budget@1.0.0"
         node = _CacheTestNode(_cache_node_spec(node_id))
@@ -521,7 +519,9 @@ class TestAsyncCacheBoundaries:
         assert ticks > 0
 
     @pytest.mark.asyncio
-    async def test_expired_workflow_cache_wait_refuses_producer_admission(self, tmp_path, monkeypatch):
+    async def test_expired_workflow_cache_wait_refuses_producer_admission(
+        self, tmp_path, monkeypatch
+    ):
         """An elapsed owner deadline grants no refreshed producer or cache budget."""
         node_id = "test.async_cache_deadline@1.0.0"
         node = _CacheTestNode(_cache_node_spec(node_id))

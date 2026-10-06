@@ -111,7 +111,10 @@ input, and does not assert that a declared cache artifact materializes a node's
 output. Callers still supply the actual initial state; both it and the refs are
 bound. The guarded store decides authorization. Strict identity supports
 inspectable classes/functions with immutable scalar/tuple captures and versioned
-imported modules; unknown source, mutable captures, unavailable declared runtime
+imported modules. The shared artifact identity projection also binds runtime
+class helper functions, static/class methods, property accessors and immutable
+record field values. Unknown source, mutable captures, unsupported wrapped or
+dynamic descriptors, and unavailable declared runtime
 versions, missing selected views and invalid occurrence cache refs fail before
 dispatch. Mutable external effects and hostile environment mutation are outside
 this profile. Operational checkpoint frequency and persistence-error policy do

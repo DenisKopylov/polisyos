@@ -58,7 +58,6 @@ from __future__ import annotations
 import base64
 import fcntl
 import hashlib
-import inspect
 import json
 import logging
 import os
@@ -69,9 +68,7 @@ from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from enum import Enum
 from pathlib import Path
-from types import ModuleType
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -90,7 +87,10 @@ from polisyos.core.security.tenant_context import (
     get_current_cell_id,
     get_current_tenant_id_or_none,
 )
-from polisyos.foundry.methods.artifacts._fingerprint import compute_source_hash
+from polisyos.foundry.methods.artifacts import (
+    SourceIdentityUnavailableError,
+    implementation_identity_projection,
+)
 from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_chain_reproducibility_contract,
@@ -106,7 +106,6 @@ from polisyos.foundry.methods.backends.protocol import (
 from polisyos.foundry.methods.backends.runtime_fingerprint import (
     capture_backend_runtime_fingerprint,
     capture_versions,
-    safe_version,
 )
 from polisyos.foundry.methods.backends.validated import (
     ValidatedBound,
@@ -758,88 +757,11 @@ class CheckpointingChainExecutor:
 # ---------------------------------------------------------------------------
 
 
-def _source_identity(value: Any, *, strict: bool, visiting: set[int] | None = None) -> Any:
-    """Bind inspectable code and immutable captures without hashing registry state.
-
-    Strict artifact execution refuses unknown or mutable captured state. Legacy
-    request-only execution records an unavailable boundary instead of claiming
-    artifact/source closure. Imported distribution code is version-bound.
-    """
-    if value is None or isinstance(value, (str, bool, int, float)):
-        return value
-    if isinstance(value, Enum):
-        return {
-            "enum": f"{type(value).__module__}.{type(value).__qualname__}",
-            "value": value.value,
-        }
-    if isinstance(value, tuple):
-        return [_source_identity(item, strict=strict, visiting=visiting) for item in value]
-    if isinstance(value, ModuleType):
-        root = value.__name__.split(".")[0]
-        versions = capture_versions(base_packages=(), runtime_stack=(root,))
-        version = (
-            sys.version if root in sys.stdlib_module_names else next(iter(versions.values()), None)
-        )
-        if version is not None:
-            return {"module": value.__name__, "version": version}
-    elif inspect.isfunction(value) or inspect.isclass(value) or inspect.isbuiltin(value):
-        visiting = set() if visiting is None else visiting
-        module_name = str(value.__module__ or "<unknown>")
-        symbol = f"{module_name}.{value.__qualname__}"
-        if id(value) in visiting:
-            return {"recursive_symbol": symbol}
-        source = compute_source_hash(value)
-        if source != "unavailable":
-            visiting.add(id(value))
-            try:
-                result: dict[str, Any] = {"symbol": symbol, "source_hash": source}
-                if inspect.isclass(value):
-                    result["bases"] = [
-                        _source_identity(base, strict=strict, visiting=visiting)
-                        for base in value.__bases__
-                        if base is not object
-                    ]
-                    result["attributes"] = {
-                        name: _source_identity(item, strict=strict, visiting=visiting)
-                        for name, item in sorted(vars(value).items())
-                        if not name.startswith("__")
-                        and name not in {"signature", "metadata"}
-                        and not isinstance(item, (staticmethod, classmethod, property))
-                        and not callable(item)
-                    }
-                if inspect.isfunction(value):
-                    captures = inspect.getclosurevars(value)
-                    result["captures"] = {
-                        name: _source_identity(item, strict=strict, visiting=visiting)
-                        for name, item in sorted((captures.globals | captures.nonlocals).items())
-                    }
-                    result["defaults"] = _source_identity(
-                        value.__defaults__, strict=strict, visiting=visiting
-                    )
-                    result["keyword_defaults"] = {
-                        name: _source_identity(item, strict=strict, visiting=visiting)
-                        for name, item in sorted((value.__kwdefaults__ or {}).items())
-                    }
-                return result
-            finally:
-                visiting.remove(id(value))
-        if strict and not inspect.isbuiltin(value):
-            raise CheckpointIdentityError(
-                "Strict checkpoint source identity is unavailable for " + type(value).__name__
-            )
-        root = module_name.split(".")[0]
-        version = (
-            sys.version
-            if root in sys.stdlib_module_names or root == "builtins"
-            else safe_version(root)
-        )
-        if version is not None:
-            return {"symbol": symbol, "distribution_version": version}
-    if strict:
-        raise CheckpointIdentityError(
-            "Strict checkpoint source identity is unavailable for " + type(value).__name__
-        )
-    return {"unavailable_type": f"{type(value).__module__}.{type(value).__qualname__}"}
+def _source_identity(value: Any, *, strict: bool) -> Any:
+    try:
+        return implementation_identity_projection(value, strict=strict)
+    except SourceIdentityUnavailableError as exc:
+        raise CheckpointIdentityError("Strict checkpoint " + str(exc)) from exc
 
 
 def _checkpoint_scope() -> dict[str, str | None]:
@@ -959,7 +881,7 @@ def _method_identity(method: type, fqn: str, *, strict: bool, seed: int) -> dict
         "signature_digest": digest() if digest is not None else None,
         "class_source": _source_identity(method, strict=strict),
         "callbacks": {
-            name: _source_identity(inspect.unwrap(callback), strict=strict)
+            name: _source_identity(callback, strict=strict)
             for name in (
                 "pure_step",
                 "materialize_input",

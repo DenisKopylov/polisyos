@@ -686,6 +686,93 @@ def test_actual_consumed_frozen_metadata_change_refuses_stale_resume(tmp_path):
     assert dispatcher.calls == []
 
 
+@pytest.mark.parametrize("boundary", ["custom-descriptor", "mutable-capture", "wrapped-function"])
+def test_unsupported_helper_graph_refuses_before_dispatch_with_real_removal_control(
+    tmp_path, boundary
+):
+    import functools
+
+    factors = [2]
+
+    def scalar_helper():
+        return 2
+
+    def mutable_helper():
+        return factors[0]
+
+    @functools.wraps(scalar_helper)
+    def wrapped_helper():
+        return scalar_helper()
+
+    class DynamicDescriptor:
+        def __get__(self, instance, owner):
+            return scalar_helper
+
+    class Source:
+        signature: ClassVar = _PRODUCER_SIGNATURE
+        metadata: ClassVar = _METADATA
+
+        @staticmethod
+        def pure_step(state, params):
+            return {"product": state["x"] * Source.helper()}
+
+    Source.helper = {
+        "custom-descriptor": DynamicDescriptor(),
+        "mutable-capture": staticmethod(mutable_helper),
+        "wrapped-function": staticmethod(wrapped_helper),
+    }[boundary]
+    chain, registry = _chain()
+    registry.register(Source, override=True)
+    assert (
+        CheckpointingChainExecutor(registry=registry)
+        .execute(chain, initial_state={"x": 3})
+        .final_state["total"]
+        == 7
+    )
+    store = FileSystemCAS(tmp_path / "cas")
+    context = _strict_context(store, chain)
+    dispatcher = _RecordingDispatcher()
+    executor = CheckpointingChainExecutor(
+        registry=registry,
+        dispatcher=dispatcher,
+        artifact_store=store,
+        checkpoint_dir=tmp_path / "checkpoints",
+    )
+    with pytest.raises(CheckpointIdentityError, match="source identity is unavailable"):
+        executor.execute(chain, initial_state={"x": 3}, artifact_context=context)
+    assert dispatcher.calls == []
+    assert not (tmp_path / "checkpoints").exists()
+    Source.helper = staticmethod(scalar_helper)
+    result = executor.execute(chain, initial_state={"x": 3}, artifact_context=context)
+    assert result.final_state["total"] == 7
+    assert result.history_complete
+
+
+def test_mutable_nested_frozen_metadata_is_not_immutable_source_authority(tmp_path):
+    class Source:
+        signature: ClassVar = _PRODUCER_SIGNATURE
+        metadata: ClassVar = MethodMetadata(
+            description="mutable nested value", equations={"factor": [2]}
+        )
+
+        @staticmethod
+        def pure_step(state, params):
+            return {"product": state["x"] * Source.metadata.equations["factor"][0]}
+
+    chain, registry = _chain()
+    registry.register(Source, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    context = _strict_context(store, chain)
+    dispatcher = _RecordingDispatcher()
+    with pytest.raises(CheckpointIdentityError, match="source identity is unavailable for list"):
+        CheckpointingChainExecutor(
+            registry=registry,
+            dispatcher=dispatcher,
+            artifact_store=store,
+        ).execute(chain, initial_state={"x": 3}, artifact_context=context)
+    assert dispatcher.calls == []
+
+
 def test_mutable_source_capture_is_explicit_strict_boundary(tmp_path):
     chain, registry = _chain()
     factors = [2]

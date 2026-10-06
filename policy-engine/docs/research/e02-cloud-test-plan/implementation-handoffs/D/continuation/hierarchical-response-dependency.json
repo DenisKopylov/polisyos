@@ -1,0 +1,22 @@
+{
+  "schema": "policyos.e02.selected_dependency.v1",
+  "unit": "D",
+  "slice": "configured-hierarchical-registry",
+  "slice_base_sha": "fba341253528eb344c340b5e683ecc1f88ea631f",
+  "supplier_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+  "supplier_tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+  "changed_path": "policy-engine/src/polisyos/core/llm/response.py",
+  "source_blob": "ca7084b0fe14c04f0c1f58fe7dd805e51c5b3ec4",
+  "source_sha256": "115a4202d88b0dc1cae20f13d6eab7ac5165320a9c5e5ac1e342b762c418b169",
+  "reason": "Own older response codec lacks the physical-provider function imported by the already-current traced client; baseline collection failed before the defining consumer could execute. Mechanical adoption only; no B supplier semantic modification or new D ownership.",
+  "authorization": "Root narrow selected Git adoption; all other core/llm source blobs equal supplier.",
+  "command": [
+    "git",
+    "restore",
+    "--source=8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+    "--",
+    "policy-engine/src/polisyos/core/llm/response.py"
+  ],
+  "baseline_error_output": "/tmp/e02-D-registry-baseline-e11d99250ea54ca189aba9ebc1fad021/complete.txt",
+  "closure_ids": []
+}

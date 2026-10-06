@@ -1,0 +1,65 @@
+{
+  "schema": "policyos.e02.owner_dependency.v1",
+  "unit": "D",
+  "slice": "configured-hierarchical-registry",
+  "finding_ids": [
+    "B109"
+  ],
+  "closure_ids": [],
+  "state": "proposed_unapplied_supplier_patch",
+  "appointed_next_owner": "A-W01 coordinator source owner; G reviews/ports accepted owner change",
+  "source_sha": "13ba0882e684927f5a474268f20e71fcf43045ea",
+  "source_tree": "211c0448131bf973c8f749bdfaf404d1d45aee6a",
+  "destination_path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+  "destination_blob": "49ddb4c29f333de12211a1e7222a1d8368f8cd85",
+  "actual_A_remote_sha": "93d62af8eb037fa37cb0254ad38285507b26a86a",
+  "actual_G_remote_sha": "ff277db7798fc312654704fa51c52e00f53f10f4",
+  "root_review_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+  "binding": "The destination blob was read from actual A GitHub immutable source and equals own/root source; patch makes no D product edit.",
+  "required_signature": [
+    "generate_structure_candidates(..., initial_context: dict[str,Any]|None=None)",
+    "_transfer_seed_candidates(..., initial_context: dict[str,Any]|None=None)"
+  ],
+  "existing_runtime_contract": "run forwards initial_context to parameter search but not structure seeds; tenant routing uses the existing security context while structure task_family/run_id still resolve from candidate defaults.",
+  "proposed_behavior": "Pass the existing optional caller context through structure generation to resolve_transfer_context, preserving absent-context behavior.",
+  "required_consumer_test": "Native red recipe invokes actual adapter/coordinator/registry seed reader and asserts supplied task_family/source run_id. No evaluator/GP fit required.",
+  "native_red_verdict": "UNRUN pending actual supported ordinary environment; source watchpoint is independently read, not a runtime PASS/FAIL.",
+  "apply_check": {
+    "argv": [
+      "git",
+      "apply",
+      "--check",
+      "A-structure-context.patch"
+    ],
+    "exitcode": 0,
+    "destination_sha": "13ba0882e684927f5a474268f20e71fcf43045ea",
+    "not_applied": true
+  },
+  "members": {
+    "A-structure-context-native-red.py.txt": {
+      "sha256": "4169a67c19cfca1fc6785253131be8b9d1ae659359bae0ca68656d2b9f6ccad7",
+      "bytes": 1368
+    },
+    "A-structure-context.patch": {
+      "sha256": "b937a542f3361801ca3e64738f6aa9405f54e6c3c5b3af51b6156dcc60265cb9",
+      "bytes": 1947
+    }
+  },
+  "scope_limits": [
+    "No default registry or objective basis is appointed by this patch.",
+    "Caller context routing is not institutional source authority or access grant.",
+    "Cell identity is not a registry partition; current TransferContext has no cell coordinate.",
+    "A-W04 complete method-selection catalog is not an independent policy-candidate eligibility denominator."
+  ],
+  "default_owner_packet_minimum": {
+    "source_path": "RunHierarchicalPolicySearchNode.execute currently constructs an unconfigured adapter; actual ExecutionContext has no appointed registry/provider field.",
+    "existing_callable_port": "HierarchicalPolicySearchAdapter(pareto_registry=existing_canonical_registry)",
+    "required_owner_inputs": [
+      "Actual caller/factory appointment using the configured port",
+      "Existing registry root/namespace and source run/tenant context",
+      "Independent complete eligible and unknown policy-evaluation rows",
+      "Ordered complete objective coordinate basis and source binding for the intended view"
+    ],
+    "not_established": "Default node producer appointment, independent source law and full objective basis are not supplied by a display label or observed row union."
+  }
+}

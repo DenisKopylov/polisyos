@@ -22,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 
 from polisyos.common.async_tools import run_blocking_async, run_coro_sync
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.async_store import (
+from polisyos.core.artifacts import (
     AsyncArtifactStoreAdapter,
     AsyncFileSystemArtifactStore,
     ensure_async_artifact_store,

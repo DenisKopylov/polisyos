@@ -1,0 +1,42 @@
+2026-10-06 14:01:50.382 | DEBUG    | polisyos.common.logger:_call:120 - Invalid propagation_config override; falling back to defaults
+{
+  "source_sha": "902d9f6b224f0fbeec709bc3683910fa08eba4b7",
+  "caller": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/git-blob-overlay-902d/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+  "caller_sha256": "efd11f9df309774ae8eab4f7633a4a2b669b3fb66b062ac1f8e406cedbe238a5",
+  "PYTHONPATH": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/legacy-calibration/git-blob-overlay-902d/policy-engine/src",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "input_ref": {
+    "artifact_id": "sha256:a47dcb6b666711565963931f585e3c76aad715ad37468fd29e0f5e14ba170b65",
+    "kind": "foundry.funnel_calibration_report",
+    "media_type": "application/json"
+  },
+  "strict_reader_error": "calibration report manifest kind/schema mismatch",
+  "actual_legacy_node_status": "ok",
+  "propagation_calls": 1,
+  "collected_fields": [
+    "A.rate"
+  ],
+  "output_refs": [
+    {
+      "artifact_id": "sha256:7a9f46a156e792b2b47146c74a204648a04e94f4d3d9d24da4b7735d3ac1c698",
+      "kind": "foundry.simulation_result",
+      "media_type": "application/json"
+    },
+    {
+      "artifact_id": "sha256:3b844397cd8adca9e8463ce01daa90112a48b06958a7793fe499f6fdce399ba2",
+      "kind": "ir.uncertainty_envelope",
+      "media_type": "application/json"
+    },
+    {
+      "artifact_id": "sha256:7a957f7174869d5464e8efa772fb1e1227451937af8040ad2cf7c2d406d9f079",
+      "kind": "foundry.propagation_report",
+      "media_type": "application/json"
+    }
+  ],
+  "backend": "native JAX Delta via real PropagationDispatcher",
+  "source_law_authority_claim": false,
+  "capability": "falsified generic legacy report reader admission",
+  "polisyos_origin_count": 780,
+  "all_origins_in_exact_overlay": true
+}

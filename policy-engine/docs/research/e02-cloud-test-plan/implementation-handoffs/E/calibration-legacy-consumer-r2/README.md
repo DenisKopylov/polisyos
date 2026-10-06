@@ -7,3 +7,5 @@ Frozen author native checks: 7 PASS. Reader-only removal: 3 expected FAIL, each 
 B197 remains held and B198 closed. Known-noise synthetic Calibrator wiring is established; configured source-fit/noise authority and an actual served caller require the minimum inputs in the handoff JSON. Full global architecture/common wave belongs to the E root after assembly.
 
 The independent review files are copied with attribution and exact byte/hash checks. Historical logs remain historical; they do not become a frozen candidate PASS. Native Trash is absent; cleanup candidates are listed and nothing was deleted.
+
+Publication continuation: [PR67](https://github.com/DenisKopylov/polisyos/pull/67) follows merged PR40. Seven reviewer `.log` outputs are published as byte-identical `.stdout` files, with exact original/published mapping in the JSON; historical originals are preserved.

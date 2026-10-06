@@ -1,0 +1,12 @@
+.......                                                                  [100%]
+=============================== warnings summary ===============================
+../../e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests/unit/scientist/nodes/test_propagate_uncertainty_node.py::test_propagate_uncertainty_node_updates_simulation_result
+  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax/_src/api_util.py:83: DeprecationWarning: Passing arguments 'a', 'a_min' or 'a_max' to jax.numpy.clip is deprecated. Please use 'arr', 'min' or 'max' respectively instead.
+    ans = f(*py_args, **py_kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html

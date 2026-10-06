@@ -96,7 +96,8 @@
       "outcome": "PASS",
       "expected_negative": false,
       "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.stdout.txt",
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/native.stdout.txt"
     },
     {
       "command": [
@@ -128,7 +129,8 @@
       "outcome": "FAIL",
       "expected_negative": true,
       "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.stdout.txt",
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/m_separation.stdout.txt"
     },
     {
       "command": [
@@ -160,7 +162,8 @@
       "outcome": "FAIL",
       "expected_negative": true,
       "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.stdout.txt",
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/do_operator.stdout.txt"
     },
     {
       "command": [
@@ -196,7 +199,8 @@
       "outcome": "FAIL",
       "expected_negative": false,
       "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.stdout.txt",
-      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.json"
+      "execution_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01.stdout.txt"
     },
     {
       "command": [
@@ -231,7 +235,8 @@
       "input_closure": "entire existing EMP01 selector, full gate input denominator not established",
       "outcome": "FAIL",
       "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01-base198.txt",
-      "P41_inherited": "not_established"
+      "P41_inherited": "not_established",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/graph-native-20261006/emp01-base198.txt"
     },
     {
       "command": "python -m polisyos.runtime.quality.production_invocation --repo-root . --base 198076863e143dea9f89f02734b13d50dae3eed5 --receipt scratch/production-invocation-base.json",

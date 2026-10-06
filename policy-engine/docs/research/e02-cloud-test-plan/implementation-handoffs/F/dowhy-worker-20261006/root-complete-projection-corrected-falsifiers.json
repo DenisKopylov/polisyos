@@ -1,0 +1,35 @@
+{
+  "source_start": "5f432d6e749e5bba05b0d3bc35426f46a9f462b8",
+  "tree_start": "f4bd9bcf20a41ff4c6be062e8aadf4de43b500fa",
+  "status_start": "",
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "tests/unit/scientist/nodes/builtins/simulate/test_causal_selected_consumers.py",
+    "-k",
+    "actual_worker_result"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006/policy-engine",
+  "source_sha": "5f432d6e749e5bba05b0d3bc35426f46a9f462b8",
+  "tree": "f4bd9bcf20a41ff4c6be062e8aadf4de43b500fa",
+  "status": "",
+  "exit": 0,
+  "wall_s": 21.29952361700998,
+  "pythonpath": "/workspace/e02-F-closeout-20261006/policy-engine/src:/workspace/e02-F-closeout-20261006/policy-engine",
+  "outputs": {
+    "stdout": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/complete-projection-corrected-falsifiers.stdout",
+      "sha256": "37c53f38295fa2fbb0ce5be24f30fae635d807b0706815d67ac49572bf0b9159",
+      "bytes": 3624
+    },
+    "stderr": {
+      "path": "/workspace/e02-F-20261006-receipts/consumer/complete-projection-corrected-falsifiers.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

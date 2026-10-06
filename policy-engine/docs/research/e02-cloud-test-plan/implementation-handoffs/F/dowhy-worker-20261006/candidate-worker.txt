@@ -1,0 +1,45 @@
+.{"replicates": 200, "covered": 194, "truth": 2, "nominal_level": 0.95, "allowed_covered": [180, 199], "scope": "known IID homoscedastic Gaussian synthetic DGP"}
+................
+=============================== warnings summary ===============================
+tests/test_worker.py::test_actual_dowhy_identification_estimation_matches_independent_statsmodels
+  /workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pydot/dot_parser.py:373: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    assignment.setParseAction(push_attr_list)
+
+tests/test_worker.py::test_actual_dowhy_identification_estimation_matches_independent_statsmodels
+  /workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pydot/dot_parser.py:374: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    a_list.setParseAction(push_attr_list)
+
+tests/test_worker.py::test_actual_dowhy_identification_estimation_matches_independent_statsmodels
+  /workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pydot/dot_parser.py:375: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    edge_stmt.setParseAction(push_edge_stmt)
+
+tests/test_worker.py::test_actual_dowhy_identification_estimation_matches_independent_statsmodels
+  /workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pydot/dot_parser.py:376: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    node_stmt.setParseAction(push_node_stmt)
+
+tests/test_worker.py::test_actual_dowhy_identification_estimation_matches_independent_statsmodels
+  /workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pydot/dot_parser.py:377: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    default_stmt.setParseAction(push_default_stmt)
+
+tests/test_worker.py::test_actual_dowhy_identification_estimation_matches_independent_statsmodels
+  /workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pydot/dot_parser.py:379: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    subgraph.setParseAction(push_subgraph_stmt)
+
+tests/test_worker.py::test_actual_dowhy_identification_estimation_matches_independent_statsmodels
+  /workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pydot/dot_parser.py:380: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    graph_stmt.setParseAction(push_graph_stmt)
+
+tests/test_worker.py::test_actual_dowhy_identification_estimation_matches_independent_statsmodels
+  /workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/pydot/dot_parser.py:381: PyparsingDeprecationWarning: 'setParseAction' deprecated - use 'set_parse_action'
+    parser.setParseAction(push_top_graph_stmt)
+
+tests/test_worker.py: 406 warnings
+  /workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/dowhy/causal_estimators/regression_estimator.py:210: Pandas4Warning: The copy keyword is deprecated and will be removed in a future version. Copy-on-Write is active in pandas since 3.0 which utilizes a lazy copy mechanism that defers copies until necessary. Use .copy() to make an eager copy if necessary.
+    data_df[self._target_estimand.treatment_variable] = data_df[self._target_estimand.treatment_variable].astype(
+
+tests/test_worker.py::test_actual_unblocked_latent_backdoor_does_not_identify_ate
+  /workspace/e02-F-dowhy-20261006/policy-engine/workers/dowhy-014/.venv/lib/python3.12/site-packages/dowhy/causal_model.py:581: UserWarning: 1 variables are assumed unobserved because they are not in the dataset. Configure the logging level to `logging.WARNING` or higher for additional details.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+17 passed, 415 warnings in 19.22s

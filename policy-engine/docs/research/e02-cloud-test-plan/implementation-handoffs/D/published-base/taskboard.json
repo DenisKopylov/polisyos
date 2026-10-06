@@ -1,0 +1,163 @@
+{
+  "schema": "policyos.e02.D.taskboard.v2",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "queues": [
+    {
+      "owner": "search_owner",
+      "queue": "search",
+      "branch": "codex/e02-D-published-search",
+      "worktree_root": "/workspace/e02-D-published-search",
+      "bundles": [
+        "OPT-01",
+        "OPT-02",
+        "OPT-03",
+        "CTL-02"
+      ],
+      "finding_ids": [
+        "B108",
+        "B109",
+        "B110",
+        "B111",
+        "B112",
+        "B113",
+        "B114",
+        "B115",
+        "B124",
+        "B125",
+        "B126",
+        "B127"
+      ],
+      "state": "implementation_in_progress",
+      "independent_reviewer": "root",
+      "source_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "admission_create": "admission/search-create.json",
+      "admission_resume": "admission/search-resume.json"
+    },
+    {
+      "owner": "transfer_owner",
+      "queue": "transfer",
+      "branch": "codex/e02-D-published-transfer",
+      "worktree_root": "/workspace/e02-D-published-transfer",
+      "bundles": [
+        "TRN-01",
+        "TRN-02",
+        "TRN-03"
+      ],
+      "finding_ids": [
+        "B128",
+        "B129",
+        "B130",
+        "B131",
+        "B132",
+        "B133",
+        "B134",
+        "B135",
+        "B136",
+        "B137"
+      ],
+      "state": "implementation_in_progress",
+      "independent_reviewer": "root",
+      "source_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "admission_create": "admission/transfer-create.json",
+      "admission_resume": "admission/transfer-resume.json"
+    },
+    {
+      "owner": "gp_witness",
+      "queue": "champion",
+      "branch": "codex/e02-D-published-champion",
+      "worktree_root": "/workspace/e02-D-published-champion",
+      "bundles": [
+        "OPT-04",
+        "SRV-01",
+        "SRV-03"
+      ],
+      "finding_ids": [
+        "B116",
+        "B117",
+        "LA-014",
+        "LA-015"
+      ],
+      "state": "implementation_in_progress",
+      "independent_reviewer": "root",
+      "source_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "admission_create": "admission/champion-create.json",
+      "admission_resume": "admission/champion-resume.json"
+    },
+    {
+      "owner": "funnel_owner",
+      "queue": "funnel",
+      "branch": "codex/e02-D-published-funnel",
+      "worktree_root": "/workspace/e02-D-published-funnel",
+      "bundles": [
+        "CTL-01",
+        "CTL-03",
+        "FUN-01",
+        "FUN-02",
+        "FUN-03"
+      ],
+      "finding_ids": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B123",
+        "B156",
+        "B157",
+        "B158",
+        "B159",
+        "B160",
+        "B161",
+        "B162",
+        "B163",
+        "B164",
+        "B165"
+      ],
+      "state": "implementation_in_progress",
+      "independent_reviewer": "root",
+      "source_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "admission_create": "admission/funnel-create.json",
+      "admission_resume": "admission/funnel-resume.json"
+    },
+    {
+      "owner": "baseline_census",
+      "queue": "stress",
+      "branch": "codex/e02-D-published-stress",
+      "worktree_root": "/workspace/e02-D-published-stress",
+      "bundles": [
+        "STP-01",
+        "STR-01"
+      ],
+      "finding_ids": [
+        "B106",
+        "B107",
+        "B122",
+        "B41"
+      ],
+      "state": "implementation_in_progress",
+      "independent_reviewer": "root",
+      "source_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "admission_create": "admission/stress-create.json",
+      "admission_resume": "admission/stress-resume.json"
+    }
+  ],
+  "oracle": {
+    "owner": "numerical_oracle",
+    "branch": "codex/e02-D-published-oracle",
+    "production_writes": false,
+    "test_lease": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py"
+  },
+  "finding_count": 45,
+  "bundle_count": 17,
+  "criterion_occurrences": 46,
+  "input_predicate_basis": "recomputed",
+  "closure_ids": [],
+  "state": "not_frozen",
+  "rules": [
+    "one writer per leased path",
+    "no children",
+    "no cloud CPU/process/worker quota",
+    "G sole integration publisher",
+    "one broad wave after source review/freeze"
+  ]
+}

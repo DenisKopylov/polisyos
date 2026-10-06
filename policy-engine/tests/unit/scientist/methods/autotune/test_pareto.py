@@ -2,16 +2,29 @@
 
 from __future__ import annotations
 
+import json
 import math
+from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, input_ref_from_artifact_ref
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     BenchmarkSplit,
+    BenchmarkSuite,
     MetricDirection,
+    MutationArtifact,
     PromotionPolicy,
+    benchmark_comparison_basis,
+    load_model_artifact,
+    persist_benchmark_evaluation,
+    persist_benchmark_suite,
+    persist_mutation_artifact,
 )
 from polisyos.scientist.methods.autotune.pareto import (
     ParetoFront,
@@ -48,6 +61,95 @@ def _policies(*metric_names: str) -> list[PromotionPolicy]:
         PromotionPolicy(loop_id="loop1", primary_metric=m, direction=MetricDirection.MAXIMIZE)
         for m in metric_names
     ]
+
+
+def _cas_eval(tmp_path: Path, **metrics: float) -> BenchmarkEvaluation:
+    """Exercise strict CAS admission, then the mutable-input Pareto boundary.
+
+    Nonfinite values are never admitted as a healthy typed evaluation. Their
+    exact raw CAS payload is refused by the native reader. A separately loaded
+    healthy instance then receives those decoded metrics through its existing
+    mutable dictionary, so the downstream omission predicate is still tested.
+    This is post-validation mutation stress, not a malformed CAS ingestion API.
+    """
+    global _COUNTER
+    _COUNTER += 1
+    store = FileSystemCAS(tmp_path / "pareto-cas")
+    suite_ref = persist_benchmark_suite(
+        store, BenchmarkSuite(suite_id="suite1", data_basis="candidate_only")
+    )
+    candidate_ref = persist_mutation_artifact(
+        store,
+        MutationArtifact(loop_id="loop1", notes=[f"synthetic Pareto row {_COUNTER}"]),
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+    )
+    # Finite carrier defaults establish healthy admission only; they are not
+    # substituted for malformed measurements in the downstream consumer.
+    healthy = BenchmarkEvaluation(
+        loop_id="loop1",
+        suite_id="suite1",
+        candidate_ref=candidate_ref,
+        holdout_metrics={
+            name: value if math.isfinite(value) else 0.0 for name, value in metrics.items()
+        },
+        promotable=True,
+        runtime_split_type=BenchmarkSplit.HOLDOUT,
+        comparison_basis=benchmark_comparison_basis(
+            store,
+            suite_ref,
+            _policies(next(iter(metrics)))[0],
+            SchemaInfo(name="fixture.pareto.numeric", version="1.0"),
+        ),
+    )
+    healthy_ref = persist_benchmark_evaluation(store, healthy)
+    evaluation = load_model_artifact(store, healthy_ref, BenchmarkEvaluation)
+    assert evaluation == healthy
+    if all(math.isfinite(value) for value in metrics.values()):
+        return evaluation
+
+    payload = from_canonical_bytes(store.get_bytes(healthy_ref))
+    payload["holdout_metrics"] = metrics
+    raw_bytes = json.dumps(payload, allow_nan=True, separators=(",", ":")).encode()
+    manifest = store.get_manifest(healthy_ref)
+    malformed_ref = store.put_bytes(
+        raw_bytes,
+        ArtifactWriteOptions(
+            kind=healthy_ref.kind,
+            media_type=healthy_ref.media_type,
+            schema=manifest.artifact_schema,
+            producer=manifest.producer,
+            inputs=manifest.inputs,
+        ),
+    )
+    assert store.get_bytes(malformed_ref) == raw_bytes
+    malformed_manifest = store.get_manifest(malformed_ref)
+    assert malformed_manifest.inputs == manifest.inputs
+    assert malformed_manifest.artifact_schema == manifest.artifact_schema
+    assert malformed_manifest.producer == manifest.producer
+    decoded = json.loads(store.get_bytes(malformed_ref))
+    healthy_payload = from_canonical_bytes(store.get_bytes(healthy_ref))
+    assert {key: value for key, value in decoded.items() if key != "holdout_metrics"} == {
+        key: value for key, value in healthy_payload.items() if key != "holdout_metrics"
+    }
+    with pytest.raises(ValidationError):
+        load_model_artifact(store, malformed_ref, BenchmarkEvaluation)
+
+    evaluation.holdout_metrics.clear()
+    evaluation.holdout_metrics.update(decoded["holdout_metrics"])
+    print(
+        json.dumps(
+            {
+                "scope": "post_validation_mutable_input_stress",
+                "healthy_ref": healthy_ref.model_dump(mode="json"),
+                "malformed_ref": malformed_ref.model_dump(mode="json"),
+                "raw_payload": decoded,
+                "manifest": malformed_manifest.model_dump(mode="json"),
+                "native_reader": "refused",
+            },
+            allow_nan=True,
+        )
+    )
+    return evaluation
 
 
 def _split_eval(*, selection_score: float, holdout_score: float) -> BenchmarkEvaluation:
@@ -100,11 +202,14 @@ class TestParetoFront:
         dominated = _eval(acc=0.5, speed=0.4)
         assert promoter.is_dominated(dominated, front) is True
 
-    def test_unassessed_candidate_cannot_be_reported_as_not_dominated(self):
+    def test_unassessed_candidate_cannot_be_reported_as_not_dominated(self, tmp_path):
         promoter = ParetoPromoter(_policies("acc", "speed"))
-        front = promoter.compute_front([_eval(acc=0.9, speed=0.8)])
+        front = promoter.compute_front([_cas_eval(tmp_path, acc=0.9, speed=0.8)])
 
-        for candidate in (_eval(acc=0.5), _eval(acc=0.5, speed=math.inf)):
+        for candidate in (
+            _cas_eval(tmp_path, acc=0.5),
+            _cas_eval(tmp_path, acc=0.5, speed=math.inf),
+        ):
             with pytest.raises(ValueError, match="candidate is unassessed"):
                 promoter.is_dominated(candidate, front)
 
@@ -199,7 +304,9 @@ class TestParetoFront:
         lower_raw_cost = _eval(first=1.0, cost=1.0, third=2.0)
         higher_raw_cost = _eval(first=1.0, cost=2.0, third=1.0)
         evaluations = [lower_raw_cost, higher_raw_cost]
-        normalized_points = [promoter._eval_objective_vector(evaluation) for evaluation in evaluations]
+        normalized_points = [
+            promoter._eval_objective_vector(evaluation) for evaluation in evaluations
+        ]
 
         assert normalized_points == [(1.0, -1.0, 2.0), (1.0, -2.0, 1.0)]
         expected_indices = _slow_non_dominated_points(normalized_points)
@@ -334,9 +441,7 @@ class TestParetoFront:
             ]
         ).compute_front([evaluation])
 
-        selection_coordinate = selection_front.model_dump(mode="json")[
-            "coordinate_schema"
-        ]
+        selection_coordinate = selection_front.model_dump(mode="json")["coordinate_schema"]
         holdout_coordinate = holdout_front.model_dump(mode="json")["coordinate_schema"]
         assert selection_coordinate["version"] == "pareto-coordinate.v1"
         assert holdout_coordinate["version"] == "pareto-coordinate.v1"
@@ -494,15 +599,15 @@ class TestParetoFront:
         assert historical.schema_version == "1.0"
         assert historical.historical_v1_payload() == old_payload
 
-    def test_empty_and_invalid_front_preserves_schema_as_incomplete(self):
+    def test_empty_and_invalid_front_preserves_schema_as_incomplete(self, tmp_path):
         """Empty producer output retains known coordinates with an incomplete state."""
         # Catches the production mutation that returns a fresh empty schema and
         # discards the promoter's known coordinate contract for no valid rows.
         promoter = ParetoPromoter(_policies("score"))
-        complete = promoter.compute_front([_eval(score=1.0)]).model_dump(mode="json")
+        complete = promoter.compute_front([_cas_eval(tmp_path, score=1.0)]).model_dump(mode="json")
         expected_coordinates = complete["coordinate_schema"]["coordinates"]
 
-        for evaluations in ([], [_eval(score=math.nan)]):
+        for evaluations in ([], [_cas_eval(tmp_path, score=math.nan)]):
             payload = promoter.compute_front(evaluations).model_dump(mode="json")
             assert payload["coordinate_schema"]["version"] == "pareto-coordinate.v1"
             assert payload["coordinate_schema"]["status"] == "incomplete"
@@ -540,32 +645,34 @@ class TestParetoFront:
         with pytest.raises(ValueError, match="(?i)coordinates must be unique"):
             ParetoPromoter([policy, policy.model_copy()])
 
-    def test_non_finite_and_missing_metrics_are_excluded_from_numeric_front(self):
+    def test_non_finite_and_missing_metrics_are_excluded_from_numeric_front(self, tmp_path):
         """Unusable metrics cannot become infinite best/worst Pareto values."""
         # Catches the production mutation that maps missing/non-finite values
         # to +/-infinity and lets them affect dominance or hypervolume.
         promoter = ParetoPromoter(_policies("acc", "speed"))
-        valid = _eval(acc=0.9, speed=0.8)
-        invalid_nan = _eval(acc=math.nan, speed=0.9)
-        invalid_inf = _eval(acc=math.inf, speed=0.7)
-        invalid_missing = _eval(acc=0.7)
+        valid = _cas_eval(tmp_path, acc=0.9, speed=0.8)
+        invalid_nan = _cas_eval(tmp_path, acc=math.nan, speed=0.9)
+        invalid_inf = _cas_eval(tmp_path, acc=math.inf, speed=0.7)
+        invalid_missing = _cas_eval(tmp_path, acc=0.7)
 
         front = promoter.compute_front([valid, invalid_nan, invalid_inf, invalid_missing])
 
         assert [member.candidate_ref_id for member in front.members] == [
             str(valid.candidate_ref.artifact_id)
         ]
-        assert all(math.isfinite(value) for member in front.members for value in member.objectives.values())
+        assert all(
+            math.isfinite(value) for member in front.members for value in member.objectives.values()
+        )
         assert all(math.isfinite(value) for value in front.reference_point.values())
         assert math.isfinite(front.hypervolume)
 
-    def test_mixed_objective_coverage_is_typed_and_keeps_finite_front(self):
+    def test_mixed_objective_coverage_is_typed_and_keeps_finite_front(self, tmp_path):
         """Omitted inputs retain provenance while complete rows still form a front."""
         promoter = ParetoPromoter(_policies("acc", "speed"))
-        best = _eval(acc=0.9, speed=0.8)
-        dominated = _eval(acc=0.8, speed=0.7)
-        missing = _eval(acc=0.7)
-        non_finite = _eval(acc=0.8, speed=math.inf)
+        best = _cas_eval(tmp_path, acc=0.9, speed=0.8)
+        dominated = _cas_eval(tmp_path, acc=0.8, speed=0.7)
+        missing = _cas_eval(tmp_path, acc=0.7)
+        non_finite = _cas_eval(tmp_path, acc=0.8, speed=math.inf)
 
         front = promoter.compute_front([best, missing, non_finite, dominated])
         assessment = front.input_assessment
@@ -596,9 +703,12 @@ class TestParetoFront:
         assert finite_control.input_assessment.input_count == 2
         assert finite_control.input_assessment.assessed_count == 2
         assert finite_control.input_assessment.unassessed_evaluations == ()
-        assert finite_control.model_dump(mode="json")["members"] == promoter.compute_front(
-            [best, missing, non_finite, dominated]
-        ).model_dump(mode="json")["members"]
+        assert (
+            finite_control.model_dump(mode="json")["members"]
+            == promoter.compute_front([best, missing, non_finite, dominated]).model_dump(
+                mode="json"
+            )["members"]
+        )
 
     @pytest.mark.parametrize("omission_indices", [(0, 0), (0, 2)])
     def test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions(
@@ -638,11 +748,11 @@ class TestParetoFront:
         assert tuple(item.input_index for item in assessment.unassessed_evaluations) == (1,)
         assert assessment.model_dump(mode="json")["unassessed_evaluations"][0]["input_index"] == 1
 
-    def test_duplicate_invalid_candidate_refs_keep_distinct_input_positions(self) -> None:
+    def test_duplicate_invalid_candidate_refs_keep_distinct_input_positions(self, tmp_path) -> None:
         """Repeated evaluation identity is legal when positions are distinct."""
         promoter = ParetoPromoter(_policies("acc", "speed"))
-        finite = _eval(acc=0.9, speed=0.8)
-        invalid = _eval(acc=math.nan, speed=0.7)
+        finite = _cas_eval(tmp_path, acc=0.9, speed=0.8)
+        invalid = _cas_eval(tmp_path, acc=math.nan, speed=0.7)
 
         front = promoter.compute_front([finite, invalid, invalid])
         assessment = front.input_assessment

@@ -1,0 +1,135 @@
+{
+  "input_raw_text": "{\"choices\":[{\"message\":{\"content\":\"observed response\"}}],\"provider\":\"provider-a\",\"usage\":{\"prompt_tokens\":1,\"completion_tokens\":1,\"cost_usd\":1e-1000}}",
+  "http_calls": 1,
+  "decoded_raw_cost": "0.0",
+  "fresh_reopen": {
+    "schema_version": "1.0",
+    "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+    "coordination_mode": "shared_posix_file_lock",
+    "ledger_id": "ledger:2a058660bfa2a8ea",
+    "revision": 2,
+    "updated_at": "2026-10-06T15:06:38.570006Z",
+    "last_writer": {
+      "host_id": "565838a1e059",
+      "writer_id": "565838a1e059:235762:ledger.json",
+      "pid": 235762
+    },
+    "recent_mutations": [
+      {
+        "revision": 0,
+        "operation": "bootstrap",
+        "key": null,
+        "amount": null,
+        "applied_amount": null,
+        "provider": null,
+        "reserved": null,
+        "writer": {
+          "host_id": "565838a1e059",
+          "writer_id": "565838a1e059:235762:ledger.json",
+          "pid": 235762
+        },
+        "committed_at": "2026-10-06T15:06:38.568055Z"
+      },
+      {
+        "revision": 1,
+        "operation": "reserve_resource",
+        "key": null,
+        "amount": null,
+        "applied_amount": "0",
+        "provider": null,
+        "reserved": true,
+        "writer": {
+          "host_id": "565838a1e059",
+          "writer_id": "565838a1e059:235762:ledger.json",
+          "pid": 235762
+        },
+        "committed_at": "2026-10-06T15:06:38.569286Z"
+      },
+      {
+        "revision": 2,
+        "operation": "settle_resource",
+        "key": null,
+        "amount": null,
+        "applied_amount": "0.0",
+        "provider": null,
+        "reserved": null,
+        "writer": {
+          "host_id": "565838a1e059",
+          "writer_id": "565838a1e059:235762:ledger.json",
+          "pid": 235762
+        },
+        "committed_at": "2026-10-06T15:06:38.570016Z"
+      }
+    ],
+    "state": {
+      "limits": {
+        "run": {
+          "key": "run",
+          "max_usd": "5",
+          "soft_limit_usd": null
+        }
+      },
+      "spent": {
+        "run": "0.0"
+      },
+      "provider_spent": {
+        "provider-a": "0.0"
+      },
+      "reserved": {
+        "run": "0"
+      }
+    },
+    "resource_reservations": {
+      "eefc01df-9f47-4d4f-9514-056ad6ac4447": {
+        "reservation_id": "eefc01df-9f47-4d4f-9514-056ad6ac4447",
+        "run_id": "response-text-run",
+        "budget_keys": [
+          "run"
+        ],
+        "estimated_usd": "0.00004",
+        "evaluation_id": "response-text-evaluation",
+        "reserved_amounts": {
+          "run": "0.00004"
+        },
+        "status": "settled",
+        "event_id": "77982eaedd1371025e1ed8885a44513366b85cc0fc137249cf35054d2d479bdd"
+      }
+    },
+    "resource_events": {
+      "77982eaedd1371025e1ed8885a44513366b85cc0fc137249cf35054d2d479bdd": {
+        "provider": "provider-a",
+        "request_id": "response-text-request",
+        "run_id": "response-text-run",
+        "budget_keys": [
+          "run"
+        ],
+        "amount_usd": "0.0",
+        "evaluation_id": "response-text-evaluation",
+        "source": "provider_reported",
+        "reuse_event_id": null
+      }
+    }
+  },
+  "source_origins": {
+    "polisyos.core.llm.response": {
+      "path": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/core/llm/response.py",
+      "sha256": "619b1932b93254b0c3853f479d0892caf982f39ceb68bc0d9cfa74f2b8ccbcbc"
+    },
+    "polisyos.scientist.orchestration.llm.gateway_client": {
+      "path": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7"
+    },
+    "polisyos.scientist.orchestration.llm.budget_enforcer": {
+      "path": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b"
+    },
+    "polisyos.scientist.orchestration.engine.budget_ledger": {
+      "path": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "sha256": "2249df49d8fe86c96a9d1bcec8336c7f62294573a70160ff4513ea9360ff3773"
+    },
+    "polisyos.scientist.orchestration.engine.budget_middleware": {
+      "path": "/workspace/e02-D-published-funnel/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "sha256": "9f35f68061d1a6a38d3d8725866fd0c4df9581f361f23d88fa8d6d5e0dc27ac7"
+    }
+  }
+}

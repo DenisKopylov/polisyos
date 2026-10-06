@@ -1,0 +1,479 @@
+FFFFFFFFFFFFFFFFFFFFF...                                                 [100%]
+=================================== FAILURES ===================================
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-total_cost_usd-usage] _
+
+source = 'usage', field = 'total_cost_usd', lexeme = '1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('0.0') == Decimal('1E-1000')
+E        +  where Decimal('0.0') = Decimal('0.0')
+E        +    where '0.0' = str(0.0)
+E        +  and   Decimal('1E-1000') = Decimal('1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-total_cost_usd-payload] _
+
+source = 'payload', field = 'total_cost_usd', lexeme = '1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('0.0') == Decimal('1E-1000')
+E        +  where Decimal('0.0') = Decimal('0.0')
+E        +    where '0.0' = str(0.0)
+E        +  and   Decimal('1E-1000') = Decimal('1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost_usd-usage] _
+
+source = 'usage', field = 'cost_usd', lexeme = '1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('0.0') == Decimal('1E-1000')
+E        +  where Decimal('0.0') = Decimal('0.0')
+E        +    where '0.0' = str(0.0)
+E        +  and   Decimal('1E-1000') = Decimal('1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost_usd-payload] _
+
+source = 'payload', field = 'cost_usd', lexeme = '1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('0.0') == Decimal('1E-1000')
+E        +  where Decimal('0.0') = Decimal('0.0')
+E        +    where '0.0' = str(0.0)
+E        +  and   Decimal('1E-1000') = Decimal('1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost-usage] _
+
+source = 'usage', field = 'cost', lexeme = '1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('0.0') == Decimal('1E-1000')
+E        +  where Decimal('0.0') = Decimal('0.0')
+E        +    where '0.0' = str(0.0)
+E        +  and   Decimal('1E-1000') = Decimal('1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost-payload] _
+
+source = 'payload', field = 'cost', lexeme = '1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('0.0') == Decimal('1E-1000')
+E        +  where Decimal('0.0') = Decimal('0.0')
+E        +    where '0.0' = str(0.0)
+E        +  and   Decimal('1E-1000') = Decimal('1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-base_cost_usd-usage] _
+
+source = 'usage', field = 'base_cost_usd', lexeme = '1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('0.0') == Decimal('1E-1000')
+E        +  where Decimal('0.0') = Decimal('0.0')
+E        +    where '0.0' = str(0.0)
+E        +  and   Decimal('1E-1000') = Decimal('1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-base_cost_usd-payload] _
+
+source = 'payload', field = 'base_cost_usd', lexeme = '1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('0.0') == Decimal('1E-1000')
+E        +  where Decimal('0.0') = Decimal('0.0')
+E        +    where '0.0' = str(0.0)
+E        +  and   Decimal('1E-1000') = Decimal('1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-platform_fee_usd-usage] _
+
+source = 'usage', field = 'platform_fee_usd', lexeme = '1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('0.0') == Decimal('1E-1000')
+E        +  where Decimal('0.0') = Decimal('0.0')
+E        +    where '0.0' = str(0.0)
+E        +  and   Decimal('1E-1000') = Decimal('1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-platform_fee_usd-payload] _
+
+source = 'payload', field = 'platform_fee_usd', lexeme = '1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('0.0') == Decimal('1E-1000')
+E        +  where Decimal('0.0') = Decimal('0.0')
+E        +    where '0.0' = str(0.0)
+E        +  and   Decimal('1E-1000') = Decimal('1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-total_cost_usd-usage] _
+
+source = 'usage', field = 'total_cost_usd', lexeme = '-1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('-0.0') == Decimal('-1E-1000')
+E        +  where Decimal('-0.0') = Decimal('-0.0')
+E        +    where '-0.0' = str(-0.0)
+E        +  and   Decimal('-1E-1000') = Decimal('-1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-total_cost_usd-payload] _
+
+source = 'payload', field = 'total_cost_usd', lexeme = '-1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('-0.0') == Decimal('-1E-1000')
+E        +  where Decimal('-0.0') = Decimal('-0.0')
+E        +    where '-0.0' = str(-0.0)
+E        +  and   Decimal('-1E-1000') = Decimal('-1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost_usd-usage] _
+
+source = 'usage', field = 'cost_usd', lexeme = '-1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('-0.0') == Decimal('-1E-1000')
+E        +  where Decimal('-0.0') = Decimal('-0.0')
+E        +    where '-0.0' = str(-0.0)
+E        +  and   Decimal('-1E-1000') = Decimal('-1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost_usd-payload] _
+
+source = 'payload', field = 'cost_usd', lexeme = '-1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('-0.0') == Decimal('-1E-1000')
+E        +  where Decimal('-0.0') = Decimal('-0.0')
+E        +    where '-0.0' = str(-0.0)
+E        +  and   Decimal('-1E-1000') = Decimal('-1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost-usage] _
+
+source = 'usage', field = 'cost', lexeme = '-1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('-0.0') == Decimal('-1E-1000')
+E        +  where Decimal('-0.0') = Decimal('-0.0')
+E        +    where '-0.0' = str(-0.0)
+E        +  and   Decimal('-1E-1000') = Decimal('-1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost-payload] _
+
+source = 'payload', field = 'cost', lexeme = '-1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('-0.0') == Decimal('-1E-1000')
+E        +  where Decimal('-0.0') = Decimal('-0.0')
+E        +    where '-0.0' = str(-0.0)
+E        +  and   Decimal('-1E-1000') = Decimal('-1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-base_cost_usd-usage] _
+
+source = 'usage', field = 'base_cost_usd', lexeme = '-1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('-0.0') == Decimal('-1E-1000')
+E        +  where Decimal('-0.0') = Decimal('-0.0')
+E        +    where '-0.0' = str(-0.0)
+E        +  and   Decimal('-1E-1000') = Decimal('-1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-base_cost_usd-payload] _
+
+source = 'payload', field = 'base_cost_usd', lexeme = '-1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('-0.0') == Decimal('-1E-1000')
+E        +  where Decimal('-0.0') = Decimal('-0.0')
+E        +    where '-0.0' = str(-0.0)
+E        +  and   Decimal('-1E-1000') = Decimal('-1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-platform_fee_usd-usage] _
+
+source = 'usage', field = 'platform_fee_usd', lexeme = '-1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('-0.0') == Decimal('-1E-1000')
+E        +  where Decimal('-0.0') = Decimal('-0.0')
+E        +    where '-0.0' = str(-0.0)
+E        +  and   Decimal('-1E-1000') = Decimal('-1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_ test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-platform_fee_usd-payload] _
+
+source = 'payload', field = 'platform_fee_usd', lexeme = '-1e-1000'
+
+    @pytest.mark.parametrize("source", ["usage", "payload"])
+    @pytest.mark.parametrize(
+        "field", ["total_cost_usd", "cost_usd", "cost", "base_cost_usd", "platform_fee_usd"]
+    )
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_response_text_nonzero_cost_lexeme_never_becomes_free(source, field, lexeme):
+        gateway = TextGateway(response_text(source, field, lexeme))
+        response = await gateway.generate(user="hello", max_tokens=1)
+        # This actual decoder assertion distinguishes the HTTP-text boundary from dict-only probes.
+        raw = response.raw["usage"] if source == "usage" else response.raw
+>       assert Decimal(str(raw[field])) == Decimal(lexeme)
+E       AssertionError: assert Decimal('-0.0') == Decimal('-1E-1000')
+E        +  where Decimal('-0.0') = Decimal('-0.0')
+E        +    where '-0.0' = str(-0.0)
+E        +  and   Decimal('-1E-1000') = Decimal('-1e-1000')
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:90: AssertionError
+_______ test_response_text_underflow_cannot_settle_zero_in_fresh_ledger ________
+
+tmp_path = PosixPath('/dev/shm/e02-D-funnel-text-9c492a3a009843d39abcd65ec89e970d/test_response_text_underflow_c0')
+
+    @pytest.mark.asyncio
+    async def test_response_text_underflow_cannot_settle_zero_in_fresh_ledger(tmp_path):
+        from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+    
+        gateway = TextGateway(response_text("usage", "cost_usd", "1e-1000"))
+        path, enforcer = build_owned_enforcer(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_gateway_response_text_cost.py:132: Failed
+=========================== short test summary info ============================
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-total_cost_usd-usage]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-total_cost_usd-payload]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost_usd-usage]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost_usd-payload]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost-usage]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost-payload]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-base_cost_usd-usage]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-base_cost_usd-payload]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-platform_fee_usd-usage]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-platform_fee_usd-payload]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-total_cost_usd-usage]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-total_cost_usd-payload]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost_usd-usage]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost_usd-payload]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost-usage]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost-payload]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-base_cost_usd-usage]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-base_cost_usd-payload]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-platform_fee_usd-usage]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-platform_fee_usd-payload]
+FAILED tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_underflow_cannot_settle_zero_in_fresh_ledger

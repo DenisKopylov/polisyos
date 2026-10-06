@@ -85,6 +85,7 @@ def test_same_ref_changed_original_bytes_refuses_before_model_use(tmp_path, phas
     blob, _ = store._paths(original.artifact_id)
     blob.write_bytes(b"changed original evaluation content under preserved reference")
     before = live._iteration
+
     def operation():
         if phase == "restore":
             _fresh(space, config, bridge, basis).set_state(

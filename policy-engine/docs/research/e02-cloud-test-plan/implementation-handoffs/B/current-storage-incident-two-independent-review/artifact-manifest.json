@@ -1,0 +1,153 @@
+{
+  "schema": "policyos.e02.storage_review_artifact_custody.v1",
+  "complete_file_set": [
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/captured-old-raw-census-profile.json",
+      "bytes": 6451,
+      "sha256": "ccf8922f57fd9390b8f33e93452d650ccb62dda70a5c7c8280e4eb0bfa5df664",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/captured-old-raw-census-profile.json"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-full-stdout.json",
+      "bytes": 21123,
+      "sha256": "d68708802e1f3af24294ac6cd3fb7c9faa3f2d86f22929cc3e9345d2e35b514c",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-full-stdout.json"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/flat-21.jsonl",
+      "bytes": 15371,
+      "sha256": "e27bc09b47999e4c4e17e9c9c4696d6ca50cb3a9bc3239f043cf4230ff0c6af0",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/flat-21.jsonl"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/historic-exe-4.jsonl",
+      "bytes": 3113,
+      "sha256": "72d9edde169ae8f14cdc3d38f8a83206a6cc93cb27e3977ed8f433733a6c4a22",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/historic-exe-4.jsonl"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/old-lanes-6.jsonl",
+      "bytes": 4464,
+      "sha256": "2bf813ba8079250941eb34e71c493f5a14caae79807fd22998dee35783b7fdcb",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/old-lanes-6.jsonl"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/old-root-1.jsonl",
+      "bytes": 717,
+      "sha256": "aa19bc21605bed27ee05df4ace826ba6b33c1e3e520b2df6491e3c1d65ddd168",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/custody-inputs/old-root-1.jsonl"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-0.txt",
+      "bytes": 5838,
+      "sha256": "0d1afc70666ed994aaffb59a7b56163dbb8f8d864f25c98e9eb7602e5bce3b7c",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-0.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-1.txt",
+      "bytes": 1327,
+      "sha256": "e51704faeeb6894f7716fd78a200dfe04b74f51af6bc8f90d4b595c8df104f2a",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-1.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-10.txt",
+      "bytes": 2213,
+      "sha256": "fe2fe1b745632d551fd2c46e31c5c8351b12c3bbb16da92b97f741313b7800d2",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-10.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-11.txt",
+      "bytes": 44448,
+      "sha256": "f52eb1a33d924f679c7233f322ec80cd18471abba4f7e9d27d901c0857cf47a7",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-11.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-12.txt",
+      "bytes": 84,
+      "sha256": "b220edb6a7be27a6856d9a981c1ee96684f7d8f01796e47e88ac1187ca078984",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-12.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-2.txt",
+      "bytes": 403,
+      "sha256": "13dfc42b0474a8444304241f3e41184693368bfff282126f5a7e2fea8241aa32",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-2.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-3.txt",
+      "bytes": 28,
+      "sha256": "475bba84b5db0936d23c77df9b5f2e635363232c8cae6b01fa0adcd95310606b",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-3.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-4.txt",
+      "bytes": 2686,
+      "sha256": "b98b392cc973615e7e0b6fe4df8b845347dc2beb1be24119a26b6e95454a4956",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-4.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-5.txt",
+      "bytes": 391,
+      "sha256": "f10a262f06ad1e5f6572b22238ee03c60c960c2a28ad0030df589aa76902a182",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-5.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-6.txt",
+      "bytes": 555,
+      "sha256": "97d0a6d6c730df148843160555d904fa3fc121ebc08d2fec3df2308689410c04",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-6.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-7.txt",
+      "bytes": 240,
+      "sha256": "95399845aef92a542463c9bcf6a08fe8b1abf3c104c2dfb94ae9c663a916b4ec",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-7.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-8.txt",
+      "bytes": 8314,
+      "sha256": "5702e4f6d1ff1965e39286343395c8d3d4999078f7761e4620d2c667d1482843",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-8.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-9.txt",
+      "bytes": 1709,
+      "sha256": "734fb3f2c7b19c30d81c85b5018ad9a69911a2829ad1fc86a805b36f8e5be969",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census/command-9.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census-commands.json",
+      "bytes": 5997,
+      "sha256": "b05b36df11d4f2859d55c6ee9ec9f69e6bec3be08ddf4cf0e5da9b080045b1f0",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/initial-census-commands.json"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/literal-instruments.json",
+      "bytes": 24095,
+      "sha256": "f10ff37c1e7364c66f78bf16f4a96822773b365654795936d4a38e01c50d4ff6",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/literal-instruments.json"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/old-raw-census-full-stdout.json",
+      "bytes": 8540,
+      "sha256": "8c2f60813428d125059e759216655502af427123771f123f74759082328061b2",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/old-raw-census-full-stdout.json"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/prior-nine-alias-state.json",
+      "bytes": 3230,
+      "sha256": "329f40ea2e02d13c05e186df59d5d09900c521438e1fd627abc27a0f9d8d7f22",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/prior-nine-alias-state.json"
+    },
+    {
+      "path": "/workspace/e02-B-current-cas-generation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/review.json",
+      "bytes": 8562,
+      "sha256": "828d4cbd288b8c7d7906a9d61216973bddc9a1c734fa41db27e632cb8e80555d",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-storage-incident-two-independent-review/review.json"
+    }
+  ],
+  "files": 24,
+  "bytes": 169899,
+  "literal_writing_command": "Python inline metadata copy/build; exact executed audit scripts stored in literal-instruments.json, raw deciding originals unchanged.",
+  "no_source_or_runtime_changes": true
+}

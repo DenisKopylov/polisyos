@@ -1,0 +1,19 @@
+{
+  "exit_code": 0,
+  "wall_seconds": 42.94714187504724,
+  "outputs": {
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/prewrite-window-admission-focused.stdout": {
+      "sha256": "4fa161f330d96c9314b98d3976f5964eb31349e775799b9a3ccb090903c6d36d",
+      "bytes": 744
+    },
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/prewrite-window-admission-focused.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/prewrite-window-admission-focused.junit.xml": {
+      "sha256": "810956697a00bf2cfdee7947a84c6e462d3dacea3755fab33617f7675483c06b",
+      "bytes": 33774
+    }
+  },
+  "inputs_unchanged": true
+}

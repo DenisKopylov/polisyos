@@ -1,0 +1,18 @@
+{
+  "exit_code": 0,
+  "wall_seconds": 44.71516379201785,
+  "outputs": {
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/committed-ref-restart-control.stdout": {
+      "bytes": 776,
+      "sha256": "13ad1bd5d26cb8bb2baa7486a87d4047037498e4bc2c3dd0d248206e5e8a3d8d"
+    },
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/committed-ref-restart-control.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/committed-ref-restart-control.junit.xml": {
+      "bytes": 25479,
+      "sha256": "c2113f66ae7ec8ee1a54b433a417e348e5ffe44bc95d53a74fd51a44aabf5666"
+    }
+  }
+}

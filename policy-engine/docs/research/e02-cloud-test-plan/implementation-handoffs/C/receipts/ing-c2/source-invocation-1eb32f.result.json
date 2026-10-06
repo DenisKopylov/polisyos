@@ -1,0 +1,18 @@
+{
+  "exit_code": 3,
+  "wall_seconds": 440.0011356660398,
+  "outputs": {
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/source-invocation-1eb32f.stdout": {
+      "sha256": "90fcfd836fb102dbb2c44f3ec95113e6d5253e4d1c249f58c680e321de12f3ff",
+      "bytes": 2095
+    },
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/source-invocation-1eb32f.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/source-invocation-1eb32f.raw.json": {
+      "sha256": "571f4f9d89efd46c9fd483d13a0b9befdcc1ddb7e26e3cd84b2784f56ece699d",
+      "bytes": 171087203
+    }
+  }
+}

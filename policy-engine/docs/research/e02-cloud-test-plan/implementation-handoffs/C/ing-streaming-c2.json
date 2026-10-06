@@ -1,0 +1,865 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "ing-streaming-c2",
+  "branch": "codex/e02-C-continuation-20261006",
+  "worktree_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "required_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "analysis_source": "97c85fae2d4505ec8248540d98b9556296244208",
+  "candidate_sha": "81a4af184d72cd28e7ab4063140432e2af764547",
+  "candidate_tree_sha": "c3423c94f28409ec663ec3b161ca85eecfe6207c",
+  "full_slice_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/C-continuation-20261006.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-census-receipt-path-correction.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/publication-first-c2.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/runtime-dependency-c2.json",
+    "policy-engine/pyproject.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-c2-runtime-jsonschema.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-c2-stream-admission.toml",
+    "policy-engine/src/polisyos/fabric/data_plane/README.md",
+    "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+    "policy-engine/src/polisyos/fabric/data_plane/schema_rows.py",
+    "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+    "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+    "policy-engine/tests/unit/fabric/data_plane/test_processing_guarantees.py",
+    "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+    "policy-engine/uv.lock"
+  ],
+  "mechanism_paths": [
+    "policy-engine/src/polisyos/fabric/data_plane/README.md",
+    "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+    "policy-engine/src/polisyos/fabric/data_plane/schema_rows.py",
+    "policy-engine/src/polisyos/fabric/data_plane/streaming.py"
+  ],
+  "test_owner": "fault_oracle authored unique oracle; root C authored streaming implementation; c2_schema_writer independently reviewed frozen final source",
+  "criterion_ids": [
+    "B79",
+    "B80",
+    "B81",
+    "B82",
+    "B83",
+    "B84",
+    "B85",
+    "B86",
+    "B88"
+  ],
+  "findings": [
+    {
+      "id": "B79",
+      "bundle": "ING-01",
+      "historical_status": "partial",
+      "criterion_refs": [
+        {
+          "criterion_id": "B79",
+          "document": "B_r19",
+          "lines": [
+            2153,
+            2166
+          ],
+          "sha256": "27bcd616e4c3651c5234684c5f00bfc90929f35b417c71f57e4740fa2afb567d",
+          "card": "ING-01"
+        }
+      ],
+      "code_outcome": "implemented_bounded_with_typed_refusal",
+      "finding_verdict": "limited",
+      "criterion_backed_result": "Served batch_incremental route injects the exact persisted hint into the real REST request, and actual since filtering persists the independently expected rows.",
+      "missing_input_or_limitation": "Source-confirmed promotion of the same tenant cursor remains unimplemented without an evidence-content binder.",
+      "remaining_verification": "Frozen integration dependent checks by G; production backend/raw VM archives unrun and not used as this candidate proof.",
+      "next_owner": "B connector/cursor evidence owner; G integration",
+      "deciding_receipts": [
+        "receipts/ing-c2/prewrite-window-admission-focused.result.json",
+        "receipts/ing-c2/committed-ref-restart-control.result.json",
+        "receipts/ing-c2/installed-ing-runtime.json"
+      ],
+      "gate_basis": [
+        "recomputed",
+        "independently_reconciled"
+      ]
+    },
+    {
+      "id": "B80",
+      "bundle": "ING-01",
+      "historical_status": "partial",
+      "criterion_refs": [
+        {
+          "criterion_id": "B80",
+          "document": "B_r19",
+          "lines": [
+            2167,
+            2180
+          ],
+          "sha256": "4c1a2181de7a1faab9b419139aacb69af646339f4920a172f21dbe2c4d0cbdad",
+          "card": "ING-01"
+        }
+      ],
+      "code_outcome": "implemented_bounded_with_typed_refusal",
+      "finding_verdict": "held",
+      "criterion_backed_result": "Per-source storage and fail/retry behavior exercised; unverified source progress is not promoted.",
+      "missing_input_or_limitation": "Owner-supplied verified source evidence binder must content-bind dataset and ingestion_run_id before promotion; _save_confirmed_cursors remains deliberately fail-closed.",
+      "remaining_verification": "Frozen integration dependent checks by G; production backend/raw VM archives unrun and not used as this candidate proof.",
+      "next_owner": "B connector/cursor evidence owner",
+      "deciding_receipts": [
+        "receipts/ing-c2/prewrite-window-admission-focused.result.json",
+        "receipts/ing-c2/committed-ref-restart-control.result.json",
+        "receipts/ing-c2/installed-ing-runtime.json"
+      ],
+      "gate_basis": [
+        "recomputed",
+        "independently_reconciled"
+      ]
+    },
+    {
+      "id": "B81",
+      "bundle": "ING-02",
+      "historical_status": "partial",
+      "criterion_refs": [
+        {
+          "criterion_id": "B81",
+          "document": "B_r19",
+          "lines": [
+            2181,
+            2194
+          ],
+          "sha256": "13dc074365e636ede836f221f8ecc0f831016f30f7b65349bcb6750d7d475292",
+          "card": "ING-02"
+        }
+      ],
+      "code_outcome": "implemented_and_independently_verified",
+      "finding_verdict": "closed",
+      "criterion_backed_result": "Failure/reopen/retry compares exact raw source bytes, ordered row IDs, durable frontier and cursor; returned checkpoint ref now resolves to the actual committed full payload.",
+      "missing_input_or_limitation": "None for the declared at-least-once-with-dedupe criterion.",
+      "remaining_verification": "Frozen integration dependent checks by G; production backend/raw VM archives unrun and not used as this candidate proof.",
+      "next_owner": "G integration",
+      "deciding_receipts": [
+        "receipts/ing-c2/prewrite-window-admission-focused.result.json",
+        "receipts/ing-c2/committed-ref-restart-control.result.json",
+        "receipts/ing-c2/installed-ing-runtime.json"
+      ],
+      "gate_basis": [
+        "recomputed",
+        "independently_reconciled"
+      ]
+    },
+    {
+      "id": "B82",
+      "bundle": "ING-02",
+      "historical_status": "partial",
+      "criterion_refs": [
+        {
+          "criterion_id": "B82",
+          "document": "B_r19",
+          "lines": [
+            2195,
+            2208
+          ],
+          "sha256": "fd1257bfd3f64dd10ab0b37a3b10f70cc54ed6bfe66097e8bf9bd00682db2f6a",
+          "card": "ING-02"
+        }
+      ],
+      "code_outcome": "implemented_and_independently_verified",
+      "finding_verdict": "closed",
+      "criterion_backed_result": "COUNT/TUMBLING/SESSION/SLIDING checkpoints restore pending state; schema/window/key/TTL mismatch refuses before rewind/poll and preserves predecessor CAS/cursor.",
+      "missing_input_or_limitation": "None for pinned logical window/checkpoint profiles.",
+      "remaining_verification": "Frozen integration dependent checks by G; production backend/raw VM archives unrun and not used as this candidate proof.",
+      "next_owner": "G integration",
+      "deciding_receipts": [
+        "receipts/ing-c2/prewrite-window-admission-focused.result.json",
+        "receipts/ing-c2/committed-ref-restart-control.result.json",
+        "receipts/ing-c2/installed-ing-runtime.json"
+      ],
+      "gate_basis": [
+        "recomputed",
+        "independently_reconciled"
+      ]
+    },
+    {
+      "id": "B83",
+      "bundle": "ING-03",
+      "historical_status": "partial",
+      "criterion_refs": [
+        {
+          "criterion_id": "B83",
+          "document": "B_r19",
+          "lines": [
+            2209,
+            2222
+          ],
+          "sha256": "33f33619aeda80550a33302bfc571497c218ec5f0f6ea09fa22d447e74d58441",
+          "card": "ING-03"
+        }
+      ],
+      "code_outcome": "implemented_bounded_with_typed_refusal",
+      "finding_verdict": "held",
+      "criterion_backed_result": "Persisted UTC ingestion-time horizon with 86400 seconds, exact configured composite primitive keys and source/partition isolation; live-key overflow refuses before eviction.",
+      "missing_input_or_limitation": "B connector does not supply source-owned event/version identity; synthesized offset _message_id is not event/version authority. Fixture keys do not admit the source contract.",
+      "remaining_verification": "Frozen integration dependent checks by G; production backend/raw VM archives unrun and not used as this candidate proof.",
+      "next_owner": "B source contract owner",
+      "deciding_receipts": [
+        "receipts/ing-c2/prewrite-window-admission-focused.result.json",
+        "receipts/ing-c2/committed-ref-restart-control.result.json",
+        "receipts/ing-c2/installed-ing-runtime.json"
+      ],
+      "gate_basis": [
+        "recomputed",
+        "independently_reconciled"
+      ]
+    },
+    {
+      "id": "B84",
+      "bundle": "ING-03",
+      "historical_status": "partial",
+      "criterion_refs": [
+        {
+          "criterion_id": "B84",
+          "document": "B_r19",
+          "lines": [
+            2223,
+            2236
+          ],
+          "sha256": "f78e004e412604e1799ede0a2d13ca16f060fd12cf16f161c7978b6c2b4cb2c1",
+          "card": "ING-03"
+        }
+      ],
+      "code_outcome": "implemented_and_independently_verified",
+      "finding_verdict": "closed",
+      "criterion_backed_result": "Current retained-state cap, input row/serialized-byte cap before local materialization, and retained output-ref budget admitted before publication. Lower-cap restore refuses before flush/write/rewind/poll/frontier advancement and preserves predecessor.",
+      "missing_input_or_limitation": "No RSS, connector allocation before fetch_stream returns, or staged-spill claim. A real spill reader is absent; overflow refuses.",
+      "remaining_verification": "Frozen integration dependent checks by G; production backend/raw VM archives unrun and not used as this candidate proof.",
+      "next_owner": "G integration; B owns pre-return connector allocation contract",
+      "deciding_receipts": [
+        "receipts/ing-c2/prewrite-window-admission-focused.result.json",
+        "receipts/ing-c2/committed-ref-restart-control.result.json",
+        "receipts/ing-c2/installed-ing-runtime.json"
+      ],
+      "gate_basis": [
+        "recomputed",
+        "independently_reconciled"
+      ]
+    },
+    {
+      "id": "B85",
+      "bundle": "ING-02",
+      "historical_status": "partial",
+      "criterion_refs": [
+        {
+          "criterion_id": "B85",
+          "document": "B_r19",
+          "lines": [
+            2237,
+            2248
+          ],
+          "sha256": "0775c04c77c9d3d0f9afce1d2a8dae5592bcbd20c7987cbea43fcc566bff66b8",
+          "card": "ING-02"
+        }
+      ],
+      "code_outcome": "implemented_and_independently_verified",
+      "finding_verdict": "closed",
+      "criterion_backed_result": "Every persisted window contributor ArtifactRef equals the independent source-row to chunk map across trigger, flush and restart; all exact chunk bytes are read back.",
+      "missing_input_or_limitation": "None for exact contributor lineage criterion.",
+      "remaining_verification": "Frozen integration dependent checks by G; production backend/raw VM archives unrun and not used as this candidate proof.",
+      "next_owner": "G integration",
+      "deciding_receipts": [
+        "receipts/ing-c2/prewrite-window-admission-focused.result.json",
+        "receipts/ing-c2/committed-ref-restart-control.result.json",
+        "receipts/ing-c2/installed-ing-runtime.json"
+      ],
+      "gate_basis": [
+        "recomputed",
+        "independently_reconciled"
+      ]
+    },
+    {
+      "id": "B86",
+      "bundle": "ING-03",
+      "historical_status": "partial",
+      "criterion_refs": [
+        {
+          "criterion_id": "B86",
+          "document": "B_r19",
+          "lines": [
+            2249,
+            2262
+          ],
+          "sha256": "50407424aa74e40532e4906066703611868667233ed9017be4906dd8e6116890",
+          "card": "ING-03"
+        }
+      ],
+      "code_outcome": "implemented_and_independently_verified",
+      "finding_verdict": "closed",
+      "criterion_backed_result": "Declared required/optional/missing/null/type/finite row membership produces identical accepted IDs, keyed quarantine reasons and accepted-data digest at batch sizes 1/2/8.",
+      "missing_input_or_limitation": "None for declared FieldSpec profiles; no inference from batch DataFrame dtype.",
+      "remaining_verification": "Frozen integration dependent checks by G; production backend/raw VM archives unrun and not used as this candidate proof.",
+      "next_owner": "G integration",
+      "deciding_receipts": [
+        "receipts/ing-c2/prewrite-window-admission-focused.result.json",
+        "receipts/ing-c2/committed-ref-restart-control.result.json",
+        "receipts/ing-c2/installed-ing-runtime.json"
+      ],
+      "gate_basis": [
+        "recomputed",
+        "independently_reconciled"
+      ]
+    },
+    {
+      "id": "B88",
+      "bundle": "ING-01",
+      "historical_status": "closed",
+      "criterion_refs": [
+        {
+          "criterion_id": "B88",
+          "document": "B_r19",
+          "lines": [
+            2275,
+            2288
+          ],
+          "sha256": "2359da55971bd34247c9729a769fdcdd07fbea6e1f3e9c11ac0f323215b6414a",
+          "card": "ING-01"
+        }
+      ],
+      "code_outcome": "implemented_and_independently_verified",
+      "finding_verdict": "closed",
+      "criterion_backed_result": "Actual served replay opens the retained exact owned CAS request/response artifact; missing/corrupt artifact refuses without native connector egress, in repository and product cwd.",
+      "missing_input_or_limitation": "Scope is retained source-card replay profile, not all replay protocols.",
+      "remaining_verification": "Frozen integration dependent checks by G; production backend/raw VM archives unrun and not used as this candidate proof.",
+      "next_owner": "G integration",
+      "deciding_receipts": [
+        "receipts/ing-c2/prewrite-window-admission-focused.result.json",
+        "receipts/ing-c2/committed-ref-restart-control.result.json",
+        "receipts/ing-c2/installed-ing-runtime.json"
+      ],
+      "gate_basis": [
+        "recomputed",
+        "independently_reconciled"
+      ]
+    }
+  ],
+  "admission": {
+    "create": {
+      "full_json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/admission-create.json",
+        "sha256": "468a95e79225d312df089557e81dbe828b4f0e7ade80142f038d7bcf7f8c02b5",
+        "bytes": 21369
+      },
+      "status": "admitted",
+      "complete_verdict": true,
+      "requested": {
+        "branch": "codex/e02-C-continuation-20261006",
+        "mode": "create",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+      },
+      "gate_basis": "consumer_asserted"
+    },
+    "resume": {
+      "full_json": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/admission-resume.json",
+        "sha256": "fffff2b2d8da0aebff8b77013cbc77738e7cc83008e606d8b95b773f86387920",
+        "bytes": 28244
+      },
+      "status": "admitted",
+      "complete_verdict": true,
+      "requested": {
+        "branch": "codex/e02-C-continuation-20261006",
+        "mode": "resume",
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+      },
+      "gate_basis": "consumer_asserted"
+    }
+  },
+  "receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/prewrite-window-admission-focused.command.json",
+      "sha256": "3263b75f4be7c99e77aed825bbc5d12356fc82545b0d72a5fd15e9989be42bdd",
+      "bytes": 1806
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/prewrite-window-admission-focused.result.json",
+      "sha256": "528484608954217995353046f9206fe8ebfcb0c4e22bf312415a8643da148dd1",
+      "bytes": 870
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/prewrite-window-admission-focused.stdout",
+      "sha256": "4fa161f330d96c9314b98d3976f5964eb31349e775799b9a3ccb090903c6d36d",
+      "bytes": 744
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/prewrite-window-admission-focused.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/committed-ref-restart-control.command.json",
+      "sha256": "1f5c1768ad6dae7abc510387c5d92c8c7223446b67ebcb61b8b37eb038df5420",
+      "bytes": 776
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/committed-ref-restart-control.result.json",
+      "sha256": "8a1384a12ff0ca17bcb99122be06b11943dec7a30a54d3b8cd2d162b607d3572",
+      "bytes": 830
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/committed-ref-restart-control.stdout",
+      "sha256": "13ad1bd5d26cb8bb2baa7486a87d4047037498e4bc2c3dd0d248206e5e8a3d8d",
+      "bytes": 776
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/committed-ref-restart-control.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/source-invocation-1eb32f.command.json",
+      "sha256": "d22cf3cf954f0656baefbf14eb05b39ab9847c271873bac2b0dc79ea7e888f36",
+      "bytes": 777
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/source-invocation-1eb32f.result.json",
+      "sha256": "230032b7248eb459bb1e44e5f21103b8c18916d0f94b43549acf7f0c34091451",
+      "bytes": 819
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/source-invocation-1eb32f.stdout",
+      "sha256": "90fcfd836fb102dbb2c44f3ec95113e6d5253e4d1c249f58c680e321de12f3ff",
+      "bytes": 2095
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/source-invocation-1eb32f.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/architecture-guardrails-1eb32f.command.json",
+      "sha256": "0fe9366333193c4094a964463193123cab4f99784a529685a449b15dbec71a21",
+      "bytes": 462
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/architecture-guardrails-1eb32f.result.json",
+      "sha256": "26ea873128a17219bd11dbd4b839eed5a7c3fde16928dd8e2b41e3b310a8fe32",
+      "bytes": 583
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/architecture-guardrails-1eb32f.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/architecture-guardrails-1eb32f.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-ruff.json",
+      "sha256": "112cb967a010e4829b37d7a2f7c640f85ec8fb822b450908e51d761b36fed3af",
+      "bytes": 1215
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-ruff.stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-ruff.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-format.json",
+      "sha256": "c9088b9bfc1de84c44f33d76c9dab6bd173f530df38839c24c6ea8482cd02b23",
+      "bytes": 1235
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-format.stdout",
+      "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209",
+      "bytes": 26
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-format.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-diff.json",
+      "sha256": "36e122ca4e5b52c87a85ded6740335f76e8dd624dc768ab98b5ab4c08a97d16a",
+      "bytes": 944
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-diff.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/final68-diff.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-ing-runtime.json",
+      "sha256": "0ddeac01039dbf2078ac15a5081a3cb2196dbf193a50b4ec3e09e24705dbb328",
+      "bytes": 22266
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-package-census.json",
+      "sha256": "dcfffa09de56e6dd88f93793e28b1f27d64e2f8d893e94d89436d8a5bc932bea",
+      "bytes": 35055
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-runtime.stderr",
+      "sha256": "52c0c3320969603dc12a897b5eb3a7e20ba08dfeb54b6f12ab8df7a59cd8b155",
+      "bytes": 1446
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-build.stderr",
+      "sha256": "a89c107137681c12bc590cbde971d02099fb7d4c7d7e6059f5616da8069ff7b4",
+      "bytes": 427
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-install.stderr",
+      "sha256": "37181612dc401e25f608290ad87ce420261a033d0bb89a44976116ec6fe493bf",
+      "bytes": 651
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/independent-oracle-initial-deciding-receipt.txt",
+      "sha256": "da092c12e19788054a3c2e42ff4797e30aed181d9a940b04946dbf637b8707ac",
+      "bytes": 5907
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/returned-ref-before-fix-red.log",
+      "sha256": "5ff87ce7542b9ed0445a496cb177daa450ca2ef8f2d158b6ade2bd7b250c41b7",
+      "bytes": 8282
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-command-results.json",
+      "sha256": "e796d263c9431a41afde8b41cfc46d046d738c6a6272c416eee53bf12b62b4f4",
+      "bytes": 32540
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-ing-probe.py",
+      "sha256": "9ccb8eefd84c2478863ab0f51d53080711cf83acda8371b5d0727b8c89df03f1",
+      "bytes": 28058
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-build.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/installed-install.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/candidate68-removal-controls-receipt.txt",
+      "bytes": 2021,
+      "sha256": "7341c9c67df9312e5924a57bfa6420cfb72c01c32c6c91a711e4c1cfb1c00ec0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/candidate68-removal-controls-final.log",
+      "bytes": 80,
+      "sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830"
+    }
+  ],
+  "independent_controls_raw": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/.tmp/e02-c-ing-oracle/raw/deciding-receipt.txt",
+      "sha256": "da092c12e19788054a3c2e42ff4797e30aed181d9a940b04946dbf637b8707ac",
+      "bytes": 5907
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/.tmp/e02-c-ing-oracle/raw/base198-b83-current.log",
+      "sha256": "b68bb1cce6007b460175de967f592e7f341fb4cb0f84abd6b13be821eafb94b3",
+      "bytes": 23811
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/.tmp/e02-c-ing-oracle/raw/base198-b84-current.log",
+      "sha256": "e9170e44f047d603854fc3bd81913b30251e3e52ae7066dc7a8b44f0176f84e7",
+      "bytes": 303304
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/.tmp/e02-c-ing-oracle/raw/candidate2-b83.log",
+      "sha256": "83a1593c5b5783693fe3006d1f6597bcb4f3a5968f23b59481ee09a0477f910a",
+      "bytes": 80
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/.tmp/e02-c-ing-oracle/raw/candidate2-b84.log",
+      "sha256": "6dd786dc72d45e02d32f9a2c96fbee7f0ea69261b610e86a41d1a671dd0186ef",
+      "bytes": 80
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/.tmp/e02-c-ing-oracle/raw/candidate2-b88-root.log",
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+      "bytes": 80
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/.tmp/e02-c-ing-oracle/raw/candidate2-b88-child.log",
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+      "bytes": 80
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/.tmp/e02-c-ing-oracle/raw/base198-next-witnesses-final.log",
+      "sha256": "d5c001f193e722063686b0f23b6509de51be0140c8cbbde3449ee285929741ed",
+      "bytes": 33925
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/.tmp/e02-c-ing-oracle/raw/candidate-next-witnesses-3.log",
+      "sha256": "341d5dca33250b815baddbafb6001e174c20bf1716bb74f3d612e77777db8938",
+      "bytes": 80
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/.tmp/e02-c-ing-oracle/raw/candidate-pre-fix-returned-checkpoint-ref-2.log",
+      "sha256": "5ff87ce7542b9ed0445a496cb177daa450ca2ef8f2d158b6ade2bd7b250c41b7",
+      "bytes": 8282
+    }
+  ],
+  "positive_chain": "Source fixture/real REST source bytes → process_stream_dataset → actual CAS chunk/window/checkpoint/cursor → CursorStore reopen and served replay consumers. Independent source row/UTC/reference maps are separate from accumulator accounting.",
+  "independent_review": {
+    "reviewer": "c2_schema_writer",
+    "candidate": "68eed6d56f48e9a676edeb3251902300a64d5fad",
+    "tree": "0d0163f817c7b697e18f96c0056076a7360b8e8f",
+    "verdict": "GO for logical runtime properties; B79 limited and B80/B83 held",
+    "changes_made": false,
+    "fresh_installed_auditor": "c2_installed_audit",
+    "artifact_environment": "base-only fresh exact wheel; pytest absent; python -I -B outside checkout, verified module origins and wheel byte match"
+  },
+  "negative_controls": [
+    "Executed controls: raw source content drift; restore schema/window/key/TTL mismatch; operator/output capacity admission removal with configured cap markers retained; source UTC horizon/missing/ambiguous key fixtures; all-but-last contributor substitution; real prepared-checkpoint ArtifactRef substitution; served exact-CAS corrupt/missing with zero native egress.",
+    "Executed B79 removal: actual CursorStore.find_latest_cursor returns None while route markers remain; real REST since filter receives no hint and the real persisted stale row fails the independent semantic result oracle.",
+    "Executed B86 removal: actual schema_rows.field_value_violation returns None while schema_binding markers remain; invalid typed row is persisted in actual CAS and fails the independent membership/reason oracle."
+  ],
+  "p37": {
+    "actual_rows_bytes_refs_schema_and_checkpoint": "recomputed",
+    "independent_UTC/source/lineage/maps": "independently_reconciled",
+    "source_owned_event_version_key_and_confirmed_progress_binder": "not_established; fail closed for authority promotion"
+  },
+  "p38": [
+    {
+      "property": "Return the durable committed checkpoint artifact",
+      "old_proxy": "Prepared checkpoint ref returned even though latest index subsequently committed",
+      "divergent_case": "Actual CAS returned paused uncommitted bytes while latest index was closed committed. 68eed returns save_stream_checkpoint(committed_checkpoint) ArtifactRef; exact-ref/reopened full-payload test and prepared-ref canary prove difference."
+    },
+    {
+      "property": "Current runtime cap controls actual retained state/input/output refs",
+      "old_proxy": "Configured cap/paused marker or low restore cap without admission",
+      "divergent_case": "Two pending rows restored at cap1 and flushed; now typed restore admission rejects before poll/CAS/cursor writes."
+    },
+    {
+      "property": "24h source-owned event/version dedupe",
+      "remaining_proxy": "Default connector offset _message_id is not source event/version identity",
+      "divergent_case": "Reused entity/version or replay offset cannot establish source identity; B83 held despite configured fixture horizon passing."
+    }
+  ],
+  "required_checks": {
+    "focused_196": "PASS; all seven modules before pointer-only delta",
+    "pointer_delta_145": "PASS; full oracle plus streaming/cursor importers after final two-line change",
+    "ruff_and_format": "PASS final six changed Python source/test paths",
+    "production_invocation": "exit3 UNRESOLVED/partial on1eb; zero reported regressions and ten new unresolved; not runtime closure and no inherited-red claim",
+    "architecture_guardrails": "UNRUN harness timeout300 seconds, emptystdoutstderr; P41 attribution not_established",
+    "broad_regression": "Reserved to G frozen integration SHA; not run per slice"
+  },
+  "raw_static_report": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/source-invocation-1eb32f.raw.json",
+    "sha256": "571f4f9d89efd46c9fd483d13a0b9befdcc1ddb7e26e3cd84b2784f56ece699d",
+    "bytes": 171087203
+  },
+  "production_inputs": {
+    "used": false,
+    "raw_vm_archives": "unavailable",
+    "baseline_grade": "transfer_and_navigation_only"
+  },
+  "limitations": [
+    "Source confirmed progress/evidence binder missing (B80, fullB79). Source-owned event/version key missing (B83). Logical budgets do not measure RSS or connector allocation before return. No real staged-spill reader. No exactly-once external transaction claim.",
+    "Installed module-origin paths name a reused private venv and may now contain a successor wheel; historical in-run module hashes and immutable retained exact-wheel bytes prove the audited source, not present-day contents at that mutable path."
+  ],
+  "next_owner": "G accepts code and applies per-finding integration decisions; B supplies exact source/progress contracts through Git. No other user-chat messaging.",
+  "cleanup": "No cleanup performed by root; unique CAS/raw deciding evidence preserved; repeatable extracts/environments eligible only for Trash after final receipts.",
+  "history": "Append-only; implementation before this separate handoff, branch attachment read before commit; own topic publication only.",
+  "closure_ids": [],
+  "bundle_ids": [
+    "ING-01",
+    "ING-02",
+    "ING-03"
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/C-continuation-20261006.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-census-receipt-path-correction.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/publication-first-c2.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/runtime-dependency-c2.json",
+    "policy-engine/pyproject.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-c2-runtime-jsonschema.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-c2-stream-admission.toml",
+    "policy-engine/src/polisyos/fabric/data_plane/README.md",
+    "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+    "policy-engine/src/polisyos/fabric/data_plane/schema_rows.py",
+    "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+    "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+    "policy-engine/tests/unit/fabric/data_plane/test_processing_guarantees.py",
+    "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+    "policy-engine/uv.lock"
+  ],
+  "baseline_cells": [
+    "F01-P040",
+    "F01-P061",
+    "F02-P101",
+    "F04-P009",
+    "F05-P085",
+    "F06-P020",
+    "F06-P062",
+    "F07-P008",
+    "F07-P038",
+    "F09-P065",
+    "F11-P015",
+    "F12-P049",
+    "F12-P068",
+    "F13-P010",
+    "F13-P049",
+    "F13-P073",
+    "F13-P116"
+  ],
+  "checks": [
+    {
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/prewrite-window-admission-focused.command.json",
+      "outcome": "see_exact_retained_result"
+    },
+    {
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/prewrite-window-admission-focused.result.json",
+      "outcome": "see_exact_retained_result"
+    },
+    {
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/committed-ref-restart-control.command.json",
+      "outcome": "see_exact_retained_result"
+    },
+    {
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/committed-ref-restart-control.result.json",
+      "outcome": "see_exact_retained_result"
+    },
+    {
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/source-invocation-1eb32f.command.json",
+      "outcome": "see_exact_retained_result"
+    },
+    {
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/source-invocation-1eb32f.result.json",
+      "outcome": "see_exact_retained_result"
+    },
+    {
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/architecture-guardrails-1eb32f.command.json",
+      "outcome": "see_exact_retained_result"
+    },
+    {
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/architecture-guardrails-1eb32f.result.json",
+      "outcome": "see_exact_retained_result"
+    },
+    {
+      "command_receipt": "receipts/ing-c2/candidate68-removal-controls-receipt.txt",
+      "stdout": "receipts/ing-c2/candidate68-removal-controls-final.log",
+      "outcome": "4 PASS: normal B79/B86 positives and actual marker-kept removal controls; product source68 unchanged; test-only finalcandidate81a; no broad145 rerun."
+    }
+  ],
+  "property": {
+    "statement": "Source fixture/real REST source bytes → process_stream_dataset → actual CAS chunk/window/checkpoint/cursor → CursorStore reopen and served replay consumers. Independent source row/UTC/reference maps are separate from accumulator accounting.",
+    "runtime_path": [
+      "source connector -> process_stream_dataset",
+      "actual CAS chunk/window/checkpoint/cursor",
+      "CursorStore reopen and served runtime replay consumers"
+    ],
+    "proxy_divergence": [
+      {
+        "property": "Return the durable committed checkpoint artifact",
+        "old_proxy": "Prepared checkpoint ref returned even though latest index subsequently committed",
+        "divergent_case": "Actual CAS returned paused uncommitted bytes while latest index was closed committed. 68eed returns save_stream_checkpoint(committed_checkpoint) ArtifactRef; exact-ref/reopened full-payload test and prepared-ref canary prove difference."
+      },
+      {
+        "property": "Current runtime cap controls actual retained state/input/output refs",
+        "old_proxy": "Configured cap/paused marker or low restore cap without admission",
+        "divergent_case": "Two pending rows restored at cap1 and flushed; now typed restore admission rejects before poll/CAS/cursor writes."
+      },
+      {
+        "property": "24h source-owned event/version dedupe",
+        "remaining_proxy": "Default connector offset _message_id is not source event/version identity",
+        "divergent_case": "Reused entity/version or replay offset cannot establish source identity; B83 held despite configured fixture horizon passing."
+      }
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Per-finding original-criterion verdicts are separate from G integrated-ledger closure. Code/verdict review passed bounded logical properties; B79 limited, B80/B83 held; no production authority or integration publication claim.",
+  "installed_command_receipt": "receipts/ing-c2/installed-command-results.json",
+  "installed_runtime_source_freeze": "68eed6d56f48e9a676edeb3251902300a64d5fad",
+  "installed_origin_evidence": "Historical in-run site-packages origin and streaming.py SHA3597a0f5a5958dad4855ddc3155200e8821933f34ff034e7ddc9c65982df54df; retained exact wheel is85095b7bb283b79d16367565deea21a9b9256a1b890ab2a6a5e2c5e14233e51b. This venv is reused between candidates; no present-day origin-content claim.",
+  "baseline_input_scope": {
+    "route_table": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv",
+    "route_table_sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2",
+    "complete_route_rows_walked": 2524,
+    "selected_finding_ids": [
+      "B79",
+      "B80",
+      "B81",
+      "B82",
+      "B83",
+      "B84",
+      "B85",
+      "B86",
+      "B88"
+    ],
+    "route_edges": 96,
+    "unique_cells": 17,
+    "grade": "transfer_and_navigation_only; candidate_unverified; semantic_adequacy=not_established",
+    "raw_vm_archives": "unavailable; none used"
+  },
+  "product_source_freeze_sha": "68eed6d56f48e9a676edeb3251902300a64d5fad",
+  "product_source_freeze_tree_sha": "0d0163f817c7b697e18f96c0056076a7360b8e8f",
+  "implementation_commits_product_only": [
+    {
+      "sha": "1eb32f013308de34d77572dd4af8ca048b2b9ee3",
+      "tree": "6a5db17ef6221243869e1d52ca5200f37a015f54"
+    },
+    {
+      "sha": "68eed6d56f48e9a676edeb3251902300a64d5fad",
+      "tree": "0d0163f817c7b697e18f96c0056076a7360b8e8f"
+    }
+  ],
+  "implementation_commits": [
+    {
+      "sha": "060968079cbd2d3bfbd69bd7d3b946a8fcb8982f",
+      "tree": "73f0dc60b18b311ab74f971711ac34209620cd8f"
+    },
+    {
+      "sha": "9a670d2368f7d8f682a73d13845fdd847dbacbd6",
+      "tree": "c354895ea4c50e1e31d2b7432682b6475fab8d05"
+    },
+    {
+      "sha": "c426349bdd5e0deb28ec2b69b001e0af9abbcab0",
+      "tree": "2255dd5e8ba8eb8b6877abd33ea7d0d99281ca83"
+    },
+    {
+      "sha": "7acaec54dee4c04b1d1c5bfc334e8a3408c4ff8f",
+      "tree": "2fad9d3c0c303a71ec5e67435f99841f6be98dd1"
+    },
+    {
+      "sha": "495043eb636275398ed729d9d01bec12059d8059",
+      "tree": "34a9ad32cf836a2342fd92b5748ab20a1c2b4d81"
+    },
+    {
+      "sha": "efb3fd72ed2446cf475a7be2c6bfae8f9fb4b8ef",
+      "tree": "cb6439a3a282f0dfe92e110761c89f1ff8978dff"
+    },
+    {
+      "sha": "1eb32f013308de34d77572dd4af8ca048b2b9ee3",
+      "tree": "6a5db17ef6221243869e1d52ca5200f37a015f54"
+    },
+    {
+      "sha": "b91847d246ee594491e5e85d233c0632a9f355cb",
+      "tree": "0a5b321cffdd13323be973bb50a24e41463f5c43"
+    },
+    {
+      "sha": "0345365d39a3ed7b032b77801391412f4e695576",
+      "tree": "59a6b952da2f863b612ae0253610bbf9bd2ceea0"
+    },
+    {
+      "sha": "68eed6d56f48e9a676edeb3251902300a64d5fad",
+      "tree": "0d0163f817c7b697e18f96c0056076a7360b8e8f"
+    },
+    {
+      "sha": "81a4af184d72cd28e7ab4063140432e2af764547",
+      "tree": "c3423c94f28409ec663ec3b161ca85eecfe6207c"
+    }
+  ]
+}

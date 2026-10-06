@@ -1,0 +1,36 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/prewrite-window-admission-focused.junit.xml",
+    "tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+    "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+    "tests/unit/fabric/data_plane/test_streaming_windowed.py",
+    "tests/unit/fabric/data_plane/test_modes.py",
+    "tests/unit/fabric/data_plane/test_incremental.py",
+    "tests/unit/fabric/data_plane/test_cursor_store.py",
+    "tests/unit/fabric/data_plane/test_processing_guarantees.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+  "env_overrides": {
+    "PYTHONPATH": ".:src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1"
+  },
+  "timeout_seconds": 180,
+  "input_path_sha256": {
+    "src/polisyos/fabric/data_plane/streaming.py": "8e737b06e1b5963aa8c76e6cc3e89750a4984ad9df0ac8793549718dc3afaec8",
+    "src/polisyos/fabric/data_plane/modes.py": "d5a39a4b7462db25ca73489256739873ca40b50e3b57e45aead362604521e6d9",
+    "src/polisyos/fabric/data_plane/schema_rows.py": "052e75d29a02806cbb716178cf6b9ddc750d3f0b1ce93116c23953e56304bb23",
+    "tests/unit/fabric/data_plane/test_streaming_runtime.py": "59344c8fac40eb73b6d793b9dd955c9c7acf16067cc9cf3de860790a6502a742",
+    "tests/unit/fabric/data_plane/test_processing_guarantees.py": "26b51891e78183f174a27840005111894aab89fb86cd29e0069409c12cc5b2ab",
+    "tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py": "5877b1fd385266b23288e61ded44979466ff2908e9b6a176219e17e70ef5e8b1"
+  }
+}

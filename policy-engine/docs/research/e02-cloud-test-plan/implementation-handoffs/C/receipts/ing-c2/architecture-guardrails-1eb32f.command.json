@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "tools.cli",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+  "candidate_sha": "1eb32f013308de34d77572dd4af8ca048b2b9ee3",
+  "candidate_tree": "6a5db17ef6221243869e1d52ca5200f37a015f54",
+  "timeout_seconds": 300
+}

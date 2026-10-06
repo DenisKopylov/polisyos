@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "polisyos.runtime.quality.production_invocation",
+    "--repo-root",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "--base",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "--receipt",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/source-invocation-1eb32f.raw.json"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+  "candidate_sha": "1eb32f013308de34d77572dd4af8ca048b2b9ee3",
+  "candidate_tree": "6a5db17ef6221243869e1d52ca5200f37a015f54",
+  "timeout_seconds": 1800
+}

@@ -1,0 +1,24 @@
+Receipt: B79 served-route cursor-injection and B86 per-field schema-membership removal controls
+
+Source checkout: /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos
+Source HEAD: 68eed6d56f48e9a676edeb3251902300a64d5fad
+Source tree: 0d0163f817c7b697e18f96c0056076a7360b8e8f
+streaming.py SHA256: 3597a0f5a5958dad4855ddc3155200e8821933f34ff034e7ddc9c65982df54df
+modes.py SHA256: d5a39a4b7462db25ca73489256739873ca40b50e3b57e45aead362604521e6d9
+
+Test checkout: /Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos
+Test branch: codex/e02-C-ing-oracle-20261006
+Test HEAD before append: 78ee80bf1016c979f8ff5ac0a63c23ab43fdf5ab
+Test module SHA256 before commit: a6b28c8a79fa60fdfd018728947d6e67ea71af1c906d7238e0582396409488f3
+Python: Python 3.14.0
+Pytest: pytest 9.0.2
+
+Command working directory: /Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine
+PYTHONPATH: /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine
+ARGV: /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py -k 'test_b79_served_incremental_route_filters_source_rows_from_the_stored_etag or test_b86_schema_membership_and_quarantine_do_not_depend_on_batch_size or test_b86_schema_validator_removal_admits_wrong_type_with_binding_marker_intact'
+Exit code: 0
+Expected: 4 selected cases passed (two B79 parameter cases; B86 positive batch invariance and validator-removal control).
+
+Merged stdout/stderr: candidate68-removal-controls-final.log
+Merged stdout/stderr SHA256: c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830
+Ruff format/check and git diff --check passed before the pytest run.

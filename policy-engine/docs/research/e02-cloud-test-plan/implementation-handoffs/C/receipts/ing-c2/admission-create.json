@@ -1,0 +1,657 @@
+{
+  "admin_records": [
+    {
+      "HEAD": "ref: refs/heads/codex/e02-A-full-queue",
+      "admin_dir": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos",
+      "commondir": "../..",
+      "gitdir": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/.git",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos"
+    },
+    {
+      "HEAD": "ref: refs/heads/codex/e02-integration",
+      "admin_dir": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos50",
+      "commondir": "../..",
+      "gitdir": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/.git",
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos"
+    }
+  ],
+  "branch_exists": false,
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+        "check-ref-format",
+        "refs/heads/codex/e02-C-continuation-20261006"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+        "check-ref-format",
+        "--branch",
+        "codex/e02-C-continuation-20261006"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "codex/e02-C-continuation-20261006\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/Users/deniskopylov/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+        "worktree",
+        "list",
+        "--porcelain",
+        "-z"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "worktree /Users/deniskopylov/polisyos\u0000HEAD 355f5e861be96ebf03ee97888a856da2c26f767f\u0000branch refs/heads/docs/raw-evidence-ignore\u0000\u0000worktree /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos\u0000HEAD 198076863e143dea9f89f02734b13d50dae3eed5\u0000branch refs/heads/codex/e02-A-full-queue\u0000\u0000worktree /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos\u0000HEAD 198076863e143dea9f89f02734b13d50dae3eed5\u0000branch refs/heads/codex/e02-integration\u0000\u0000"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/polisyos",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/Users/deniskopylov/polisyos\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/polisyos",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/Users/deniskopylov/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/polisyos",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/Users/deniskopylov/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/polisyos",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/docs/raw-evidence-ignore\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/polisyos",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "355f5e861be96ebf03ee97888a856da2c26f767f\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/Users/deniskopylov/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-A-full-queue\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "198076863e143dea9f89f02734b13d50dae3eed5\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/Users/deniskopylov/polisyos/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos50\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-integration\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "198076863e143dea9f89f02734b13d50dae3eed5\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+        "show-ref",
+        "--verify",
+        "--quiet",
+        "refs/heads/codex/e02-C-continuation-20261006"
+      ],
+      "exit_code": 1,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine",
+        "worktree",
+        "list",
+        "--porcelain",
+        "-z"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "worktree /Users/deniskopylov/polisyos\u0000HEAD 355f5e861be96ebf03ee97888a856da2c26f767f\u0000branch refs/heads/docs/raw-evidence-ignore\u0000\u0000worktree /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos\u0000HEAD 198076863e143dea9f89f02734b13d50dae3eed5\u0000branch refs/heads/codex/e02-A-full-queue\u0000\u0000worktree /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos\u0000HEAD 198076863e143dea9f89f02734b13d50dae3eed5\u0000branch refs/heads/codex/e02-integration\u0000\u0000"
+    }
+  ],
+  "complete_verdict": true,
+  "filesystem_reads": [
+    {
+      "operation": "lstat",
+      "path": "/Users/deniskopylov/polisyos/.git/worktrees",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 67776894,
+        "kind": "directory",
+        "resolved": "/Users/deniskopylov/polisyos/.git/worktrees"
+      },
+      "status": "observed"
+    },
+    {
+      "members": [
+        "/Users/deniskopylov/polisyos/.git/worktrees/polisyos",
+        "/Users/deniskopylov/polisyos/.git/worktrees/polisyos50"
+      ],
+      "operation": "iterdir",
+      "path": "/Users/deniskopylov/polisyos/.git/worktrees",
+      "predicate_class": "recomputed",
+      "status": "read"
+    },
+    {
+      "operation": "lstat",
+      "path": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 168471177,
+        "kind": "directory",
+        "resolved": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 68,
+      "operation": "read_bytes",
+      "path": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "e9cac41b2a886846dbc6dd187a40ad36a63d87f965f2f4839cd475268d345d7f",
+      "status": "read",
+      "text": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 39,
+      "operation": "read_bytes",
+      "path": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "a7d0bcb3e4cef18105d326c796d01bdfa8332507acc5748252694b90288661e7",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-A-full-queue\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos50",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 162736798,
+        "kind": "directory",
+        "resolved": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos50"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 72,
+      "operation": "read_bytes",
+      "path": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos50/gitdir",
+      "predicate_class": "recomputed",
+      "sha256": "1d50f71876655fda806cb74647f2c32e1496cbe386f530bc25e548be5307d9bd",
+      "status": "read",
+      "text": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/.git\n"
+    },
+    {
+      "bytes": 6,
+      "operation": "read_bytes",
+      "path": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos50/commondir",
+      "predicate_class": "recomputed",
+      "sha256": "340ddcb67a6204f742cd1e28e5b462622dde7daaa8ee36001897196aacdc6d47",
+      "status": "read",
+      "text": "../..\n"
+    },
+    {
+      "bytes": 38,
+      "operation": "read_bytes",
+      "path": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos50/HEAD",
+      "predicate_class": "recomputed",
+      "sha256": "8c6769f9452aa094e0d5aa257cf1a9a2bb0928de74eda1e8b68f92bc65fad501",
+      "status": "read",
+      "text": "ref: refs/heads/codex/e02-integration\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos50/locked",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos50/locked"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/Users/deniskopylov/polisyos",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 12286837,
+        "kind": "directory",
+        "resolved": "/Users/deniskopylov/polisyos"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 168471180,
+        "kind": "directory",
+        "resolved": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 168471182,
+        "kind": "file",
+        "resolved": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 61,
+      "operation": "read_bytes",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/.git",
+      "predicate_class": "recomputed",
+      "sha256": "4ae3a0eb87391d20e12f9355560476581a1f17343ea6c7e97d697c6a814ca5be",
+      "status": "read",
+      "text": "gitdir: /Users/deniskopylov/polisyos/.git/worktrees/polisyos\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 162736800,
+        "kind": "directory",
+        "resolved": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/.git",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 162736802,
+        "kind": "file",
+        "resolved": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/.git"
+      },
+      "status": "observed"
+    },
+    {
+      "bytes": 63,
+      "operation": "read_bytes",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/.git",
+      "predicate_class": "recomputed",
+      "sha256": "dd851e043115ec918b145a66238b43088cf35ee676520a68029292f97e1968f0",
+      "status": "read",
+      "text": "gitdir: /Users/deniskopylov/polisyos/.git/worktrees/polisyos50\n"
+    },
+    {
+      "operation": "lstat",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+      },
+      "status": "observed"
+    }
+  ],
+  "findings": [],
+  "finished_at": "2026-10-06T09:37:29.580013+00:00",
+  "measurement": {
+    "file_type_denominator": "Git porcelain/ref outputs; gitdir, commondir, HEAD, optional locked and .git markers; filesystem lstat/iterdir",
+    "path_denominator": "all Git worktree registrations, all linked admin directories, their required records and live backlinks, requested path",
+    "predicate_class": "independently_reconciled",
+    "selector": "exact branch ref AND exact worktree root; create availability or resume attachment"
+  },
+  "path_state": {
+    "exists": false,
+    "kind": "absent",
+    "resolved": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+  },
+  "registrations": [
+    {
+      "HEAD": "355f5e861be96ebf03ee97888a856da2c26f767f",
+      "branch": "refs/heads/docs/raw-evidence-ignore",
+      "live": {
+        "branch": "refs/heads/docs/raw-evidence-ignore",
+        "common_dir": "/Users/deniskopylov/polisyos/.git",
+        "git_dir": "/Users/deniskopylov/polisyos/.git",
+        "head": "355f5e861be96ebf03ee97888a856da2c26f767f",
+        "root": "/Users/deniskopylov/polisyos"
+      },
+      "path_state": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 12286837,
+        "kind": "directory",
+        "resolved": "/Users/deniskopylov/polisyos"
+      },
+      "worktree": "/Users/deniskopylov/polisyos"
+    },
+    {
+      "HEAD": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "admin_dir": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos",
+      "branch": "refs/heads/codex/e02-A-full-queue",
+      "live": {
+        "branch": "refs/heads/codex/e02-A-full-queue",
+        "common_dir": "/Users/deniskopylov/polisyos/.git",
+        "git_dir": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos",
+        "head": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "root": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos"
+      },
+      "path_state": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 168471180,
+        "kind": "directory",
+        "resolved": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos"
+      },
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos"
+    },
+    {
+      "HEAD": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "admin_dir": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos50",
+      "branch": "refs/heads/codex/e02-integration",
+      "live": {
+        "branch": "refs/heads/codex/e02-integration",
+        "common_dir": "/Users/deniskopylov/polisyos/.git",
+        "git_dir": "/Users/deniskopylov/polisyos/.git/worktrees/polisyos50",
+        "head": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos"
+      },
+      "path_state": {
+        "device": 16777231,
+        "exists": true,
+        "inode": 162736800,
+        "kind": "directory",
+        "resolved": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos"
+      },
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos"
+    }
+  ],
+  "repository_common_dir": "/Users/deniskopylov/polisyos/.git",
+  "requested": {
+    "branch": "codex/e02-C-continuation-20261006",
+    "mode": "create",
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos"
+  },
+  "schema_version": "polisyos.workspace.worktree-admission.v1",
+  "selector_predicate_class": "consumer_asserted",
+  "started_at": "2026-10-06T09:37:29.444589+00:00",
+  "status": "admitted",
+  "unresolved_by_construction": [
+    {
+      "boundary": "moved_directories_outside_registered_paths",
+      "detail": "No wider filesystem/mount search; missing registered directories do not prove abandonment or prune safety."
+    },
+    {
+      "boundary": "non_atomic_observation",
+      "detail": "Git and filesystem reads are sequential, not an atomic snapshot; changes after or between reads can escape observation."
+    },
+    {
+      "boundary": "name_reservation",
+      "detail": "This read-only command reserves nothing. Root serializes commissioning, reruns immediately before creation and reads back exact attachment afterward."
+    },
+    {
+      "boundary": "external_prompt_writers",
+      "detail": "Receipt does not intercept or enforce arbitrary commissioning prompts."
+    }
+  ],
+  "unresolved_inputs": []
+}

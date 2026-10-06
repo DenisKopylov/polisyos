@@ -1,0 +1,31 @@
+{
+  "argv": [
+    ".venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "src/polisyos/fabric/data_plane/streaming.py",
+    "src/polisyos/fabric/data_plane/modes.py",
+    "src/polisyos/fabric/data_plane/schema_rows.py",
+    "tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+    "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+    "tests/unit/fabric/data_plane/test_processing_guarantees.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+  "candidate_sha": "68eed6d56f48e9a676edeb3251902300a64d5fad",
+  "candidate_tree": "0d0163f817c7b697e18f96c0056076a7360b8e8f",
+  "timeout_seconds": 60,
+  "exit_code": 0,
+  "wall_seconds": 0.04106612503528595,
+  "outputs": {
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/final68-format.stdout": {
+      "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209",
+      "bytes": 26
+    },
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/final68-format.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

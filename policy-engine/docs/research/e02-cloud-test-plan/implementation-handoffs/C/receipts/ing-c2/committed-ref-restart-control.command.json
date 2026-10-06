@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "addopts=",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/committed-ref-restart-control.junit.xml",
+    "tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+    "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+    "tests/unit/fabric/data_plane/test_cursor_store.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+  "timeout_seconds": 180,
+  "source_sha256": "3597a0f5a5958dad4855ddc3155200e8821933f34ff034e7ddc9c65982df54df"
+}

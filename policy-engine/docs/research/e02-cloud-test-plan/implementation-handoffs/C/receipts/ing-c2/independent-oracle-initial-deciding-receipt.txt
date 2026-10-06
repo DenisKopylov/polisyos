@@ -1,0 +1,42 @@
+E02 C independent ingestion oracle receipt
+Date: 2026-10-06
+Oracle branch: codex/e02-C-ing-oracle-20261006
+Oracle test commit: 3e10cbcb98c24610d387fdd721f127d6c2e7c510
+Oracle commit tree: fca49294151736533a4f06872214b63b20ec6052
+Oracle test file: policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py
+Oracle test-file SHA256: 5877b1fd385266b23288e61ded44979466ff2908e9b6a176219e17e70ef5e8b1
+Baseline runtime: base commit 198076863e143dea9f89f02734b13d50dae3eed5, tree 2b754a92c27959e2e747738d47ed0b419f3b6dd8
+Candidate runtime source snapshot: continuation HEAD efb3fd72ed2446cf475a7be2c6bfae8f9fb4b8ef, HEAD tree cb6439a3a282f0dfe92e110761c89f1ff8978dff, dirty streaming.py SHA256 8e737b06e1b5963aa8c76e6cc3e89750a4984ad9df0ac8793549718dc3afaec8; modes.py SHA256 d5a39a4b7462db25ca73489256739873ca40b50e3b57e45aead362604521e6d9; untracked schema_rows.py existed in source tree.
+Python: /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python (repository original venv); pytest output captures stdout+stderr combined.
+
+Baseline B83 command, run from own worktree policy-engine:
+PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py -k b83_
+Result: exit 1; 7 failures, expected missing persisted horizon / unsupported-key behavior. Log: base198-b83-current.log; SHA256 b68bb1cce6007b460175de967f592e7f341fb4cb0f84abd6b13be821eafb94b3.
+
+Baseline B84 command, run from own worktree policy-engine:
+PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py -k b84_
+Result: exit 1; 38 failures, 10 passes across 48 tests. Log: base198-b84-current.log; SHA256 e9170e44f047d603854fc3bd81913b30251e3e52ae7066dc7a8b44f0176f84e7.
+
+Candidate commands run from own worktree policy-engine, with candidate source first in PYTHONPATH:
+PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py -k b83_
+Result: exit 0; 7/7 pass. Log candidate2-b83.log; SHA256 83a1593c5b5783693fe3006d1f6597bcb4f3a5968f23b59481ee09a0477f910a.
+
+PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py -k b84_
+Result: exit 0; 48/48 pass. Log candidate2-b84.log; SHA256 6dd786dc72d45e02d32f9a2c96fbee7f0ea69261b610e86a41d1a671dd0186ef.
+
+B88 child-cwd command, run from own worktree policy-engine:
+PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py::test_b88_served_replay_uses_owned_fixture_catalog_and_reads_back_evidence
+Result: exit 0; 1/1 pass. Log candidate2-b88-child.log; SHA256 423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d.
+
+B88 repo-root command, run from own worktree repo root:
+PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-c-ing-oracle-20261006/polisyos/policy-engine /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -c policy-engine/pytest.ini -q policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py::test_b88_served_replay_uses_owned_fixture_catalog_and_reads_back_evidence
+Result: exit 0; 1/1 pass. Log candidate2-b88-root.log; SHA256 423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d.
+
+Candidate B84 before the final source change had 32/48 pass and 16 typed refusals each left a persisted `fabric.stream_chunk` for rejected row c; log candidate-b84-current.log. New candidate preflight eliminated the chunk artifact and passes all B84 assertions.
+
+Test-only lint:
+ruff check --output-format=concise tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py -> All checks passed.
+ruff format --check tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py -> 1 file already formatted.
+git diff --check -> pass.
+
+B83 scope caveat: keys are explicitly synthetic fixture events with configured event/version primitive components. Tests do not infer that those field names establish source-owner authority; default legacy source-message semantics remain a typed source-contract blocker.

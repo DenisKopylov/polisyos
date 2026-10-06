@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "git",
+    "diff",
+    "--check",
+    "198076863e143dea9f89f02734b13d50dae3eed5",
+    "68eed6d56f48e9a676edeb3251902300a64d5fad"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+  "candidate_sha": "68eed6d56f48e9a676edeb3251902300a64d5fad",
+  "candidate_tree": "0d0163f817c7b697e18f96c0056076a7360b8e8f",
+  "timeout_seconds": 60,
+  "exit_code": 0,
+  "wall_seconds": 0.028355584014207125,
+  "outputs": {
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/final68-diff.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/ing/final68-diff.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  }
+}

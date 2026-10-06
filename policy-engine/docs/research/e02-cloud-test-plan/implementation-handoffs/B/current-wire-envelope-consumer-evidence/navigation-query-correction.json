@@ -1,0 +1,38 @@
+{
+  "schema": "e02.wire.navigation_locator_correction.v1",
+  "original_receipt_commit": "dfb1fa67a6d28bb3fb53712588666254c42b6ab2",
+  "original_receipt_sha256": "dd7f6a6f323c574ab9371ef6e51a5e2144cefe9cf941cfdd2307361c14d71ddb",
+  "corrected_receipt_sha256": "2fe3c84264bae3e12b6239a9b5045151cfe5657f73c45d4c517e6318257bf62d",
+  "candidate_source_unchanged": "a4dd3b25c369be19c80727395c689a121950fc64",
+  "changes": [
+    {
+      "job": "F06",
+      "old_navigation_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+      "new_navigation_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B94 --details --job-context --limit 1000 --block-limit 1000"
+    },
+    {
+      "job": "F07",
+      "old_navigation_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+      "new_navigation_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B94 --details --job-context --limit 1000 --block-limit 1000"
+    },
+    {
+      "job": "F10",
+      "old_navigation_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B91 --details --job-context --limit 1000 --block-limit 1000",
+      "new_navigation_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B94 --details --job-context --limit 1000 --block-limit 1000"
+    },
+    {
+      "job": "F13",
+      "old_navigation_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+      "new_navigation_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B94 --details --job-context --limit 1000 --block-limit 1000"
+    },
+    {
+      "job": "F15",
+      "old_navigation_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+      "new_navigation_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B94 --details --job-context --limit 1000 --block-limit 1000"
+    }
+  ],
+  "reason": "Historical multi-family job context navigation recipes referenced other routed findings. Canonical8B94cell rows and all6job source/hash/environment/input contexts were already correct; recipes now name B94 consistently.",
+  "grade": "docs-only navigation correction; no baseline/native replay, finding-state or source/test/output evidence change",
+  "deciding_native_evidence": "119PASS unchanged, model-tag reader removal6FAIL unchanged, originalroot4e2FAIL unchanged; all18 committed byte/hash identities unchanged",
+  "independent_review": "RUN source/evidence review remains bound to immutable dfb original; this append does not rewrite that evidence"
+}

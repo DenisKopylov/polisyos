@@ -217,7 +217,7 @@
       },
       "input_closure": {
         "source": "Source-reported Git source point and transferred compact cell/job context only",
-        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B94 --details --job-context --limit 1000 --block-limit 1000",
         "raw_archive_transfer": "missing",
         "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
       }
@@ -241,7 +241,7 @@
       },
       "input_closure": {
         "source": "Source-reported Git source point and transferred compact cell/job context only",
-        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B94 --details --job-context --limit 1000 --block-limit 1000",
         "raw_archive_transfer": "missing",
         "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
       }
@@ -265,7 +265,7 @@
       },
       "input_closure": {
         "source": "Source-reported Git source point and transferred compact cell/job context only",
-        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B91 --details --job-context --limit 1000 --block-limit 1000",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B94 --details --job-context --limit 1000 --block-limit 1000",
         "raw_archive_transfer": "missing",
         "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
       }
@@ -289,7 +289,7 @@
       },
       "input_closure": {
         "source": "Source-reported Git source point and transferred compact cell/job context only",
-        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B94 --details --job-context --limit 1000 --block-limit 1000",
         "raw_archive_transfer": "missing",
         "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
       }
@@ -313,7 +313,7 @@
       },
       "input_closure": {
         "source": "Source-reported Git source point and transferred compact cell/job context only",
-        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B87 --details --job-context --limit 1000 --block-limit 1000",
+        "job_context_query": "python3 docs/research/e02-cloud-test-plan/results/query.py --finding B94 --details --job-context --limit 1000 --block-limit 1000",
         "raw_archive_transfer": "missing",
         "runtime_semantic_closure": "not_established; raw archives missing; baseline PASS does not establish current fix"
       }

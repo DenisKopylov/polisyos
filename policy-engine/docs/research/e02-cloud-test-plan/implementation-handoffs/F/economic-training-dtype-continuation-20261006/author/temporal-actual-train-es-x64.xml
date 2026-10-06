@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="4.262" timestamp="2026-10-06T15:53:51.242051+00:00" hostname="6d6fd139922b"><testcase classname="tests.unit.foundry.agent_sim.test_agent_simulation_step6" name="test_jit_trainer_compiles" time="3.064"><failure message="TypeError: scan body function carry input and carry output must have equal types, but they differ:&#10;&#10;The input carry component carry.best_loss has type float32[] but the corresponding output carry component has type float64[], so the dtypes do not match.&#10;&#10;Revise the function so that all output types match the corresponding input types.&#10;--------------------&#10;For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.">tests/unit/foundry/agent_sim/test_agent_simulation_step6.py:106: in test_jit_trainer_compiles
+    trained, metrics = trainer(jax.random.PRNGKey(1))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:254: in trainer
+    final_params, losses = _train_loop(rng_key)
+                           ^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/agent_sim/jit_training.py:245: in _train_loop
+    final_carry, losses = jax.lax.scan(
+E   TypeError: scan body function carry input and carry output must have equal types, but they differ:
+E   
+E   The input carry component carry.best_loss has type float32[] but the corresponding output carry component has type float64[], so the dtypes do not match.
+E   
+E   Revise the function so that all output types match the corresponding input types.
+E   --------------------
+E   For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.</failure></testcase><testcase classname="tests.unit.foundry.agent_sim.test_agent_simulation_step6" name="test_es_runs" time="1.058" /></testsuite></testsuites>

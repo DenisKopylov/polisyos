@@ -1,0 +1,43 @@
+{
+  "source_root": "/workspace/e02-F-economics-20261006",
+  "target_sha": "964c76dad1dc9f56bd89e2216bded373f0e66883",
+  "cwd": "/workspace/e02-F-economics-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:tools:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_measure_current_population_despite_valid_stale_snapshot",
+    "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_live_readers_refuse_invalid_current_population_before_metric_publication",
+    "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_non_gini_rewards_continue_to_allow_signed_resource_simulation",
+    "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_social_welfare_uses_current_gini_with_original_sign_and_weight",
+    "tests/unit/foundry/agent_sim/test_gini_consumers.py::test_distribution_executor_exposes_dated_snapshot_not_current_population",
+    "tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+    "tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py",
+    "-q",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider"
+  ],
+  "output_prefix": "/tmp/e02-F-continuation-20261006/api/eco-independent/native",
+  "tree_sha": "d9c6ba34e1a4cfae1b06d8b5d8d26e28a165b7e5",
+  "source_status_before": "",
+  "elapsed_seconds": 41.5748553276062,
+  "exit_code": 0,
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/native.stdout",
+    "bytes": 700,
+    "sha256": "1338e02762b4ba65c86a5307b9f1192b5ff7bb9cb8894df419229734c2eddd9e"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261006/api/eco-independent/native.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "source_status_after": ""
+}

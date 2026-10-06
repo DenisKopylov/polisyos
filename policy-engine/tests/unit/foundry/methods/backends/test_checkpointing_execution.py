@@ -18,6 +18,7 @@ from polisyos.foundry.methods.backends.checkpointing import (
     CheckpointDigestMismatchError,
     CheckpointingChainExecutor,
     CheckpointLoadError,
+    CheckpointSaveError,
 )
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -344,6 +345,143 @@ def test_missing_history_preserves_frontier_and_known_suffix_through_filesystem(
     assert not again.history_complete
     assert again.missing_history_node_ids == (chain.execution_order[0],)
     assert [item.output for _, item in again.node_results] == [{"total": 13}]
+
+
+def _history_array_checkpoints(tmp_path):
+    import numpy as np
+
+    method = _method(
+        "history_array",
+        output="output",
+        step=lambda state, params: np.asarray(params["value"]),
+        parameters=(ParameterSpec(name="value", default=1),),
+    )
+    registry = MethodRegistry.get_instance()
+    composer = MethodComposer(registry=registry)
+    node = composer.add(method.signature.fqn)
+    chain = composer.build(validate_semantics=False)
+    checkpoints = []
+    for value in (1, 2):
+        directory = tmp_path / f"producer-{value}"
+        CheckpointingChainExecutor(registry=registry, checkpoint_dir=directory).execute(
+            chain, initial_state={}, params_per_node={node.id: {"value": value}}, seed=23
+        )
+        checkpoint = ChainCheckpoint.load(next(directory.glob("checkpoint*.json")))
+        assert checkpoint.intermediate_state == {}
+        assert checkpoint.history_complete
+        checkpoints.append(checkpoint)
+    return chain, registry, node, checkpoints
+
+
+def test_manifest_directory_fsync_fault_preserves_published_history_consumer(tmp_path, monkeypatch):
+    import numpy as np
+
+    import polisyos.foundry.methods.backends.checkpointing as module
+
+    chain, registry, node, checkpoints = _history_array_checkpoints(tmp_path)
+    path = tmp_path / "shared.json"
+    original_fsync = module._fsync_dir
+
+    def fail_after_manifest_publish(directory):
+        if directory == path.parent and path.exists():
+            raise OSError("injected manifest parent fsync fault")
+        original_fsync(directory)
+
+    monkeypatch.setattr(module, "_fsync_dir", fail_after_manifest_publish)
+    with pytest.raises(CheckpointSaveError):
+        checkpoints[1].save(path)
+    # Atomic replacement has happened: this consumer must retain the published
+    # array, even while its durability outcome remains uncertain.
+    checkpoint = ChainCheckpoint.load(path)
+    result = CheckpointingChainExecutor(registry=registry).execute(
+        chain,
+        initial_state={},
+        params_per_node={node.id: {"value": 2}},
+        checkpoint=checkpoint,
+        seed=23,
+    )
+    np.testing.assert_array_equal(result.node_results[0][1].output, np.asarray(2))
+    assert result.node_results[0][1].reproducibility.seed == 23
+
+
+def test_history_only_failed_writer_cannot_delete_peer_publication(tmp_path, monkeypatch):
+    import fcntl
+    import threading
+
+    import numpy as np
+
+    import polisyos.foundry.methods.backends.checkpointing as module
+
+    chain, registry, node, checkpoints = _history_array_checkpoints(tmp_path)
+    path = tmp_path / "shared.json"
+    rollback_entered = threading.Event()
+    release_rollback = threading.Event()
+    errors = []
+    original_write = module._atomic_write_bytes
+    original_cleanup = module._cleanup_paths
+
+    def fail_first_manifest(tmp, target, data, **kwargs):
+        if target == path and threading.current_thread().name == "fault-writer":
+            raise OSError("injected failure before manifest replacement")
+        return original_write(tmp, target, data, **kwargs)
+
+    paused = False
+
+    def pause_actual_rollback(paths):
+        nonlocal paused
+        if threading.current_thread().name == "fault-writer" and not paused:
+            paused = True
+            rollback_entered.set()
+            if not release_rollback.wait(10):
+                raise RuntimeError("fixture rollback synchronization did not complete")
+        return original_cleanup(paths)
+
+    def first_writer():
+        try:
+            checkpoints[0].save(path)
+        except BaseException as exc:
+            errors.append(exc)
+
+    monkeypatch.setattr(module, "_atomic_write_bytes", fail_first_manifest)
+    monkeypatch.setattr(module, "_cleanup_paths", pause_actual_rollback)
+    worker = threading.Thread(target=first_writer, name="fault-writer")
+    worker.start()
+    try:
+        assert rollback_entered.wait(10)
+        lock_path = path.with_name(f".{path.name}.lock")
+        with lock_path.open("a+b") as probe:
+            try:
+                fcntl.flock(probe.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                # A correct publication owner still owns its rollback. Finish
+                # it, then let the genuine peer publish normally.
+                release_rollback.set()
+                worker.join(10)
+                checkpoints[1].save(path)
+            else:
+                # The old implementation exposes an unlocked rollback window.
+                # Publish a genuine peer before allowing that rollback to run.
+                fcntl.flock(probe.fileno(), fcntl.LOCK_UN)
+                checkpoints[1].save(path)
+                release_rollback.set()
+                worker.join(10)
+        assert not worker.is_alive()
+        assert len(errors) == 1 and isinstance(errors[0], CheckpointSaveError)
+        checkpoint = ChainCheckpoint.load(path)
+        result = CheckpointingChainExecutor(registry=registry).execute(
+            chain,
+            initial_state={},
+            params_per_node={node.id: {"value": 2}},
+            checkpoint=checkpoint,
+            seed=23,
+        )
+        np.testing.assert_array_equal(result.node_results[0][1].output, np.asarray(2))
+        np.testing.assert_array_equal(
+            result.node_results[0][1].slot_outputs["output"], np.asarray(2)
+        )
+    finally:
+        release_rollback.set()
+        worker.join(10)
 
 
 def test_missing_bound_history_refuses_before_consumer_dispatch(tmp_path):

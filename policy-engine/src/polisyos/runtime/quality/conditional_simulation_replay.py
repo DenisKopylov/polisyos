@@ -110,7 +110,7 @@ def replay_conditional_simulation_values(
         for value in (expected_job_id, expected_run_id, expected_tenant_id, expected_cell_id)
     ):
         return ()
-    if recursive_run.run_id != expected_run_id:
+    if recursive_run.run_id != f"recursive:{recursive_run.recursive_graph.graph_id}":
         return ()
 
     repository = GenerationSourceRepository(store=store)

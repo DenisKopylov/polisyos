@@ -1,0 +1,452 @@
+{
+  "schema": "policyos.e02.obs_udf_receipt_index.v1",
+  "slice": "C/obs-udf",
+  "candidate_commit": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+  "candidate_tree": "3602443723a9a57b1a988ae3933b2d1d7c17f2bc",
+  "slice_base_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "retention": "The tracked receipts below are exact byte copies. The 10 MiB full census JSON remains at its original ignored local path; no production data, CAS payload, wheel, archive, or virtual environment is copied.",
+  "tracked_receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-receipt.json",
+      "sha256": "81ab51f487eba3e6233fc892b0749f4adc06812cb7550f074c64ea2d6a04f1da",
+      "size_bytes": 7082,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/installed-ukraine-receipt.json",
+      "purpose": "Installed wheel/profile and probe result: 15 typed producer outputs, CAS public readback and corrupted-content refusal; no server claim."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe.py",
+      "sha256": "eaa4ca19c9daa54911c1a05d4db4ce5e9c6fa7af23cb4d56d4f8a17d75bd0627",
+      "size_bytes": 16393,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/installed-ukraine-probe.py",
+      "purpose": "Script for the installed-package probe."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe-v2.stdout.txt",
+      "sha256": "2b76cecf887cf4074bd241669fe799eb5432c60df195625712daa60235c3cfc6",
+      "size_bytes": 13540,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/installed-ukraine-probe-v2.stdout",
+      "purpose": "Complete stdout from the final installed-package probe."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe-v2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/installed-ukraine-probe-v2.stderr",
+      "purpose": "Complete stderr from the final installed-package probe (empty)."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/ukraine-cli-help.stdout.txt",
+      "sha256": "8c7b5d3b12e1ac70ef5573af67ae2e1ed3cdd96f3f84eec4a59c96d95bd7884c",
+      "size_bytes": 1148,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/ukraine-cli-help.stdout",
+      "purpose": "Installed ukraine-data --help stdout."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/ukraine-cli-help.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/ukraine-cli-help.stderr",
+      "purpose": "Installed ukraine-data --help stderr (empty)."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/base-sync.stderr.txt",
+      "sha256": "0de0d0e56576aa8c118bc7ae046f9979090c18839f22b96bdaa94bbb0a9ae4fa",
+      "size_bytes": 2831,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/base-sync.stderr",
+      "purpose": "Fresh-base sync diagnostics."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/build.stderr.txt",
+      "sha256": "d51ce25b1c3bb88351889f6540155b7349f22b198c9a5e08a36e292a96413fdb",
+      "size_bytes": 257,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/build.stderr",
+      "purpose": "Candidate package build diagnostics."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/install.stderr.txt",
+      "sha256": "05a27ecea70836cb1b5087fb1beee0c1bee915058b7b4d676dec41c87fcaf7ac",
+      "size_bytes": 352,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/install.stderr",
+      "purpose": "Offline fresh-base installation diagnostics."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/comparison-summary.json",
+      "sha256": "b8ff51ddc30ec6ed8b60b40a958470f16dc4aa0050729496a8582893a80b12bb",
+      "size_bytes": 6564,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-parity-review/comparison-summary.json",
+      "purpose": "Independent base/candidate six-stage registered parity summary with public readback."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/direct-importer-census.json",
+      "sha256": "15e631177403e9b57a2a1bffcd632540f549c6bf64aed2fa16f719b8668e4828",
+      "size_bytes": 3482,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-parity-review/direct-importer-census.json",
+      "purpose": "Five direct common importers and all six registered stage routes."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/d3-comparison.json",
+      "sha256": "390e6d001b5d4fbc3ae207c4ce26fc1c12c80fd27a566eccf6e0ee723f0cc356",
+      "size_bytes": 2617,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-parity-review/d3-comparison.json",
+      "purpose": "D3 bounded comparison including its two optional unmanifested inputs."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/base-run7.stdout.json",
+      "sha256": "d2db74772efb33fc0aa1979125e2fbf68e3c6285dcc78e234f16fcb3ebbf4509",
+      "size_bytes": 59807,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-parity-review/base-run7.log",
+      "purpose": "Complete base six-route output for the deciding parity run."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/candidate-run7.stdout.json",
+      "sha256": "1b75aa73600e5ed6891a91de46ab13a97dbd49249358a3cd90caa339ade8f5d8",
+      "size_bytes": 59812,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-parity-review/candidate-run7.log",
+      "purpose": "Complete candidate six-route output for the deciding parity run."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/base-d3-run.stdout.json",
+      "sha256": "55841dfbfdb26c7ace3a75181c7b28e931ac2ef6b9cba574d6684bbff8798681",
+      "size_bytes": 9458,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-parity-review/base-d3-run.log",
+      "purpose": "Complete base D3 output for the deciding D3 run."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/candidate-d3-run.stdout.json",
+      "sha256": "ac818ec2519baadcebb22d73f2f0bc8c536d7ee44d52264cf0ca5b0fbc1349d6",
+      "size_bytes": 9463,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-parity-review/candidate-d3-run.log",
+      "purpose": "Complete candidate D3 output for the deciding D3 run."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/run_witness.py",
+      "sha256": "d615698076ded4cc444683f78bd8d0e0d31d3c0ecc930337dbb1253a947341aa",
+      "size_bytes": 10228,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-parity-review/run_witness.py",
+      "purpose": "Six-route parity witness script."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/run_d3_witness.py",
+      "sha256": "1f37cd622e797e756c94651a3c197cd5d18e4f590c649e8909cbb99aefb7a31f",
+      "size_bytes": 4408,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-parity-review/run_d3_witness.py",
+      "purpose": "D3 parity witness script."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/remove-output-control.py",
+      "sha256": "f2ffd104ca9055a8538676a953820eb90db9a0036fceabf7dc857de85510901a",
+      "size_bytes": 2104,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-parity-review/remove-output-control.py",
+      "purpose": "Removed-output control script."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/remove-output-control.stdout.txt",
+      "sha256": "0b413ce705841caba5404d760d4d7701c000c2e1de59fa48c80d5a20db864393",
+      "size_bytes": 348,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-parity-review/remove-output-control.log",
+      "purpose": "Removed-output control stdout."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/d3-remove-control.stdout.txt",
+      "sha256": "b3b8a1c34a4fbdfd6e9ba45f534739b16f96cd5be06b9121af07d04fbe582312",
+      "size_bytes": 451,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-parity-review/d3-remove-control.log",
+      "purpose": "D3 removed-output control stdout."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/receipt.md",
+      "sha256": "8976bc5647e99ed4122de090251d9f205524e9d1e26f185a22eea830de638b09",
+      "size_bytes": 8612,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/receipt.md",
+      "purpose": "Independent LA-029 process review; records typed unavailability and limits."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/observed-cli-process.json",
+      "sha256": "2b8e6e65b0c5314361beee1867a9f9f1f11d6ca6cbe97d9731878184c2315a4b",
+      "size_bytes": 1271,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/observed-cli-process.json",
+      "purpose": "Actual installed CLI process observation."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/observe_cli_process.py",
+      "sha256": "aa020d1651505d0a2d27aa49587decdcabd51fb8c84296ed8375f7a5d304fd0b",
+      "size_bytes": 2144,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/observe_cli_process.py",
+      "purpose": "CLI process observation script."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/observed-cli.stdout.txt",
+      "sha256": "cc67eac3117a7d1cb106696c0557bb289804c02d2c5c78c96ad025bd514798a4",
+      "size_bytes": 981,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/observed-cli.stdout",
+      "purpose": "Observed child stdout."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/observed-cli.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/observed-cli.stderr",
+      "purpose": "Observed child stderr (empty)."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/absent-root-config.json",
+      "sha256": "eed36d0bf4de5a88378ecffea09a520696bd64344cfee955f60f6074ce969b89",
+      "size_bytes": 29948,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/absent-root-config.json",
+      "purpose": "Synthetic absent-root config probe input; not production data."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/absent-root.stdout.txt",
+      "sha256": "32731cb04eee582d47f495701cba672bfbdea207957de0c5b5194418ed72c82d",
+      "size_bytes": 986,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/absent-root.stdout",
+      "purpose": "Absent-root CLI stdout."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/absent-root.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/absent-root.stderr",
+      "purpose": "Absent-root CLI stderr (empty)."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/darwin-marker-negative.stderr.txt",
+      "sha256": "ea5e08c562c236f70f974bac11c77fae8b0894c7d8b544c9fdcb4092e57157ee",
+      "size_bytes": 1550,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/darwin-marker-negative.stderr",
+      "purpose": "Darwin server marker negative-control stderr; gate refuses before subprocess or directory creation."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/environment.json",
+      "sha256": "d104400cd7e315dadefbfc947212a460b95d95c26892afb0f756bf1295d094d3",
+      "size_bytes": 364,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/environment.json",
+      "purpose": "Environment facts for the isolated process receipt."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/commands.txt",
+      "sha256": "7802c680f73aa8175e23de9a479f54cf102701af61fc2e684bfa1a7e4134f343",
+      "size_bytes": 4754,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/commands.txt",
+      "purpose": "Exact command descriptions for the process review."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/census/census.py",
+      "sha256": "087b6d6514662eb47d98c5c1318e0dee5a908eaf674e4ffd7c281cc5013a2728",
+      "size_bytes": 8291,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/census.py",
+      "purpose": "Full tracked-tree source-census script."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/census/tracked-tree.stdout.nul",
+      "sha256": "bf30964b32829c87d191f8f0c3b92d2673f2721e1ad47e8b7575a56ba86998f8",
+      "size_bytes": 1779072,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/tracked-tree.stdout.nul",
+      "purpose": "Complete NUL-delimited tracked-tree path listing used by the census."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/base-sync.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/base-sync.stdout",
+      "purpose": "Fresh-base sync stdout (empty)."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/base-sync.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size_bytes": 2,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/base-sync.exit",
+      "purpose": "Fresh-base sync exit-code record."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/build.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/build.stdout",
+      "purpose": "Candidate build stdout (empty)."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/build.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size_bytes": 2,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/build.exit",
+      "purpose": "Candidate build exit-code record."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/install.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/install.stdout",
+      "purpose": "Offline package install stdout (empty)."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/install.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size_bytes": 2,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/install.exit",
+      "purpose": "Offline package install exit-code record."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe-v1.py",
+      "sha256": "7bf385e1b3d191a952645e490dfbd8e17289b7536ced8b100c1d9b9cdeb62e85",
+      "size_bytes": 16333,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/installed-ukraine-probe-v1.py",
+      "purpose": "Nondeciding v1 installed probe script; its assertion expected a schema label that was corrected in v2."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe-v1.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/installed-ukraine-probe.stdout",
+      "purpose": "Nondeciding v1 probe stdout."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe-v1.stderr.txt",
+      "sha256": "3f2163a54d58550b1932cec218a0d13b87ce004087e29632e979de679ec81167",
+      "size_bytes": 681,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/installed-ukraine-probe.stderr",
+      "purpose": "Nondeciding v1 probe stderr."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe-v1.exit.txt",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "size_bytes": 2,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/installed-ukraine-probe.exit",
+      "purpose": "Nondeciding v1 probe exit-code record."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-probe-v2.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size_bytes": 2,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/installed-ukraine-probe-v2.exit",
+      "purpose": "Final installed probe exit-code record."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/ukraine-cli-help.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "size_bytes": 2,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/ukraine-cli-help.exit",
+      "purpose": "Installed ukraine-data --help exit-code record."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/changed-source-map.json",
+      "sha256": "31237fc374e6c3a5f1274f03037520ee2d93a17574a83ba646bccab217bdbac6",
+      "size_bytes": 4286,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/changed-source-map.json",
+      "purpose": "Full changed source-path mapping for the installed archive/wheel receipt."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/changed-source-map.py",
+      "sha256": "1a3a4733646585aeaad93be8838c50aba1c116999b23f37292ae1a3eee320318",
+      "size_bytes": 2841,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/changed-source-map.py",
+      "purpose": "Changed source-path mapping script."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/changed-source-map.stdout.txt",
+      "sha256": "734c57bcf9bbd0a9da21d457715a671c020f67da6457a68ce75b441329005333",
+      "size_bytes": 165,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/changed-source-map.stdout",
+      "purpose": "Changed source-path mapping command stdout."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/changed-source-map.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/changed-source-map.stderr",
+      "purpose": "Changed source-path mapping command stderr (empty)."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/darwin-marker-negative.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/darwin-marker-negative.stdout",
+      "purpose": "Darwin server marker negative-control stdout (empty)."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/census.stdout.txt",
+      "sha256": "54879ff78ae87b5442558a7841d0a2c22d7f485a9631ce15d739a9edac43913f",
+      "size_bytes": 152,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/census.stdout",
+      "purpose": "Ops-runner census command stdout."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/census.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/census.stderr",
+      "purpose": "Ops-runner census command stderr (empty)."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/cli-help.stdout.txt",
+      "sha256": "8c7b5d3b12e1ac70ef5573af67ae2e1ed3cdd96f3f84eec4a59c96d95bd7884c",
+      "size_bytes": 1148,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/cli-help.stdout",
+      "purpose": "Process-review installed CLI help stdout."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/cli-help.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/cli-help.stderr",
+      "purpose": "Process-review installed CLI help stderr (empty)."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/environment.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/environment.stderr",
+      "purpose": "Environment capture stderr (empty)."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/observer.stdout.txt",
+      "sha256": "e9fb667e6a2b80afd51c6ed01f4dda73e0ea7fba64c1bbf6d5f4b639b52ef651",
+      "size_bytes": 162,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/observer.stdout",
+      "purpose": "Process-observation command stdout."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/observer.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/observer.stderr",
+      "purpose": "Process-observation command stderr."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/ops-runners-census.json",
+      "sha256": "45c6d419e380d2e7364548ac8659244cbb0c9d5926b559cfda46f7a98cb146f5",
+      "size_bytes": 673,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/ops-runners-census.json",
+      "purpose": "Ops-runner source census result used by the process review."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/census_ops_runners.py",
+      "sha256": "6c89b76ed6dc98dc3f5a2f18bdcb25ae47a4594687ca2f1d9b028a445371ecc5",
+      "size_bytes": 731,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/census_ops_runners.py",
+      "purpose": "Ops-runner source census script."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/sha256sums.txt",
+      "sha256": "fe0b1f4bdcee510b145c4a7dae8ee1b20e7abd8ce69741b0ec05071fcbbbfc7e",
+      "size_bytes": 2286,
+      "raw_source_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/sha256sums.txt",
+      "purpose": "Independent process-review raw receipt checksums."
+    }
+  ],
+  "local_only_receipts": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/source-census.json",
+      "sha256": "2c2492df88d84a12f071c5c81de00cca7ce2c44705142fa2b8a35d9a9d2102f5",
+      "size_bytes": 10573776,
+      "purpose": "Complete generated source-census JSON; retained locally because it is 10,573,776 bytes, referenced by path and hash rather than copied into Git."
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/source-census.json",
+      "sha256": "2c2492df88d84a12f071c5c81de00cca7ce2c44705142fa2b8a35d9a9d2102f5",
+      "size_bytes": 10573776,
+      "purpose": "C-created duplicate of the full source-census JSON, retained as a cleanup candidate only after review confirms the canonical C-private copy and tracked receipts are sufficient; it remains untouched now."
+    }
+  ]
+}

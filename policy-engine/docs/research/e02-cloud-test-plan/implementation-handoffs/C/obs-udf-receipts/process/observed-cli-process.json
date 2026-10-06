@@ -1,0 +1,28 @@
+{
+  "child_pid": 82269,
+  "command": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "polisyos.data_forge.domains.ukraine.cli",
+    "--config",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/absent-root-config.json",
+    "validate-part-a"
+  ],
+  "communicate_completed": true,
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review",
+  "elapsed_s": 1.6308947919751517,
+  "finished_at": "2026-10-06T13:39:43.507009+00:00",
+  "gate_command": [],
+  "gate_manifest": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/absent-root-build/manifests/part_a_gate_manifest.json",
+  "gate_passed": false,
+  "gate_skipped": false,
+  "gate_status": "unavailable",
+  "observer_pid": 82260,
+  "poll_after_communicate": 1,
+  "reason": "workspace auto-discovery produced typed unavailable before gate subprocess dispatch",
+  "returncode": 1,
+  "server_process_or_port_started": false,
+  "started_at": "2026-10-06T13:39:41.875983+00:00",
+  "stderr_file": "observed-cli.stderr",
+  "stdout_file": "observed-cli.stdout"
+}

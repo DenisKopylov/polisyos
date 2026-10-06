@@ -1,0 +1,74 @@
+{
+  "all_bounded_semantics_equal": true,
+  "base": {
+    "input_count": 5,
+    "manifest_runtime_fields": {
+      "elapsed_s": 0.15703899995423853,
+      "finished_at": "2026-10-06T12:02:33.788974+00:00",
+      "peak_rss_gib": 0.208343505859375,
+      "run_id": "d3_1791288153",
+      "started_at": "2026-10-06T12:02:33.630126+00:00"
+    },
+    "manifest_sha256": "8b9897f8689257f723375ffe57b6c6dcd07987bc0866094cbe8f64d86b435098",
+    "output_count": 10,
+    "warnings": [
+      "logistics_mobility_displacement:Exploratory optional D3 connector.",
+      "land_cadastre:Exploratory optional land-use proxy connector.",
+      "optional source skipped: logistics_mobility_displacement",
+      "optional source skipped: land_cadastre"
+    ]
+  },
+  "base_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "candidate": {
+    "input_count": 5,
+    "manifest_runtime_fields": {
+      "elapsed_s": 0.054732709017116576,
+      "finished_at": "2026-10-06T12:02:52.990789+00:00",
+      "peak_rss_gib": 0.2077789306640625,
+      "run_id": "d3_1791288172",
+      "started_at": "2026-10-06T12:02:52.934436+00:00"
+    },
+    "manifest_sha256": "1c3cbe9e39fb4eaf02801dfafd8d44c6a3d95e7aceff80b3aed31cc8d5d1022c",
+    "output_count": 10,
+    "warnings": [
+      "logistics_mobility_displacement:Exploratory optional D3 connector.",
+      "land_cadastre:Exploratory optional land-use proxy connector.",
+      "optional source skipped: logistics_mobility_displacement",
+      "optional source skipped: land_cadastre"
+    ]
+  },
+  "candidate_commit": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+  "checks": {
+    "errors": true,
+    "findings": true,
+    "inputs": true,
+    "metrics": true,
+    "normalized_stage_manifest_equal": true,
+    "outputs": true,
+    "read_api_output_count_equal": true,
+    "read_api_output_inventory_equal": true,
+    "registered_builder": true,
+    "stage": true,
+    "status": true,
+    "warnings": true,
+    "writes": true
+  },
+  "logs_sha256": {
+    "base": "55841dfbfdb26c7ace3a75181c7b28e931ac2ef6b9cba574d6684bbff8798681",
+    "candidate": "ac818ec2519baadcebb22d73f2f0bc8c536d7ee44d52264cf0ca5b0fbc1349d6"
+  },
+  "manifest_raw_bytes_equal": false,
+  "normalized_fields_removed_for_semantic_comparison": [
+    "elapsed_s",
+    "finished_at",
+    "peak_rss_gib",
+    "run_id",
+    "started_at"
+  ],
+  "registered_builder": "polisyos.data_forge.domains.ukraine.builders.demography",
+  "result_json_sha256": {
+    "base": "55841dfbfdb26c7ace3a75181c7b28e931ac2ef6b9cba574d6684bbff8798681",
+    "candidate": "ac818ec2519baadcebb22d73f2f0bc8c536d7ee44d52264cf0ca5b0fbc1349d6"
+  },
+  "stage": "D3"
+}

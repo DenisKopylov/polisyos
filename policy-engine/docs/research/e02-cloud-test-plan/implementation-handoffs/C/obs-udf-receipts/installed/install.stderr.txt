@@ -1,0 +1,5 @@
+Using Python 3.14.0 environment at: .tmp/e02-C2/raw/installed/obs-5a75/venv-base
+Resolved 1 package in 7ms
+Prepared 1 package in 451ms
+Installed 1 package in 45ms
+ + policy-engine==0.1.0 (from file:///Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/dist/policy_engine-0.1.0-py3-none-any.whl)

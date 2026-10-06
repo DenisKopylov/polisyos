@@ -1,0 +1,1 @@
+{"child_pid": 82269, "elapsed_s": 1.6308947919751517, "gate_command": [], "gate_status": "unavailable", "returncode": 1, "server_process_or_port_started": false}

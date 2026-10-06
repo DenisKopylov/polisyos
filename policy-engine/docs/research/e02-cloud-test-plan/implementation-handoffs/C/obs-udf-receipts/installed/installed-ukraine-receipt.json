@@ -1,0 +1,160 @@
+{
+  "artifacts": {
+    "archive": {
+      "bytes": 459980800,
+      "path": "candidate.tar",
+      "sha256": "6c8075a351914db3739a004a94112ef66d0e006c6441f0eda810251c53494f60"
+    },
+    "sdist": {
+      "bytes": 65177698,
+      "path": "dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "06ee1f6070f819fd707a5b9ce4f04b8b12256bad00ae2498b649c970bfafff53"
+    },
+    "wheel": {
+      "bytes": 15019539,
+      "path": "dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "be565a014375563505a88a58a5974cdf82e993b4c2cf7cf0741e160ba5a8448c"
+    }
+  },
+  "build": {
+    "argv": [
+      "uv",
+      "build",
+      "--offline",
+      "--python",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/mig-cf281/buildenv/bin/python",
+      "--no-build-isolation",
+      "--out-dir",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/dist",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/source/policy-engine"
+    ],
+    "exit_code": 0,
+    "stderr": "build.stderr",
+    "stdout": "build.stdout"
+  },
+  "candidate": {
+    "base_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "commit": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+    "source": "exact git archive verified by git get-tar-commit-id; built from extracted archive",
+    "tree": "3602443723a9a57b1a988ae3933b2d1d7c17f2bc"
+  },
+  "changed_source_mapping": {
+    "changed_test_or_docs_paths_not_in_wheel": 6,
+    "denominator": 8,
+    "details": "changed-source-map.json",
+    "production_paths": 2,
+    "production_paths_sdist_exact": 2,
+    "production_paths_wheel_exact": 2
+  },
+  "dependency_profile": {
+    "active_base_requires_dist": 34,
+    "hnswlib": false,
+    "missing_or_mismatched": [],
+    "pyproject_and_uv_lock_unchanged_from_base": true,
+    "pytest": false,
+    "selected_extras": [],
+    "sync_argv": [
+      "uv",
+      "sync",
+      "--offline",
+      "--frozen",
+      "--no-dev",
+      "--no-install-project",
+      "--python",
+      "/opt/homebrew/bin/python3.14",
+      "--project",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/source/policy-engine"
+    ],
+    "sync_environment": {
+      "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv",
+      "UV_PROJECT_ENVIRONMENT": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/venv-base"
+    },
+    "sync_exit_code": 0,
+    "sync_stderr": "base-sync.stderr",
+    "sync_stdout": "base-sync.stdout"
+  },
+  "install": {
+    "argv": [
+      "uv",
+      "pip",
+      "install",
+      "--offline",
+      "--no-deps",
+      "--reinstall",
+      "--python",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/venv-base/bin/python",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/dist/policy_engine-0.1.0-py3-none-any.whl"
+    ],
+    "exit_code": 0,
+    "stderr": "install.stderr",
+    "stdout": "install.stdout"
+  },
+  "installed_probe": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/venv-base/bin/python",
+      "-I",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/installed-ukraine-probe.py"
+    ],
+    "cwd": "/tmp",
+    "exit_code": 0,
+    "result": "Installed public ukraine-data script exists, entrypoint target matches, and help executes outside checkout. Exact installed wheel builder registered in STAGE_BUILDERS produced D0/P0 outputs from six local synthetic normalized source artifacts; the actual installed read_api admitted the completed stage, recomputed 15 content bindings, persisted manifest/output bytes to private CAS, and returned the identity-resolution cohort bytes. Mutating the producer file then caused the read_api to refuse with UkraineStageArtifactVerificationError content hash mismatch. Domain + public demography read_api loaders consumed one synthetic new-layout snapshot; static-aging consumer preserved totals, transition mask and donor indices; mixed complete+partial layout rejected. 11 imported product modules resolve from site-packages and match frozen archive/wheel bytes. No source checkout on sys.path.",
+    "script_sha256": "eaa4ca19c9daa54911c1a05d4db4ce5e9c6fa7af23cb4d56d4f8a17d75bd0627",
+    "stderr": {
+      "path": "installed-ukraine-probe-v2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "path": "installed-ukraine-probe-v2.stdout",
+      "sha256": "2b76cecf887cf4074bd241669fe799eb5432c60df195625712daa60235c3cfc6"
+    }
+  },
+  "installed_ukraine_cli": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/venv-base/bin/python",
+      "-I",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/obs-5a75/venv-base/bin/ukraine-data",
+      "--help"
+    ],
+    "cwd": "/tmp",
+    "entrypoint": "polisyos.data_forge.domains.ukraine.cli:main",
+    "exit_code": 0,
+    "stderr": {
+      "path": "ukraine-cli-help.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "path": "ukraine-cli-help.stdout",
+      "sha256": "8c7b5d3b12e1ac70ef5573af67ae2e1ed3cdd96f3f84eec4a59c96d95bd7884c"
+    }
+  },
+  "nondeciding_attempts": {
+    "v1_probe": "installed-ukraine-probe-v1.py plus installed-ukraine-probe.stderr/exit; actual stage and readback succeeded, assertion expected wrong schema label; v2 used schema identity observed in actual payload and a new fresh fixture root"
+  },
+  "package_census": {
+    "entry_points_groups": 4,
+    "entry_points_lines": 40,
+    "sdist_members": 8463,
+    "sdist_mismatches": 0,
+    "sdist_readmes": 425,
+    "sdist_source_byte_matches": 8462,
+    "sdist_source_omissions": 5208,
+    "source_files": 13670,
+    "source_python_files": 6437,
+    "source_readme_exceptions_outside_package_roots": 258,
+    "source_readmes": 425,
+    "source_suffix_and_subtree_denominators": "payload-scope.json",
+    "wheel_exact_source_byte_matches": 3449,
+    "wheel_forced_resource_matches": 1,
+    "wheel_mismatches": 0,
+    "wheel_package_root_readmes": 167,
+    "wheel_payload_files": 3450,
+    "wheel_ui_apps_dashboard_data_tests_payload": 0,
+    "wheel_unmapped": 0
+  },
+  "scope_boundary": {
+    "authority": "read_api receipt is limited to artifact identity/content binding and explicitly denies governance/release/method-validity authority",
+    "c7_linux_server_runtime": "UNRUN; not inferred from local fixture",
+    "fixtures": "synthetic local fixture data only",
+    "server_gate": "disabled only for isolated stage test; synthetic Part A passed manifest; not a server or Part-A gate pass"
+  }
+}

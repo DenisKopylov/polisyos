@@ -1,0 +1,233 @@
+{
+  "demography_module": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-parity-review/candidate/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography.py",
+  "errors": [],
+  "findings": [],
+  "inputs": [
+    {
+      "path": "normalized/household_microdata/household_synthetic_targets.parquet",
+      "row_count": 2,
+      "sha256": "c0f9159b34e82ae0024d0deca26a4c1d08453a46692d7e73a2237b1887e5411a",
+      "size_bytes": 4655
+    },
+    {
+      "path": "normalized/labor_force_microdata/labor_force_micro_targets.parquet",
+      "row_count": 4,
+      "sha256": "964b7752aee74269de4fc411e495c55e7fea9f160474361d052de7133728b9b6",
+      "size_bytes": 5457
+    },
+    {
+      "path": "normalized/pfu_debt/arrears_panel_monthly.parquet",
+      "row_count": 1,
+      "sha256": "a90d5052154bd31fa21e008b32e1fee33392e9a2d7927bff08afadabb99b9d13",
+      "size_bytes": 2317
+    },
+    {
+      "path": "normalized/wage_arrears/wage_arrears_panel_monthly.parquet",
+      "row_count": 1,
+      "sha256": "c842d1f2a88008c5beef837fbffdb15499e49b566be2b4d38874a9283d568abd",
+      "size_bytes": 2349
+    },
+    {
+      "path": "normalized/distress_events/distress_events_panel_monthly.parquet",
+      "row_count": 1,
+      "sha256": "6eaf40089a66eb630d6abfb865c4ef420f14df5003a992fc560a447669438da9",
+      "size_bytes": 2919
+    }
+  ],
+  "metrics": {
+    "distress_rows": 1,
+    "household_rows": 2,
+    "labor_bias_validated": false,
+    "labor_rows": 4,
+    "labor_validation_overlap_rows": 2
+  },
+  "outputs": [
+    {
+      "actual_sha256": "04b279615d64414cb96fee13d60a12891656613277f4029be625d8052d8d147c",
+      "actual_size_bytes": 6210,
+      "name": "calibrated_household_cells.parquet",
+      "record_nnz": null,
+      "record_row_count": 2,
+      "record_sha256": "04b279615d64414cb96fee13d60a12891656613277f4029be625d8052d8d147c",
+      "record_size_bytes": 6210,
+      "relative_path": "calibration/d3/calibrated_household_cells.parquet"
+    },
+    {
+      "actual_sha256": "dc2b2d39406be59b25a619ac1fbe43d7511f1dc8dfe77df9bb7442a433f28980",
+      "actual_size_bytes": 3581,
+      "name": "corrected_firm_panels.parquet",
+      "record_nnz": null,
+      "record_row_count": 1,
+      "record_sha256": "dc2b2d39406be59b25a619ac1fbe43d7511f1dc8dfe77df9bb7442a433f28980",
+      "record_size_bytes": 3581,
+      "relative_path": "calibration/d3/corrected_firm_panels.parquet"
+    },
+    {
+      "actual_sha256": "503c9e48e0ba14dc752170e15886cc59490dab22a92364421d279690538d9827",
+      "actual_size_bytes": 376,
+      "name": "labor_bias_validation.json",
+      "record_nnz": null,
+      "record_row_count": null,
+      "record_sha256": "503c9e48e0ba14dc752170e15886cc59490dab22a92364421d279690538d9827",
+      "record_size_bytes": 376,
+      "relative_path": "calibration/d3/labor_bias_validation.json"
+    },
+    {
+      "actual_sha256": "6ae017d2866fdccc59a9e6b02c0fd52459b0eeb81836f963269ddf898c6ca9c4",
+      "actual_size_bytes": 6284,
+      "name": "labor_market_corrected_panel.parquet",
+      "record_nnz": null,
+      "record_row_count": 2,
+      "record_sha256": "6ae017d2866fdccc59a9e6b02c0fd52459b0eeb81836f963269ddf898c6ca9c4",
+      "record_size_bytes": 6284,
+      "relative_path": "calibration/d3/labor_market_corrected_panel.parquet"
+    },
+    {
+      "actual_sha256": "16e6bd1d649ea5ee1252648a7c474861c6aff70d732e764f531e0a7905759db2",
+      "actual_size_bytes": 9161,
+      "name": "labor_validation_panel.parquet",
+      "record_nnz": null,
+      "record_row_count": 2,
+      "record_sha256": "16e6bd1d649ea5ee1252648a7c474861c6aff70d732e764f531e0a7905759db2",
+      "record_size_bytes": 9161,
+      "relative_path": "calibration/d3/labor_validation_panel.parquet"
+    },
+    {
+      "actual_sha256": "5f6a82a548de5015104858639b877310bcf2318549db701aa29799e5daf73292",
+      "actual_size_bytes": 426,
+      "name": "lesson_registry_seed_v1.json",
+      "record_nnz": null,
+      "record_row_count": null,
+      "record_sha256": "5f6a82a548de5015104858639b877310bcf2318549db701aa29799e5daf73292",
+      "record_size_bytes": 426,
+      "relative_path": "calibration/d3/lesson_registry_seed_v1.json"
+    },
+    {
+      "actual_sha256": "47ed9335a37ec92c3c3e5c6bb3b025f4f1710442146f1728c710fe229bc8e008",
+      "actual_size_bytes": 405,
+      "name": "microsim_survey_contract_v1.json",
+      "record_nnz": null,
+      "record_row_count": null,
+      "record_sha256": "47ed9335a37ec92c3c3e5c6bb3b025f4f1710442146f1728c710fe229bc8e008",
+      "record_size_bytes": 405,
+      "relative_path": "calibration/d3/microsim_survey_contract_v1.json"
+    },
+    {
+      "actual_sha256": "be1e4f71071dca51e9b6dc8e914affb995fa1914478dd0753abc4641f66eb87e",
+      "actual_size_bytes": 2962,
+      "name": "survival_hazard_estimates.parquet",
+      "record_nnz": null,
+      "record_row_count": 1,
+      "record_sha256": "be1e4f71071dca51e9b6dc8e914affb995fa1914478dd0753abc4641f66eb87e",
+      "record_size_bytes": 2962,
+      "relative_path": "calibration/d3/survival_hazard_estimates.parquet"
+    },
+    {
+      "actual_sha256": "b20664085c7fa0606c7ff58de16011e32e8eb9d96ffc6a45798727b2c074328d",
+      "actual_size_bytes": 96,
+      "name": "land_cadastre_skipped_source_manifest.json",
+      "record_nnz": null,
+      "record_row_count": null,
+      "record_sha256": "b20664085c7fa0606c7ff58de16011e32e8eb9d96ffc6a45798727b2c074328d",
+      "record_size_bytes": 96,
+      "relative_path": "manifests/land_cadastre_skipped_source_manifest.json"
+    },
+    {
+      "actual_sha256": "358f9cc30d6a64eede8d1ab22336595c58155052c1ef13fe3c715f1413e8950b",
+      "actual_size_bytes": 102,
+      "name": "logistics_mobility_displacement_skipped_source_manifest.json",
+      "record_nnz": null,
+      "record_row_count": null,
+      "record_sha256": "358f9cc30d6a64eede8d1ab22336595c58155052c1ef13fe3c715f1413e8950b",
+      "record_size_bytes": 102,
+      "relative_path": "manifests/logistics_mobility_displacement_skipped_source_manifest.json"
+    }
+  ],
+  "read_api": {
+    "manifest_readback_sha256": "1c3cbe9e39fb4eaf02801dfafd8d44c6a3d95e7aceff80b3aed31cc8d5d1022c",
+    "manifest_readback_size_bytes": 6640,
+    "manifest_sha256": "1c3cbe9e39fb4eaf02801dfafd8d44c6a3d95e7aceff80b3aed31cc8d5d1022c",
+    "output_count": 10,
+    "outputs": [
+      {
+        "name": "calibrated_household_cells.parquet",
+        "sha256": "04b279615d64414cb96fee13d60a12891656613277f4029be625d8052d8d147c",
+        "size_bytes": 6210
+      },
+      {
+        "name": "corrected_firm_panels.parquet",
+        "sha256": "dc2b2d39406be59b25a619ac1fbe43d7511f1dc8dfe77df9bb7442a433f28980",
+        "size_bytes": 3581
+      },
+      {
+        "name": "labor_bias_validation.json",
+        "sha256": "503c9e48e0ba14dc752170e15886cc59490dab22a92364421d279690538d9827",
+        "size_bytes": 376
+      },
+      {
+        "name": "labor_market_corrected_panel.parquet",
+        "sha256": "6ae017d2866fdccc59a9e6b02c0fd52459b0eeb81836f963269ddf898c6ca9c4",
+        "size_bytes": 6284
+      },
+      {
+        "name": "labor_validation_panel.parquet",
+        "sha256": "16e6bd1d649ea5ee1252648a7c474861c6aff70d732e764f531e0a7905759db2",
+        "size_bytes": 9161
+      },
+      {
+        "name": "land_cadastre_skipped_source_manifest.json",
+        "sha256": "b20664085c7fa0606c7ff58de16011e32e8eb9d96ffc6a45798727b2c074328d",
+        "size_bytes": 96
+      },
+      {
+        "name": "lesson_registry_seed_v1.json",
+        "sha256": "5f6a82a548de5015104858639b877310bcf2318549db701aa29799e5daf73292",
+        "size_bytes": 426
+      },
+      {
+        "name": "logistics_mobility_displacement_skipped_source_manifest.json",
+        "sha256": "358f9cc30d6a64eede8d1ab22336595c58155052c1ef13fe3c715f1413e8950b",
+        "size_bytes": 102
+      },
+      {
+        "name": "microsim_survey_contract_v1.json",
+        "sha256": "47ed9335a37ec92c3c3e5c6bb3b025f4f1710442146f1728c710fe229bc8e008",
+        "size_bytes": 405
+      },
+      {
+        "name": "survival_hazard_estimates.parquet",
+        "sha256": "be1e4f71071dca51e9b6dc8e914affb995fa1914478dd0753abc4641f66eb87e",
+        "size_bytes": 2962
+      }
+    ],
+    "passed": true
+  },
+  "registered_builder": "polisyos.data_forge.domains.ukraine.builders.demography",
+  "stage": "d3",
+  "status": "completed",
+  "tag": "d3-shared",
+  "warnings": [
+    "logistics_mobility_displacement:Exploratory optional D3 connector.",
+    "land_cadastre:Exploratory optional land-use proxy connector.",
+    "optional source skipped: logistics_mobility_displacement",
+    "optional source skipped: land_cadastre"
+  ],
+  "writes": [
+    "calibration/d3/calibrated_household_cells.parquet",
+    "calibration/d3/corrected_firm_panels.parquet",
+    "calibration/d3/labor_bias_validation.json",
+    "calibration/d3/labor_market_corrected_panel.parquet",
+    "calibration/d3/labor_validation_panel.parquet",
+    "calibration/d3/lesson_registry_seed_v1.json",
+    "calibration/d3/microsim_survey_contract_v1.json",
+    "calibration/d3/survival_hazard_estimates.parquet",
+    "manifests/build_run_d3.json",
+    "manifests/land_cadastre/skipped_source_manifest.json",
+    "manifests/land_cadastre_skipped_source_manifest.json",
+    "manifests/logistics_mobility_displacement/skipped_source_manifest.json",
+    "manifests/logistics_mobility_displacement_skipped_source_manifest.json",
+    "manifests/metrics.prom",
+    "manifests/resource_usage.jsonl",
+    "manifests/stage_metrics.json"
+  ]
+}

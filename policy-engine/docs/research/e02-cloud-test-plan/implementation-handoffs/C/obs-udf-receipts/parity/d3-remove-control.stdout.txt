@@ -1,0 +1,2 @@
+PASS D3 remove-byte control: mutated registered output while stage manifest remained intact; expected_sha256=04b279615d64414cb96fee13d60a12891656613277f4029be625d8052d8d147c; mutated_sha256=a7d17bfaebccac9fdad87fdd4fb7bddd8ca52e10d133293780d039a5428a3f1d; public_read_api_rejection=content hash mismatch for output calibrated_household_cells.parquet
+RESTORED candidate artifact: sha256=04b279615d64414cb96fee13d60a12891656613277f4029be625d8052d8d147c

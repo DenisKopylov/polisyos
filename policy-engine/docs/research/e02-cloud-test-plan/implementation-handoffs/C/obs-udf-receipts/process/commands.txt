@@ -1,0 +1,32 @@
+Candidate source archive command (exit 0):
+git archive 5a75b004e0d17c80f1d156df84db7a12a9274c9e policy-engine/src | tar -x -C /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/source
+
+Candidate ops-runner source archive command (exit 0):
+git archive 5a75b004e0d17c80f1d156df84db7a12a9274c9e policy-engine/tools/ops_runners/ukraine_data | tar -x -C /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/source
+
+Actual CLI help process (exit 0; stdout=cli-help.stdout, stderr=cli-help.stderr):
+env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/source/policy-engine/src /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python -m polisyos.data_forge.domains.ukraine.cli --help
+
+Actual marker-negative CLI process (exit 1; stdout=darwin-marker-negative.stdout, stderr=darwin-marker-negative.stderr):
+env POLISYOS_SERVER_EXECUTION=1 PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/source/policy-engine/src /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python -m polisyos.data_forge.domains.ukraine.cli --root /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/negative-build-root --workspace-root /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/nonexistent-checkout validate-part-a
+
+Read-only environment census (exit 0; stdout=environment.json, stderr=environment.stderr):
+env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/source/policy-engine/src /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python -c 'import importlib.util, json, shutil, sys; print(json.dumps({"platform": sys.platform, "prefix": sys.prefix, "console_script": shutil.which("ukraine-data"), "venv_console_script": f"{sys.prefix}/bin/ukraine-data", "lifelines_spec": importlib.util.find_spec("lifelines") is not None, "jax_spec": importlib.util.find_spec("jax") is not None, "uv": shutil.which("uv")}, sort_keys=True))'
+
+Scratch CLI negative for absent auto-discovered workspace (config writer exit 0; stdout=absent-root-config.stdout, stderr=absent-root-config.stderr):
+env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/source/policy-engine/src /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python -c 'from pathlib import Path; from polisyos.data_forge.domains.ukraine.models import build_default_pipeline_config; path = Path("/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/absent-root-config.json"); config = build_default_pipeline_config(root=path.parent / "absent-root-build"); config.server.require_server_for_build = False; path.write_text(config.model_dump_json(), encoding="utf-8")'
+
+Actual CLI absent-root negative (exit 1; stdout=absent-root.stdout, stderr=absent-root.stderr):
+env PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/source/policy-engine/src /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python -m polisyos.data_forge.domains.ukraine.cli --config /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/absent-root-config.json validate-part-a
+
+Actual CLI child-process observer (wrapper exit 0; child PID and status in observed-cli-process.json; child stdout/stderr=observed-cli.stdout, observed-cli.stderr):
+/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python observe_cli_process.py
+
+Read-only ops-runner directory census (exit 0; full file list in ops-runners-census.json):
+/usr/bin/python3 census_ops_runners.py
+
+Candidate C7 source archive command (exit 0):
+git archive 5a75b004e0d17c80f1d156df84db7a12a9274c9e policy-engine/tests/integration/test_c7_synthetic_full_pipeline.py policy-engine/tests/_helpers/c7_synthetic_data.py | tar -x -C /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/source
+
+Candidate ops-runner inventory command (exit 0; full file list/counts in ops-runners-census.json; output=census.stdout, stderr=census.stderr):
+/usr/bin/python3 census_ops_runners.py

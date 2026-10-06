@@ -1,0 +1,34 @@
+{
+  "disk_used_gib": 1.819804310798645e-06,
+  "elapsed_s": 0.0,
+  "errors": [
+    "part_a_gate_status=unavailable"
+  ],
+  "findings": [],
+  "finished_at": "2026-10-06T13:39:43.347486+00:00",
+  "inputs": [],
+  "metrics": {
+    "notes": [
+      "repository checkout is unavailable for the installed package"
+    ],
+    "passed": false,
+    "skipped": false
+  },
+  "outputs": [
+    {
+      "artifact_id": null,
+      "nnz": null,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/absent-root-build/manifests/part_a_gate_manifest.json",
+      "row_count": null,
+      "sha256": "ada27a79f417690ce3acc3e4c3b7ab92cd7433579ff13ba74cfd75b1b1dd3257",
+      "size_bytes": 245
+    }
+  ],
+  "peak_rss_gib": 0.195556640625,
+  "resume_from": null,
+  "run_id": "validate_part_a_1791293983",
+  "stage_id": "validate_part_a",
+  "started_at": "2026-10-06T13:39:43.347284+00:00",
+  "status": "unavailable",
+  "warnings": []
+}

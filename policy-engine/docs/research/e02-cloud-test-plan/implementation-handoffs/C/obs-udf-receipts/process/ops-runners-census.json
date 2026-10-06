@@ -1,0 +1,24 @@
+{
+  "by_suffix": {
+    ".md": 1,
+    ".py": 13
+  },
+  "file_count": 14,
+  "files": [
+    "README.md",
+    "__init__.py",
+    "build_edr_identity_seed_candidates.py",
+    "build_p1_source_bindings.py",
+    "build_spending_contracts_procurement_proxy.py",
+    "fetch_p0_sources.py",
+    "fetch_p1_p2_public_sources.py",
+    "harvest_prozorro_contract_details.py",
+    "harvest_prozorro_contract_feed.py",
+    "harvest_spending_contracts_by_disposer.py",
+    "harvest_spending_daily.py",
+    "pre_shard_lex_corpus.py",
+    "server_bootstrap.py",
+    "validate_part_a.py"
+  ],
+  "root": "policy-engine/tools/ops_runners/ukraine_data@5a75b004e0d17c80f1d156df84db7a12a9274c9e"
+}

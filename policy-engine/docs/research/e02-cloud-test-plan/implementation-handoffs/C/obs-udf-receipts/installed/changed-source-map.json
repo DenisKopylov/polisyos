@@ -1,0 +1,106 @@
+{
+  "candidate": {
+    "base_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "commit": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+    "tree": "3602443723a9a57b1a988ae3933b2d1d7c17f2bc"
+  },
+  "changed_paths_denominator": 8,
+  "paths": [
+    {
+      "sdist_byte_identical": true,
+      "sdist_path": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+      "sdist_sha256": "68177217dc836da985db02426a1785d3cddba2380c1b698bc5a0db8b2407838b",
+      "source_bytes": 83351,
+      "source_path": "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+      "source_sha256": "68177217dc836da985db02426a1785d3cddba2380c1b698bc5a0db8b2407838b",
+      "wheel_byte_identical": true,
+      "wheel_omission_reason": null,
+      "wheel_path": "polisyos/data_forge/domains/ukraine/builders/sources.py",
+      "wheel_sha256": "68177217dc836da985db02426a1785d3cddba2380c1b698bc5a0db8b2407838b"
+    },
+    {
+      "sdist_byte_identical": true,
+      "sdist_path": "src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+      "sdist_sha256": "398f923ff75deb9aa1189a44f281f27272d9fea54a3fca3b99706778203f53f7",
+      "source_bytes": 15717,
+      "source_path": "src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+      "source_sha256": "398f923ff75deb9aa1189a44f281f27272d9fea54a3fca3b99706778203f53f7",
+      "wheel_byte_identical": true,
+      "wheel_omission_reason": null,
+      "wheel_path": "polisyos/data_forge/domains/ukraine/demography/__init__.py",
+      "wheel_sha256": "398f923ff75deb9aa1189a44f281f27272d9fea54a3fca3b99706778203f53f7"
+    },
+    {
+      "sdist_byte_identical": null,
+      "sdist_path": null,
+      "sdist_sha256": null,
+      "source_bytes": 3101,
+      "source_path": "tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+      "source_sha256": "a0f70c483ac41bd6076af34ff71042b03eee2f499d12cb8a2931fbeae2c163e2",
+      "wheel_byte_identical": null,
+      "wheel_omission_reason": "outside installed package namespace",
+      "wheel_path": null,
+      "wheel_sha256": null
+    },
+    {
+      "sdist_byte_identical": null,
+      "sdist_path": null,
+      "sdist_sha256": null,
+      "source_bytes": 16581,
+      "source_path": "tests/unit/remediation/test_obs_02.py",
+      "source_sha256": "3020633b17ccfd889380dff9dc5dc08f3d9256fa35e6617de3290cb049e7c372",
+      "wheel_byte_identical": null,
+      "wheel_omission_reason": "outside installed package namespace",
+      "wheel_path": null,
+      "wheel_sha256": null
+    },
+    {
+      "sdist_byte_identical": null,
+      "sdist_path": null,
+      "sdist_sha256": null,
+      "source_bytes": 6970,
+      "source_path": "tests/unit/remediation/test_udf_01.py",
+      "source_sha256": "525fc51be03db87caaa82d5a535b313bd1b5a8af95949f2f8f7cc36be7a0414d",
+      "wheel_byte_identical": null,
+      "wheel_omission_reason": "outside installed package namespace",
+      "wheel_path": null,
+      "wheel_sha256": null
+    },
+    {
+      "sdist_byte_identical": null,
+      "sdist_path": null,
+      "sdist_sha256": null,
+      "source_bytes": 18304,
+      "source_path": "tests/unit/remediation/test_udf_02.py",
+      "source_sha256": "5484ced2f2f96f60e6ffa28d7e40b228f524dc4d9104ac60fda0c22209993b64",
+      "wheel_byte_identical": null,
+      "wheel_omission_reason": "outside installed package namespace",
+      "wheel_path": null,
+      "wheel_sha256": null
+    },
+    {
+      "sdist_byte_identical": null,
+      "sdist_path": null,
+      "sdist_sha256": null,
+      "source_bytes": 11597,
+      "source_path": "tests/unit/remediation/test_udf_04.py",
+      "source_sha256": "6fb6eb14cebb793a3686e62d5a7ed2599dad21524060829002ccdd73fef87946",
+      "wheel_byte_identical": null,
+      "wheel_omission_reason": "outside installed package namespace",
+      "wheel_path": null,
+      "wheel_sha256": null
+    },
+    {
+      "sdist_byte_identical": null,
+      "sdist_path": null,
+      "sdist_sha256": null,
+      "source_bytes": 14402,
+      "source_path": "tests/unit/remediation/test_udf_05.py",
+      "source_sha256": "c0c0cbc5eb0d8244ee07de6ce197e622ca527416e765f3b3e73eda580d23153a",
+      "wheel_byte_identical": null,
+      "wheel_omission_reason": "outside installed package namespace",
+      "wheel_path": null,
+      "wheel_sha256": null
+    }
+  ]
+}

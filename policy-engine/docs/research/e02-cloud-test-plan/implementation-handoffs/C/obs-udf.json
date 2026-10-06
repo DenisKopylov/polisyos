@@ -240,37 +240,110 @@
       "finding_id": "B146",
       "recorded_status": "partial",
       "candidate_observation": "OBS-01 implementation was already present at the slice base; its calendar, malformed/missing period, and consumer quarantine selectors passed in the final focused suite. No source code was changed for this finding and no population-wide invalid-period prevalence or production refresh was established.",
-      "new_verdict": "candidate tests pass; historical partial retained; independent closure decision not established"
+      "new_verdict": "candidate tests pass; proposed closed for the OBS-01 card criteria; historical partial remains in the ledger pending root's formal adjudication; no population prevalence or production refresh is established"
     },
     {
       "finding_id": "B147",
       "recorded_status": "partial",
       "candidate_observation": "Each source artifact is copied to a private per-run temporary file before first yield. Streaming and fallback read that same copy; a row offset plus confirmed metric-frame ordinal resumes after a reader error and retains the prefix without duplicate observation IDs.",
-      "new_verdict": "candidate implementation and focused tests pass; no large-file memory bound or remote source behavior established; historical partial retained"
+      "new_verdict": "candidate implementation and focused tests pass; proposed closed for the bounded OBS-02 card criteria; historical partial remains in the ledger pending root's formal adjudication; large-file memory bounds and remote source behavior remain unestablished"
     },
     {
       "finding_id": "LA-029",
       "recorded_status": "partial",
       "candidate_observation": "The installed ukraine-data entrypoint is exercised with explicit config and workspace root; a private fake uv executable records the actual gate argv, cwd, integration environment and exit behavior. No server is started.",
-      "new_verdict": "candidate CLI/process-route test passes; server create/start/stop/restart/cleanup lifecycle remains not_established; historical partial retained"
+      "new_verdict": "candidate CLI/process-route test passes; independent process review also records typed unavailability before subprocess for an absent workspace root and refusal of the Darwin server marker before subprocess; server create/start/stop/restart/cleanup lifecycle remains not_established; historical partial retained"
     },
     {
       "finding_id": "LA-030",
       "recorded_status": "partial",
       "candidate_observation": "The real registered D4 orchestrator route produces a persisted BuildRunManifest and ArtifactRecord; public read_api CAS resolution and the Scientist consumer reopen the exact output bytes and retain may_not_use_for limits.",
-      "new_verdict": "candidate registered producer-to-consumer test passes; no broader governance decision or full Ukraine pipeline claim; historical partial retained"
+      "new_verdict": "candidate registered producer-to-consumer test passes; proposed closed for the UDF-01 D4 artifact/read_api/consumer criteria; historical partial remains in the ledger pending root's formal adjudication; no broader governance decision or full Ukraine pipeline claim"
     },
     {
       "finding_id": "LA-031",
       "recorded_status": "held",
       "candidate_observation": "The test now compares direct builder bytes against registered D0/P0, D1, D2, D4, and D5 routes, covering the five declared direct importers. D5 created_at and the release handoff digest receive the explicitly disclosed JSON compare projection below; all other output bytes/directory members are compared directly.",
-      "new_verdict": "Independent review reports GO for the six registered-stage parity/readback scope across the slice base and candidate, including the five direct common importers and the bounded D3 route; the D4 public CAS readback is included. This verdict is limited to LA-031 parity, does not rewrite the historical ledger, and needs no split for this finding. Review receipt: root rawobs-parity-review."
+      "new_verdict": "Independent review reports GO for the six registered-stage parity/readback scope across the slice base and candidate, including the five direct common importers and the bounded D3 route; the D4 public CAS readback is included. Proposed closed for this bounded LA-031 scope; the historical held ledger status remains unchanged pending root's formal adjudication, and no split is needed. Review receipt: root rawobs-parity-review."
     },
     {
       "finding_id": "LA-032",
       "recorded_status": "held",
       "candidate_observation": "All four public reader forms share a per-call immutable old/new layout selection over targets and priors plus optional donor; mixed/incomplete/corrupt/shape-invalid members fail closed. GenerationBasis binds only the bytes selected in this call. A complete tracked-tree census found the target/prior/donor AssetKeys and schema ids only in declarative registration/export paths, reader code, and tests; no callable source producer/materializer writes the demographic snapshot or its persisted inventory.",
       "new_verdict": "Held / producer_missing, bridge_missing and verification_missing for the persisted-inventory capability. The independent selector is candidate code only; no source producer, persisted inventory, ArtifactRecord/BuildRunManifest chain, or public read_api replay of that producer record is present."
+    }
+  ],
+  "proposed_candidate_dispositions": [
+    {
+      "finding_id": "B146",
+      "historical_status": "partial",
+      "candidate_disposition": "closed",
+      "scope": "OBS-01 period parsing and consumer quarantine criteria only: supported period forms, leap and ordinary February, quarter/year boundaries, missing/malformed/invalid periods as typed absence, and invalid-date quarantine across observation, demographic and graph consumers.",
+      "basis": "Existing implementation is present at the slice base; the focused candidate suite passed the OBS-01 selectors and consumers. No population prevalence or production refresh is claimed.",
+      "evidence_refs": [
+        "policy-engine/tests/unit/remediation/test_obs_01.py@5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+        "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py@5a75b004e0d17c80f1d156df84db7a12a9274c9e"
+      ]
+    },
+    {
+      "finding_id": "B147",
+      "historical_status": "partial",
+      "candidate_disposition": "closed",
+      "scope": "OBS-02 bounded source-copy and confirmed row/metric-cursor resume criteria, including partial yield, changed original source, no duplicate observation IDs, and Parquet/D2 consumer readback.",
+      "basis": "The immutable per-run source copy and confirmed cursor tests pass. Large-file memory bounds and remote-storage behavior remain unestablished and are outside this closure scope.",
+      "evidence_refs": [
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py@5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+        "policy-engine/tests/unit/remediation/test_obs_02.py@5a75b004e0d17c80f1d156df84db7a12a9274c9e"
+      ]
+    },
+    {
+      "finding_id": "LA-029",
+      "historical_status": "partial",
+      "candidate_disposition": "held",
+      "scope": "Installed CLI and private fake-process route are exercised, but the required Linux/server lifecycle receipt is not established.",
+      "basis": "The independent process receipt records absent-root typed unavailability before subprocess and Darwin marker refusal before subprocess. No CPX interface, Linux C7 process fixture, schema lifecycle, or server create/start/stop/restart/cleanup receipt was established.",
+      "evidence_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/receipt.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/observed-cli-process.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/process/darwin-marker-negative.stderr.txt"
+      ]
+    },
+    {
+      "finding_id": "LA-030",
+      "historical_status": "partial",
+      "candidate_disposition": "closed",
+      "scope": "Registered D4 producer-to-artifact-to-public-read_api-to-existing-consumer contract, preserving the ArtifactRecord/BuildRunManifest identity and all four may_not_use_for limits.",
+      "basis": "The candidate route writes persisted artifact bytes and manifest, reopens the same content through the public verified CAS read_api, and reaches the existing consumer. Broader pipeline governance and production data are not claimed.",
+      "evidence_refs": [
+        "policy-engine/tests/unit/remediation/test_udf_01.py@5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-receipt.json"
+      ]
+    },
+    {
+      "finding_id": "LA-031",
+      "historical_status": "held",
+      "candidate_disposition": "closed",
+      "scope": "Independent base/candidate parity and public-readback review for all six registered D0/P0, D1, D2, D3, D4, D5 routes and all five direct common importers.",
+      "basis": "Independent review reports GO for this bounded parity/readback scope. D5 clock-bearing JSON retains the declared compare-projection limitation; D3 has two optional unmanifested inputs. Neither limitation is promoted to a canonical clock policy or full lineage claim.",
+      "evidence_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/comparison-summary.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/direct-importer-census.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/d3-comparison.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/base-run7.stdout.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/parity/candidate-run7.stdout.json"
+      ]
+    },
+    {
+      "finding_id": "LA-032",
+      "historical_status": "held",
+      "candidate_disposition": "held",
+      "scope": "Reader-side shared immutable layout selection is implemented; an authoritative source producer, persisted versioned inventory and producer-backed public read_api chain remain absent.",
+      "basis": "The complete tracked-tree census supports producer_missing, bridge_missing and verification_missing. C-W19 is the assigned accountable closure owner; exact source inputs and version semantics remain supplier requirements. No reader-generated inventory is presented as authoritative.",
+      "evidence_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/census/census.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/census/tracked-tree.stdout.nul",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/receipt-index.json"
+      ]
     }
   ],
   "checks": [
@@ -395,6 +468,13 @@
       "outcome": "BYPASSED_AFTER_PRIOR_MISSING_TOOL_NONRECEIPT",
       "output": "The same worktree-specific missing Lefthook binary is recorded above; no hook invocation or new hook receipt was produced for this handoff commit.",
       "config_effect": "This commit changes only the handoff JSON. JSON parsing, census path/hash/size readback and git diff --check passed; no product test, dashboard lint or hook result is claimed."
+    },
+    {
+      "gate": "shared pre-commit Lefthook wrapper on the final OBS/UDF evidence handoff",
+      "command": "git -c core.hooksPath=/dev/null commit -m 'Record OBS UDF verification receipts and dispositions'",
+      "outcome": "BYPASSED_AFTER_MISSING_TOOL_NONRECEIPT",
+      "output": "The worktree-specific pre-commit dispatcher exists, but its configured Lefthook binary is absent at policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook; no hook invocation or hook result was produced for this docs-only commit.",
+      "config_effect": "Only the handoff JSON and exact receipt evidence files change. JSON parsing, complete receipt-index SHA/size/source-byte verification, candidate changed-path denominator comparison and git diff --check are the deciding documentation checks; no product test, dashboard lint or hook result is claimed."
     }
   ],
   "property": {
@@ -465,13 +545,19 @@
           "symlinks": 0
         },
         "source_input_findings": "The six tracked files matching new-layout member paths are baseline/candidate test fixtures under tests/_data/data_forge/ukraine_shadow; there are no tracked production targets/prior/donor input files. Exact target/prior/donor path, legacy path, payload field, AssetKey, schema id, and four-reader searches were run over the full tracked tree. A producer-expression search covered every tracked source-code suffix path; surviving code matches are asset registration/exports, the four readers/validators, static-aging and unrelated downstream Foundry consumers, and tests. Direct inspection of AssetSpec/AssetGroup confirms these registrations bind no materializer, and builders/demography.py writes household/labor/observation contracts rather than the target/prior/donor snapshot.",
-        "raw_full_census_path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/source-census.json",
+        "raw_full_census_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/source-census.json",
         "raw_full_census_sha256": "2c2492df88d84a12f071c5c81de00cca7ce2c44705142fa2b8a35d9a9d2102f5",
         "raw_full_census_size_bytes": 10573776,
-        "census_script_path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/census.py",
+        "census_script_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/census/census.py",
         "census_script_sha256": "087b6d6514662eb47d98c5c1318e0dee5a908eaf674e4ffd7c281cc5013a2728",
-        "tracked_tree_listing_path": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/udf-inventory-owner/tracked-tree.stdout.nul",
-        "tracked_tree_listing_sha256": "bf30964b32829c87d191f8f0c3b92d2673f2721e1ad47e8b7575a56ba86998f8"
+        "tracked_tree_listing_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/census/tracked-tree.stdout.nul",
+        "tracked_tree_listing_sha256": "bf30964b32829c87d191f8f0c3b92d2673f2721e1ad47e8b7575a56ba86998f8",
+        "retained_duplicate_copy": {
+          "directory": "/Users/deniskopylov/polisyos/.tmp/e02-C2/raw/udf-inventory-owner",
+          "status": "C-created retained cleanup candidate; do not delete until the independent review confirms the tracked receipts and canonical C-private raw copy are sufficient. No deletion was performed.",
+          "source_census_sha256": "2c2492df88d84a12f071c5c81de00cca7ce2c44705142fa2b8a35d9a9d2102f5",
+          "source_census_size_bytes": 10573776
+        }
       }
     },
     {
@@ -500,13 +586,27 @@
     "remaining_capability_labels": ["producer_missing", "bridge_missing", "verification_missing", "not_established"],
     "acceptance_signal": "Semantic negative controls pass at the shared selector and resume path; the six-route registered parity/readback scope is independently accepted; C-W19 identifies authoritative demographic source inputs/version semantics and the real producer persists an inventory through ArtifactRecord/BuildRunManifest for all four public readers; no held finding is promoted by code or test presence alone."
   },
-  "authority_purpose": "Candidate implementation and review handoff only; it changes no residual ledger status and asserts no finding closure.",
+  "authority_purpose": "Candidate implementation and review handoff only. The criterion-scoped candidate dispositions are proposals for root's later formal ledger adjudication; the historical residual ledger is unchanged and this record does not itself assert authoritative finding closure.",
   "review_status": "This update records the root rawobs-parity-review GO for LA-031; it does not claim an independent review of the LA-032 source census. Demography review remains a separate post-freeze action for implementation SHA 5a75b004e0d17c80f1d156df84db7a12a9274c9e.",
+  "evidence_receipt_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/receipt-index.json",
+    "sha256": "6c1e2c4ddc5032a35229d52f69f0e10a87c956bd62cf4b73f55346140ff87a22",
+    "size_bytes": 31230,
+    "scope": "Tracks exact-byte installed-package receipts, six-stage base/candidate parity outputs, LA-029 process evidence, and the census script plus complete NUL-delimited tracked path listing. The 10 MiB source-census JSON remains local and is cited by canonical path, size, and SHA-256."
+  },
+  "installed_package_probe": {
+    "result": "PASS",
+    "candidate_commit": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+    "profile": "offline fresh base, no selected extras; candidate archive verified against git and installed wheel; probe ran outside the source checkout with isolated Python",
+    "observed": "Installed ukraine-data --help succeeded. The registered D0/P0 builder consumed six local synthetic normalized-source artifacts, produced 15 typed outputs, and the installed public read_api persisted the manifest/output bytes to private CAS and reopened the identity-resolution cohort. Mutating a producer file caused content-hash refusal. Installed domain/public demography readers consumed one synthetic new-layout snapshot through static-aging; mixed complete/partial layout refused. Eleven product imports resolved from site-packages against the built package bytes.",
+    "scope_limitations": "No production input or database was used. The server gate was disabled only for the isolated stage test; the synthetic Part A manifest is a prerequisite artifact, not a server or Part A gate pass. Linux C7/server runtime and lifecycle are UNRUN.",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/obs-udf-receipts/installed/installed-ukraine-receipt.json"
+  },
   "provenance": {
     "implementation_commit": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
     "implementation_tree": "3602443723a9a57b1a988ae3933b2d1d7c17f2bc",
     "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5^{tree}=2b754a92c27959e2e747738d47ed0b419f3b6dd8",
     "worktree": "/Users/deniskopylov/.codex/worktrees/e02-c-obs-udf-20261006/polisyos",
-    "branch_readback": "refs/heads/codex/e02-C-obs-udf-20261006; clean after implementation commit; exact changed path set is listed above."
+    "branch_readback": "All handoff and receipt files are delivered from refs/heads/codex/e02-C-obs-udf-20261006 after its docs-only commit; the implementation candidate remains exactly 5a75b004e0d17c80f1d156df84db7a12a9274c9e and the branch HEAD/tree plus every evidence payload are re-read after commit."
   }
 }

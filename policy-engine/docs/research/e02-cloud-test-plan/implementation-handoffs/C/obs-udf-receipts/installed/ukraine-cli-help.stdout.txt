@@ -1,0 +1,23 @@
+usage: ukraine-data [-h] [--config CONFIG] [--root ROOT]
+                    [--workspace-root WORKSPACE_ROOT]
+                    {bootstrap-server,validate-part-a,build,resume,validate,release} ...
+
+Server-only production data/build stack for Ukraine Part B.
+
+positional arguments:
+  {bootstrap-server,validate-part-a,build,resume,validate,release}
+    bootstrap-server    Prepare server layout and capability manifests.
+    validate-part-a     Run the server-side Part A integration gate.
+    build               Build one Part B stage or the full pipeline.
+    resume              Resume one stage from an existing manifest.
+    validate            Validate outputs recorded by a completed stage
+                        manifest.
+    release             Build or resume the final D5 release bundle.
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG       Path to JSON pipeline config.
+  --root ROOT           Override build root for manifests and artifacts.
+  --workspace-root WORKSPACE_ROOT
+                        Repository checkout used for server-only gates;
+                        distinct from --root.

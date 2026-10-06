@@ -1,0 +1,1474 @@
+{
+  "stages": {
+    "d0_p0": {
+      "errors": [],
+      "findings": [],
+      "inputs": [
+        {
+          "path": "normalized/edr_current/agent_registry_full.parquet",
+          "row_count": 2,
+          "sha256": "397d5e9740f9f5c2a263c8f06e634c23e9e49a2d896389dbca734150b14770c2",
+          "size_bytes": 9062
+        },
+        {
+          "path": "normalized/spending_full/budget_flows_monthly_sparse.parquet",
+          "row_count": 1,
+          "sha256": "75ff666820b30ae495c03d0bdeedf42462be8b8297fba4b5d858130ce86fd276",
+          "size_bytes": 3515
+        },
+        {
+          "path": "normalized/spending_contracts_procurement_proxy/procurement_contracts_monthly.parquet",
+          "row_count": 1,
+          "sha256": "51ad2139b36596d446bd60bd92f2e312c3598b1aac4228e5ae6b7ee0356c4922",
+          "size_bytes": 4110
+        },
+        {
+          "path": "normalized/prozorro_full/procurement_contracts_monthly.parquet",
+          "row_count": 1,
+          "sha256": "51ad2139b36596d446bd60bd92f2e312c3598b1aac4228e5ae6b7ee0356c4922",
+          "size_bytes": 4110
+        },
+        {
+          "path": "normalized/macro_nbu_derzhstat/macro_panel_monthly.parquet",
+          "row_count": 1,
+          "sha256": "b4cb89b44fc33ff26dd0dc3ee66bde706a2fb5da50646ea2cf682dafdac136f8",
+          "size_bytes": 2845
+        },
+        {
+          "path": "normalized/dps_financials/firm_fundamentals_annual.parquet",
+          "row_count": 1,
+          "sha256": "f6804bf5034cf14b61596feea7d161be272ee0cbc0d3b05f00c58375982257f2",
+          "size_bytes": 4585
+        }
+      ],
+      "metrics": {
+        "agent_count": 2,
+        "cell_count": 2,
+        "macro_rows": 1,
+        "procurement_source_id": "spending_contracts_procurement_proxy",
+        "runtime_cohort_coverage_procurement": 1.0,
+        "runtime_cohort_coverage_spending": 1.0,
+        "runtime_cohort_resolved_procurement": 2,
+        "runtime_cohort_resolved_spending": 2,
+        "runtime_cohort_total_procurement": 2,
+        "runtime_cohort_total_spending": 2
+      },
+      "outputs": [
+        {
+          "actual_sha256": "397d5e9740f9f5c2a263c8f06e634c23e9e49a2d896389dbca734150b14770c2",
+          "actual_size_bytes": 9062,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d0_p0/agent_registry_runtime.parquet",
+          "record_sha256": "397d5e9740f9f5c2a263c8f06e634c23e9e49a2d896389dbca734150b14770c2",
+          "record_size_bytes": 9062,
+          "row_count": 2
+        },
+        {
+          "actual_sha256": "65b235eefb7d6cbeffeb02b8ef1a93895118f166c266afd0100f98c4f30b8d2e",
+          "actual_size_bytes": 2349,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d0_p0/public_entity_registry.parquet",
+          "record_sha256": "65b235eefb7d6cbeffeb02b8ef1a93895118f166c266afd0100f98c4f30b8d2e",
+          "record_size_bytes": 2349,
+          "row_count": 2
+        },
+        {
+          "actual_sha256": "47205bfe9c678d0a946dfbee1af1d60b61027415b33e7f2f986c59d0d32d7d78",
+          "actual_size_bytes": 5410,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d0_p0/edr_identity_bridge_unresolved_raw.parquet",
+          "record_sha256": "47205bfe9c678d0a946dfbee1af1d60b61027415b33e7f2f986c59d0d32d7d78",
+          "record_size_bytes": 5410,
+          "row_count": 0
+        },
+        {
+          "actual_sha256": "47205bfe9c678d0a946dfbee1af1d60b61027415b33e7f2f986c59d0d32d7d78",
+          "actual_size_bytes": 5410,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d0_p0/edr_identity_bridge_unresolved.parquet",
+          "record_sha256": "47205bfe9c678d0a946dfbee1af1d60b61027415b33e7f2f986c59d0d32d7d78",
+          "record_size_bytes": 5410,
+          "row_count": 0
+        },
+        {
+          "actual_sha256": "6a27a14ad60c487e9e54f9c4f4bd938bc43c36fefaec0c674c91d7ffa3ea0002",
+          "actual_size_bytes": 5921,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d0_p0/edr_identity_bridge_candidates.parquet",
+          "record_sha256": "6a27a14ad60c487e9e54f9c4f4bd938bc43c36fefaec0c674c91d7ffa3ea0002",
+          "record_size_bytes": 5921,
+          "row_count": 0
+        },
+        {
+          "actual_sha256": "d40c744a5b8913abc8229909090231f6565baf511904879390f567d9cd503060",
+          "actual_size_bytes": 4528,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d0_p0/edr_identity_bridge_resolved.parquet",
+          "record_sha256": "d40c744a5b8913abc8229909090231f6565baf511904879390f567d9cd503060",
+          "record_size_bytes": 4528,
+          "row_count": 0
+        },
+        {
+          "actual_sha256": "529781c7171cdd7822117e8a8a5a6146dc3aea10c556ee9db0d17b99909cd28e",
+          "actual_size_bytes": 781,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d0_p0/edr_identity_bridge_manifest.json",
+          "record_sha256": "529781c7171cdd7822117e8a8a5a6146dc3aea10c556ee9db0d17b99909cd28e",
+          "record_size_bytes": 781,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "4c02d2d4c472e4b8e1a216d213e66b6102c3981cb23f3f765802f926ba50e17e",
+          "actual_size_bytes": 4070,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d0_p0/cell_registry_region_sector.parquet",
+          "record_sha256": "4c02d2d4c472e4b8e1a216d213e66b6102c3981cb23f3f765802f926ba50e17e",
+          "record_size_bytes": 4070,
+          "row_count": 2
+        },
+        {
+          "actual_sha256": "fe02964d8e1787f34cdea9fe080a3d8f43505d309446b17d1ddcf4a75c116ea2",
+          "actual_size_bytes": 3427,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d0_p0/geo_index_runtime.parquet",
+          "record_sha256": "fe02964d8e1787f34cdea9fe080a3d8f43505d309446b17d1ddcf4a75c116ea2",
+          "record_size_bytes": 3427,
+          "row_count": 2
+        },
+        {
+          "actual_sha256": "5c482ceb2ef1d937f57dd0a1e62afcf040e7d111373b9946947530045432c98a",
+          "actual_size_bytes": 1894,
+          "is_directory": false,
+          "nnz": 1,
+          "path": "runtime/d0_p0/budget_graph_sparse.npz",
+          "record_sha256": "5c482ceb2ef1d937f57dd0a1e62afcf040e7d111373b9946947530045432c98a",
+          "record_size_bytes": 1894,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "16c95ea4cbc823731f49bbd8041ad3e8ba8993ac8a0d4cb730c622f32bf023cf",
+          "actual_size_bytes": 1894,
+          "is_directory": false,
+          "nnz": 1,
+          "path": "runtime/d0_p0/procurement_graph_sparse.npz",
+          "record_sha256": "16c95ea4cbc823731f49bbd8041ad3e8ba8993ac8a0d4cb730c622f32bf023cf",
+          "record_size_bytes": 1894,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "eb33264dbc16e09261a75119e3f46877f2abefe925c89e8a2bad109aab6391c6",
+          "actual_size_bytes": 1780,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d0_p0/cell_state_seed_v1.npz",
+          "record_sha256": "eb33264dbc16e09261a75119e3f46877f2abefe925c89e8a2bad109aab6391c6",
+          "record_size_bytes": 1780,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "f28a68e200ef8c0dc810519477f2d897c99eadb3478eaf4595e660a80a90e4be",
+          "actual_size_bytes": 1860,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d0_p0/slot_family_manifest.json",
+          "record_sha256": "f28a68e200ef8c0dc810519477f2d897c99eadb3478eaf4595e660a80a90e4be",
+          "record_size_bytes": 1860,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "6fab3a68895ca6d515ba2b0e9e2cb12a741860354a6cbe8c1db34315c0ca5760",
+          "actual_size_bytes": 401,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d0_p0/identity_resolution_cohort_v1.json",
+          "record_sha256": "6fab3a68895ca6d515ba2b0e9e2cb12a741860354a6cbe8c1db34315c0ca5760",
+          "record_size_bytes": 401,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "3468ae3a08cb4318bc8873bd32e4625f46b42ed7700bf0fa4ae4d5d824b338de",
+          "actual_size_bytes": 6229,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d0_p0/runtime_bundle_manifest.json",
+          "record_sha256": "3468ae3a08cb4318bc8873bd32e4625f46b42ed7700bf0fa4ae4d5d824b338de",
+          "record_size_bytes": 6229,
+          "row_count": null
+        }
+      ],
+      "read_api": {
+        "manifest_readback_sha256": "7490b6b600ffc9afe6eef8831ef037516fe6a092aef98ddd89ace6d87ebb07d4",
+        "manifest_readback_size_bytes": 8928,
+        "manifest_sha256": "7490b6b600ffc9afe6eef8831ef037516fe6a092aef98ddd89ace6d87ebb07d4",
+        "output_count": 15,
+        "outputs": [
+          {
+            "name": "agent_registry_runtime.parquet",
+            "sha256": "397d5e9740f9f5c2a263c8f06e634c23e9e49a2d896389dbca734150b14770c2",
+            "size_bytes": 9062
+          },
+          {
+            "name": "budget_graph_sparse.npz",
+            "sha256": "5c482ceb2ef1d937f57dd0a1e62afcf040e7d111373b9946947530045432c98a",
+            "size_bytes": 1894
+          },
+          {
+            "name": "cell_registry_region_sector.parquet",
+            "sha256": "4c02d2d4c472e4b8e1a216d213e66b6102c3981cb23f3f765802f926ba50e17e",
+            "size_bytes": 4070
+          },
+          {
+            "name": "cell_state_seed_v1.npz",
+            "sha256": "eb33264dbc16e09261a75119e3f46877f2abefe925c89e8a2bad109aab6391c6",
+            "size_bytes": 1780
+          },
+          {
+            "name": "edr_identity_bridge_candidates.parquet",
+            "sha256": "6a27a14ad60c487e9e54f9c4f4bd938bc43c36fefaec0c674c91d7ffa3ea0002",
+            "size_bytes": 5921
+          },
+          {
+            "name": "edr_identity_bridge_manifest.json",
+            "sha256": "529781c7171cdd7822117e8a8a5a6146dc3aea10c556ee9db0d17b99909cd28e",
+            "size_bytes": 781
+          },
+          {
+            "name": "edr_identity_bridge_resolved.parquet",
+            "sha256": "d40c744a5b8913abc8229909090231f6565baf511904879390f567d9cd503060",
+            "size_bytes": 4528
+          },
+          {
+            "name": "edr_identity_bridge_unresolved.parquet",
+            "sha256": "47205bfe9c678d0a946dfbee1af1d60b61027415b33e7f2f986c59d0d32d7d78",
+            "size_bytes": 5410
+          },
+          {
+            "name": "edr_identity_bridge_unresolved_raw.parquet",
+            "sha256": "47205bfe9c678d0a946dfbee1af1d60b61027415b33e7f2f986c59d0d32d7d78",
+            "size_bytes": 5410
+          },
+          {
+            "name": "geo_index_runtime.parquet",
+            "sha256": "fe02964d8e1787f34cdea9fe080a3d8f43505d309446b17d1ddcf4a75c116ea2",
+            "size_bytes": 3427
+          },
+          {
+            "name": "identity_resolution_cohort_v1.json",
+            "sha256": "6fab3a68895ca6d515ba2b0e9e2cb12a741860354a6cbe8c1db34315c0ca5760",
+            "size_bytes": 401
+          },
+          {
+            "name": "procurement_graph_sparse.npz",
+            "sha256": "16c95ea4cbc823731f49bbd8041ad3e8ba8993ac8a0d4cb730c622f32bf023cf",
+            "size_bytes": 1894
+          },
+          {
+            "name": "public_entity_registry.parquet",
+            "sha256": "65b235eefb7d6cbeffeb02b8ef1a93895118f166c266afd0100f98c4f30b8d2e",
+            "size_bytes": 2349
+          },
+          {
+            "name": "runtime_bundle_manifest.json",
+            "sha256": "3468ae3a08cb4318bc8873bd32e4625f46b42ed7700bf0fa4ae4d5d824b338de",
+            "size_bytes": 6229
+          },
+          {
+            "name": "slot_family_manifest.json",
+            "sha256": "f28a68e200ef8c0dc810519477f2d897c99eadb3478eaf4595e660a80a90e4be",
+            "size_bytes": 1860
+          }
+        ],
+        "passed": true,
+        "stage_id": "d0_p0"
+      },
+      "run_id": "d0_p0_1791287303",
+      "status": "completed",
+      "warnings": [
+        "procurement_source_selected:spending_contracts_procurement_proxy",
+        "cell_population_fallback_to_agent_count:1"
+      ]
+    },
+    "d1": {
+      "errors": [],
+      "findings": [],
+      "inputs": [
+        {
+          "path": "normalized/dps_tax_risk/compliance_distress_signals_monthly.parquet",
+          "row_count": 2,
+          "sha256": "c5156e2734f0f53ebc345cee7bedee78c8784671fe15ba537f9d8073bb4c3969",
+          "size_bytes": 2891
+        },
+        {
+          "path": "normalized/customs_trade/trade_exposure_monthly.parquet",
+          "row_count": 2,
+          "sha256": "97d2108c687081ea756fce16fa65850ded5b9f683e260a8eb51674ddcd97f5bd",
+          "size_bytes": 2978
+        },
+        {
+          "path": "normalized/customs_vehicles/logistics_friction_monthly.parquet",
+          "row_count": 2,
+          "sha256": "3d835c7f5f716478fc896af32d0d6277961830055265e03a9fb144bdc56ea63b",
+          "size_bytes": 2995
+        },
+        {
+          "path": "normalized/employment_service/labor_market_panel_monthly.parquet",
+          "row_count": 2,
+          "sha256": "ec808168fbaba7e4359154b44bc5b44d147b866c1774ff5ec3de5b7ddf70d815",
+          "size_bytes": 2939
+        },
+        {
+          "path": "normalized/license_registry/regulated_activity_flags.parquet",
+          "row_count": 2,
+          "sha256": "8916c098decdb86688e8cafbc2ac806f2278de7c520a36ecff756f937b5d21d2",
+          "size_bytes": 2345
+        },
+        {
+          "path": "normalized/budget_managers/public_budget_manager_registry.parquet",
+          "row_count": 2,
+          "sha256": "b03b5a76b29f017b19ed0632a64135b25b3725298ef099eeecc7c5f6b1dee18d",
+          "size_bytes": 2373
+        },
+        {
+          "path": "normalized/nszu_payments/public_service_observation_panel_monthly.parquet",
+          "row_count": 2,
+          "sha256": "93c80c66e6807acf07a0fb045415ac1c27a0fcfc30e1e3efecd5bf26e290a280",
+          "size_bytes": 3010
+        },
+        {
+          "path": "normalized/yedebo/education_entity_registry.parquet",
+          "row_count": 2,
+          "sha256": "5bee1927d3f4a13cf61b375ad9768c64b8225c73a3ccafbd7ae79f526e730157",
+          "size_bytes": 2915
+        },
+        {
+          "path": "normalized/yedessb/construction_activity_panel_monthly.parquet",
+          "row_count": 2,
+          "sha256": "ee47b8f523ec8595078c937309f4f89b005fd9f119b782cfc5c10024ba54c7a1",
+          "size_bytes": 2935
+        },
+        {
+          "path": "normalized/road_characteristics/road_accessibility_cell_panel.parquet",
+          "row_count": 2,
+          "sha256": "8a25d522ab7d87b2db6d0a6d1ec7188bf1e3bd46c51c05115b58a33381100282",
+          "size_bytes": 3014
+        },
+        {
+          "path": "normalized/osm_exact/geo_enrichment_exact.parquet",
+          "row_count": 2,
+          "sha256": "ccb75dba5d720f2d7bf25801fcc5b28ffd636c4b082030f2cc2d3cca402fa7ec",
+          "size_bytes": 2958
+        },
+        {
+          "path": "normalized/spatial_exogenous/spatial_cell_exogenous_monthly.parquet",
+          "row_count": 2,
+          "sha256": "5c1131a32d1c719439088ccdc86c676ab4a2daae34a4f45d2c70f8e1b6dbd24c",
+          "size_bytes": 2970
+        }
+      ],
+      "metrics": {
+        "contract_node_count": 2,
+        "distress_graph_nnz": 2,
+        "full_node_count": 2,
+        "proxy_declared_channels": 3,
+        "public_service_graph_nnz": 2,
+        "trade_graph_nnz": 2
+      },
+      "outputs": [
+        {
+          "actual_sha256": "e29d81adeb90ebed2a2c794188611be2e65738cca2f5db108356e9988d93e3c8",
+          "actual_size_bytes": 1916,
+          "is_directory": false,
+          "nnz": 2,
+          "path": "runtime/d1/trade_graph_sparse.npz",
+          "record_sha256": "e29d81adeb90ebed2a2c794188611be2e65738cca2f5db108356e9988d93e3c8",
+          "record_size_bytes": 1916,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "21554e0a6945afb0751de94246fc9cf3463199983720142ca016eb7b35033abf",
+          "actual_size_bytes": 1916,
+          "is_directory": false,
+          "nnz": 2,
+          "path": "runtime/d1/distress_graph_sparse.npz",
+          "record_sha256": "21554e0a6945afb0751de94246fc9cf3463199983720142ca016eb7b35033abf",
+          "record_size_bytes": 1916,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "e29d81adeb90ebed2a2c794188611be2e65738cca2f5db108356e9988d93e3c8",
+          "actual_size_bytes": 1916,
+          "is_directory": false,
+          "nnz": 2,
+          "path": "runtime/d1/public_service_graph_sparse.npz",
+          "record_sha256": "e29d81adeb90ebed2a2c794188611be2e65738cca2f5db108356e9988d93e3c8",
+          "record_size_bytes": 1916,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "75f8c2f087b37eafe599b93d7199298af2aaff815ab20b0fec44c001d64be0f1",
+          "actual_size_bytes": 405,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d1/trade_network_data.json",
+          "record_sha256": "75f8c2f087b37eafe599b93d7199298af2aaff815ab20b0fec44c001d64be0f1",
+          "record_size_bytes": 405,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "80b96d197fdaa03187ca44f0a61561f446d6c7d0d52071217a487a0ca261dff4",
+          "actual_size_bytes": 415,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d1/trade_network_causal_data.json",
+          "record_sha256": "80b96d197fdaa03187ca44f0a61561f446d6c7d0d52071217a487a0ca261dff4",
+          "record_size_bytes": 415,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "84f83c6c3964b438f42bddef57fa121b5f8f533825dc3522eeedd6e938a86eab",
+          "actual_size_bytes": 408,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d1/distress_network_data.json",
+          "record_sha256": "84f83c6c3964b438f42bddef57fa121b5f8f533825dc3522eeedd6e938a86eab",
+          "record_size_bytes": 408,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "6b0b1a4237e502cbf219c711b70f7020e40e43fbe9cc19c56e8a40f7ec1e26ca",
+          "actual_size_bytes": 418,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d1/distress_network_causal_data.json",
+          "record_sha256": "6b0b1a4237e502cbf219c711b70f7020e40e43fbe9cc19c56e8a40f7ec1e26ca",
+          "record_size_bytes": 418,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "05367bd93df393333622628627390ab906e8d79a9e5ae836aaa479d5b8bd2f2e",
+          "actual_size_bytes": 414,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d1/public_service_network_data.json",
+          "record_sha256": "05367bd93df393333622628627390ab906e8d79a9e5ae836aaa479d5b8bd2f2e",
+          "record_size_bytes": 414,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "7a91ae1b0692e45e19df6216d136ec103e6316c3a311e76956c29e17b400b800",
+          "actual_size_bytes": 424,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d1/public_service_network_causal_data.json",
+          "record_sha256": "7a91ae1b0692e45e19df6216d136ec103e6316c3a311e76956c29e17b400b800",
+          "record_size_bytes": 424,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "5ef099cd96ac4db50cfab7a65dc0e02724893e19abd28315a73ae13c36292662",
+          "actual_size_bytes": 753,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d1/multiplex_network_data.json",
+          "record_sha256": "5ef099cd96ac4db50cfab7a65dc0e02724893e19abd28315a73ae13c36292662",
+          "record_size_bytes": 753,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "2d8cb2aa4dd88a3ec3c336bd6fd74ac6a48456b9a4b0c1ccddb4510b9b5358f3",
+          "actual_size_bytes": 2168,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d1/proxy_identification_bundle_v1.json",
+          "record_sha256": "2d8cb2aa4dd88a3ec3c336bd6fd74ac6a48456b9a4b0c1ccddb4510b9b5358f3",
+          "record_size_bytes": 2168,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "c81602303eaccff67e477f224825478772f214c3b25407de27f355eebedea50d",
+          "actual_size_bytes": 2155,
+          "is_directory": false,
+          "nnz": null,
+          "path": "runtime/d1/multiplex_graph_manifest.json",
+          "record_sha256": "c81602303eaccff67e477f224825478772f214c3b25407de27f355eebedea50d",
+          "record_size_bytes": 2155,
+          "row_count": null
+        }
+      ],
+      "read_api": {
+        "manifest_readback_sha256": "2fbec61e4b716b6535c9b3b7ea333fab292948880434917310d877add12c18f9",
+        "manifest_readback_size_bytes": 9789,
+        "manifest_sha256": "2fbec61e4b716b6535c9b3b7ea333fab292948880434917310d877add12c18f9",
+        "output_count": 12,
+        "outputs": [
+          {
+            "name": "distress_graph_sparse.npz",
+            "sha256": "21554e0a6945afb0751de94246fc9cf3463199983720142ca016eb7b35033abf",
+            "size_bytes": 1916
+          },
+          {
+            "name": "distress_network_causal_data.json",
+            "sha256": "6b0b1a4237e502cbf219c711b70f7020e40e43fbe9cc19c56e8a40f7ec1e26ca",
+            "size_bytes": 418
+          },
+          {
+            "name": "distress_network_data.json",
+            "sha256": "84f83c6c3964b438f42bddef57fa121b5f8f533825dc3522eeedd6e938a86eab",
+            "size_bytes": 408
+          },
+          {
+            "name": "multiplex_graph_manifest.json",
+            "sha256": "c81602303eaccff67e477f224825478772f214c3b25407de27f355eebedea50d",
+            "size_bytes": 2155
+          },
+          {
+            "name": "multiplex_network_data.json",
+            "sha256": "5ef099cd96ac4db50cfab7a65dc0e02724893e19abd28315a73ae13c36292662",
+            "size_bytes": 753
+          },
+          {
+            "name": "proxy_identification_bundle_v1.json",
+            "sha256": "2d8cb2aa4dd88a3ec3c336bd6fd74ac6a48456b9a4b0c1ccddb4510b9b5358f3",
+            "size_bytes": 2168
+          },
+          {
+            "name": "public_service_graph_sparse.npz",
+            "sha256": "e29d81adeb90ebed2a2c794188611be2e65738cca2f5db108356e9988d93e3c8",
+            "size_bytes": 1916
+          },
+          {
+            "name": "public_service_network_causal_data.json",
+            "sha256": "7a91ae1b0692e45e19df6216d136ec103e6316c3a311e76956c29e17b400b800",
+            "size_bytes": 424
+          },
+          {
+            "name": "public_service_network_data.json",
+            "sha256": "05367bd93df393333622628627390ab906e8d79a9e5ae836aaa479d5b8bd2f2e",
+            "size_bytes": 414
+          },
+          {
+            "name": "trade_graph_sparse.npz",
+            "sha256": "e29d81adeb90ebed2a2c794188611be2e65738cca2f5db108356e9988d93e3c8",
+            "size_bytes": 1916
+          },
+          {
+            "name": "trade_network_causal_data.json",
+            "sha256": "80b96d197fdaa03187ca44f0a61561f446d6c7d0d52071217a487a0ca261dff4",
+            "size_bytes": 415
+          },
+          {
+            "name": "trade_network_data.json",
+            "sha256": "75f8c2f087b37eafe599b93d7199298af2aaff815ab20b0fec44c001d64be0f1",
+            "size_bytes": 405
+          }
+        ],
+        "passed": true,
+        "stage_id": "d1"
+      },
+      "run_id": "d1_1791287303",
+      "status": "completed",
+      "warnings": [
+        "d1_dense_contract_full_graph"
+      ]
+    },
+    "d2": {
+      "errors": [],
+      "findings": [],
+      "inputs": [],
+      "metrics": {
+        "coverage_report": {
+          "budget_flows": {
+            "coverage_threshold": 0.85,
+            "observations_present": 1
+          },
+          "construction_capital_formation": {
+            "coverage_threshold": 0.75,
+            "observations_present": 4
+          },
+          "distress_enforcement": {
+            "coverage_threshold": 0.6,
+            "observations_present": 4
+          },
+          "education_human_capital_supply": {
+            "coverage_threshold": 0.8,
+            "observations_present": 4
+          },
+          "firm_fundamentals": {
+            "coverage_threshold": 0.8,
+            "observations_present": 6
+          },
+          "household_distribution": {
+            "coverage_threshold": 0.65,
+            "observations_present": 0
+          },
+          "labor_market": {
+            "coverage_threshold": 0.7,
+            "observations_present": 4
+          },
+          "logistics_friction": {
+            "coverage_threshold": 0.7,
+            "observations_present": 8
+          },
+          "macro_state": {
+            "coverage_threshold": 0.95,
+            "observations_present": 1
+          },
+          "procurement_flows": {
+            "coverage_threshold": 0.8,
+            "observations_present": 2
+          },
+          "public_service_domain_flows": {
+            "coverage_threshold": 0.75,
+            "observations_present": 4
+          },
+          "spatial_raster_exogenous": {
+            "coverage_threshold": 0.9,
+            "observations_present": 8
+          },
+          "trade_exposure": {
+            "coverage_threshold": 0.75,
+            "observations_present": 2
+          }
+        },
+        "families_present": [
+          "budget_flows",
+          "construction_capital_formation",
+          "distress_enforcement",
+          "education_human_capital_supply",
+          "firm_fundamentals",
+          "labor_market",
+          "logistics_friction",
+          "macro_state",
+          "procurement_flows",
+          "public_service_domain_flows",
+          "spatial_raster_exogenous",
+          "trade_exposure"
+        ],
+        "n_annual_records": 0,
+        "n_monthly_records": 48
+      },
+      "outputs": [
+        {
+          "actual_sha256": "d6b94707cc2a760af23548721ddc5a4a1315baad19431205b82cfa80916a3c0e",
+          "actual_size_bytes": 153595,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/observation_panel_monthly.parquet",
+          "record_sha256": "d6b94707cc2a760af23548721ddc5a4a1315baad19431205b82cfa80916a3c0e",
+          "record_size_bytes": 153595,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "2924fc41dc902984ff1a14587df7dfa64528d42d1e45fafe71e3ac6851d15f35",
+          "actual_size_bytes": 12209,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/observation_panel_annual.parquet",
+          "record_sha256": "2924fc41dc902984ff1a14587df7dfa64528d42d1e45fafe71e3ac6851d15f35",
+          "record_size_bytes": 12209,
+          "row_count": 0
+        },
+        {
+          "actual_sha256": "90f341b2e71edb28b6208f580d8a920191d67240c240db9417ba18a225187aff",
+          "actual_size_bytes": 2112,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/measurement_registry.json",
+          "record_sha256": "90f341b2e71edb28b6208f580d8a920191d67240c240db9417ba18a225187aff",
+          "record_size_bytes": 2112,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "c570eda256e2f0fcb6dab6696819542618f28249eb5988e4797f43d16b7088ea",
+          "actual_size_bytes": 1062,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/schema_regime_registry.json",
+          "record_sha256": "c570eda256e2f0fcb6dab6696819542618f28249eb5988e4797f43d16b7088ea",
+          "record_size_bytes": 1062,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "0092c0d687052b655cd984050aa816bdc733d0d9096c0cdd44c0d989c4819c29",
+          "actual_size_bytes": 3616,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/identification_mode_registry.json",
+          "record_sha256": "0092c0d687052b655cd984050aa816bdc733d0d9096c0cdd44c0d989c4819c29",
+          "record_size_bytes": 3616,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "1b1000a9d48bf83abca652548d612b2d866848fcbd9f55398362a95c5d943e3a",
+          "actual_size_bytes": 432,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/regime_calendar.json",
+          "record_sha256": "1b1000a9d48bf83abca652548d612b2d866848fcbd9f55398362a95c5d943e3a",
+          "record_size_bytes": 432,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "646c0f8977faa361dc94264e94f8a524af86d95dccf29c497c750aff78a764a8",
+          "actual_size_bytes": 932,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/shock_calendar.json",
+          "record_sha256": "646c0f8977faa361dc94264e94f8a524af86d95dccf29c497c750aff78a764a8",
+          "record_size_bytes": 932,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "3108ed0a816214619658ce45f3633a613900b7e3a523ee77a469c7cd3fd59ea7",
+          "actual_size_bytes": 260,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/changepoint_registry.json",
+          "record_sha256": "3108ed0a816214619658ce45f3633a613900b7e3a523ee77a469c7cd3fd59ea7",
+          "record_size_bytes": 260,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "121c1932745dd81a21b5433fccd1ac2de2ed1bb59aa0fb81c2f2dbd5b9c602b1",
+          "actual_size_bytes": 232,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/calibration_splits.json",
+          "record_sha256": "121c1932745dd81a21b5433fccd1ac2de2ed1bb59aa0fb81c2f2dbd5b9c602b1",
+          "record_size_bytes": 232,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "9fcf574092664d40e2e783acf9d0d88682a136332ba3c189f2a1746975c71088",
+          "actual_size_bytes": 1733,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/calibration_dictionary.json",
+          "record_sha256": "9fcf574092664d40e2e783acf9d0d88682a136332ba3c189f2a1746975c71088",
+          "record_size_bytes": 1733,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "dfbe75a9d49c39f0206d1bfdf9f6d56e19f1a7286c73f14c4e82291448b1d360",
+          "actual_size_bytes": 623,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/jax_calibration_bundle_v1.npz",
+          "record_sha256": "dfbe75a9d49c39f0206d1bfdf9f6d56e19f1a7286c73f14c4e82291448b1d360",
+          "record_size_bytes": 623,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "d6b94707cc2a760af23548721ddc5a4a1315baad19431205b82cfa80916a3c0e",
+          "actual_size_bytes": 153595,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/causal_panel_bundle_monthly.parquet",
+          "record_sha256": "d6b94707cc2a760af23548721ddc5a4a1315baad19431205b82cfa80916a3c0e",
+          "record_size_bytes": 153595,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "25ab0bb6802ba83e3be5a436985170626397e8583b606ef6d380cfe898a33d87",
+          "actual_size_bytes": 8033,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/panel_econometric_bundle_v1.parquet",
+          "record_sha256": "25ab0bb6802ba83e3be5a436985170626397e8583b606ef6d380cfe898a33d87",
+          "record_size_bytes": 8033,
+          "row_count": 1
+        },
+        {
+          "actual_sha256": "bd8a11ebb5fe1011de2c9bb723e3a694908ac965dc79141b7bb373cbe58e1862",
+          "actual_size_bytes": 9340,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/negative_control_panel.parquet",
+          "record_sha256": "bd8a11ebb5fe1011de2c9bb723e3a694908ac965dc79141b7bb373cbe58e1862",
+          "record_size_bytes": 9340,
+          "row_count": 48
+        },
+        {
+          "actual_sha256": "cd5e14505ffdbb2c7fdba41f391ecad1ba290628a28a618d8c18ca985f8e7873",
+          "actual_size_bytes": 1938,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/panel_observational_contract.json",
+          "record_sha256": "cd5e14505ffdbb2c7fdba41f391ecad1ba290628a28a618d8c18ca985f8e7873",
+          "record_size_bytes": 1938,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "2aa8a3b06f2fab5ccc37ecb1cf9611de86db47a9d03deb792707c106ba178c26",
+          "actual_size_bytes": 728,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/dtr_treatment_sequence_bundle_v1.npz",
+          "record_sha256": "2aa8a3b06f2fab5ccc37ecb1cf9611de86db47a9d03deb792707c106ba178c26",
+          "record_size_bytes": 728,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "8a62d5971f72d8aa96737d6da238ad9d575fecf7ca576535c5181ebba424a9b7",
+          "actual_size_bytes": 2284,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/dynamic_treatment_contract.json",
+          "record_sha256": "8a62d5971f72d8aa96737d6da238ad9d575fecf7ca576535c5181ebba424a9b7",
+          "record_size_bytes": 2284,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "d221fcf1102065c974766d31b08a63f4021424357414ee4cb0cf9055e0cc73c2",
+          "actual_size_bytes": 1059,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/microsim_survey_contract_preview.json",
+          "record_sha256": "d221fcf1102065c974766d31b08a63f4021424357414ee4cb0cf9055e0cc73c2",
+          "record_size_bytes": 1059,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "27ac8054f7e5843a641bbd3563b74331e054bd7c21a9016bf5443c442881337f",
+          "actual_size_bytes": 3162,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/survival_data_bundle_v1.parquet",
+          "record_sha256": "27ac8054f7e5843a641bbd3563b74331e054bd7c21a9016bf5443c442881337f",
+          "record_size_bytes": 3162,
+          "row_count": 10
+        },
+        {
+          "actual_sha256": "d6603048a0b4bdd27d24cc564460e140707c022cc79083b8888608d61f7fc720",
+          "actual_size_bytes": 1072,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/survival_contract.json",
+          "record_sha256": "d6603048a0b4bdd27d24cc564460e140707c022cc79083b8888608d61f7fc720",
+          "record_size_bytes": 1072,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "d060e5da3c77528fa557e668ea9a8abdcbc7421115d4dafc3e48679bb514c420",
+          "actual_size_bytes": 3475,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/panel_econometric_contract.json",
+          "record_sha256": "d060e5da3c77528fa557e668ea9a8abdcbc7421115d4dafc3e48679bb514c420",
+          "record_size_bytes": 3475,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "576c4c8d7b6e3ea6a960fd1f2fd8fb86d146ec763d76aab8b049309968138021",
+          "actual_size_bytes": 192,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/bounds_estimation_bundle_v1.json",
+          "record_sha256": "576c4c8d7b6e3ea6a960fd1f2fd8fb86d146ec763d76aab8b049309968138021",
+          "record_size_bytes": 192,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "0d411ae2fe21bbaabc866c09a8791941301a2e2ebc03cd992f9e9d5500472725",
+          "actual_size_bytes": 288,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/specification_curve_input_v1.json",
+          "record_sha256": "0d411ae2fe21bbaabc866c09a8791941301a2e2ebc03cd992f9e9d5500472725",
+          "record_size_bytes": 288,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "6e81830f3f78de11d6cebb3644e1290229b67348c9eafcc8ca20ef776d4baa61",
+          "actual_size_bytes": 234,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/leontief_io_bundle_v1.json",
+          "record_sha256": "6e81830f3f78de11d6cebb3644e1290229b67348c9eafcc8ca20ef776d4baa61",
+          "record_size_bytes": 234,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "601a3f58b1a116ead2a7d31395988555828db4ed32b71c3311b945572edbed2d",
+          "actual_size_bytes": 131,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/backtest_plan_bundle.json",
+          "record_sha256": "601a3f58b1a116ead2a7d31395988555828db4ed32b71c3311b945572edbed2d",
+          "record_size_bytes": 131,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "70f1f2947196ccaac4c9885e6eb19dc5ce13fe93b25aed7512e7735b20f8d37b",
+          "actual_size_bytes": 1014,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/governance_pass_mapping_v1.json",
+          "record_sha256": "70f1f2947196ccaac4c9885e6eb19dc5ce13fe93b25aed7512e7735b20f8d37b",
+          "record_size_bytes": 1014,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "233ac6cb50b4a77a9b88a6ea634fd1e30769b03b51c28de2e401b4e3a6899065",
+          "actual_size_bytes": 512,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/strategic_response_specs_v1.json",
+          "record_sha256": "233ac6cb50b4a77a9b88a6ea634fd1e30769b03b51c28de2e401b4e3a6899065",
+          "record_size_bytes": 512,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "627b096637515d427a08f3f552c35c79a93380fe22668c4d5e1c04f42fbce187",
+          "actual_size_bytes": 148,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/network_contract_bundle_v1.json",
+          "record_sha256": "627b096637515d427a08f3f552c35c79a93380fe22668c4d5e1c04f42fbce187",
+          "record_size_bytes": 148,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "1363b899f42f55b975c686bd7365047335e13ab9515e870095ac330701c4296c",
+          "actual_size_bytes": 162,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/network_causal_contract_bundle_v1.json",
+          "record_sha256": "1363b899f42f55b975c686bd7365047335e13ab9515e870095ac330701c4296c",
+          "record_size_bytes": 162,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "6d565e724d4caf89841499ba31df47d0a8c0dcc800689ea159cfab608d4b382b",
+          "actual_size_bytes": 3021,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/observation_to_contract_manifest.json",
+          "record_sha256": "6d565e724d4caf89841499ba31df47d0a8c0dcc800689ea159cfab608d4b382b",
+          "record_size_bytes": 3021,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "b1086b39e6de47e41e789abcdde3f7eaabe641aa77773b7deb79fa7cb1e7076d",
+          "actual_size_bytes": 14326,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d2/calibration_bundle_manifest.json",
+          "record_sha256": "b1086b39e6de47e41e789abcdde3f7eaabe641aa77773b7deb79fa7cb1e7076d",
+          "record_size_bytes": 14326,
+          "row_count": null
+        }
+      ],
+      "read_api": {
+        "manifest_readback_sha256": "e5d0be883d9160478827c351805f6e08794f78e57b5b24b58dd2899a85da9e4c",
+        "manifest_readback_size_bytes": 14059,
+        "manifest_sha256": "e5d0be883d9160478827c351805f6e08794f78e57b5b24b58dd2899a85da9e4c",
+        "output_count": 31,
+        "outputs": [
+          {
+            "name": "backtest_plan_bundle.json",
+            "sha256": "601a3f58b1a116ead2a7d31395988555828db4ed32b71c3311b945572edbed2d",
+            "size_bytes": 131
+          },
+          {
+            "name": "bounds_estimation_bundle_v1.json",
+            "sha256": "576c4c8d7b6e3ea6a960fd1f2fd8fb86d146ec763d76aab8b049309968138021",
+            "size_bytes": 192
+          },
+          {
+            "name": "calibration_bundle_manifest.json",
+            "sha256": "b1086b39e6de47e41e789abcdde3f7eaabe641aa77773b7deb79fa7cb1e7076d",
+            "size_bytes": 14326
+          },
+          {
+            "name": "calibration_dictionary.json",
+            "sha256": "9fcf574092664d40e2e783acf9d0d88682a136332ba3c189f2a1746975c71088",
+            "size_bytes": 1733
+          },
+          {
+            "name": "calibration_splits.json",
+            "sha256": "121c1932745dd81a21b5433fccd1ac2de2ed1bb59aa0fb81c2f2dbd5b9c602b1",
+            "size_bytes": 232
+          },
+          {
+            "name": "causal_panel_bundle_monthly.parquet",
+            "sha256": "d6b94707cc2a760af23548721ddc5a4a1315baad19431205b82cfa80916a3c0e",
+            "size_bytes": 153595
+          },
+          {
+            "name": "changepoint_registry.json",
+            "sha256": "3108ed0a816214619658ce45f3633a613900b7e3a523ee77a469c7cd3fd59ea7",
+            "size_bytes": 260
+          },
+          {
+            "name": "dtr_treatment_sequence_bundle_v1.npz",
+            "sha256": "2aa8a3b06f2fab5ccc37ecb1cf9611de86db47a9d03deb792707c106ba178c26",
+            "size_bytes": 728
+          },
+          {
+            "name": "dynamic_treatment_contract.json",
+            "sha256": "8a62d5971f72d8aa96737d6da238ad9d575fecf7ca576535c5181ebba424a9b7",
+            "size_bytes": 2284
+          },
+          {
+            "name": "governance_pass_mapping_v1.json",
+            "sha256": "70f1f2947196ccaac4c9885e6eb19dc5ce13fe93b25aed7512e7735b20f8d37b",
+            "size_bytes": 1014
+          },
+          {
+            "name": "identification_mode_registry.json",
+            "sha256": "0092c0d687052b655cd984050aa816bdc733d0d9096c0cdd44c0d989c4819c29",
+            "size_bytes": 3616
+          },
+          {
+            "name": "jax_calibration_bundle_v1.npz",
+            "sha256": "dfbe75a9d49c39f0206d1bfdf9f6d56e19f1a7286c73f14c4e82291448b1d360",
+            "size_bytes": 623
+          },
+          {
+            "name": "leontief_io_bundle_v1.json",
+            "sha256": "6e81830f3f78de11d6cebb3644e1290229b67348c9eafcc8ca20ef776d4baa61",
+            "size_bytes": 234
+          },
+          {
+            "name": "measurement_registry.json",
+            "sha256": "90f341b2e71edb28b6208f580d8a920191d67240c240db9417ba18a225187aff",
+            "size_bytes": 2112
+          },
+          {
+            "name": "microsim_survey_contract_preview.json",
+            "sha256": "d221fcf1102065c974766d31b08a63f4021424357414ee4cb0cf9055e0cc73c2",
+            "size_bytes": 1059
+          },
+          {
+            "name": "negative_control_panel.parquet",
+            "sha256": "bd8a11ebb5fe1011de2c9bb723e3a694908ac965dc79141b7bb373cbe58e1862",
+            "size_bytes": 9340
+          },
+          {
+            "name": "network_causal_contract_bundle_v1.json",
+            "sha256": "1363b899f42f55b975c686bd7365047335e13ab9515e870095ac330701c4296c",
+            "size_bytes": 162
+          },
+          {
+            "name": "network_contract_bundle_v1.json",
+            "sha256": "627b096637515d427a08f3f552c35c79a93380fe22668c4d5e1c04f42fbce187",
+            "size_bytes": 148
+          },
+          {
+            "name": "observation_panel_annual.parquet",
+            "sha256": "2924fc41dc902984ff1a14587df7dfa64528d42d1e45fafe71e3ac6851d15f35",
+            "size_bytes": 12209
+          },
+          {
+            "name": "observation_panel_monthly.parquet",
+            "sha256": "d6b94707cc2a760af23548721ddc5a4a1315baad19431205b82cfa80916a3c0e",
+            "size_bytes": 153595
+          },
+          {
+            "name": "observation_to_contract_manifest.json",
+            "sha256": "6d565e724d4caf89841499ba31df47d0a8c0dcc800689ea159cfab608d4b382b",
+            "size_bytes": 3021
+          },
+          {
+            "name": "panel_econometric_bundle_v1.parquet",
+            "sha256": "25ab0bb6802ba83e3be5a436985170626397e8583b606ef6d380cfe898a33d87",
+            "size_bytes": 8033
+          },
+          {
+            "name": "panel_econometric_contract.json",
+            "sha256": "d060e5da3c77528fa557e668ea9a8abdcbc7421115d4dafc3e48679bb514c420",
+            "size_bytes": 3475
+          },
+          {
+            "name": "panel_observational_contract.json",
+            "sha256": "cd5e14505ffdbb2c7fdba41f391ecad1ba290628a28a618d8c18ca985f8e7873",
+            "size_bytes": 1938
+          },
+          {
+            "name": "regime_calendar.json",
+            "sha256": "1b1000a9d48bf83abca652548d612b2d866848fcbd9f55398362a95c5d943e3a",
+            "size_bytes": 432
+          },
+          {
+            "name": "schema_regime_registry.json",
+            "sha256": "c570eda256e2f0fcb6dab6696819542618f28249eb5988e4797f43d16b7088ea",
+            "size_bytes": 1062
+          },
+          {
+            "name": "shock_calendar.json",
+            "sha256": "646c0f8977faa361dc94264e94f8a524af86d95dccf29c497c750aff78a764a8",
+            "size_bytes": 932
+          },
+          {
+            "name": "specification_curve_input_v1.json",
+            "sha256": "0d411ae2fe21bbaabc866c09a8791941301a2e2ebc03cd992f9e9d5500472725",
+            "size_bytes": 288
+          },
+          {
+            "name": "strategic_response_specs_v1.json",
+            "sha256": "233ac6cb50b4a77a9b88a6ea634fd1e30769b03b51c28de2e401b4e3a6899065",
+            "size_bytes": 512
+          },
+          {
+            "name": "survival_contract.json",
+            "sha256": "d6603048a0b4bdd27d24cc564460e140707c022cc79083b8888608d61f7fc720",
+            "size_bytes": 1072
+          },
+          {
+            "name": "survival_data_bundle_v1.parquet",
+            "sha256": "27ac8054f7e5843a641bbd3563b74331e054bd7c21a9016bf5443c442881337f",
+            "size_bytes": 3162
+          }
+        ],
+        "passed": true,
+        "stage_id": "d2"
+      },
+      "run_id": "d2_1791287305",
+      "status": "completed",
+      "warnings": [
+        "d2_deferred_families_until_d3:household_distribution"
+      ]
+    },
+    "d4": {
+      "errors": [],
+      "findings": [],
+      "inputs": [],
+      "metrics": {
+        "producer_handoff_ready": true
+      },
+      "outputs": [
+        {
+          "actual_sha256": "fe50edf950d78306762ffba9f6ef50222620e1f191f4c37c7415dc4f4724c024",
+          "actual_size_bytes": 413,
+          "is_directory": false,
+          "nnz": null,
+          "path": "calibration/d4/d4_governance_request.json",
+          "record_sha256": "fe50edf950d78306762ffba9f6ef50222620e1f191f4c37c7415dc4f4724c024",
+          "record_size_bytes": 413,
+          "row_count": null
+        }
+      ],
+      "read_api": {
+        "manifest_readback_sha256": "f1ba99da37aa3b5f690fd574caf09ee587dc3a6a1ad68fdf2b72c7291a1e8da6",
+        "manifest_readback_size_bytes": 836,
+        "manifest_sha256": "f1ba99da37aa3b5f690fd574caf09ee587dc3a6a1ad68fdf2b72c7291a1e8da6",
+        "output_count": 1,
+        "outputs": [
+          {
+            "name": "d4_governance_request.json",
+            "sha256": "fe50edf950d78306762ffba9f6ef50222620e1f191f4c37c7415dc4f4724c024",
+            "size_bytes": 413
+          }
+        ],
+        "passed": true,
+        "stage_id": "d4"
+      },
+      "run_id": "d4_1791287306",
+      "status": "completed",
+      "warnings": []
+    },
+    "d5": {
+      "errors": [],
+      "findings": [
+        {
+          "code": "downstream_release_authority_not_established",
+          "message": "D5 produced a bundle inventory only; Lex compilation, Foundry acceptance, and publication remain unavailable until a downstream bridge consumes the handoff.",
+          "severity": "warning"
+        }
+      ],
+      "inputs": [],
+      "metrics": {
+        "calibration_bundle_size_gib": 0.00016775913536548615,
+        "compression_degree_preservation_score": 1.0,
+        "compression_edge_weight_reconstruction_error": 0.0,
+        "compression_neighborhood_overlap_stability": 1.0,
+        "contract_bundle_size_gib": 3.4030526876449585e-06,
+        "runtime_bundle_size_gib": 2.2955238819122314e-05
+      },
+      "outputs": [
+        {
+          "actual_sha256": "5a1627323c42944e4689dbc67674c65ccd8bc9a40ad9bdabef5d8bea872808fb",
+          "actual_size_bytes": 573,
+          "is_directory": false,
+          "nnz": null,
+          "path": "bundles/d5/agent_embedding_32d.npz",
+          "record_sha256": "5a1627323c42944e4689dbc67674c65ccd8bc9a40ad9bdabef5d8bea872808fb",
+          "record_size_bytes": 573,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "e160a1f20a835c23684d6419742e19230957c053f95caeb78d557f776f4a2e11",
+          "actual_size_bytes": 577,
+          "is_directory": false,
+          "nnz": null,
+          "path": "bundles/d5/cell_prototype_embeddings.npz",
+          "record_sha256": "e160a1f20a835c23684d6419742e19230957c053f95caeb78d557f776f4a2e11",
+          "record_size_bytes": 577,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "fe29167e566ce97091f19ce15322ea260447c1b23a6e571e2f6df11f477f151c",
+          "actual_size_bytes": 2031,
+          "is_directory": false,
+          "nnz": null,
+          "path": "bundles/d5/graph_compression_bundle.json",
+          "record_sha256": "fe29167e566ce97091f19ce15322ea260447c1b23a6e571e2f6df11f477f151c",
+          "record_size_bytes": 2031,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "da691ced9fae0059e7e262615f383c1cca0864771c7b76674a34bdb7f667a77c",
+          "actual_size_bytes": 2032,
+          "is_directory": false,
+          "nnz": null,
+          "path": "bundles/d5/d5_release_handoff_request.json",
+          "record_sha256": "da691ced9fae0059e7e262615f383c1cca0864771c7b76674a34bdb7f667a77c",
+          "record_size_bytes": 2032,
+          "row_count": null
+        },
+        {
+          "actual_sha256": "a5d926fd0ddce41d414d8a0065097a9004061e46ebdc91a636723be25b2ffea2",
+          "actual_size_bytes": 11834,
+          "is_directory": false,
+          "nnz": null,
+          "path": "bundles/d5/release_manifest_v1.json",
+          "record_sha256": "a5d926fd0ddce41d414d8a0065097a9004061e46ebdc91a636723be25b2ffea2",
+          "record_size_bytes": 11834,
+          "row_count": null
+        },
+        {
+          "child_count": 5,
+          "child_inventory_sha256": "6823dd027b1256d2071194d6d00d0c6680ffd91d7455d75b5aed159fa338ff12",
+          "child_size_bytes": 24648,
+          "children": {
+            "agent_registry_runtime.parquet": {
+              "sha256": "397d5e9740f9f5c2a263c8f06e634c23e9e49a2d896389dbca734150b14770c2",
+              "size_bytes": 9062
+            },
+            "cell_registry_region_sector.parquet": {
+              "sha256": "4c02d2d4c472e4b8e1a216d213e66b6102c3981cb23f3f765802f926ba50e17e",
+              "size_bytes": 4070
+            },
+            "geo_index_runtime.parquet": {
+              "sha256": "fe02964d8e1787f34cdea9fe080a3d8f43505d309446b17d1ddcf4a75c116ea2",
+              "size_bytes": 3427
+            },
+            "runtime_bundle_manifest.json": {
+              "sha256": "3468ae3a08cb4318bc8873bd32e4625f46b42ed7700bf0fa4ae4d5d824b338de",
+              "size_bytes": 6229
+            },
+            "slot_family_manifest.json": {
+              "sha256": "f28a68e200ef8c0dc810519477f2d897c99eadb3478eaf4595e660a80a90e4be",
+              "size_bytes": 1860
+            }
+          },
+          "is_directory": true,
+          "path": "bundles/d5/runtime_bundle_v1",
+          "record_sha256": "",
+          "record_size_bytes": 24648
+        },
+        {
+          "child_count": 3,
+          "child_inventory_sha256": "623735e4996ad39efa5200a4b44e0551bd3d7c1001e54a493ba61dcdf4d638d6",
+          "child_size_bytes": 180130,
+          "children": {
+            "calibration_bundle_manifest.json": {
+              "sha256": "b1086b39e6de47e41e789abcdde3f7eaabe641aa77773b7deb79fa7cb1e7076d",
+              "size_bytes": 14326
+            },
+            "observation_panel_annual.parquet": {
+              "sha256": "2924fc41dc902984ff1a14587df7dfa64528d42d1e45fafe71e3ac6851d15f35",
+              "size_bytes": 12209
+            },
+            "observation_panel_monthly.parquet": {
+              "sha256": "d6b94707cc2a760af23548721ddc5a4a1315baad19431205b82cfa80916a3c0e",
+              "size_bytes": 153595
+            }
+          },
+          "is_directory": true,
+          "path": "bundles/d5/calibration_bundle_v1",
+          "record_sha256": "",
+          "record_size_bytes": 180130
+        },
+        {
+          "child_count": 5,
+          "child_inventory_sha256": "4fcd63503c6b6b71b10418b2444a77eb216691a70bd23ee11104afe9df55b108",
+          "child_size_bytes": 3654,
+          "children": {
+            "backtest_plan_bundle.json": {
+              "sha256": "601a3f58b1a116ead2a7d31395988555828db4ed32b71c3311b945572edbed2d",
+              "size_bytes": 131
+            },
+            "bounds_estimation_bundle_v1.json": {
+              "sha256": "576c4c8d7b6e3ea6a960fd1f2fd8fb86d146ec763d76aab8b049309968138021",
+              "size_bytes": 192
+            },
+            "network_causal_contract_bundle_v1.json": {
+              "sha256": "1363b899f42f55b975c686bd7365047335e13ab9515e870095ac330701c4296c",
+              "size_bytes": 162
+            },
+            "network_contract_bundle_v1.json": {
+              "sha256": "627b096637515d427a08f3f552c35c79a93380fe22668c4d5e1c04f42fbce187",
+              "size_bytes": 148
+            },
+            "observation_to_contract_manifest.json": {
+              "sha256": "6d565e724d4caf89841499ba31df47d0a8c0dcc800689ea159cfab608d4b382b",
+              "size_bytes": 3021
+            }
+          },
+          "is_directory": true,
+          "path": "bundles/d5/method_contract_bundle_v1",
+          "record_sha256": "",
+          "record_size_bytes": 3654
+        },
+        {
+          "child_count": 3,
+          "child_inventory_sha256": "90668a1344482f59904f3edb3ef4218012fc84f578dedb0b4014d6500dbced87",
+          "child_size_bytes": 3181,
+          "children": {
+            "agent_embedding_32d.npz": {
+              "sha256": "5a1627323c42944e4689dbc67674c65ccd8bc9a40ad9bdabef5d8bea872808fb",
+              "size_bytes": 573
+            },
+            "cell_prototype_embeddings.npz": {
+              "sha256": "e160a1f20a835c23684d6419742e19230957c053f95caeb78d557f776f4a2e11",
+              "size_bytes": 577
+            },
+            "graph_compression_bundle.json": {
+              "sha256": "fe29167e566ce97091f19ce15322ea260447c1b23a6e571e2f6df11f477f151c",
+              "size_bytes": 2031
+            }
+          },
+          "is_directory": true,
+          "path": "bundles/d5/embedding_bundle_v1",
+          "record_sha256": "",
+          "record_size_bytes": 3181
+        }
+      ],
+      "read_api": {
+        "manifest_readback_sha256": "a5d926fd0ddce41d414d8a0065097a9004061e46ebdc91a636723be25b2ffea2",
+        "manifest_readback_size_bytes": 11834,
+        "manifest_sha256": "a5d926fd0ddce41d414d8a0065097a9004061e46ebdc91a636723be25b2ffea2",
+        "output_count": 20,
+        "outputs": [
+          {
+            "name": "bundle:calibration_bundle_v1:calibration_bundle_manifest.json",
+            "sha256": "b1086b39e6de47e41e789abcdde3f7eaabe641aa77773b7deb79fa7cb1e7076d",
+            "size_bytes": 14326
+          },
+          {
+            "name": "bundle:calibration_bundle_v1:observation_panel_annual.parquet",
+            "sha256": "2924fc41dc902984ff1a14587df7dfa64528d42d1e45fafe71e3ac6851d15f35",
+            "size_bytes": 12209
+          },
+          {
+            "name": "bundle:calibration_bundle_v1:observation_panel_monthly.parquet",
+            "sha256": "d6b94707cc2a760af23548721ddc5a4a1315baad19431205b82cfa80916a3c0e",
+            "size_bytes": 153595
+          },
+          {
+            "name": "bundle:embedding_bundle_v1:agent_embedding_32d.npz",
+            "sha256": "5a1627323c42944e4689dbc67674c65ccd8bc9a40ad9bdabef5d8bea872808fb",
+            "size_bytes": 573
+          },
+          {
+            "name": "bundle:embedding_bundle_v1:cell_prototype_embeddings.npz",
+            "sha256": "e160a1f20a835c23684d6419742e19230957c053f95caeb78d557f776f4a2e11",
+            "size_bytes": 577
+          },
+          {
+            "name": "bundle:embedding_bundle_v1:graph_compression_bundle.json",
+            "sha256": "fe29167e566ce97091f19ce15322ea260447c1b23a6e571e2f6df11f477f151c",
+            "size_bytes": 2031
+          },
+          {
+            "name": "bundle:method_contract_bundle_v1:backtest_plan_bundle.json",
+            "sha256": "601a3f58b1a116ead2a7d31395988555828db4ed32b71c3311b945572edbed2d",
+            "size_bytes": 131
+          },
+          {
+            "name": "bundle:method_contract_bundle_v1:bounds_estimation_bundle_v1.json",
+            "sha256": "576c4c8d7b6e3ea6a960fd1f2fd8fb86d146ec763d76aab8b049309968138021",
+            "size_bytes": 192
+          },
+          {
+            "name": "bundle:method_contract_bundle_v1:network_causal_contract_bundle_v1.json",
+            "sha256": "1363b899f42f55b975c686bd7365047335e13ab9515e870095ac330701c4296c",
+            "size_bytes": 162
+          },
+          {
+            "name": "bundle:method_contract_bundle_v1:network_contract_bundle_v1.json",
+            "sha256": "627b096637515d427a08f3f552c35c79a93380fe22668c4d5e1c04f42fbce187",
+            "size_bytes": 148
+          },
+          {
+            "name": "bundle:method_contract_bundle_v1:observation_to_contract_manifest.json",
+            "sha256": "6d565e724d4caf89841499ba31df47d0a8c0dcc800689ea159cfab608d4b382b",
+            "size_bytes": 3021
+          },
+          {
+            "name": "bundle:runtime_bundle_v1:agent_registry_runtime.parquet",
+            "sha256": "397d5e9740f9f5c2a263c8f06e634c23e9e49a2d896389dbca734150b14770c2",
+            "size_bytes": 9062
+          },
+          {
+            "name": "bundle:runtime_bundle_v1:cell_registry_region_sector.parquet",
+            "sha256": "4c02d2d4c472e4b8e1a216d213e66b6102c3981cb23f3f765802f926ba50e17e",
+            "size_bytes": 4070
+          },
+          {
+            "name": "bundle:runtime_bundle_v1:geo_index_runtime.parquet",
+            "sha256": "fe02964d8e1787f34cdea9fe080a3d8f43505d309446b17d1ddcf4a75c116ea2",
+            "size_bytes": 3427
+          },
+          {
+            "name": "bundle:runtime_bundle_v1:runtime_bundle_manifest.json",
+            "sha256": "3468ae3a08cb4318bc8873bd32e4625f46b42ed7700bf0fa4ae4d5d824b338de",
+            "size_bytes": 6229
+          },
+          {
+            "name": "bundle:runtime_bundle_v1:slot_family_manifest.json",
+            "sha256": "f28a68e200ef8c0dc810519477f2d897c99eadb3478eaf4595e660a80a90e4be",
+            "size_bytes": 1860
+          },
+          {
+            "name": "evidence:cell_registry",
+            "sha256": "4c02d2d4c472e4b8e1a216d213e66b6102c3981cb23f3f765802f926ba50e17e",
+            "size_bytes": 4070
+          },
+          {
+            "name": "evidence:d4_governance_request",
+            "sha256": "fe50edf950d78306762ffba9f6ef50222620e1f191f4c37c7415dc4f4724c024",
+            "size_bytes": 413
+          },
+          {
+            "name": "evidence:d5_release_handoff_request",
+            "sha256": "da691ced9fae0059e7e262615f383c1cca0864771c7b76674a34bdb7f667a77c",
+            "size_bytes": 2032
+          },
+          {
+            "name": "evidence:graph_compression_bundle",
+            "sha256": "fe29167e566ce97091f19ce15322ea260447c1b23a6e571e2f6df11f477f151c",
+            "size_bytes": 2031
+          }
+        ],
+        "passed": true,
+        "stage_id": "d5"
+      },
+      "run_id": "d5_1791287306",
+      "status": "completed",
+      "warnings": []
+    }
+  },
+  "tag": "candidate-run7"
+}

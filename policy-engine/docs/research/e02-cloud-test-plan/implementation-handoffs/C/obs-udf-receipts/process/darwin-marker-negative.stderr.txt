@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/source/policy-engine/src/polisyos/data_forge/domains/ukraine/cli.py", line 135, in <module>
+    raise SystemExit(main(sys.argv[1:]))
+                     ~~~~^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/source/policy-engine/src/polisyos/data_forge/domains/ukraine/cli.py", line 102, in main
+    summary = orchestrator.validate_part_a()
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/source/policy-engine/src/polisyos/data_forge/domains/ukraine/orchestrator.py", line 435, in validate_part_a
+    assert_server_execution_allowed(self.config.server)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/obs-process-review/source/policy-engine/src/polisyos/data_forge/domains/ukraine/server.py", line 43, in assert_server_execution_allowed
+    raise LocalExecutionBlockedError(
+        f"Server-only command blocked. Export {config.server_marker_env}=1 on the target server."
+    )
+polisyos.data_forge.domains.ukraine.server.LocalExecutionBlockedError: Server-only command blocked. Export POLISYOS_SERVER_EXECUTION=1 on the target server.

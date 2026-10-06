@@ -1,0 +1,69 @@
+{
+  "base_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "candidate_commit": "5a75b004e0d17c80f1d156df84db7a12a9274c9e",
+  "d3_normalized_files": [
+    {
+      "path": "normalized/distress_events/distress_events_panel_monthly.parquet",
+      "sha256": "6eaf40089a66eb630d6abfb865c4ef420f14df5003a992fc560a447669438da9",
+      "size_bytes": 2919
+    },
+    {
+      "path": "normalized/employment_service/labor_market_panel_monthly.parquet",
+      "sha256": "72ae392504be1ee143b493f68e9bcc82477f8712d3fcc517434a8a6c4b75864f",
+      "size_bytes": 3492
+    },
+    {
+      "path": "normalized/household_microdata/household_synthetic_targets.parquet",
+      "sha256": "c0f9159b34e82ae0024d0deca26a4c1d08453a46692d7e73a2237b1887e5411a",
+      "size_bytes": 4655
+    },
+    {
+      "path": "normalized/labor_force_microdata/labor_force_micro_targets.parquet",
+      "sha256": "964b7752aee74269de4fc411e495c55e7fea9f160474361d052de7133728b9b6",
+      "size_bytes": 5457
+    },
+    {
+      "path": "normalized/macro_nbu_derzhstat/macro_panel_monthly.parquet",
+      "sha256": "055bb12c58d5eba72d3398f03a7b568f9d8b31100b79c0df6a52c85d690ad24b",
+      "size_bytes": 2926
+    },
+    {
+      "path": "normalized/pfu_debt/arrears_panel_monthly.parquet",
+      "sha256": "a90d5052154bd31fa21e008b32e1fee33392e9a2d7927bff08afadabb99b9d13",
+      "size_bytes": 2317
+    },
+    {
+      "path": "normalized/wage_arrears/wage_arrears_panel_monthly.parquet",
+      "sha256": "c842d1f2a88008c5beef837fbffdb15499e49b566be2b4d38874a9283d568abd",
+      "size_bytes": 2349
+    }
+  ],
+  "d3_normalized_input_count": 7,
+  "d3_note": "The bounded fixture seeds these two optional normalized Parquets and the builder reads them, but they are absent from D3 manifest.inputs. Output parity is still checked from equal bytes; optional-input lineage is not established by this witness.",
+  "d3_read_manifest_required_inputs": 5,
+  "d3_unmanifested_optional_frames": [
+    "normalized/employment_service/labor_market_panel_monthly.parquet",
+    "normalized/macro_nbu_derzhstat/macro_panel_monthly.parquet"
+  ],
+  "direct_common_importers": [
+    "builders/__init__.py",
+    "builders/bindings_validation.py",
+    "builders/demography.py",
+    "builders/release.py",
+    "builders/sources.py"
+  ],
+  "fixture_helper_sha256": "7cf1484c348eb8dd3d79e677f78ef8133748c0e1f8afd6e9ae43df9e78fff824",
+  "importer_count": 5,
+  "routed_evidence": {
+    "builders/__init__.py": "Loaded by each orchestrator; all six registered stages D0/P0,D1,D2,D3,D4,D5 executed from archived base and candidate.",
+    "builders/bindings_validation.py": "D0/P0 and D1 route exercise participant-binding helpers; all outputs/readbacks matched.",
+    "builders/demography.py": "D3 registered route exercised on explicit bounded fixture; 5 recorded mandatory inputs, 2 optional frame files read but unmanifested as above.",
+    "builders/release.py": "D5 release route and release public API readback matched; D5 clock normalized using the fixed release creation timestamp in the earlier five-stage witness; D5 has zero manifest inputs in that fixture.",
+    "builders/sources.py": "D0/P0,D1,D2 registered build routes; outputs plus public readback matched. D2 manifest has zero input records in this fixture."
+  },
+  "scope": "LA-031 independent direct-common-importer census; bounded archived-output parity only",
+  "source_denominator": {
+    "python_files": 25,
+    "root": "policy-engine/src/polisyos/data_forge/domains/ukraine"
+  }
+}

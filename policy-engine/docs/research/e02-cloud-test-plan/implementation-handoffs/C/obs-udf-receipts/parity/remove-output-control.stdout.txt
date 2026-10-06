@@ -1,0 +1,1 @@
+PASS mutation removal control: registered D1 output changed while stage manifest remained intact; equal_base_candidate_sha256=e29d81adeb90ebed2a2c794188611be2e65738cca2f5db108356e9988d93e3c8; mutated_sha256=29c0015b2f12bf06ca25c7f7a01907da3a8af2f77b898dd53a96bc50022a47d9; read_api_rejection=content hash mismatch for output trade_graph_sparse.npz

@@ -28,6 +28,11 @@ static parameters, node dynamic parameters, then explicit per-node overrides.
 The backend validates declared parameters; the execution seed stays a dispatcher
 argument rather than becoming an undeclared method parameter.
 
+Compiled JAX chains also consume this materializer and the same context merge
+through the backend's internal typed delegations. They preserve concrete producer
+occurrences for aliased inputs and reconcile actual input shape/dtype at execution;
+their shape preparation does not execute scientific bodies.
+
 Checkpoint resume restores original per-node outputs, slot outputs, timing,
 backend, seed and result metadata before materializing a remaining bound node.
 Absent original records remain absent: `ChainExecutionResult.history_complete`

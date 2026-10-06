@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import concurrent.futures
+import sys
 import threading
 import time
 from collections.abc import Mapping
+from contextlib import contextmanager
 from typing import Any, NamedTuple
 
 import jax.numpy as jnp
@@ -65,11 +67,49 @@ def _method(
         complexity=ComplexityClass.O_1,
     )
     metadata = MethodMetadata(description=f"JIT-01 witness: {name}", tags=frozenset({"test"}))
+    output_names = tuple(sorted(slot.name for slot in output_slots))
+
+    def materialize_input(bound_inputs, fallback_state):
+        # These fixture methods deliberately consume a complete namedtuple.
+        # Make that contract explicit while still consuming the actual binding.
+        if hasattr(fallback_state, "_replace"):
+            return fallback_state._replace(**bound_inputs)
+        if len(bound_inputs) == 1:
+            return next(iter(bound_inputs.values()))
+        return fallback_state
+
+    def dematerialize_output(output):
+        return {slot: getattr(output, slot, output) for slot in output_names}
+
     return type(
         f"{name.title().replace('_', '')}Method",
         (),
-        {"signature": signature, "metadata": metadata, "pure_step": staticmethod(pure_step)},
+        {
+            "signature": signature,
+            "metadata": metadata,
+            "pure_step": staticmethod(pure_step),
+            "materialize_input": staticmethod(materialize_input),
+            "dematerialize_output": staticmethod(dematerialize_output),
+        },
     )
+
+
+@contextmanager
+def _observe_bodies(calls, **methods):
+    """Count actual body entries outside the method implementation closures."""
+    names = {method.__code__: name for name, method in methods.items()}
+
+    def observe(frame, event, arg):
+        del arg
+        if event == "call" and frame.f_code in names:
+            calls[names[frame.f_code]] += 1
+
+    previous = sys.getprofile()
+    sys.setprofile(observe)
+    try:
+        yield
+    finally:
+        sys.setprofile(previous)
 
 
 @pytest.fixture(autouse=True)
@@ -557,11 +597,9 @@ def test_chain_shape_inference_uses_declared_shapes_without_pure_step(scalar_slo
     calls = {"sum": 0, "result": 0}
 
     def sum_step(state: ChainState, params: Mapping[str, Any]) -> ChainState:
-        calls["sum"] += 1
         return state._replace(total=jnp.sum(state.values))
 
     def result_step(state: ChainState, params: Mapping[str, Any]) -> ChainState:
-        calls["result"] += 1
         return state._replace(result=state.total * 0.1)
 
     sum_method = _method(
@@ -594,13 +632,14 @@ def test_chain_shape_inference_uses_declared_shapes_without_pure_step(scalar_slo
     )
 
     compiler = MethodCompiler(registry=registry, cache=CompilationCache())
-    executor = compiler.compile_chain(chain, sample_state, jit=False, infer_shapes=True)
+    with _observe_bodies(calls, sum=sum_step, result=result_step):
+        executor = compiler.compile_chain(chain, sample_state, jit=False, infer_shapes=True)
 
-    assert calls == {"sum": 0, "result": 0}
-    total_shape = dict(executor.compiled_methods[1][1].specialization.input_shapes)["total"]
-    assert total_shape.shape == ()
+        assert calls == {"sum": 0, "result": 0}
+        total_shape = dict(executor.compiled_methods[1][1].specialization.input_shapes)["total"]
+        assert total_shape.shape == ()
 
-    output = executor(sample_state)
+        output = executor(sample_state)
     assert calls == {"sum": 1, "result": 1}
     assert float(output.result) == 0.5
 
@@ -614,11 +653,9 @@ def test_chain_shape_inference_refuses_unknown_data_dependent_shape(scalar_slots
     calls = {"producer": 0, "consumer": 0}
 
     def producer(state: UnknownShapeState, params: Mapping[str, Any]) -> UnknownShapeState:
-        calls["producer"] += 1
         return state._replace(unknown=state.values[: int(params.get("count", 1))])
 
     def consumer(state: UnknownShapeState, params: Mapping[str, Any]) -> UnknownShapeState:
-        calls["consumer"] += 1
         return state._replace(result=jnp.sum(state.unknown))
 
     producer_method = _method(
@@ -651,6 +688,9 @@ def test_chain_shape_inference_refuses_unknown_data_dependent_shape(scalar_slots
     )
 
     compiler = MethodCompiler(registry=registry, cache=CompilationCache())
-    with pytest.raises(CompilationError, match="data-dependent"):
+    with (
+        _observe_bodies(calls, producer=producer, consumer=consumer),
+        pytest.raises(CompilationError, match="data-dependent"),
+    ):
         compiler.compile_chain(chain, sample_state, jit=False, infer_shapes=True)
     assert calls == {"producer": 0, "consumer": 0}

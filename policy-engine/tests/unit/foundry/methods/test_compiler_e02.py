@@ -130,6 +130,20 @@ def test_real_jax_same_class_helper_replacement_matches_cold_preserves_old_handl
         _HelperSource.scale = original
 
 
+def test_untraced_handle_refuses_helper_replacement_before_real_trace():
+    compiler, _ = _compiler(_HelperSource)
+    old = _handle(compiler)
+    original = vars(_HelperSource)["scale"]
+    try:
+        _HelperSource.scale = staticmethod(_changed_scale)
+        with pytest.raises(CompilationError, match="before kernel tracing"):
+            _value(old)
+        assert _value(_handle(compiler)) == 30
+    finally:
+        _HelperSource.scale = original
+    assert _value(old) == 20
+
+
 def test_actual_miss_before_claim_rechecks_peer_terminal_publication():
     first_miss = threading.Event()
     release_first = threading.Event()
@@ -231,6 +245,45 @@ class _Consumer:
     @staticmethod
     def pure_step(state, params):
         return {"result": state + params["increment"]}
+
+
+class _IntegerProducer:
+    signature: ClassVar = _PRODUCER_SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        return {"product": jnp.asarray(state["value"] * params["factor"], dtype=jnp.int32)}
+
+
+@pytest.mark.parametrize("jit", [False, True])
+def test_real_materialized_dtype_reconciles_prepared_consumer_specialization(jit):
+    registry = MethodRegistry._create_fresh()
+    registry.register(_IntegerProducer)
+    registry.register(_Consumer)
+    composer = MethodComposer(registry=registry)
+    producer = composer.add(_PRODUCER_SIGNATURE.fqn, factor=2.0)
+    consumer = composer.add(_CONSUMER_SIGNATURE.fqn, increment=1.0)
+    composer.connect(producer, consumer, {"product": "operand"})
+    cache = CompilationCache()
+    compiler = MethodCompiler(registry=registry, cache=cache)
+    sample = {"value": jnp.asarray(3.0, dtype=jnp.float32)}
+    compiled = compiler.compile_chain(composer.build(), sample, jit=jit)
+    prepared = compiled.compiled_methods[1][1]
+    assert dict(prepared.specialization.input_shapes)["operand"].dtype == "float32"
+    for _ in range(2):
+        output = compiled(sample)
+        assert float(output["result"].block_until_ready()) == 7
+    actual = compiler.compile(
+        _CONSUMER_SIGNATURE.fqn,
+        params={"increment": 1.0},
+        sample_inputs={"operand": jnp.asarray(6, dtype=jnp.int32)},
+        jit=jit,
+    )
+    assert dict(actual.specialization.input_shapes)["operand"].dtype == "int32"
+    assert actual._kernel is not prepared._kernel
+    # Producer + provisional consumer + actual input consumer, reused on call 2.
+    assert cache.stats["size"] == 3
 
 
 @pytest.mark.parametrize("jit", [False, True])

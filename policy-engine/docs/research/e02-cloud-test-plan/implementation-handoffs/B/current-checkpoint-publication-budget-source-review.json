@@ -1,0 +1,1544 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "reviewer": "/root/cmp_res_probe; independent of EXE author",
+  "review_role": "source/contract review only; no production imports, tests, collection, gates or runtime executed by reviewer",
+  "status": "source_review_nonblocking_finite_profile; independently executed filesystem evidence read and reconciled at6af; delta6d source-only",
+  "closure_ids": [],
+  "finding_ids": [],
+  "formal_e02_closure": false,
+  "P41_inherited_status": "not_established",
+  "target": {
+    "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+    "tree_sha": "017a345c06036f45d06d67eac8701a5c9bcec018",
+    "base_source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+    "base_tree_sha": "d3bae9a9502b701e2ed73d9ffab07ba6a0883502",
+    "complete_changed_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-checkpoint-publication-budget.toml",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py"
+    ],
+    "full_delta_bytes": 56256,
+    "full_delta_sha256": "80a06d88eb77f044ecddd4724f73a4ee4b8753d5dc296e7919a0964adf301997",
+    "latest_reviewed_source_sha": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+    "latest_reviewed_tree_sha": "eae52c9304e3a48b0f81f16ffc279cbb39c1f9b8"
+  },
+  "changed_file_bindings": [
+    {
+      "base": null,
+      "candidate": {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-checkpoint-publication-budget.toml",
+        "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "blob_oid": "27f567702a19ed21d589f59122107e2d77814b7b",
+        "bytes": 1581,
+        "sha256": "23de440112b85d9942657ea339774c59c22071bce5092e4a8b0b27dece02b9c9"
+      }
+    },
+    {
+      "base": {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+        "blob_oid": "7f7886ab51341beae2a47e768610dcd5473d6ecb",
+        "bytes": 102653,
+        "sha256": "dddb447458dcce7090c0ada437a93a6863d4c87be99da80c140069da3c004002"
+      },
+      "candidate": {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "blob_oid": "f4793e795874e0c5a000f1c37684e9f6ef727506",
+        "bytes": 105281,
+        "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+      }
+    },
+    {
+      "base": {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+        "blob_oid": "a6a5b6cb483abe855225bdbf3860ef8475a7134a",
+        "bytes": 87102,
+        "sha256": "4712314f04747f9c29f601c71adb681cd921a6f89e4f7d426ab4850a11cb2b21"
+      },
+      "candidate": {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+        "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "blob_oid": "643b23afc55a52a95991c921f61d56f01924b864",
+        "bytes": 98249,
+        "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e"
+      }
+    },
+    {
+      "base": {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+        "blob_oid": "227a2713f94e56ca4c361d1bb3ebeea40718588e",
+        "bytes": 30571,
+        "sha256": "59f0acf06052db762b2b0b638f02a6d9fb0c1b825e2d6844c572186f821f61de"
+      },
+      "candidate": {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+        "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "blob_oid": "5fe7458c29f4c2ec00a1bd21f941e87cb7977680",
+        "bytes": 30571,
+        "sha256": "68a3e35f641ef68333e8c7b2c604d7d154447e705a0430081ddf348f9b7f8f2b"
+      }
+    },
+    {
+      "base": {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "source_sha": "456f34938731b1ef11555d8333d011d3552574ec",
+        "blob_oid": "406d208eb37fe7e45009f1d726203bc25b31fd62",
+        "bytes": 18096,
+        "sha256": "442e105be30e8cacb8436a2755bedf12bb792cf46e9b65fd2539d1724f8e43d1"
+      },
+      "candidate": {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py",
+        "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "blob_oid": "5371ea84d9b40d7f09587285f4594c675c9b7160",
+        "bytes": 18097,
+        "sha256": "deceae4388fea387d81d3aa9e0ada4d5c797d545a2dcc998bd9e4ce0fbed8e9c"
+      }
+    },
+    {
+      "base": null,
+      "candidate": {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+        "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "blob_oid": "971fb7734b6127aced4478d146026628c8b95e8a",
+        "bytes": 13798,
+        "sha256": "ac03afd543d161e6c662ebfca42ff2a24f8e8d43281b0dc26f986600f73b7b49"
+      }
+    }
+  ],
+  "source_context_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "blob_oid": "d6255d4fcfa1d63693c700d752458ccffb081530",
+      "bytes": 11846,
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "blob_oid": "1111ad75ed6632d87280e5699845811ec355bfbb",
+      "bytes": 7518,
+      "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "blob_oid": "7748250f475b0ac2c212468ecb6609c8f80ed8b9",
+      "bytes": 5769,
+      "sha256": "242a23a1c4c75f230c65aa5f284da0066641d9eec945c4eccdc12abc84e7adc5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/errors/base.py",
+      "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "blob_oid": "ab56a6e4cc36ab91891415b25819cd70ef57c743",
+      "bytes": 2349,
+      "sha256": "f013683b373b4bf947dbdaf0b5e6fc4c830da6fa6b74ef431d59a215bbbeaaed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/errors.py",
+      "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "blob_oid": "fd35b1b532df61801ce6e4d334e968d720dac7bb",
+      "bytes": 2074,
+      "sha256": "41736e82315c56cad6dcbda2b5289300e495e57a7df7215e46c42e0dd97c168f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "blob_oid": "643b23afc55a52a95991c921f61d56f01924b864",
+      "bytes": 98249,
+      "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "blob_oid": "f4793e795874e0c5a000f1c37684e9f6ef727506",
+      "bytes": 105281,
+      "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/__init__.py",
+      "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "blob_oid": "a958c8429e14e3c60b83fa9e1e52af3fd99f7376",
+      "bytes": 15201,
+      "sha256": "79ffb9a9e14a06b62aaa19378b7279930247b7b41974057ac6571bc1d8e28df2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "blob_oid": "50778105bd9f32d862eb22a4f9cc68c1a4b23b18",
+      "bytes": 10801,
+      "sha256": "807f008f0decfdd95453266864a59a9010dd554973e61151920fe9f1982bd62d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+      "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "blob_oid": "58b2fcd7be1be931d3bf12f5481ef3e1490dfe6b",
+      "bytes": 17286,
+      "sha256": "c33325ff111015a1fac83658b2b5a5bed6c12de984e73f370df05747e0ccf493"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_checkpoint_resume.py",
+      "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "blob_oid": "82a92d8923e0db8ec8717b410f74cb42591e5451",
+      "bytes": 68820,
+      "sha256": "c94e36b922f539c2256eefe1ad653b2c99c9fc73895c598b05c8034cdaf3bea2"
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "blob_oid": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+      "bytes": 1021,
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "blob_oid": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+      "blob_oid": "85f1fb2150a4da454fee02108565381d44f56730",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    }
+  ],
+  "source_review_predicates": [
+    {
+      "property": "Original invocation budget, single-node and atomic-tier parity",
+      "source": "async_executor.py:198-220,392,463; checkpoint.py:81-187",
+      "assessment": "Capture original task/cancelling baseline, seed ownership token and absolute deadline once. Single-node and tier checkpoint dispatch pass the same object. No phase-specific deadline reset or separate tier algorithm. Supported CPython3.14 perf_counter and monotonic use the same clock; no universal cross-clock claim."
+    },
+    {
+      "property": "Fixed-signature and opt-in compatibility",
+      "source": "async_executor.py:2090-2140,2198-2248; checkpoint.py:123-135,443-533,1185-1300; integration/test_checkpoint_resume.py:660-695",
+      "assessment": "Optional budget methods are additive to an existing valid legacy hook. Legacy kwargs unchanged; ContextVar scope restores exact token in finally and shared-worker copy_context propagates the original predicates into sync delegates. CAS opt-in methods dynamically call original self.on_node_complete_async/self.on_tier_complete_async, preserving real StopAfterTier overrides. NodeOnly wrapper delegates canonical CAS methods and inherits context. BudgetedAsyncCheckpointHook is an adjunct capability protocol: a standalone hook exposing only budget methods is not accepted by current legacy constructor/tier-admission contract. Arbitrary external hooks not delegating canonical consumers have executor admission/postcheck only."
+    },
+    {
+      "property": "Implicit helper default versus explicit store policy",
+      "source": "checkpoint.py:138-156,1258-1261,1763-1847; async_store.py",
+      "assessment": "Known native adapters with timeout=None use original remaining time, or explicit unbounded when owner has no deadline. Explicit finite adapter timeout min-joins at hook entry; repeated min joins cannot extend that first deadline. External native async stores keep their own put_json and policy, bounded by original owner timeout/post-ref predicate. Native adapter budget path invokes underlying sync store API; arbitrary adapter-subclass override compatibility is not attested."
+    },
+    {
+      "property": "Queued/entered immutable artifact distinction",
+      "source": "checkpoint.py:158-187,1763-1847; unchanged common/async_tools.py",
+      "assessment": "Compute remaining time before await, check original predicates again inside admitted worker before backend entry. Physical entered sync store write may finish after caller cancellation/expiry; post-ref guard prevents later head admission. Inner on-time backend TimeoutError remains distinct from original expiry, which reports WorkflowTimeoutError with execution_state unknown. No physical worker preemption or rollback claim."
+    },
+    {
+      "property": "Head generation publication and acknowledgement",
+      "source": "checkpoint.py:850-989,1870-1916",
+      "assessment": "Guard before temp creation and after temp fsync immediately before os.replace. Refused publication closes fd/unlinks own temp and preserves prior durable head/history. Once atomic replace enters, finish directory fsync and linked history even if caller expires, then owner postcheck refuses ACK as unknown. Local sequence/frontier updates follow successful admitted head return. No acknowledgement of a physically unfinished worker."
+    },
+    {
+      "property": "GC blocked read and temp-fsync siblings",
+      "source": "checkpoint.py:727-791,1031-1065,1945-1985",
+      "assessment": "GC guards before history read; after selection it calls same budgeted writer, which guards before temp creation and after fsync/pre-replace. Original deadline/cancellation therefore fences both held-read and held-fsync sibling phases. Existing head/base dependency retention algorithm unchanged. Completion of an entered head generation does not grant later GC admission."
+    },
+    {
+      "property": "Refusal types and error policy",
+      "source": "checkpoint.py:92-112,1116-1161,1254-1299; engine/errors.py; core/errors/base.py",
+      "assessment": "WorkflowTimeoutError is EngineError/PolicyOSError and is not swallowed by storage RuntimeError/CheckpointError/TimeoutError best-effort catches. asyncio.CancelledError propagates as BaseException. Budget refusal supplies typed class/stage/category and execution_state/publication_operation details; it does not set code=workflow.timeout, so no universal stable code-string claim is made."
+    },
+    {
+      "property": "Authority and persisted checkpoint contract",
+      "source": "checkpoint.py existing scope reconciliation, payload/create/resume and release companion",
+      "assessment": "Time/cancellation budget grants no tenant/cell/publication authority. Existing scoped read/write reconciliation, checkpoint schema1.3, origin and completed-status/frontier contracts are retained. Six-path delta contains no protected A generation_cycle.py/run_lifecycle.py or C streaming.py edits."
+    }
+  ],
+  "actual_test_source_review": {
+    "new_whole_file": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+    "source_parametrization_nodes": 14,
+    "collection_runtime": "UNRUN by reviewer; source count is not pytest collection or PASS evidence",
+    "properties": [
+      "actual native artifact/head/GC exceed patched helper default under original budget, direct and legacy fixed wrapper",
+      "real temphead fsync expiry/cancel preserve preceding generation",
+      "entered head replace can finish durable history while caller unknown/noGC/noACK",
+      "expired budget refuses CAS worker before artifact",
+      "explicit adapter finite limit consumed across artifact and head",
+      "real GC held read expiry/cancel preserve full history",
+      "budget opt-in preserves fixed-signature subclass override"
+    ],
+    "existing_two_test_deltas": "format/import grouping only; assertions unchanged"
+  },
+  "runtime_and_controls": {
+    "reviewer_runtime": "UNRUN; source/Git/output-data reads only",
+    "actual_independent_DUR_target": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+    "positive": "Unchangedfc29935sactualhead underoriginal60s returnsok, freshCAS answer7/completedanswer/producer1; physicalcomplete35.246s/return35.242s, zero workers/reservations atreturn. Separate full wrapperwall47.069s includes pytest/import overhead.",
+    "short": "Unchanged6419 sixcasesPASS:healthy, enteredimmutableartifactexpiry(nohead), head-tempfsyncdeadline/cancel(nohead), ontimehead withlate return(headverified/noGC/noACK), blockedGCread(history4unchanged). Actual enteredworker/reservation1 atreturn→0afterrealdelegate.",
+    "removal": "Remove workflowbudget assignment only:1materialFAIL hidden30 returns30.054s thenphysical35.028s/freshverifiedlatehead. Remove twohead guards only:2materialFAIL deadline/cancel lateheadreplace0→1/freshanswer7. Remove twohistorywriterguards only:1materialFAIL actualhistory4→2afterexpiry. Selected property-removal diagnostic cases are not a full native denominator.",
+    "qualification": "Positive/removal exactsources and executableAST overlays recorded by DUR; disk modulehashes identify base source, not changed executable functions. Removalfixtures /tmp tmpfs do not prove powerloss/physicaldiskdurability. No actual6d runtime is relabeled from6af.",
+    "source_projection_delta": "6d production adds only two typing.cast identity wrappers; source review supports same finite control flow, while actual executed result remains bound6af."
+  },
+  "remaining_limits": [
+    "Already-entered arbitrary I/O cannot be forcibly preempted; publication unknown requires later independent readback.",
+    "Legacy external hooks not consuming/delegating canonical budget retain compatibility but have only executor before/after admission checks.",
+    "No CAS ownership law, artifact authority, local production dataset, all-backend affinity or whole G publication attested.",
+    "Root owns README and shared generated public-surface companions; review exact future freeze rather than infer them from this six-path commit.",
+    "456 wholecohort/seven gate actual observations remain separate; no future PASS or inherited waiver."
+  ],
+  "falsifier": "Supported canonical consumer admits new artifact/head/GC publication after original owner expiry/cancel before phase entry; healthy35s head under60s is capped; legacy delegate loses original owner budget; entered head expiry receives success ACK/rollback rather than unknown.",
+  "next_owner": "EXE/root settle actual affected-native outputs and any precise fixture-premise delta; root owns README/generated companion and next exact frozen cohort/gates. Independent DUR packet establishes finite filesystem quantities at6af, not formal finding closure.",
+  "receipt_builder": {
+    "path": "/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/checkpoint-budget-review/build_review.py",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/checkpoint-budget-review/build_review.py"
+    ],
+    "bytes": 10509,
+    "sha256": "99dd0aae2d850c82d8edff48807df2a1d612df6ae964a88eb8fcfa63c7288028",
+    "literal": "from __future__ import annotations\nimport hashlib,json,pathlib,subprocess,sys\nROOT=pathlib.Path('/workspace/e02-B-current-composition')\nREPO=pathlib.Path('/workspace/e02-B-current-execution-state')\nBASE='456f34938731b1ef11555d8333d011d3552574ec'\nTARGET='6af060e952ae1561065f2a70668a790f5f6edcd5'\ndef git(*args):return subprocess.check_output(['git','-C',str(REPO),*args],stderr=subprocess.DEVNULL)\ndef binding(path,sha=TARGET):\n data=git('show',f'{sha}:{path}')\n return {'path':path,'source_sha':sha,'blob_oid':git('rev-parse',f'{sha}:{path}').decode().strip(),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}\nchanged=git('diff','--name-only',BASE,TARGET).decode().splitlines()\ncontexts=['policy-engine/src/polisyos/common/async_tools.py','policy-engine/src/polisyos/core/artifacts/async_store.py','policy-engine/src/polisyos/core/artifacts/protocol.py','policy-engine/src/polisyos/core/errors/base.py','policy-engine/src/polisyos/scientist/orchestration/engine/errors.py','policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py','policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py','policy-engine/src/polisyos/scientist/orchestration/engine/__init__.py','policy-engine/src/polisyos/scientist/orchestration/engine/README.md','policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py','policy-engine/tests/integration/scientist/test_checkpoint_resume.py','policy-engine/pytest.ini','policy-engine/pyproject.toml','policy-engine/uv.lock']\nreview={\n'schema':'policyos.e02.independent_source_review.v1',\n'reviewer':'/root/cmp_res_probe; independent of EXE author',\n'review_role':'source/contract review only; no production imports, tests, collection, gates or runtime executed by reviewer',\n'status':'source_review_nonblocking_finite_profile; independent deciding runtime refs pending',\n'closure_ids':[],'finding_ids':[],'formal_e02_closure':False,'P41_inherited_status':'not_established',\n'target':{'source_sha':TARGET,'tree_sha':git('rev-parse',TARGET+'^{tree}').decode().strip(),'base_source_sha':BASE,'base_tree_sha':git('rev-parse',BASE+'^{tree}').decode().strip(),'complete_changed_paths':changed,'full_delta_bytes':len(git('diff',BASE,TARGET)),'full_delta_sha256':hashlib.sha256(git('diff',BASE,TARGET)).hexdigest()},\n'changed_file_bindings':[],'source_context_bindings':[binding(p) for p in contexts],\n'source_review_predicates':[\n{'property':'Original invocation budget, single-node and atomic-tier parity','source':'async_executor.py:198-220,392,463; checkpoint.py:81-187','assessment':'Capture original task/cancelling baseline, seed ownership token and absolute deadline once. Single-node and tier checkpoint dispatch pass the same object. No phase-specific deadline reset or separate tier algorithm. Supported CPython3.14 perf_counter and monotonic use the same clock; no universal cross-clock claim.'},\n{'property':'Fixed-signature and opt-in compatibility','source':'async_executor.py:2090-2140,2198-2248; checkpoint.py:123-135,443-533,1185-1300; integration/test_checkpoint_resume.py:660-695','assessment':'Optional budget methods are additive to an existing valid legacy hook. Legacy kwargs unchanged; ContextVar scope restores exact token in finally and shared-worker copy_context propagates the original predicates into sync delegates. CAS opt-in methods dynamically call original self.on_node_complete_async/self.on_tier_complete_async, preserving real StopAfterTier overrides. NodeOnly wrapper delegates canonical CAS methods and inherits context. BudgetedAsyncCheckpointHook is an adjunct capability protocol: a standalone hook exposing only budget methods is not accepted by current legacy constructor/tier-admission contract. Arbitrary external hooks not delegating canonical consumers have executor admission/postcheck only.'},\n{'property':'Implicit helper default versus explicit store policy','source':'checkpoint.py:138-156,1258-1261,1763-1847; async_store.py','assessment':'Known native adapters with timeout=None use original remaining time, or explicit unbounded when owner has no deadline. Explicit finite adapter timeout min-joins at hook entry; repeated min joins cannot extend that first deadline. External native async stores keep their own put_json and policy, bounded by original owner timeout/post-ref predicate. Native adapter budget path invokes underlying sync store API; arbitrary adapter-subclass override compatibility is not attested.'},\n{'property':'Queued/entered immutable artifact distinction','source':'checkpoint.py:158-187,1763-1847; unchanged common/async_tools.py','assessment':'Compute remaining time before await, check original predicates again inside admitted worker before backend entry. Physical entered sync store write may finish after caller cancellation/expiry; post-ref guard prevents later head admission. Inner on-time backend TimeoutError remains distinct from original expiry, which reports WorkflowTimeoutError with execution_state unknown. No physical worker preemption or rollback claim.'},\n{'property':'Head generation publication and acknowledgement','source':'checkpoint.py:850-989,1870-1916','assessment':'Guard before temp creation and after temp fsync immediately before os.replace. Refused publication closes fd/unlinks own temp and preserves prior durable head/history. Once atomic replace enters, finish directory fsync and linked history even if caller expires, then owner postcheck refuses ACK as unknown. Local sequence/frontier updates follow successful admitted head return. No acknowledgement of a physically unfinished worker.'},\n{'property':'GC blocked read and temp-fsync siblings','source':'checkpoint.py:727-791,1031-1065,1945-1985','assessment':'GC guards before history read; after selection it calls same budgeted writer, which guards before temp creation and after fsync/pre-replace. Original deadline/cancellation therefore fences both held-read and held-fsync sibling phases. Existing head/base dependency retention algorithm unchanged. Completion of an entered head generation does not grant later GC admission.'},\n{'property':'Refusal types and error policy','source':'checkpoint.py:92-112,1116-1161,1254-1299; engine/errors.py; core/errors/base.py','assessment':'WorkflowTimeoutError is EngineError/PolicyOSError and is not swallowed by storage RuntimeError/CheckpointError/TimeoutError best-effort catches. asyncio.CancelledError propagates as BaseException. Budget refusal supplies typed class/stage/category and execution_state/publication_operation details; it does not set code=workflow.timeout, so no universal stable code-string claim is made.'},\n{'property':'Authority and persisted checkpoint contract','source':'checkpoint.py existing scope reconciliation, payload/create/resume and release companion','assessment':'Time/cancellation budget grants no tenant/cell/publication authority. Existing scoped read/write reconciliation, checkpoint schema1.3, origin and completed-status/frontier contracts are retained. Six-path delta contains no protected A generation_cycle.py/run_lifecycle.py or C streaming.py edits.'}\n],\n'actual_test_source_review':{'new_whole_file':'policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py','source_parametrization_nodes':14,'collection_runtime':'UNRUN by reviewer; source count is not pytest collection or PASS evidence','properties':['actual native artifact/head/GC exceed patched helper default under original budget, direct and legacy fixed wrapper','real temphead fsync expiry/cancel preserve preceding generation','entered head replace can finish durable history while caller unknown/noGC/noACK','expired budget refuses CAS worker before artifact','explicit adapter finite limit consumed across artifact and head','real GC held read expiry/cancel preserve full history','budget opt-in preserves fixed-signature subclass override'],'existing_two_test_deltas':'format/import grouping only; assertions unchanged'},\n'runtime_and_controls':{'reviewer':'UNRUN','DUR_successor_packet':'pending exact immutable receipt; author suite not imported as reviewer PASS','required_deciding_inputs':['unchanged actual35s head IO under original60s workflowbudget, freshCAS frontier/value/producer quantity','unchanged six short Event/actualfilesystem cases: prepublication fsync deadline/cancel, GC read deadline, entered artifact/head outcomes','property-removal retains actual inputs while removing only budget propagation/guards']},\n'remaining_limits':['Already-entered arbitrary I/O cannot be forcibly preempted; publication unknown requires later independent readback.','Legacy external hooks not consuming/delegating canonical budget retain compatibility but have only executor before/after admission checks.','No CAS ownership law, artifact authority, local production dataset, all-backend affinity or whole G publication attested.','Root owns README and shared generated public-surface companions; review exact future freeze rather than infer them from this six-path commit.','456 wholecohort/seven gate actual observations remain separate; no future PASS or inherited waiver.'],\n'falsifier':'Supported canonical consumer admits new artifact/head/GC publication after original owner expiry/cancel before phase entry; healthy35s head under60s is capped; legacy delegate loses original owner budget; entered head expiry receives success ACK/rollback rather than unknown.',\n'next_owner':'DUR owns unchanged actual filesystem replay; EXE owns material corrections; root owns README/generated companions and final integrated frozen checks. Reviewer binds deciding immutable outputs when available.'}\nfor p in changed:\n try:old=binding(p,BASE)\n except subprocess.CalledProcessError:old=None\n review['changed_file_bindings'].append({'base':old,'candidate':binding(p)})\nscript=pathlib.Path(__file__).read_bytes()\nreview['receipt_builder']={'path':str(pathlib.Path(__file__).resolve()),'argv':[sys.executable,str(pathlib.Path(__file__).resolve())],'bytes':len(script),'sha256':hashlib.sha256(script).hexdigest(),'literal':script.decode(),'qualification':'Git/file inspection and writing one ignored metadata draft only.'}\nout=ROOT/'.polisyos/e02-B-current-composition/checkpoint-budget-review/review-draft.json'\nout.write_text(json.dumps(review,ensure_ascii=False,indent=2)+'\\n')\nprint(json.dumps({'path':str(out),'bytes':out.stat().st_size,'sha256':hashlib.sha256(out.read_bytes()).hexdigest(),'changed_paths':len(changed),'context_paths':len(contexts)}))\n",
+    "qualification": "Git/file inspection and writing one ignored metadata draft only."
+  },
+  "successor_delta": {
+    "base_source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+    "source_sha": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+    "tree_sha": "eae52c9304e3a48b0f81f16ffc279cbb39c1f9b8",
+    "complete_paths": [
+      "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py"
+    ],
+    "full_diff_sha256": "ccf5a77eef50c1b75940fb824523b9eb28f980d52141bf18d45b9a4324702969",
+    "full_diff_bytes": 6868,
+    "file_bindings": [
+      {
+        "before": {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+          "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+          "blob_oid": "643b23afc55a52a95991c921f61d56f01924b864",
+          "bytes": 98249,
+          "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e"
+        },
+        "after": {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+          "source_sha": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+          "blob_oid": "40eeedd7144942f5d8a52894ed85fdea52d2bdb8",
+          "bytes": 98271,
+          "sha256": "9666c6b8da3967d4cc486f6271d3478cc7abd870ae0117df8946e9a168756db7"
+        }
+      },
+      {
+        "before": {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+          "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+          "blob_oid": "971fb7734b6127aced4478d146026628c8b95e8a",
+          "bytes": 13798,
+          "sha256": "ac03afd543d161e6c662ebfca42ff2a24f8e8d43281b0dc26f986600f73b7b49"
+        },
+        "after": {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py",
+          "source_sha": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+          "blob_oid": "f619c5cfb6b92180f62bf1ea57f87661983f5141",
+          "bytes": 16159,
+          "sha256": "e37eb7ca949e14a5c270b7bcd42033a63b1d1f172ce40e5fa8494471e2f35556"
+        }
+      },
+      {
+        "before": {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+          "source_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+          "blob_oid": "58b2fcd7be1be931d3bf12f5481ef3e1490dfe6b",
+          "bytes": 17286,
+          "sha256": "c33325ff111015a1fac83658b2b5a5bed6c12de984e73f370df05747e0ccf493"
+        },
+        "after": {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+          "source_sha": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+          "blob_oid": "78724bc3c646ae63b7472d86adb64bc7fa0ee683",
+          "bytes": 17473,
+          "sha256": "2506acfd6cf23511fe59b71c0e56de150b11d1d0e3f83163fbe28135cbc89174"
+        }
+      }
+    ],
+    "verdict": "nonblocking source/test-premise delta; no new runtime result at6d claimed",
+    "production_delta": "Exactly two typing.cast(\"T\", value) identity wrappers in _run_checkpoint_blocking. AsyncExecutor byte-identical6af. No budget/control-flow change.",
+    "test_delta": "The previously entered-head fixture now holds actualos.replace after the canonical prepublication fence, with assertions unchanged. Defining test adds healthy None/2 deadline profiles with actual cold workflow and one actual cancelledoldexecutor→second invocation retaining producer/cache quantity and refusing late head.",
+    "source_parametrization_nodes": 21,
+    "source_count_qualification": "Source parametrization only; reviewer collection/runtimeUNRUN. Owner affected native runs are separate.",
+    "old_test_failure_qualification": "Original fixture FAIL remains an actual observed failure in owner custody; moving the barrier changes the entered-IO premise and is not inherited-failure waiver."
+  },
+  "independent_deciding_packet": {
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-candidate.json",
+      "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+      "blob_oid": "943bf835b30fdade7ff71dca22ddcdf98073ff51",
+      "bytes": 37637,
+      "sha256": "c981376d269805ed7d09fb95e4cd2f873ae962f8c5db8b369f8f83136c061da4"
+    },
+    "publication_git_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+    "publication_tree_sha": "39a9a2f0061a39bbc5c89f927cc612142caaa8a6",
+    "reviewer_runtime": "UNRUN; these are actual independently executed DUR results",
+    "execution_target": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+    "execution_tree_sha": "017a345c06036f45d06d67eac8701a5c9bcec018",
+    "full_checks": [
+      {
+        "id": "candidate6af-long",
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-s",
+          "--noconftest",
+          "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+          "-c",
+          "/workspace/e02-B-current-execution-state/policy-engine/pytest.ini",
+          "-o",
+          "addopts=",
+          "--basetemp",
+          "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/candidate6af-long/pytest-scratch-first",
+          "--junitxml",
+          "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/candidate6af-long/native.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "target_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "tree": "017a345c06036f45d06d67eac8701a5c9bcec018",
+        "head_after": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+          "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-execution-state/policy-engine",
+          "caps_absent": [
+            "OMP_NUM_THREADS",
+            "MKL_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+            "VECLIB_MAXIMUM_THREADS",
+            "BLIS_NUM_THREADS"
+          ],
+          "conftest": "disabled because own ancestry would prepend ownsrc; only built-in pytest fixtures used"
+        },
+        "input_closure": "One real registered async producer; real FileSystemCAS/RunContext/CASCheckpointHook;60sworkflowbudget; actualatomichead os.replace delegates after35s;freshCASreopen;isolatedemptytmpfixtures; no productiondataset/DB. Same inputfc29953 sourceguards validateactualrootmodules.",
+        "test_input": {
+          "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+          "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+          "bytes": 7565,
+          "immutable_input_git_sha": "fc29953ce1e50721ee31228d2ad72cd190486754"
+        },
+        "supporting_input": null,
+        "outcome": "PASS",
+        "actual_exit": 0,
+        "actual_junit_counts": {
+          "cases": 1,
+          "passed": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "wall_s": 47.06930602999637,
+        "process_rusage_maxrss_kib": 680072,
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/candidate6af-long/native.txt",
+        "output_sha256": "1c1528911c13d05721ad7733fc0c19f713e16fc21eb098af5baaca97f6058d71",
+        "output_bytes": 1483,
+        "xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/candidate6af-long/native.xml",
+          "sha256": "f02d0b70b8c622fd0e054eb8b4664e034f790bd9ee1321b4e782c1da1d205f92",
+          "bytes": 361
+        },
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/candidate6af-long/native-wrapper.json",
+          "sha256": "70dd119f02ae58df5849ec8694987ebdaae18091a94d8acffb538e1c09ee77ff",
+          "bytes": 2802
+        },
+        "meaning": "Real35shead completed under original60s owner; actualfreshCAS verified answer7/completedanswer/producer1/noreservedworker.",
+        "predicate_basis": "recomputed"
+      },
+      {
+        "id": "candidate6af-short",
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-s",
+          "--noconftest",
+          "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+          "-c",
+          "/workspace/e02-B-current-execution-state/policy-engine/pytest.ini",
+          "-o",
+          "addopts=",
+          "--basetemp",
+          "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/candidate6af-short/pytest-scratch-first",
+          "--junitxml",
+          "/workspace/e02-B-current-durability/.polisyos/e02-B-current-durability/checkpoint-deadline-oracle/candidate6af-short/native.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "target_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "tree": "017a345c06036f45d06d67eac8701a5c9bcec018",
+        "head_after": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+          "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-execution-state/policy-engine",
+          "caps_absent": [
+            "OMP_NUM_THREADS",
+            "MKL_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+            "VECLIB_MAXIMUM_THREADS",
+            "BLIS_NUM_THREADS"
+          ],
+          "conftest": "disabled because own ancestry prepends ownsrc; only built-in pytest fixtures used"
+        },
+        "input_closure": "One healthy real registered async producer/CAS/head control, then2soriginalworkflowbudget actualcheckpointartifact/head-tempfsync/head-return/GC-history-read Event barriers andcallerCancel; all physical delegatesreal, freshCAS/head/history/workerreservation observations beforeassertions. ActualGC history contains3completeCAScheckpointfixtureinputs; no productiondataset orDB.",
+        "test_input": {
+          "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+          "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a",
+          "bytes": 11173,
+          "immutable_input_git_sha": "6419cf76e49ab3e14bdf4d63057b549abc1193d2"
+        },
+        "supporting_input": {
+          "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+          "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+          "git_sha": "fc29953ce1e50721ee31228d2ad72cd190486754"
+        },
+        "outcome": "PASS",
+        "actual_exit": 0,
+        "actual_junit_counts": {
+          "cases": 6,
+          "passed": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "wall_s": 20.815245318008238,
+        "process_rusage_maxrss_kib": 680348,
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/candidate6af-short/native.txt",
+        "output_sha256": "972ed66598bad64eda5046cf03fe127fe5c315623fe1cda79c10e564731c9dc3",
+        "output_bytes": 9607,
+        "xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/candidate6af-short/native.xml",
+          "sha256": "d7f4984432726c5d60d052b8afc6b3c96cf96598daeb8d7a105e1d530387a27c",
+          "bytes": 970
+        },
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/candidate6af-short/native-wrapper.json",
+          "sha256": "9bfa1a0b31b6cf1a2d1e9babce3eaffa4edc3187b7c476d6f0c867a63bcdf554",
+          "bytes": 3218
+        },
+        "meaning": "Healthy +artifact expiry +headfsync deadline/cancel +ontimehead return expiry +actualGC read expiry; no latehead/no expiredGC trim, enteredIO unknown and physicalreservation retires only after realdelegate.",
+        "predicate_basis": "recomputed"
+      },
+      {
+        "id": "removal6af-head",
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal_driver.py",
+          "head",
+          "6af060e952ae1561065f2a70668a790f5f6edcd5",
+          "/workspace/e02-B-current-execution-state/policy-engine",
+          "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+          "/tmp/e02-B-dur-checkpoint-removal-20261006-82c5e37/head/pytest-scratch-first",
+          "/tmp/e02-B-dur-checkpoint-removal-20261006-82c5e37/head/native.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "target_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "tree": "017a345c06036f45d06d67eac8701a5c9bcec018",
+        "head_after": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+          "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-execution-state/policy-engine",
+          "caps_absent": [
+            "OMP_NUM_THREADS",
+            "MKL_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+            "VECLIB_MAXIMUM_THREADS",
+            "BLIS_NUM_THREADS"
+          ],
+          "conftest": "disabled; builtin fixtures only",
+          "fixture_mount": "/tmp tmpfs; no physical disk durability or powerloss claim"
+        },
+        "input_closure": "Explicit recorded in-memory AST property-removal only; actual FileSystemCAS, canonical filesystem delegates, real producer, Event barriers, and unchanged independent oracle assertions. No production dataset or DB.",
+        "test_input": {
+          "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+          "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a",
+          "bytes": 11173
+        },
+        "supporting_input": {
+          "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+          "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+          "git_sha": "fc29953ce1e50721ee31228d2ad72cd190486754"
+        },
+        "outcome": "FAIL",
+        "actual_exit": 1,
+        "actual_junit_counts": {
+          "cases": 2,
+          "passed": 0,
+          "failures": 2,
+          "errors": 0,
+          "skipped": 0
+        },
+        "wall_s": 13.462415078000049,
+        "process_rusage_maxrss_kib": 697088,
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-head/native.txt",
+        "output_sha256": "152e169c49049c711f7ff13d8b05c0cb44e37aaad2095a5304fbb114f06d99a8",
+        "output_bytes": 26963,
+        "xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-head/native.xml",
+          "sha256": "a08f7f626c61803dc8d2e93cb1e2a89b21625d94c529605b840702eda0ac65bd",
+          "bytes": 22088
+        },
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-head/native-wrapper.json",
+          "sha256": "61e410af050f919c9443b920327616af3e0da65c81d5be025bf5924c156c9ec1",
+          "bytes": 3744
+        },
+        "meaning": "Both unchanged headfsync deadline/cancel properties materially fail: real latehead published after caller returned, freshCAS verifies actualanswer7.",
+        "predicate_basis": "recomputed",
+        "execution_overlay": {
+          "case": "head",
+          "literal_source_in_output": true,
+          "base_source_disk_identity_only": true
+        },
+        "driver": {
+          "path": "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal_driver.py",
+          "sha256": "5c784b50faf4dc5f999b7dc8dfbee5e374dfeef79d642fe5526e00661eedf928",
+          "bytes": 5790,
+          "git_sha": "82c5e37ff2a8e14a29dbbe90018961002a248289"
+        }
+      },
+      {
+        "id": "removal6af-gc",
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal_driver.py",
+          "gc",
+          "6af060e952ae1561065f2a70668a790f5f6edcd5",
+          "/workspace/e02-B-current-execution-state/policy-engine",
+          "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+          "/tmp/e02-B-dur-checkpoint-removal-20261006-82c5e37/gc/pytest-scratch-first",
+          "/tmp/e02-B-dur-checkpoint-removal-20261006-82c5e37/gc/native.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "target_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "tree": "017a345c06036f45d06d67eac8701a5c9bcec018",
+        "head_after": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+          "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-execution-state/policy-engine",
+          "caps_absent": [
+            "OMP_NUM_THREADS",
+            "MKL_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+            "VECLIB_MAXIMUM_THREADS",
+            "BLIS_NUM_THREADS"
+          ],
+          "conftest": "disabled; builtin fixtures only",
+          "fixture_mount": "/tmp tmpfs; no physical disk durability or powerloss claim"
+        },
+        "input_closure": "Explicit recorded in-memory AST property-removal only; actual FileSystemCAS, canonical filesystem delegates, real producer, Event barriers, and unchanged independent oracle assertions. No production dataset or DB.",
+        "test_input": {
+          "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py",
+          "sha256": "b9e2005611669331441083aac3740f506bc6415f8b02bb01fb2d8310b5a7a57a",
+          "bytes": 11173
+        },
+        "supporting_input": {
+          "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+          "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+          "git_sha": "fc29953ce1e50721ee31228d2ad72cd190486754"
+        },
+        "outcome": "FAIL",
+        "actual_exit": 1,
+        "actual_junit_counts": {
+          "cases": 1,
+          "passed": 0,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "wall_s": 13.547660540003562,
+        "process_rusage_maxrss_kib": 697664,
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-gc/native.txt",
+        "output_sha256": "8e7dfe0d334c3cef99d98c8a5a4a3468db2d0ede0bcb18956823f6f43c5450c9",
+        "output_bytes": 14447,
+        "xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-gc/native.xml",
+          "sha256": "5b33bd47bb7f5fbf1c03099a025605ef3ce3080749cbe3552199480ac0b74f44",
+          "bytes": 11143
+        },
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-gc/native-wrapper.json",
+          "sha256": "d84270368b5c53a27b5017d6965a61de937fbcd931cfa2c6a047022f608f4c80",
+          "bytes": 3734
+        },
+        "meaning": "Unchanged actualGCread case materially fails: history changed4to2 after originaldeadline, actualontimehead staysverified.",
+        "predicate_basis": "recomputed",
+        "execution_overlay": {
+          "case": "gc",
+          "literal_source_in_output": true,
+          "base_source_disk_identity_only": true
+        },
+        "driver": {
+          "path": "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal_driver.py",
+          "sha256": "5c784b50faf4dc5f999b7dc8dfbee5e374dfeef79d642fe5526e00661eedf928",
+          "bytes": 5790,
+          "git_sha": "82c5e37ff2a8e14a29dbbe90018961002a248289"
+        }
+      },
+      {
+        "id": "removal6af-budget",
+        "command": [
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal_driver.py",
+          "budget",
+          "6af060e952ae1561065f2a70668a790f5f6edcd5",
+          "/workspace/e02-B-current-execution-state/policy-engine",
+          "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+          "/tmp/e02-B-dur-checkpoint-removal-20261006-82c5e37/budget/pytest-scratch-first",
+          "/tmp/e02-B-dur-checkpoint-removal-20261006-82c5e37/budget/native.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-execution-state/policy-engine",
+        "target_sha": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "tree": "017a345c06036f45d06d67eac8701a5c9bcec018",
+        "head_after": "6af060e952ae1561065f2a70668a790f5f6edcd5",
+        "environment": {
+          "python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+          "PYTHONPATH": "/workspace/e02-B-current-execution-state/policy-engine/src:/workspace/e02-B-current-execution-state/policy-engine",
+          "E02_ORACLE_PRODUCT_ROOT": "/workspace/e02-B-current-execution-state/policy-engine",
+          "caps_absent": [
+            "OMP_NUM_THREADS",
+            "MKL_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+            "VECLIB_MAXIMUM_THREADS",
+            "BLIS_NUM_THREADS"
+          ],
+          "conftest": "disabled; builtin fixtures only",
+          "fixture_mount": "/tmp tmpfs; no physical disk durability or powerloss claim"
+        },
+        "input_closure": "Explicit recorded in-memory AST property-removal only; actual FileSystemCAS, canonical filesystem delegates, real producer, Event barriers, and unchanged independent oracle assertions. No production dataset or DB.",
+        "test_input": {
+          "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+          "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+          "bytes": 7565
+        },
+        "supporting_input": {
+          "path": "/workspace/e02-B-current-durability/policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py",
+          "sha256": "05623df2c82e8538591a262daca17bd0bd27f196c106a8a8552b95c8de9fbd58",
+          "git_sha": "fc29953ce1e50721ee31228d2ad72cd190486754"
+        },
+        "outcome": "FAIL",
+        "actual_exit": 1,
+        "actual_junit_counts": {
+          "cases": 1,
+          "passed": 0,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "wall_s": 46.53059489899897,
+        "process_rusage_maxrss_kib": 698288,
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-budget/native.txt",
+        "output_sha256": "6f7e86cbd9772c159762d42e08bb8b5209845dd679d09cdd32156f383fd11065",
+        "output_bytes": 26101,
+        "xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-budget/native.xml",
+          "sha256": "0536d3d7065dd870e0a9d97772ad549a1226257daba8f78187d7322bcc8f7826",
+          "bytes": 4390
+        },
+        "wrapper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-budget/native-wrapper.json",
+          "sha256": "1371b1e54433d9d5c5723467baabb43f25366c30a98d1d14e51da31fe9615c7d",
+          "bytes": 3758
+        },
+        "meaning": "Unchanged35shead/60sowner case materially fails again: caller at30.054s while real physicalhead completes35.028s; noacceptedworkflow result.",
+        "predicate_basis": "recomputed",
+        "execution_overlay": {
+          "case": "budget",
+          "literal_source_in_output": true,
+          "base_source_disk_identity_only": true
+        },
+        "driver": {
+          "path": "/workspace/e02-B-current-durability/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal_driver.py",
+          "sha256": "5c784b50faf4dc5f999b7dc8dfbee5e374dfeef79d642fe5526e00661eedf928",
+          "bytes": 5790,
+          "git_sha": "82c5e37ff2a8e14a29dbbe90018961002a248289"
+        }
+      }
+    ],
+    "artifacts_read_and_reconciled": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/candidate6af-long/native.txt",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "da8a860a60e9ea021c93732bcb7cd1d5b20bd081",
+        "bytes": 1483,
+        "sha256": "1c1528911c13d05721ad7733fc0c19f713e16fc21eb098af5baaca97f6058d71"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/candidate6af-long/native.xml",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "3b12f9a2762cb5791ec23714b440551a1e2a96e8",
+        "bytes": 361,
+        "sha256": "f02d0b70b8c622fd0e054eb8b4664e034f790bd9ee1321b4e782c1da1d205f92"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/candidate6af-long/native-wrapper.json",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "e0e8537f1ac3c8c367e179da1209c04800ea3a8f",
+        "bytes": 2802,
+        "sha256": "70dd119f02ae58df5849ec8694987ebdaae18091a94d8acffb538e1c09ee77ff"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/candidate6af-short/native.txt",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "9ea4a5a2db0b3b8a630810cb86615b7f711309f0",
+        "bytes": 9607,
+        "sha256": "972ed66598bad64eda5046cf03fe127fe5c315623fe1cda79c10e564731c9dc3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/candidate6af-short/native.xml",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "708f5794b9a60a7809a45f1f569b7ac445d0d828",
+        "bytes": 970,
+        "sha256": "d7f4984432726c5d60d052b8afc6b3c96cf96598daeb8d7a105e1d530387a27c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/candidate6af-short/native-wrapper.json",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "74f720704e1a9298e4231b24e97da97dbcec0adf",
+        "bytes": 3218,
+        "sha256": "9bfa1a0b31b6cf1a2d1e9babce3eaffa4edc3187b7c476d6f0c867a63bcdf554"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-head/native.txt",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "93805fdcb5ebc082aeb6056eff2b77ab3c8bde83",
+        "bytes": 26963,
+        "sha256": "152e169c49049c711f7ff13d8b05c0cb44e37aaad2095a5304fbb114f06d99a8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-head/native.xml",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "cea2663683e0d3e1b10fcaaee835b530e54c60c6",
+        "bytes": 22088,
+        "sha256": "a08f7f626c61803dc8d2e93cb1e2a89b21625d94c529605b840702eda0ac65bd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-head/native-wrapper.json",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "10c2c945beb81422f57a3891229d02b384887f0b",
+        "bytes": 3744,
+        "sha256": "61e410af050f919c9443b920327616af3e0da65c81d5be025bf5924c156c9ec1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-gc/native.txt",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "f3e94bd19edc83c60ce9571280cc6f1129e87932",
+        "bytes": 14447,
+        "sha256": "8e7dfe0d334c3cef99d98c8a5a4a3468db2d0ede0bcb18956823f6f43c5450c9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-gc/native.xml",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "14ce6a2eb878bfd4406cf214b3adca1cf1e04feb",
+        "bytes": 11143,
+        "sha256": "5b33bd47bb7f5fbf1c03099a025605ef3ce3080749cbe3552199480ac0b74f44"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-gc/native-wrapper.json",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "dc551de6736c32938d7d926cfc55796fabea21eb",
+        "bytes": 3734,
+        "sha256": "d84270368b5c53a27b5017d6965a61de937fbcd931cfa2c6a047022f608f4c80"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-budget/native.txt",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "485cb799a53f5fefacb510e32de92b082bf3a920",
+        "bytes": 26101,
+        "sha256": "6f7e86cbd9772c159762d42e08bb8b5209845dd679d09cdd32156f383fd11065"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-budget/native.xml",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "e90ab64644394da9ef4e62df56ac168b14f70e7a",
+        "bytes": 4390,
+        "sha256": "0536d3d7065dd870e0a9d97772ad549a1226257daba8f78187d7322bcc8f7826"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-checkpoint-deadline-independent-evidence/removal6af-budget/native-wrapper.json",
+        "source_sha": "df07c6e7e586f29a990f4b3b2685f2b54e9945f6",
+        "blob_oid": "138b467721dabbe7576ac6f5d28016ba47909ec9",
+        "bytes": 3758,
+        "sha256": "1371b1e54433d9d5c5723467baabb43f25366c30a98d1d14e51da31fe9615c7d"
+      }
+    ],
+    "parsed_actual_quantities": [
+      {
+        "id": "candidate6af-long",
+        "outcome": "PASS",
+        "actual_exit": 0,
+        "counts": {
+          "cases": 1,
+          "passed": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "structured_measurements": [
+          {
+            "budget_seconds": 60,
+            "delay_seconds": 35,
+            "elapsed_physical_complete": 35.24617649699212,
+            "elapsed_to_return": 35.24214492000465,
+            "entered": true,
+            "error_message": null,
+            "error_type": null,
+            "head_at_return": true,
+            "physical_complete_at_return": true,
+            "physical_workers_at_return": 0,
+            "producer_calls": 1,
+            "reopened_answer": 7,
+            "reopened_checkpoint_verified": true,
+            "reopened_completed_nodes": [
+              "answer"
+            ],
+            "reserved_jobs_at_return": 0,
+            "result_status": "ok",
+            "sources": {
+              "polisyos.common.async_tools": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py",
+                "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+              },
+              "polisyos.core.artifacts.async_store": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/core/artifacts/async_store.py",
+                "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+              },
+              "polisyos.scientist.orchestration.engine.async_executor": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+                "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+              },
+              "polisyos.scientist.orchestration.engine.checkpoint": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+                "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e"
+              }
+            }
+          }
+        ],
+        "junit_cases": [
+          {
+            "name": "test_real_atomic_head_35_seconds_fits_original_60_second_workflow",
+            "classname": "",
+            "outcome": "PASS",
+            "failure_message": null
+          }
+        ]
+      },
+      {
+        "id": "candidate6af-short",
+        "outcome": "PASS",
+        "actual_exit": 0,
+        "counts": {
+          "cases": 6,
+          "passed": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "structured_measurements": [
+          {
+            "answer": 7,
+            "completed_nodes": [
+              "answer"
+            ],
+            "producer_calls": 1,
+            "report_status": "ok",
+            "sources": {
+              "polisyos.common.async_tools": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py",
+                "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+              },
+              "polisyos.core.artifacts.async_store": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/core/artifacts/async_store.py",
+                "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+              },
+              "polisyos.scientist.orchestration.engine.async_executor": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+                "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+              },
+              "polisyos.scientist.orchestration.engine.checkpoint": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+                "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e"
+              }
+            },
+            "verified": true
+          },
+          {
+            "accepted_result": false,
+            "budget_seconds": 2,
+            "counts_after_physical_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 0,
+              "head_replace": 0
+            },
+            "counts_at_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 0,
+              "head_replace": 0
+            },
+            "error_details": {
+              "execution_state": "unknown",
+              "publication_operation": "checkpoint"
+            },
+            "error_type": "WorkflowTimeoutError",
+            "head_after_physical_return": false,
+            "head_at_return": false,
+            "history_entries": 0,
+            "history_unchanged_after_gc_read": null,
+            "physical_finished_at_return": false,
+            "physical_workers_after": 0,
+            "physical_workers_at_return": 1,
+            "producer_calls": 1,
+            "reserved_jobs_after": 0,
+            "reserved_jobs_at_return": 1,
+            "sources": {
+              "polisyos.common.async_tools": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py",
+                "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+              },
+              "polisyos.core.artifacts.async_store": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/core/artifacts/async_store.py",
+                "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+              },
+              "polisyos.scientist.orchestration.engine.async_executor": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+                "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+              },
+              "polisyos.scientist.orchestration.engine.checkpoint": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+                "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e"
+              }
+            },
+            "stage": "artifact",
+            "stop": "deadline"
+          },
+          {
+            "accepted_result": false,
+            "budget_seconds": 2,
+            "counts_after_physical_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 0,
+              "head_replace": 0
+            },
+            "counts_at_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 0,
+              "head_replace": 0
+            },
+            "error_details": {
+              "execution_state": "unknown",
+              "publication_operation": "checkpoint"
+            },
+            "error_type": "WorkflowTimeoutError",
+            "head_after_physical_return": false,
+            "head_at_return": false,
+            "history_entries": 0,
+            "history_unchanged_after_gc_read": null,
+            "physical_finished_at_return": false,
+            "physical_workers_after": 0,
+            "physical_workers_at_return": 1,
+            "producer_calls": 1,
+            "reserved_jobs_after": 0,
+            "reserved_jobs_at_return": 1,
+            "sources": {
+              "polisyos.common.async_tools": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py",
+                "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+              },
+              "polisyos.core.artifacts.async_store": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/core/artifacts/async_store.py",
+                "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+              },
+              "polisyos.scientist.orchestration.engine.async_executor": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+                "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+              },
+              "polisyos.scientist.orchestration.engine.checkpoint": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+                "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e"
+              }
+            },
+            "stage": "head_fsync",
+            "stop": "deadline"
+          },
+          {
+            "accepted_result": false,
+            "budget_seconds": 2,
+            "counts_after_physical_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 0,
+              "head_replace": 0
+            },
+            "counts_at_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 0,
+              "head_replace": 0
+            },
+            "error_details": null,
+            "error_type": "CancelledError",
+            "head_after_physical_return": false,
+            "head_at_return": false,
+            "history_entries": 0,
+            "history_unchanged_after_gc_read": null,
+            "physical_finished_at_return": false,
+            "physical_workers_after": 0,
+            "physical_workers_at_return": 1,
+            "producer_calls": 1,
+            "reserved_jobs_after": 0,
+            "reserved_jobs_at_return": 1,
+            "sources": {
+              "polisyos.common.async_tools": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py",
+                "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+              },
+              "polisyos.core.artifacts.async_store": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/core/artifacts/async_store.py",
+                "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+              },
+              "polisyos.scientist.orchestration.engine.async_executor": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+                "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+              },
+              "polisyos.scientist.orchestration.engine.checkpoint": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+                "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e"
+              }
+            },
+            "stage": "head_fsync",
+            "stop": "cancel"
+          },
+          {
+            "accepted_result": false,
+            "budget_seconds": 2,
+            "checkpoint_verified": true,
+            "counts_after_physical_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 0,
+              "head_replace": 1
+            },
+            "counts_at_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 0,
+              "head_replace": 1
+            },
+            "error_details": {
+              "execution_state": "unknown",
+              "publication_operation": "checkpoint"
+            },
+            "error_type": "WorkflowTimeoutError",
+            "head_after_physical_return": true,
+            "head_at_return": true,
+            "history_entries": 1,
+            "history_unchanged_after_gc_read": null,
+            "physical_finished_at_return": false,
+            "physical_workers_after": 0,
+            "physical_workers_at_return": 1,
+            "producer_calls": 1,
+            "reopened_answer": 7,
+            "reserved_jobs_after": 0,
+            "reserved_jobs_at_return": 1,
+            "sources": {
+              "polisyos.common.async_tools": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py",
+                "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+              },
+              "polisyos.core.artifacts.async_store": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/core/artifacts/async_store.py",
+                "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+              },
+              "polisyos.scientist.orchestration.engine.async_executor": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+                "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+              },
+              "polisyos.scientist.orchestration.engine.checkpoint": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+                "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e"
+              }
+            },
+            "stage": "head_return",
+            "stop": "deadline"
+          },
+          {
+            "accepted_result": false,
+            "budget_seconds": 2,
+            "checkpoint_verified": true,
+            "counts_after_physical_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 1,
+              "head_replace": 1
+            },
+            "counts_at_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 1,
+              "head_replace": 1
+            },
+            "error_details": {
+              "execution_state": "unknown",
+              "publication_operation": "checkpoint"
+            },
+            "error_type": "WorkflowTimeoutError",
+            "head_after_physical_return": true,
+            "head_at_return": true,
+            "history_entries": 4,
+            "history_unchanged_after_gc_read": true,
+            "physical_finished_at_return": false,
+            "physical_workers_after": 0,
+            "physical_workers_at_return": 1,
+            "producer_calls": 1,
+            "reopened_answer": 7,
+            "reserved_jobs_after": 0,
+            "reserved_jobs_at_return": 1,
+            "sources": {
+              "polisyos.common.async_tools": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py",
+                "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+              },
+              "polisyos.core.artifacts.async_store": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/core/artifacts/async_store.py",
+                "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+              },
+              "polisyos.scientist.orchestration.engine.async_executor": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+                "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+              },
+              "polisyos.scientist.orchestration.engine.checkpoint": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+                "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e"
+              }
+            },
+            "stage": "gc_read",
+            "stop": "deadline"
+          }
+        ],
+        "junit_cases": [
+          {
+            "name": "test_real_checkpoint_healthy_control",
+            "classname": "",
+            "outcome": "PASS",
+            "failure_message": null
+          },
+          {
+            "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[artifact-deadline]",
+            "classname": "",
+            "outcome": "PASS",
+            "failure_message": null
+          },
+          {
+            "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[head_fsync-deadline]",
+            "classname": "",
+            "outcome": "PASS",
+            "failure_message": null
+          },
+          {
+            "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[head_fsync-cancel]",
+            "classname": "",
+            "outcome": "PASS",
+            "failure_message": null
+          },
+          {
+            "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[head_return-deadline]",
+            "classname": "",
+            "outcome": "PASS",
+            "failure_message": null
+          },
+          {
+            "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[gc_read-deadline]",
+            "classname": "",
+            "outcome": "PASS",
+            "failure_message": null
+          }
+        ]
+      },
+      {
+        "id": "removal6af-head",
+        "outcome": "FAIL",
+        "actual_exit": 1,
+        "counts": {
+          "cases": 2,
+          "passed": 0,
+          "failures": 2,
+          "errors": 0,
+          "skipped": 0
+        },
+        "structured_measurements": [
+          {
+            "accepted_result": false,
+            "budget_seconds": 2,
+            "checkpoint_verified": true,
+            "counts_after_physical_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 0,
+              "head_replace": 1
+            },
+            "counts_at_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 0,
+              "head_replace": 0
+            },
+            "error_details": {
+              "execution_state": "unknown",
+              "publication_operation": "checkpoint"
+            },
+            "error_type": "WorkflowTimeoutError",
+            "head_after_physical_return": true,
+            "head_at_return": false,
+            "history_entries": 1,
+            "history_unchanged_after_gc_read": null,
+            "physical_finished_at_return": false,
+            "physical_workers_after": 0,
+            "physical_workers_at_return": 1,
+            "producer_calls": 1,
+            "reopened_answer": 7,
+            "reserved_jobs_after": 0,
+            "reserved_jobs_at_return": 1,
+            "sources": {
+              "polisyos.common.async_tools": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py",
+                "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+              },
+              "polisyos.core.artifacts.async_store": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/core/artifacts/async_store.py",
+                "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+              },
+              "polisyos.scientist.orchestration.engine.async_executor": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+                "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+              },
+              "polisyos.scientist.orchestration.engine.checkpoint": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+                "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e"
+              }
+            },
+            "stage": "head_fsync",
+            "stop": "deadline"
+          },
+          {
+            "accepted_result": false,
+            "budget_seconds": 2,
+            "checkpoint_verified": true,
+            "counts_after_physical_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 0,
+              "head_replace": 1
+            },
+            "counts_at_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 0,
+              "head_replace": 0
+            },
+            "error_details": null,
+            "error_type": "CancelledError",
+            "head_after_physical_return": true,
+            "head_at_return": false,
+            "history_entries": 1,
+            "history_unchanged_after_gc_read": null,
+            "physical_finished_at_return": false,
+            "physical_workers_after": 0,
+            "physical_workers_at_return": 1,
+            "producer_calls": 1,
+            "reopened_answer": 7,
+            "reserved_jobs_after": 0,
+            "reserved_jobs_at_return": 1,
+            "sources": {
+              "polisyos.common.async_tools": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py",
+                "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+              },
+              "polisyos.core.artifacts.async_store": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/core/artifacts/async_store.py",
+                "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+              },
+              "polisyos.scientist.orchestration.engine.async_executor": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+                "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+              },
+              "polisyos.scientist.orchestration.engine.checkpoint": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+                "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e"
+              }
+            },
+            "stage": "head_fsync",
+            "stop": "cancel"
+          }
+        ],
+        "junit_cases": [
+          {
+            "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[head_fsync-deadline]",
+            "classname": "",
+            "outcome": "FAIL",
+            "failure_message": "AssertionError: {'accepted_result': False, 'budget_seconds': 2, 'checkpoint_verified': True, 'counts_after_physical_return': {'checkpoint_put': 1, 'gc_entered': 0, 'head_replace': 1}, ...}\nassert (CheckpointHead(run_id='R_budget', checkpoint_ref=ArtifactRef(artifact_id=ArtifactID(root='sha256:b6ce683acfce2b5e74171...362398, writer_hostname='b878f4efbdfc', updated_at=datetime.datetime(2026, 10, 6, 17, 24, 6, 262048, tzinfo=TzInfo(0))) is None)"
+          },
+          {
+            "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[head_fsync-cancel]",
+            "classname": "",
+            "outcome": "FAIL",
+            "failure_message": "AssertionError: {'accepted_result': False, 'budget_seconds': 2, 'checkpoint_verified': True, 'counts_after_physical_return': {'checkpoint_put': 1, 'gc_entered': 0, 'head_replace': 1}, ...}\nassert (CheckpointHead(run_id='R_budget', checkpoint_ref=ArtifactRef(artifact_id=ArtifactID(root='sha256:56b4f640a441094f32462...362398, writer_hostname='b878f4efbdfc', updated_at=datetime.datetime(2026, 10, 6, 17, 24, 8, 422790, tzinfo=TzInfo(0))) is None)"
+          }
+        ]
+      },
+      {
+        "id": "removal6af-gc",
+        "outcome": "FAIL",
+        "actual_exit": 1,
+        "counts": {
+          "cases": 1,
+          "passed": 0,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "structured_measurements": [
+          {
+            "accepted_result": false,
+            "budget_seconds": 2,
+            "checkpoint_verified": true,
+            "counts_after_physical_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 1,
+              "head_replace": 1
+            },
+            "counts_at_return": {
+              "checkpoint_put": 1,
+              "gc_entered": 1,
+              "head_replace": 1
+            },
+            "error_details": {
+              "execution_state": "unknown",
+              "publication_operation": "checkpoint"
+            },
+            "error_type": "WorkflowTimeoutError",
+            "head_after_physical_return": true,
+            "head_at_return": true,
+            "history_entries": 2,
+            "history_unchanged_after_gc_read": false,
+            "physical_finished_at_return": false,
+            "physical_workers_after": 0,
+            "physical_workers_at_return": 1,
+            "producer_calls": 1,
+            "reopened_answer": 7,
+            "reserved_jobs_after": 0,
+            "reserved_jobs_at_return": 1,
+            "sources": {
+              "polisyos.common.async_tools": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py",
+                "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+              },
+              "polisyos.core.artifacts.async_store": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/core/artifacts/async_store.py",
+                "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+              },
+              "polisyos.scientist.orchestration.engine.async_executor": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+                "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+              },
+              "polisyos.scientist.orchestration.engine.checkpoint": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+                "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e"
+              }
+            },
+            "stage": "gc_read",
+            "stop": "deadline"
+          }
+        ],
+        "junit_cases": [
+          {
+            "name": "test_original_budget_refuses_new_phases_and_retains_entered_io[gc_read-deadline]",
+            "classname": "",
+            "outcome": "FAIL",
+            "failure_message": "AssertionError: {'accepted_result': False, 'budget_seconds': 2, 'checkpoint_verified': True, 'counts_after_physical_return': {'checkpoint_put': 1, 'gc_entered': 1, 'head_replace': 1}, ...}\nassert False is True"
+          }
+        ]
+      },
+      {
+        "id": "removal6af-budget",
+        "outcome": "FAIL",
+        "actual_exit": 1,
+        "counts": {
+          "cases": 1,
+          "passed": 0,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "structured_measurements": [
+          {
+            "budget_seconds": 60,
+            "delay_seconds": 35,
+            "elapsed_physical_complete": 35.028297151991865,
+            "elapsed_to_return": 30.053990072003216,
+            "entered": true,
+            "error_message": "Workflow deadline_oracle exceeded timeout of 60s",
+            "error_type": "WorkflowTimeoutError",
+            "head_at_return": false,
+            "physical_complete_at_return": false,
+            "physical_workers_at_return": 1,
+            "producer_calls": 1,
+            "reopened_answer": 7,
+            "reopened_checkpoint_verified": true,
+            "reopened_completed_nodes": [
+              "answer"
+            ],
+            "reserved_jobs_at_return": 1,
+            "result_status": null,
+            "sources": {
+              "polisyos.common.async_tools": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/common/async_tools.py",
+                "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+              },
+              "polisyos.core.artifacts.async_store": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/core/artifacts/async_store.py",
+                "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+              },
+              "polisyos.scientist.orchestration.engine.async_executor": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+                "sha256": "8f35644ea00699c1022df32a71cc1ffd8a37c042a5d12f0f76c7ce8a20e5b7b1"
+              },
+              "polisyos.scientist.orchestration.engine.checkpoint": {
+                "path": "/workspace/e02-B-current-execution-state/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+                "sha256": "7b8a61e22232b81917abf8a0c2782f1a4dd6ec32702cf30f0a4d70d7f41d489e"
+              }
+            }
+          }
+        ],
+        "junit_cases": [
+          {
+            "name": "test_real_atomic_head_35_seconds_fits_original_60_second_workflow",
+            "classname": "",
+            "outcome": "FAIL",
+            "failure_message": "AssertionError: {'budget_seconds': 60, 'delay_seconds': 35, 'elapsed_physical_complete': 35.028297151991865, 'elapsed_to_return': 30.053990072003216, ...}\nassert WorkflowTimeoutError('Workflow deadline_oracle exceeded timeout of 60s') is None"
+          }
+        ]
+      }
+    ]
+  },
+  "remaining_existing_fixture_observation": {
+    "target_source_sha": "6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a",
+    "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py",
+    "test": "test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication",
+    "source_only_observation": "Hook pauses BEFORE canonical syncCAS delegation; after suppressing cancellation, asyncio.to_thread copies original budget into real.on_node_complete, whose guard refusesnot_admitted. Currentfixture expects physically_completed/headpresent/unknown. That source premise is different from admittedos.replace. No runtimeFAIL is asserted by reviewer; owner running affected file determines actual result.",
+    "required_action_if_reproduced": "Retain actual native output and correct pre-admission negative assertions without loosening original-owner guard; preserve actualnodeartifact/producerquantity/nofinalACK. Root/EXE own correction."
+  },
+  "completion_builder": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/checkpoint-budget-review/complete_review.py"
+    ],
+    "path": "/workspace/e02-B-current-composition/.polisyos/e02-B-current-composition/checkpoint-budget-review/complete_review.py",
+    "bytes": 8344,
+    "sha256": "312e0c1b6b9297c5ac17f7e1ab2eaf1bc9f8d8bbd4102ad8a19d0dbfa8966da1",
+    "literal": "from __future__ import annotations\nimport hashlib,json,pathlib,re,subprocess,sys,xml.etree.ElementTree as ET\nROOT=pathlib.Path('/workspace/e02-B-current-composition')\nEXE=pathlib.Path('/workspace/e02-B-current-execution-state')\nDUR=pathlib.Path('/workspace/e02-B-current-durability')\nOLD='6af060e952ae1561065f2a70668a790f5f6edcd5'\nNEW='6d2cfbfff5d8ca34cc61a95fe751707da4d89f8a'\nPACK='df07c6e7e586f29a990f4b3b2685f2b54e9945f6'\nPREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'\ndef git(repo,*args):return subprocess.check_output(['git','-C',str(repo),*args],stderr=subprocess.DEVNULL)\ndef binding(repo,sha,path):\n b=git(repo,'show',f'{sha}:{path}')\n return {'path':path,'source_sha':sha,'blob_oid':git(repo,'rev-parse',f'{sha}:{path}').decode().strip(),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}\nreview=json.loads((ROOT/'.polisyos/e02-B-current-composition/checkpoint-budget-review/review-draft.json').read_text())\nreview['status']='source_review_nonblocking_finite_profile; independently executed filesystem evidence read and reconciled at6af; delta6d source-only'\nreview['target']['latest_reviewed_source_sha']=NEW\nreview['target']['latest_reviewed_tree_sha']=git(EXE,'rev-parse',NEW+'^{tree}').decode().strip()\npaths=git(EXE,'diff','--name-only',OLD,NEW).decode().splitlines()\nreview['successor_delta']={'base_source_sha':OLD,'source_sha':NEW,'tree_sha':git(EXE,'rev-parse',NEW+'^{tree}').decode().strip(),'complete_paths':paths,'full_diff_sha256':hashlib.sha256(git(EXE,'diff',OLD,NEW)).hexdigest(),'full_diff_bytes':len(git(EXE,'diff',OLD,NEW)),'file_bindings':[{'before':binding(EXE,OLD,p),'after':binding(EXE,NEW,p)} for p in paths],'verdict':'nonblocking source/test-premise delta; no new runtime result at6d claimed','production_delta':'Exactly two typing.cast(\"T\", value) identity wrappers in _run_checkpoint_blocking. AsyncExecutor byte-identical6af. No budget/control-flow change.','test_delta':'The previously entered-head fixture now holds actualos.replace after the canonical prepublication fence, with assertions unchanged. Defining test adds healthy None/2 deadline profiles with actual cold workflow and one actual cancelledoldexecutor→second invocation retaining producer/cache quantity and refusing late head.','source_parametrization_nodes':21,'source_count_qualification':'Source parametrization only; reviewer collection/runtimeUNRUN. Owner affected native runs are separate.','old_test_failure_qualification':'Original fixture FAIL remains an actual observed failure in owner custody; moving the barrier changes the entered-IO premise and is not inherited-failure waiver.'}\nreceipt_path=PREFIX+'current-checkpoint-deadline-independent-candidate.json'\nreceipt_bytes=git(DUR,'show',f'{PACK}:{receipt_path}'); receipt=json.loads(receipt_bytes)\nassert hashlib.sha256(receipt_bytes).hexdigest()=='c981376d269805ed7d09fb95e4cd2f873ae962f8c5db8b369f8f83136c061da4'\nreview['independent_deciding_packet']={'receipt':binding(DUR,PACK,receipt_path),'publication_git_sha':PACK,'publication_tree_sha':git(DUR,'rev-parse',PACK+'^{tree}').decode().strip(),'reviewer_runtime':'UNRUN; these are actual independently executed DUR results','execution_target':OLD,'execution_tree_sha':'017a345c06036f45d06d67eac8701a5c9bcec018','full_checks':receipt['checks'],'artifacts_read_and_reconciled':[],'parsed_actual_quantities':[]}\nfor check in receipt['checks']:\n cell={'id':check['id'],'outcome':check['outcome'],'actual_exit':check['actual_exit'],'counts':check['actual_junit_counts'],'structured_measurements':[],'junit_cases':[]}\n paths=[check['output'],check['xml']['path'],check['wrapper']['path']]\n for p in paths:\n  b=git(DUR,'show',f'{PACK}:{p}')\n  expected=check['output_sha256'] if p==check['output'] else check['xml']['sha256'] if p==check['xml']['path'] else check['wrapper']['sha256']\n  assert hashlib.sha256(b).hexdigest()==expected,p\n  review['independent_deciding_packet']['artifacts_read_and_reconciled'].append(binding(DUR,PACK,p))\n raw=git(DUR,'show',f\"{PACK}:{check['output']}\").decode()\n for line in raw.splitlines():\n  m=re.match(r'^[.FE]*CHECKPOINT_(?:HEALTHY|BUDGET|SHORT)_ORACLE=(\\{.*\\})$',line)\n  if m:cell['structured_measurements'].append(json.loads(m.group(1)))\n xml=ET.fromstring(git(DUR,'show',f\"{PACK}:{check['xml']['path']}\"))\n for tc in xml.iter('testcase'):\n  fail=tc.find('failure'); err=tc.find('error'); skip=tc.find('skipped')\n  cell['junit_cases'].append({'name':tc.attrib['name'],'classname':tc.attrib.get('classname'),'outcome':'FAIL' if fail is not None else 'ERROR' if err is not None else 'SKIP' if skip is not None else 'PASS','failure_message':fail.attrib.get('message') if fail is not None else None})\n assert len(cell['junit_cases'])==check['actual_junit_counts']['cases']\n review['independent_deciding_packet']['parsed_actual_quantities'].append(cell)\nreview['runtime_and_controls']={'reviewer_runtime':'UNRUN; source/Git/output-data reads only','actual_independent_DUR_target':OLD,'positive':'Unchangedfc29935sactualhead underoriginal60s returnsok, freshCAS answer7/completedanswer/producer1; physicalcomplete35.246s/return35.242s, zero workers/reservations atreturn. Separate full wrapperwall47.069s includes pytest/import overhead.','short':'Unchanged6419 sixcasesPASS:healthy, enteredimmutableartifactexpiry(nohead), head-tempfsyncdeadline/cancel(nohead), ontimehead withlate return(headverified/noGC/noACK), blockedGCread(history4unchanged). Actual enteredworker/reservation1 atreturn→0afterrealdelegate.','removal':'Remove workflowbudget assignment only:1materialFAIL hidden30 returns30.054s thenphysical35.028s/freshverifiedlatehead. Remove twohead guards only:2materialFAIL deadline/cancel lateheadreplace0→1/freshanswer7. Remove twohistorywriterguards only:1materialFAIL actualhistory4→2afterexpiry. Selected property-removal diagnostic cases are not a full native denominator.','qualification':'Positive/removal exactsources and executableAST overlays recorded by DUR; disk modulehashes identify base source, not changed executable functions. Removalfixtures /tmp tmpfs do not prove powerloss/physicaldiskdurability. No actual6d runtime is relabeled from6af.','source_projection_delta':'6d production adds only two typing.cast identity wrappers; source review supports same finite control flow, while actual executed result remains bound6af.'}\nreview['remaining_existing_fixture_observation']={'target_source_sha':NEW,'path':'policy-engine/tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py','test':'test_suppressed_checkpoint_cancellation_cannot_admit_new_owner_publication','source_only_observation':'Hook pauses BEFORE canonical syncCAS delegation; after suppressing cancellation, asyncio.to_thread copies original budget into real.on_node_complete, whose guard refusesnot_admitted. Currentfixture expects physically_completed/headpresent/unknown. That source premise is different from admittedos.replace. No runtimeFAIL is asserted by reviewer; owner running affected file determines actual result.','required_action_if_reproduced':'Retain actual native output and correct pre-admission negative assertions without loosening original-owner guard; preserve actualnodeartifact/producerquantity/nofinalACK. Root/EXE own correction.'}\nreview['next_owner']='EXE/root settle actual affected-native outputs and any precise fixture-premise delta; root owns README/generated companion and next exact frozen cohort/gates. Independent DUR packet establishes finite filesystem quantities at6af, not formal finding closure.'\nscript=pathlib.Path(__file__).read_bytes()\nreview['completion_builder']={'argv':[sys.executable,str(pathlib.Path(__file__).resolve())],'path':str(pathlib.Path(__file__).resolve()),'bytes':len(script),'sha256':hashlib.sha256(script).hexdigest(),'literal':script.decode(),'qualification':'Read-only Git/nativeartifact parsing and writing one ignored metadata draft; no tests or gates rerun.'}\nout=ROOT/'.polisyos/e02-B-current-composition/checkpoint-budget-review/completed-review.json';out.write_text(json.dumps(review,ensure_ascii=False,indent=2)+'\\n')\nprint(json.dumps({'path':str(out),'bytes':out.stat().st_size,'sha256':hashlib.sha256(out.read_bytes()).hexdigest(),'checks':len(receipt['checks']),'artifacts':len(review['independent_deciding_packet']['artifacts_read_and_reconciled'])}))\n",
+    "qualification": "Read-only Git/nativeartifact parsing and writing one ignored metadata draft; no tests or gates rerun."
+  }
+}

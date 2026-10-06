@@ -1,0 +1,86 @@
+{
+  "source_sha": "d5ae668fe6079bfa81bd7448aa911fa4bee4e03b",
+  "source_tree": "299a64a56f84ae9ce0044032dba78f014ceec60e",
+  "scope": "Historical initial setup only; root style correction requires new archives before deciding native wave. Native UNRUN.",
+  "wheel_build_metadata": [
+    {
+      "path": "policy_engine-0.1.0.dist-info/METADATA",
+      "bytes": 16142,
+      "sha256": "9c60525985478039e536eb224db24baf07b777496ede5b8bcfe260ea87346ae3",
+      "metadata_headers": [
+        "Name: policy-engine",
+        "Version: 0.1.0",
+        "Requires-Python: <3.15,>=3.14"
+      ]
+    },
+    {
+      "path": "policy_engine-0.1.0.dist-info/WHEEL",
+      "bytes": 87,
+      "sha256": "5b77e4a649bbfb07fdbc123967eeecd1e5a478cfaca6eefc23c35e6fdf037848",
+      "metadata_headers": [
+        "Wheel-Version: 1.0",
+        "Generator: hatchling 1.32.4",
+        "Root-Is-Purelib: true",
+        "Tag: py3-none-any"
+      ]
+    }
+  ],
+  "explicit_build_interpreter": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+  "build_argv": [
+    [
+      "uv",
+      "build",
+      "--python",
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "--wheel",
+      "--sdist",
+      "--out-dir",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae/dist-source"
+    ],
+    [
+      "uv",
+      "build",
+      "--python",
+      "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+      "--wheel",
+      "--out-dir",
+      "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae/dist-rebuilt"
+    ]
+  ],
+  "sites": {
+    "wheel": {
+      "literal_pth_files": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae/wheel-env/lib/python3.14/site-packages/_virtualenv.pth",
+          "bytes": 18,
+          "sha256": "69ac3d8f27e679c81b94ab30b3b56e9cd138219b1ba94a1fa3606d5a76a1433d",
+          "complete_contents": "import _virtualenv"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae/wheel-env/lib/python3.14/site-packages/e02_readonly_dependencies.pth",
+          "bytes": 84,
+          "sha256": "1d5408e0780e51f5ef971a8d6efa8093b4e709710a2dcfd3a0bc243e9f0725a3",
+          "complete_contents": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages\n"
+        }
+      ],
+      "product_python_not_launched": true
+    },
+    "sdist": {
+      "literal_pth_files": [
+        {
+          "path": "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae/sdist-env/lib/python3.14/site-packages/_virtualenv.pth",
+          "bytes": 18,
+          "sha256": "69ac3d8f27e679c81b94ab30b3b56e9cd138219b1ba94a1fa3606d5a76a1433d",
+          "complete_contents": "import _virtualenv"
+        },
+        {
+          "path": "/tmp/e02-F-continuation-20261006/api/installed-final-d5ae/sdist-env/lib/python3.14/site-packages/e02_readonly_dependencies.pth",
+          "bytes": 84,
+          "sha256": "1d5408e0780e51f5ef971a8d6efa8093b4e709710a2dcfd3a0bc243e9f0725a3",
+          "complete_contents": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/lib/python3.14/site-packages\n"
+        }
+      ],
+      "product_python_not_launched": true
+    }
+  }
+}

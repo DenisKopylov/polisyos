@@ -159,7 +159,7 @@
       "no P41 inherited red waiver because full gate denominator intersects B"
     ]
   },
-  "predicate_basis": "independently_reconciled execution accounting only",
+  "predicate_basis": "independently_reconciled",
   "capability_state_or_finding_state": "8executedFAIL; all product/served closure unestablished from this accounting. No self-review or new source-acceptance verdict.",
   "gate_observations": [
     {
@@ -1370,5 +1370,6 @@
     "bytes": 695,
     "sha256": "99316c6b9f1593e122b6b6f9c4c1f70b2fee32b3c2129b41275408152cee9686"
   },
-  "publication": "Audit packet implementation commit first, this handoff separately. No production/test byte delta from03e52."
+  "publication": "Audit packet implementation commit first, this handoff separately. No production/test byte delta from03e52.",
+  "predicate_scope": "Execution accounting only; no ownmechanism/source acceptance or servedclosure."
 }

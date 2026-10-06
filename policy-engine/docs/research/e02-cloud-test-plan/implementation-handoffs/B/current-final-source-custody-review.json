@@ -1,0 +1,294 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-final-source-custody-review",
+  "owner": "CAS leaf independent metadata audit; ROOT final source/gates owned separately",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "02a2826ed20d53b7e04a6664a77603ab723feb76",
+  "implementation_commits": [
+    "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0"
+  ],
+  "candidate_tree_sha": "a04849691cf3bb3e8efd694886f19c3272a8349a",
+  "branch": "codex/e02-B-current-cas-generation",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/42",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/active-receipts.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/artifact-index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/audit-companions.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/audit-explicit-graph.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/audit-source.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/companion-full-stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/graph-full-stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/initial-parser-full-stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/initial-parser-full-stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/scope-qualification.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/source-full-stdout.json"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "name": "full-tracked-source-custody",
+      "command": [
+        "python3",
+        ".polisyos/source-custody-audit/driver.py",
+        "--source",
+        "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "--out",
+        ".polisyos/source-custody-audit/final1862"
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "execution_kind": "stdlib/Git immutable source/metadata only; no product imports, native/test/collection/generator/gate",
+        "metadata_execution_checkout_head": "02a2826ed20d53b7e04a6664a77603ab723feb76",
+        "reviewed_ROOT_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "source_binding": "Actual metadata checkout was02a2826; inspected target1862 immutable Git. Literal instruments later committed unchanged; source/test/root HEAD never mutated."
+      },
+      "input_closure": {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "published_slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "literal_executed_metadata_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/audit-source.py.txt",
+          "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+          "bytes": 14984,
+          "sha256": "d63df61f9393c83394bed33465f4dbc91e82eea0886d4738feabb14e1775cc6c"
+        },
+        "explicit_active_scope": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/active-receipts.json",
+          "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+          "bytes": 1383,
+          "sha256": "fbae0c3467a6dc0ccbe16b25dfdadb1a5047de9b42d691257c197192dc30b697"
+        },
+        "input_role_limits": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/scope-qualification.json",
+          "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+          "bytes": 10432,
+          "sha256": "2be6772283354ea393534a9a950bfbce965fc1aad6640629cc84ccc8589c8452"
+        },
+        "reference_scope": "Full immutable Git tree/diff/history and explicitly source-bound receipt/evidence objects. Source-derived full3332path tables remain ignored locators/hashes; literal instrument recomputes them. No product-runtime or receiver raw availability proof."
+      },
+      "outcome": "PASS finite source/metadata correspondence with historical and receiver-availability limits preserved",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/source-full-stdout.json",
+        "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+        "bytes": 14857,
+        "sha256": "6354e324faa75972f2937e8c9a5bb8b17dfd4f0932362506f88ade7a7e27388a"
+      }
+    },
+    {
+      "name": "explicit-current-evidence-index-closure",
+      "command": [
+        "python3",
+        ".polisyos/source-custody-audit/evidence_graph.py",
+        "--source",
+        "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "--receipts",
+        ".polisyos/source-custody-audit/active-receipts-final1862.json",
+        "--out",
+        ".polisyos/source-custody-audit/final1862-graph-closure"
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "execution_kind": "stdlib/Git immutable source/metadata only; no product imports, native/test/collection/generator/gate",
+        "metadata_execution_checkout_head": "02a2826ed20d53b7e04a6664a77603ab723feb76",
+        "reviewed_ROOT_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "source_binding": "Actual metadata checkout was02a2826; inspected target1862 immutable Git. Literal instruments later committed unchanged; source/test/root HEAD never mutated."
+      },
+      "input_closure": {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "published_slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "literal_executed_metadata_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/audit-explicit-graph.py.txt",
+          "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+          "bytes": 7446,
+          "sha256": "c4c5f8f2916d6379ff07a6901c8f5e4c747dcc6cb73cdb5c96c6532dbbd6471c"
+        },
+        "explicit_active_scope": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/active-receipts.json",
+          "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+          "bytes": 1383,
+          "sha256": "fbae0c3467a6dc0ccbe16b25dfdadb1a5047de9b42d691257c197192dc30b697"
+        },
+        "input_role_limits": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/scope-qualification.json",
+          "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+          "bytes": 10432,
+          "sha256": "2be6772283354ea393534a9a950bfbce965fc1aad6640629cc84ccc8589c8452"
+        },
+        "reference_scope": "Full immutable Git tree/diff/history and explicitly source-bound receipt/evidence objects. Source-derived full3332path tables remain ignored locators/hashes; literal instrument recomputes them. No product-runtime or receiver raw availability proof."
+      },
+      "outcome": "PASS finite source/metadata correspondence with historical and receiver-availability limits preserved",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/graph-full-stdout.json",
+        "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+        "bytes": 27976,
+        "sha256": "82ba18aca79681ad75d5de8e70766db41f4748808747a15eea74c8db4086f419"
+      }
+    },
+    {
+      "name": "nonresearch-companions-tests-tools-release",
+      "command": [
+        "python3",
+        ".polisyos/source-custody-audit/final-companions.py"
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "execution_kind": "stdlib/Git immutable source/metadata only; no product imports, native/test/collection/generator/gate",
+        "metadata_execution_checkout_head": "02a2826ed20d53b7e04a6664a77603ab723feb76",
+        "reviewed_ROOT_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "source_binding": "Actual metadata checkout was02a2826; inspected target1862 immutable Git. Literal instruments later committed unchanged; source/test/root HEAD never mutated."
+      },
+      "input_closure": {
+        "source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "source_tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+        "published_slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "literal_executed_metadata_instrument": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/audit-companions.py.txt",
+          "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+          "bytes": 5040,
+          "sha256": "788184eae8bb9e911d18b6c1e2f5fb511607fc26fd6e81468743f3787cd5c65c"
+        },
+        "explicit_active_scope": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/active-receipts.json",
+          "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+          "bytes": 1383,
+          "sha256": "fbae0c3467a6dc0ccbe16b25dfdadb1a5047de9b42d691257c197192dc30b697"
+        },
+        "input_role_limits": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/scope-qualification.json",
+          "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+          "bytes": 10432,
+          "sha256": "2be6772283354ea393534a9a950bfbce965fc1aad6640629cc84ccc8589c8452"
+        },
+        "reference_scope": "Full immutable Git tree/diff/history and explicitly source-bound receipt/evidence objects. Source-derived full3332path tables remain ignored locators/hashes; literal instrument recomputes them. No product-runtime or receiver raw availability proof."
+      },
+      "outcome": "PASS finite source/metadata correspondence with historical and receiver-availability limits preserved",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/companion-full-stdout.json",
+        "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+        "bytes": 3892,
+        "sha256": "5ed686d06b792e12f131e6190d0770eb2af92b60c2b6a0e238c0f89dd431a163"
+      }
+    },
+    {
+      "name": "retained-first-generic-parser-projection",
+      "command": [
+        "python3",
+        ".polisyos/source-custody-audit/evidence_graph.py",
+        "--source",
+        "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "--receipts",
+        ".polisyos/source-custody-audit/active-receipts-final1862.json",
+        "--out",
+        ".polisyos/source-custody-audit/final1862-graph"
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation",
+        "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+        "execution_kind": "stdlib/Git immutable source/metadata only; no product imports, native/test/collection/generator/gate",
+        "metadata_execution_checkout_head": "02a2826ed20d53b7e04a6664a77603ab723feb76",
+        "reviewed_ROOT_source_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+        "source_binding": "Actual metadata checkout was02a2826; inspected target1862 immutable Git. Literal instruments later committed unchanged; source/test/root HEAD never mutated."
+      },
+      "input_closure": {
+        "scope": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/active-receipts.json",
+          "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+          "bytes": 1383,
+          "sha256": "fbae0c3467a6dc0ccbe16b25dfdadb1a5047de9b42d691257c197192dc30b697"
+        },
+        "qualification": "Initial generic parser version predates alias and annotated@SHA fixes. Original exact instrument version not persisted; independently exact replay not_established. Complete observed outputs remain; no product/source/runtime defect inferred."
+      },
+      "outcome": "NOT_ESTABLISHED initial projection;41unavailable projections were parser limitations, corrected by reading explicit declared aliases; no product execution",
+      "output": {
+        "full_stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/initial-parser-full-stdout.json",
+          "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+          "bytes": 44754,
+          "sha256": "a1af8775fd2b1bb9f4c07407c3fc174ed1e29cf684bb8f5ee452e4120f2e764b"
+        },
+        "full_stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/initial-parser-full-stderr.txt",
+          "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+          "bytes": 7345,
+          "sha256": "89680b26351242a430653643ee4c4216a5b1646d7fa6b3056a3afe6535de1d61"
+        }
+      }
+    }
+  ],
+  "property": {
+    "statement": "The frozen current ROOT source and selected acceptance packets have exact source/byte/history/mandatory-companion custody, with explicit historical schema debt, shared operational-role basis, and unresolved raw availability; no static or historic runtime outcome is promoted to final closure.",
+    "runtime_path": [
+      "Immutable198\u21921862Git full3332tracked-path diff/objects\u2192complete category/filetype/ancestry/protected-byte census",
+      "Complete54production.py+4generated.pyi histories\u2192canonical declared writer-family/source correspondence",
+      "Complete188nonresearch paths\u2192test/helper/tool/README/release/generated/publicexport metadata",
+      "21explicit current receipt roots\u2192mandatory fields\u21927recursive evidence indices\u2192968Git objects20061166B fullhash/byte joins",
+      "Currentactual generated companion597 and comparatorb7 source/input bytes\u2192final1862projection only; actual ROOT executions retained elsewhere"
+    ],
+    "proxy_divergence": "A clean HEAD, declared changed_paths, or a copied PASS label can coexist with a wrong source/ref/output or an interleaved implementation timeline. Full Git-object/complete-tree joins inspect actual bytes; explicit26path four-commit generated union differs from285path interleaved checkout projection without concealing either. Rooted index hashes are not receiver availability for61named raw/baseline locators, and fields do not establish runtime behavior.",
+    "negative_controls": [
+      "Initial literal last-tip footprint projection reports9discrepancy rows rather than silently treating declared path count as full branch diff; current generated companion exact union separately verified and other historical timelines stay qualified.",
+      "Whole139canonicalHANDOFF scan reports44historical schema-defect records while selected21current packets have0defects. The former is not waived or relabeled current accepted.",
+      "First generic explicit-ref parser104unresolved/41false unavailable projections fully preserved. Final generic parsing of declared sha/receipt_sha/output_git_sha/@SHA aliases resolves actual Git refs; no product failure or fabricated replay claimed.",
+      "61raw/baseline availability rows stay not_established despite canonical shape/hash claims; author does not accept own CAS implementation or G/root finding closures."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "per_premise_basis": {
+    "immutable_source_tree_diff_protected_bytes_refs_indices_hashes_and_mandatory_shapes": "independently_reconciled",
+    "canonical_mechanism_family_declared_role_correspondence": "independently_reconciled Git/receipt data; no independent historical lease/editor attestation",
+    "8ROOT_operational_test_doc_roles": "consumer_asserted session affirmation after exact Git header/delta inspection; not institutional owner grant",
+    "raw_receiver_availability_full_runtime_gate_outcome_or_P41_inheritance": "not_established",
+    "final_findings_semantic_authority_and_own_CAS_behavior_acceptance": "not_established by this metadata review"
+  },
+  "capability_state_or_finding_state": "NONBLOCKING finite frozen-source/evidence-custody review. CurrentROOT runtime/gates still separate; closure_ids empty.",
+  "limitations_and_next_owner": [
+    "ROOT HEAD1862 must remain frozen during deciding waves; this docs-only topic is not to be merged into ROOT until terminal.",
+    "No native/test/gate/collection/generator execution, production source edits, helper agents, worktrees, service/cleanup action, or private DSN/token access in this audit.",
+    "P41 inheritance NOT_ESTABLISHED: no native base replay/zero complete input-intersection proof. Required source inputs intersect the current change set.",
+    "44historical schema-debt receipts remain explicit and unaccepted by this audit. Selected21 is an explicit current-packet scope, not a blanket139-record readiness claim.",
+    "61raw/baseline references lack established receiver availability; baseline execution source/env/context adjudication remains ROOT/DUR/G, never inferred from raw paths.",
+    "Historical operational edit/lease timeline is not established by canonical family/commit-role correspondence. Eight ROOT source-independent test/doc roles are separately consumer_asserted session information.",
+    "Protected A/C byte equality does not establish their runtime consumers accept B contracts. B148law remains held; B154signature all-confirmations A publisher remains missing until actual owner integration.",
+    "Source-cap scan is finite literal172paths with6fixture/fault hits; historical135research .py witnesses are not live profiles. Pattern absence is not dynamic absence or native CLI equivalence proof.",
+    "FinalROOT native/gates/wheel source-qualified outputs and all60 formal adjudication remain next owners; own CAS author has no self-acceptance role here."
+  ],
+  "evidence_index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/artifact-index.json",
+    "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+    "bytes": 3056,
+    "sha256": "a21a24ae4751e885f203afd04241a1d42383a3ab84710042dfd4e3b2ceb1bae9"
+  },
+  "source_changed_paths": [],
+  "test_paths": [],
+  "review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/review.json",
+    "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+    "bytes": 3535,
+    "sha256": "3a0ce4a0a151d23c63e11fac367e82dfbf9711d2f164756fcd6f4e2adbdd182c"
+  },
+  "current_ROOT_source_target": {
+    "sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36"
+  },
+  "source_and_input_scope": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-source-custody-review/scope-qualification.json",
+    "commit": "ac51e7bb6b7083ebfb10da552acde0d98c37a9e0",
+    "bytes": 10432,
+    "sha256": "2be6772283354ea393534a9a950bfbce965fc1aad6640629cc84ccc8589c8452"
+  }
+}

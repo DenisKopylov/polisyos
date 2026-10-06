@@ -1,0 +1,415 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-durability-settlement",
+  "closure_ids": [],
+  "bundle_ids": [
+    "DUR-01",
+    "DUR-02"
+  ],
+  "slice_base_sha": "80d39780d72ea2d431df9470674ed0e4d703587f",
+  "implementation_commits": [
+    "7b39150b0843b26138fa684b21541cfb1058761a",
+    "2c52e1fe747627b227b5695e578b800cb7eade8b"
+  ],
+  "candidate_tree_sha": "9898e7ae4b7ec3a403b9a2e91cbcc7dcc475537c",
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-budget-ledger-admission.toml",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P139",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+      "state": "PASS",
+      "collected": "1",
+      "calls": "1",
+      "call_pass": "1",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "1.71",
+      "rss_kib": "93548",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "256",
+      "extra_json": "{}"
+    }
+  ],
+  "baseline_resolution_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/bootstrap/baseline-navigation.json",
+  "checks": [
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q --basetemp=../.polisyos/e02-B-current-durability/tmp/B66-frozen-2c52 --junitxml=../.polisyos/e02-B-current-durability/raw/B66-frozen-2c52.xml tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/mirror_contracts/test_budget_ledger.py",
+      "target_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "pydantic": "2.12.5",
+        "PYTHONPATH": "src",
+        "cwd": "/workspace/e02-B-current-durability/policy-engine",
+        "modules": [
+          {
+            "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+            "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+          },
+          {
+            "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+            "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+          }
+        ]
+      },
+      "input_closure": "Complete 4 native files; real subprocess missing-bootstrap/sparse-wire/live-middleware, actual fsync/replace/SIGKILL before/after publication, four writer processes and one reader, same-event four-producer settlement, immutable charge identity/unknown ACK/fresh reopen, known1.0 migration and unsupported marker refusal. No production data/external services.",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-frozen-2c52.txt",
+        "sha256": "e96cbb43edf5144d3bbd20d06cf0df8893099281d0c00886e7ef6a62d7a71043",
+        "bytes": 180
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-frozen-2c52.xml",
+        "sha256": "62eace254f06e156a05dd402960322ec570fdfc0c97fdd0330c6b92adcf1cd1d",
+        "bytes": 17726
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-frozen-2c52.json",
+        "sha256": "e7d703a4f1394dbf862fdc1026b679a8f19ac01a254b31b36a17422ccbc562eb",
+        "bytes": 2326
+      },
+      "deciding_output": {
+        "tests": 95,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m pytest -o addopts= -q --basetemp=../.polisyos/e02-B-current-durability/tmp/DUR02-existing-2c52 --junitxml=../.polisyos/e02-B-current-durability/raw/DUR02-existing-2c52.xml tests/unit/remediation/test_dur_02.py tests/unit/runtime/http/test_control_plane_store.py tests/unit/runtime/http/test_acquisition_control_worker.py tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py",
+      "target_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "pydantic": "2.12.5",
+        "PYTHONPATH": "src",
+        "cwd": "/workspace/e02-B-current-durability/policy-engine",
+        "modules": [
+          {
+            "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+            "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+          },
+          {
+            "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+            "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+          }
+        ]
+      },
+      "input_closure": "Complete 4 native existing consumer files using temporary SQLite control-plane store, actual ControlWorker dispatch/fence and fallback typed/mocked collaborator cases. New handler-expiry/persisted-primary-effect finite probes still pending; no external service status/idempotency invented.",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/DUR02-existing-2c52.txt",
+        "sha256": "e11b52e689a854972e7bbf502be69ca1d8e6526b4b0804f29d286c36a2b1d2b4",
+        "bytes": 180
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/DUR02-existing-2c52.xml",
+        "sha256": "0c3a7c40154d0815a914fccedac768eb34aee6239c96950b3d0b604f1ab9b606",
+        "bytes": 15899
+      },
+      "wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/DUR02-existing-2c52.json",
+        "sha256": "03bc1d25d90d3c200c404110673d022f24bafe150e131626f20fba08b0193534",
+        "bytes": 2238
+      },
+      "deciding_output": {
+        "tests": 91,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "command": "PYTHONPATH=policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python .polisyos/e02-B-current-durability/settlement_removal.py control .polisyos/e02-B-current-durability/tmp/B66-property-control-pinned.json",
+      "target_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "pydantic": "2.12.5",
+        "PYTHONPATH": "policy-engine/src",
+        "cwd": "/workspace/e02-B-current-durability",
+        "modules": [
+          {
+            "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+            "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+          },
+          {
+            "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+            "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+          }
+        ],
+        "child_PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src",
+        "child_source_origin_asserted": true
+      },
+      "input_closure": "Exact canonical ledger byte-for-byte@2c52; same real filesystem workload and fresh subprocess reopen. Removal changes exactly existing = snapshot.spend_receipts.get(event_id) to existing = None in one isolated in-memory execution overlay; no source/worktree edit. Digest, event, charge and all writer/backend operations retained. Unique isolated ledger path per mode.",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-property-control-pinned.txt",
+        "sha256": "51d1272c513e1ac27788fd047972681ad9b5aca593000f411538d11344aa4f1b",
+        "bytes": 2475
+      },
+      "driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+        "sha256": "aaca0830027093fceac650e2b247074fc2db102a35c28d9e84809bb646242b88",
+        "bytes": 2670
+      },
+      "deciding_output": "exact retry spends2/revision1/originalreceipt"
+    },
+    {
+      "command": "PYTHONPATH=policy-engine/src /workspace/polisyos/policy-engine/.venv/bin/python .polisyos/e02-B-current-durability/settlement_removal.py removal .polisyos/e02-B-current-durability/tmp/B66-property-removal-pinned.json",
+      "target_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "pydantic": "2.12.5",
+        "PYTHONPATH": "policy-engine/src",
+        "cwd": "/workspace/e02-B-current-durability",
+        "modules": [
+          {
+            "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+            "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+          },
+          {
+            "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+            "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+          }
+        ],
+        "child_PYTHONPATH": "/workspace/e02-B-current-durability/policy-engine/src",
+        "child_source_origin_asserted": true
+      },
+      "input_closure": "Exact canonical ledger byte-for-byte@2c52; same real filesystem workload and fresh subprocess reopen. Removal changes exactly existing = snapshot.spend_receipts.get(event_id) to existing = None in one isolated in-memory execution overlay; no source/worktree edit. Digest, event, charge and all writer/backend operations retained. Unique isolated ledger path per mode.",
+      "outcome": "FAIL_expected_property_removal",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-property-removal-pinned.txt",
+        "sha256": "296ee52d4fa238be95328f994330bf9ef87bd8e8f517d1de285554a619148845",
+        "bytes": 2892
+      },
+      "driver": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+        "sha256": "aaca0830027093fceac650e2b247074fc2db102a35c28d9e84809bb646242b88",
+        "bytes": 2670
+      },
+      "deciding_output": "material assertion failure: same event spent4/revision2/receipt overwritten; full actual reopen snapshot retained"
+    },
+    {
+      "command": "/workspace/polisyos/policy-engine/.venv/bin/python -m ruff check src/polisyos/scientist/orchestration/engine/budget_ledger.py src/polisyos/scientist/orchestration/engine/budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py; /workspace/polisyos/policy-engine/.venv/bin/python -m ruff format --check same five exact paths",
+      "target_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+      "environment": {
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "python": "3.14.2",
+        "pydantic": "2.12.5",
+        "PYTHONPATH": "src",
+        "cwd": "/workspace/e02-B-current-durability/policy-engine",
+        "modules": [
+          {
+            "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+            "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f"
+          },
+          {
+            "path": "/workspace/e02-B-current-durability/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+            "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0"
+          }
+        ]
+      },
+      "input_closure": "Exact five listed source/test files@2c52, no other scanner/typecheck claim.",
+      "outcome": "PASS",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-frozen-ruff.txt",
+        "sha256": "cd7f41cf1ad5ba8b6263217889865f18d2b85df5ad631a05d6d321f51fd1b7b2",
+        "bytes": 45
+      }
+    }
+  ],
+  "property": {
+    "statement": "Local durable producer event ID/payload/key/amount/provider links atomically to one spend and persisted acknowledgment independently of bounded mutation history; ambiguous acknowledgment is unknown, resolved or retried with the same event identity. Strict known wire intake and explicit bootstrap remain shared with all accounting consumers.",
+    "runtime_path": [
+      "actual BudgetMiddleware settlement_owner_identity/settle_spend_safe/resolve_spend_safe",
+      "actual FileBudgetLedger stable POSIX lock + complete strict snapshot",
+      "one atomic persisted spend + append-only receipt index + bounded mutation journal",
+      "same-directory private temp write/fsync/replace/directory fsync",
+      "fresh source-origin-asserted actual subprocess reopen and producer retries"
+    ],
+    "proxy_divergence": "Provider success or a bounded mutation journal entry does not establish delivered durable accounting ACK. Exact event receipt survives journal eviction; filesystem publication error can leave old or new state and must not become zero cost.",
+    "negative_controls": [
+      "same event differing digest/key/amount/provider refuses unchanged bytes",
+      "required receipt/index deletion and foreign declared wire identity refuse all real inlets",
+      "fsync/replace before publication, directory-fsync failure and SIGKILL after replace; fresh resolve gives no receipt or actual receipt, same-ID retry spends once",
+      "actual code dedup lookup removal causes material double spend on identical filesystem workload"
+    ],
+    "positive_controls": [
+      "known complete1.0 record strict read then atomic1.1 upgrade",
+      "nullable provider omission valid",
+      "four concurrent middleware producers return original exact ACK/spend2 once",
+      "journal eviction + process reopen retains original ACK",
+      "explicit unlimited bootstrap remains valid; cold raw settlement refuses missing bootstrap"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "B37 full finite process/publication controls verified; B66 ledger interface ready for owner producer integration; B38/B78 final consumer probes continue; no formal closure.",
+  "finding_dispositions": [
+    {
+      "finding_id": "B37",
+      "bundle_id": "DUR-01",
+      "source_status": "partial",
+      "status": "limited",
+      "mechanism": "strict_explicit_bootstrap_and_actual_process_publication_verified",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-frozen-2c52.txt",
+          "sha256": "e96cbb43edf5144d3bbd20d06cf0df8893099281d0c00886e7ef6a62d7a71043",
+          "bytes": 180
+        }
+      ],
+      "residuals": [
+        "Physical power loss, remote/shared filesystem semantics, forged valid accounting content and deployed factory reachability unestablished",
+        "Raw record_spend still has no event identity; idempotent settlement applies only to supplied immutable producer event IDs"
+      ],
+      "next_owner": "B root independent oracle/review and G formal acceptance"
+    },
+    {
+      "finding_id": "B38",
+      "bundle_id": "DUR-02",
+      "source_status": "partial",
+      "status": "limited",
+      "mechanism": "existing_actual_store_worker_regression_controls_preserved; complete handler-expiry consumer probe pending",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/DUR02-existing-2c52.txt",
+          "sha256": "e11b52e689a854972e7bbf502be69ca1d8e6526b4b0804f29d286c36a2b1d2b4",
+          "bytes": 180
+        }
+      ],
+      "residuals": [
+        "Current-handler expiry and complete/fail/progress finite extension next; no arbitrary external side-effect exactly-once guarantee"
+      ],
+      "next_owner": "B durability continuation"
+    },
+    {
+      "finding_id": "B78",
+      "bundle_id": "DUR-02",
+      "source_status": "partial",
+      "status": "limited",
+      "mechanism": "typed_primary_outcome_unknown_preserved; persisted-effect typed collaborator probe pending",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/DUR02-existing-2c52.txt",
+          "sha256": "e11b52e689a854972e7bbf502be69ca1d8e6526b4b0804f29d286c36a2b1d2b4",
+          "bytes": 180
+        }
+      ],
+      "residuals": [
+        "No real external idempotency/status contract; no fabricated reconciliation/resumption authority"
+      ],
+      "next_owner": "B durability continuation; G with genuine external contract"
+    }
+  ],
+  "cross_owner_contracts": [
+    {
+      "finding_id": "B66",
+      "owner": "B adapters writer",
+      "role": "ledger accounting bridge only, not duplicate assigned finding disposition",
+      "candidate_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+      "api": "BudgetMiddleware.settlement_owner_identity tuple(persisted ledger_id,canonical_contract,coordination_mode); settle_spend_safe(event_id,key,Decimal,*,payload_digest=sha256,provider=None)->BudgetLedgerSpendReceipt; resolve_spend_safe(event_id)->receipt|None; BudgetLedgerSettlementOutcomeUnknownError(event_id,payload_digest)",
+      "residuals": [
+        "Producer-owned LLM completion/cancel and cache publication/follower integration belongs adapter writer",
+        "Receipt is local recorded accounting only; missing ACK/readback failure remains unknown, never external zero cost",
+        "Receipt index retention is unbounded intentionally; retirement needs a separate retention/identity law"
+      ]
+    }
+  ],
+  "independent_review": {
+    "status": "pending",
+    "owner": "B root independent reviewer",
+    "candidate_sha": "2c52e1fe747627b227b5695e578b800cb7eade8b",
+    "earlier_independent_wire_oracle": "root2e66535a6 fixed explicit23paths, new1.1 required receipt fields need source-pinned current review"
+  },
+  "evidence_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-frozen-2c52.json",
+      "sha256": "e7d703a4f1394dbf862fdc1026b679a8f19ac01a254b31b36a17422ccbc562eb",
+      "bytes": 2326
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-frozen-2c52.txt",
+      "sha256": "e96cbb43edf5144d3bbd20d06cf0df8893099281d0c00886e7ef6a62d7a71043",
+      "bytes": 180
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-frozen-2c52.xml",
+      "sha256": "62eace254f06e156a05dd402960322ec570fdfc0c97fdd0330c6b92adcf1cd1d",
+      "bytes": 17726
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-frozen-ruff.txt",
+      "sha256": "cd7f41cf1ad5ba8b6263217889865f18d2b85df5ad631a05d6d321f51fd1b7b2",
+      "bytes": 45
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-property-control-pinned.txt",
+      "sha256": "51d1272c513e1ac27788fd047972681ad9b5aca593000f411538d11344aa4f1b",
+      "bytes": 2475
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-property-removal-pinned.txt",
+      "sha256": "296ee52d4fa238be95328f994330bf9ef87bd8e8f517d1de285554a619148845",
+      "bytes": 2892
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/B66-source-origin.json",
+      "sha256": "f81328be3f0d75b1d6e90a3bcb55b6b4ba73222168fd96ee204b618fd19e63d4",
+      "bytes": 682
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/DUR02-existing-2c52.json",
+      "sha256": "03bc1d25d90d3c200c404110673d022f24bafe150e131626f20fba08b0193534",
+      "bytes": 2238
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/DUR02-existing-2c52.txt",
+      "sha256": "e11b52e689a854972e7bbf502be69ca1d8e6526b4b0804f29d286c36a2b1d2b4",
+      "bytes": 180
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/DUR02-existing-2c52.xml",
+      "sha256": "0c3a7c40154d0815a914fccedac768eb34aee6239c96950b3d0b604f1ab9b606",
+      "bytes": 15899
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+      "sha256": "0d36f842bea61660fd40cbf9bb8faeae993d93f2cb1e512f9f5ebdaf13b54406",
+      "bytes": 2448
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+      "sha256": "aaca0830027093fceac650e2b247074fc2db102a35c28d9e84809bb646242b88",
+      "bytes": 2670
+    }
+  ],
+  "limitations_and_next_owner": [
+    "Generic real filesystem/process/temporary SQLite proof does not require full production data. No power-loss/multihost/billing authority claim.",
+    "Known complete1.0 snapshots read strictly and upgrade on explicit bootstrap/mutation;1.1 receipt index mandatory. Legally omitted nullable fields remain optional. Unsupported schema/contract/coordination markers refuse before normalization.",
+    "Source/test implementation frozen2c52; separate docs handoff does not claim receipt future SHA as executed source. All complete moderate outputs committed; own ignored full nondeciding/precommit logs preserved.",
+    "Initial property-driver control had relative child PYTHONPATH/path mismatch and loaded another checkout; retained raw B66-property-control.txt is nondeciding harness failure. Corrected absolute ledger/childsource root asserted control/removal outputs are deciding.",
+    "Original root admitted /workspace/e02-B-current-admission/durability-{create,resume}.json. No self-created helpers/worktrees. Preserve own isolated test scratch, list cleanup candidates for Trash.",
+    "Continue full DUR02 finite consumer scope on same admitted topic; first finite slice never substitutes for full task."
+  ]
+}

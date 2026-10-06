@@ -1,0 +1,23 @@
+{
+  "schema": "e02.current.slice-base.v1",
+  "created_at": "2026-10-06T09:39:30.404571+00:00",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "branch": "codex/e02-B-current-adapters",
+  "worktree": "/workspace/e02-B-current-adapters",
+  "tracked_status": "",
+  "admission": [
+    {
+      "path": "/workspace/e02-B-current-admission/adapters-create.json",
+      "sha256": "ce7d9d148549b92e739dd8360724d7c6bff7846227ff65f3a0731882a8cf49af",
+      "status": "admitted",
+      "complete_verdict": true
+    },
+    {
+      "path": "/workspace/e02-B-current-admission/adapters-resume.json",
+      "sha256": "4a26c4924d113a7c6867a08e52c5cb85b5619c09318382d2ba52c1af55fe7af1",
+      "status": "admitted",
+      "complete_verdict": true
+    }
+  ]
+}

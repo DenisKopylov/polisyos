@@ -1,0 +1,52 @@
+{
+  "property": "Unrestricted mapping roundtrip is FALSE on this candidate; requested finite string-key/reserved-tag refusal boundary not enforced before acknowledged publication",
+  "module_path": "/workspace/e02-B-current-composition/policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py",
+  "module_sha256": "aa91806324518ac045c3f79d2da6316b912403039ffa53792d61959770eb13b3",
+  "actual_consumers": [
+    {
+      "fixture": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/mapping-consumer-60c58f975c044b2d907ab60e6d3f2410",
+      "case": "integer",
+      "save_acknowledged": true,
+      "selected_pointer_changed": true,
+      "original_key_type": "int",
+      "restored_key": "1",
+      "restored_key_type": "str",
+      "value": [
+        2.0
+      ]
+    },
+    {
+      "fixture": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/mapping-consumer-92aac4238ff7457984d8298503d34fca",
+      "case": "boolean",
+      "save_acknowledged": true,
+      "selected_pointer_changed": true,
+      "original_key_type": "bool",
+      "restored_key": "true",
+      "restored_key_type": "str",
+      "value": [
+        2.0
+      ]
+    },
+    {
+      "fixture": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/mapping-consumer-d0b64d4eb28e4da09ea19097d5e6d92a",
+      "case": "null",
+      "save_acknowledged": true,
+      "selected_pointer_changed": true,
+      "original_key_type": "NoneType",
+      "restored_key": "null",
+      "restored_key_type": "str",
+      "value": [
+        2.0
+      ]
+    },
+    {
+      "fixture": "/workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/mapping-consumer-6004c026db4b49138314dc0b3610fcfc",
+      "case": "reserved_tag",
+      "save_acknowledged": true,
+      "selected_pointer_changed": true,
+      "original_key_type": "str",
+      "consumer_refusal": "CheckpointLoadError",
+      "message": "Failed to load checkpoint at _build/e02-B-current-composition/raw/mapping-consumer-6004c026db4b49138314dc0b3610fcfc/selected.json: Checkpoint sidecar missing: /workspace/e02-B-current-composition/policy-engine/_build/e02-B-current-composition/raw/mapping-consumer-6004c026db4b49138314dc0b3610fcfc/.selected.json.generations/7644ac5cb3f7410ebfb096d1ce6ae706/ordinary user label"
+    }
+  ]
+}

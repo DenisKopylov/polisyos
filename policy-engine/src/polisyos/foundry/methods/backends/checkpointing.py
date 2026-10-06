@@ -9,30 +9,35 @@ skipping already-completed work.
 
 How it works
 ------------
-1. Before executing each node, a checkpoint is written to disk if the node
-   index is a multiple of ``checkpoint_every`` or if this is the last node.
+1. After a successful node, a checkpoint is written if the node index is a
+   multiple of ``checkpoint_every`` or if this is the last node.
 2. On resume, the executor reads the checkpoint, validates the chain digest
    matches, and fast-forwards past already-completed nodes.
-3. The chain digest (SHA-256 of the ordered FQN list) guards against resuming
-   a checkpoint from a different chain definition.
+3. The structural chain digest and effective execution digest guard the
+   compiled plan, parameters, initial state and seed used for the checkpoint.
 
 Checkpoint format
 -----------------
-Each checkpoint is a JSON file containing:
-
-- ``chain_digest``: hex SHA-256 of the execution order FQN list.
-- ``completed_fqns``: list of FQNs completed so far.
-- ``node_results``: list of ``{node_uid, method_fqn, wall_time_ms}`` dicts.
-- ``intermediate_state``: JSON-serialisable state dict after last completed node.
-- ``created_at``: ISO-8601 UTC timestamp.
+The public checkpoint file is an atomic JSON pointer to one immutable UUID
+generation. Its SHA-256 binds the complete snapshot: execution identity,
+completed frontier, state and original per-node result history. NumPy state
+and history arrays live in that generation and carry content, dtype and shape
+bindings. Writers hold one filesystem lock through publication or rollback.
+Existing direct-JSON checkpoints remain readable; resuming them still requires
+the effective execution identity and honest history completeness.
 
 Limitations
 -----------
-- State values must be JSON-serialisable (or numpy arrays, which are
-  serialised as base64-encoded bytes).  Arbitrary Python objects in state
-  will cause a ``CheckpointSerializationError``.
-- NumPy arrays are serialised with ``np.save`` to a companion ``.npy`` sidecar
-  file; the checkpoint JSON contains a ``__npy_ref__`` pointer.
+- State values must be JSON-serialisable or non-object NumPy arrays. Mapping
+  keys must be strings; ``__npy_ref__`` is reserved for array references. Arrays
+  use ``np.save`` sidecars and are loaded without pickle.
+- A parent-directory fsync failure after pointer replacement raises
+  ``CheckpointPublicationUncertainError`` and preserves the visible generation;
+  it does not acknowledge durable success.
+- Retained and interrupted orphan generations are not garbage-collected.
+  Readers and writers must use this API on a local filesystem supporting flock,
+  atomic replacement and directory fsync. Power-loss and hostile filesystem
+  mutation are outside this execution protocol.
 
 Usage
 -----
@@ -56,8 +61,9 @@ import hashlib
 import json
 import logging
 import os
+import shutil
 import time
-from collections.abc import Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -94,6 +100,7 @@ __all__ = [
     "CheckpointError",
     "CheckpointIssue",
     "CheckpointLoadError",
+    "CheckpointPublicationUncertainError",
     "CheckpointSaveError",
     "CheckpointSerializationError",
     "CheckpointingChainExecutor",
@@ -118,6 +125,10 @@ class CheckpointSerializationError(CheckpointError):
 
 class CheckpointSaveError(CheckpointError):
     """Raised when a checkpoint cannot be written atomically."""
+
+
+class CheckpointPublicationUncertainError(CheckpointSaveError):
+    """The new manifest is visible but its directory durability is uncertain."""
 
 
 class CheckpointLoadError(CheckpointError):
@@ -184,71 +195,125 @@ class ChainCheckpoint:
     # ------------------------------------------------------------------
 
     def save(self, path: Path) -> None:
-        """Serialise to *path* (JSON + optional .npy sidecars)."""
+        """Publish one immutable snapshot generation through an atomic pointer."""
+        path = path.parent.resolve() / path.name
         path.parent.mkdir(parents=True, exist_ok=True)
-        tmp_paths: list[Path] = []
-        published_sidecars: list[Path] = []
-        try:
-            with _checkpoint_write_lock(path):
-                generation = _checkpoint_generation(path, self.intermediate_state)
-                stem = path.stem if generation is None else f"{path.stem}.gen-{generation}"
-                force_encoded = generation is not None
-                payload, sidecars = _serialise_state(
-                    self.intermediate_state,
-                    stem,
-                    force_encoded=force_encoded,
+        with _checkpoint_write_lock(path):
+            generation_dir = path.parent / f".{path.name}.generations" / uuid4().hex
+            tmp_paths: list[Path] = []
+            manifest_published = False
+            generation_created = False
+
+            def mark_manifest_published() -> None:
+                nonlocal manifest_published
+                manifest_published = True
+                self.checkpoint_path = path
+
+            try:
+                generation_dir = _resolve_checkpoint_member_path(
+                    path.parent, str(generation_dir.relative_to(path.parent))
                 )
-                history_payload: dict[str, Any] | None = None
+                generation_dir.mkdir(parents=True, exist_ok=False)
+                generation_created = True
+                if not isinstance(self.intermediate_state, Mapping):
+                    raise CheckpointSerializationError("Checkpoint state root must be a mapping.")
+                snapshot_values: dict[str, Any] = {"intermediate_state": self.intermediate_state}
                 if self.node_results:
-                    history_payload, history_sidecars = _serialise_state(
-                        {"node_results": self.node_results},
-                        stem,
-                        force_encoded=True,
-                    )
-                    sidecars.update(history_sidecars)
+                    snapshot_values["node_results"] = self.node_results
+                # Encode the whole logical snapshot once: each array identity
+                # includes its semantic root as well as its structural path.
+                # User state can therefore contain arbitrary history-like keys.
+                snapshot_payload, sidecars = _serialise_state(
+                    snapshot_values, "snapshot", force_encoded=True
+                )
                 data = {
                     "chain_digest": self.chain_digest,
                     "completed_fqns": self.completed_fqns,
                     "completed_node_ids": self.completed_node_ids,
-                    "intermediate_state": payload,
+                    **snapshot_payload,
                     "node_timing_ms": self.node_timing_ms,
                     "created_at": self.created_at,
                     "execution_digest": self.execution_digest,
                     "history_complete": self.history_complete,
                 }
-                if history_payload is not None:
-                    data["node_results"] = history_payload["node_results"]
-
                 for sidecar_name, arr in sidecars.items():
-                    sidecar_path = path.parent / sidecar_name
-                    published_sidecars.append(sidecar_path)
+                    sidecar_path = generation_dir / sidecar_name
                     tmp_sidecar = _tmp_path_for(sidecar_path)
                     tmp_paths.append(tmp_sidecar)
                     _atomic_save_numpy(tmp_sidecar, sidecar_path, arr)
                     tmp_paths.remove(tmp_sidecar)
 
-                json_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
+                snapshot_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
+                snapshot_path = generation_dir / "snapshot.json"
+                tmp_snapshot = _tmp_path_for(snapshot_path)
+                tmp_paths.append(tmp_snapshot)
+                _atomic_write_bytes(tmp_snapshot, snapshot_path, snapshot_bytes)
+                tmp_paths.remove(tmp_snapshot)
+                # The immutable generation and its parent entry must precede
+                # the pointer that lets a reader select them.
+                _fsync_dir(generation_dir.parent)
+                _fsync_dir(path.parent)
+                pointer = {
+                    "checkpoint_format": "generation-v1",
+                    "snapshot_ref": str(snapshot_path.relative_to(path.parent)),
+                    "snapshot_sha256": hashlib.sha256(snapshot_bytes).hexdigest(),
+                }
+                json_bytes = json.dumps(pointer, indent=2, sort_keys=True).encode("utf-8")
                 tmp_json = _tmp_path_for(path)
                 tmp_paths.append(tmp_json)
-                _atomic_write_bytes(tmp_json, path, json_bytes)
+                _atomic_write_bytes(tmp_json, path, json_bytes, on_publish=mark_manifest_published)
                 tmp_paths.remove(tmp_json)
-                self.checkpoint_path = path
-        except (OSError, TypeError, ValueError, CheckpointSerializationError) as exc:
-            _cleanup_paths(tmp_paths)
-            _cleanup_paths(published_sidecars)
-            raise CheckpointSaveError(f"Failed to save checkpoint at {path}: {exc}") from exc
+            except (
+                OSError,
+                TypeError,
+                ValueError,
+                CheckpointSerializationError,
+                CheckpointLoadError,
+            ) as exc:
+                # Cleanup remains in the same actual writer lock. Only this
+                # unpublished UUID generation belongs to the failed writer.
+                _cleanup_paths(tmp_paths)
+                if not manifest_published:
+                    if generation_created:
+                        try:
+                            shutil.rmtree(generation_dir)
+                        except OSError:
+                            _logger.debug(
+                                "checkpoint_generation_cleanup_failed path=%s", generation_dir
+                            )
+                    raise CheckpointSaveError(
+                        f"Failed to save checkpoint at {path}: {exc}"
+                    ) from exc
+                raise CheckpointPublicationUncertainError(
+                    f"Checkpoint manifest was replaced at {path}, but its directory "
+                    f"durability is uncertain: {exc}"
+                ) from exc
 
     @classmethod
     def load(cls, path: Path) -> ChainCheckpoint:
         """Deserialise from *path*."""
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
-            state = _deserialise_state(data.pop("intermediate_state"), path.parent)
+            if not isinstance(data, dict):
+                raise CheckpointLoadError("Checkpoint manifest must be a JSON object.")
+            snapshot_base = path.parent
+            if "checkpoint_format" in data:
+                if data["checkpoint_format"] != "generation-v1":
+                    raise CheckpointLoadError("Unsupported checkpoint manifest format.")
+                snapshot_path = _resolve_checkpoint_member_path(path.parent, data["snapshot_ref"])
+                snapshot_bytes = snapshot_path.read_bytes()
+                if hashlib.sha256(snapshot_bytes).hexdigest() != data["snapshot_sha256"]:
+                    raise CheckpointLoadError("Checkpoint generation snapshot content mismatch.")
+                data = json.loads(snapshot_bytes)
+                if not isinstance(data, dict):
+                    raise CheckpointLoadError("Checkpoint snapshot must be a JSON object.")
+                snapshot_base = snapshot_path.parent
+            state = _deserialise_state(data.pop("intermediate_state"), snapshot_base)
             node_results: list[dict[str, Any]] = []
             if "node_results" in data:
                 node_results_payload = _deserialise_state(
                     {"node_results": data.pop("node_results")},
-                    path.parent,
+                    snapshot_base,
                 )
                 node_results = node_results_payload["node_results"]
             return cls(
@@ -857,16 +922,6 @@ def _restore_bound_payload(value: Any) -> float | tuple[float, ...] | None:
     return float(value)
 
 
-def _checkpoint_generation(path: Path, state: Mapping[str, Any]) -> str | None:
-    """Return a unique sidecar generation when a checkpoint path is reused."""
-    if path.exists():
-        return uuid4().hex
-    for sidecar_name in _legacy_sidecar_names(state, path.stem).values():
-        if (path.parent / sidecar_name).exists():
-            return uuid4().hex
-    return None
-
-
 @contextmanager
 def _checkpoint_write_lock(path: Path) -> Iterator[None]:
     """Serialize writers for one manifest without deleting a peer generation."""
@@ -949,6 +1004,14 @@ def _serialise_state(
         if isinstance(value, (bool, int, float, str, type(None))):
             return value
         if isinstance(value, Mapping):
+            if any(not isinstance(key, str) for key in value):
+                raise CheckpointSerializationError(
+                    "Checkpoint mapping keys must be strings at " + repr(path)
+                )
+            if "__npy_ref__" in value:
+                raise CheckpointSerializationError(
+                    "Checkpoint mapping uses reserved array reference tag at " + repr(path)
+                )
             return {key: encode(child, path + (str(key),)) for key, child in value.items()}
         if isinstance(value, (list, tuple)):
             return [encode(child, path + (str(index),)) for index, child in enumerate(value)]
@@ -1005,7 +1068,11 @@ def _deserialise_state(payload: Any, base_dir: Path) -> Any:
 
 def _resolve_sidecar_path(base_dir: Path, payload: Mapping[str, Any]) -> Path:
     """Resolve a sidecar only within the checkpoint directory, without links."""
-    reference = payload.get("__npy_ref__")
+    return _resolve_checkpoint_member_path(base_dir, payload.get("__npy_ref__"))
+
+
+def _resolve_checkpoint_member_path(base_dir: Path, reference: Any) -> Path:
+    """Admit a snapshot or array only within its owning directory, without links."""
     if not isinstance(reference, str) or not reference:
         raise CheckpointLoadError("Checkpoint sidecar reference must be a non-empty string")
     relative = Path(reference)
@@ -1047,13 +1114,21 @@ def _atomic_save_numpy(tmp_path: Path, final_path: Path, arr: np.ndarray) -> Non
     _fsync_dir(final_path.parent)
 
 
-def _atomic_write_bytes(tmp_path: Path, final_path: Path, data: bytes) -> None:
+def _atomic_write_bytes(
+    tmp_path: Path,
+    final_path: Path,
+    data: bytes,
+    *,
+    on_publish: Callable[[], None] | None = None,
+) -> None:
     tmp_path.parent.mkdir(parents=True, exist_ok=True)
     with tmp_path.open("wb") as fh:
         fh.write(data)
         fh.flush()
         os.fsync(fh.fileno())
     tmp_path.replace(final_path)
+    if on_publish is not None:
+        on_publish()
     _fsync_dir(final_path.parent)
 
 

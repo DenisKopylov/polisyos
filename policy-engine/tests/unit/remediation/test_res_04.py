@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from concurrent.futures import ThreadPoolExecutor
 from types import SimpleNamespace
@@ -63,6 +64,23 @@ class _FakeChain:
 
     def get_bindings_for_target(self, node_id: UUID):
         return []
+
+
+def _stored_snapshot(path):
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if data.get("checkpoint_format") == "generation-v1":
+        snapshot_path = path.parent / data["snapshot_ref"]
+        return snapshot_path, json.loads(snapshot_path.read_text(encoding="utf-8"))
+    return path, data
+
+
+def _write_stored_snapshot(path, snapshot_path, data):
+    snapshot_bytes = json.dumps(data).encode("utf-8")
+    snapshot_path.write_bytes(snapshot_bytes)
+    if snapshot_path != path:
+        pointer = json.loads(path.read_text(encoding="utf-8"))
+        pointer["snapshot_sha256"] = hashlib.sha256(snapshot_bytes).hexdigest()
+        path.write_text(json.dumps(pointer), encoding="utf-8")
 
 
 def _chain() -> _FakeChain:
@@ -340,9 +358,9 @@ def test_sidecar_reference_cannot_escape_checkpoint_directory(tmp_path, referenc
         completed_node_ids=[],
         intermediate_state={"arr": np.array([1.0])},
     ).save(path)
-    data = json.loads(path.read_text(encoding="utf-8"))
+    snapshot_path, data = _stored_snapshot(path)
     data["intermediate_state"]["arr"]["__npy_ref__"] = reference
-    path.write_text(json.dumps(data), encoding="utf-8")
+    _write_stored_snapshot(path, snapshot_path, data)
 
     with pytest.raises(CheckpointLoadError, match="escapes its directory"):
         ChainCheckpoint.load(path)
@@ -356,7 +374,8 @@ def test_sidecar_symlink_is_rejected_before_load(tmp_path) -> None:
         completed_node_ids=[],
         intermediate_state={"arr": np.array([1.0])},
     ).save(path)
-    sidecar = tmp_path / "checkpoint_symlink_arr.npy"
+    snapshot_path, data = _stored_snapshot(path)
+    sidecar = snapshot_path.parent / data["intermediate_state"]["arr"]["__npy_ref__"]
     foreign = tmp_path.parent / "foreign-sidecar.npy"
     np.save(foreign, np.array([9.0]))
     sidecar.unlink()
@@ -374,7 +393,10 @@ def test_foreign_sidecar_content_is_rejected(tmp_path) -> None:
         completed_node_ids=[],
         intermediate_state={"arr": np.array([1.0])},
     ).save(path)
-    np.save(tmp_path / "checkpoint_content_binding_arr.npy", np.array([9.0]))
+    snapshot_path, data = _stored_snapshot(path)
+    np.save(
+        snapshot_path.parent / data["intermediate_state"]["arr"]["__npy_ref__"], np.array([9.0])
+    )
 
     with pytest.raises(CheckpointLoadError, match="content mismatch"):
         ChainCheckpoint.load(path)
@@ -396,7 +418,7 @@ def test_same_manifest_concurrent_saves_publish_complete_generations(tmp_path) -
 
     loaded = ChainCheckpoint.load(path)
     assert loaded.intermediate_state["arr"].tolist() in ([1.0], [2.0])
-    assert len(list(tmp_path.glob("checkpoint_concurrent*.npy"))) >= 2
+    assert len(list(tmp_path.rglob("*.npy"))) >= 2
 
 
 def test_sidecar_encoding_keeps_flat_and_nested_paths_distinct(tmp_path) -> None:

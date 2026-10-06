@@ -1,0 +1,103 @@
+{
+  "runtime_source": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+  "full_native250": {
+    "actual_collected_cases": 3882,
+    "actual_exit_code": -9,
+    "final_JUnit": "ABSENT",
+    "persisted_runtime_phases": 0,
+    "stdout_terminal_looking_observations": {
+      "PASS": 1290,
+      "FAIL": 16,
+      "ERROR": 16
+    },
+    "complete_case_partition": "NOT_ESTABLISHED; observations are not grades",
+    "generic27_terminal_parser": "UNRUN",
+    "filebacked_repeat": "PREPARED/UNRUN; adequatefreshresource prerequisitenotestablished, not impossibility proof"
+  },
+  "affected47": {
+    "whole_files": 47,
+    "cases": 807,
+    "PASS": 806,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0,
+    "XFAIL": 0,
+    "XPASS": 0,
+    "UNRUN": 0,
+    "actual_phases": 2421,
+    "failure": "test_phase_b_policy_workers.py::test_scenario_adversary_fallback_and_execution; vulnerabilities[]",
+    "P41": "not_established"
+  },
+  "affected35": {
+    "actual_HEAD": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+    "whole_files": 35,
+    "cases": 712,
+    "PASS": 712,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "XFAIL": 0,
+    "XPASS": 0,
+    "UNRUN": 0,
+    "actual_phases": 2136,
+    "source_projection": "6246 exactprod/test/product Git entries equal1862; actualHEAD10e never relabeled1862"
+  },
+  "real_PG_final": {
+    "cases": 8,
+    "PASS": 8,
+    "actual_phases": 24,
+    "protected_inlets": 18,
+    "tables": 11
+  },
+  "real_C_final": {
+    "cases": 10,
+    "PASS": 8,
+    "FAIL": 2,
+    "restored_cap1": "effects occur before refusal; laterassertionsUNRUN after firstFAIL",
+    "cleanup_owner": "oldphysicalhandle/poolpending1, registryowner0, freshphysicalhandle2; laterobserverrescue is notproduction recovery"
+  },
+  "installed_wheel": {
+    "all9_build_install_test_phase_exit": 0,
+    "isolated_installed_child_PASS": 8,
+    "launcher_outer_PASS": 1,
+    "denominators_separate": true
+  },
+  "B93": {
+    "qualified_positive_PASS": 3,
+    "matched_post_HALF_OPEN_removal_FAIL": 1,
+    "initial_premature_removal": "FAIL/HALF_OPENpremise not_established; preservednondeciding"
+  },
+  "latest8_quality": {
+    "FAIL": [
+      "ruff",
+      "format",
+      "mypy",
+      "workspace-verify",
+      "parity",
+      "architecture-runtime-ml-ready"
+    ],
+    "PASS": [
+      "runtime-api"
+    ],
+    "ERROR": [
+      "production-invocation-second-SIGKILL"
+    ]
+  },
+  "unstarted_constituents": {
+    "workspace_verify": 13,
+    "parity": 34
+  },
+  "architecture_retries": "Firstfour measurementsUNRUN; secondfiveobserved/OpenAPIUNRUN; thirdall6 measured4equal/2drift,9OpenAPItypedscalar changes, trust19596index-alignedleafdeltas notsemanticcount,174topdiagnostics; FAIL notwaived.",
+  "scanner_second_escape_P40": "Two exactcommandSIGKILLs/noJSON; finitecloud resourceboundary with G falsifier, no thirdblindattempt or assignedcausalPID.",
+  "missing_inputs_backends_authority": [
+    "Fullread-onlyproduction dataset/catalog/servedAroute inputs remain localG.",
+    "Versioned consumedSKG data_record owner law B61.",
+    "Actor/scope/purpose/epoch/exactevidence permission law B67/B68.",
+    "Cross-tenant import owner law B148.",
+    "Authoritative operated externalstatus/idempotency reconciliation extension beyond typedunknown B78.",
+    "A all-confirmations governedpublisher consumer B154.",
+    "Current C physicalcleanupowner transfer and restoredcap1 contract.",
+    "Native Darwin/platform/PG/freshwheel/fullnative resource admission."
+  ],
+  "independence": "These completed contours overlap; never sum cases as distinct cohort or use receipts/collection as behavioral oracle."
+}

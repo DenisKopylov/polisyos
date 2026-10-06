@@ -1,0 +1,17 @@
+{
+  "peer": "c61ec2652c06b1e404c76379bf994dff1a789f11",
+  "before": "6884f3926155420ab78c968a84d58841a8c9fe04",
+  "merge_base": "0b0a524c7e51cf714102374d8d2a715a9bedc5e9",
+  "after": "9d52856d62b2470d49c37268647bb4374606beb1",
+  "after_tree": "0d4621f9d3e9ec313100e953e5d0a986a8a17e30",
+  "paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/contract.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/inspect.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/inspect.stdout.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-independent.json"
+  ],
+  "non_handoff_paths": [],
+  "full_stdout": "Merge made by the 'ort' strategy.\n .../contract.json                                  | 925 +++++++++++++++++++++\n .../inspect.source.txt                             |  48 ++\n .../inspect.stdout.json                            |  14 +\n .../B/current-g-replay-admission-independent.json  | 144 ++++\n 4 files changed, 1131 insertions(+)\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/contract.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/inspect.source.txt\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-evidence/inspect.stdout.json\n create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-g-replay-admission-independent.json\n",
+  "full_stderr": "",
+  "exit_code": 0
+}

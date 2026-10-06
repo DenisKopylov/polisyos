@@ -1,0 +1,160 @@
+{
+  "branch": "codex/e02-A-n5-verify-current",
+  "bundle_ids": [
+    "CYC-02"
+  ],
+  "candidate_tree_sha": "221f31490189a5a2865f1ce2e4b335d6342d6bd6",
+  "capability_state_or_finding_state": {
+    "B05": "verification_missing; bounded public N9 negative passed, but valid signed/currentness positive control missing and K_sim content is not read by N9",
+    "B08": "verification_missing; direct actual N5→N8 conditional branch shown; empirical negative through downstream real consumer and ordinary served route not established by this probe"
+  },
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/test_cyc_02_n9.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-4-run-output.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-4-junit.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-4-pytest-exit-code.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-4-run-environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-4-cas-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-3-pytest-exit-code.txt"
+  ],
+  "checks": [
+    {
+      "attempt": 4,
+      "behavior": {
+        "actual_n5": "joint_simulated; persisted and reopened exact K_sim CAS artifact sha256:103daffe94e2f92fbdbda8578a0537edb928c337c6420a07fd4d89fafc256ca4",
+        "actual_n8": "value_conditional; ValueGateReceipt absent; value_ref is exact N5 result ref",
+        "actual_production_gate": "invoked once and refused policy_admission_missing on persisted pre-N9 epoch subject sha256:5546934d0e90f3138031127712129c09bc4164a8effbee427ca9a948249728a7",
+        "positive_currentness": "not run; no valid production signed/currentness issuer/receipt supplied; no signer was fabricated",
+        "production_path_n9_calls": 0,
+        "public_n9_test_only_admission": "invoked twice; not_promoted; actual canonical receipt obligation n8_value failed because N8 value receipt is missing",
+        "r1_remove_ksim_bytes": "same status/obligation/reasons with exact K_sim get_bytes denied; attempted exact N5 reads=0"
+      },
+      "command": "env PYTHONPATH=src:. OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 BLIS_NUM_THREADS=1 POLARS_MAX_THREADS=1 NUMBA_NUM_THREADS=1 RAYON_NUM_THREADS=1 TBB_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-A-full-queue/polisyos/policy-engine/.venv/bin/python -m pytest docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/test_cyc_02_n9.py --basetemp=/Users/deniskopylov/.codex/worktrees/e02-A-full-queue/polisyos/_build/e02-A-full-queue/n9_gate/raw/pytest-basetemp-attempt-4 --junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-4-junit.xml -q -s",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+      "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-4-run-environment.json",
+      "exit_code": 0,
+      "input_identity_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-4-cas-inputs.json",
+      "junit": "attempt-4-junit.xml@sha256:0c2c4b8289b996d38b8e0beb17f3244478b94e7cdc0206d98a87214d075c688e (1 test, 0 errors/failures/skips)",
+      "outcome": "PASS",
+      "stdout": "attempt-4-run-output.txt@sha256:128e39c3f3f066cb768d296cfe0a8f05372a750d4cd9226728499463f384c8f5 (53608 bytes)",
+      "test_sha256": "10a8bde61a583625ad53c6de6b898edbe932d28873c2b5f08a3b5723f1a9c7c7",
+      "target_sha": "7ffbf5c71d6352f7712673a6591be5e553993745",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-4-run-environment.json",
+      "input_closure": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-4-cas-inputs.json"
+    }
+  ],
+  "closure_ids": [],
+  "closure_status": "not_adjudicated; bounded actual N5/N8 and N9 negative witness only",
+  "implementation_commits": [
+    "d0fab1bb94f0d1492d203fe050e10dea5e1a9e40",
+    "7ffbf5c71d6352f7712673a6591be5e553993745"
+  ],
+  "limitations_and_next_owner": [
+    "Do not count the test-only _positive_epoch_admitted_batch helper as a production positive currentness receipt; its source docstring says production remains policy-admission missing.",
+    "The genuine signed/currentness positive requested by A2 must be supplied/admitted by the actual owner with its issuer/verifier provenance and binding to this candidate/problem; no such production fixture or handoff was found in the tracked files/relevant remote refs read.",
+    "B05 remains not adjudicated/open; this is bounded runtime negative evidence only. B08 remains incomplete pending ordinary served path plus empirical-negative downstream consumer.",
+    "No production source changes or B owner edits were made. Do not commit the scratch probe or these untracked handoff companions without root deciding copy/commit scope."
+  ],
+  "prior_attempts": [
+    {
+      "attempt": 1,
+      "classification": "ERROR before pre-N9 gate/N9: canonical DesignProblem snapshot rejected floats injected through typed N5 request runtime_hints; N5 and N8 assertions had completed.",
+      "exit_code": 1,
+      "junit_sha256": "8facc6ed7af6542bb53f1d8e761c22b108e37b851f936750a224d764cd107491",
+      "stdout_sha256": "e1a11252d866cf38d27d55a431d078e2e5644222acf76829065b196a973566b7",
+      "test_sha256": "f6f2b0a92fbe62af8dcea7bc29573c54bde0a833f89590c2865a8f61c869ac5c"
+    },
+    {
+      "attempt": 2,
+      "classification": "ERROR before N5: ProgramGraph EnginePlan retained nested float parameter rates and DesignProblem canonicalization refused them.",
+      "exit_code": 1,
+      "junit_sha256": "60d68871233110f300bcd640ef82f41c68702de1be2b87b118d7d71467ed76ec",
+      "stdout_sha256": "468b4959e49140bd811d29bdcea8288aa3a0d2180a5fcad51dd672fe7ec1df3a",
+      "test_sha256": "4c6e7aa97333dd25be179c9d1a14857111fe172e5cf36f0cadfbaf34dbf5178d"
+    },
+    {
+      "attempt": 3,
+      "classification": "ERROR after actual selected-NCM N5 and actual N8 conditional output: fixture CAS get_manifest ran outside tenant_scope, so pre-N9 gate/N9 remained unrun.",
+      "exit_code": 1,
+      "junit_sha256": "7d7ec5be1ee5b61089f334d0286f1b3a1ef863d10f37952d2e5e0ba60443d34f",
+      "stdout_sha256": "63fe9f437d2348efe88c4cd2452881e0a3ea9bb1442e9c936a4c5565ccd809bd",
+      "test_sha256": "61ea480ce665603de71ac0d06858bf8a7ee25a0120a760fb70ee5cdca446debd"
+    }
+  ],
+  "production_source_changes": false,
+  "property": {
+    "predicate_basis": "pre_n9 currentness is owner-reconciled in the real runtime; the positive test-only admission is not production/institutionally supplied evidence.",
+    "property_divergence": "N9 refusal is driven by missing ValueGateReceipt, while no K_sim bytes are resolved: CAS-removal oracle records zero get_bytes attempts and equal N8 value obligation/refusal. This is a correct early refusal for missing N8 authority in the exercised public-N9 branch. It supplies no evidence about later content-binding branches, does not establish an N9 defect, and does not show a valid signed/currentness positive or B05 closure.",
+    "statement": "The real N5 K_sim artifact reached the actual N8 conditional value consumer and was carried as a candidate summary into canonical N9. Production pre-N9 currentness refused without policy admission. A separately test-only admitted batch let public CanonicalN9PromotionPort run, where missing ValueGateReceipt caused N9 refusal; denying reads of the exact N5 CAS bytes left that N9 output unchanged.",
+    "runtime_path": [
+      "owner-persisted NCM and WMR typed request",
+      "actual JointSimulationPort",
+      "CAS result readback",
+      "default conditional N8",
+      "production pre-N9 epoch gate",
+      "test-only admitted batch at public CanonicalN9PromotionPort"
+    ],
+    "proxy_divergence": "N9 refusal is driven by missing ValueGateReceipt, while no K_sim bytes are resolved: CAS-removal oracle records zero get_bytes attempts and equal N8 value obligation/refusal. This is a correct early refusal for missing N8 authority in the exercised public-N9 branch. It supplies no evidence about later content-binding branches, does not establish an N9 defect, and does not show a valid signed/currentness positive or B05 closure.",
+    "negative_controls": [
+      "missing production epoch policy admission",
+      "missing N8 ValueGateReceipt at actual public N9",
+      "exact N5 CAS read denied: zero attempted reads and identical refusal"
+    ]
+  },
+  "proposed_criterion_ids": [
+    "B05",
+    "B08"
+  ],
+  "pull_request": null,
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "n9-gate",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "source_contracts": {
+    "A_continuation_edge": "CYC-02 A→RES-03 B; A consumer half only; upstream owner supplies exact commit/contract (continuation-2026-10-06/A.md:33)",
+    "B_RES03": "B handoff cmp-res on origin/codex/e02-B-cmp-res tip e3f0103c167beb42a8aff2db6a81de12b79ae565; candidate 436e7beb61fb35237533d9a8e00a8aae4760fb8c/tree 81074c43bc1bc23483e5d77671d25c1d898ff96d. Its B13/RES-03 contract is partial checkpoint-result preservation, not N9 signed currentness.",
+    "B_signed_CAS": "origin/codex/e02-B-current-cas-generation tip ce70b52f940a4e94d6e86276afe7d08a334fdd3a/tree 249b6e82c1b808acde84478cdeb521d7597ccfb6. cas-signature-publisher-contract.json is B154 bulk-CAS signature confirmation; explicitly says it does not appoint authority/trust/population/public publisher and A/G publisher consumer is missing. It is not the N9 currentness positive.",
+    "N9_currentness_types": "decision_validity.py@7ffbf5c71d6352f7712673a6591be5e553993745 lines 795-824, 993-1126, 1137-1153; initial verified-transition typed contracts introduced by a306256408daf33b6b4b64e463a68558e560d110 tree c38fb678ad214313dee85f9a3b1b5f7f876d4522"
+  },
+  "tested_source_commit": "7ffbf5c71d6352f7712673a6591be5e553993745",
+  "unit": "A",
+  "finding_ids": [
+    "B05",
+    "B08"
+  ],
+  "finding_outcomes": {
+    "B05": "limited",
+    "B08": "limited"
+  },
+  "predicate_basis": "independently_reconciled",
+  "companion_footprint": {
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate",
+    "files": [
+      "n9-gate/__pycache__/test_cyc_02_n9.cpython-314-pytest-9.0.2.pyc",
+      "n9-gate/__pycache__/test_cyc_02_n9.cpython-314.pyc",
+      "n9-gate/attempt-1-cas-inputs.json",
+      "n9-gate/attempt-1-junit.xml",
+      "n9-gate/attempt-1-pytest-exit-code.txt",
+      "n9-gate/attempt-1-run-output.txt",
+      "n9-gate/attempt-2-junit.xml",
+      "n9-gate/attempt-2-pytest-exit-code.txt",
+      "n9-gate/attempt-2-run-output.txt",
+      "n9-gate/attempt-3-junit.xml",
+      "n9-gate/attempt-3-pytest-exit-code.txt",
+      "n9-gate/attempt-3-run-output.txt",
+      "n9-gate/attempt-4-cas-inputs.json",
+      "n9-gate/attempt-4-junit.xml",
+      "n9-gate/attempt-4-pytest-exit-code.txt",
+      "n9-gate/attempt-4-run-environment.json",
+      "n9-gate/attempt-4-run-output.txt",
+      "n9-gate/cas-inputs.json",
+      "n9-gate/input-builder-preflight.py",
+      "n9-gate/input-builder-preflight.txt",
+      "n9-gate/junit.xml",
+      "n9-gate/pytest-exit-code.txt",
+      "n9-gate/run-environment.json",
+      "n9-gate/run-output.txt",
+      "n9-gate/test_cyc_02_n9.py"
+    ]
+  }
+}

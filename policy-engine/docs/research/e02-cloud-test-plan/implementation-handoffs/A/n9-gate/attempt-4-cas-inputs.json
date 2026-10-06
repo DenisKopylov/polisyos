@@ -1,0 +1,79 @@
+{
+  "atom_ids": [
+    "income_subsidy",
+    "balance_grant"
+  ],
+  "candidate_id": "candidate_cyc_n5_builder",
+  "canonical_design_problem": {
+    "artifact_ref": "sha256:e8419adde2231d3bf282315462d523173c99b0a51ba73dbcf2cda12ce51eb845",
+    "canonical_sha256": "e8419adde2231d3bf282315462d523173c99b0a51ba73dbcf2cda12ce51eb845",
+    "runtime_hints_float_paths": []
+  },
+  "direct_public_n9_test_only_admission": {
+    "appointment_fixture": "_positive_epoch_admitted_batch",
+    "baseline_status": "not_promoted",
+    "baseline_value_obligation": {
+      "detail": "N8 value receipt is missing.",
+      "gate_id": "n8_value",
+      "status": "failed"
+    },
+    "canonical_n9_calls": 2,
+    "fixture_source": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py@7ffbf5c71d6352f7712673a6591be5e553993745:1268-1275",
+    "production_signed_currentness_positive": false
+  },
+  "n5_result": {
+    "artifact_ref": "sha256:103daffe94e2f92fbdbda8578a0537edb928c337c6420a07fd4d89fafc256ca4",
+    "authority_blockers": [
+      "interaction_evidence_incomplete",
+      "simulation_only_k_sim_not_world_evidence"
+    ],
+    "bytes": 7888,
+    "kind": "polisyos.runtime.joint_simulation_result",
+    "manifest_inputs": [],
+    "manifest_path": "/Users/deniskopylov/.codex/worktrees/e02-A-full-queue/polisyos/_build/e02-A-full-queue/n9_gate/raw/pytest-basetemp-attempt-4/test_public_n9_value_result_is0/runtime-cas/artifacts/sha256/10/3d/103daffe94e2f92fbdbda8578a0537edb928c337c6420a07fd4d89fafc256ca4.manifest.json",
+    "media_type": "application/json",
+    "schema": "policyos.runtime.n5.joint_simulation_result@1.0.0",
+    "uncertainty_kind": "K_sim"
+  },
+  "n8_result": {
+    "status": "value_conditional",
+    "value_gate_receipt": null,
+    "value_ref": "sha256:103daffe94e2f92fbdbda8578a0537edb928c337c6420a07fd4d89fafc256ca4"
+  },
+  "production_gate": {
+    "calls": 1,
+    "canonical_n9_calls_through_production_controller": 0,
+    "result": "epoch_validity_refused:policy_admission_missing"
+  },
+  "production_pre_n9_subject": {
+    "artifact_ref": "sha256:5546934d0e90f3138031127712129c09bc4164a8effbee427ca9a948249728a7",
+    "bytes": 1096,
+    "kind": "runtime.promotion.pre_n9_epoch_validity_subject",
+    "manifest_inputs": []
+  },
+  "r1_property_removal": {
+    "after_status": "not_promoted",
+    "attempted_k_sim_reads": 0,
+    "behavior": "runtime.store.get_bytes raises if this exact K_sim ID is read",
+    "same_n8_value_obligation": true,
+    "same_refusal_reasons": true,
+    "target_artifact_ref": "sha256:103daffe94e2f92fbdbda8578a0537edb928c337c6420a07fd4d89fafc256ca4"
+  },
+  "scope": "local isolated FileSystemCAS fixture under tenant-n5-owner/cell-n5-owner; no production data; no production signer/currentness issuer fabricated.",
+  "selected_ncm": {
+    "artifact_ref": "sha256:2cdc3487a75d67be10232f50c50aa69e9fadd6ea9c2a55588cda10634f44d84c",
+    "request_matches_persisted_fixture": true
+  },
+  "selected_outcomes": [
+    "firm_survival"
+  ],
+  "source_commit": "7ffbf5c71d6352f7712673a6591be5e553993745",
+  "source_tree": "221f31490189a5a2865f1ce2e4b335d6342d6bd6",
+  "test_sha256": "10a8bde61a583625ad53c6de6b898edbe932d28873c2b5f08a3b5723f1a9c7c7",
+  "world_model_record": {
+    "cas_artifact_id": null,
+    "content_hash": "sha256:7c82bb7f8c799b483d1e47219b72cb8be0cc492ab1050a02091882ddbd241191",
+    "note": "Owner context value; this test did not persist the WMR as a CAS artifact.",
+    "world_model_record_id": "world_model_record_7c82bb7f8c799b48"
+  }
+}

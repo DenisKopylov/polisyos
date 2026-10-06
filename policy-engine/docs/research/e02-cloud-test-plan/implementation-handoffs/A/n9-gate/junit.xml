@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="13.719" timestamp="2026-10-06T15:36:32.072384+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="docs.research.e02-cloud-test-plan.implementation-handoffs.A.n9-gate.test_cyc_02_n9" name="test_public_n9_value_result_is_unchanged_when_persisted_ksim_is_unreadable" time="0.991"><failure message="polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:92510b8677c154bfa4ae1449c4effcb3886aa1fffd9ec8d421f318e652fad7a2 has tenant ownership claims; an active owner is required for read_manifest">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-A-full-queue/polisyos/_build/e02-A-full-queue/n9_gate/raw/pytest-basetemp-attempt-3/test_public_n9_value_result_is0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x130968510&gt;
+
+    def test_public_n9_value_result_is_unchanged_when_persisted_ksim_is_unreadable(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """Run the real selected-NCM N5, default N8, pre-N9 refusal, and public N9."""
+    
+        monkeypatch.setattr(
+            promotion_sequence_module,
+            "_legacy_policy_promotion_callers",
+            lambda _repo_root: (),
+        )
+        store, expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
+        try:
+            problem, cycle_context, candidate = _owner_n5_case_with_selected_ncm_ref(
+                ncm_ref,
+                runtime_hints={"joint_simulation_baseline_state": {"firm_survival": 0}},
+            )
+            problem_ref = cycle_context.design_problem_ref
+            hint_float_paths = _float_paths(problem.runtime_hints)
+            assert hint_float_paths == []
+            canonical_problem = _canonical_raw_bytes(problem.model_dump(mode="json"))
+            assert problem_ref == "sha256:" + hashlib.sha256(canonical_problem).hexdigest()
+    
+            n5_port = JointSimulationPort(
+                repo_root=REPO_ROOT,
+                cycle_substrate_context=cycle_context,
+                artifact_store=store,
+            )
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+                n5_request = n5_port._build_joint_simulation_request(
+                    candidate=candidate,
+                    problem=problem,
+                )
+                assert n5_request.engine_plan[0].ncm_spec == expected_ncm
+                simulation = n5_port(
+                    candidate=candidate,
+                    problem=problem,
+                    cycle_index=0,
+                )
+                assert simulation.status == "joint_simulated", {
+                    "status": simulation.status,
+                    "blockers": simulation.authority_blockers,
+                    "diagnostics": simulation.diagnostics,
+                }
+                assert simulation.simulation_result_ref is not None
+                reopened = load_joint_simulation_result(
+                    simulation.simulation_result_ref,
+                    store=store,
+                    expected_world_model_record_content_hash=(
+                        cycle_context.world_model_record.content_hash
+                    ),
+                    expected_atom_ids=tuple(
+                        atom.intervention_id for atom in candidate.intervention_atoms
+                    ),
+                    expected_selected_outcomes=(problem.outcome_of_interest.target_variable,),
+                )
+                value_port = _DefaultSimulationBoundFoundryValuePort(
+                    repo_root=tmp_path,
+                    cycle_substrate_context=cycle_context,
+                    artifact_store=store,
+                )(
+                    candidate=candidate,
+                    simulation=simulation,
+                    problem=problem,
+                    cycle_index=0,
+                )
+                runtime = PromotionRuntime(store=store)
+    
+            assert reopened.uncertainty_kind == "K_sim"
+            assert "simulation_only_k_sim_not_world_evidence" in (
+                reopened.promotion_ready_value_packet["authority_blockers"]
+            )
+            assert value_port.status == "value_conditional"
+            assert value_port.value_receipt is None
+            assert value_port.value_ref == str(simulation.simulation_result_ref.artifact_id)
+            assert "simulation_only_k_sim_not_world_evidence" in value_port.authority_blockers
+    
+            summary = _summary_with_value_observation(
+                _open_world_summary(candidate.candidate_id).model_copy(
+                    update={
+                        "content_hash": generation_cycle_module._candidate_content_hash(candidate),
+                    }
+                ),
+                simulation=simulation,
+                value_port=value_port,
+                counterexample_ref="pdc://e02/n9_gate/conditional_value",
+            )
+            assert summary.value_status == "value_conditional"
+            assert summary.value_ref == str(simulation.simulation_result_ref.artifact_id)
+            assert summary.value_receipt is None
+    
+&gt;           n5_manifest = store.get_manifest(simulation.simulation_result_ref.artifact_id)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/test_cyc_02_n9.py:155: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/resilience.py:282: in _wrapped
+    return self._guard.run(attr, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:146: in run
+    result = future.result(timeout=self._timeout_seconds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:450: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/_base.py:395: in __get_result
+    raise self._exception
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:86: in run
+    result = ctx.run(self.task)
+             ^^^^^^^^^^^^^^^^^^
+../../../../../.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/concurrent/futures/thread.py:73: in run
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/http/resilience.py:134: in _invoke
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:392: in wrapped
+    result = method(self, artifact_id, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/artifacts/store.py:1436: in get_manifest
+    self._require_default_manifest_access(
+src/polisyos/core/artifacts/store.py:1065: in _require_default_manifest_access
+    self._require_artifact_owner(artifact_id, operation=operation, ref=ref)
+src/polisyos/core/artifacts/store.py:930: in _require_artifact_owner
+    self._require_unclaimed_without_owner(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x1309b6850&gt;
+artifact_id = ArtifactID(root='sha256:92510b8677c154bfa4ae1449c4effcb3886aa1fffd9ec8d421f318e652fad7a2')
+
+    def _require_unclaimed_without_owner(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        operation: str,
+        ref: ArtifactRef | None = None,
+        manifest_profile_sha256: str | None = None,
+    ) -&gt; None:
+        if _GOVERNED_PUBLIC_READ.get() is not None:
+            self._require_governed_public_read(
+                artifact_id,
+                manifest_profile_sha256,
+                operation=operation,
+                ref=ref,
+            )
+            return
+        if self._ownership_index.has_any_tenant_claim(artifact_id):
+&gt;           raise ArtifactOwnershipError(
+                f"Artifact {artifact_id} has tenant ownership claims; an active owner "
+                f"is required for {operation}"
+            )
+E           polisyos.core.artifacts.ownership.ArtifactOwnershipError: Artifact sha256:92510b8677c154bfa4ae1449c4effcb3886aa1fffd9ec8d421f318e652fad7a2 has tenant ownership claims; an active owner is required for read_manifest
+
+src/polisyos/core/artifacts/store.py:1034: ArtifactOwnershipError</failure></testcase></testsuite></testsuites>

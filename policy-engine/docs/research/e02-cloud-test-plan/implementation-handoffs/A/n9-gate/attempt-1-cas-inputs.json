@@ -1,0 +1,36 @@
+{
+  "source_sha": "7ffbf5c71d6352f7712673a6591be5e553993745",
+  "source_tree_sha": "221f31490189a5a2865f1ce2e4b335d6342d6bd6",
+  "pytest_tmp_cas_root_ignored": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/_build/e02-A-full-queue/n9_gate/raw/pytest-basetemp/test_public_n9_value_result_is0/cas",
+  "artifacts": [
+    {
+      "artifact_id": "sha256:e436e56047a1995e639120a05a582f481ffa009082bf5bf3921de2a474f05ecc",
+      "kind": "polisyos.runtime.joint_simulation_result",
+      "blob_bytes": 8017,
+      "schema_version": "policyos.runtime.joint_simulation_horizon.v1",
+      "uncertainty_kind": "K_sim",
+      "world_model_record_ref": "world_model_record_178353e38b3a725f",
+      "world_model_record_content_hash": "sha256:178353e38b3a725f380a2c7b9291d822da0091f7e03782a1f0159be4161ddf4e",
+      "atom_ids": ["income_subsidy", "balance_grant"],
+      "selected_outcomes": ["firm_survival"],
+      "authority_blockers": [
+        "simulation_only_k_sim_not_world_evidence",
+        "interaction_evidence_incomplete"
+      ],
+      "manifest_inputs": []
+    },
+    {
+      "artifact_id": "sha256:6d7a8b8916a5e3ae26d61ec5fb8fe5f2daf5c69682ad35feeb778fc4bde21ab0",
+      "kind": "chronology.open_world_risk_verifier",
+      "blob_bytes": 37,
+      "manifest_inputs": []
+    },
+    {
+      "artifact_id": "sha256:e00e692e91b23b51bda90298ad349be3e728020864dd20c35a975bb7e72c417f",
+      "kind": "polisyos.gy.n9_promotion_evidence_verifier",
+      "blob_bytes": 43,
+      "manifest_inputs": []
+    }
+  ],
+  "execution_extent": "N5 result was produced, read back, and consumed by actual N8 to create a value_conditional observation before failure. The design-problem snapshot failed canonical JSON encoding before the production pre-N9 gate call; no pre-N9 gate receipt, admitted batch, or public N9 receipt was produced. The world-model ref is an in-memory ID plus content hash, not a CAS artifact ID in this test CAS."
+}

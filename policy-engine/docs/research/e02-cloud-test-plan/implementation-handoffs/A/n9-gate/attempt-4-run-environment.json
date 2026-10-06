@@ -1,0 +1,65 @@
+{
+  "attempt": 4,
+  "clock": {
+    "hostname": "MacBook-Air-Denis.local",
+    "junit_mtime_local": "2026-10-06 15:43:39 +0300",
+    "pytest_session_start_local": "2026-10-06T15:43:07.156500+03:00",
+    "pytest_session_start_utc": "2026-10-06T12:43:07.156500Z",
+    "stdout_mtime_local": "2026-10-06 15:43:40 +0300",
+    "suite_wall_seconds": 31.89,
+    "test_case_wall_seconds": 19.087,
+    "timezone": "Europe/Kyiv (UTC+03:00)"
+  },
+  "command": "env PYTHONPATH=src:. OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 BLIS_NUM_THREADS=1 POLARS_MAX_THREADS=1 NUMBA_NUM_THREADS=1 RAYON_NUM_THREADS=1 TBB_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-A-full-queue/polisyos/policy-engine/.venv/bin/python -m pytest docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/test_cyc_02_n9.py --basetemp=/Users/deniskopylov/.codex/worktrees/e02-A-full-queue/polisyos/_build/e02-A-full-queue/n9_gate/raw/pytest-basetemp-attempt-4 --junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-4-junit.xml -q -s",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+  "outputs": {
+    "exit_code": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-4-pytest-exit-code.txt",
+    "junit": {
+      "bytes": 463,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-4-junit.xml",
+      "sha256": "0c2c4b8289b996d38b8e0beb17f3244478b94e7cdc0206d98a87214d075c688e"
+    },
+    "stdout_stderr": {
+      "bytes": 53608,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/attempt-4-run-output.txt",
+      "sha256": "128e39c3f3f066cb768d296cfe0a8f05372a750d4cd9226728499463f384c8f5"
+    }
+  },
+  "python": {
+    "PYTHONPATH": "src:.",
+    "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+    "pytest": "9.0.2",
+    "thread_controls": {
+      "BLIS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMBA_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "POLARS_MAX_THREADS": "1",
+      "RAYON_NUM_THREADS": "1",
+      "TBB_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "version": "CPython 3.14.3"
+  },
+  "raw_basetemp": "/Users/deniskopylov/.codex/worktrees/e02-A-full-queue/polisyos/_build/e02-A-full-queue/n9_gate/raw/pytest-basetemp-attempt-4",
+  "result": {
+    "errors": 0,
+    "failures": 0,
+    "outcome": "PASS",
+    "pytest_exit_code": 0,
+    "skips": 0,
+    "tests": 1
+  },
+  "source": {
+    "branch": "codex/e02-A-n5-verify-current",
+    "commit": "7ffbf5c71d6352f7712673a6591be5e553993745",
+    "production_source_modified": false,
+    "tree": "221f31490189a5a2865f1ce2e4b335d6342d6bd6"
+  },
+  "test": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/test_cyc_02_n9.py",
+    "sha256": "10a8bde61a583625ad53c6de6b898edbe932d28873c2b5f08a3b5723f1a9c7c7"
+  }
+}

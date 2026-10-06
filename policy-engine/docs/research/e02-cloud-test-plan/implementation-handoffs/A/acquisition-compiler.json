@@ -1,0 +1,220 @@
+{
+  "schema": "policyos.e02.acquisition_compiler_handoff.v1",
+  "unit": "A",
+  "slice": "acquisition-compiler-controls",
+  "closure_ids": [],
+  "bundle_ids": ["ACQ-01", "REQ-01"],
+  "finding_ids": ["B12", "LA-046"],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "finding_state": {
+    "coverage_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+    "B12": {
+      "historical_ledger": "partial",
+      "appendix_c": "partial",
+      "closure_now": "not_adjudicated",
+      "capability_state": "producer_missing",
+      "criterion_proxy_warning": "Job, URL, or receipt presence is not proof that admitted content was consumed."
+    },
+    "LA-046": {
+      "historical_ledger": "partial",
+      "appendix_c": "partial",
+      "closure_now": "not_adjudicated",
+      "capability_state": "verification_missing",
+      "criterion_proxy_warning": "Compiler output or a recording resolver result is not proof of admitted data."
+    }
+  },
+  "original_criteria": [
+    {
+      "finding_id": "B12",
+      "bundle_card": "ACQ-01",
+      "source": "B_r19",
+      "source_lines": [337, 348],
+      "source_sha256": "06171b3b04ee5503cea6193347c3299e0016b1f54a96564e3dc5e439feb85798",
+      "copied_card_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "copied_card_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/ACQ-01.md",
+      "criterion": "Actually obtained and admitted data must change the dependent calculation. A plan, unconfirmed response, or URL is not world growth; a missing license, method, mapping, or authority is not reclassified as missing rows."
+    },
+    {
+      "finding_id": "LA-046",
+      "bundle_card": "REQ-01",
+      "source": "LA_r09",
+      "source_lines": [3034, 3068],
+      "source_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+      "copied_card_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "copied_card_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/REQ-01.md",
+      "criterion": "Keep construct and scope inputs explicit: opaque scenario IDs and negation must not create required constructs; generic scope must not invent jurisdiction or dates; explicit constructs, resolver requirements, and candidate-proposal status remain distinct. A real resolver/admission consumer is required beyond a recording resolver."
+    },
+    {
+      "finding_id": "LA-046",
+      "bundle_card": "ACQ-01",
+      "source": "LA_r09",
+      "source_lines": [3034, 3068],
+      "source_sha256": "bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+      "copied_card_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "copied_card_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/ACQ-01.md",
+      "criterion": "ACQ-01 owns the consumer-side N7 and actual admission criterion; REQ-01 is compiler/context support. Preserve the split and require evidence through the actual N7 caller and receiver."
+    }
+  ],
+  "pinned_refs": {
+    "A_base": {
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "A_latest_committed": {
+      "branch": "codex/e02-A-full-queue",
+      "commit": "20d72ee1dd5a6655e5dc65680650ed886dc65764",
+      "tree": "5896321fe4b3ecc5e84cc151e9a4c6cd10490eea",
+      "origin_tracking_ref": "origin/codex/e02-A-full-queue",
+      "origin_commit": "205b8ab49c713dcb024b7fa8962a2fdf7bf94d6e",
+      "source_blobs": {
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "631e0720b4bebf33bdaea79c449ccb0aa3d43061",
+        "policy-engine/src/polisyos/data_requirement/compiler.py": "d91823b593427fe275b4b0b6d4f14c499a12aa2d",
+        "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py": "da680b58a7d4bde1ddba87944f82912c52e9faa9"
+      },
+      "worktree_note": "The shared A worktree had unrelated dirty paths; only pinned git-show snapshots were read. No root source file was edited by this task."
+    },
+    "C_latest_committed": {
+      "branch": "codex/e02-C-continuation-20261006",
+      "commit": "1eb32f013308de34d77572dd4af8ca048b2b9ee3",
+      "tree": "6a5db17ef6221243869e1d52ca5200f37a015f54",
+      "latest_commit_scope": "ING streaming/cursor/schema behavior and tests only; no acquisition route, world-growth, planner, or compiler path changed."
+    },
+    "test_leaf": {
+      "branch": "codex/e02-A-compiler-full",
+      "commit": "5650b7aed7991606d62cd8510b377698a778ce39",
+      "tree": "b03120869a77b27d02aba456fb7dfc88d582f832",
+      "worktree_status_at_test_start": "clean; reproduce.sh asserted an empty Git status before pytest.",
+      "worktree_status_at_final_readback": "Unrelated staged compiler-full handoff artifacts appeared in this separate worktree later; this task did not inspect or touch them. The pinned HEAD/tree/source blobs remain unchanged.",
+      "source_blobs": {
+        "policy-engine/src/polisyos/data_requirement/compiler.py": "d91823b593427fe275b4b0b6d4f14c499a12aa2d",
+        "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+        "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py": "da680b58a7d4bde1ddba87944f82912c52e9faa9",
+        "policy-engine/tests/unit/data_requirement/test_compiler.py": "9b97bf857a45cd1a18f7e6a380087d1bf130d03e",
+        "policy-engine/tests/unit/remediation/test_acq_01.py": "0adde186e16225cf91103a98e5dda56b796eda40"
+      },
+      "same_source_as": "The compiler, planner, and two test blobs above are byte-identical at A commit 20d72ee. The tested generation_cycle.py is the base blob; A's later committed generation-cycle delta is in N5/N8 validation paths. Exact N7 dispatch and _n7_data_requirement_specs blocks match A commit 20d72ee byte-for-byte; block SHA-256 values are da12d2ae61edc15986ae0fedb7a5f6facff33e8c8f1726ced71452ba2e6d9a9c and abb7f94cacc3481c98446b9cbea549c7037747e233d82bca759293b2e116a5b4."
+    }
+  },
+  "current_C_handoff_refs": {
+    "execution_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/C-continuation-20261006.md",
+      "blob": "00e9e09884a30d2eaeb0b5bdfb728feedd7ee388",
+      "classification": "Execution plan, explicitly not behavioral evidence or a finding verdict; root C runtime lease is ING streaming/cursor/modes."
+    },
+    "canon_ir_adapter": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/canon-ir-adapter-profile.json",
+      "blob": "32cab69568cde50256c2910696b879882d3db024",
+      "bundle_ids": ["CAN-01"],
+      "closure_ids": [],
+      "classification": "Core-to-IR canonical adapter handoff; unrelated to N7/compiler acquisition."
+    },
+    "runtime_dependency": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/runtime-dependency-c2.json",
+      "blob": "aa36922650208682e7023f1b2c01cd63c03a44d1",
+      "bundle_ids": ["BER-01"],
+      "criterion_ids": ["LA-034"],
+      "classification": "Runtime jsonschema dependency handoff; unrelated to N7/compiler acquisition."
+    }
+  },
+  "current_C_native_source_blobs": {
+    "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py": "e24b50c96dee37f9a10e9a5d982ad8ad1ba935e0",
+    "policy-engine/src/polisyos/runtime/http/services/acquisition_action_service.py": "486ddf4a9fd036375e59b5d64ebedaebf853e085",
+    "policy-engine/src/polisyos/runtime/quality/acquisition_route_loop.py": "3d9dd1656aaa3bc7ca9d66bc4171a0f3a59f8011",
+    "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py": "4fb8915d22f669a1a11c7202341b6a2f494792f7",
+    "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py": "da680b58a7d4bde1ddba87944f82912c52e9faa9",
+    "policy-engine/src/polisyos/data_requirement/compiler.py": "d91823b593427fe275b4b0b6d4f14c499a12aa2d"
+  },
+  "reusable_C_native_contracts": [
+    {
+      "commit": "ab05936ea696433f8672e501eb0df633423cbc8f",
+      "contract": "Bind acquisition routes to live authority."
+    },
+    {
+      "commit": "3ce7d9c5a1766a38b91947a15f9ed3b36d3d5f3b",
+      "contract": "Served acquisition admission, native custody, and separate movement intake."
+    },
+    {
+      "commit": "aa753824b3b426297c9c93e4d3ca8e7c0547abbf",
+      "contract": "B09/B12 acquired-row candidate re-entry and served N5 witness."
+    },
+    {
+      "commit": "615ce0eab8197acb2d614f844db51a88e7dfbd78",
+      "contract": "Bind WDI country and year to the revised basis."
+    }
+  ],
+  "trace": {
+    "A_plan_only_branch": {
+      "source": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@20d72ee1dd5a6655e5dc65680650ed886dc65764",
+      "lines": [5736, 5752],
+      "behavior": "A non-null _plan_n7_requirement_gap_if_requested result is attached as a planner report/cost basis; the else arm skips _run_n7_acquisition_if_requested. The explicit typed any_of gap is preserved by _n7_data_requirement_specs, but this run branch only plans it."
+    },
+    "canonical_compiler": {
+      "source": "policy-engine/src/polisyos/data_requirement/compiler.py@20d72ee1dd5a6655e5dc65680650ed886dc65764",
+      "lines": [695, 792],
+      "behavior": "The canonical compiler builds typed capability queries from explicit graph/construct inputs and declared scope. Text topics stay candidate proposals; opaque scenario IDs are not semantic authority. Capability claim-use admissibility is not C source-action permission."
+    },
+    "generic_gap_conversion": {
+      "source": "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py@20d72ee1dd5a6655e5dc65680650ed886dc65764",
+      "lines": [3595, 3629, 3931, 3964, 4128, 4167],
+      "behavior": "Generic compiled data requirements become family/facet missing fields and carry selected schema/rule/provenance refs, but the conversion does not map the construct/profile to one C canonical variable or retain the complete typed compiler scope/binding as a native source route."
+    },
+    "C_native_route_shape": {
+      "source": "policy-engine/src/polisyos/runtime/http/services/acquisition_surface_execution.py@1eb32f013308de34d77572dd4af8ca048b2b9ee3",
+      "lines": [261, 312],
+      "behavior": "The current WDI path requires gap_type=data_snapshot_release, requirement_family=data_requirement, schema policyos.runtime.l1_variable_availability_gap.v1, strategy production_snapshot_build, exactly one canonical_variable_observations:<variable> field, plus explicitly declared country/year and bounded request constraints. No generic DataRequirementSpec-to-this-gap binding exists at these contracts."
+    },
+    "C_action_authority": {
+      "source": "policy-engine/src/polisyos/runtime/http/services/acquisition_action_service.py@1eb32f013308de34d77572dd4af8ca048b2b9ee3",
+      "lines": [75, 110, 331, 395, 386, 476],
+      "behavior": "Strict caller mutation DTO forbids caller-supplied authority/route facts; request_decision/execute require a BoundActionPermissionVerification. The A compiler binding cannot be cast into this action permission."
+    },
+    "C_native_admission_and_readback": {
+      "source": "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py@1eb32f013308de34d77572dd4af8ca048b2b9ee3",
+      "lines": [555, 599, 788, 925, 931, 1059],
+      "behavior": "C has native semantic-epoch admission, Data Forge owner readback, and an optional configured limited candidate snapshot/WMR handoff. This is a separate WDI route; the existing native path does not consume the canonical compiler requirement."
+    }
+  },
+  "checks": [
+    {
+      "name": "LA-046 generic compiler and N7 boundary controls",
+      "command": "PYTHONDONTWRITEBYTECODE=1 uv run --extra runtime --extra test python -m pytest -p no:cacheprovider tests/unit/data_requirement/test_compiler.py::test_opaque_scenario_id_is_not_semantic_input tests/unit/data_requirement/test_compiler.py::test_negated_topic_does_not_become_required_construct tests/unit/data_requirement/test_compiler.py::test_generic_scope_does_not_infer_pilot_jurisdiction_or_start tests/unit/data_requirement/test_compiler.py::test_explicit_constructs_are_not_replaced_by_semantic_proposals tests/unit/data_requirement/test_compiler.py::test_semantic_topic_proposal_does_not_cross_capability_authority_boundary tests/unit/remediation/test_acq_01.py::test_n7_explicit_specs_take_precedence_and_preserve_empty_primary tests/unit/remediation/test_acq_01.py::test_n7_typed_any_of_gap_precedes_explicit_specs tests/unit/remediation/test_acq_01.py::test_n7_fallback_handoff_preserves_statement_domain_scope_and_resolver --junitxml=$HANDOFF_DIR/junit.xml 2>&1 | tee $HANDOFF_DIR/stdout.txt",
+      "reproducer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/acquisition-compiler/reproduce.sh",
+      "reproducer_sha256": "accbd61a7a4d354ab420073433eb40698828d507e5045202809e597ef6e14ec5",
+      "cwd": "$SOURCE_ROOT/policy-engine",
+      "env": {
+        "SOURCE_ROOT": "/Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos",
+        "HANDOFF_DIR": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/acquisition-compiler",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "uv": "0.10.6",
+        "python": "CPython 3.14.3",
+        "platform": "macOS 27.0.1 arm64"
+      },
+      "exit_code": 0,
+      "outcome": "8 passed, 1 existing PytestConfigWarning (unknown cache_dir option), 33.984 seconds",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/acquisition-compiler/stdout.txt",
+      "stdout_sha256": "bdd6802e5de47a1120efe3e8dad9553253b2795d879937a51a52b7e1bf4bcb77",
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/acquisition-compiler/junit.xml",
+      "junit_sha256": "23cb24a6fa3d6e083482bed5f42ef30d55984572b36d40822911e52b317c8af5"
+    }
+  ],
+  "consumer_repair_recommendation": {
+    "owner": "A / GenerationCycleController.run",
+    "observed_seam": "The current typed-gap branch stores plan and cost then skips the local N7 closed loop. This is plan-only behavior, not execution. It is the exact missing B12 plan-to-execution bridge, not proof that the C producer is absent.",
+    "narrow_safe_repair": "If adjusting this branch, dispatch only on an existing exact owner-produced C-supported L1 variable gap and continue through C's served current-route/permission/admission boundary. Keep generic family/facet requirements and any_of gaps unresolved/plan-only until a real mapping is supplied. Do not call the A local acquisition loop merely because a compiler spec or route report exists; do not infer a variable, jurisdiction, time, purpose, rights, or permission."
+    ,
+    "current_blocker": "No existing typed compiler construct/profile → C L1 variable/source mapping was found in the pinned A/C code or tracked C handoffs; therefore no positive compiler→C action test can honestly run yet."
+  },
+  "separate_scope_limitations": {
+    "budget_join": "not_established: planner USD estimates are costing/provenance-only; C acquisition_actions and N5 reentry_budget_usd do not constitute one source-acquisition spend meter.",
+    "full_s10_c_profile": "not_established in this acquisition/compiler trace; kept separate from the missing generic RequirementSpec-to-C-L1 route mapping.",
+    "native_positive": "No C native integration tests or full-history/numerical tests were run by this task. Existing WDI tests are separate contracts; no full N5 changed-result positive is claimed."
+  },
+  "pattern_pass": {
+    "relevant_ids": ["P01", "P02", "P05", "P10", "P12", "P29", "P32", "P37", "P38"],
+    "property": "A scoped compiler requirement reaches only source data admitted for that exact construct, scope, purpose, rights and budget; the owner-read-back observation changes the same-case dependent consumer.",
+    "current_proxy_divergence": "The A compiler tests establish explicit/no-query behavior and generic gap planning; the C consumer accepts only a separately typed L1 variable route. A generic compiled family/facet gap can pass A planning yet cannot resolve as the C route, while route/job/receipt presence still says nothing about native admitted content consumed.",
+    "capability_labels": ["bridge_missing", "verification_missing", "semantic_test_missing", "surface_missing for the composed chain"],
+    "acceptance_signal": "A real admitted mapping, served C permission/action, native admission/readback, limited WMR, and same-case N5 consumer with an independent content-based oracle plus no-property/marker-retained controls."
+  },
+  "delivery_note": "Evidence/reproducer only. No source or test file was changed, no code was committed, and no finding status was promoted."
+}

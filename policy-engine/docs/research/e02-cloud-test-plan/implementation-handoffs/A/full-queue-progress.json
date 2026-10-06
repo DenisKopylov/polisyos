@@ -209,10 +209,10 @@
         "record_index_zero_based": 0,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "open",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "producer_missing"
+      "remaining_work": "ordinary POST/profile→N5→fresh GET implemented; deciding served check pending"
     },
     {
       "id": "B02",
@@ -224,10 +224,10 @@
         "record_index_zero_based": 1,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "open",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "verification_missing"
+      "remaining_work": "late context and scoped consumer implemented; ordinary route verification pending"
     },
     {
       "id": "B03",
@@ -239,10 +239,10 @@
         "record_index_zero_based": 2,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "open",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "producer_missing"
+      "remaining_work": "admission and denied-rights controls prepared; served check pending"
     },
     {
       "id": "B04",
@@ -254,10 +254,12 @@
         "record_index_zero_based": 3,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
-      "check_refs": [],
-      "remaining_work": "verification_missing"
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
+      "check_refs": [
+        "n5-intake.json"
+      ],
+      "remaining_work": "7ff content-bound N5 CAS/fresh N8 and six removal controls PASS; ordinary profile/GET pending"
     },
     {
       "id": "B05",
@@ -269,10 +271,12 @@
         "record_index_zero_based": 4,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
-      "check_refs": [],
-      "remaining_work": "verification_missing"
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
+      "check_refs": [
+        "n9-gate.json"
+      ],
+      "remaining_work": "7ff actual pre-N9 gate and test-only public N9 refusal/R1 PASS; signed currentness positive missing"
     },
     {
       "id": "B06",
@@ -284,10 +288,10 @@
         "record_index_zero_based": 5,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "open",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "verification_missing"
+      "remaining_work": "SIM pre-selection temporal eligibility and fallback patch awaits numerical wave"
     },
     {
       "id": "B07",
@@ -299,10 +303,10 @@
         "record_index_zero_based": 6,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "open",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "verification_missing"
+      "remaining_work": "SIM executable fallback/temporal contract patch awaits numerical wave"
     },
     {
       "id": "B08",
@@ -314,10 +318,12 @@
         "record_index_zero_based": 7,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
-      "check_refs": [],
-      "remaining_work": "verification_missing"
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
+      "check_refs": [
+        "n5-intake.json"
+      ],
+      "remaining_work": "conditional numeric N8 PASS; empirical/comparator/replication consumer remains incomplete"
     },
     {
       "id": "B09",
@@ -329,10 +335,10 @@
         "record_index_zero_based": 8,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "open",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "producer_missing"
+      "remaining_work": "no C/F owner-ratified ObservationToWMRRule; substantive positive basis cannot be asserted"
     },
     {
       "id": "B10",
@@ -344,10 +350,10 @@
         "record_index_zero_based": 9,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "open",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "verification_missing"
+      "remaining_work": "full hard-feasibility dimensions before VOI/top-k not established by producer owners"
     },
     {
       "id": "B11",
@@ -359,10 +365,10 @@
         "record_index_zero_based": 20,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "bridge_missing"
+      "remaining_work": "B durable idempotent accounting exists; producer-owned actual-cost meter/event bridge absent"
     },
     {
       "id": "B12",
@@ -374,10 +380,12 @@
         "record_index_zero_based": 31,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
-      "check_refs": [],
-      "remaining_work": "producer_missing"
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
+      "check_refs": [
+        "acquisition-compiler.json"
+      ],
+      "remaining_work": "eight canonical compiler/N7 controls PASS; generic compiler-to-C native variable/action mapping missing"
     },
     {
       "id": "B15",
@@ -389,10 +397,10 @@
         "record_index_zero_based": 64,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "verification_missing"
+      "remaining_work": "served two-child producer and child partial/budget frontier absent"
     },
     {
       "id": "B16",
@@ -404,10 +412,10 @@
         "record_index_zero_based": 75,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "open",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "verification_missing"
+      "remaining_work": "exact C-member physical/hash/unit intake implemented; 17-case data-dependent fixture wave pending; S10 upstream not G-integrated"
     },
     {
       "id": "B18",
@@ -419,10 +427,10 @@
         "record_index_zero_based": 97,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "open",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "absent/unallocated"
+      "remaining_work": "central finite/zero/missing output patch awaits real adapter wave"
     },
     {
       "id": "B19",
@@ -434,10 +442,10 @@
         "record_index_zero_based": 108,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "bridge_missing"
+      "remaining_work": "EvidenceStateRef/factual source bridge absent; baseline fallback does not establish factual evidence"
     },
     {
       "id": "B20",
@@ -449,10 +457,10 @@
         "record_index_zero_based": 119,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "open",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "verification_missing"
+      "remaining_work": "conflict/refusal and unordered physical identity patch awaits real engine wave"
     },
     {
       "id": "B21",
@@ -464,10 +472,10 @@
         "record_index_zero_based": 130,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "producer_missing"
+      "remaining_work": "E-owned IID vs independently scrambled QMC sampling/variance contract absent; receipt marker not estimator proof"
     },
     {
       "id": "B22",
@@ -479,10 +487,10 @@
         "record_index_zero_based": 141,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "absent/unallocated"
+      "remaining_work": "terminal scalar projection patch pending wave; producer time/point binding declared not_established with concrete falsifiers"
     },
     {
       "id": "B23",
@@ -494,10 +502,10 @@
         "record_index_zero_based": 148,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "open",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "verification_missing"
+      "remaining_work": "paired semantic snapshots/state-content cache key implemented; actual NCM/ProgramGraph wave pending"
     },
     {
       "id": "B25",
@@ -509,10 +517,10 @@
         "record_index_zero_based": 150,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "surface_out_of_scope"
+      "remaining_work": "historical closed status preserved; three exact regression bodies unchanged, fresh changed-candidate wave pending"
     },
     {
       "id": "B26",
@@ -524,10 +532,10 @@
         "record_index_zero_based": 151,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "surface_missing"
+      "remaining_work": "real cubic N5 oracle prepared; N8/GET diagnostic recomputation and admitted three-atom served input absent"
     },
     {
       "id": "B27",
@@ -539,10 +547,10 @@
         "record_index_zero_based": 152,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "producer_missing"
+      "remaining_work": "served late context checks implemented; second-basis owner rule and replay remain missing"
     },
     {
       "id": "B28",
@@ -554,10 +562,10 @@
         "record_index_zero_based": 153,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "verification_missing"
+      "remaining_work": "history/currentness distinction retained; owner-supported second-basis and signed N9 control missing"
     },
     {
       "id": "B29",
@@ -569,10 +577,10 @@
         "record_index_zero_based": 154,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "verification_missing"
+      "remaining_work": "API occurrence/status witness pending; genuine two-child partial termination producer missing"
     },
     {
       "id": "B30",
@@ -584,10 +592,10 @@
         "record_index_zero_based": 155,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "producer_missing"
+      "remaining_work": "run/job/tenant binding implemented; signed N9 currentness and deployed-policy identity positive missing"
     },
     {
       "id": "B31",
@@ -599,10 +607,10 @@
         "record_index_zero_based": 156,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "held",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "absent/unallocated"
+      "remaining_work": "four IR semantic ratifications and appointed canonical semantic owner absent; v1.1 not rewritten"
     },
     {
       "id": "B33",
@@ -614,10 +622,10 @@
         "record_index_zero_based": 158,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "bridge_missing"
+      "remaining_work": "F bounded graph intake has no admitted source/target applicability/freshness/transport authority to A"
     },
     {
       "id": "B34",
@@ -629,10 +637,10 @@
         "record_index_zero_based": 159,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "verification_missing"
+      "remaining_work": "bound builtin singleton-eligible/hidden-member controls PASS; real default discovery source closure unresolved and selector test FAIL"
     },
     {
       "id": "B35",
@@ -644,10 +652,10 @@
         "record_index_zero_based": 160,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "verification_missing"
+      "remaining_work": "controlled full-denominator filtering PASS; default full registry path blocks on unbound own entrypoint"
     },
     {
       "id": "B36",
@@ -659,10 +667,10 @@
         "record_index_zero_based": 161,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "producer_missing"
+      "remaining_work": "explicit modality refusal PASS; typed transform producer absent and default registry path blocked"
     },
     {
       "id": "LA-033",
@@ -674,10 +682,10 @@
         "record_index_zero_based": 257,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "verification_missing"
+      "remaining_work": "333 real Foundry/CAS/wheel/full CLI bundle checks PASS; resume only complete checkpoint, no external historical corpus"
     },
     {
       "id": "LA-045",
@@ -689,10 +697,10 @@
         "record_index_zero_based": 269,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
       "check_refs": [],
-      "remaining_work": "verification_missing"
+      "remaining_work": "565 installed-wheel active compiler and eight retired-name negatives PASS; 270 computed imports remain unresolved"
     },
     {
       "id": "LA-046",
@@ -704,15 +712,17 @@
         "record_index_zero_based": 270,
         "coverage_sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
       },
-      "finding_outcome": null,
-      "decision": "not_adjudicated",
-      "check_refs": [],
-      "remaining_work": "verification_missing"
+      "finding_outcome": "limited",
+      "decision": "provisional_row_decision_at_33dfb992",
+      "check_refs": [
+        "acquisition-compiler.json"
+      ],
+      "remaining_work": "explicit scope/construct/any_of compiler controls PASS; actual generic admitted N7→new WMR chain missing"
     }
   ],
   "checks": [],
-  "code_acceptance": "not_submitted",
-  "closure_status": "in_progress",
+  "code_acceptance": "source commits prepared or locally verified; G acceptance separate and pending",
+  "closure_status": "in_progress; all 34 row decisions are provisional and do not mark queue closeout",
   "local_evidence": [
     {
       "path": "policy-engine/_build/e02-A-full-queue/baseline_coverage/query-audit.txt",
@@ -729,5 +739,6 @@
       "sha256": "63dd00972e87458b6eb0af600223c9955c67df8b2d373e1262a37901e28650b2",
       "bytes": 633
     }
-  ]
+  ],
+  "current_source_candidate": "33dfb99210eb4457263fde7f92b3479ebac75b02"
 }

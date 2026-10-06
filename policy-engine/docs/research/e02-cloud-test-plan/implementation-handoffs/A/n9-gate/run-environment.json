@@ -1,0 +1,61 @@
+{
+  "source": {
+    "branch": "codex/e02-A-n5-verify-current",
+    "commit": "7ffbf5c71d6352f7712673a6591be5e553993745",
+    "tree": "221f31490189a5a2865f1ce2e4b335d6342d6bd6",
+    "worktree_source_changes": false,
+    "evidence_changes": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/test_cyc_02_n9.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/run-output.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/pytest-exit-code.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/run-environment.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/cas-inputs.json"
+    ]
+  },
+  "reproducer": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/test_cyc_02_n9.py",
+    "sha256": "f6f2b0a92fbe62af8dcea7bc29573c54bde0a833f89590c2865a8f61c869ac5c"
+  },
+  "command": "PYTHONPATH=src:. OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 BLIS_NUM_THREADS=1 POLARS_MAX_THREADS=1 NUMBA_NUM_THREADS=1 RAYON_NUM_THREADS=1 TBB_NUM_THREADS=1 /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -m pytest docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/test_cyc_02_n9.py --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/_build/e02-A-full-queue/n9_gate/raw/pytest-basetemp --junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/junit.xml -q -s",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+  "python": {
+    "executable": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+    "version": "3.14.3",
+    "pytest": "9.0.2",
+    "thread_controls": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1",
+      "POLARS_MAX_THREADS": "1",
+      "NUMBA_NUM_THREADS": "1",
+      "RAYON_NUM_THREADS": "1",
+      "TBB_NUM_THREADS": "1"
+    },
+    "PYTHONPATH": "src:."
+  },
+  "clock": {
+    "timezone": "Europe/Kyiv (UTC+03:00)",
+    "pytest_session_start_local": "2026-10-06T15:13:21.968408+03:00",
+    "pytest_session_start_utc": "2026-10-06T12:13:21.968408Z",
+    "run_output_mtime_local": "2026-10-06T15:13:43+03:00",
+    "pytest_exit_file_mtime_local": "2026-10-06T15:13:45+03:00",
+    "pytest_process_wall_seconds": 23.985
+  },
+  "result": {
+    "exit_code": 1,
+    "outcome": "FAIL",
+    "failure": "polisyos.core.canon.canon_json.CanonViolation: float forbidden in canonical JSON",
+    "failure_site": "GenerationCycleController._promote_completed_generation -> PromotionRuntime._prepare_completed_generation -> persist_and_verify_design_problem_snapshot",
+    "extent": "N5 production ran; exact K_sim CAS result reopened and passed assertions; actual N8 returned value_conditional without ValueGateReceipt; failure occurred persisting the DesignProblem snapshot because runtime_hints carried the typed N5 request's floats. The production pre-N9 gate and CanonicalN9PromotionPort were not invoked. The test-only N9 reachability fixture and CAS-denied R1 replay did not run."
+  },
+  "outputs": {
+    "stdout_stderr": "run-output.txt@sha256:e1a11252d866cf38d27d55a431d078e2e5644222acf76829065b196a973566b7 (60K)",
+    "junit_xml": "junit.xml@sha256:8facc6ed7af6542bb53f1d8e761c22b108e37b851f936750a224d764cd107491 (12K)",
+    "cas_inputs": "cas-inputs.json"
+  }
+}

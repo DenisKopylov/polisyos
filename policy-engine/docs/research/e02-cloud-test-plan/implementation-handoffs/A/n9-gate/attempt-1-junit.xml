@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="20.003" timestamp="2026-10-06T15:13:21.968408+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="docs.research.e02-cloud-test-plan.implementation-handoffs.A.n9-gate.test_cyc_02_n9" name="test_public_n9_value_result_is_unchanged_when_persisted_ksim_is_unreadable" time="0.959"><failure message="polisyos.core.canon.canon_json.CanonViolation: float forbidden in canonical JSON">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/_build/e02-A-full-queue/n9_gate/raw/pytest-basetemp/test_public_n9_value_result_is0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x12f4df490&gt;
+
+    def test_public_n9_value_result_is_unchanged_when_persisted_ksim_is_unreadable(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """Run actual N5/N8 and public N9, then remove only N9's CAS read ability.
+    
+        This witnesses a real pre-N9 gate refusal and, separately, the real
+        canonical N9 value obligation.  The test-only epoch appointment below is
+        only a reachability fixture to get through the otherwise-negative-only
+        currentness resolver.  It is not a signed authority/currentness positive.
+        """
+    
+        monkeypatch.setattr(
+            promotion_sequence_module,
+            "_legacy_policy_promotion_callers",
+            lambda _repo_root: (),
+        )
+        runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+        problem, cycle_context, candidate, simulation, _produced, store = _real_n5_observation(
+            tmp_path,
+            artifact_store=runtime.store,
+        )
+        assert simulation.simulation_result_ref is not None
+    
+        reopened = load_joint_simulation_result(
+            simulation.simulation_result_ref,
+            store=store,
+            expected_world_model_record_content_hash=(
+                cycle_context.world_model_record.content_hash
+            ),
+            expected_atom_ids=tuple(
+                atom.intervention_id for atom in candidate.intervention_atoms
+            ),
+            expected_selected_outcomes=(problem.outcome_of_interest.target_variable,),
+        )
+        assert reopened.uncertainty_kind == "K_sim"
+        assert "simulation_only_k_sim_not_world_evidence" in (
+            reopened.promotion_ready_value_packet["authority_blockers"]
+        )
+    
+        value_port = _DefaultSimulationBoundFoundryValuePort(
+            repo_root=tmp_path,
+            cycle_substrate_context=cycle_context,
+            artifact_store=store,
+        )(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=0,
+        )
+        assert value_port.status == "value_conditional"
+        assert value_port.value_receipt is None
+        assert value_port.value_ref == str(simulation.simulation_result_ref.artifact_id)
+        assert "simulation_only_k_sim_not_world_evidence" in value_port.authority_blockers
+    
+        summary = _summary_with_value_observation(
+            _open_world_summary(candidate.candidate_id).model_copy(
+                update={
+                    "content_hash": generation_cycle_module._candidate_content_hash(candidate),
+                }
+            ),
+            simulation=simulation,
+            value_port=value_port,
+            counterexample_ref="pdc://e02/n9_gate/conditional_value",
+        )
+        assert summary.value_status == "value_conditional"
+        assert summary.value_ref == str(simulation.simulation_result_ref.artifact_id)
+        assert summary.value_receipt is None
+    
+        # Observe the production-composed pre-N9 gate itself.  Its negative result
+        # is important provenance, but it is deliberately not counted as proof
+        # that N9 consumed or rejected this K_sim artifact.
+        gate_calls: list[str] = []
+        real_gate = runtime.epoch_validity_gate.reconcile_before_n9
+    
+        def counted_gate(*, subject_ref: Any) -&gt; Any:
+            gate_calls.append(str(subject_ref))
+            return real_gate(subject_ref=subject_ref)
+    
+        monkeypatch.setattr(runtime.epoch_validity_gate, "reconcile_before_n9", counted_gate)
+    
+        n9_calls: list[object] = []
+        real_n9_call = CanonicalN9PromotionPort.__call__
+    
+        def counted_n9_call(
+            self: CanonicalN9PromotionPort,
+            *,
+            admitted_batch: Any,
+            problem: Any,
+            deployment_identity: str | None,
+        ) -&gt; Any:
+            n9_calls.append(admitted_batch)
+            return real_n9_call(
+                self,
+                admitted_batch=admitted_batch,
+                problem=problem,
+                deployment_identity=deployment_identity,
+            )
+    
+        monkeypatch.setattr(CanonicalN9PromotionPort, "__call__", counted_n9_call)
+        controller = GenerationCycleController(
+            promotion_runtime=runtime,
+            repo_root=REPO_ROOT,
+        )
+&gt;       pre_n9 = controller._promote_completed_generation(
+            summaries=(summary,),
+            problem=problem,
+            deployment_identity=_canonical_loaded_deployment_identity(),
+        )
+
+docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/test_cyc_02_n9.py:143: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/generation_cycle.py:6257: in _promote_completed_generation
+    prepared = runtime._prepare_completed_generation(problem=problem, summaries=summaries)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/open_world_risk.py:1409: in _prepare_completed_generation
+    problem_ref, problem_hash = persist_and_verify_design_problem_snapshot(
+src/polisyos/runtime/quality/open_world_risk.py:1220: in persist_and_verify_design_problem_snapshot
+    raw = core_contracts.chronology._canonical_raw_bytes(problem.model_dump(mode="json"))
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/contracts/chronology.py:109: in _canonical_raw_bytes
+    return to_canonical_bytes(value, CHRONOLOGY_CANON_SPEC)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/canon/canon_json.py:40: in to_canonical_bytes
+    return _to_canonical_bytes(
+src/polisyos/common/canonical.py:232: in to_canonical_bytes
+    canon_obj = _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:210: in _canonicalize_obj
+    _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:193: in _canonicalize_obj
+    _raise_violation(violation_type, "float forbidden in canonical JSON")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+violation_type = &lt;class 'polisyos.core.canon.canon_json.CanonViolation'&gt;
+message = 'float forbidden in canonical JSON'
+
+    def _raise_violation(violation_type: type[ValueError], message: str) -&gt; NoReturn:
+&gt;       raise violation_type(message)
+E       polisyos.core.canon.canon_json.CanonViolation: float forbidden in canonical JSON
+
+src/polisyos/common/canonical.py:67: CanonViolation</failure></testcase></testsuite></testsuites>

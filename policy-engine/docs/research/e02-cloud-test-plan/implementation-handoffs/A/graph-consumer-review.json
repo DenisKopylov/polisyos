@@ -1,0 +1,169 @@
+{
+  "schema": "policyos.e02.graph_consumer_review.v1",
+  "review_date": "2026-10-06",
+  "reviewer_role": "A empirical_graph",
+  "finding_outcome": "limited",
+  "consumer_admission": "UNRUN; no upstream G-admitted graph-to-A consumer receipt exists",
+  "summary": "F now has a bounded, independently reviewed synthetic graph intake that resolves and verifies real CAS graph bytes and binds the static reconciliation request. It does not produce a graph artifact admitted for A transport: the graph contract has no source/target domain or time authority, the SelectionDiagram contract is not an admission certificate, F explicitly leaves the protected policy consumer UNRUN, and G checkpoint-09 accepts no graph slice. A's RealValueOwnerGateway still refuses to construct a SelectionDiagram without a verified CausalGraphModelRef bridge.",
+  "pinned_reviews": {
+    "A_source": {
+      "branch": "codex/e02-A-full-queue",
+      "head": "33dfb99210eb4457263fde7f92b3479ebac75b02"
+    },
+    "F_graph_cache_compatibility": {
+      "branch_tip": "origin/codex/e02-F-graph-20261006",
+      "tip": "2137961b0d3a2b39b85c5a57bf774777d2a4204e",
+      "scope": "One release-fragment change for causal-graph cache-row compatibility; not a graph consumer admission slice."
+    },
+    "F_graph_intake": {
+      "branch_tip": "origin/codex/e02-F-graph-intake-20261006",
+      "handoff_commit": "2044260c39dc4988b37d5a1568b65a1cdb1e3d31",
+      "candidate_source": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "candidate_tree": "f01888ab31984d1b4b801cfab87b9f1ac08d9756",
+      "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "role": "Bounded companion to GRF-03 primary findings; closure_ids is empty."
+    },
+    "F_graph_scm": {
+      "branch_tip": "origin/codex/e02-F-graph-scm",
+      "handoff_commit": "85c16de9f16a4e21c05c516271b6c81e08b7a39f",
+      "candidate_source": "672f541313c550e96544728ed397daf330c04442",
+      "candidate_tree": "f6bf9b9467d56e86408693982c8f68ea381b1e4c",
+      "slice_base": "c40d4acae1ce58b597267255026d9356565828fd",
+      "role": "Bounded synthetic GCM native-dispatch, CAS and query-consumer verification; not real-data effect authority."
+    },
+    "F_api": {
+      "branch_tip": "origin/codex/e02-F-api-20261006",
+      "handoff_commit": "449d32909928caf39382f4ff02ac74b0adf277eb",
+      "candidate_source": "729d137279b7d6334230045e420255762fe55f08",
+      "candidate_tree": "7ced77fdbd83e65efbd14d4bd518de2f786b1e9a",
+      "role": "Bounded installed API/ABI evidence; handoff says LA-020 limited and does not admit real-data causal inference."
+    },
+    "G_checkpoint_09": {
+      "handoff_commit": "8ed2c08a96173a1235b4fc363fcbe07378a47750",
+      "integration_source": "312e6d7c12e1d623f1ac9502c187e7cb92e48045",
+      "integration_tree": "11ffd482cf4324a25ca16e77d8b113c8bc9eebad",
+      "finding_closures": [],
+      "broad_replay": "UNRUN until shared source freeze and independent reviews"
+    }
+  },
+  "F_graph_intake_evidence": {
+    "candidate_status": "GO bounded; implemented, verified synthetic intake",
+    "exact_path": "Registered causal.prior.reconcile_causal_graph@1.0.0 -> current graph/prior/request resolution -> ReconcileCausalGraph static intake -> persist ir.causal_graph_model@1.0 plus a scientist.graph_reconciliation_request -> fresh CAS reader.",
+    "cas_role": "CausalGraphModelRef is a typed locator (kind ir.causal_graph_model, media_type application/json). F resolves its manifest, checks kind/media/schema and store.verify(ref), then validates actual CausalGraphModel bytes. Persisted graph manifest inputs bind the selected data graph, optional literature prior, and request artifact. This proves identity, content integrity, and the bounded producer lineage; it is not a scope or authority credential.",
+    "currentness_discriminator": "The static request identity hashes profile=static_directed_candidate_v1, the full GraphReconciliationData request, selected data-graph and literature-prior refs, and random_seed. The reconciliation request ref/hash is stored in graph metadata and manifest inputs. Cached output is not reused as evidence of the current request; current sources are recomputed.",
+    "structural_rule_scope": "static_directed_candidate_v1 accepts declared DAG structure only, zero/absent lag only, and tail-to-arrow endpoints. The implementation documentation says this structural check does not establish causal identification, empirical grounding, or publication authority.",
+    "native_candidate_receipt": "graph-intake-native-20261006.json@2044260c39dc4988b37d5a1568b65a1cdb1e3d31 reports the immutable 6321dc33476b0fad24d97ebb140c373608d30019 four-file native intake wave: 63 PASS, 0 skips/errors. The independent receipt reports 39 native and 26 finite adversarial cases. These are candidate-source receipts, not G admission.",
+    "unclosed_scope": [
+      "Known synthetic graph structure/confidence is not admitted real-data law, causal identification, or authority.",
+      "F reports B214/B218 as limited companions, no finding closures, and the protected policy-gate consumer UNRUN.",
+      "F's A EMP-01 candidate selector is FAIL: 5 of 10 cases pass and 5 fail; this is not whole-suite or G acceptance.",
+      "The reconciliation request does not bind the graph to the active A source/target population, geography, outcome estimand, observation period, or target horizon. Its request freshness is workflow-input currentness, not evidence freshness against A's target time."
+    ]
+  },
+  "contract_chain": {
+    "causal_graph_model": {
+      "contract": "Existing ir.causal_graph_model@1.0; fields cover graph_type, nodes, edges, discovery_method, optional skg_version_id, PAG identification policy/confidence, metadata.",
+      "scope_gap": "No typed source/target jurisdiction, population, outcome/estimand, time-role, currentness status, governing rule version, or verification-purpose field. Edge confidence and graph schema validity are not admission authority."
+    },
+    "composition_certificate": {
+      "contract": "Existing CompositionCertificate; scope is declared exact observed-DAG adjustment-identifiability preservation with recorded query fingerprints and composition status.",
+      "scope_gap": "It is not a general transportability or A source/target admission certificate; its documented completeness scope excludes general ID, PAG/ADMG, cyclic and non-DAG composition."
+    },
+    "selection_diagram": {
+      "contract": "Existing SelectionDiagram contains base_graph, s_nodes, source_context, target_context, and context_distance. SNode carries dimensions, values, delta, severity/origin/role and optional paired row refs.",
+      "scope_gap": "The model has no verifier provenance, governing-rule version, admission status, or currentness discriminator. SelectionDiagramBuilder documentation says measured row refs are provenance only and do not establish transportability or causal role. A typed diagram is therefore a candidate object, not an admitted result."
+    },
+    "A_transport_context": {
+      "contract": "CycleSubstrateContext binds DesignProblem, WorldModelRecord, substrate registry, and optional TransportContextEvidence. That evidence is explicitly candidate_context_only_not_transport_authority and binds source/target context IDs/profile hashes and measured covariate row hashes.",
+      "scope_gap": "This content binding supplies candidate source/target measurements, not an admitted graph relation or authority to transport. A's current method validates the envelope/problem/WMR binding but has no graph ref argument or graph CAS verifier call."
+    }
+  },
+  "A_consumer_readback": {
+    "gateway": "RealValueOwnerGateway.build_transport_inputs(candidate, problem, world_record)",
+    "current_behavior": "Derives query treatment/outcome, revalidates CycleSubstrateContext and its binding to the active problem and WorldModelRecord, requires transport_context, then raises acquire_data:causal_graph_artifact_unresolved. It explicitly treats runtime-hint graphs/hypotheses as candidate-only and states that it lacks an ArtifactStore/CausalGraphModelRef verifier bridge; no SelectionDiagram is returned.",
+    "artifact_store_note": "RealValueOwnerGateway has an ArtifactStore field for other input paths, but build_transport_inputs does not use it to resolve a graph ref.",
+    "admission_discriminator_available_now": "Fail closed on absent verified graph ref; validate content-bound context against current DesignProblem and WorldModelRecord. No positive graph-admission discriminator is implemented.",
+    "admission_discriminator_missing": "No accepted owner contract currently says which source/target scope, outcome estimand, period/horizon and rule/currentness predicates make a particular verified graph applicable to this A query. Do not infer these from graph confidence, discovery_method, free-text metadata, context delta, or a matching CAS hash."
+  },
+  "G_admission_readback": {
+    "checkpoint_accepts": [
+      "B strict-budget-and-durable-settlement: 2c52e1fe747627b227b5695e578b800cb7eade8b",
+      "B executor-callback-capacity: fd0a8b0044bb51539d812c2d0957381ed52ed3fd",
+      "F lex-pass-plan-deduplication: 00a6eda114b903bc5abe86902cd8372426f739a1"
+    ],
+    "graph_candidates_admitted": [],
+    "graph_ancestry": "F graph-intake source 6321dc33476b0fad24d97ebb140c373608d30019 and F graph-SCM source 672f541313c550e96544728ed397daf330c04442 are not ancestors of G integration source 312e6d7c12e1d623f1ac9502c187e7cb92e48045.",
+    "consumer_wave": "58 PASS / 0 skip is exactly the four recorded test selectors below; it does not test graph intake, SelectionDiagram construction, or A transport admission. No graph-specific selector appears in checkpoint-09."
+  },
+  "complete_tracked_denominators": {
+    "F_graph_intake_candidate_diff": {
+      "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "candidate": "6321dc33476b0fad24d97ebb140c373608d30019",
+      "path_count": 8,
+      "file_type_denominator": {"py": 5, "md": 2, "toml": 1},
+      "paths": [
+        "policy-engine/docs/reference/foundry/causal-graph-reconciliation.md",
+        "policy-engine/docs/reference/scientist/causal-graph-intake.md",
+        "policy-engine/release-fragments/unreleased/2026-10-06-causal-graph-intake.toml",
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+        "policy-engine/tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+        "policy-engine/tests/unit/scientist/methods/causal/test_reconcile_graph_intake_contract.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py"
+      ],
+      "basis": "Recomputed from the complete tracked git diff base..candidate and equal to handoff changed_paths."
+    },
+    "F_graph_scm_candidate_diff": {
+      "base": "c40d4acae1ce58b597267255026d9356565828fd",
+      "candidate": "672f541313c550e96544728ed397daf330c04442",
+      "path_count": 3,
+      "file_type_denominator": {"py": 3},
+      "paths": [
+        "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+        "policy-engine/tests/unit/remediation/test_scm_02.py"
+      ]
+    },
+    "F_api_candidate_diff": {
+      "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "candidate": "729d137279b7d6334230045e420255762fe55f08",
+      "path_count": 3,
+      "file_type_denominator": {"py": 2, "md": 1},
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/README.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/verification/F/api-20261006/census.py",
+        "policy-engine/tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py"
+      ]
+    },
+    "G_checkpoint09_consumer_command": {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-06-second-wave/checkpoint09-consumers.json@8ed2c08a96173a1235b4fc363fcbe07378a47750",
+      "selector_count": 4,
+      "file_type_denominator": {"py": 4},
+      "selectors": [
+        "policy-engine/tests/unit/core/artifacts/test_async_store.py",
+        "policy-engine/tests/unit/runtime/http/test_resilience_guards.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py"
+      ],
+      "basis": "Recomputed from the full pytest command in the committed receipt."
+    }
+  },
+  "canonical_source_refs": [
+    {"path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py", "commit": "33dfb99210eb4457263fde7f92b3479ebac75b02", "blob": "f5bda4e76768ad1d19ae496ddecf78f40f9a06ee", "lines": [4388, 4407, 10701, 10765]},
+    {"path": "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py", "commit": "33dfb99210eb4457263fde7f92b3479ebac75b02", "blob": "932fd33fef285dbb87c7a9a670a78d741829df09", "lines": [742, 789]},
+    {"path": "policy-engine/src/polisyos/ir/analytics/transportability.py", "commit": "33dfb99210eb4457263fde7f92b3479ebac75b02", "blob": "1a4edaa03a316028b45a9eed9311636cb8481255", "lines": [98, 132, 243, 258]},
+    {"path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py", "commit": "6321dc33476b0fad24d97ebb140c373608d30019", "blob": "dd8a896bd96bfcf3e81b47ae82385a2d2c8a83fc", "lines": [954, 969]},
+    {"path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py", "commit": "6321dc33476b0fad24d97ebb140c373608d30019", "blob": "93bcd9191ec7e6707a2290409fa8c5332f59e43e", "lines": [211, 228, 588, 604, 899, 970]},
+    {"path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py", "commit": "6321dc33476b0fad24d97ebb140c373608d30019", "blob": "8787cd95d63b342b5d9f5e760ffc8d73b1b8985d", "lines": [237, 304, 531, 558]},
+    {"path": "policy-engine/src/polisyos/ir/analytics/cross_graph.py", "commit": "672f541313c550e96544728ed397daf330c04442", "blob": "0a860029b673d0a9e02989a2415874836facba12", "lines": [619, 668]},
+    {"path": "policy-engine/src/polisyos/ir/registry/refs.py", "commit": "6321dc33476b0fad24d97ebb140c373608d30019", "blob": "5c64514b14c9d1df0f167a6a572551f3546c7019", "lines": [385, 390]}
+  ],
+  "pattern_pass": {
+    "P32": "Treat actual resolve + content bind + verifier provenance as the admission test. F CAS integrity and a typed CausalGraphModelRef do not supply domain/time verifier provenance.",
+    "P33": "Use the bounded F behavioral and removal probes as evidence of that producer property only; the A sibling consumer still has no positive graph admission path, and G's selectors do not exercise it.",
+    "P37": "F predicates are recomputed for CAS identity, graph shape, and current reconciliation request; source/target applicability and graph freshness at A's query time are not established.",
+    "P38": "A guards the property 'graph evidence applies to this transport query' by refusing because no graph ref verifier bridge exists. A future positive path diverges if it turns on CAS success, graph confidence, or context-delta presence while the graph belongs to another scope or period. Keep the refusal until an owner-backed discriminator exists."
+  },
+  "next_safe_step": "A may add an adapter only after the graph owner supplies the typed source/target applicability and currentness contract. The bridge should resolve the explicitly selected CausalGraphModelRef through CAS, verify the actual bytes and request lineage, and leave unsupported or not-established scope limited/refused. Do not infer scientific scope, causal strength, or freshness from confidence, free-text metadata, graph labels, or SNode refs.",
+  "checks_run": "Read-only git/tree/source inspection and scripts deriving tracked diff/selector denominators. No numeric or runtime tests were run in this refresh. A graph consumer integration remains UNRUN."
+}

@@ -1,0 +1,110 @@
+2026-10-06 15:26:49.269 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+F
+=================================== FAILURES ===================================
+__ test_public_n9_value_result_is_unchanged_when_persisted_ksim_is_unreadable __
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/_build/e02-A-full-queue/n9_gate/raw/pytest-basetemp-attempt-2/test_public_n9_value_result_is0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x130e30770>
+
+    def test_public_n9_value_result_is_unchanged_when_persisted_ksim_is_unreadable(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Run actual N5/N8 and public N9, then remove only N9's CAS read ability.
+    
+        This witnesses a real pre-N9 gate refusal and, separately, the real
+        canonical N9 value obligation.  The test-only epoch appointment below is
+        only a reachability fixture to get through the otherwise-negative-only
+        currentness resolver.  It is not a signed authority/currentness positive.
+        """
+    
+        monkeypatch.setattr(
+            promotion_sequence_module,
+            "_legacy_policy_promotion_callers",
+            lambda _repo_root: (),
+        )
+        original_case_builder = generation_cycle_fixtures._cyc01_owner_bound_n5_case
+    
+        def _canonical_owner_case(*, runtime_hints=None, problem_seed=None):
+            """Keep the integral fixture comparator canonical before actual N5."""
+    
+            hints = dict(runtime_hints or {})
+            baseline = hints.get("joint_simulation_baseline_state")
+            if baseline is not None:
+                hints["joint_simulation_baseline_state"] = {
+                    key: int(value) if isinstance(value, float) and value.is_integer() else value
+                    for key, value in baseline.items()
+                }
+            problem, context, candidate = original_case_builder(
+                runtime_hints=hints,
+                problem_seed=problem_seed,
+            )
+            from polisyos.core.contracts.chronology import _canonical_raw_bytes
+    
+            # Exercise the same forbids-floats design-problem canonicalizer used by
+            # PromotionRuntime before the fixture lets the real N5 port run.
+            _canonical_raw_bytes(problem.model_dump(mode="json"))
+            return problem, context, candidate
+    
+        monkeypatch.setattr(
+            generation_cycle_fixtures,
+            "_cyc01_owner_bound_n5_case",
+            _canonical_owner_case,
+        )
+>       witness = _owner_program_graph_n5_witness(
+            tmp_path,
+            income_values=(1000.0, 2000.0),
+            monkeypatch=monkeypatch,
+        )
+
+docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/test_cyc_02_n9.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_generation_cycle.py:2995: in _owner_program_graph_n5_witness
+    problem, seed_context, seed_candidate = _cyc01_owner_bound_n5_case(
+docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/test_cyc_02_n9.py:77: in _canonical_owner_case
+    _canonical_raw_bytes(problem.model_dump(mode="json"))
+src/polisyos/core/contracts/chronology.py:109: in _canonical_raw_bytes
+    return to_canonical_bytes(value, CHRONOLOGY_CANON_SPEC)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/core/canon/canon_json.py:40: in to_canonical_bytes
+    return _to_canonical_bytes(
+src/polisyos/common/canonical.py:232: in to_canonical_bytes
+    canon_obj = _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:200: in _canonicalize_obj
+    return _canonicalize_mapping(
+src/polisyos/common/canonical.py:108: in _canonicalize_mapping
+    out[key] = _canonicalize_obj(
+src/polisyos/common/canonical.py:193: in _canonicalize_obj
+    _raise_violation(violation_type, "float forbidden in canonical JSON")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+violation_type = <class 'polisyos.core.canon.canon_json.CanonViolation'>
+message = 'float forbidden in canonical JSON'
+
+    def _raise_violation(violation_type: type[ValueError], message: str) -> NoReturn:
+>       raise violation_type(message)
+E       polisyos.core.canon.canon_json.CanonViolation: float forbidden in canonical JSON
+
+src/polisyos/common/canonical.py:67: CanonViolation
+=========================== short test summary info ============================
+FAILED docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate/test_cyc_02_n9.py::test_public_n9_value_result_is_unchanged_when_persisted_ksim_is_unreadable

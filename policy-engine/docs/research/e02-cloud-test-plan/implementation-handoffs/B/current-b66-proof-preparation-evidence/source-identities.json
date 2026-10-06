@@ -1,0 +1,549 @@
+{
+  "source_snapshot_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+  "scope": "Explicit canonical criteria, actual chain and native fixture sources; test definitions are static navigation, not native case counts or results",
+  "files": [
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 18658,
+      "sha256": "56e5cceefa8382986c7c5662a093b3adb7bf5d4afa50c6b77093797bd19cff1f",
+      "byte_equal_terminal456": true,
+      "test_definitions": []
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-02.md",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 13613,
+      "sha256": "b4e1df5e681a96a0bbf26f0116b73cefd8737a6d84287d12427c9edd80b070bd",
+      "byte_equal_terminal456": true,
+      "test_definitions": []
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/B.md",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 33768,
+      "sha256": "ce79be8c2a247a6dfe3bd543bc1898ca969d60d2b1012f8f8d735e521a1798db",
+      "byte_equal_terminal456": true,
+      "test_definitions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 7635,
+      "sha256": "04778d8fe0dd2cb6e29a9547865321afb92e8355fbbffd602f5d4e276948f6af",
+      "byte_equal_terminal456": true,
+      "test_definitions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 8687,
+      "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b",
+      "byte_equal_terminal456": true,
+      "test_definitions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 35161,
+      "sha256": "1d604c7d24f254017e4b69ba304f207d364c0a7e6dd1c0408ffce7e39e05c30a",
+      "byte_equal_terminal456": true,
+      "test_definitions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 9508,
+      "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+      "byte_equal_terminal456": true,
+      "test_definitions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 37271,
+      "sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462",
+      "byte_equal_terminal456": true,
+      "test_definitions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 28432,
+      "sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e",
+      "byte_equal_terminal456": true,
+      "test_definitions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 26353,
+      "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+      "byte_equal_terminal456": true,
+      "test_definitions": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 6067,
+      "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+      "byte_equal_terminal456": true,
+      "test_definitions": []
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 41666,
+      "sha256": "acf11eee561f833de25be229e4de1086aef6a7e6f625148f765a8e687adf3682",
+      "byte_equal_terminal456": true,
+      "test_definitions": [
+        {
+          "name": "test_initiator_cancellation_cannot_erase_provider_completion",
+          "line": 99,
+          "end_line": 117
+        },
+        {
+          "name": "test_optional_tracing_failure_preserves_actual_provider_result",
+          "line": 121,
+          "end_line": 133
+        },
+        {
+          "name": "test_metadata_permission_cannot_authorize_snapshot_reuse",
+          "line": 137,
+          "end_line": 158
+        },
+        {
+          "name": "test_cancelled_initiator_settles_actual_ledger_before_cache_publication",
+          "line": 181,
+          "end_line": 215
+        },
+        {
+          "name": "test_lost_actual_ack_is_unknown_and_blocks_reuse_until_reconciled",
+          "line": 219,
+          "end_line": 253
+        },
+        {
+          "name": "test_absent_ack_retry_requires_retained_actual_producer_and_never_reissues_provider",
+          "line": 257,
+          "end_line": 279
+        },
+        {
+          "name": "test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel",
+          "line": 283,
+          "end_line": 318
+        },
+        {
+          "name": "test_actual_cache_publication_requires_resolvable_exact_durable_receipt",
+          "line": 322,
+          "end_line": 343
+        },
+        {
+          "name": "test_different_actual_budget_owners_cannot_join_first_owners_flight",
+          "line": 347,
+          "end_line": 364
+        },
+        {
+          "name": "test_actual_owner_permission_rechecked_actor_epoch_and_exact_cas_ref",
+          "line": 445,
+          "end_line": 468
+        },
+        {
+          "name": "test_owner_revocation_while_follower_waits_prevents_shared_consumption",
+          "line": 472,
+          "end_line": 492
+        },
+        {
+          "name": "test_canonical_factory_consumes_actual_owner_decision",
+          "line": 496,
+          "end_line": 521
+        },
+        {
+          "name": "test_ainvoke_cancellation_and_sync_invoke_use_exact_durable_owner",
+          "line": 525,
+          "end_line": 555
+        },
+        {
+          "name": "test_unknown_mandatory_callback_blocks_new_provider_until_exact_reconciliation",
+          "line": 559,
+          "end_line": 587
+        },
+        {
+          "name": "test_invalid_accounting_target_index_refuses_before_actual_provider_or_reservation",
+          "line": 592,
+          "end_line": 619
+        },
+        {
+          "name": "test_expired_suppressed_producer_settles_without_result_or_cache_and_retry_is_fresh",
+          "line": 623,
+          "end_line": 670
+        },
+        {
+          "name": "test_deadline_covers_mandatory_completion_and_actual_cache_lock",
+          "line": 675,
+          "end_line": 727
+        },
+        {
+          "name": "test_cached_emission_rechecks_actual_owner_after_cache_read",
+          "line": 731,
+          "end_line": 751
+        },
+        {
+          "name": "test_bounded_flight_refuses_unsupported_cache_before_provider",
+          "line": 755,
+          "end_line": 768
+        },
+        {
+          "name": "test_expired_response_unknown_ack_remains_primary_and_retains_actual_event",
+          "line": 772,
+          "end_line": 806
+        },
+        {
+          "name": "test_deadline_preserves_cooperative_timeout_and_actual_provider_error",
+          "line": 811,
+          "end_line": 830
+        },
+        {
+          "name": "test_provider_cannot_claim_cache_billing_by_type_or_unowned_capability",
+          "line": 836,
+          "end_line": 888
+        },
+        {
+          "name": "test_actual_physical_completion_cannot_borrow_authentic_reuse_capability",
+          "line": 893,
+          "end_line": 935
+        },
+        {
+          "name": "test_receiver_binds_cache_issuer_and_exact_consumption",
+          "line": 942,
+          "end_line": 992
+        },
+        {
+          "name": "test_unconfigured_receiver_bills_self_appointed_actual_provider",
+          "line": 996,
+          "end_line": 1022
+        },
+        {
+          "name": "test_receiver_configuration_refuses_another_clients_issuer",
+          "line": 1025,
+          "end_line": 1029
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 21046,
+      "sha256": "b85a152ba32ac72aa4586f40f562c008a1e01479307032f5a466faac0f90a02b",
+      "byte_equal_terminal456": true,
+      "test_definitions": [
+        {
+          "name": "test_deterministic",
+          "line": 139,
+          "end_line": 142
+        },
+        {
+          "name": "test_different_params_different_keys",
+          "line": 144,
+          "end_line": 147
+        },
+        {
+          "name": "test_temperature_affects_key",
+          "line": 149,
+          "end_line": 152
+        },
+        {
+          "name": "test_messages_and_positional_prompt_affect_key",
+          "line": 154,
+          "end_line": 174
+        },
+        {
+          "name": "test_volatile_metadata_is_excluded_from_key",
+          "line": 176,
+          "end_line": 205
+        },
+        {
+          "name": "test_hit",
+          "line": 209,
+          "end_line": 215
+        },
+        {
+          "name": "test_put_stores_isolated_snapshot",
+          "line": 217,
+          "end_line": 225
+        },
+        {
+          "name": "test_cached_tool_calls_and_raw_payloads_are_clone_isolated",
+          "line": 227,
+          "end_line": 255
+        },
+        {
+          "name": "test_miss",
+          "line": 257,
+          "end_line": 259
+        },
+        {
+          "name": "test_ttl_expiry",
+          "line": 261,
+          "end_line": 265
+        },
+        {
+          "name": "test_maxsize_eviction",
+          "line": 267,
+          "end_line": 275
+        },
+        {
+          "name": "test_size_property",
+          "line": 277,
+          "end_line": 283
+        },
+        {
+          "name": "test_stats_track_hits_misses_puts_and_skips",
+          "line": 285,
+          "end_line": 298
+        },
+        {
+          "name": "test_caches_deterministic_positional_prompt_calls",
+          "line": 303,
+          "end_line": 322
+        },
+        {
+          "name": "test_cache_hits_do_not_share_mutable_response_state",
+          "line": 325,
+          "end_line": 343
+        },
+        {
+          "name": "test_skips_cache_for_tool_calls_and_freshness_sensitive_inputs",
+          "line": 346,
+          "end_line": 373
+        },
+        {
+          "name": "test_frozen_snapshot_with_url_reuses",
+          "line": 376,
+          "end_line": 402
+        },
+        {
+          "name": "test_changed_snapshot_bytes_or_hash_cannot_hit",
+          "line": 405,
+          "end_line": 436
+        },
+        {
+          "name": "test_lost_permission_and_model_change_cannot_hit",
+          "line": 439,
+          "end_line": 470
+        },
+        {
+          "name": "test_live_url_without_snapshot_skips",
+          "line": 473,
+          "end_line": 483
+        },
+        {
+          "name": "test_four_identical_allowed_misses_single_flight",
+          "line": 486,
+          "end_line": 512
+        },
+        {
+          "name": "test_different_seed_and_tenant_are_separate_flights",
+          "line": 515,
+          "end_line": 544
+        },
+        {
+          "name": "test_cancelled_follower_does_not_cancel_owner",
+          "line": 547,
+          "end_line": 572
+        },
+        {
+          "name": "test_failed_owner_clears_inflight_entry",
+          "line": 575,
+          "end_line": 608
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 8263,
+      "sha256": "b247897d69ec0c990aeb94700db0d471a46890e77ea6f181190e3eaa40d7b5de",
+      "byte_equal_terminal456": true,
+      "test_definitions": [
+        {
+          "name": "test_duplicate_prompt_is_normalized_to_one_provider_argument",
+          "line": 100,
+          "end_line": 107
+        },
+        {
+          "name": "test_gateway_prompt_form_maps_to_supported_user_message_once",
+          "line": 111,
+          "end_line": 143
+        },
+        {
+          "name": "test_conflicting_prompt_forms_are_rejected_before_provider_call",
+          "line": 147,
+          "end_line": 154
+        },
+        {
+          "name": "test_optional_metrics_failure_preserves_provider_result_and_no_retry",
+          "line": 158,
+          "end_line": 165
+        },
+        {
+          "name": "test_provider_raw_cache_marker_cannot_forge_reuse_billing",
+          "line": 169,
+          "end_line": 179
+        },
+        {
+          "name": "test_mandatory_accounting_failure_exposes_received_response",
+          "line": 183,
+          "end_line": 196
+        },
+        {
+          "name": "test_cache_hits_emit_reuse_without_duplicate_provider_usage",
+          "line": 200,
+          "end_line": 225
+        },
+        {
+          "name": "test_budget_enforcer_charges_misses_not_cache_reuse_and_charges_after_expiry",
+          "line": 229,
+          "end_line": 254
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 13682,
+      "sha256": "aca02227a7c9d3a5ac6740cb9a7428785e324d97fc09d36fa036e6c8a6c965f4",
+      "byte_equal_terminal456": true,
+      "test_definitions": [
+        {
+          "name": "test_exact_event_retry_survives_restart_and_bounded_journal_eviction",
+          "line": 121,
+          "end_line": 137
+        },
+        {
+          "name": "test_conflicting_event_identity_refuses_without_modifying_bytes",
+          "line": 144,
+          "end_line": 153
+        },
+        {
+          "name": "test_lost_ack_remains_unknown_until_actual_reopen_and_exact_retry",
+          "line": 165,
+          "end_line": 184
+        },
+        {
+          "name": "test_concurrent_actual_middleware_producers_apply_same_event_once",
+          "line": 187,
+          "end_line": 220
+        },
+        {
+          "name": "test_complete_legacy_wire_upgrades_but_sparse_legacy_never_defaults",
+          "line": 223,
+          "end_line": 241
+        },
+        {
+          "name": "test_required_settlement_wire_fields_cannot_silently_forget_ack",
+          "line": 248,
+          "end_line": 263
+        },
+        {
+          "name": "test_inconsistent_settlement_wire_refuses_all_actual_inlets",
+          "line": 279,
+          "end_line": 304
+        },
+        {
+          "name": "test_memory_only_middleware_cannot_issue_durable_ack_or_owner_identity",
+          "line": 307,
+          "end_line": 315
+        },
+        {
+          "name": "test_cold_settlement_cannot_publish_an_implicit_unlimited_ledger",
+          "line": 318,
+          "end_line": 325
+        },
+        {
+          "name": "test_nullable_provider_omission_is_valid_in_a_real_settlement_receipt",
+          "line": 328,
+          "end_line": 334
+        },
+        {
+          "name": "test_owner_identity_is_actual_persisted_and_stable_across_processes",
+          "line": 337,
+          "end_line": 349
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "source_sha": "b4429e0d182000d867c3fd812977674fc5c55817",
+      "bytes": 6427,
+      "sha256": "bef7aa0de4133162c63515a6614b47ff3492ddc7a668971e20ddd9b3f4fd6464",
+      "byte_equal_terminal456": true,
+      "test_definitions": [
+        {
+          "name": "test_cost_histogram_recorded",
+          "line": 58,
+          "end_line": 62
+        },
+        {
+          "name": "test_post_record_returns_cost",
+          "line": 64,
+          "end_line": 68
+        },
+        {
+          "name": "test_token_recording_does_not_crash",
+          "line": 77,
+          "end_line": 80
+        },
+        {
+          "name": "test_invoke_measures_latency",
+          "line": 89,
+          "end_line": 92
+        },
+        {
+          "name": "test_generate_measures_latency",
+          "line": 95,
+          "end_line": 98
+        },
+        {
+          "name": "test_utilization_updated_after_spend",
+          "line": 107,
+          "end_line": 113
+        },
+        {
+          "name": "test_utilization_none_for_unknown_key",
+          "line": 115,
+          "end_line": 117
+        },
+        {
+          "name": "test_no_anomaly_on_uniform_costs",
+          "line": 126,
+          "end_line": 129
+        },
+        {
+          "name": "test_detects_large_spike",
+          "line": 133,
+          "end_line": 137
+        },
+        {
+          "name": "test_first_call_not_anomaly",
+          "line": 141,
+          "end_line": 143
+        },
+        {
+          "name": "test_second_call_not_anomaly",
+          "line": 145,
+          "end_line": 148
+        },
+        {
+          "name": "test_post_record_works_when_get_metrics_raises",
+          "line": 157,
+          "end_line": 165
+        },
+        {
+          "name": "test_dashboard_json_valid",
+          "line": 174,
+          "end_line": 191
+        }
+      ]
+    }
+  ]
+}

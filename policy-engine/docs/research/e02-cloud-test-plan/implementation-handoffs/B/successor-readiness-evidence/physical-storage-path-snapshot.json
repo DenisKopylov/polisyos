@@ -1,0 +1,77 @@
+{
+  "tempfile_gettempdir": "/tmp",
+  "filesystems": [
+    {
+      "path": "/workspace",
+      "device": 27,
+      "block_size": 4096,
+      "available_bytes": 595259392,
+      "available_inodes": 447813
+    },
+    {
+      "path": "/tmp",
+      "device": 33,
+      "block_size": 4096,
+      "available_bytes": 8743768064,
+      "available_inodes": 2287495
+    }
+  ],
+  "tmp_mount": "TARGET FSTYPE SOURCE OPTIONS\n/tmp   tmpfs  none   rw,relatime\n",
+  "path_admission_snapshot": [
+    {
+      "path": "/tmp/e02-B-successor-final/raw/review",
+      "exists": false,
+      "is_symlink": false,
+      "resolved_path": "/tmp/e02-B-successor-final/raw/review"
+    },
+    {
+      "path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.args",
+      "exists": false,
+      "is_symlink": false,
+      "resolved_path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.args"
+    },
+    {
+      "path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-pytest",
+      "exists": false,
+      "is_symlink": false,
+      "resolved_path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-pytest"
+    },
+    {
+      "path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-cache",
+      "exists": false,
+      "is_symlink": false,
+      "resolved_path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-cache"
+    },
+    {
+      "path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.xml",
+      "exists": false,
+      "is_symlink": false,
+      "resolved_path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort.xml"
+    },
+    {
+      "path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-profile.json",
+      "exists": false,
+      "is_symlink": false,
+      "resolved_path": "/tmp/e02-B-successor-final/raw/review/successor-final-B-cohort-profile.json"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort-inventory.json",
+      "exists": false,
+      "is_symlink": false,
+      "resolved_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort-inventory.json"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.txt",
+      "exists": false,
+      "is_symlink": false,
+      "resolved_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.txt"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.json",
+      "exists": false,
+      "is_symlink": false,
+      "resolved_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/successor-final-B-cohort.json"
+    }
+  ],
+  "measurement_boundary": "Read-only momentary available space/inode/path observation, never reservation or future capacity guarantee. No cleanup or source/fixture mutation."
+}

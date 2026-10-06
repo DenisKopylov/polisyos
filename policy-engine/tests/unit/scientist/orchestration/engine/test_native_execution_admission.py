@@ -331,3 +331,158 @@ async def test_native_readiness_preserves_real_inputs_methods_and_artifact_linea
         if not task.done():
             task.cancel()
         await asyncio.gather(task, return_exceptions=True)
+
+
+class _SkipNode(_Node):
+    def __init__(self):
+        super().__init__("skipped", writes=[])
+        self.spec = self.spec.model_copy(update={"state_writes": []})
+
+    def execute(self, ctx, state):
+        self.calls += 1
+        ref = ctx.store.put_json(
+            {"attempt": self.calls, "status": "skip"},
+            PutOptions(kind="scientist.native_skip_attempt", media_type="application/json"),
+        )
+        self.refs.append(ref)
+        return NodeOutcome(status="skip", state=state, artifacts=[ref])
+
+    async def execute_async(self, ctx, state):
+        return self.execute(ctx, state)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("neighbor", [False, True])
+async def test_native_skip_width_preserves_frontier_and_reopened_resume_meaning(tmp_path, neighbor):
+    from polisyos.scientist.orchestration.engine.checkpoint import resume_from_checkpoint
+
+    ctx = _context(tmp_path)
+    skip = _SkipNode()
+    independent, after = _Node("independent"), _Node("after")
+    nodes = [skip] + ([independent] if neighbor else []) + [after]
+    workflow = WorkflowSpec(
+        workflow_id="native_skip_width",
+        error_policy="continue",
+        nodes=[
+            NodeInvocation(
+                alias=node.alias,
+                node_id=node.spec.metadata.component_id,
+                depends_on=(["skipped", "independent"] if neighbor else ["skipped"])
+                if node is after
+                else [],
+            )
+            for node in nodes
+        ],
+    )
+    registry = _registry(*nodes)
+    first = await AsyncWorkflowExecutor(
+        ctx,
+        registry,
+        checkpoint_hook=CASCheckpointHook(store=ctx.store, run_dir=ctx.run.trace_path.parent),
+    ).execute(workflow, ExperimentState(run_id="R_admission"))
+    assert first.report.status == "ok"
+    assert first.report.nodes[0].status == "skip"
+    assert skip.calls == after.calls == 1
+    reopened = FileSystemCAS(ctx.store.root)
+    resolved = resolve_latest_checkpoint(reopened, "R_admission")
+    assert resolved is not None
+    head, dto = resolved
+    assert reopened.verify(head.checkpoint_ref).ok
+    assert dto.metadata.completed_nodes == (["independent", "after"] if neighbor else ["after"])
+    assert dto.metadata.completed_node_status_contract == "native_node_outcome_v1"
+    assert "skipped" not in dto.metadata.completed_nodes
+    assert "skipped" not in dto.state["reports_index"]
+    assert len(dto.metadata.cache_entry_refs) == (2 if neighbor else 1)
+    assert all(reopened.verify(ref).ok for ref in dto.metadata.cache_entry_refs)
+    resumed = await asyncio.to_thread(
+        resume_from_checkpoint,
+        reopened,
+        "R_admission",
+        workflow=workflow,
+        registry=registry,
+        registry_bundle_ref=ctx.run.run_manifest.registry_bundle,
+    )
+    assert resumed.report.status == "ok"
+    assert [(row.alias, row.status) for row in resumed.report.nodes] == [("skipped", "skip")]
+    assert skip.calls == 2 and after.calls == 1
+    assert independent.calls == (1 if neighbor else 0)
+    assert "skipped" not in resumed.state.reports_index
+    for ordinal, ref in enumerate(skip.refs, start=1):
+        assert reopened.verify(ref).ok
+        assert json.loads(reopened.get_bytes(ref)) == {"attempt": ordinal, "status": "skip"}
+    assert reopened.verify(after.refs[0]).ok
+    assert reopened.verify(resumed.run_ref).ok
+
+
+@pytest.mark.asyncio
+async def test_native_failed_nested_branch_does_not_leak_to_live_neighbor_or_basis(tmp_path):
+    ctx = _context(tmp_path)
+    changed = asyncio.Event()
+    release = asyncio.Event()
+
+    class NestedFailure(_Node):
+        def __init__(self):
+            super().__init__("nested_fail", writes=["params.config"])
+
+        async def execute_async(self, ctx, state):
+            self.calls += 1
+            state.params["config"]["history"].append(2)
+            state.params["config"]["rows"][0]["value"] = "changed"
+            ref = ctx.store.put_json(
+                state.params["config"],
+                PutOptions(kind="scientist.failed_branch_effect", media_type="application/json"),
+            )
+            self.refs.append(ref)
+            changed.set()
+            await release.wait()
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                artifacts=[ref],
+                error=NodeError(code="nested.fail", message="Rejected native branch"),
+            )
+
+    class LiveNeighbor(_Node):
+        def __init__(self):
+            super().__init__("neighbor", reads=["params.config"])
+
+        async def execute_async(self, ctx, state):
+            await changed.wait()
+            self.calls += 1
+            ref = ctx.store.put_json(
+                state.params["config"],
+                PutOptions(kind="scientist.live_neighbor_input", media_type="application/json"),
+            )
+            self.refs.append(ref)
+            state.reports_index["neighbor"] = ref
+            release.set()
+            return NodeOutcome(status="ok", state=state, artifacts=[ref])
+
+    failed, neighbor = NestedFailure(), LiveNeighbor()
+    workflow = WorkflowSpec(
+        workflow_id="native_nested_branch",
+        nodes=[
+            NodeInvocation(alias=node.alias, node_id=node.spec.metadata.component_id)
+            for node in (failed, neighbor)
+        ],
+    )
+    original = {"history": [1], "rows": [{"value": "original"}]}
+    state = ExperimentState(run_id="R_admission", params={"config": original})
+    result = await AsyncWorkflowExecutor(
+        ctx,
+        _registry(failed, neighbor),
+        checkpoint_hook=CASCheckpointHook(store=ctx.store, run_dir=ctx.run.trace_path.parent),
+    ).execute(workflow, state)
+    assert result.report.status == "fail"
+    assert failed.calls == neighbor.calls == 1
+    assert state.params == result.state.params == {"config": original}
+    assert original == {"history": [1], "rows": [{"value": "original"}]}
+    assert "neighbor" not in result.state.reports_index
+    reopened = FileSystemCAS(ctx.store.root)
+    assert reopened.verify(failed.refs[0]).ok and reopened.verify(neighbor.refs[0]).ok
+    assert json.loads(reopened.get_bytes(failed.refs[0])) == {
+        "history": [1, 2],
+        "rows": [{"value": "changed"}],
+    }
+    assert json.loads(reopened.get_bytes(neighbor.refs[0])) == original
+    assert resolve_latest_checkpoint(reopened, "R_admission") is None

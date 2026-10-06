@@ -1,0 +1,38 @@
+2026-10-06 20:48:49.696 | INFO     | polisyos.common.logger:_call:120 - Harvesting source worldbank (https://example.test/worldbank)
+2026-10-06 20:48:49.698 | INFO     | polisyos.common.logger:_call:120 - Prioritized 16 sampled rows for worldbank before applying limit 50
+2026-10-06 20:48:49.875 | INFO     | polisyos.common.logger:_call:120 - Graph load complete: 16 datasets, 16 distributions, 25 metric bindings, 16 schema profiles, 0 entity mappings, 0 alignment hints
+2026-10-06 20:48:49.974 | INFO     | polisyos.common.logger:_call:120 - Trimmed observation plans for sampled run: kept 2 of 26 plans (per-source limit=2)
+2026-10-06 20:48:49.986 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 198774e033481fa7a0adc096: source=worldbank, request_dataset_id=SP.DYN.LE00.IN, country=UA
+2026-10-06 20:48:49.988 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 64e5b1bcc10a11c34f84a4ed: source=worldbank, request_dataset_id=NY.GDP.PCAP.CD, country=UA
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: HEAD
+2026-10-06 20:48:51.327 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception for %s %s: GET

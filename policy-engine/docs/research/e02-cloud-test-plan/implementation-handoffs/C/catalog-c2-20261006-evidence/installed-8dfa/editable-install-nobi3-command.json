@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/uv",
+    "pip",
+    "install",
+    "--offline",
+    "--no-deps",
+    "--no-build-isolation",
+    "--editable",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/source/policy-engine",
+    "--python",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/venv-base/bin/python"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/source/policy-engine",
+  "elapsed_seconds": 0.201,
+  "ended_at_utc": "2026-10-06T17:36:30.509067+00:00",
+  "env_delta": {
+    "PYTHONHOME": null,
+    "PYTHONPATH": "/Users/deniskopylov/.cache/uv/archive-v0/YUs921CMN7bGtgwyMykk3:/Users/deniskopylov/.cache/uv/archive-v0/QE6DREbYsK8sTuZOeKsM8:/Users/deniskopylov/.cache/uv/archive-v0/CYuBuDi6eT8vqgBcw1xmt:/Users/deniskopylov/.cache/uv/archive-v0/0_OIyaIgWrA6UuESVxSKg:/Users/deniskopylov/.cache/uv/archive-v0/fi4dB0uLY-31KEGEb5kjs:/Users/deniskopylov/.cache/uv/archive-v0/tS3T-feL91bRoib57dD1o:/Users/deniskopylov/.cache/uv/archive-v0/uCD3kqxmr_S4Krxz4Y5Mq",
+    "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv"
+  },
+  "exit_code": 0,
+  "started_at_utc": "2026-10-06T17:36:30.307930+00:00",
+  "stderr": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/editable-install-nobi3.stderr",
+    "sha256": "6ea81210caaa957daf09070ae0e3048f0801053ff45d647b3521e9dceb7af6ea"
+  },
+  "stdout": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/editable-install-nobi3.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

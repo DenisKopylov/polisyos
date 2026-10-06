@@ -69,12 +69,72 @@
   "pull_request": null,
   "changed_paths": [
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-baseline-query.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-8dfa-dependent-tests.receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-8dfa-dependent-tests.stdout.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-diff-check.stdout.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-qc-publish-kernel.stdout.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-read-api-projection.stdout.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-retrieval-service.stdout.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-ruff-check.stdout.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-ruff-format.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/dfi-resource-review.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/base-env-run.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/base-sync-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/base-sync.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/base-sync.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/build-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/build-run.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/build.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/build.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/c2-installed-composition-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-038-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-038.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-038.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-042-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-042.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-042.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-vector-install-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-vector-install.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-vector-install.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-installed-audit-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-complete-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-complete.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-complete.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-oracle-complete.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-runtime-prodfull-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/context038-probe-final.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/editable-install-nobi3-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/editable-install-nobi3-run.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/editable-install-nobi3.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/editable-install-nobi3.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/empty-seed.yaml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/http503-negative-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/legal042-probe-final.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/negative-http-503-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/negative-http-503.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/negative-http-503.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/package-census.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/package-census.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/package-census.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/positive-core-fixed-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/positive-core-fixed.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/positive-core-fixed.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/preflight-core-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/prod-full-200-command.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/prod-full-200.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/prod-full-200.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/prod-full-catalog-runtime-result.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-A-core_sources_ingest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-A-observation_ingest_checkpoint.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-A-source-registry.yaml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-A-stage_state.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-A-telemetry.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-B-core_sources_ingest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-B-observation_ingest_checkpoint.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-B-source-registry.yaml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-B-stage_state.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-B-telemetry.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/provider-corrective-review-targeted.stdout.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-report-swap-probe.py",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-report-swap-probe.stdout.txt",
@@ -163,8 +223,8 @@
     "policy-engine/tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py",
     "policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py"
   ],
-  "changed_path_count": 94,
-  "changed_path_stat": "94 files changed, 10275 insertions(+), 1375 deletions(-) from the slice base; complete path list is derived directly from git diff --name-only base...candidate.",
+  "changed_path_count": 154,
+  "changed_path_stat": "154 files changed, 41229 insertions(+), 1375 deletions(-) from the slice base to the attached receipt tree; complete path list is derived directly from git diff --name-only 198076863e143dea9f89f02734b13d50dae3eed5...HEAD.",
   "path_ownership": {
     "catalog_owner": "C catalog author owns the canonical catalog registry/selection, batch configuration/source projection, standalone publish path, RetrievalService path, and mirrored catalog tests. The batch/source_registry.yaml duplicate remains untouched and is not the default owner.",
     "provider_dependency": "DFI/EMB provider commits f5d66898566cc472a5a3a7309ecb76f0cdb12c45, 4a9350bf3e43d1785ab7ff51b37da442e84aca8e, 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63, 6cfd7ffca15f586840d1aaf42b436fe1685be9fa, d747ada477f3de1a369a2e29a547b9f66e77822b, and ab44166335130463178e65dfc29a252c96afe479 were consumed by append-only Git merges. Pipeline, harvest, core-source producer/checkpoint, benchmark current-core-receipt consumer, embedding, knowledge-store, generation-basis, and quality-input paths remain provider-owned; C did not edit the DFI pipeline or generation-basis implementation.",
@@ -316,6 +376,70 @@
       "input_closure": "The hook dispatcher could not launch the configured Lefthook binary; this is a hook nonreceipt, not a product check failure. The separate staged diff check passed.",
       "outcome": "UNRUN",
       "output": "Prior tool output reported: PolicyOS hook: missing binary: /Users/deniskopylov/polisyos/policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook; run corepack pnpm install --frozen-lockfile in policy-engine. The original hook stderr was not retained as a file; do not treat this as complete hook output or PASS."
+    },
+    {
+      "command": "git commit -m \"docs: finalize catalog installed audit handoff\" (pre-commit attempt)",
+      "target_sha": "5169abdbb1db103d25cfddab5f361e973aafa850",
+      "environment": "Attached C worktree; configured common hook dispatcher at /Users/deniskopylov/polisyos/.git/hooks/pre-commit was inspected. It checks for the dashboard Lefthook config and executable, then invokes Lefthook.",
+      "input_closure": "Commit-time tooling only. The dispatcher stopped before launching any configured hook checks because the Lefthook executable was absent. No hook/config/dependency files were changed; the separately run staged diff check passed.",
+      "outcome": "UNRUN",
+      "output": "Exact observed stderr: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/final-handoff-precommit.stderr.txt@b86dadfebf1bad1e37f2905928c0200df2d385e49373046c0877987cc8186258. The original command wrapper did not retain an exit-code field."
+    },
+    {
+      "command": "Pinned 8dfa source archive build; successful base-only editable install from that exact archived source; package wheel installation in the existing vector-search profile for the separate 038/042 probes.",
+      "target_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "environment": "Python 3.14.0; isolated temporary base-only runtime with no dev/test/optional extras. The successful editable install is the exact archived source workspace route. The wheel install is offline/no-deps in the existing private vector-search environment. The 038/042 runtime commands separately use python -I from /tmp with PYTHONPATH unset.",
+      "input_closure": "Exact 8dfa archive at tree 3eac9b5cf816e30f9c1bacc81d80e2dc75d81681, built wheel/sdist, package membership census, and private local dependency artifacts; no production input or network access.",
+      "outcome": "PASS",
+      "output": "Build, editable install, and wheel installation have exact command/output records. The package census output/script are retained, but no separate census argv record was captured; the review bounds the missing default seed YAML resource to the non-editable wheel/sdist path and does not infer a wheel-plus-workspace contract. Build: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/build-command.json@b39257ee22b03559950485d7ff11786e44e0e1ee7b43960ac4a923ad4f037bd8; editable install: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/editable-install-nobi3-command.json@a2b1fb7aa1306e5876b7caa209796a4b6991f5257944a889c2b14ef8c38a9089; wheel install: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-vector-install-command.json@811f019ed969e9a79be017c7cd4a114ca587eb4ca8df13c6f0cf6459023e453d; package census output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/package-census.stdout.txt@bc0b3340f06d0d6b1bd53519c3b7bb6c60db0cc554290159888fde00fc5483c2."
+    },
+    {
+      "command": "python -I catalog-runtime-prodfull-probe.py <prod-full-run> <archived-source-root> <wheel> 200; exact argv is in the captured command record.",
+      "target_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "environment": "Python 3.14.0; cwd /tmp; isolated mode; PYTHONPATH unset; normal editable .pth resolves to the pinned archive source. HTTP 200 is a deterministic request-boundary stub, not live World Bank traffic.",
+      "input_closure": "Explicit existing prod_full profile, UA/2020 synthetic run; nine fixture source metadata rows plus seven existing metrics-map augmentations; no production database, corpus, network, or model assets.",
+      "outcome": "PASS",
+      "output": "Actual producer persisted 16 normalized/merged datasets and 26/26 core observations across the 16 datasets; current core receipt/checkpoint matched the DuckDB. Benchmark: retrieval 90%, search 88.889%, source preflight 100%, transport 90%, Foundry 100%; QC passed. Actual publisher wrote consumer_ready=true, full_publish_ready=true, full-ready manifest sha256 d9e43677b9a76a0405e130f2244f455f80bccde18069a1834052a6054ad0032d. After publication, RetrievalService resolved gdp_per_capita to worldbank.wdi / worldbank_wdi / NY.GDP.PCAP.PP.CD under the same explicit prod_full context. This is a synthetic fixture and direct library consumer, not an HTTP lifecycle pass; live external reachability remains not_established. Command/output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/prod-full-200-command.json@df1809cedbbaa1108a859a6a0ff3ed831e191342d71b54b207268ebc867bca46; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/prod-full-200.stdout.txt@cc1ebf19f873999e126e2aef2d188d1c81feba00dd903dc33e6ce4be28cb9590; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/prod-full-200.stderr.txt@b6a14648963658415c1c3798ff6abf69fa8b674c6ab08aa9619ffbc92bc87a96; typed result: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/prod-full-catalog-runtime-result.json@ac735525db9c0438c508f90149e62f51b41ae11f4f28a89d2d54bca0703f8c4a."
+    },
+    {
+      "command": "python -I catalog-readback-oracle-complete.py <core-result> <prod-full-result> <http503-result> <archive-root> <wheel> <readback-summary>; exact argv is in the captured command record.",
+      "target_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "environment": "Python 3.14.0 from the isolated audit venv; cwd /tmp; oracle opened DuckDB read-only and imported no PolicyOS product runtime.",
+      "input_closure": "Actual raw manifest/payload, normalized and merged artifacts, DuckDB rows/tables, current stage receipts/checkpoint, benchmark/QC reports, readiness/publish manifests, candidate module identities, and direct RetrievalService result/refusal records for the captured fixture runs.",
+      "outcome": "PASS",
+      "output": "Independent oracle exited 0 and checked actual persisted bytes and database state, receipt/content inventory digests, exact publisher artifact hashes, and the post-publication RetrievalService selection and missing/unknown-profile refusals. Full readback: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-complete-command.json@92c1c6128214e10620abe869e8967e7b0592dbea856cb3128e8213b2ff646ebc; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-complete.stdout.txt@dae9fa8d694a76627bd3a69d9436a264e94ca1c7146bc0f97a8902642aeb9f2c; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-complete.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855; oracle: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-oracle-complete.py@7adc59f804b25ba4aa51414b23678a6866aae9dabdd0fd82f065fd17ec98d33d; summary: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-summary.json@3a5be1089fac3bdb3f07444d18378bea0834651c85477df296e9712493aa7fd9."
+    },
+    {
+      "command": "python -I catalog-runtime-probe.py <preflight-core-run> <archived-source-root> <wheel> 200; exact argv is in the captured command record.",
+      "target_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "environment": "Python 3.14.0; cwd /tmp; isolated mode; same editable archive source route and deterministic HTTP 200 request stub.",
+      "input_closure": "Existing preflight_core profile with two selected core observations; no production inputs or network.",
+      "outcome": "PASS",
+      "output": "Expected profile control: 16 datasets are staged, but only 2 core observations persist and transport readiness is 20%; QC passes while publisher consumer_ready/full_publish_ready remain false and no manifest is created. This records the profile-specific refusal rather than a green result. Command/output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/positive-core-fixed-command.json@272ae1eceb47739992abc4f7d732a35aab0e5093842bce516876ff7266070a3e; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/positive-core-fixed.stdout.txt@93f4e92b87b8387cc75c311f49c0338db876d8cbf93ca50e18055e5371062233; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/positive-core-fixed.stderr.txt@336c615064618588b51574f1cfe9b7546a307660dcc6780c25b63c3354d3f69e; typed result: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/preflight-core-result.json@c14f9cde93355057d7f7f8f0e56656b4685a1cbb74f7250dd05e3bc6c86d02f6."
+    },
+    {
+      "command": "python -I catalog-runtime-probe.py <negative-http-503-run> <archived-source-root> <wheel> 503; exact argv is in the captured command record.",
+      "target_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "environment": "Python 3.14.0; cwd /tmp; isolated mode; same editable archive source route; deterministic request-boundary HTTP 503 stub.",
+      "input_closure": "Synthetic negative transport fixture only; no live URL reachability or production input.",
+      "outcome": "PASS",
+      "output": "Expected refusal control: 32 stub requests, QC url_sample_reachability_pct=0, no current QC content-bound receipt, and publisher refusal before publish. Live external reachability remains not_established. Command/output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/negative-http-503-command.json@1f34baddd1df6056e32713c6fb5b331073c7203f5c0b104669218575e5a22693; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/negative-http-503.stdout.txt@daba899b8538a8387f05dd02bbe43e3ecdf21f74113266f20ee2cfba1e3b7fb2; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/negative-http-503.stderr.txt@01059cfdd7df3a14d88cc955df9453d0d8d62340f62086e5dab024d7eb6f2356; typed result: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/http503-negative-result.json@ddc01e614ce40af69d91506e0a39bcfbb2e6a0270c5d72d07c877110f42f4992."
+    },
+    {
+      "command": "python -I context038-probe-final.py <catalog-8dfa-run> <explicit-metrics-map> <installed-wheel> <archived-src>; exact argv is in the captured command record.",
+      "target_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "environment": "Existing private vector-search venv; CAT 8dfa wheel sha256 f446551d9c9195350bb9d9a081453adac0836cda20e35d7f3996f9ddf0f420bf installed offline/no-deps; cwd /tmp; python -I; PYTHONPATH unset. No build occurred for this probe.",
+      "input_closure": "Two concurrent request-scoped catalog pipeline fixtures with a supplied metrics-map path and isolated temporary output trees; request-boundary external transport stub only.",
+      "outcome": "PASS",
+      "output": "Both actual installed pipeline requests wrote distinct UA and PL observation rows through the installed generic observation writer; legacy facade remained unloaded, leaf globals unchanged, and six exercised module bytes matched the exact CAT wheel and source. The probe explicitly says it makes no publishability claim. Command: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-038-command.json@2bdb1ad4bf481b9e1dd4c086acabaddaccc1195df6fd8a3bd648b93949ef8cfd; script: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/context038-probe-final.py@432c6a1896ec751c3b847830dc1234b69d6b177dd2885e21cb9fb34dd1900e9c; stdout/stderr: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-038.stdout.txt@06ac0c3639994aefd8589c026a8fcd45d3de65e9b90d71bb97dc80b8c0a786dc / policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-038.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855; fixture seed and per-request typed manifests/configs are in the same evidence directory."
+    },
+    {
+      "command": "python -I legal042-probe-final.py <legal-output> <installed-wheel> <archived-src>; exact argv is in the captured command record.",
+      "target_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "environment": "Existing private vector-search venv; same installed CAT 8dfa wheel sha256 f446551d9c9195350bb9d9a081453adac0836cda20e35d7f3996f9ddf0f420bf; cwd /tmp; python -I; PYTHONPATH unset. No build occurred for this probe.",
+      "input_closure": "One synthetic legal entity, native HNSW profile, no model weights; wrong backend and undeclared device negative controls.",
+      "outcome": "PASS",
+      "output": "Actual installed legal batch producer wrote a complete generation and LegalKnowledgeStore returned entity-1; wrong backend and device=None refused before output creation. Three exercised modules matched CAT wheel and exact source. Raw DuckDB remains ignored at /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/cat-dfi-042-run/legal.duckdb (536576 bytes, sha256 b277fa91316dea92b83c9d7d8541473eb203dce7debb8b0b76792970ba5563e3). Command: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-042-command.json@592ca1f70681f412b6ae90506cad35b4423c264e51bfbca98c9da5724d16efa3; script: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/legal042-probe-final.py@ae9916449fea4285939c0bf2032c70095848cf39f9749b151fb0d28ec7b2ee49; stdout/stderr: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-042.stdout.txt@d393b28b6f23f87dbeeb506bb903931d47bb13ea9f2b532792cc94b6177f9587 / policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-042.stderr.txt@cf0a6436246b8954174b1c8ec720e7607c666e74b5a1d097119fcbda3ccdf767."
     }
   ],
   "property": {
@@ -399,6 +523,20 @@
       "status": "UNRUN",
       "missing_input": "No verified CAT-owned static invocation output is available; production source universe and production DB/data are intentionally not read.",
       "evidence": "No large static rerun was created for the receipt. Other unit raw evidence is not transferred as CAT evidence."
+    },
+    {
+      "criterion": "Actual synthetic producer → persisted artifact → benchmark/QC/publisher → direct RetrievalService selection under explicit prod_full",
+      "status": "PASS",
+      "evidence_grade": "recomputed fixture runtime with independent persisted-artifact reconciliation; explicit profile; editable source-workspace route",
+      "evidence": "On the exact 8dfa source candidate/tree, the real core producer wrote a current receipt and 26 observations over 16 datasets; benchmark and QC consumed current inputs, publisher produced full-ready bytes, and RetrievalService selected the expected World Bank plan from the same DuckDB after publication under explicit prod_full. The inputs are synthetic metadata with a deterministic transport stub. This demonstrates the direct consumer chain for that explicit profile only; it does not close the separate A-owned HTTP request/lifecycle profile-carrier gap.",
+      "locators": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-installed-audit-receipt.json@0338520253e0e9db774f357b97f028c72eed5edd56e099c95afff1662aae6064",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-summary.json@3a5be1089fac3bdb3f07444d18378bea0834651c85477df296e9712493aa7fd9",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/prod-full-200-command.json@df1809cedbbaa1108a859a6a0ff3ed831e191342d71b54b207268ebc867bca46",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/prod-full-200.stdout.txt@cc1ebf19f873999e126e2aef2d188d1c81feba00dd903dc33e6ce4be28cb9590",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-complete.stdout.txt@dae9fa8d694a76627bd3a69d9436a264e94ca1c7146bc0f97a8902642aeb9f2c",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-oracle-complete.py@7adc59f804b25ba4aa51414b23678a6866aae9dabdd0fd82f065fd17ec98d33d"
+      ]
     }
   ],
   "historical_status": {
@@ -440,7 +578,8 @@
     "Ruff lint passed only on the four provider-delta Python paths. Ruff format --check failed on those same four paths (four would be reformatted); full changed-path Ruff was not rerun in this lane.",
     "CAT production/static invocation report is unavailable in this worktree and is UNRUN; no other unit’s static receipt is reused.",
     "No production DB, network service, production corpus, or model assets were accessed.",
-    "The independent package-resource review is scoped to the non-editable installed-wheel path: the canonical seed-alignment YAML is absent from wheel/sdist and no wheel-plus-workspace profile is documented. Do not convert an ad-hoc staged-resource control into a supported package contract; the current positive producer audit uses the documented editable source-workspace route."
+    "The independent package-resource review is scoped to the non-editable installed-wheel path: the canonical seed-alignment YAML is absent from wheel/sdist and no wheel-plus-workspace profile is documented. Do not convert an ad-hoc staged-resource control into a supported package contract; the current positive producer audit uses the documented editable source-workspace route.",
+    "The exact 8dfa editable-archive `prod_full` run now supplies a positive producer→artifact→publisher→direct RetrievalService chain on synthetic data. It does not provide an HTTP lifecycle success: the A-owned request path still omits the profile, and no profile mapping/default or live external reachability is inferred. The separate 038/042 wheel probes are narrow installed-package consumer witnesses only."
   ],
   "pattern_pass": {
     "ids": [
@@ -554,6 +693,296 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-8dfa-dependent-tests.receipt.json",
       "sha256": "69564e834e1051cf2701b7f77b6ff00e4c78b42d8248ce03e877cbb38306e361",
       "purpose": "Full captured 8dfa dependent replay argv, candidate source/tree, interpreter, cwd, explicit PYTHONPATH, timestamps, exit, and stdout/stderr hashes."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/base-env-run.py",
+      "sha256": "387e6c2d52c0afca209df26c4649d98fdf94ae56a8015e3ff4d229f349f2ea1c",
+      "purpose": "Exact captured probe/oracle/setup script used by the cited installed-package audit."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/base-sync-command.json",
+      "sha256": "04f89297e3f1858530b133c065a68ac730a5ac792d688a3fd0ca233ce4f35a0b",
+      "purpose": "Captured command metadata: exact argv, cwd/environment, exit status, timing, and stdout/stderr hashes."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/base-sync.stderr.txt",
+      "sha256": "8e13b8c1094cf56cbbd1c888dc4600b35d0d9c1a949a79bf07ffccd66487b4ef",
+      "purpose": "Complete captured stderr for the corresponding audit command; empty output is retained where applicable."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/base-sync.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete captured stdout for the corresponding audit command."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/build-command.json",
+      "sha256": "b39257ee22b03559950485d7ff11786e44e0e1ee7b43960ac4a923ad4f037bd8",
+      "purpose": "Captured command metadata: exact argv, cwd/environment, exit status, timing, and stdout/stderr hashes."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/build-run.py",
+      "sha256": "dea31e523de95d2c400581bec4702d08efb9f4d0b2ae72bc1c7bc56a80483707",
+      "purpose": "Exact captured probe/oracle/setup script used by the cited installed-package audit."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/build.stderr.txt",
+      "sha256": "8b973d0dec83fabd5757f8d6b795de4080e883ad511184aee16b6c9fc4d3e931",
+      "purpose": "Complete captured stderr for the corresponding audit command; empty output is retained where applicable."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/build.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete captured stdout for the corresponding audit command."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/c2-installed-composition-receipt.json",
+      "sha256": "0e9755806bcb8a976cc74763f39288643aee8d7be3f2511368bacb1c7acda3e1",
+      "purpose": "Machine-readable audit receipt or independent readback summary; source and profile scope are preserved in the document."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-038-command.json",
+      "sha256": "2bdb1ad4bf481b9e1dd4c086acabaddaccc1195df6fd8a3bd648b93949ef8cfd",
+      "purpose": "Captured command metadata: exact argv, cwd/environment, exit status, timing, and stdout/stderr hashes."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-038.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete captured stderr for the corresponding audit command; empty output is retained where applicable."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-038.stdout.txt",
+      "sha256": "06ac0c3639994aefd8589c026a8fcd45d3de65e9b90d71bb97dc80b8c0a786dc",
+      "purpose": "Complete captured stdout for the corresponding audit command."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-042-command.json",
+      "sha256": "592ca1f70681f412b6ae90506cad35b4423c264e51bfbca98c9da5724d16efa3",
+      "purpose": "Captured command metadata: exact argv, cwd/environment, exit status, timing, and stdout/stderr hashes."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-042.stderr.txt",
+      "sha256": "cf0a6436246b8954174b1c8ec720e7607c666e74b5a1d097119fcbda3ccdf767",
+      "purpose": "Complete captured stderr for the corresponding audit command; empty output is retained where applicable."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-dfi-042.stdout.txt",
+      "sha256": "d393b28b6f23f87dbeeb506bb903931d47bb13ea9f2b532792cc94b6177f9587",
+      "purpose": "Complete captured stdout for the corresponding audit command."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-vector-install-command.json",
+      "sha256": "811f019ed969e9a79be017c7cd4a114ca587eb4ca8df13c6f0cf6459023e453d",
+      "purpose": "Captured command metadata: exact argv, cwd/environment, exit status, timing, and stdout/stderr hashes."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-vector-install.stderr.txt",
+      "sha256": "4eaf7d970fffce1aa6766034ee8123a22470e5246cb3d33802ecb77610d0d1b1",
+      "purpose": "Complete captured stderr for the corresponding audit command; empty output is retained where applicable."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/cat-vector-install.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete captured stdout for the corresponding audit command."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-installed-audit-receipt.json",
+      "sha256": "0338520253e0e9db774f357b97f028c72eed5edd56e099c95afff1662aae6064",
+      "purpose": "Machine-readable audit receipt or independent readback summary; source and profile scope are preserved in the document."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-complete-command.json",
+      "sha256": "92c1c6128214e10620abe869e8967e7b0592dbea856cb3128e8213b2ff646ebc",
+      "purpose": "Captured command metadata: exact argv, cwd/environment, exit status, timing, and stdout/stderr hashes."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-complete.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete captured stderr for the corresponding audit command; empty output is retained where applicable."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-complete.stdout.txt",
+      "sha256": "dae9fa8d694a76627bd3a69d9436a264e94ca1c7146bc0f97a8902642aeb9f2c",
+      "purpose": "Complete captured stdout for the corresponding audit command."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-oracle-complete.py",
+      "sha256": "7adc59f804b25ba4aa51414b23678a6866aae9dabdd0fd82f065fd17ec98d33d",
+      "purpose": "Exact captured probe/oracle/setup script used by the cited installed-package audit."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-readback-summary.json",
+      "sha256": "3a5be1089fac3bdb3f07444d18378bea0834651c85477df296e9712493aa7fd9",
+      "purpose": "Machine-readable audit receipt or independent readback summary; source and profile scope are preserved in the document."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/catalog-runtime-prodfull-probe.py",
+      "sha256": "f2816189d5ce2bcd0821ce3dd710a8f804eb0b6840df9729c9fbb689de24dfc1",
+      "purpose": "Exact captured probe/oracle/setup script used by the cited installed-package audit."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/context038-probe-final.py",
+      "sha256": "432c6a1896ec751c3b847830dc1234b69d6b177dd2885e21cb9fb34dd1900e9c",
+      "purpose": "Exact captured probe/oracle/setup script used by the cited installed-package audit."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/editable-install-nobi3-command.json",
+      "sha256": "a2b1fb7aa1306e5876b7caa209796a4b6991f5257944a889c2b14ef8c38a9089",
+      "purpose": "Captured command metadata: exact argv, cwd/environment, exit status, timing, and stdout/stderr hashes."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/editable-install-nobi3-run.py",
+      "sha256": "ff3cb94675efaa04305796b413f7a254c75559579dd466c198d3f97a2bb4a513",
+      "purpose": "Exact captured probe/oracle/setup script used by the cited installed-package audit."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/editable-install-nobi3.stderr.txt",
+      "sha256": "6ea81210caaa957daf09070ae0e3048f0801053ff45d647b3521e9dceb7af6ea",
+      "purpose": "Complete captured stderr for the corresponding audit command; empty output is retained where applicable."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/editable-install-nobi3.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete captured stdout for the corresponding audit command."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/empty-seed.yaml",
+      "sha256": "a2722fe440d3a0eae3128a89b990a69e9b4ef4e5d16bfa121362ec29ae0dea8c",
+      "purpose": "Exact temporary registry/seed fixture consumed by the corresponding isolated installed-wheel request."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/http503-negative-result.json",
+      "sha256": "ddc01e614ce40af69d91506e0a39bcfbb2e6a0270c5d72d07c877110f42f4992",
+      "purpose": "Typed synthetic runtime result artifact from the corresponding actual producer/consumer run or negative control."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/legal042-probe-final.py",
+      "sha256": "ae9916449fea4285939c0bf2032c70095848cf39f9749b151fb0d28ec7b2ee49",
+      "purpose": "Exact captured probe/oracle/setup script used by the cited installed-package audit."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/negative-http-503-command.json",
+      "sha256": "1f34baddd1df6056e32713c6fb5b331073c7203f5c0b104669218575e5a22693",
+      "purpose": "Captured command metadata: exact argv, cwd/environment, exit status, timing, and stdout/stderr hashes."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/negative-http-503.stderr.txt",
+      "sha256": "01059cfdd7df3a14d88cc955df9453d0d8d62340f62086e5dab024d7eb6f2356",
+      "purpose": "Complete captured stderr for the corresponding audit command; empty output is retained where applicable."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/negative-http-503.stdout.txt",
+      "sha256": "daba899b8538a8387f05dd02bbe43e3ecdf21f74113266f20ee2cfba1e3b7fb2",
+      "purpose": "Complete captured stdout for the corresponding audit command."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/package-census.py",
+      "sha256": "d037ea1603ce9e78481b5294bcb008cd9882407d5b09ac82887596b027332b98",
+      "purpose": "Exact captured probe/oracle/setup script used by the cited installed-package audit."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/package-census.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "Complete captured stderr for the corresponding audit command; empty output is retained where applicable."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/package-census.stdout.txt",
+      "sha256": "bc0b3340f06d0d6b1bd53519c3b7bb6c60db0cc554290159888fde00fc5483c2",
+      "purpose": "Complete captured stdout for the corresponding audit command."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/positive-core-fixed-command.json",
+      "sha256": "272ae1eceb47739992abc4f7d732a35aab0e5093842bce516876ff7266070a3e",
+      "purpose": "Captured command metadata: exact argv, cwd/environment, exit status, timing, and stdout/stderr hashes."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/positive-core-fixed.stderr.txt",
+      "sha256": "336c615064618588b51574f1cfe9b7546a307660dcc6780c25b63c3354d3f69e",
+      "purpose": "Complete captured stderr for the corresponding audit command; empty output is retained where applicable."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/positive-core-fixed.stdout.txt",
+      "sha256": "93f4e92b87b8387cc75c311f49c0338db876d8cbf93ca50e18055e5371062233",
+      "purpose": "Complete captured stdout for the corresponding audit command."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/preflight-core-result.json",
+      "sha256": "c14f9cde93355057d7f7f8f0e56656b4685a1cbb74f7250dd05e3bc6c86d02f6",
+      "purpose": "Typed synthetic runtime result artifact from the corresponding actual producer/consumer run or negative control."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/prod-full-200-command.json",
+      "sha256": "df1809cedbbaa1108a859a6a0ff3ed831e191342d71b54b207268ebc867bca46",
+      "purpose": "Captured command metadata: exact argv, cwd/environment, exit status, timing, and stdout/stderr hashes."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/prod-full-200.stderr.txt",
+      "sha256": "b6a14648963658415c1c3798ff6abf69fa8b674c6ab08aa9619ffbc92bc87a96",
+      "purpose": "Complete captured stderr for the corresponding audit command; empty output is retained where applicable."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/prod-full-200.stdout.txt",
+      "sha256": "cc1ebf19f873999e126e2aef2d188d1c81feba00dd903dc33e6ce4be28cb9590",
+      "purpose": "Complete captured stdout for the corresponding audit command."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/prod-full-catalog-runtime-result.json",
+      "sha256": "ac735525db9c0438c508f90149e62f51b41ae11f4f28a89d2d54bca0703f8c4a",
+      "purpose": "Typed synthetic runtime result artifact from the corresponding actual producer/consumer run or negative control."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-A-core_sources_ingest.json",
+      "sha256": "d0e802634f55e6891de8dd5555476ad62c47c3ac49f35245d17346216612ab03",
+      "purpose": "Small typed per-request persisted fixture manifest/state/checkpoint; DuckDB binaries remain ignored."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-A-observation_ingest_checkpoint.json",
+      "sha256": "4b46a174f2205eca4c7d3de822b6258899804953cd96ae16ef167e9f78067cbe",
+      "purpose": "Small typed per-request persisted fixture manifest/state/checkpoint; DuckDB binaries remain ignored."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-A-source-registry.yaml",
+      "sha256": "29afc3e912430710e9b9fb1d1d47ddea1aee7baab03c078e5c0a52ff9b8b5c34",
+      "purpose": "Exact temporary registry/seed fixture consumed by the corresponding isolated installed-wheel request."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-A-stage_state.json",
+      "sha256": "28067144b8a46c9407bdb830a00818e364445e7e0343885b71ca080f451aefb1",
+      "purpose": "Small typed per-request persisted fixture manifest/state/checkpoint; DuckDB binaries remain ignored."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-A-telemetry.json",
+      "sha256": "864308a6a6556dd2618060ca681018d8e3bcb62e7daa1ad1e85db0d34345ca27",
+      "purpose": "Small typed per-request persisted fixture manifest/state/checkpoint; DuckDB binaries remain ignored."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-B-core_sources_ingest.json",
+      "sha256": "8623c7fb17e27cb7168611397fb3a2aa713481c8627f3a5928b30c3f94ba76c5",
+      "purpose": "Small typed per-request persisted fixture manifest/state/checkpoint; DuckDB binaries remain ignored."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-B-observation_ingest_checkpoint.json",
+      "sha256": "4b46a174f2205eca4c7d3de822b6258899804953cd96ae16ef167e9f78067cbe",
+      "purpose": "Small typed per-request persisted fixture manifest/state/checkpoint; DuckDB binaries remain ignored."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-B-source-registry.yaml",
+      "sha256": "29afc3e912430710e9b9fb1d1d47ddea1aee7baab03c078e5c0a52ff9b8b5c34",
+      "purpose": "Exact temporary registry/seed fixture consumed by the corresponding isolated installed-wheel request."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-B-stage_state.json",
+      "sha256": "af549e01bcdc3ac0331fe0b93dd05e23596585c92b3dfc03a6c857473bd2e5a4",
+      "purpose": "Small typed per-request persisted fixture manifest/state/checkpoint; DuckDB binaries remain ignored."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/installed-8dfa/request-B-telemetry.json",
+      "sha256": "31ce057c3d28f9ba3809bd4962433b22ee1438fc8f5fa88bd77cdef49ea3535f",
+      "purpose": "Small typed per-request persisted fixture manifest/state/checkpoint; DuckDB binaries remain ignored."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/final-handoff-precommit.stderr.txt",
+      "sha256": "b86dadfebf1bad1e37f2905928c0200df2d385e49373046c0877987cc8186258",
+      "purpose": "Exact stderr from the final handoff commit hook attempt; records the missing Lefthook binary and that configured hooks did not run."
     }
   ],
   "candidate_source_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
@@ -632,7 +1061,7 @@
         "role": "current frozen CAT source after append-only integration of the DFI successor"
       }
     ],
-    "package_resource_review": "The DFI installed-resource review is copied verbatim to the adjacent tracked evidence directory. It establishes only that the non-editable wheel/sdist omit the repository-owned seed alignment YAML and that the installed module-relative resolver points under interpreter lib/pythonX.Y; no supported wheel-plus-workspace staging profile is documented. The supported editable source-workspace run is separate. No arbitrary staged-resource control is treated as supported."
+    "package_resource_review": "The DFI installed-resource review is copied verbatim to the adjacent tracked evidence directory. It establishes only that the non-editable wheel/sdist omit the repository-owned seed alignment YAML and that the installed module-relative resolver points under interpreter lib/pythonX.Y; no supported wheel-plus-workspace staging profile is documented. The supported editable source-workspace run is separate. No arbitrary staged-resource control is treated as supported. Separate CAT 8dfa installed-wheel 038/042 probes passed in the existing vector-search profile; 038 supplies the metrics-map resource explicitly and 042 does not exercise the catalog default registry. These bounded consumers do not establish wheel-only core-producer resource support or replace the editable-source producer chain."
   },
   "finding_ids": [
     "LA-028"

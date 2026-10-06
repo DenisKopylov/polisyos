@@ -1,0 +1,21 @@
+{
+  "async_fetch_leases": {},
+  "capability_failures": {},
+  "capability_snapshots": {},
+  "completed": {},
+  "core_output_receipt": null,
+  "deferred": {},
+  "empty_signatures": {},
+  "failed": {},
+  "inflight_leases": {},
+  "negative_cache_version": 1,
+  "planner_phase": "support_sketch",
+  "planner_signature": "",
+  "publishable_core_complete": false,
+  "source_budgets": {},
+  "support_cache": {},
+  "support_sketches": {},
+  "unsupported_signatures": {},
+  "work_packages": {},
+  "writer_state": {}
+}

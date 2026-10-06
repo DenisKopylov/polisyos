@@ -1,0 +1,7 @@
+Using Python 3.14.0 environment at: /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/venv-base
+Resolved 1 package in 2ms
+   Building policy-engine @ file:///Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/source/policy-engine
+      Built policy-engine @ file:///Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/source/policy-engine
+Prepared 1 package in 146ms
+Installed 1 package in 3ms
+ + policy-engine==0.1.0 (from file:///Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/source/policy-engine)

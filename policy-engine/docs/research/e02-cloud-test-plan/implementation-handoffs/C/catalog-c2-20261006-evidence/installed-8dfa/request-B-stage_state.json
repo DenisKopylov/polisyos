@@ -1,0 +1,19 @@
+{
+  "core_sources_ingest": {
+    "input_fingerprint": "515b2e0b84ae9986b7f44679f55a0fc598db3894dd177e7367913d7b423c01e1:4c9980a4b46da8e54c900e5f14dd25c5a1eebfcedbb900671b7e65a618f2628b",
+    "metadata": {
+      "completed_shards": 0,
+      "core_output_receipt": null,
+      "deferred_shards": 0,
+      "failed_shards": 0,
+      "failures": 0,
+      "observations": 1,
+      "publishable_core_complete": false,
+      "publishable_core_pending": 1
+    },
+    "outputs": [
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/cat-dfi-038-run/request-B/snapshot/datasets/graph/dataset_catalog.duckdb"
+    ],
+    "status": "warning"
+  }
+}

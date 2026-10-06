@@ -1,0 +1,31 @@
+{
+  "kind": "stage",
+  "stage": "core_sources_ingest",
+  "status": "warning",
+  "started_at": "2026-10-06T18:08:04.156322+00:00",
+  "finished_at": "2026-10-06T18:08:04.263102+00:00",
+  "metrics": {
+    "registry_datasets": 4,
+    "variable_alignments": 0,
+    "observations": 1,
+    "observations_attempted": 1,
+    "observations_inserted": 1,
+    "observations_replaced": 0,
+    "failures": 0,
+    "completed_shards": 0,
+    "deferred_shards": 0,
+    "failed_shards": 0,
+    "empty_shards": 0,
+    "observations_by_source": {},
+    "publishable_core_complete": false,
+    "publishable_core_pending": 1,
+    "backfill_pending": 0,
+    "core_output_receipt_digest": null
+  },
+  "artifacts": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/cat-dfi-038-run/request-A/snapshot/datasets/graph/dataset_catalog.duckdb",
+      "sha256": "c7b2002984aa631456fbbb499ee8a71a3c32ec311aab7581f90f3ea13632328f"
+    }
+  ]
+}

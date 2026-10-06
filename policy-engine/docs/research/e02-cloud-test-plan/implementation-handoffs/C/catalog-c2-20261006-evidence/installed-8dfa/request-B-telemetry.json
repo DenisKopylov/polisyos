@@ -1,0 +1,30 @@
+{
+  "active_countries": [
+    "UA"
+  ],
+  "active_year_window": [
+    2020,
+    2020
+  ],
+  "country_scope": "core_blocking",
+  "current_stage": "core_sources_ingest",
+  "elapsed_seconds": 0.039027291000820696,
+  "error": "",
+  "metrics": {
+    "core_failures": 0,
+    "core_observations": 1,
+    "core_observations_attempted": 1,
+    "core_observations_inserted": 1,
+    "core_observations_replaced": 0,
+    "core_registry_datasets": 4,
+    "core_variable_alignments": 0
+  },
+  "pipeline_status": "success",
+  "resume_mode": "smart",
+  "run_profile": "preflight_core",
+  "skipped_stages": [],
+  "stage_times": {
+    "core_sources_ingest": 0.03894875000696629
+  },
+  "stages": {}
+}

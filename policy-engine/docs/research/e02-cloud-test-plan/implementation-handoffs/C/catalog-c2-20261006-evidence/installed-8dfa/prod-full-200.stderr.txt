@@ -1,0 +1,95 @@
+2026-10-06 20:54:03.974 | INFO     | polisyos.common.logger:_call:120 - Harvesting source worldbank (https://example.test/worldbank)
+2026-10-06 20:54:04.128 | INFO     | polisyos.common.logger:_call:120 - Graph load complete: 16 datasets, 16 distributions, 25 metric bindings, 16 schema profiles, 0 entity mappings, 0 alignment hints
+2026-10-06 20:54:04.222 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 0436ca9b93b1a2b8a7854b5f: source=worldbank, request_dataset_id=SL.UEM.TOTL.ZS, country=UA
+2026-10-06 20:54:04.226 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 0af3dcb047d264652cc09d34: source=worldbank, request_dataset_id=CC.EST, country=UA
+2026-10-06 20:54:04.488 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 198774e033481fa7a0adc096: source=worldbank, request_dataset_id=SP.DYN.LE00.IN, country=UA
+2026-10-06 20:54:04.491 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 29202252a7992a362aead9e8: source=worldbank, request_dataset_id=SL.TLF.CACT.ZS, country=UA
+2026-10-06 20:54:04.751 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 30b89c1ca66703701603d42e: source=worldbank, request_dataset_id=SM.POP.NETM, country=UA
+2026-10-06 20:54:04.754 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 30f2aa58d7c9b8a991f27b6b: source=worldbank, request_dataset_id=FP.CPI.TOTL.ZG, country=UA
+2026-10-06 20:54:05.018 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 3e5e32c492e1dac54e736a1d: source=worldbank, request_dataset_id=SI.POV.NAHC, country=UA
+2026-10-06 20:54:05.023 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 436572e989e508e3f52ca6ee: source=worldbank, request_dataset_id=NY.GDP.PCAP.CD, country=UA
+2026-10-06 20:54:05.280 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 438281c8280f24b163dc5458: source=worldbank, request_dataset_id=CC.EST, country=UA
+2026-10-06 20:54:05.282 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 43c1905d1fa6abbf71a7b95c: source=worldbank, request_dataset_id=NY.GDP.PCAP.PP.CD, country=UA
+2026-10-06 20:54:05.542 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 47b6d6c6701c3a6dfdd354cd: source=worldbank, request_dataset_id=SE.PRM.ENRR, country=UA
+2026-10-06 20:54:05.545 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 4c5e38154aca7cee489fb2c0: source=worldbank, request_dataset_id=SI.POV.NAHC, country=UA
+2026-10-06 20:54:05.803 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 5030df6c64a3e2ad3021d46e: source=worldbank, request_dataset_id=RL.EST, country=UA
+2026-10-06 20:54:05.805 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 6165c9246e83d22545e1139a: source=worldbank, request_dataset_id=SL.UEM.TOTL.ZS, country=UA
+2026-10-06 20:54:06.069 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 64e5b1bcc10a11c34f84a4ed: source=worldbank, request_dataset_id=NY.GDP.PCAP.CD, country=UA
+2026-10-06 20:54:06.073 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 766785725632f969be0d6863: source=worldbank, request_dataset_id=SE.SEC.ENRR, country=UA
+2026-10-06 20:54:06.334 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 77ad014cffa45ccb51433e12: source=worldbank, request_dataset_id=SH.XPD.CHEX.PC.CD, country=UA
+2026-10-06 20:54:06.338 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 7bb561a5c1c933815609c99a: source=worldbank, request_dataset_id=SI.POV.DDAY, country=UA
+2026-10-06 20:54:06.612 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 84ce9cc922af1d66a5977dea: source=worldbank, request_dataset_id=GE.EST, country=UA
+2026-10-06 20:54:06.616 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 9066574310a9d502ad609927: source=worldbank, request_dataset_id=GE.EST, country=UA
+2026-10-06 20:54:06.878 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard 9d8dc11a97ea6bedae7ec593: source=worldbank, request_dataset_id=RL.EST, country=UA
+2026-10-06 20:54:06.880 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard d16f31d8c91776769be503ef: source=worldbank, request_dataset_id=SH.DYN.MORT, country=UA
+2026-10-06 20:54:07.143 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard d773801fbeddec41b06efbb7: source=worldbank, request_dataset_id=SL.UEM.TOTL.ZS, country=UA
+2026-10-06 20:54:07.146 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard deba375833bb0544a4b820f7: source=worldbank, request_dataset_id=SI.POV.DDAY, country=UA
+2026-10-06 20:54:07.404 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard f288a0609052f79898e5d1c4: source=worldbank, request_dataset_id=NY.GDP.PCAP.PP.CD, country=UA
+2026-10-06 20:54:07.406 | INFO     | polisyos.common.logger:_call:120 - Fetching observation shard fabb38322f6708a6202606c0: source=worldbank, request_dataset_id=FP.CPI.TOTL.ZG, country=UA
+2026-10-06 20:54:09.057 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 20:54:09.057 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 20:54:09.057 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 20:54:09.057 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 20:54:09.057 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 20:54:09.080 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.083 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.086 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.088 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.093 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.099 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.102 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.105 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.108 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.111 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.115 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.116 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'worldbank.wdi@1.0.0' already registered. Use override=True to replace.
+2026-10-06 20:54:09.118 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'wvs.wave7@1.0.0' already registered. Use override=True to replace.
+2026-10-06 20:54:09.119 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'eurostat.data@1.0.0' already registered. Use override=True to replace.
+2026-10-06 20:54:09.121 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.123 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.125 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.127 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.129 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.131 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.132 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ukons.datasets@1.0.0' already registered. Use override=True to replace.
+2026-10-06 20:54:09.135 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'sdmx.source@1.0.0' already registered. Use override=True to replace.
+2026-10-06 20:54:09.137 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ckan.catalog@1.0.0' already registered. Use override=True to replace.
+2026-10-06 20:54:09.138 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ckan.resource@1.0.0' already registered. Use override=True to replace.
+2026-10-06 20:54:09.140 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'socrata.soda@1.0.0' already registered. Use override=True to replace.
+2026-10-06 20:54:09.141 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'opendatasoft.ods@1.0.0' already registered. Use override=True to replace.
+2026-10-06 20:54:09.142 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'sparql.endpoint@1.0.0' already registered. Use override=True to replace.
+2026-10-06 20:54:09.145 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'rest.json@1.0.0' already registered. Use override=True to replace.
+2026-10-06 20:54:09.146 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.148 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.150 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 20:54:09.150 | INFO     | polisyos.common.logger:_call:120 - ConnectorRegistry bootstrapped
+2026-10-06 20:54:09.150 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 20:54:09.151 | INFO     | polisyos.common.logger:_call:120 - Default configs bootstrapped from profiles
+2026-10-06 20:54:09.151 | WARNING  | polisyos.common.logger:_call:120 - No source bindings file found at /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prod-full-run/positive/curated/source_bindings.json
+2026-10-06 20:54:09.151 | WARNING  | polisyos.common.logger:_call:120 - No data contracts file found at /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prod-full-run/positive/curated/data_contracts.json. Run `python tools/quality/diagnostics/scan_fabric.py` to generate draft contracts.
+2026-10-06 20:54:09.151 | DEBUG    | polisyos.common.logger:_call:120 - MetricSearcher initialized with 0 contracts, 0 unique aliases
+2026-10-06 20:54:09.215 | WARNING  | polisyos.common.logger:_call:120 - No source bindings file found at /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prod-full-run/positive/curated/source_bindings.json
+2026-10-06 20:54:09.215 | WARNING  | polisyos.common.logger:_call:120 - No data contracts file found at /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prod-full-run/positive/curated/data_contracts.json. Run `python tools/quality/diagnostics/scan_fabric.py` to generate draft contracts.
+2026-10-06 20:54:09.215 | DEBUG    | polisyos.common.logger:_call:120 - MetricSearcher initialized with 0 contracts, 0 unique aliases
+2026-10-06 20:54:09.256 | WARNING  | polisyos.common.logger:_call:120 - No source bindings file found at /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prod-full-run/positive/curated/source_bindings.json
+2026-10-06 20:54:09.256 | WARNING  | polisyos.common.logger:_call:120 - No data contracts file found at /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prod-full-run/positive/curated/data_contracts.json. Run `python tools/quality/diagnostics/scan_fabric.py` to generate draft contracts.
+2026-10-06 20:54:09.256 | DEBUG    | polisyos.common.logger:_call:120 - MetricSearcher initialized with 0 contracts, 0 unique aliases

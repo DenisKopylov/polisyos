@@ -1,0 +1,301 @@
+{
+  "boundaries": {
+    "external_worldbank_reachability": "not_established",
+    "public_http_caller_profile_carrier": "held/unresolved LA-028; library RetrievalService consumer is the demonstrated surface",
+    "standalone_noneditable_wheel": "not the runtime profile exercised for catalog resource-dependent workspace consumers; existing package audit shows no catalog workspace registry/seed resources, so no wheel-only resource promise is claimed",
+    "synthetic_fixture_authority": "only proves producer\u2192persisted artifact\u2192benchmark/QC/publisher and direct library consumer behavior with deterministic fixture inputs; does not prove production-source admission/history or HTTP live reachability"
+  },
+  "build_and_profile": {
+    "base_sync_command": {
+      "bytes": 1255,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/base-sync-command.json",
+      "sha256": "04f89297e3f1858530b133c065a68ac730a5ac792d688a3fd0ca233ce4f35a0b"
+    },
+    "build_command": {
+      "bytes": 1529,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/build-command.json",
+      "sha256": "b39257ee22b03559950485d7ff11786e44e0e1ee7b43960ac4a923ad4f037bd8"
+    },
+    "build_stderr": {
+      "bytes": 413,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/build.stderr",
+      "sha256": "8b973d0dec83fabd5757f8d6b795de4080e883ad511184aee16b6c9fc4d3e931"
+    },
+    "build_stdout": {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/build.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "editable_install_command": {
+      "bytes": 1829,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/editable-install-nobi3-command.json",
+      "sha256": "a2b1fb7aa1306e5876b7caa209796a4b6991f5257944a889c2b14ef8c38a9089"
+    },
+    "locked_profile": "base-only, no dev/test/optional extras; no project install in uv sync before exact archived editable install",
+    "package_census": {
+      "bytes": 35029,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/package-census.json",
+      "sha256": "bc0b3340f06d0d6b1bd53519c3b7bb6c60db0cc554290159888fde00fc5483c2"
+    },
+    "python": "3.14.0",
+    "runtime_install_route": "standard editable install of exact archive source to resolve documented workspace resources; separate from wheel-only contract",
+    "runtime_isolation": "each deciding runtime used python -I from /tmp, PYTHONPATH unset, complete child env; sys.path unchanged during calls; editable install's normal .pth exposed the exact archive root and src directory",
+    "runtime_module_provenance": "23 exercised modules each resolved from exact source archive; byte-identical to source-tree and wheel entries"
+  },
+  "candidate": {
+    "archive_sha256_expected_file": {
+      "bytes": 193,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/candidate.tar.sha256",
+      "sha256": "81f10a394ee87df161783e2adef8fbfe92cc5fbe709cbd48d5be7fe22c8c4f3e"
+    },
+    "commit": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+    "sdist": {
+      "bytes": 65249112,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/dist/policy_engine-0.1.0.tar.gz",
+      "sha256": "de96683985c249c31507cb468923789ca08a27066a2646ef26398c0180aa4c9a"
+    },
+    "source_archive": {
+      "bytes": 460410880,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/candidate.tar",
+      "sha256": "b4d34f51b2c5f73976dd49889195f55f591ccf1749f7cf37579378fcf0cb9e67"
+    },
+    "source_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/source/policy-engine",
+    "tree": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+    "wheel": {
+      "bytes": 15039358,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "sha256": "f446551d9c9195350bb9d9a081453adac0836cda20e35d7f3996f9ddf0f420bf"
+    }
+  },
+  "independent_readback": {
+    "command": {
+      "bytes": 2384,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/catalog-readback-complete-command.json",
+      "sha256": "92c1c6128214e10620abe869e8967e7b0592dbea856cb3128e8213b2ff646ebc"
+    },
+    "exit_code": 0,
+    "oracle_imported_product_runtime": false,
+    "oracle_script": {
+      "bytes": 20767,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/catalog-readback-oracle-complete.py",
+      "sha256": "7adc59f804b25ba4aa51414b23678a6866aae9dabdd0fd82f065fd17ec98d33d"
+    },
+    "readback_database_driver": "duckdb; read-only connections",
+    "stderr": {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/catalog-readback-complete.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "bytes": 7286,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/catalog-readback-complete.stdout",
+      "sha256": "dae9fa8d694a76627bd3a69d9436a264e94ca1c7146bc0f97a8902642aeb9f2c"
+    },
+    "summary": {
+      "bytes": 8166,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/catalog-readback-summary.json",
+      "sha256": "3a5be1089fac3bdb3f07444d18378bea0834651c85477df296e9712493aa7fd9"
+    },
+    "verified_profiles": [
+      "preflight_core",
+      "prod_full"
+    ]
+  },
+  "installed_runtime_results": {
+    "http_503_negative": {
+      "command": {
+        "bytes": 1728,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/negative-http-503-command.json",
+        "sha256": "1f34baddd1df6056e32713c6fb5b331073c7203f5c0b104669218575e5a22693"
+      },
+      "live_url_reachability": "not_established",
+      "publisher_result": "refused: no current qc content-bound receipt",
+      "qc_result": "url_sample_reachability_pct=0; failed",
+      "result": {
+        "bytes": 280742,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/negative-http-503/negative-http-503/catalog-runtime-result.json",
+        "sha256": "ddc01e614ce40af69d91506e0a39bcfbb2e6a0270c5d72d07c877110f42f4992"
+      },
+      "stderr": {
+        "bytes": 4382,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/negative-http-503.stderr",
+        "sha256": "01059cfdd7df3a14d88cc955df9453d0d8d62340f62086e5dab024d7eb6f2356"
+      },
+      "stdout": {
+        "bytes": 2272,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/negative-http-503.stdout",
+        "sha256": "daba899b8538a8387f05dd02bbe43e3ecdf21f74113266f20ee2cfba1e3b7fb2"
+      },
+      "stubbed_503_call_count": 32
+    },
+    "preflight_core_positive_incomplete_profile_control": {
+      "benchmark": {
+        "retrieval_ready_pct": 90.0,
+        "search_top5_pct": 88.889,
+        "source_preflight_pct": 100.0,
+        "transport_ready_pct": 20.0
+      },
+      "command": {
+        "bytes": 1734,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/positive-core-fixed-command.json",
+        "sha256": "272ae1eceb47739992abc4f7d732a35aab0e5093842bce516876ff7266070a3e"
+      },
+      "current_core_receipt": true,
+      "observations": 2,
+      "publisher": {
+        "consumer_ready": false,
+        "full_publish_ready": false,
+        "manifest_created": false,
+        "refusal": "existing preflight_core profile has an actual two-plan cap; only 20% of its ten transport vars received observations",
+        "transportability_ready": false
+      },
+      "qc_passed": true,
+      "result": {
+        "bytes": 344477,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/positive-core-fixed/positive/catalog-runtime-result.json",
+        "sha256": "c14f9cde93355057d7f7f8f0e56656b4685a1cbb74f7250dd05e3bc6c86d02f6"
+      },
+      "stderr": {
+        "bytes": 9765,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/positive-core-fixed.stderr",
+        "sha256": "336c615064618588b51574f1cfe9b7546a307660dcc6780c25b63c3354d3f69e"
+      },
+      "stdout": {
+        "bytes": 4374,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/positive-core-fixed.stdout",
+        "sha256": "93f4e92b87b8387cc75c311f49c0338db876d8cbf93ca50e18055e5371062233"
+      }
+    },
+    "prod_full_positive": {
+      "actual_benchmark": {
+        "evaluation_mode": "full-ready",
+        "foundry_fitness_pct": 100.0,
+        "retrieval_miss": "social_trust",
+        "retrieval_ready_pct": 90.0,
+        "search_misses": [
+          "trust_en",
+          "trust_uk"
+        ],
+        "search_top5_pct": 88.889,
+        "source_preflight_ready_pct": 100.0,
+        "transport_ready_pct": 90.0,
+        "transport_variables_total": 10
+      },
+      "actual_core": {
+        "current_checkpoint_stage_receipt": true,
+        "db_alignments": 26,
+        "db_datasets": 16,
+        "db_observations": 26,
+        "observations_attempted": 26,
+        "observations_inserted": 26,
+        "receipt_digest": "sha256:667d3e8e756a677fe3a9ff0f267388bec24b85b62d15a2aa1172e72a49cd3066"
+      },
+      "command": {
+        "bytes": 1906,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prod-full-200-command.json",
+        "sha256": "df1809cedbbaa1108a859a6a0ff3ed831e191342d71b54b207268ebc867bca46"
+      },
+      "explicit_config": {
+        "active_countries": [
+          "UA"
+        ],
+        "active_year_window": [
+          2020,
+          2020
+        ],
+        "is_sampled_run": false,
+        "max_datasets_per_source": 100000,
+        "observation_mode": "core",
+        "preflight_sources": [
+          "worldbank"
+        ],
+        "promoted_sources": [
+          "worldbank"
+        ],
+        "run_profile": "prod_full"
+      },
+      "fixture_scope": {
+        "external_fetch_stub": "returns one UA/2020 row, value 1.1, for every actual selected fetch request",
+        "persisted_raw_normalized_merged_rows": 16,
+        "product_metrics_map_augmented_rows": 7,
+        "production_data_or_weights": false,
+        "synthetic_worldbank_metadata_rows": 9,
+        "url_reachability": "HTTP 200 fixture at urllib external boundary; live URL reachability not_established"
+      },
+      "publisher": {
+        "consumer_ready": true,
+        "evaluation_mode": "full-ready",
+        "full_publish_ready": true,
+        "manifest": {
+          "bytes": 3985,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prod-full-run/positive/main/snapshot/datasets/publish/manifest.json",
+          "sha256": "d9e43677b9a76a0405e130f2244f455f80bccde18069a1834052a6054ad0032d"
+        },
+        "publish_mode": "full-ready"
+      },
+      "qc_passed": true,
+      "result": {
+        "bytes": 460164,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prod-full-run/positive/catalog-runtime-result.json",
+        "sha256": "ac735525db9c0438c508f90149e62f51b41ae11f4f28a89d2d54bca0703f8c4a"
+      },
+      "retrieval_consumer": {
+        "missing_profile": "CatalogSelectionError: catalog_run_profile_unresolved",
+        "ran_after_pipeline_publish": true,
+        "run_profile": "prod_full",
+        "same_duckdb": true,
+        "selected_plan": {
+          "connector_id": "worldbank.wdi",
+          "dataset_id": "NY.GDP.PCAP.PP.CD",
+          "metric_id": "gdp_per_capita",
+          "profile_id": "worldbank_wdi"
+        },
+        "unknown_profile": "CatalogSelectionError: unsupported_run_profile"
+      },
+      "runner_derivation": {
+        "bytes": 1173,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prodfull-harness-derivation.json",
+        "sha256": "8f3ed136eb37df158469ced71ca8e874797e24f95e67790a5fc0d1d5d3022c44"
+      },
+      "runner_script": {
+        "bytes": 26700,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/catalog-runtime-prodfull-probe.py",
+        "sha256": "f2816189d5ce2bcd0821ce3dd710a8f804eb0b6840df9729c9fbb689de24dfc1"
+      },
+      "stderr": {
+        "bytes": 13908,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prod-full-200.stderr",
+        "sha256": "b6a14648963658415c1c3798ff6abf69fa8b674c6ab08aa9619ffbc92bc87a96"
+      },
+      "stdout": {
+        "bytes": 6631,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/prod-full-200.stdout",
+        "sha256": "cc1ebf19f873999e126e2aef2d188d1c81feba00dd903dc33e6ce4be28cb9590"
+      }
+    }
+  },
+  "package_census_denominators": {
+    "census_artifact": {
+      "bytes": 35029,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/package-census.json",
+      "sha256": "bc0b3340f06d0d6b1bd53519c3b7bb6c60db0cc554290159888fde00fc5483c2"
+    },
+    "console_entrypoints": 40,
+    "sdist_extras": 0,
+    "sdist_members": 8504,
+    "sdist_omissions": 5208,
+    "sdist_source_members": 8503,
+    "sdist_source_mismatches": 0,
+    "source_archive_file_count": 13711,
+    "source_archive_py": 6448,
+    "source_archive_pyi": 5,
+    "source_archive_readme": 425,
+    "wheel_exact_source_path_matches": 3453,
+    "wheel_forced_resource_members": 1,
+    "wheel_members": 3459,
+    "wheel_mismatches": 0,
+    "wheel_payload_members": 3454,
+    "wheel_root_readmes": 167,
+    "wheel_unmapped": 0
+  }
+}

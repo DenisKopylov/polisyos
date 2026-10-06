@@ -1,0 +1,1 @@
+PolicyOS hook: missing binary: /Users/deniskopylov/polisyos/policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook; run corepack pnpm install --frozen-lockfile in policy-engine.

@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/uv",
+    "sync",
+    "--offline",
+    "--frozen",
+    "--no-dev",
+    "--no-install-project",
+    "--python",
+    "/opt/homebrew/bin/python3"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/source/policy-engine",
+  "elapsed_seconds": 0.608,
+  "ended_at_utc": "2026-10-06T17:35:51.401842+00:00",
+  "env_delta": {
+    "PYTHONHOME": null,
+    "PYTHONPATH": null,
+    "UV_CACHE_DIR": "/Users/deniskopylov/.cache/uv",
+    "UV_PROJECT_ENVIRONMENT": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/venv-base"
+  },
+  "exit_code": 0,
+  "started_at_utc": "2026-10-06T17:35:50.794140+00:00",
+  "stderr": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/base-sync.stderr",
+    "sha256": "8e13b8c1094cf56cbbd1c888dc4600b35d0d9c1a949a79bf07ffccd66487b4ef"
+  },
+  "stdout": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/installed/catalog-8dfa/base-sync.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

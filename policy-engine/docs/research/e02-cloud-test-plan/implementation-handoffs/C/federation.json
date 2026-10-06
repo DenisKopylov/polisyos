@@ -318,12 +318,41 @@
       "remaining_limit": "This does not establish global source independence, measurement validity, unit comparability, or admissibility of all possible consensus inputs."
     }
   ],
-  "admission_exception": {
-    "outcome": "workspace doctor resume exited 2 with status=unrun and findings=[]",
+  "admission": {
+    "status": "admitted",
+    "invocation_exit_code": 0,
+    "complete_verdict": true,
+    "findings": [],
+    "unresolved_inputs": [],
+    "selector": {
+      "branch": "codex/e02-C-federation-20261006",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-federation-20261006/polisyos"
+    },
+    "create": {
+      "mode": "create",
+      "branch_previously_exists": false,
+      "path_before_create": "absent",
+      "started_at": "2026-10-06T09:40:47.133907+00:00",
+      "finished_at": "2026-10-06T09:40:47.357629+00:00",
+      "receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/federation-create.json@16d4d9796d10dee3ef61badd6d819a186cdf512851072dad63ce4c2fd9a59aac"
+    },
+    "resume": {
+      "mode": "resume",
+      "branch_exists": true,
+      "registered_path": "/Users/deniskopylov/.codex/worktrees/e02-c-federation-20261006/polisyos",
+      "head_at_admission": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "started_at": "2026-10-06T09:40:50.428451+00:00",
+      "finished_at": "2026-10-06T09:40:50.724453+00:00",
+      "receipt": "/Users/deniskopylov/polisyos/.tmp/e02-C-continuation-20261006/raw/lanes/federation-resume.json@54c86996c05bd851699d79d15345841799608951f3a88d465e68ca77af0e3ebb"
+    },
+    "handling": "The fresh create/resume pair admitted the exact branch/path with exit code 0, empty findings, and no unresolved inputs. No stale-registration exception was needed for this worktree admission."
+  },
+  "historical_admission_attempt": {
+    "outcome": "An earlier coordinator resume attempt exited 2 with status=unrun and findings=[]",
     "unresolved_input": "registered_path_not_directory:/Users/deniskopylov/.codex/scratch/p41-r13d-slice-base-2522-20260926/polisyos",
     "receipt": "/Users/deniskopylov/.codex/worktrees/e02-c-coordinator/polisyos/.tmp/e02-C-root/raw/admission-resume.json@d19e55b97b13be0f906f8d7617781e7a34dd6ad1c846e1570663362912063367",
     "authorization": "Продолжить в проверенных C worktrees; stale registrations не менять",
-    "handling": "Continued only in the verified, clean, attached C worktree after explicit user exception; did not prune or repair the unrelated stale registration."
+    "disposition": "Historical only; superseded for this lane by the fresh exact branch/path create and resume receipts above. It is not the current admission result or a required exception."
   },
   "hook_status": {
     "outcome": "unrun",
@@ -334,7 +363,7 @@
     "P37": "The semantic output/counter predicates are independently_reconciled against the separately stated fixture oracles; active object retention is recomputed from actual objects in the active function frame. The declared DataSchema is institutionally_supplied by the explicit request fixture, and its persisted readback is independently_reconciled against that declaration.",
     "P38": "The previously distinct-key JOIN test and post-return liveness check diverged from the property exactly at tied sample ranks and transient local retention; the new B139 tie case and B143 active-frame mutant measure those properties directly.",
     "P40": "The B139 review blocker was classified as the same heap equal-rank class one level deeper. The oracle was widened to repeated row keys and tied sample ranks through the actual JOIN composer path; no second local production repair was added.",
-    "P41": "The unrelated admission registration failure is recorded with its exact exception and receipt; it is not attributed to the federation product or reported as inherited test debt."
+    "P41": "The fresh exact branch/path create and resume receipts admitted this lane with no unresolved inputs. The earlier stale-registration result is retained as history only and is not the current admission blocker or a product finding."
   },
   "capability_state_or_finding_state": "Candidate implementation and bounded semantic witnesses are complete for review. No finding is formally closed by this receipt: historical ledger rows stay partial until root/G integrates and adjudicates them. B139 external Federation HTTP/export surface is surface_out_of_scope per the criterion; existing DataComposer return/summary is the bounded internal consumer.",
   "limitations_and_next_owner": [

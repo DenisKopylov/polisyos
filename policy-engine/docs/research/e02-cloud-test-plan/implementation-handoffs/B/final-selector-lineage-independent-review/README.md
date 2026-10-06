@@ -13,3 +13,5 @@ The original observer's annotation incorrectly appended `.py` to markdown origin
 ```
 
 Mapping availability, canonical plan membership, tracked file existence, and test execution remain distinct predicates. Missing paths must retain explicit UNRUN; incidental constants must not satisfy canonical criteria or become collected cases. This review does not endorse a prefix exclusion, a per-name mapping, or an unknown file execution rule.
+
+`review_fix.py` independently reviews ff54ac55b1f3e4a0186319e8f18aadb56856d0ad against c1. `ff54-controls.json` preserves five actual stdlib metadata controls: the complete four-subset mapping set for one canonical and one incidental missing path, plus refusal of a mapped selector without its exact body. All missing paths retain UNRUN; reviewed equivalent bodies also retain UNRUN execution status. The complete launcher bytes differ only by the requested output namespace replacement, and namespace-normalized ASTs match exactly. The option helper AST and pinned option profile are unchanged, so the previous 19 grammar controls remain historical d3 observations, rather than new pytest case counts.

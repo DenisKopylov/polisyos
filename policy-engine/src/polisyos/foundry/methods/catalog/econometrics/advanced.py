@@ -6,7 +6,7 @@ import math
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from statistics import NormalDist
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import numpy as np
 
@@ -50,6 +50,9 @@ from .protocols import (
     VolatilityLossFamily,
     VolatilityRegimeSegment,
 )
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactStore
 
 
 def _safe_float(value: Any) -> float | None:
@@ -542,6 +545,8 @@ def _summarize_interval_diagnostics(
     intervals_by_level: Mapping[float, list[tuple[float, float]]],
     all_levels: tuple[float, ...],
     nominal_coverage: float,
+    calibration_store: ArtifactStore | None = None,
+    source_binding: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     y_true = np.asarray(y_values, dtype=float)
     primary_intervals = intervals_by_level[nominal_coverage]
@@ -558,6 +563,17 @@ def _summarize_interval_diagnostics(
         levels=list(all_levels),
         strict=True,
     )
+    calibration_ref = None
+    if calibration_store is not None:
+        from polisyos.calibration.continuous import (
+            load_continuous_evaluation,
+            persist_continuous_evaluation,
+        )
+
+        calibration_ref = persist_continuous_evaluation(
+            calibration_store, report, source_binding=source_binding
+        )
+        report = load_continuous_evaluation(calibration_store, calibration_ref)
     wis = _weighted_interval_score(
         y_true,
         lower,
@@ -573,6 +589,7 @@ def _summarize_interval_diagnostics(
         "conditional_pvalue": conditional_pvalue,
         "independence_pvalue": independence_pvalue,
         "report": report,
+        "calibration_ref": calibration_ref,
         "mean_interval_width": float(np.mean(upper - lower)),
         "wis": wis,
     }

@@ -1,0 +1,71 @@
+{
+  "target_sha": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
+  "input_kind": "synthetic_analytic_fixture",
+  "input_recipe": "y=float(range(100)); intervals[y[:95]]=y\u00b1.1; last5=(-1000,-999); nominal=.95; bootstrap100 seed2718",
+  "independent_hits": 95,
+  "independent_n": 100,
+  "ece": 0.0,
+  "denominator": {
+    "status": "evaluated",
+    "n_comparisons": 1,
+    "requested": 100,
+    "eligible": 100,
+    "observed": 100,
+    "observed_outcomes": 100,
+    "observed_pairs": 100,
+    "missing_outcomes": 0,
+    "missing": 0,
+    "unit": "requested_outcome_level",
+    "row_identity_basis": "ordered_position_only"
+  },
+  "ref": {
+    "artifact_id": "sha256:12c77fa3d0377ea94040e329e56169695da193ca78f35a57a7512fac448c2e41",
+    "kind": "continuous_calibration_diagnostics",
+    "media_type": "application/json"
+  },
+  "receipt": {
+    "declared_truthfulness_tier": null,
+    "runtime_truthfulness_tier": "approximate_calibrated",
+    "effective_truthfulness_tier": "approximate_calibrated",
+    "truthfulness_scope": "predictive_calibration",
+    "status": "runtime_only",
+    "diagnostics": {
+      "task": "continuous",
+      "target_type": "interval_set",
+      "n_obs": 100,
+      "brier": null,
+      "ece": 0.0,
+      "mce": 0.0,
+      "warnings": [
+        "PIT diagnostics were skipped because predictive_samples were not provided."
+      ],
+      "issues": [],
+      "has_errors": false,
+      "rejected_tests": [],
+      "recommended_action": null,
+      "interval_pairs_basis": "recomputed",
+      "authority_purpose": "descriptive_predictive_calibration",
+      "production_source_basis": "not_established",
+      "gate_eligible": false,
+      "denominator": {
+        "status": "evaluated",
+        "n_comparisons": 1,
+        "requested": 100,
+        "eligible": 100,
+        "observed": 100,
+        "observed_outcomes": 100,
+        "observed_pairs": 100,
+        "missing_outcomes": 0,
+        "missing": 0,
+        "unit": "requested_outcome_level",
+        "row_identity_basis": "ordered_position_only"
+      }
+    },
+    "degradation_reasons": [],
+    "evidence_ref": "sha256:4427fd72c2644b9babaaebfd75abd2c6ebf474d28e906224e9934cfadfd56a13",
+    "certificate_version": "1.0"
+  },
+  "CAS_root": "/workspace/e02-E-20261006-receipts/pcl-actual-cas",
+  "fresh_store_verified": true,
+  "production_evidence": false
+}

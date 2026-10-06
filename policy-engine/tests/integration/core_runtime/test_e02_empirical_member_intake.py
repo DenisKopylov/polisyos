@@ -277,11 +277,21 @@ def test_same_country_nonmember_cannot_replace_a_missing_c_member_in_denominator
     assert raised.value.code == "acquire_data:active_observation_projection_drift"
 
 
-_PHYSICAL_CANONICAL_OBSERVATION_FIELDS = tuple(
-    field_name
-    for field_name in CanonicalAcquisitionObservation.model_fields
-    if field_name != "observation_class"
-)
+def _physical_canonical_observation_fields(scenario: Any) -> tuple[str, ...]:
+    """Return C model fields that are actually columns in this overlay relation."""
+    con = duckdb.connect(str(scenario.overlay.overlay_path), read_only=True)
+    try:
+        available_columns = {
+            str(column[1])
+            for column in con.execute("PRAGMA table_info('ds_observations')").fetchall()
+        }
+    finally:
+        con.close()
+    return tuple(
+        field_name
+        for field_name in CanonicalAcquisitionObservation.model_fields
+        if field_name in available_columns
+    )
 
 
 def _different_valid_physical_value(field_name: str, current_value: object) -> object:
@@ -319,37 +329,96 @@ def _activation_markers(scenario: Any) -> tuple[object, ...]:
         con.close()
 
 
-@pytest.mark.parametrize(
-    "field_name",
-    _PHYSICAL_CANONICAL_OBSERVATION_FIELDS,
-    ids=_PHYSICAL_CANONICAL_OBSERVATION_FIELDS,
-)
 def test_active_projection_rejects_tampering_of_every_physical_c_field(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Every stored C model column is bound while activation stays unchanged."""
+    scenario, projection = _activate_four_row_scenario(tmp_path, monkeypatch)
+    selected = projection.observations[0].observation
+    markers_before = _activation_markers(scenario)
+    physical_fields = _physical_canonical_observation_fields(scenario)
+    assert physical_fields
+
+    for field_name in physical_fields:
+        original_value = getattr(selected, field_name)
+        replacement = _different_valid_physical_value(field_name, original_value)
+        assert replacement != original_value
+        con = duckdb.connect(str(scenario.overlay.overlay_path))
+        try:
+            # Names come from the physical schema intersected with the C model.
+            con.execute(
+                f"UPDATE ds_observations SET {field_name} = ? WHERE observation_id = ?",  # noqa: S608
+                [replacement, selected.observation_id],
+            )
+        finally:
+            con.close()
+
+        try:
+            assert _activation_markers(scenario) == markers_before
+            with pytest.raises(ValueOwnerAccessError) as raised:
+                _load_through_default_root_gateway(scenario, projection)
+            assert raised.value.code == "acquire_data:active_observation_projection_drift"
+        finally:
+            # Restore even the primary key before probing the next physical field.
+            current_observation_id = (
+                replacement if field_name == "observation_id" else selected.observation_id
+            )
+            con = duckdb.connect(str(scenario.overlay.overlay_path))
+            try:
+                con.execute(
+                    f"UPDATE ds_observations SET {field_name} = ? WHERE observation_id = ?",  # noqa: S608
+                    [original_value, current_observation_id],
+                )
+            finally:
+                con.close()
+
+
+_NONPHYSICAL_PROVENANCE_FIELDS = (
+    "acquisition_method",
+    "source_watermark",
+    "dataset_version",
+)
+
+
+def _forge_projection_field(
+    projection: ActivatedAcquisitionObservationProjection,
+    field_name: str,
+) -> ActivatedAcquisitionObservationProjection:
+    """Reissue a self-consistent view with one altered C-derived provenance field."""
+    observations = [row.observation for row in projection.observations]
+    original = observations[0]
+    payload = original.model_dump(mode="json")
+    current_value = payload[field_name]
+    assert isinstance(current_value, str)
+    payload[field_name] = f"{current_value}-forged"
+    observations[0] = CanonicalAcquisitionObservation.model_validate(payload)
+    return ActivatedAcquisitionObservationProjection.issue(
+        receipt_ref=projection.receipt_ref,
+        receipt_content_sha256=projection.receipt_content_sha256,
+        passport_ref=projection.passport_ref,
+        passport_content_sha256=projection.passport_content_sha256,
+        variable_id=projection.variable_id,
+        epoch_id=projection.epoch_id,
+        passport_id=projection.passport_id,
+        admission_content_sha256=projection.admission_content_sha256,
+        observations=observations,
+    )
+
+
+@pytest.mark.parametrize("field_name", _NONPHYSICAL_PROVENANCE_FIELDS)
+def test_c_owner_rejects_rehashed_nonphysical_provenance_forgery(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     field_name: str,
 ) -> None:
-    """Full C physical schema is content-bound while activation stays unchanged."""
+    """Recomputed projection hashes cannot authorize forged passport-derived fields."""
     scenario, projection = _activate_four_row_scenario(tmp_path, monkeypatch)
-    selected = projection.observations[0].observation
-    original_value = getattr(selected, field_name)
-    replacement = _different_valid_physical_value(field_name, original_value)
-    assert replacement != original_value
-    markers_before = _activation_markers(scenario)
+    forged_projection = _forge_projection_field(projection, field_name)
+    assert forged_projection.projection_content_sha256 != projection.projection_content_sha256
 
-    con = duckdb.connect(str(scenario.overlay.overlay_path))
-    try:
-        # The identifier comes only from CanonicalAcquisitionObservation.model_fields.
-        con.execute(
-            f"UPDATE ds_observations SET {field_name} = ? WHERE observation_id = ?",  # noqa: S608
-            [replacement, selected.observation_id],
-        )
-    finally:
-        con.close()
-
-    assert _activation_markers(scenario) == markers_before
     with pytest.raises(ValueOwnerAccessError) as raised:
-        _load_through_default_root_gateway(scenario, projection)
+        _load_through_default_root_gateway(scenario, forged_projection)
 
     assert raised.value.code == "acquire_data:active_observation_projection_drift"
 

@@ -10144,20 +10144,33 @@ def _load_value_data_profile_from_l1_dcat(
     selected_overlay = overlay_path or (
         data_forge_read_api.catalog.default_acquisition_overlay_path(repo_root)
     )
+    if observation_projection is not None:
+        try:
+            authority = data_forge_read_api.catalog.CanonicalAcquisitionAuthority.from_provision(
+                repo_root=repo_root,
+                baseline_path=dcat_path,
+            )
+            owner = data_forge_read_api.catalog.CatalogAcquisitionOverlay(
+                dcat_path, selected_overlay
+            )
+            revalidated = owner.read_activated_semantic_epoch_observations(
+                receipt_ref=observation_projection.receipt_ref,
+                artifact_store=artifact_store,
+                passport=passport,
+                authority=authority,
+            )
+            if revalidated != observation_projection:
+                raise ValueError("active owner projection differs from the supplied view")
+            observation_projection = revalidated
+        except Exception as exc:
+            raise ValueOwnerAccessError(
+                "acquire_data:active_observation_projection_drift",
+                f"C owner could not revalidate the active source/member chain: {exc}",
+                owner_access_ref=f"{owner_access_ref}#activated-observation-projection",
+            ) from exc
     con = data_forge_read_api.catalog.open_catalog_read_session(
         dcat_path,
         overlay_path=selected_overlay,
-    )
-    # C derives the class from its verified passport; the separate audit table
-    # is not an N8 authority input. Hash all physical fields from C's typed model.
-    physical_columns = (
-        tuple(
-            name
-            for name in type(observation_projection.observations[0].observation).model_fields
-            if name != "observation_class"
-        )
-        if observation_projection is not None
-        else ()
     )
     try:
         cursor = con.execute(
@@ -10192,6 +10205,15 @@ def _load_value_data_profile_from_l1_dcat(
         )
         raw_rows = cursor.fetchall()
         physical_row_columns = tuple(column[0] for column in cursor.description[6:])
+        physical_columns = (
+            tuple(
+                name
+                for name in type(observation_projection.observations[0].observation).model_fields
+                if name in physical_row_columns
+            )
+            if observation_projection is not None
+            else ()
+        )
     finally:
         con.close()
     if len(raw_rows) > owner_row_limit:
@@ -10232,10 +10254,13 @@ def _load_value_data_profile_from_l1_dcat(
                     zip(physical_row_columns, physical_matches[0][6:], strict=True)
                 )
                 try:
-                    physical_payload = {
-                        column: physical_row[column] for column in physical_columns
-                    }
-                    physical_payload["observation_class"] = passport.observation_class
+                    # C revalidated provenance from the registered lift, passport,
+                    # journal and CAS. Rebind every physical model field again to
+                    # catch a row change between that readback and this query.
+                    physical_payload = observation.model_dump(mode="json")
+                    physical_payload.update(
+                        {column: physical_row[column] for column in physical_columns}
+                    )
                     physical_observation = type(observation).model_validate(physical_payload)
                     actual_row_hash = content_sha256(
                         physical_observation.model_dump(mode="json")

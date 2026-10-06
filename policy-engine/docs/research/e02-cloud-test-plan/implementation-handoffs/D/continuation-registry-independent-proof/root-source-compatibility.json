@@ -1,0 +1,206 @@
+{
+  "schema_version": "1",
+  "review_kind": "source_only_combined_dependency_map",
+  "root_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+  "root_tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+  "subject_source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+  "subject_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+  "source_difference_count": 26,
+  "source_differences": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/__init__.py",
+      "root_blob": "14ec83d7813924b29683a5c8dba41ed30f4f3020",
+      "subject_blob": "568c5962fb5929aaf904ee51d8359725229423b6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "root_blob": "b5f389adf3b09727af6812bbf33a06825449b759",
+      "subject_blob": "0326977e81c32e1acc0a872f288c6a985b3fbb7e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "root_blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786",
+      "subject_blob": "66417098881a5d2f8200120d22c9eacb8367b40b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "root_blob": "68affc2d2354e1a3cdd1e339916d74b811d88bea",
+      "subject_blob": "195ab88a8d761b4a4c369bb4f38c02a5a3c8620b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "root_blob": "1d19a338b05604f574cd39dcef59b5622df038eb",
+      "subject_blob": "d36f811b37644cda85e14ea3090f0990df461b18"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "root_blob": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+      "subject_blob": "e3eb54a04c0121c548fb31fb6a7dc6d9c7504578"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+      "root_blob": "8d86fcedabe0da458aa3c9c2cac1a980062671eb",
+      "subject_blob": "110aae050c1006194238442ba03575ba18f81135"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+      "root_blob": "85152bbfbccd622f0fb1ac070233cfe631c7af77",
+      "subject_blob": "2e36f3eed57f5f20e6221d685b168e0819f148a5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "root_blob": "1cdf2241318f08092d18936bca3fa130fd998b87",
+      "subject_blob": "c4803920b44c6429c2b8bb6447f3a00ef1383705"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "root_blob": "428c5cbfa2edf118f2a4957ebd851e3dc1b14a93",
+      "subject_blob": "d5bd7558fe70ca9925bf37e774c7cd326e00a335"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+      "root_blob": "00bf6a9080d3245aa27eb42d8f96a24489718ae4",
+      "subject_blob": "69c4661034ebae8206c7c5e94ec06c7803befa57"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "root_blob": "23538253a6c49ebfee01574b02a2d4d07d4dfc5d",
+      "subject_blob": "3dfd20ca0124186989b843afad9fc518b9c81af0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "root_blob": "7cb82b22969d78fdc21f055130d17e58faa51cc7",
+      "subject_blob": "da432bb583998c299832e4f07179762aa170c8f8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "root_blob": "729b174caee729b012c04e948319b70232c175e5",
+      "subject_blob": "eaac632c22b3a9371884548fb14d4bb5af287a88"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "root_blob": "7c5d975487b4bc5283235f400535ab3e3cd10626",
+      "subject_blob": "5528ee828e8ca19ac5ba5a63e3183454a8020341"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "root_blob": "f5752151ab11d4df0cde974d3454acb126228933",
+      "subject_blob": "05fee06efff94d756bea1c163d698d38e24fb03d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+      "root_blob": "0820c6f7bfa2cf4653ffc450b66744987c03e9ea",
+      "subject_blob": "fc6e2f41b0640f7cc2ffb7045149dfb2d42f81f2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "root_blob": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+      "subject_blob": "6897d15921f9b5ea09db7e57aa5330c31ab6468f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "root_blob": "921718d771190b600ba5e85c0b6ee4474ec51331",
+      "subject_blob": "c467d863910d70c8bf9ed9f70dbefddb1eeb9683"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "root_blob": "533befa968e43ea734b729d0932c39b5128c26bf",
+      "subject_blob": "9c1ecc0b5ea3401c32c3c334cbb85efded438350"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "root_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+      "subject_blob": "7f7d64794c00432b75748d294f4f9607349e3396"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "root_blob": "24838eb49af51bad590282dbc4f7110164db2c72",
+      "subject_blob": "0b6832cd6ee46e09a10f3bbdc8972bcbaad22f81"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "root_blob": "6f48872f02bbd54fd70bb257856a0eeb789f516c",
+      "subject_blob": "cae57ad7bbe3f667862a185f8bcba909f3283024"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "root_blob": "f5dd49480dae308e341edfac8bd01cc0c578d5dd",
+      "subject_blob": "705613d4d58e92137086b5907fab7b2b75310e8f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+      "root_blob": "03cbee8ca84352e246a3ad75faf646343b0244b0",
+      "subject_blob": "fb85325cfc6e93458979e0fe758e69d99d3aed3e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+      "root_blob": "9f225b394368fca885a09135209fdc857e0c1490",
+      "subject_blob": "8f0af9ccc19345f726ef8f39025c4ad44bd0fedb"
+    }
+  ],
+  "critical_existing_contracts": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/search.py",
+      "root_blob": "49ddb4c29f333de12211a1e7222a1d8368f8cd85",
+      "subject_blob": "49ddb4c29f333de12211a1e7222a1d8368f8cd85",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+      "root_blob": "d12d0bb37b33ffb59513697eb95cc1653912553c",
+      "subject_blob": "d12d0bb37b33ffb59513697eb95cc1653912553c",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "root_blob": "0963066824070b40fbe3d999d61d553b02728ec9",
+      "subject_blob": "0963066824070b40fbe3d999d61d553b02728ec9",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/tenant_context.py",
+      "root_blob": "5645cf0bf4f8633dc02e800ae28f4496f8d421a9",
+      "subject_blob": "5645cf0bf4f8633dc02e800ae28f4496f8d421a9",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/kernel/values.py",
+      "root_blob": "4d032f08b7166ad66f067f43a973ad8b260aaa52",
+      "subject_blob": "4d032f08b7166ad66f067f43a973ad8b260aaa52",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/schema.py",
+      "root_blob": "a80bd4fdb4cfcbba7d24edb9974f0368160ba2b1",
+      "subject_blob": "a80bd4fdb4cfcbba7d24edb9974f0368160ba2b1",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/objectives.py",
+      "root_blob": "f7e1945d99245cd8ea762be22f91150684878ad6",
+      "subject_blob": "f7e1945d99245cd8ea762be22f91150684878ad6",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "root_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+      "subject_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "root_blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+      "subject_blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/interventions.py",
+      "root_blob": "f396610a8db0a8e817e7a10ef552127b32036ecb",
+      "subject_blob": "f396610a8db0a8e817e7a10ef552127b32036ecb",
+      "byte_identical": true
+    }
+  ],
+  "owned_delta_path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+  "interpretation": "Exact Git blob comparison; the independent runtime uses subject f471 dependencies. Root combined runtime is not established by this map. Other differing product paths are not reviewed as new changes here.",
+  "formal_closure_ids": []
+}

@@ -635,6 +635,19 @@ def _should_cache(node_id: str) -> bool:
     return node_id not in _CACHE_DISABLED_NODE_IDS
 
 
+def _validate_cached_node_hit(
+    node: CacheHitValidator,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    cached_outcome: NodeOutcome,
+) -> bool:
+    """Apply the node owner's existing cache-hit acceptance rule."""
+    try:
+        return node.validate_cache_hit(ctx, state, cached_outcome)
+    except _EXECUTOR_DEGRADED_ERRORS:
+        return False
+
+
 def _topo_sort(invocations: dict[str, NodeInvocation]) -> list[str]:
     indegree: dict[str, int] = dict.fromkeys(invocations, 0)
     edges: dict[str, list[str]] = {alias: [] for alias in invocations}
@@ -1190,14 +1203,9 @@ class WorkflowExecutor:
                 if cache_key is not None and self._cache is not None:
                     cached_outcome = self._cache.get(cache_key)
                     if cached_outcome is not None and isinstance(node, CacheHitValidator):
-                        try:
-                            cache_hit_valid = node.validate_cache_hit(
-                                node_context,
-                                state,
-                                cached_outcome,
-                            )
-                        except _EXECUTOR_DEGRADED_ERRORS:
-                            cache_hit_valid = False
+                        cache_hit_valid = _validate_cached_node_hit(
+                            node, node_context, state, cached_outcome
+                        )
                         if not cache_hit_valid:
                             self._cache.discard(cache_key)
                             cached_outcome = None

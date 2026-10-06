@@ -45,6 +45,7 @@ from polisyos.scientist.orchestration.engine.errors import (
     WorkflowTimeoutError,
 )
 from polisyos.scientist.orchestration.engine.executor import (
+    _CACHE_BYPASS_CACHE_HIT_VALIDATION,
     _CACHE_BYPASS_REPLAY_INCOMPATIBLE,
     _EXECUTOR_DEGRADED_ERRORS,
     NodeBindError,
@@ -59,6 +60,7 @@ from polisyos.scientist.orchestration.engine.executor import (
     _skip_blocker_for_engine_skip,
     _skip_blocker_for_outcome,
     _validate_aliases,
+    _validate_cached_node_hit,
     _validate_dependencies,
     _validate_required_binds,
     bind_node_params,
@@ -68,6 +70,7 @@ from polisyos.scientist.orchestration.engine.idempotency import (
     compute_idempotency_key,
 )
 from polisyos.scientist.orchestration.engine.protocol import (
+    CacheHitValidator,
     NodeError,
     NodeEvent,
     NodeOutcome,
@@ -1713,6 +1716,35 @@ class AsyncWorkflowExecutor:
                     exc=exc,
                     details={"alias": alias, "node_id": node_id},
                 )
+
+        if cached_outcome is not None:
+            if isinstance(node, CacheHitValidator):
+                try:
+                    cache_hit_valid = await run_blocking_async(
+                        _validate_cached_node_hit,
+                        node,
+                        self._ctx,
+                        snapshot_state(state),
+                        cached_outcome.model_copy(deep=True),
+                        timeout_seconds=self._remaining_deadline_seconds(cache_deadline),
+                        unbounded=cache_deadline is None,
+                    )
+                    NodeResultCache._check_deadline(cache_deadline)
+                except _EXECUTOR_DEGRADED_ERRORS:
+                    cache_hit_valid = False
+                if not cache_hit_valid:
+                    if self._cache is not None and cache_key is not None:
+                        self._cache.discard(cache_key)
+                    cached_outcome = None
+                    self._ctx.run.emit(
+                        f"scientist.node.{alias}",
+                        "NODE_CACHE_BYPASS",
+                        metrics={
+                            "duration_ms": int((time.perf_counter() - started) * 1000),
+                            "cache_bypass": 1,
+                            "reason_code": _CACHE_BYPASS_CACHE_HIT_VALIDATION,
+                        },
+                    )
 
         if cached_outcome is not None:
             try:

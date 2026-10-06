@@ -1,0 +1,137 @@
+{
+  "schema": "e02-public-surface-companion-preparation.v1",
+  "status": "public_surface_ast_rendered_to_ignored_scratch; trust_posture_not_run_waiting_for_root_R1_slot",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+  "git_head": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+  "invocation": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+      "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/render_public_surface_inventory.py"
+    ],
+    "python_executable_observed": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+    "wrapper_argv": [
+      "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/render_public_surface_inventory.py"
+    ],
+    "method": "existing guardrails AST parse/build/render functions; no tracked output paths passed"
+  },
+  "source_inputs": [
+    {
+      "path": "tools/devx/architecture/guardrails.py",
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+      "bytes": 103077
+    },
+    {
+      "path": "architecture/public_surface/contract.toml",
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "bytes": 19715
+    },
+    {
+      "path": "src/polisyos/core/contracts/__init__.py",
+      "sha256": "c1b31ae2195e87bbca1c6fdf1f02813d6c1936cd44f9262c88c8a792d789472c",
+      "bytes": 60573
+    }
+  ],
+  "public_surface_outputs": [
+    {
+      "tracked_target": {
+        "path": "architecture/public_surface/inventory.json",
+        "sha256": "58ec72001a9d236b4cb247a4229c64291a14f3c47429b26666cca484cb06cf0d",
+        "bytes": 220738
+      },
+      "candidate_path": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/candidate/inventory.json",
+      "candidate_sha256": "6cdd125598ef0f0567f53fda6931f6340a728f4a69d978da1f758c691a1d7d7b",
+      "candidate_bytes": 220894,
+      "changed": true,
+      "diff_path": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/public-surface.diff"
+    },
+    {
+      "tracked_target": {
+        "path": "docs/reference/public-surface.md",
+        "sha256": "3621f45572f23b6e0b5d3d1af7aefa56cfa2c3734129c814a6ac1b239520b102",
+        "bytes": 152713
+      },
+      "candidate_path": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/candidate/public-surface.md",
+      "candidate_sha256": "557be95d54907de3c95f80c2e639692502473157ad3070314d0532c5b140cd9e",
+      "candidate_bytes": 152824,
+      "changed": true,
+      "diff_path": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/public-surface.diff"
+    }
+  ],
+  "public_surface_diff": {
+    "path": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/public-surface.diff",
+    "sha256": "33354ddfc0c328b959578b70d0b430ac926d436afcfff51143effa1b7e9bb354",
+    "bytes": 2017
+  },
+  "expected_final_publication_scope": [
+    {
+      "path": "architecture/public_surface/inventory.json",
+      "generator": "tools/devx/architecture/guardrails.py public-surface inventory AST build/render owner functions",
+      "current_status": "candidate generated to ignored scratch; parent review/copy only"
+    },
+    {
+      "path": "docs/reference/public-surface.md",
+      "generator": "tools/devx/architecture/guardrails.py public-surface inventory AST build/render owner functions",
+      "current_status": "candidate generated to ignored scratch; parent review/copy only"
+    },
+    {
+      "path": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "generator_source": {
+        "path": "tools/quality/validation/check_trust_claim_posture.py",
+        "sha256": "3cc47926a168f903a0dd6921eaa131b2d335ef850e8586e7cfbf2ae5837a5ac5",
+        "bytes": 146612
+      },
+      "owner_command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python",
+        "tools/quality/validation/check_trust_claim_posture.py",
+        "--repo-root",
+        ".",
+        "--write",
+        "--output-root",
+        "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/trust-candidate"
+      ],
+      "expected_scratch_output": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/trust-candidate/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "current_status": "not run; pending root R1 resource-slot grant"
+    }
+  ],
+  "canonical_public_owner_command_not_executed": {
+    "argv": [
+      "uv",
+      "run",
+      "python",
+      "tools/devx/architecture/guardrails.py",
+      "sync",
+      "--skip-deep-import-baseline"
+    ],
+    "reason": "sync also renders generated-artifacts.md and computes deep-import edges; direct existing AST renderer keeps outputs limited to the two reviewed public-surface companions"
+  },
+  "not_in_scope": [
+    "architecture/imports/deep_import_baseline.json",
+    "docs/reference/generated-artifacts.md",
+    "all source files and tracked generated files"
+  ],
+  "additional_bindings": {
+    "wrapper_source": {
+      "path": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/render_public_surface_inventory.py",
+      "sha256": "788b4affef14b42744957281e462602aa490848dc4316e3e8771adf534b92843",
+      "bytes": 6957
+    },
+    "trust_generator_family_manifest": {
+      "path": "architecture/generated_artifacts.toml",
+      "sha256": "9d612433dcd7fac0f936ec5cc52d4d9416f8c84af37a8e77faac68011f445bc0",
+      "bytes": 253707
+    },
+    "frozen_architecture_gate_receipt": {
+      "path": "_build/e02-A-full-queue/architecture-frozen-905820/stdout.txt",
+      "sha256": "56d2c5f1d58b9eff517038b1da5088753975010a4ef4af59c1e8cd6c9891078d",
+      "bytes": 119607
+    },
+    "tracked_trust_posture_output_before_generation": {
+      "path": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba",
+      "bytes": 2365635
+    },
+    "trust_owner_command_status": "prepared_only; exact command and ignored output root are recorded above; not executed without root R1-slot grant"
+  }
+}

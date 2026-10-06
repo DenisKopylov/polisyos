@@ -1,0 +1,71 @@
+{
+  "command_argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+    "-u",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "-vv",
+    "--durations=0",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-original-elements-red/basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-original-elements-red/junit.xml",
+    "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_original_elements",
+    "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_preserves_zero_and_finite_arrays",
+    "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_coupled_output_adapter_rejects_mixed_boolean_sequence",
+    "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_replication_cache_aggregator_rejects_mixed_boolean_sequence"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+  "candidate_sha": "2fcc748e246767d23122de03046694bd233c6038",
+  "candidate_tree_sha": "43c4c5f0e3e17d047a23b01ba6dbf1c6cc60cb13",
+  "status_before": "## codex/e02-A-full-queue...origin/codex/e02-A-full-queue [ahead 4]\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-report.md\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-verification.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-verification/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/generated-api.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/generated-api/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-applicability.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-applicability/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache/",
+  "input_paths": {
+    "src/polisyos/runtime/quality/generation_cycle.py": {
+      "sha256": "d3ddffe520320e06fe06cc63627a30241973beb8cad6d21a06276945a2b68a7e",
+      "git_blob": "6e5e26d256f3cdb9a61ce69c6832debed0a2d262"
+    },
+    "src/polisyos/runtime/quality/joint_simulation_horizon.py": {
+      "sha256": "b820bd1d12ebff27966ccf51e2824aad9a15394aeed3212e8f2dd57ce406db74",
+      "git_blob": "c3a0207a8adc5f7b9bd5af2ae6521eb72f57a15e"
+    },
+    "src/polisyos/core/contracts/runtime.py": {
+      "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+      "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+    },
+    "src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+      "sha256": "96a5c9a4b4777694b8583d0d929a63ed03c28965a50fb1ff12e0702d4882e7eb",
+      "git_blob": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e"
+    },
+    "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py": {
+      "sha256": "cdfe6360f8df6c5b23b5b50eee7830834fd92761e7711ff7f921925fb82421d8",
+      "git_blob": "f10006ebaa677d876ad7477ce09fbda36b837cf5"
+    }
+  },
+  "interpreter_literal": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+  "interpreter_prefix": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv",
+  "interpreter_target_identity_only": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+  "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "packages": {
+    "pytest": "9.0.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "pydantic": "2.12.5"
+  },
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+    "JAX_PLATFORMS": "cpu",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "timeout_seconds": 300,
+  "timeout_basis": "Prior related 19-case wave 82.35s; new cubic witness 28.82s.",
+  "exit_code": 1,
+  "wall_seconds": 16.578557916975114,
+  "status_after": "## codex/e02-A-full-queue...origin/codex/e02-A-full-queue [ahead 4]\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-progress.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-report.md\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-verification.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-verification/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/generated-api.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/generated-api/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-applicability.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-applicability/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache/"
+}

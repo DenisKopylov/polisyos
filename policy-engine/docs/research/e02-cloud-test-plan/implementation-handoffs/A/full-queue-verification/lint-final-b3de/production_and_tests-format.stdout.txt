@@ -1,0 +1,16 @@
+Would reformat: src/polisyos/core/contracts/runtime.py
+Would reformat: src/polisyos/runtime/http/services/control/run_lifecycle.py
+Would reformat: src/polisyos/runtime/quality/_generation_cycle_history_schema.py
+Would reformat: src/polisyos/runtime/quality/generation_cycle.py
+Would reformat: src/polisyos/runtime/quality/generation_source.py
+Would reformat: src/polisyos/runtime/quality/joint_simulation_horizon.py
+Would reformat: tests/integration/core_runtime/test_e02_n9_refusal.py
+Would reformat: tests/unit/remediation/test_cyc_02.py
+Would reformat: tests/unit/remediation/test_sim_01.py
+Would reformat: tests/unit/remediation/test_sim_02.py
+Would reformat: tests/unit/remediation/test_sim_03.py
+Would reformat: tests/unit/runtime/quality/test_generation_cycle_history.py
+Would reformat: tests/unit/runtime/quality/test_generation_source.py
+Would reformat: tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py
+Would reformat: tests/unit/runtime/quality/test_joint_simulation_horizon.py
+15 files would be reformatted, 11 files already formatted

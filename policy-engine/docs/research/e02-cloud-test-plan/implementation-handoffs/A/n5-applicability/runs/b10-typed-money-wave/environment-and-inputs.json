@@ -1,0 +1,68 @@
+{
+  "command_argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+    "-u",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "-vv",
+    "--durations=0",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-typed-money-wave/basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-typed-money-wave/junit.xml",
+    "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+  "candidate_sha": "afc25de16e987dd7e6b80e6f2d024997eb24e7a8",
+  "candidate_tree_sha": "3352e99c5426da510908db91c848f5df8146ad55",
+  "status_before": "## codex/e02-A-full-queue...origin/codex/e02-A-full-queue [ahead 6]\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review.json\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/empirical-intake.json\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-start.json\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8.json\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate.json\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation.json\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review.json",
+  "input_paths": {
+    "src/polisyos/runtime/quality/generation_cycle.py": {
+      "sha256": "d3ddffe520320e06fe06cc63627a30241973beb8cad6d21a06276945a2b68a7e",
+      "git_blob": "6e5e26d256f3cdb9a61ce69c6832debed0a2d262"
+    },
+    "src/polisyos/runtime/quality/joint_simulation_horizon.py": {
+      "sha256": "20a657776363a36b81e5d867753bc1551b85993fdc32811d0362ae4c6fd4dac8",
+      "git_blob": "05a5df3c91025920a81b37a281db9f65c0d8e87d"
+    },
+    "src/polisyos/core/contracts/runtime.py": {
+      "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+      "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+    },
+    "src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+      "sha256": "96a5c9a4b4777694b8583d0d929a63ed03c28965a50fb1ff12e0702d4882e7eb",
+      "git_blob": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e"
+    },
+    "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py": {
+      "sha256": "f2834bb2d848394b2ae1623c52cb3d8708b4b15ffb2f234620ed15a9cbf993c1",
+      "git_blob": "d6400f3093e5d9ddedff84abb5245cb23f107396"
+    }
+  },
+  "interpreter_literal": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+  "interpreter_prefix": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv",
+  "interpreter_target_identity_only": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+  "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "packages": {
+    "pytest": "9.0.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "pydantic": "2.12.5"
+  },
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+    "JAX_PLATFORMS": "cpu",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "timeout_seconds": 300,
+  "timeout_basis": "Prior related 19-case wave 82.35s; new cubic witness 28.82s.",
+  "exit_code": 1,
+  "wall_seconds": 36.51919399999315,
+  "status_after": "## codex/e02-A-full-queue...origin/codex/e02-A-full-queue [ahead 6]\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/budget-consumer-review.json\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/empirical-intake.json\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/full-queue-start.json\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8.json\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n9-gate.json\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/runtime-fixture-validation.json\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review.json"
+}

@@ -1,0 +1,80 @@
+{
+  "artifact_sha256": {
+    "axis_builder": "ab0c9c125124c4273ba0d696c912c7434d77e3b987480bab456dd38d753846da",
+    "environment": "1377848b56297c3dbecf4627b4bb9f28f07d7b9e36967b2c752bfa7e3fd9df24",
+    "junit": "1dc051677bb84c058614f8a81a900b39e4275683c4d51878a274cc72b9fdac5e",
+    "patch": "876781d4a8bace4c4104c33fc3acb09e06da9f613a63ca4deab0e5fcff5ad2bb",
+    "source": "bdaea4b96f17b15f2404b3ab94b2f4531977e0a96e4cc0b7b49cde1ee5366553",
+    "stdout": "e25379ab2d1524b5edcc6f5572301262452cfe41d24fd53e2ae068f3b656cd1b",
+    "test": "4ef73be7d06ac8afdab9c2149ddb01ff0924b5343fbde1e617479fb8daf0bc85"
+  },
+  "captured_at_utc": "2026-10-06T18:55:19.349311+00:00",
+  "ignored_receipt_rule": "policy-engine/.gitignore:10:_build/\tpolicy-engine/_build/e02-A-full-queue/s10-verifier/frc01-review.json",
+  "other_acceptance_checks": {
+    "fixture_scope": "Synthetic old-contract persisted backtest test fixture; committed module docs explicitly exclude production ETS and C-admitted source-series claims.",
+    "no_status_baseline": "test_unbound_forecast_without_calibration_status_has_no_history_claim passes and asserts no fabricated insufficient-history limitation.",
+    "six_roles": "test_calibration_time_roles_are_preserved_from_bound_evidence verifies the six resolver-bound role values equal the persisted E DTO and are pairwise distinct; loaded fixture is limited, not a calibration pass."
+  },
+  "patch_review": {
+    "admission": "A calibration record is produced only when the real resolver returns _S10ResolvedEmpiricalEvidence and its time/ref bindings validate; unresolved mappings cannot create one.",
+    "effect": "Carries raw calibration_status into the S6 limitation predicate; it does not create evidence or set calibration_bound.",
+    "reason": "For an unbound projection carrying status pass, _s10_limitation_refs emits s10://calibration/fail-closed/insufficient-history. build_forecast_support invokes _derive_forecast_tier; _has_fail_closed_ref sees fail and changes the requested observable_calibrated tier to blocked.",
+    "result": "static GO"
+  },
+  "recorded_junit": {
+    "cases": [
+      "test_finite_estimator_report_without_observations_cannot_pass_calibration",
+      "test_nominal_confidence_is_not_empirical_coverage_without_observations",
+      "test_missing_report_remains_blocked_and_records_false_clear",
+      "test_failed_estimator_diagnostic_remains_limited",
+      "test_calibration_time_roles_are_preserved_from_bound_evidence",
+      "test_content_complete_projection_without_resolved_evidence_stays_blocked[owner-limited]",
+      "test_content_complete_projection_without_resolved_evidence_stays_blocked[caller-forged-pass]",
+      "test_content_complete_projection_without_resolved_evidence_stays_blocked[omitted-status-forged-pass]",
+      "test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence",
+      "test_missing_calibration_evidence_refs_stays_typed_blocked",
+      "test_unbound_forecast_without_calibration_status_has_no_history_claim",
+      "test_s10_authority_boundary_keeps_purpose_denials"
+    ],
+    "command_exit": 0,
+    "command_wall_seconds": 15.01672866602894,
+    "errors": 0,
+    "failures": 0,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frc01-admission-red-6f1e/junit.xml",
+    "test_run_head": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+    "test_time_seconds": 11.712,
+    "tests": 12
+  },
+  "review_scope": [
+    "FRC01 limitation-ref patch",
+    "committed FRC01 tests",
+    "downstream ForecastSupport tier derivation",
+    "recorded FRC01 JUnit"
+  ],
+  "reviewer_actions": {
+    "delegation": false,
+    "numerical_or_ETS_run": false,
+    "source_changes": false,
+    "tests_run": false
+  },
+  "semantic_witness": {
+    "assertions": "No calibration record/ref; materialized ForecastSupport tier is blocked.",
+    "case": "test_content_complete_projection_without_resolved_evidence_stays_blocked[omitted-status-forged-pass]",
+    "classification": "Earlier helper-local pass-through counterexample is disproven at the actual ForecastSupport consumer by the fail-closed S6 reason predicate. No extra source guard is indicated.",
+    "mutation": "Keeps CAS ref and all measurement fields from the persisted limited DTO; changes only caller-authored status/floor/tier fields to pass; omits caller calibration_status and requests observable_calibrated."
+  },
+  "snapshot": {
+    "branch": "codex/e02-A-full-queue",
+    "head": "b3de1ec3158e5c257edb548e7ef43ac82078531f",
+    "source_and_test_match_test_run_inputs": true,
+    "test_run_candidate": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+    "test_run_tree": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+    "tree": "d6092e27161185a882ca7179187dfd6e3b0cc83a"
+  },
+  "tracked_blob_ids": {
+    "axis_builder": "bfad9e36e2874e8a8f65ac524060e8f072e0cdb3",
+    "source": "a9bee33288e66aecada88a58b44fd504a33b78c7",
+    "test": "c906eeb7fc678f2028f9b9525b7c4c30a8ff71c4"
+  },
+  "verdict": "GO"
+}

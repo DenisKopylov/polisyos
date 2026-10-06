@@ -1,0 +1,382 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "numeric-scalar-validation",
+  "closure_ids": [],
+  "bundle_ids": [
+    "SIM-02",
+    "SIM-03"
+  ],
+  "slice_base_sha": "00fa6d83ee3c04973b95b0cf7b924fd617ef8071",
+  "implementation_commits": [
+    "2fcc748e246767d23122de03046694bd233c6038",
+    "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da"
+  ],
+  "candidate_tree_sha": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+  "branch": "codex/e02-A-full-queue",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "policy-engine/tests/unit/remediation/test_frc_01.py",
+    "policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "name": "Independent static source review of shared original-element validation",
+      "outcome": "PASS",
+      "review_receipt": {
+        "path": "numeric-scalar-validation/numeric-removal-6f1e/strict-finite-scalar-review.json",
+        "sha256": "5c0a5ed96f3b24e01f8614e57bb3717ea6858bd3e8a070dbf579d4294c344e99"
+      },
+      "patch": {
+        "path": "policy-engine/_build/e02-A-full-queue/numeric-scalar-validation/strict-finite-scalar.patch",
+        "sha256": "4c367f8da034a3b2e325c25e45156674beab8680165714bd371e943984ef5597",
+        "applied_source_commit": "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+        "source_blob_at_commit": "7965deabd278db8a4e9e73092ad3fc7bfaf59545"
+      },
+      "scope": "Read-only reviewer confirmed one generic pre-coercion recursive guard in _required_finite_scalar, original-type tests across Sequence/Mapping/object ndarray cases, valid zero/finite array controls, and the explicit pre-coerced-float residual. No test run or numeric execution was performed by that reviewer.",
+      "review_decision": "GO_BOUNDED_STATIC_REVIEW",
+      "command": "Read-only review of the proposed shared numeric guard; no executable test command.",
+      "target_sha": "2fcc748e246767d23122de03046694bd233c6038",
+      "target_tree_sha": "43c4c5f0e3e17d047a23b01ba6dbf1c6cc60cb13",
+      "environment": "Static review only; reviewer receipt records tests_run=false, patch_applied=false, and numeric_runs=false.",
+      "input_closure": "strict-finite-scalar-review.json@sha256:5c0a5ed96f3b24e01f8614e57bb3717ea6858bd3e8a070dbf579d4294c344e99; includes base/source/test pins and patch@sha256:4c367f8da034a3b2e325c25e45156674beab8680165714bd371e943984ef5597.",
+      "output": "PASS for bounded static review only. Receipt: policy-engine/_build/e02-A-full-queue/numeric-scalar-validation/strict-finite-scalar-review.json@sha256:5c0a5ed96f3b24e01f8614e57bb3717ea6858bd3e8a070dbf579d4294c344e99."
+    },
+    {
+      "name": "Pre-fix semantic RED for original numeric element preservation",
+      "outcome": "FAIL",
+      "target_sha": "2fcc748e246767d23122de03046694bd233c6038",
+      "target_tree_sha": "43c4c5f0e3e17d047a23b01ba6dbf1c6cc60cb13",
+      "test_path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+      "test_git_blob": "f10006ebaa677d876ad7477ce09fbda36b837cf5",
+      "test_sha256": "cdfe6360f8df6c5b23b5b50eee7830834fd92761e7711ff7f921925fb82421d8",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-original-elements-red/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-original-elements-red/junit.xml",
+        "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_original_elements",
+        "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_preserves_zero_and_finite_arrays",
+        "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_coupled_output_adapter_rejects_mixed_boolean_sequence",
+        "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_replication_cache_aggregator_rejects_mixed_boolean_sequence"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+      "result": {
+        "tests": 11,
+        "passed": 6,
+        "failed": 5,
+        "errors": 0,
+        "skipped": 0,
+        "duration_seconds": 12.89,
+        "exit_code": 1,
+        "semantic_failures": [
+          "mixed Python bool/float sequence accepted after dtype coercion",
+          "mixed NumPy bool/float sequence accepted after dtype coercion",
+          "nested mixed bool/float sequence accepted after dtype coercion",
+          "real coupled outcome adapter accepted the mixed sequence",
+          "real replication-cache aggregator accepted the mixed sequence"
+        ],
+        "wall_seconds": 16.5785579
+      },
+      "outputs": [
+        {
+          "role": "stdout",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/numeric-scalar-validation/red-11-tests-stdout.txt",
+          "bytes": 9700,
+          "sha256": "01f0f87d288ebc74f43464ae7824f9bd190261cf7b723aed19025ee0085547e4"
+        },
+        {
+          "role": "stderr",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/numeric-scalar-validation/red-11-tests-stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "role": "junit",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/numeric-scalar-validation/red-11-tests-junit.xml",
+          "bytes": 8218,
+          "sha256": "1ef57b58519ed62183f1f67d6fc5c6afb8a9b4902917f674c99a3a541175313d"
+        },
+        {
+          "role": "environment_and_inputs",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/numeric-scalar-validation/red-11-tests-environment-and-inputs.json",
+          "bytes": 6204,
+          "sha256": "c56f8b4b80f2a9f56e46d02e98cd99be3ddfd947d9be493e13b3a9f3b0f4d222"
+        }
+      ],
+      "attribution": "All five failures are the intended pre-fix DID NOT RAISE assertions; six controls passed. This is a demonstrated source regression at 2fcc, not a post-fix verification receipt.",
+      "classification": "EXPECTED_PRE_PATCH_SEMANTIC_RED",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-original-elements-red/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-original-elements-red/junit.xml tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_original_elements tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_preserves_zero_and_finite_arrays tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_coupled_output_adapter_rejects_mixed_boolean_sequence tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_replication_cache_aggregator_rejects_mixed_boolean_sequence",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/numeric-scalar-validation/red-11-tests-environment-and-inputs.json@sha256:c56f8b4b80f2a9f56e46d02e98cd99be3ddfd947d9be493e13b3a9f3b0f4d222",
+      "input_closure": "The environment-and-inputs receipt binds target 2fcc748e246767d23122de03046694bd233c6038, source/test Git blobs, selectors, and runtime inputs.",
+      "output": "FAIL: 11 tests, 6 passed and 5 expected semantic failures, 0 errors/skips, exit 1. Complete output files and hashes are recorded in outputs[]. Pytest duration is 12.89s; total wall time is 16.5785579s."
+    },
+    {
+      "name": "Frozen post-patch owner delta wave (217 tests)",
+      "outcome": "PASS",
+      "target_sha": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+      "target_tree_sha": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+      "target_source_commit": "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+      "target_source_blob": "7965deabd278db8a4e9e73092ad3fc7bfaf59545",
+      "required_numeric_test_commit": "2fcc748e246767d23122de03046694bd233c6038",
+      "scheduled_owner": "/root",
+      "interpretation": "No post-patch GREEN or numeric execution is claimed in this handoff; the source and tree pins are ready for the owner's frozen wave.",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frozen-owner-delta-6f1e/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frozen-owner-delta-6f1e/junit.xml tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py tests/unit/runtime/quality/test_joint_simulation_horizon.py tests/unit/runtime/http/test_runs_api.py tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_context_control tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly tests/unit/runtime/quality/test_generation_cycle_history.py::test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph tests/unit/runtime/quality/test_generation_cycle_history.py::test_v1_projection_removal_probe_rejects_post_v1_field_with_markers_retained tests/unit/runtime/quality/test_generation_cycle_history.py::test_v2_history_rejects_post_version_nested_fields_with_markers_retained tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_accepts_nested_design_problem_v2_dotted_target_slot tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_accepts_nested_design_problem_v3_qualified_outcome tests/unit/runtime/quality/test_generation_cycle_history.py::test_history_replay_is_read_only_and_does_not_consult_current_source tests/unit/runtime/quality/test_generation_cycle_history.py::test_source_comment_preserves_actual_v1_v2_history tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_resolves_exact_selected_candidate_ncm_view tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_refuses_same_id_sibling_ncm_views_before_n5 tests/integration/core_runtime/test_e02_higher_order_n8_intake.py tests/integration/core_runtime/test_e02_empirical_member_intake.py tests/unit/remediation/test_cyc_02.py tests/integration/core_runtime/test_e02_n9_refusal.py tests/unit/remediation/test_sim_01.py tests/unit/remediation/test_sim_02.py tests/unit/remediation/test_sim_03.py tests/unit/remediation/test_frc_01.py",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/numeric-scalar-validation/frozen-owner-delta-6f1e/environment-and-inputs.json@sha256:7274f0366161eadb50e9c0daed78a842ac0690155693355579b0e69d1addba88",
+      "input_closure": "The environment-and-inputs manifest binds the frozen candidate, complete test selectors, and all recorded source/test Git blobs and SHA-256 identities.",
+      "output": "PASS: 217/217 passed, 0 failures/errors/skips; pytest duration 219.96s, total wall 236.9039597910014s. Exact deciding files and hashes are listed in output_artifacts; original-106 reconciliation is separately retained there.",
+      "result": {
+        "tests": 217,
+        "passed": 217,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_duration_seconds": 219.96,
+        "wall_seconds": 236.9039597910014,
+        "exit_code": 0
+      },
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frozen-owner-delta-6f1e/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frozen-owner-delta-6f1e/junit.xml",
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+        "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "tests/unit/runtime/http/test_runs_api.py",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_context_control",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v1_projection_removal_probe_rejects_post_v1_field_with_markers_retained",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v2_history_rejects_post_version_nested_fields_with_markers_retained",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_accepts_nested_design_problem_v2_dotted_target_slot",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_accepts_nested_design_problem_v3_qualified_outcome",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_history_replay_is_read_only_and_does_not_consult_current_source",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_source_comment_preserves_actual_v1_v2_history",
+        "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_resolves_exact_selected_candidate_ncm_view",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_refuses_same_id_sibling_ncm_views_before_n5",
+        "tests/integration/core_runtime/test_e02_higher_order_n8_intake.py",
+        "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+        "tests/unit/remediation/test_cyc_02.py",
+        "tests/integration/core_runtime/test_e02_n9_refusal.py",
+        "tests/unit/remediation/test_sim_01.py",
+        "tests/unit/remediation/test_sim_02.py",
+        "tests/unit/remediation/test_sim_03.py",
+        "tests/unit/remediation/test_frc_01.py"
+      ],
+      "output_artifacts": [
+        {
+          "path": "numeric-scalar-validation/frozen-owner-delta-6f1e/stdout.txt",
+          "bytes": 60323,
+          "sha256": "66be680fec1efa5942c2ec111b16bb6b8212cd28811f6ec3bea5d820de661350"
+        },
+        {
+          "path": "numeric-scalar-validation/frozen-owner-delta-6f1e/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "numeric-scalar-validation/frozen-owner-delta-6f1e/junit.xml",
+          "bytes": 35813,
+          "sha256": "0dbbb71dbbe971b2e527927712f6943216b1d13ef8d14d3be057cd623609a1f6"
+        },
+        {
+          "path": "numeric-scalar-validation/frozen-owner-delta-6f1e/environment-and-inputs.json",
+          "bytes": 8641,
+          "sha256": "7274f0366161eadb50e9c0daed78a842ac0690155693355579b0e69d1addba88"
+        },
+        {
+          "path": "numeric-scalar-validation/frozen-owner-delta-6f1e/original-106-reconciliation.json",
+          "bytes": 415,
+          "sha256": "11f16c5d7cac060ff62850fd3d93e42b12238cd0961f62745ff2592b9417d97a"
+        }
+      ],
+      "input_test_identity_for_numeric_consumer": {
+        "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+        "git_blob": "f10006ebaa677d876ad7477ce09fbda36b837cf5",
+        "sha256": "cdfe6360f8df6c5b23b5b50eee7830834fd92761e7711ff7f921925fb82421d8"
+      }
+    },
+    {
+      "name": "Remove-the-property-keep-the-test probe",
+      "outcome": "PASS",
+      "property_removed": "_contains_invalid_original_numeric_element returns False for every input",
+      "plugin": {
+        "path": "numeric-scalar-validation/numeric-removal-6f1e/remove_original_element_guard.py",
+        "sha256": "7c4df93a168d2b523da15c9059c9c3a886a68abd97cfd179293df2a53db4fd1d"
+      },
+      "runner": {
+        "path": "numeric-scalar-validation/numeric-removal-6f1e/run_numeric_scalar_removal.py",
+        "sha256": "8d66604a13c5cf7aee9733b3cf153088a559e953ac1516d216ca4b38a18b312d",
+        "output_schema": "policyos.e02.numeric_scalar_removal_run.v1",
+        "output_files": [
+          "stdout.txt",
+          "stderr.txt",
+          "junit.xml",
+          "environment-and-inputs.json"
+        ]
+      },
+      "selected_test_nodes": [
+        "test_shared_required_output_projection_rejects_invalid_original_elements[mixed-python-bool-float]",
+        "test_coupled_output_adapter_rejects_mixed_boolean_sequence",
+        "test_replication_cache_aggregator_rejects_mixed_boolean_sequence"
+      ],
+      "expected_signal": "PASS requires the mutant to be applied and all three current tests to fail at their exact DID NOT RAISE assertion, with a nonzero mixed_boolean_invocations count. The receipt is searched within stdout, not required at its beginning. Collection/errors or zero hits are harness error; all-pass is removal NO-GO.",
+      "interpreter_and_environment": "The captured runner manifest records the literal worker Python, prefix and target identity, Python/pytest/numpy/jax versions, complete argv/cwd/environment, branch/HEAD/tree/status, source and test Git blobs, plugin/runner hashes, output receipts and wall time.",
+      "preparation_state": "PREPARED_AND_EXECUTED_BY_ROOT",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-original-elements-removal-6f1e/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-original-elements-removal-6f1e/junit.xml -p remove_original_element_guard tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_original_elements[mixed-python-bool-float] tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_coupled_output_adapter_rejects_mixed_boolean_sequence tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_replication_cache_aggregator_rejects_mixed_boolean_sequence",
+      "target_sha": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+      "target_tree_sha": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/numeric-scalar-validation/numeric-removal-6f1e/environment-and-inputs.json@sha256:5256ce2827d022b9cc690c105d35e32f91c3315b7a45f41952bac948c14f4e6c",
+      "input_closure": "The runner environment manifest binds the exact candidate source/test blobs, plugin/runner hashes, selected test nodes, literal worker interpreter, and complete pytest argv.",
+      "output": "PASS: all three real-consumer semantic assertions failed under the applied mutant, with four guard invocations and three mixed-Boolean calls; no collection/error or zero-hit harness signal. Pytest exit 1 is the expected property-removal witness, not a product test failure.",
+      "execution_state": "COMPLETED",
+      "result": {
+        "tests": 3,
+        "passed": 0,
+        "failed": 3,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_exit_code": 1,
+        "pytest_duration_seconds": 0.188,
+        "wall_seconds": 16.332669167022686,
+        "mutant_applied": true,
+        "guard_invocations": 4,
+        "mixed_boolean_invocations": 3,
+        "semantic_assertions": [
+          "shared projection DID NOT RAISE",
+          "real coupled adapter DID NOT RAISE",
+          "real replication-cache consumer DID NOT RAISE"
+        ],
+        "harness_error_signal_present": false,
+        "pytest_outcome": "FAIL",
+        "interpretation": "The child pytest run failed all three expected DID NOT RAISE assertions with 0 errors/skips; this is the passing property-removal witness, not a normal consumer-wave failure."
+      },
+      "output_artifacts": [
+        {
+          "path": "numeric-scalar-validation/numeric-removal-6f1e/stdout.txt",
+          "bytes": 5627,
+          "sha256": "1f67845ca4c6fe436634ba2947c0cd507eb4bc1974fb275ac52f3250faa83167"
+        },
+        {
+          "path": "numeric-scalar-validation/numeric-removal-6f1e/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "numeric-scalar-validation/numeric-removal-6f1e/junit.xml",
+          "bytes": 3891,
+          "sha256": "80d5417ba0baaff95d7f657a7c316c49fe6e5a36ca747b7333e3f46af6a36682"
+        },
+        {
+          "path": "numeric-scalar-validation/numeric-removal-6f1e/environment-and-inputs.json",
+          "bytes": 5980,
+          "sha256": "5256ce2827d022b9cc690c105d35e32f91c3315b7a45f41952bac948c14f4e6c"
+        }
+      ],
+      "outer_runner_receipt": "The captured manifest records the runner and plugin identities; byte-identical tracked copies are retained beside the copied outputs.",
+      "child_check_outcome": "FAIL",
+      "no_numerical_ETS_or_empirical_source_run": true
+    }
+  ],
+  "property": {
+    "finding_id": "B18",
+    "criterion_source": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        411,
+        424
+      ],
+      "sha256": "7a231693e1ff776923bcae7ffaf37eafcdec6e7738a8f2f22f4e853cb7826dd2",
+      "bundle_projection": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SIM-02.md"
+    },
+    "criterion_summary": "A missing required numeric output must not become a positive observation or be confused with explicit zero; empty/partial output, explicit zero, NaN/inf, and malformed structure remain distinguishable without hand-enumerated engine output names.",
+    "implemented_delta": "The shared _required_finite_scalar now recursively examines original Mapping values, Sequence items, and object-dtype ndarray leaves before NumPy coercion. It rejects None, bool/np.bool_, str, bytes/bytearray, complex values, and invalid array dtypes generically before adapter/cache projection.",
+    "mechanism_footprint": {
+      "source_commit": "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+      "source_paths": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "insertions": 35,
+          "deletions": 0,
+          "role": "shared original-element guard"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "insertions": 6,
+          "deletions": 1,
+          "role": "separate S10 refusal-reason preservation in the same implementation commit"
+        }
+      ],
+      "source_path_count": 2,
+      "changed_lines_total": 42,
+      "required_test_companion": {
+        "commit": "2fcc748e246767d23122de03046694bd233c6038",
+        "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+        "insertions": 111,
+        "budget_treatment": "mandatory test companion outside mechanism path/line count"
+      },
+      "separate_frc_candidate_context": {
+        "commits": [
+          "294d9137417944f90a0b4a6ab34311a046f15074",
+          "766f8b4c1ba336c987a5da4a57f8b6ba73e39e8f",
+          "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f"
+        ],
+        "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+        "budget_treatment": "separate FRC mechanism, excluded from numeric scalar mechanism count and evidence"
+      }
+    },
+    "pattern_pass": {
+      "relevant_ids": [
+        "P01",
+        "P10",
+        "P29",
+        "P37",
+        "P38",
+        "P40"
+      ],
+      "existing_antipattern": "NumPy's inferred numeric dtype erased a Boolean's original type before the shared validator checked it; per-engine fixes would duplicate the semantic boundary.",
+      "target_pattern": "One generic original-element check at the shared projection owner, with adversarial real-consumer controls and a remove-the-property probe.",
+      "acceptance_signal": "The frozen candidate rejects all original forbidden leaves while preserving true zero and finite arrays; disabling only the helper causes the three targeted real consumer assertions to fail and records a nonzero helper-hit receipt."
+    }
+  },
+  "predicate_basis": {
+    "input_leaf_validity": {
+      "classification": "recomputed",
+      "basis": "The shared helper walks supplied original containers before np.asarray(value) and float conversion."
+    },
+    "upstream_type_provenance_after_precoercion": {
+      "classification": "not_established",
+      "basis": "A float ndarray created earlier from [True, 1.0] carries no observable Boolean provenance; the test explicitly preserves this bounded residual."
+    },
+    "authority_scope": "This validation is for numeric N5 simulation output; it does not promote simulation output into world evidence."
+  },
+  "capability_state_or_finding_state": "partial; bounded shared original-element guard verified; B18 finding-wide closure not claimed",
+  "limitations_and_next_owner": {
+    "B18": "Partial and not adjudicated at the finding level. The frozen 217-test owner wave and remove-the-property witness verify the bounded original-element guard across the shared validator, coupled adapter, and replication-cache consumer, including zero/finite controls. Broader missing-versus-zero acceptance is not closed here.",
+    "B22": "Limited/partial. This scalar patch does not establish complete trajectory grid or temporal coverage; preserve the prior limitation.",
+    "B23": "The bounded physical-cache mechanism is closed at its current local scope by its dedicated slice. The original finding’s partial historical status is preserved; this handoff neither broadens that closure nor claims finding-wide closure.",
+    "B25": "Closed and preserved. No new cross-candidate metric-completeness or SMM claim is made.",
+    "bounded_residual": "If an upstream producer already coerces a mixed Boolean/float sequence into a floating ndarray, original type information is unrecoverable at this boundary. Enforce before any such earlier conversion where the guarantee is needed.",
+    "post_patch_verification": "Frozen post-patch owner wave and source-specific property-removal control both PASS; see complete deciding receipts. This verifies the bounded guard only. Do not promote B18 or infer broader missing-versus-zero closure from the wave.",
+    "candidate_context": "Candidate tree ba0f includes separate FRC test-only changes at 294d9137417944f90a0b4a6ab34311a046f15074, 766f8b4c1ba336c987a5da4a57f8b6ba73e39e8f, and 6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f; the central frozen wave includes FRC tests, but no FRC-specific outputs are duplicated here and those paths remain excluded from numeric mechanism size.",
+    "next_owner": "/root"
+  }
+}

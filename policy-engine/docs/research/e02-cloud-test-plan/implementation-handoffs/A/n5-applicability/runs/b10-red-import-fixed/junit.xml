@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="13.536" timestamp="2026-10-06T20:17:30.469825+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result" time="0.185"><failure message="polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError: intervention_assignment_conflict: state_path:substrate.generic_policy.agents.income is assigned incompatibly by 'income_feasible' and 'income_conflict_1'">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-red-import-fixed/basetemp/test_hard_n5_feasibility_filte0')
+
+    @pytest.mark.asyncio
+    async def test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result(
+        tmp_path: Path,
+    ) -&gt; None:
+        """The high-ranked conflicting bundle is refused before N6 selects the feasible atom."""
+    
+        repo_root = Path(__file__).resolve().parents[3]
+        store, problem, context, high, low = _owner_fixture(tmp_path)
+        assert high.content_hash != high.atom.content_hash
+        assert tuple(atom.world_model_record_ref for atom in high.intervention_atoms) == (
+            context.world_model_record.world_model_record_id,
+            context.world_model_record.world_model_record_id,
+        )
+        assert all(
+            atom.problem_frame_ref == gy_content_hash(problem.model_dump(mode="json"))
+            for atom in high.intervention_atoms + low.intervention_atoms
+        )
+    
+        try:
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+                controller = _production_controller(
+                    store=store,
+                    problem=problem,
+                    context=context,
+                    candidates=(high, low),
+                    repo_root=repo_root,
+                )
+                assert type(controller._simulation_port) is JointSimulationPort
+                port = controller._simulation_port
+&gt;               run = await controller.run(
+                    problem,
+                    budget_state=_budget(),
+                    min_cycles=1,
+                    max_cycles=1,
+                )
+
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py:343: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/quality/generation_cycle.py:5833: in run
+    cycle, cycle_summaries = await self._run_cycle(
+src/polisyos/runtime/quality/generation_cycle.py:6551: in _run_cycle
+    finished = await self._engine.run_async(state)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/workflows/engine_simple.py:51: in run_async
+    next_state = fn(state)
+                 ^^^^^^^^^
+src/polisyos/runtime/quality/generation_cycle.py:8348: in _joint_value_node
+    simulation = self._simulation_port(
+src/polisyos/runtime/quality/generation_cycle.py:2972: in __call__
+    result = self._controller.run(request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/joint_simulation_horizon.py:1241: in run
+    _validate_atom_assignment_compatibility(request)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+request = JointSimulationRequest(world_model_record_ref='world_model_record_e6d9cedd4da9d529', world_model_record=WorldModelReco...budget_ref='budget://cyc-01/f2b4f744332b4501896caf0573fd852b/n5', seed=0, replications=1, world_credal_state_before={})
+
+    def _validate_atom_assignment_compatibility(request: JointSimulationRequest) -&gt; None:
+        """Refuse ambiguous direct writes before any singleton or joint run starts.
+    
+        ``JointSimulationRequest`` has no per-atom dependency declaration, so tuple
+        position is not promoted into sequential execution semantics here.
+        """
+    
+        writes: dict[str, tuple[str, float | None]] = {}
+        for atom in request.intervention_atoms:
+            for assignment in atom.causal_do_expr.assignments:
+                binding = request.world_model_record.slot_binding(assignment.variable)
+                if binding is None:
+                    binding = next(
+                        (
+                            candidate
+                            for slot_id in atom.target_world_slots
+                            if (candidate := request.world_model_record.slot_binding(slot_id))
+                            is not None
+                            and candidate.state_path == assignment.variable
+                        ),
+                        None,
+                    )
+                target = (
+                    "state_path:" + binding.state_path
+                    if binding is not None and binding.state_path
+                    else "world_slot:" + assignment.variable
+                )
+                value = _numeric_assignment_value(assignment)
+    
+                previous = writes.get(target)
+                if previous is not None:
+                    previous_atom, previous_value = previous
+                    if value is None or previous_value is None or value != previous_value:
+&gt;                       raise JointSimulationControllerError(
+                            "intervention_assignment_conflict",
+                            (
+                                f"{target} is assigned incompatibly by "
+                                f"{previous_atom!r} and {atom.intervention_id!r}"
+                            ),
+                        )
+E                       polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError: intervention_assignment_conflict: state_path:substrate.generic_policy.agents.income is assigned incompatibly by 'income_feasible' and 'income_conflict_1'
+
+src/polisyos/runtime/quality/joint_simulation_horizon.py:2500: JointSimulationControllerError</failure></testcase></testsuite></testsuites>

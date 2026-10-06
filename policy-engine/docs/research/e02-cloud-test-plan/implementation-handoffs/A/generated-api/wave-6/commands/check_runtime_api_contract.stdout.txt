@@ -1,0 +1,3 @@
+Measured: generated OpenAPI byte drift, declared OpenAPI hardening invariants, and generated runtime client byte drift when requested.
+Not measured: endpoint execution, authorization behavior, client behavior, production deployment, or hosted CI.
+Runtime API contract check passed (declared scope only).

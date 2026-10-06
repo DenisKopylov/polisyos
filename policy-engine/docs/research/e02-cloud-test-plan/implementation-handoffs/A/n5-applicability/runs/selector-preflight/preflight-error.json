@@ -1,0 +1,8 @@
+{
+  "check_outcome": "ERROR",
+  "execution": "pre_pytest_input_path_preflight",
+  "candidate_sha": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+  "missing_path": "tests/integration/runtime_quality/test_cyc_02.py",
+  "product_runtime_executed": false,
+  "reason": "Root selected nonexistent path rather than exact prior receipt selector."
+}

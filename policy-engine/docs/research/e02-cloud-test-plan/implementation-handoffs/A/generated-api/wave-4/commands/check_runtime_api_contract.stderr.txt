@@ -1,0 +1,61 @@
+2026-10-06 21:19:02.115 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-06 21:19:02.115 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+2026-10-06 21:19:02.116 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 21:19:02.116 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 21:19:02.116 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 21:19:02.116 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 21:19:02.116 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-06 21:19:02.136 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.138 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.141 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.143 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.147 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.152 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.155 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.157 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.160 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.163 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.166 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.168 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'worldbank.wdi@1.0.0' already registered. Use override=True to replace.
+2026-10-06 21:19:02.170 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'wvs.wave7@1.0.0' already registered. Use override=True to replace.
+2026-10-06 21:19:02.171 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'eurostat.data@1.0.0' already registered. Use override=True to replace.
+2026-10-06 21:19:02.172 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.174 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.176 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.177 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.179 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.180 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.182 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ukons.datasets@1.0.0' already registered. Use override=True to replace.
+2026-10-06 21:19:02.184 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'sdmx.source@1.0.0' already registered. Use override=True to replace.
+2026-10-06 21:19:02.185 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ckan.catalog@1.0.0' already registered. Use override=True to replace.
+2026-10-06 21:19:02.186 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'ckan.resource@1.0.0' already registered. Use override=True to replace.
+2026-10-06 21:19:02.188 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'socrata.soda@1.0.0' already registered. Use override=True to replace.
+2026-10-06 21:19:02.189 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'opendatasoft.ods@1.0.0' already registered. Use override=True to replace.
+2026-10-06 21:19:02.190 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'sparql.endpoint@1.0.0' already registered. Use override=True to replace.
+2026-10-06 21:19:02.192 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Connector 'rest.json@1.0.0' already registered. Use override=True to replace.
+2026-10-06 21:19:02.193 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.195 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.197 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-06 21:19:02.197 | INFO     | polisyos.common.logger:_call:120 - ConnectorRegistry bootstrapped
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | DEBUG    | polisyos.common.logger:_call:120 - Wired profile default config
+2026-10-06 21:19:02.198 | INFO     | polisyos.common.logger:_call:120 - Default configs bootstrapped from profiles
+2026-10-06 21:19:02.230 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized

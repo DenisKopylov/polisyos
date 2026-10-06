@@ -1,0 +1,84 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 3 items
+
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_original_elements[mixed-python-bool-float] FAILED [ 33%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_coupled_output_adapter_rejects_mixed_boolean_sequence FAILED [ 66%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_replication_cache_aggregator_rejects_mixed_boolean_sequence FAILED [100%]PROPERTY_REMOVAL_RECEIPT={"guard_invocations": 4, "mixed_boolean_invocations": 3, "mutant_applied": true, "mutation": "_contains_invalid_original_numeric_element returns False", "pytest_exitstatus_before_harness_check": 1}
+
+
+=================================== FAILURES ===================================
+_ test_shared_required_output_projection_rejects_invalid_original_elements[mixed-python-bool-float] _
+
+value = [True, 1.0]
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            pytest.param([True, 1.0], id="mixed-python-bool-float"),
+            pytest.param((np.bool_(True), 1.0), id="mixed-numpy-bool-float"),
+            pytest.param(np.array([True, 1.0], dtype=object), id="object-bool-float"),
+            pytest.param([[True, 1.0]], id="nested-bool-float"),
+            pytest.param(np.array([None, 1.0], dtype=object), id="object-none-float"),
+            pytest.param(np.array(["1", 1.0], dtype=object), id="object-string-float"),
+            pytest.param(np.array([b"1", 1.0], dtype=object), id="object-bytes-float"),
+            pytest.param(np.array([1.0 + 0j, 1.0], dtype=object), id="object-complex-float"),
+        ],
+    )
+    def test_shared_required_output_projection_rejects_invalid_original_elements(
+        value: object,
+    ) -> None:
+>       with pytest.raises(JointSimulationControllerError) as raised:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError'>
+
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py:372: Failed
+__________ test_coupled_output_adapter_rejects_mixed_boolean_sequence __________
+
+    def test_coupled_output_adapter_rejects_mixed_boolean_sequence() -> None:
+>       with pytest.raises(JointSimulationControllerError) as raised:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError'>
+
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py:426: Failed
+_______ test_replication_cache_aggregator_rejects_mixed_boolean_sequence _______
+
+    def test_replication_cache_aggregator_rejects_mixed_boolean_sequence() -> None:
+        malformed_point = TrajectoryPoint.model_construct(
+            step=0,
+            outcomes={"y": [True, 1.0]},
+            effect={"y": 0.0},
+            engine_state={},
+        )
+        malformed_trajectory = SimulationTrajectory.model_construct(
+            run_level="joint",
+            atom_ids=("atom-a",),
+            engine_kind="ncm_parallel_worlds",
+            method_fqn="polisyos.foreign.test_ncm@1.0.0",
+            objective_ref="objective://mixed-boolean-output",
+            points=(malformed_point,),
+            diagnostics={},
+        )
+    
+>       with pytest.raises(JointSimulationControllerError) as raised:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError'>
+
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py:454: Failed
+- generated xml file: /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-original-elements-removal-6f1e/junit.xml -
+============================== slowest durations ===============================
+
+(9 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_original_elements[mixed-python-bool-float]
+FAILED tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_coupled_output_adapter_rejects_mixed_boolean_sequence
+FAILED tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_replication_cache_aggregator_rejects_mixed_boolean_sequence
+============================== 3 failed in 0.19s ===============================

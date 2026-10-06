@@ -1,0 +1,118 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 49 items
+
+tests/unit/remediation/test_sim_01.py::test_unsupported_first_engine_falls_back_to_supported_second PASSED [  2%]
+tests/unit/remediation/test_sim_01.py::test_all_engine_candidates_incompatible_return_typed_rejection PASSED [  4%]
+tests/unit/remediation/test_sim_01.py::test_selected_plan_requires_its_executed_trajectory PASSED [  6%]
+tests/unit/remediation/test_sim_01.py::test_static_engine_rejected_by_actual_grid_falls_back_to_stock_flow PASSED [  8%]
+tests/unit/remediation/test_sim_01.py::test_foreign_trajectory_cannot_satisfy_selected_plan PASSED [ 10%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[empty-world-summaries] PASSED [ 12%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[missing-selected-outcome] PASSED [ 14%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[mixed-valid-and-missing-selected-outcome] PASSED [ 16%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[nan-selected-outcome] PASSED [ 18%]
+tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[infinite-selected-outcome] PASSED [ 20%]
+tests/unit/remediation/test_sim_02.py::test_ncm_explicit_zero_is_preserved_as_a_real_outcome PASSED [ 22%]
+tests/unit/remediation/test_sim_02.py::test_conflicting_atom_assignments_are_rejected_instead_of_last_wins[left-right] PASSED [ 24%]
+tests/unit/remediation/test_sim_02.py::test_conflicting_atom_assignments_are_rejected_instead_of_last_wins[right-left] PASSED [ 26%]
+tests/unit/remediation/test_sim_02.py::test_identical_atom_assignments_are_order_invariant PASSED [ 28%]
+tests/unit/remediation/test_sim_02.py::test_short_trajectory_is_not_silently_extended_by_final_value PASSED [ 30%]
+tests/unit/remediation/test_sim_03.py::test_summary_distance_requires_one_declared_metric_set PASSED [ 32%]
+tests/unit/remediation/test_sim_03.py::test_smm_missing_required_moment_cannot_win_calibration PASSED [ 34%]
+tests/unit/remediation/test_sim_03.py::test_smm_all_incomparable_candidates_are_explicitly_blocked PASSED [ 36%]
+tests/unit/remediation/test_sim_03.py::test_single_paired_draw_has_unestimated_standard_error PASSED [ 38%]
+tests/unit/remediation/test_sim_03.py::test_paired_replicates_require_distinct_seeds PASSED [ 40%]
+tests/unit/remediation/test_sim_03.py::test_joint_request_runs_each_requested_replication_with_distinct_seeds PASSED [ 42%]
+tests/unit/remediation/test_sim_03.py::test_ncm_evidence_none_and_explicit_empty_are_distinct PASSED [ 44%]
+tests/unit/remediation/test_sim_03.py::test_physical_run_ref_binds_effective_evidence_and_source_mode PASSED [ 46%]
+tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request PASSED [ 48%]
+tests/unit/remediation/test_sim_03.py::test_three_atom_controller_reports_real_higher_order_residual_and_order PASSED [ 51%]
+tests/unit/remediation/test_sim_03.py::test_complete_additive_three_atom_basis_remains_additive PASSED [ 53%]
+tests/unit/remediation/test_sim_03.py::test_missing_pair_basis_is_unsupported_not_false_additivity PASSED [ 55%]
+tests/unit/remediation/test_sim_03.py::test_selected_outcome_and_engine_horizon_are_part_of_the_basis[selected_outcome] PASSED [ 57%]
+tests/unit/remediation/test_sim_03.py::test_selected_outcome_and_engine_horizon_are_part_of_the_basis[static_horizon_step] PASSED [ 59%]
+tests/unit/remediation/test_sim_03.py::test_static_ncm_multi_step_horizon_is_rejected_before_execution PASSED [ 61%]
+tests/unit/remediation/test_sim_03.py::test_static_ncm_single_step_horizon_remains_additive PASSED [ 63%]
+tests/unit/remediation/test_sim_03.py::test_four_atom_cancellation_is_bounded_aggregate_not_additive PASSED [ 65%]
+tests/unit/remediation/test_sim_03.py::test_joint_simulation_requires_explicit_selected_outcome_baseline PASSED [ 67%]
+tests/unit/remediation/test_sim_03.py::test_explicit_comparator_makes_equal_scenarios_zero_effect PASSED [ 69%]
+tests/unit/remediation/test_sim_03.py::test_joint_simulation_reuses_physical_spec_across_roles PASSED [ 71%]
+tests/unit/remediation/test_sim_03.py::test_joint_residual_keeps_higher_order_interaction_visible PASSED [ 73%]
+tests/unit/remediation/test_sim_03.py::test_checked_interaction_orders_include_pairwise_two_atom_run PASSED [ 75%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result PASSED [ 77%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_all_hard_infeasible_candidates_block_before_n5_and_voi PASSED [ 79%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_removing_candidate_filter_keeps_refusal_marker_but_selects_refused_candidate PASSED [ 81%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_prepared_n5_digest_rejects_changed_atom_problem_and_profile_route PASSED [ 83%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_subclass_atom_identity_is_distinct_but_preflight_refuses_it PASSED [ 85%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_request_digest_refuses_unserialized_live_engine_plan_state PASSED [ 87%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_injected_legacy_controller_keeps_one_argument_run_shape PASSED [ 89%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_preflight_decimal_codec_rejects_nonfinite_values[NaN] PASSED [ 91%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_preflight_decimal_codec_rejects_nonfinite_values[Infinity] PASSED [ 93%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_preflight_decimal_codec_rejects_nonfinite_values[-Infinity] PASSED [ 95%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_preflight_decimal_codec_binds_exact_value_and_separates_fake_mapping PASSED [ 97%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_subclass_atom_identity_is_distinct_but_preflight_refuses_it
+  /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `OperatorKind` - serialized value may not be as expected [field_name='operator_kind', input_value={'trinity_kind': 'tax_sub...ntionType.NODE: 'node'>}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `TargetSelectorBinding` - serialized value may not be as expected [field_name='target_selector', input_value={'trinity_target': {'kind...e3a837ca092796e5e38f61'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `DirectEffectBundle` - serialized value may not be as expected [field_name='direct_effect_bundle', input_value={'params': {'rate': Decim...nnels': (), 'notes': ()}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `CausalDoExpression` - serialized value may not be as expected [field_name='causal_do_expr', input_value={'intervention_type': <Pr...lector_content_bound']}}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `IntendedDownstreamEstimand` - serialized value may not be as expected [field_name='intended_downstream_estimand', input_value={'target_kind': <QueryTar...: None, 'unit_id': None}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `IdentificationPlanRef` - serialized value may not be as expected [field_name='causal_path_or_identification_plan_ref', input_value={'plan_ref': 'sha256:5fe4...tions': (), 'notes': ()}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-positive-and-affected-9794/junit.xml -
+============================== slowest durations ===============================
+17.42s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result
+3.29s call     tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request
+3.10s call     tests/unit/remediation/test_sim_03.py::test_physical_run_ref_binds_effective_evidence_and_source_mode
+1.87s call     tests/unit/remediation/test_sim_01.py::test_all_engine_candidates_incompatible_return_typed_rejection
+1.80s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_request_digest_refuses_unserialized_live_engine_plan_state
+1.56s call     tests/unit/remediation/test_sim_02.py::test_identical_atom_assignments_are_order_invariant
+1.55s call     tests/unit/remediation/test_sim_03.py::test_ncm_evidence_none_and_explicit_empty_are_distinct
+1.51s call     tests/unit/remediation/test_sim_01.py::test_unsupported_first_engine_falls_back_to_supported_second
+0.92s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_removing_candidate_filter_keeps_refusal_marker_but_selects_refused_candidate
+0.89s call     tests/unit/remediation/test_sim_03.py::test_three_atom_controller_reports_real_higher_order_residual_and_order
+0.88s call     tests/unit/remediation/test_sim_01.py::test_static_engine_rejected_by_actual_grid_falls_back_to_stock_flow
+0.86s call     tests/unit/remediation/test_sim_02.py::test_short_trajectory_is_not_silently_extended_by_final_value
+0.85s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_prepared_n5_digest_rejects_changed_atom_problem_and_profile_route
+0.83s call     tests/unit/remediation/test_sim_03.py::test_complete_additive_three_atom_basis_remains_additive
+0.79s call     tests/unit/remediation/test_sim_03.py::test_selected_outcome_and_engine_horizon_are_part_of_the_basis[selected_outcome]
+0.79s call     tests/unit/remediation/test_sim_03.py::test_missing_pair_basis_is_unsupported_not_false_additivity
+0.78s call     tests/unit/remediation/test_sim_03.py::test_four_atom_cancellation_is_bounded_aggregate_not_additive
+0.78s call     tests/unit/remediation/test_sim_03.py::test_joint_simulation_reuses_physical_spec_across_roles
+0.78s call     tests/unit/remediation/test_sim_03.py::test_static_ncm_single_step_horizon_remains_additive
+0.78s call     tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[missing-selected-outcome]
+0.78s call     tests/unit/remediation/test_sim_03.py::test_explicit_comparator_makes_equal_scenarios_zero_effect
+0.78s call     tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[mixed-valid-and-missing-selected-outcome]
+0.78s call     tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[nan-selected-outcome]
+0.77s call     tests/unit/remediation/test_sim_03.py::test_joint_simulation_requires_explicit_selected_outcome_baseline
+0.77s call     tests/unit/remediation/test_sim_03.py::test_selected_outcome_and_engine_horizon_are_part_of_the_basis[static_horizon_step]
+0.77s call     tests/unit/remediation/test_sim_03.py::test_joint_request_runs_each_requested_replication_with_distinct_seeds
+0.76s call     tests/unit/remediation/test_sim_03.py::test_static_ncm_multi_step_horizon_is_rejected_before_execution
+0.76s call     tests/unit/remediation/test_sim_02.py::test_ncm_explicit_zero_is_preserved_as_a_real_outcome
+0.75s call     tests/unit/remediation/test_sim_01.py::test_foreign_trajectory_cannot_satisfy_selected_plan
+0.75s call     tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[infinite-selected-outcome]
+0.75s call     tests/unit/remediation/test_sim_01.py::test_selected_plan_requires_its_executed_trajectory
+0.75s call     tests/unit/remediation/test_sim_02.py::test_ncm_selected_outcome_missing_or_nonfinite_fails_closed[empty-world-summaries]
+0.74s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs
+0.08s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_all_hard_infeasible_candidates_block_before_n5_and_voi
+0.04s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_injected_legacy_controller_keeps_one_argument_run_shape
+0.03s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_subclass_atom_identity_is_distinct_but_preflight_refuses_it
+0.01s call     tests/unit/remediation/test_sim_02.py::test_conflicting_atom_assignments_are_rejected_instead_of_last_wins[left-right]
+0.01s call     tests/unit/remediation/test_sim_02.py::test_conflicting_atom_assignments_are_rejected_instead_of_last_wins[right-left]
+0.01s call     tests/unit/remediation/test_sim_03.py::test_joint_residual_keeps_higher_order_interaction_visible
+
+(108 durations < 0.005s hidden.  Use -vv to show these durations.)
+=================== 49 passed, 1 warning in 64.39s (0:01:04) ===================

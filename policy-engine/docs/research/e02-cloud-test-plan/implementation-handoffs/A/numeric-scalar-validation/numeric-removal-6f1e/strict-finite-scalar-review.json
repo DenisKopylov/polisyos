@@ -1,0 +1,63 @@
+{
+  "schema": "policyos.e02.numeric_scalar_patch_review.v1",
+  "review_kind": "independent read-only delta review",
+  "decision": "GO_BOUNDED_STATIC_REVIEW",
+  "patch": {
+    "path": "policy-engine/_build/e02-A-full-queue/numeric-scalar-validation/strict-finite-scalar.patch",
+    "sha256": "4c367f8da034a3b2e325c25e45156674beab8680165714bd371e943984ef5597",
+    "proposed_source_snapshot": "policy-engine/_build/e02-A-full-queue/numeric-scalar-validation/joint_simulation_horizon.py",
+    "proposed_source_sha256": "b18a18ef5a3b7a87f9036cab74444e27274d305d87abfd2435ab314c82d60568"
+  },
+  "source_pins": {
+    "base_commit": "00fa6d83e",
+    "base_tree": "af4cb3e1fa5c09afd9675e59ab175b0aa9178219",
+    "base_path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "base_git_blob": "c3a0207a8adc5f7b9bd5af2ae6521eb72f57a15e",
+    "base_source_sha256": "b820bd1d12ebff27966ccf51e2824aad9a15394aeed3212e8f2dd57ce406db74",
+    "review_checkout_commit": "2fcc748e246767d23122de03046694bd233c6038",
+    "review_checkout_tree": "43c4c5f0e3e17d047a23b01ba6dbf1c6cc60cb13",
+    "review_test_commit": "2fcc748e246767d23122de03046694bd233c6038",
+    "test_path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+    "test_git_blob": "f10006ebaa677d876ad7477ce09fbda36b837cf5",
+    "test_source_sha256": "cdfe6360f8df6c5b23b5b50eee7830834fd92761e7711ff7f921925fb82421d8"
+  },
+  "scope": {
+    "production_delta": "One generic pre-coercion recursive guard in _required_finite_scalar; no adapter-specific production changes.",
+    "test_delta": "Eight original-element rejection variants, finite zero/array acceptance, explicit already-coerced-array limitation, and coupled-adapter plus replication-cache consumer cases."
+  },
+  "criteria": [
+    {
+      "criterion": "Detect forbidden original bool, NumPy bool, None, string, bytes, and complex leaves before NumPy can erase their identity during conversion.",
+      "result": "SUPPORTED_BY_PATCH_AND_STATIC_TEST_MAPPING",
+      "evidence": "The guard traverses original Mapping values, Sequence elements, and object-dtype ndarray elements before np.asarray(value); it rejects the listed leaf types and boolean/string/bytes/complex ndarray dtypes. The new parameterized cases cover mixed/nested lists, NumPy bool, and object arrays for each leaf class."
+    },
+    {
+      "criterion": "Apply one class-level fix across consumers rather than patching individual engine adapters.",
+      "result": "SUPPORTED_BY_STATIC_SOURCE",
+      "evidence": "The check is in the shared _required_finite_scalar function. New adapter and replication-cache tests exercise existing consumers of that helper; the patch has no engine-specific branches."
+    },
+    {
+      "criterion": "Preserve ordinary finite numeric inputs and zero.",
+      "result": "SUPPORTED_BY_STATIC_TEST_MAPPING",
+      "evidence": "New positive assertions retain 0.0 and mean([0.0, 2.0]) == 1.0."
+    },
+    {
+      "criterion": "Do not claim recovery of source element types after an upstream conversion already erased them.",
+      "result": "LIMITATION_EXPLICIT",
+      "evidence": "The new test explicitly shows np.asarray([True, 1.0]) has float dtype and remains accepted by the scalar projection. The source type is unrecoverable at this boundary; validation must occur before any such upstream coercion if that producer path requires the original-type guarantee."
+    }
+  ],
+  "remaining_same_class_escape": {
+    "established": false,
+    "result": "No additional concrete pre-coercion witness found in the pinned source/test delta.",
+    "bounded_reason": "The known laundering class is handled for the concrete accepted container families in scope (Mapping, Sequence, object ndarray), while the explicit already-coerced-float-array residual is unrecoverable by this helper and is declared by the test. No actual producer path in this delta was shown to pass another coercible container that evades those families."
+  },
+  "verification": {
+    "method": "Read-only inspection of the immutable patch, base source, proposed source snapshot, and test-only commit.",
+    "tests_run": false,
+    "patch_applied": false,
+    "numeric_runs": false,
+    "source_edits": false,
+    "limitations": "GO is a bounded static review only. Runtime execution and the owner’s test wave remain unverified here."
+  }
+}

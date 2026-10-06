@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="11" time="32.747" timestamp="2026-10-06T20:27:16.884063+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result" time="17.831" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_all_hard_infeasible_candidates_block_before_n5_and_voi" time="0.091" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_removing_candidate_filter_keeps_refusal_marker_but_selects_refused_candidate" time="0.977" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_prepared_n5_digest_rejects_changed_atom_problem_and_profile_route" time="0.882" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_subclass_atom_identity_is_distinct_but_preflight_refuses_it" time="0.028"><failure message="pydantic_core._pydantic_core.ValidationError: 1 validation error for _ExtendedAtom&#10;  Value error, content_hash_mismatch: expected sha256:9f9ede431ea0295a102c74ed642d90d2ab913a074100d1ce63a42c5eb05e0271, got sha256:8f724f0a96310cc6a42b2dac9639be7b92597f4628139ca0cdc1eef73e2d37d5 [type=value_error, input_value={'atom_id': 'atom_8f724f0...tension_marker': 'left'}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/value_error">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-typed-money-wave/basetemp/test_subclass_atom_identity_is0')
+
+    def test_subclass_atom_identity_is_distinct_but_preflight_refuses_it(
+        tmp_path: Path,
+    ) -&gt; None:
+        """Same base atom hash cannot collapse distinct typed extension records."""
+    
+        class _ExtendedAtom(InterventionAtomBinding):
+            extension_marker: str
+    
+        store, problem, context, _high, low = _owner_fixture(tmp_path)
+        repo_root = Path(__file__).resolve().parents[3]
+        base_payload = low.atom.model_dump(mode="python")
+        try:
+&gt;           left_atom = _ExtendedAtom.model_validate({**base_payload, "extension_marker": "left"})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for _ExtendedAtom
+E             Value error, content_hash_mismatch: expected sha256:9f9ede431ea0295a102c74ed642d90d2ab913a074100d1ce63a42c5eb05e0271, got sha256:8f724f0a96310cc6a42b2dac9639be7b92597f4628139ca0cdc1eef73e2d37d5 [type=value_error, input_value={'atom_id': 'atom_8f724f0...tension_marker': 'left'}, input_type=dict]
+E               For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py:647: ValidationError</failure></testcase><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_request_digest_refuses_unserialized_live_engine_plan_state" time="1.707" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_injected_legacy_controller_keeps_one_argument_run_shape" time="0.034" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_preflight_decimal_codec_rejects_nonfinite_values[NaN]" time="0.000" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_preflight_decimal_codec_rejects_nonfinite_values[Infinity]" time="0.000" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_preflight_decimal_codec_rejects_nonfinite_values[-Infinity]" time="0.000" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_preflight_decimal_codec_binds_exact_value_and_separates_fake_mapping" time="0.000" /></testsuite></testsuites>

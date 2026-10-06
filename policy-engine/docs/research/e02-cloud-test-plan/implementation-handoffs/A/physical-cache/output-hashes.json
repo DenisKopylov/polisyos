@@ -1,0 +1,83 @@
+{
+  "schema": "policyos.e02.b23_physical_cache_output_lease.v1",
+  "copy_rule": "The four named run artifacts are byte-copied from their ignored _build source directories. SHA-256 values below pin the copied bytes.",
+  "waves": [
+    {
+      "id": "b23-removal-seed-6565",
+      "source_directory": "policy-engine/_build/e02-A-full-queue/b23-removal-seed-6565",
+      "artifact_directory": "removal-seed-6565",
+      "files": {
+        "stdout.txt": "24d7a245e83bff76329072baa8a5b5a29200a38f4ed89cf0e33b3e3614e544e8",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "environment-and-inputs.json": "c15422ac13825f322247a0288e590c86a8dc3c58ddff1371bd39ba009793524c",
+        "junit.xml": "a430ea3e9b8b2816d7e6d58df7cb38205297846956d689ec75309ba3dd2f7871"
+      }
+    },
+    {
+      "id": "b23-removal-plan-6565",
+      "source_directory": "policy-engine/_build/e02-A-full-queue/b23-removal-plan-6565",
+      "artifact_directory": "removal-plan-6565",
+      "files": {
+        "stdout.txt": "d7d647284e9d945f1171b02e8b7b3ee8ddb4d570d976da8aca84fe242c57c5fc",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "environment-and-inputs.json": "91ec9d3d6a0645ddeed86f698ec4fe8aba580285627331649e197b6f3055b8c1",
+        "junit.xml": "47b883da68e5c21f41501b4d1091e7e5bdf98f152079a1a3e38f1fd33b9c91b4"
+      }
+    },
+    {
+      "id": "b23-removal-seed-9794",
+      "source_directory": "policy-engine/_build/e02-A-full-queue/b23-removal-seed-9794",
+      "artifact_directory": "removal-seed-9794",
+      "files": {
+        "stdout.txt": "539024e76b2612e5433d1cfb684c1c3e17129ee4742fe8a14bf4dc524c609404",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "environment-and-inputs.json": "0f6e8af7e6bbbe6a0a8b74785168eabed1ce954466afe3cdececde4875788a24",
+        "junit.xml": "c38fc65f85ad687f8776a36d5f12013f40cd631a88f7128c800535363769d2f2"
+      }
+    },
+    {
+      "id": "b23-removal-plan-9794",
+      "source_directory": "policy-engine/_build/e02-A-full-queue/b23-removal-plan-9794",
+      "artifact_directory": "removal-plan-9794",
+      "files": {
+        "stdout.txt": "7ddb772ffc96e87486d4adab17a6dd903a0a36d5f70cc46db61f75bdf6f588e5",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "environment-and-inputs.json": "33757f49a5a24b5ddc50aae7b414ec4636e2192d0c459ff58edabf0eac62e3e0",
+        "junit.xml": "eb35f56776b3b57302b08b3f39eee630353d48027121669b15ac1c8f91a79609"
+      }
+    },
+    {
+      "id": "b23-positive-and-affected-9794",
+      "source_directory": "policy-engine/_build/e02-A-full-queue/b23-positive-and-affected-9794",
+      "artifact_directory": "positive-and-affected-9794",
+      "files": {
+        "stdout.txt": "593e20451709ec8e0a23ff4eaf8dcf636a7386e5f0dc402143ec1075e0b136b1",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "environment-and-inputs.json": "812695a31857f813d1390a725caf6c042b3582575bbe78243c60d79779abdc20",
+        "junit.xml": "abb6e81c535a7468a987476f1981dbce25b562053222d4dc6db952784e2709ec"
+      }
+    },
+    {
+      "id": "b23-removal-seed-6f1e",
+      "source_directory": "policy-engine/_build/e02-A-full-queue/b23-removal-seed-6f1e",
+      "artifact_directory": "b23-removal-seed-6f1e",
+      "files": {
+        "stdout.txt": "f297265389e4fbd2922fb6a07e0936dd3a9d4fb5b694f57e7df2425a2678c810",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "environment-and-inputs.json": "57abd27d6deb1ade10b56815be07dcb42cee0c4b9f2ddb9c475517766353a28d",
+        "junit.xml": "c1254f11f45ea094daf58233625aec8788ccafb5ea2dd468f8f485b8fbc0bb1f"
+      }
+    },
+    {
+      "id": "b23-removal-plan-6f1e",
+      "source_directory": "policy-engine/_build/e02-A-full-queue/b23-removal-plan-6f1e",
+      "artifact_directory": "b23-removal-plan-6f1e",
+      "files": {
+        "stdout.txt": "498d6d394ce4f7a2bc68b788bfd67d69cceac1e4be48a401e837867b4299fc00",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "environment-and-inputs.json": "25b8396aea9a6ac628481517c3fd5b7e6a18cd40fe2ec23c0f40869e3a59d913",
+        "junit.xml": "40e3f2a0aa53704285a878edc2ab299eb21ba2ec765300fa364d8b67e2f5b33d"
+      }
+    }
+  ]
+}

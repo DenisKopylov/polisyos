@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="14.047" timestamp="2026-10-06T20:15:46.826005+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="" name="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py:20: in &lt;module&gt;
+    from polisyos.runtime.quality.generation_cycle import (
+E   ImportError: cannot import name 'PromotionRuntime' from 'polisyos.runtime.quality.generation_cycle' (/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py)</error></testcase></testsuite></testsuites>

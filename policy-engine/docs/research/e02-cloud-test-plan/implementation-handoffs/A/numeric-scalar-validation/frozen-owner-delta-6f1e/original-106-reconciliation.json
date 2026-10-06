@@ -1,0 +1,15 @@
+{
+  "old_original_set_count": 106,
+  "new_wave_count": 217,
+  "original_set_missing_cases": [],
+  "original_set_non_pass_cases": [],
+  "original_cases_pass": 106,
+  "old_original_outcomes": {
+    "PASS": 98,
+    "FAIL": 8,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "current_candidate": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+  "source": "complete JUnit testcase classname/name set; no truncated stdout selection"
+}

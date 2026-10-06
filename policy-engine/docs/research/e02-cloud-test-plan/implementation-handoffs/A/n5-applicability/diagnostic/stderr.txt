@@ -1,0 +1,41 @@
+2026-10-06 20:24:19.351 | INFO     | polisyos.common.logger:_call:120 - Circuit breaker initialized
+Traceback (most recent call last):
+  File "<stdin>", line 19, in <module>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py", line 1050, in _typed_execution_payload
+    payload[name] = _typed_execution_payload(item)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py", line 1062, in _typed_execution_payload
+    return [_typed_execution_payload(item) for item in value]
+            ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py", line 1050, in _typed_execution_payload
+    payload[name] = _typed_execution_payload(item)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py", line 1050, in _typed_execution_payload
+    payload[name] = _typed_execution_payload(item)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py", line 1060, in _typed_execution_payload
+    return {key: _typed_execution_payload(item) for key, item in value.items()}
+                 ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py", line 1069, in _typed_execution_payload
+    raise TypeError(f"execution_input_not_json_bindable:{type(value).__name__}")
+TypeError: execution_input_not_json_bindable:Decimal
+Traceback (most recent call last):
+  File "<stdin>", line 19, in <module>
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py", line 1050, in _typed_execution_payload
+    payload[name] = _typed_execution_payload(item)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py", line 1062, in _typed_execution_payload
+    return [_typed_execution_payload(item) for item in value]
+            ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py", line 1050, in _typed_execution_payload
+    payload[name] = _typed_execution_payload(item)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py", line 1050, in _typed_execution_payload
+    payload[name] = _typed_execution_payload(item)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py", line 1060, in _typed_execution_payload
+    return {key: _typed_execution_payload(item) for key, item in value.items()}
+                 ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py", line 1069, in _typed_execution_payload
+    raise TypeError(f"execution_input_not_json_bindable:{type(value).__name__}")
+TypeError: execution_input_not_json_bindable:Decimal

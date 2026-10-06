@@ -1,0 +1,96 @@
+{
+  "schema": "policyos.e02.numeric_scalar_removal_run.v1",
+  "purpose": "remove shared original-element guard while retaining consumer/test markers",
+  "candidate_sha": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+  "candidate_tree_sha": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+  "candidate_branch": "codex/e02-A-n5-verify-current",
+  "status_before": "## codex/e02-A-n5-verify-current",
+  "command_argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+    "-u",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "-vv",
+    "--durations=0",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-original-elements-removal-6f1e/basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-original-elements-removal-6f1e/junit.xml",
+    "-p",
+    "remove_original_element_guard",
+    "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_original_elements[mixed-python-bool-float]",
+    "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_coupled_output_adapter_rejects_mixed_boolean_sequence",
+    "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_replication_cache_aggregator_rejects_mixed_boolean_sequence"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+  "selected_test_nodes": [
+    "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_original_elements[mixed-python-bool-float]",
+    "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_coupled_output_adapter_rejects_mixed_boolean_sequence",
+    "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_replication_cache_aggregator_rejects_mixed_boolean_sequence"
+  ],
+  "expected_semantic_decision": {
+    "mixed_python_bool_test": "must fail with its DID NOT RAISE assertion",
+    "coupled_adapter_test": "must fail with its DID NOT RAISE assertion",
+    "replication_cache_test": "must fail with its DID NOT RAISE assertion",
+    "pytest_errors_or_collection_failures": "harness error, never property-removal evidence",
+    "pytest_exit_code_zero": "property-removal NO-GO because the runtime accepted the mutant"
+  },
+  "plugin": {
+    "module": "remove_original_element_guard",
+    "directory_on_pythonpath": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-scalar-validation",
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-scalar-validation/remove_original_element_guard.py",
+    "sha256": "7c4df93a168d2b523da15c9059c9c3a886a68abd97cfd179293df2a53db4fd1d",
+    "runner_path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-scalar-validation/run_numeric_scalar_removal.py",
+    "runner_sha256": "8d66604a13c5cf7aee9733b3cf153088a559e953ac1516d216ca4b38a18b312d",
+    "mutation": "_contains_invalid_original_numeric_element returns False",
+    "receipt_signal": "PROPERTY_REMOVAL_RECEIPT=... in stdout.txt",
+    "no_hit_signal": "PROPERTY_REMOVAL_HARNESS_ERROR in stdout.txt and exit status 2"
+  },
+  "input_paths": {
+    "src/polisyos/runtime/quality/joint_simulation_horizon.py": {
+      "git_blob": "7965deabd278db8a4e9e73092ad3fc7bfaf59545",
+      "sha256": "b18a18ef5a3b7a87f9036cab74444e27274d305d87abfd2435ab314c82d60568"
+    },
+    "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py": {
+      "git_blob": "f10006ebaa677d876ad7477ce09fbda36b837cf5",
+      "sha256": "cdfe6360f8df6c5b23b5b50eee7830834fd92761e7711ff7f921925fb82421d8"
+    },
+    "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-scalar-validation/remove_original_element_guard.py": {
+      "sha256": "7c4df93a168d2b523da15c9059c9c3a886a68abd97cfd179293df2a53db4fd1d",
+      "git_blob": null,
+      "ignored_scratch": true
+    },
+    "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-scalar-validation/run_numeric_scalar_removal.py": {
+      "sha256": "8d66604a13c5cf7aee9733b3cf153088a559e953ac1516d216ca4b38a18b312d",
+      "git_blob": null,
+      "ignored_scratch": true
+    }
+  },
+  "interpreter_literal": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+  "interpreter_prefix": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv",
+  "interpreter_target_identity_only": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+  "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "packages": {
+    "pytest": "9.0.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "pydantic": "2.12.5"
+  },
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/numeric-scalar-validation:/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+    "JAX_PLATFORMS": "cpu",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "timeout_seconds": 120,
+  "timeout_basis": "The 11-case pre-fix RED completed in 12.89s; this selects three nodes and preserves ample import/startup headroom.",
+  "exit_code": 1,
+  "wall_seconds": 16.332669167022686,
+  "status_after": "## codex/e02-A-n5-verify-current"
+}

@@ -1,0 +1,803 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "n5-applicability",
+  "finding_ids": [
+    "B10"
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "CYC-04"
+  ],
+  "slice_base_sha": "f5fbc9e6ab504e941439ed9fdabbbdcaf880f407",
+  "slice_base_tree_sha": "f2946514ce28e11dc05aafe9ba54b99370992382",
+  "implementation_commits": [
+    "0b558c7ba12b0de3c94ec9c1ed959de173ef5f11",
+    "e5796dd1c45a6c82bc0d425e6c3a11bb16fdd097",
+    "bf465f6d486816c1de8579f4c19faf1ec0772fbb",
+    "afc25de16e987dd7e6b80e6f2d024997eb24e7a8",
+    "6565fcd91d0ac251396dbde5852aaad92627bf40"
+  ],
+  "candidate_sha": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+  "candidate_tree_sha": "a1177b8113e1b75973e7975f6809553c38e65b52",
+  "branch": "codex/e02-A-full-queue",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/_generation_cycle_history_schema.py",
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+    "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py"
+  ],
+  "changed_path_scope": {
+    "base": "f5fbc9e6ab504e941439ed9fdabbbdcaf880f407",
+    "candidate": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+    "files": 5,
+    "insertions": 1612,
+    "deletions": 83
+  },
+  "baseline_cells": [
+    "F01-P016",
+    "F01-P066",
+    "F04-P102",
+    "F05-P089",
+    "F06-P031",
+    "F07-P060",
+    "F09-P024",
+    "F09-P103",
+    "F11-P072",
+    "F12-P023",
+    "F13-P078",
+    "F13-P117",
+    "F15-P021"
+  ],
+  "source_criteria": [
+    {
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CYC-04.md",
+      "source_commit": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "source_blob": "75194f0254c5a87f52fc73cbc8ee24511a64e7be",
+      "locator": "B10 criterion, lines 51-61",
+      "criterion": "First candidate lacks needed input, second has it; second actually computes, first is retained with its stop reason; unexplored alternatives receive no invented zeros; shared budget and diversity remain explicit."
+    },
+    {
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md",
+      "source_commit": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+      "source_blob": "68fcdf9337eb4b0f268d5c2c786e2900edf28a2b",
+      "locator": "B10, line 77",
+      "acceptance": "Reuse candidate generator and full applicability; filter hard feasibility before VOI rank/top-k and retain typed rejection. Positive: higher-scoring first candidate lacks input; second runs and persisted result matches direct engine oracle. Negatives: stale selected flag, wrong result, all infeasible."
+    },
+    {
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "source_commit": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+      "source_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a",
+      "locator": "B10 row, around line 1983",
+      "recorded_status": "partial",
+      "closure_now": "not_adjudicated",
+      "capability_label": "verification_missing",
+      "appendix_c_status_separate": "closed_bounded"
+    },
+    {
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "source_commit": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+      "source_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "locator": "B10 row",
+      "assignment": "A / P04 / CYC-04 / partial"
+    }
+  ],
+  "checks": [
+    {
+      "name": "b10-red-0b558",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-red-0b558/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-red-0b558/junit.xml tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result",
+      "target_sha": "0b558c7ba12b0de3c94ec9c1ed959de173ef5f11",
+      "target_tree_sha": "68f8a1ee7bdb6212ca1bf536c6bfc5a08b5c71ec",
+      "environment": "n5-applicability/runs/b10-red-0b558/environment-and-inputs.json (sha256 a86802f64da71d5912088152be892621cdcd9b71ee9b909a33461002cd7b9c75; 3355 bytes)",
+      "input_closure": "n5-applicability/runs/b10-red-0b558/environment-and-inputs.json (sha256 a86802f64da71d5912088152be892621cdcd9b71ee9b909a33461002cd7b9c75; 3355 bytes; manifest embeds source git blobs and SHA-256 values)",
+      "outcome": "ERROR",
+      "output": "Pytest collection error: test imported nonexistent `PromotionRuntime`; this was a test authoring error, not a semantic red. Artifacts: stdout.txt=n5-applicability/runs/b10-red-0b558/stdout.txt sha256=95541d69fbed3db82f67225b883e888b9da3765b1a683436734bb4941ee1f71f bytes=2276, stderr.txt=n5-applicability/runs/b10-red-0b558/stderr.txt sha256=7f065ef986abd38d2fbf79f3766ce4f43ae88661a99781c397b8e43b50ebf293 bytes=254, junit.xml=n5-applicability/runs/b10-red-0b558/junit.xml sha256=c5b47e2d2d96c4ffca038f0a34e4f9833581be1dd0db6ad900e52e1e557ddac9 bytes=1080.",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-red-0b558/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-red-0b558/junit.xml",
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result"
+      ],
+      "environment_details": {
+        "path": "n5-applicability/runs/b10-red-0b558/environment-and-inputs.json",
+        "sha256": "a86802f64da71d5912088152be892621cdcd9b71ee9b909a33461002cd7b9c75",
+        "bytes": 3355,
+        "recorded_cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+        "recorded_environment": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+          "JAX_PLATFORMS": "cpu",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1"
+        },
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "packages": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "pydantic": "2.12.5"
+        },
+        "timeout_seconds": 300,
+        "timeout_basis": "Prior related 19-case wave 82.35s; new cubic witness 28.82s.",
+        "wall_seconds": 18.04423208296066,
+        "exit_code": 4
+      },
+      "input_paths": {
+        "src/polisyos/runtime/quality/generation_cycle.py": {
+          "sha256": "60e869db7967a8a66a46b1abb92f0fbdeb786e37f72427d854c6c0b9ab3db46f",
+          "git_blob": "9d152183179bf98e5d0f70aa3669cf7ca4f6e191"
+        },
+        "src/polisyos/runtime/quality/joint_simulation_horizon.py": {
+          "sha256": "f45db503361176a1bd8313b4835f93172e904d739e0430341f5cde88fa8ac9a9",
+          "git_blob": "db398c4c857680c7c78464abc0828488543e5c2b"
+        },
+        "src/polisyos/core/contracts/runtime.py": {
+          "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+          "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+        },
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+          "sha256": "96a5c9a4b4777694b8583d0d929a63ed03c28965a50fb1ff12e0702d4882e7eb",
+          "git_blob": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e"
+        },
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py": {
+          "sha256": "05dc13ba4eba811717b5c20a86a0f2b31219bcb4e2b9f594fec86abcc5b8b424",
+          "git_blob": "118a3fd4f591bb40a6229a554d89eea0fc56734c"
+        }
+      },
+      "output_artifacts": {
+        "stdout.txt": {
+          "path": "n5-applicability/runs/b10-red-0b558/stdout.txt",
+          "sha256": "95541d69fbed3db82f67225b883e888b9da3765b1a683436734bb4941ee1f71f",
+          "bytes": 2276
+        },
+        "stderr.txt": {
+          "path": "n5-applicability/runs/b10-red-0b558/stderr.txt",
+          "sha256": "7f065ef986abd38d2fbf79f3766ce4f43ae88661a99781c397b8e43b50ebf293",
+          "bytes": 254
+        },
+        "junit.xml": {
+          "path": "n5-applicability/runs/b10-red-0b558/junit.xml",
+          "sha256": "c5b47e2d2d96c4ffca038f0a34e4f9833581be1dd0db6ad900e52e1e557ddac9",
+          "bytes": 1080
+        }
+      }
+    },
+    {
+      "name": "b10-red-import-fixed",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-red-import-fixed/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-red-import-fixed/junit.xml tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result",
+      "target_sha": "e5796dd1c45a6c82bc0d425e6c3a11bb16fdd097",
+      "target_tree_sha": "714893e485f02e13541247d45a4ed8ed21e3c475",
+      "environment": "n5-applicability/runs/b10-red-import-fixed/environment-and-inputs.json (sha256 ed42d65996058a3c9128790bb20e84db54a3a28b340d13cb973736f6c950752a; 3370 bytes)",
+      "input_closure": "n5-applicability/runs/b10-red-import-fixed/environment-and-inputs.json (sha256 ed42d65996058a3c9128790bb20e84db54a3a28b340d13cb973736f6c950752a; 3370 bytes; manifest embeds source git blobs and SHA-256 values)",
+      "outcome": "FAIL",
+      "output": "The preflight-free source selected the higher-ranked conflicting candidate; this is the real semantic red against the targeted selection property. Artifacts: stdout.txt=n5-applicability/runs/b10-red-import-fixed/stdout.txt sha256=15892f23bca815dd64545399bfe2c2f0535616d0c5b9d4d4e431ff5a58614233 bytes=7567, stderr.txt=n5-applicability/runs/b10-red-import-fixed/stderr.txt sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 bytes=0, junit.xml=n5-applicability/runs/b10-red-import-fixed/junit.xml sha256=6c0ea6321f2e73d0bc8aafc55e99fcce8ccba2d7540ccf6bfffbeb43d4c09da4 bytes=6142.",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-red-import-fixed/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-red-import-fixed/junit.xml",
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result"
+      ],
+      "environment_details": {
+        "path": "n5-applicability/runs/b10-red-import-fixed/environment-and-inputs.json",
+        "sha256": "ed42d65996058a3c9128790bb20e84db54a3a28b340d13cb973736f6c950752a",
+        "bytes": 3370,
+        "recorded_cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+        "recorded_environment": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+          "JAX_PLATFORMS": "cpu",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1"
+        },
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "packages": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "pydantic": "2.12.5"
+        },
+        "timeout_seconds": 300,
+        "timeout_basis": "Prior related 19-case wave 82.35s; new cubic witness 28.82s.",
+        "wall_seconds": 17.071328666002955,
+        "exit_code": 1
+      },
+      "input_paths": {
+        "src/polisyos/runtime/quality/generation_cycle.py": {
+          "sha256": "60e869db7967a8a66a46b1abb92f0fbdeb786e37f72427d854c6c0b9ab3db46f",
+          "git_blob": "9d152183179bf98e5d0f70aa3669cf7ca4f6e191"
+        },
+        "src/polisyos/runtime/quality/joint_simulation_horizon.py": {
+          "sha256": "f45db503361176a1bd8313b4835f93172e904d739e0430341f5cde88fa8ac9a9",
+          "git_blob": "db398c4c857680c7c78464abc0828488543e5c2b"
+        },
+        "src/polisyos/core/contracts/runtime.py": {
+          "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+          "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+        },
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+          "sha256": "96a5c9a4b4777694b8583d0d929a63ed03c28965a50fb1ff12e0702d4882e7eb",
+          "git_blob": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e"
+        },
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py": {
+          "sha256": "8e13b5b970a6cba0d4dd5d283077972f5250b451d03dddd565c6a67c8f8ec783",
+          "git_blob": "bcf7f846217a140047d941c6e1d860aca9a28bc8"
+        }
+      },
+      "output_artifacts": {
+        "stdout.txt": {
+          "path": "n5-applicability/runs/b10-red-import-fixed/stdout.txt",
+          "sha256": "15892f23bca815dd64545399bfe2c2f0535616d0c5b9d4d4e431ff5a58614233",
+          "bytes": 7567
+        },
+        "stderr.txt": {
+          "path": "n5-applicability/runs/b10-red-import-fixed/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "junit.xml": {
+          "path": "n5-applicability/runs/b10-red-import-fixed/junit.xml",
+          "sha256": "6c0ea6321f2e73d0bc8aafc55e99fcce8ccba2d7540ccf6bfffbeb43d4c09da4",
+          "bytes": 6142
+        }
+      }
+    },
+    {
+      "name": "b10-green-bf465",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-green-bf465/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-green-bf465/junit.xml tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+      "target_sha": "bf465f6d486816c1de8579f4c19faf1ec0772fbb",
+      "target_tree_sha": "57d8dd8e6254a8f63e3b59074bd58902ce0247bf",
+      "environment": "n5-applicability/runs/b10-green-bf465/environment-and-inputs.json (sha256 c78fd1a6f56aef569b18588a7751ed63c8e2cfb76bff18ea893f5e140be84ce2; 3286 bytes)",
+      "input_closure": "n5-applicability/runs/b10-green-bf465/environment-and-inputs.json (sha256 c78fd1a6f56aef569b18588a7751ed63c8e2cfb76bff18ea893f5e140be84ce2; 3286 bytes; manifest embeds source git blobs and SHA-256 values)",
+      "outcome": "FAIL",
+      "output": "All four integration tests failed because the canonical request digest was not established for nested Decimal input; this revision could not distinguish the high conflict from the eligible control. Artifacts: stdout.txt=n5-applicability/runs/b10-green-bf465/stdout.txt sha256=f53230b9f72b688b3453e0cdf57a62e341fe005d7ccaed86c7cb27cc0a6e7c07 bytes=14281, stderr.txt=n5-applicability/runs/b10-green-bf465/stderr.txt sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 bytes=0, junit.xml=n5-applicability/runs/b10-green-bf465/junit.xml sha256=a0e55a8b55dc68829da1c2ec1345ecb5c057666e09f9dee282cbcf11c3944281 bytes=12457.",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-green-bf465/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-green-bf465/junit.xml",
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py"
+      ],
+      "environment_details": {
+        "path": "n5-applicability/runs/b10-green-bf465/environment-and-inputs.json",
+        "sha256": "c78fd1a6f56aef569b18588a7751ed63c8e2cfb76bff18ea893f5e140be84ce2",
+        "bytes": 3286,
+        "recorded_cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+        "recorded_environment": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+          "JAX_PLATFORMS": "cpu",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1"
+        },
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "packages": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "pydantic": "2.12.5"
+        },
+        "timeout_seconds": 300,
+        "timeout_basis": "Prior related 19-case wave 82.35s; new cubic witness 28.82s.",
+        "wall_seconds": 17.071093791979365,
+        "exit_code": 1
+      },
+      "input_paths": {
+        "src/polisyos/runtime/quality/generation_cycle.py": {
+          "sha256": "d3ddffe520320e06fe06cc63627a30241973beb8cad6d21a06276945a2b68a7e",
+          "git_blob": "6e5e26d256f3cdb9a61ce69c6832debed0a2d262"
+        },
+        "src/polisyos/runtime/quality/joint_simulation_horizon.py": {
+          "sha256": "711ccfc6445ecaabf2b509307da98b296963066ae3ab38b00570865aabe4b350",
+          "git_blob": "deeb1f801fc165bfc63b9e3caa5f7cb36966ab93"
+        },
+        "src/polisyos/core/contracts/runtime.py": {
+          "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+          "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+        },
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+          "sha256": "96a5c9a4b4777694b8583d0d929a63ed03c28965a50fb1ff12e0702d4882e7eb",
+          "git_blob": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e"
+        },
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py": {
+          "sha256": "8e13b5b970a6cba0d4dd5d283077972f5250b451d03dddd565c6a67c8f8ec783",
+          "git_blob": "bcf7f846217a140047d941c6e1d860aca9a28bc8"
+        }
+      },
+      "output_artifacts": {
+        "stdout.txt": {
+          "path": "n5-applicability/runs/b10-green-bf465/stdout.txt",
+          "sha256": "f53230b9f72b688b3453e0cdf57a62e341fe005d7ccaed86c7cb27cc0a6e7c07",
+          "bytes": 14281
+        },
+        "stderr.txt": {
+          "path": "n5-applicability/runs/b10-green-bf465/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "junit.xml": {
+          "path": "n5-applicability/runs/b10-green-bf465/junit.xml",
+          "sha256": "a0e55a8b55dc68829da1c2ec1345ecb5c057666e09f9dee282cbcf11c3944281",
+          "bytes": 12457
+        }
+      }
+    },
+    {
+      "name": "b10-typed-money-wave",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-typed-money-wave/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-typed-money-wave/junit.xml tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+      "target_sha": "afc25de16e987dd7e6b80e6f2d024997eb24e7a8",
+      "target_tree_sha": "3352e99c5426da510908db91c848f5df8146ad55",
+      "environment": "n5-applicability/runs/b10-typed-money-wave/environment-and-inputs.json (sha256 77061f5905f1f118ecf6aaa1ca086d4c17314a91a67004d8aa4d86122225e98e; 4713 bytes)",
+      "input_closure": "n5-applicability/runs/b10-typed-money-wave/environment-and-inputs.json (sha256 77061f5905f1f118ecf6aaa1ca086d4c17314a91a67004d8aa4d86122225e98e; 4713 bytes; manifest embeds source git blobs and SHA-256 values)",
+      "outcome": "FAIL",
+      "output": "Ten of eleven tests passed; the remaining subclass-atom fixture failed validation. The subsequent 6565 test-only fix is included in the final candidate. Artifacts: stdout.txt=n5-applicability/runs/b10-typed-money-wave/stdout.txt sha256=adeffa92888f13eca832e6a9ac3ec382ce61ee5a5434e8d17c4138df288aa2bc bytes=6071, stderr.txt=n5-applicability/runs/b10-typed-money-wave/stderr.txt sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 bytes=0, junit.xml=n5-applicability/runs/b10-typed-money-wave/junit.xml sha256=3b7da703e267fd219303ab0c05f8927f2d8d800cf02b68793d12915b17881845 bytes=4215.",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-typed-money-wave/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-typed-money-wave/junit.xml",
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py"
+      ],
+      "environment_details": {
+        "path": "n5-applicability/runs/b10-typed-money-wave/environment-and-inputs.json",
+        "sha256": "77061f5905f1f118ecf6aaa1ca086d4c17314a91a67004d8aa4d86122225e98e",
+        "bytes": 4713,
+        "recorded_cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+        "recorded_environment": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+          "JAX_PLATFORMS": "cpu",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1"
+        },
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "packages": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "pydantic": "2.12.5"
+        },
+        "timeout_seconds": 300,
+        "timeout_basis": "Prior related 19-case wave 82.35s; new cubic witness 28.82s.",
+        "wall_seconds": 36.51919399999315,
+        "exit_code": 1
+      },
+      "input_paths": {
+        "src/polisyos/runtime/quality/generation_cycle.py": {
+          "sha256": "d3ddffe520320e06fe06cc63627a30241973beb8cad6d21a06276945a2b68a7e",
+          "git_blob": "6e5e26d256f3cdb9a61ce69c6832debed0a2d262"
+        },
+        "src/polisyos/runtime/quality/joint_simulation_horizon.py": {
+          "sha256": "20a657776363a36b81e5d867753bc1551b85993fdc32811d0362ae4c6fd4dac8",
+          "git_blob": "05a5df3c91025920a81b37a281db9f65c0d8e87d"
+        },
+        "src/polisyos/core/contracts/runtime.py": {
+          "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+          "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+        },
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+          "sha256": "96a5c9a4b4777694b8583d0d929a63ed03c28965a50fb1ff12e0702d4882e7eb",
+          "git_blob": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e"
+        },
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py": {
+          "sha256": "f2834bb2d848394b2ae1623c52cb3d8708b4b15ffb2f234620ed15a9cbf993c1",
+          "git_blob": "d6400f3093e5d9ddedff84abb5245cb23f107396"
+        }
+      },
+      "output_artifacts": {
+        "stdout.txt": {
+          "path": "n5-applicability/runs/b10-typed-money-wave/stdout.txt",
+          "sha256": "adeffa92888f13eca832e6a9ac3ec382ce61ee5a5434e8d17c4138df288aa2bc",
+          "bytes": 6071
+        },
+        "stderr.txt": {
+          "path": "n5-applicability/runs/b10-typed-money-wave/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "junit.xml": {
+          "path": "n5-applicability/runs/b10-typed-money-wave/junit.xml",
+          "sha256": "3b7da703e267fd219303ab0c05f8927f2d8d800cf02b68793d12915b17881845",
+          "bytes": 4215
+        }
+      }
+    },
+    {
+      "name": "frozen-consumer-wave-6565-corrected",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frozen-consumer-wave-6565-corrected/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frozen-consumer-wave-6565-corrected/junit.xml tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py tests/unit/runtime/quality/test_joint_simulation_horizon.py tests/unit/runtime/http/test_runs_api.py tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_context_control tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly tests/unit/runtime/quality/test_generation_cycle_history.py::test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph tests/unit/runtime/quality/test_generation_cycle_history.py::test_v1_projection_removal_probe_rejects_post_v1_field_with_markers_retained tests/unit/runtime/quality/test_generation_cycle_history.py::test_v2_history_rejects_post_version_nested_fields_with_markers_retained tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_accepts_nested_design_problem_v2_dotted_target_slot tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_accepts_nested_design_problem_v3_qualified_outcome tests/unit/runtime/quality/test_generation_cycle_history.py::test_history_replay_is_read_only_and_does_not_consult_current_source tests/unit/runtime/quality/test_generation_cycle_history.py::test_source_comment_preserves_actual_v1_v2_history tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_resolves_exact_selected_candidate_ncm_view tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_refuses_same_id_sibling_ncm_views_before_n5 tests/integration/core_runtime/test_e02_higher_order_n8_intake.py tests/integration/core_runtime/test_e02_empirical_member_intake.py tests/unit/remediation/test_cyc_02.py tests/integration/core_runtime/test_e02_n9_refusal.py",
+      "target_sha": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+      "target_tree_sha": "a1177b8113e1b75973e7975f6809553c38e65b52",
+      "environment": "n5-applicability/runs/frozen-consumer-wave-6565-corrected/environment-and-inputs.json (sha256 b3791ccecb3c04db19947033b8ae336f567f0445e55ef43e5585cc859eb19b80; 7690 bytes)",
+      "input_closure": "n5-applicability/runs/frozen-consumer-wave-6565-corrected/environment-and-inputs.json (sha256 b3791ccecb3c04db19947033b8ae336f567f0445e55ef43e5585cc859eb19b80; 7690 bytes; manifest embeds source git blobs and SHA-256 values)",
+      "outcome": "PASS",
+      "output": "157 tests passed, 2 warnings; measured outer wall 192.208476 s (pytest reports 172.38 s). Artifacts: stdout.txt=n5-applicability/runs/frozen-consumer-wave-6565-corrected/stdout.txt sha256=0fa09d3486da9b1f10c760d8d72a282a18fa52e4ecd166259985e157774e6df2 bytes=48471, stderr.txt=n5-applicability/runs/frozen-consumer-wave-6565-corrected/stderr.txt sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 bytes=0, junit.xml=n5-applicability/runs/frozen-consumer-wave-6565-corrected/junit.xml sha256=369c4e61a822adea1d5efebb64c944045efd2384591345d6a28af907335b46f0 bytes=26532.",
+      "command_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-u",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-vv",
+        "--durations=0",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frozen-consumer-wave-6565-corrected/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frozen-consumer-wave-6565-corrected/junit.xml",
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+        "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "tests/unit/runtime/http/test_runs_api.py",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_context_control",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v1_projection_removal_probe_rejects_post_v1_field_with_markers_retained",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v2_history_rejects_post_version_nested_fields_with_markers_retained",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_accepts_nested_design_problem_v2_dotted_target_slot",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_accepts_nested_design_problem_v3_qualified_outcome",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_history_replay_is_read_only_and_does_not_consult_current_source",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py::test_source_comment_preserves_actual_v1_v2_history",
+        "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_resolves_exact_selected_candidate_ncm_view",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_refuses_same_id_sibling_ncm_views_before_n5",
+        "tests/integration/core_runtime/test_e02_higher_order_n8_intake.py",
+        "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+        "tests/unit/remediation/test_cyc_02.py",
+        "tests/integration/core_runtime/test_e02_n9_refusal.py"
+      ],
+      "environment_details": {
+        "path": "n5-applicability/runs/frozen-consumer-wave-6565-corrected/environment-and-inputs.json",
+        "sha256": "b3791ccecb3c04db19947033b8ae336f567f0445e55ef43e5585cc859eb19b80",
+        "bytes": 7690,
+        "recorded_cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+        "recorded_environment": {
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+          "JAX_PLATFORMS": "cpu",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "VECLIB_MAXIMUM_THREADS": "1"
+        },
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "packages": {
+          "pytest": "9.0.2",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "jax": "0.8.2",
+          "jaxlib": "0.8.2",
+          "pydantic": "2.12.5"
+        },
+        "timeout_seconds": 600,
+        "timeout_basis": "Measured component waves: SIM 114.74s, CYC/N9 95.66s, HTTP 51.03s, N5 intake 74.87s, B10 36.52s; single-thread targeted importer wave bounded at 600s.",
+        "wall_seconds": 192.20847604196751,
+        "exit_code": 0
+      },
+      "input_paths": {
+        "src/polisyos/runtime/quality/generation_cycle.py": {
+          "sha256": "d3ddffe520320e06fe06cc63627a30241973beb8cad6d21a06276945a2b68a7e",
+          "git_blob": "6e5e26d256f3cdb9a61ce69c6832debed0a2d262"
+        },
+        "src/polisyos/runtime/quality/joint_simulation_horizon.py": {
+          "sha256": "20a657776363a36b81e5d867753bc1551b85993fdc32811d0362ae4c6fd4dac8",
+          "git_blob": "05a5df3c91025920a81b37a281db9f65c0d8e87d"
+        },
+        "src/polisyos/core/contracts/runtime.py": {
+          "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+          "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+        },
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+          "sha256": "96a5c9a4b4777694b8583d0d929a63ed03c28965a50fb1ff12e0702d4882e7eb",
+          "git_blob": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e"
+        },
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py": {
+          "sha256": "b0b02f79fe6a206309c87b849a02ec86d129f4b9458d6a35e1234842417ccf13",
+          "git_blob": "6eff1cdf5d663b626dc35d97cf17ea75ff2dd03b"
+        },
+        "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py": {
+          "sha256": "924181fb0cd41682f076ab09b80fea81c14aa6eb312dbc24a00dbc402c837098",
+          "git_blob": "e32b91d15ff90e42ca6cd24901a9cfa359054fc6"
+        },
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py": {
+          "sha256": "6e495bb92c93b2c75f08500f37074972f5076b75de577916a832f1788870b842",
+          "git_blob": "1fa96c8dc88007f685e267b2d598772139205e64"
+        },
+        "tests/unit/runtime/http/test_runs_api.py": {
+          "sha256": "dd66370ce4b374479319a99692163e172760ca7a749c5e820123ed7e63dbeeb1",
+          "git_blob": "29ba4eab2aefc127f2604ef47f8abdc6fa8edf61"
+        },
+        "tests/unit/runtime/quality/test_generation_cycle.py": {
+          "sha256": "930637f7be4141c6073259b0909a2cc246ba61790280e92f1512f6e3ad0733a0",
+          "git_blob": "5fb9c75d734a2398fd6639d983adafb8054d40da"
+        },
+        "tests/unit/runtime/quality/test_generation_cycle_history.py": {
+          "sha256": "634266febf09444a9456807ad4e7d410cc710b88fb14f3442bfa96ae34535839",
+          "git_blob": "e6235b9994425dbcb5996c744524c785e7bb73a0"
+        },
+        "tests/unit/remediation/test_cyc_02.py": {
+          "sha256": "fb9c9bf715a760d3191a30acb41bbc49ea2df4b436f6e2e0b1e7c533dd0f7063",
+          "git_blob": "3a265b00e1e099f074e83965c3a4600e0e11dda2"
+        },
+        "tests/unit/runtime/quality/test_generation_source.py": {
+          "sha256": "23fb0e1dfe5250abbdacf8b41b611ea5c430fdd22f39c51aa2cc0fe37e6584f9",
+          "git_blob": "8d4a1dae9a6563e125f0566bbb48ebaa82861a8c"
+        },
+        "tests/integration/core_runtime/test_e02_higher_order_n8_intake.py": {
+          "sha256": "7dd0ea1d4867ad159afae4246c4e118d74523c56715007413202fda061fd45ba",
+          "git_blob": "9277e0f55a8529d86cdce45e315ae9ca6a05be1a"
+        },
+        "tests/integration/core_runtime/test_e02_empirical_member_intake.py": {
+          "sha256": "cf4f91f18b33484e22ec11d83e575cbe2325b9b4d1478221c60db78706371308",
+          "git_blob": "6ab30561f0a4e2c22fd41985499661af1c1966a6"
+        },
+        "tests/integration/core_runtime/test_e02_n9_refusal.py": {
+          "sha256": "48595d5d42806c699de72f932a19049b9fd928dabcba17a54f340fbba2f4c721",
+          "git_blob": "248b1c2c115fbf0cb3a15c7d883acc40067e7684"
+        }
+      },
+      "output_artifacts": {
+        "stdout.txt": {
+          "path": "n5-applicability/runs/frozen-consumer-wave-6565-corrected/stdout.txt",
+          "sha256": "0fa09d3486da9b1f10c760d8d72a282a18fa52e4ecd166259985e157774e6df2",
+          "bytes": 48471
+        },
+        "stderr.txt": {
+          "path": "n5-applicability/runs/frozen-consumer-wave-6565-corrected/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "junit.xml": {
+          "path": "n5-applicability/runs/frozen-consumer-wave-6565-corrected/junit.xml",
+          "sha256": "369c4e61a822adea1d5efebb64c944045efd2384591345d6a28af907335b46f0",
+          "bytes": 26532
+        }
+      }
+    }
+  ],
+  "separate_pre_pytest_input_path_error": {
+    "outcome": "ERROR",
+    "artifact": {
+      "path": "n5-applicability/runs/selector-preflight/preflight-error.json",
+      "sha256": "9b652ee0bfe986c593a31c554cf98b484732ba84f70c4cde268b2475bfaede5f",
+      "bytes": 339
+    },
+    "candidate_sha": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+    "product_runtime_executed": false,
+    "meaning": "The requested selector path was nonexistent; do not conflate this input-path check with a product test."
+  },
+  "earlier_attempts": [
+    {
+      "name": "b10-red-0b558",
+      "candidate_sha": "0b558c7ba12b0de3c94ec9c1ed959de173ef5f11",
+      "candidate_tree_sha": "68f8a1ee7bdb6212ca1bf536c6bfc5a08b5c71ec",
+      "outcome": "ERROR",
+      "summary": "Pytest collection error: test imported nonexistent `PromotionRuntime`; this was a test authoring error, not a semantic red.",
+      "artifact_directory": "n5-applicability/runs/b10-red-0b558"
+    },
+    {
+      "name": "b10-red-import-fixed",
+      "candidate_sha": "e5796dd1c45a6c82bc0d425e6c3a11bb16fdd097",
+      "candidate_tree_sha": "714893e485f02e13541247d45a4ed8ed21e3c475",
+      "outcome": "FAIL",
+      "summary": "The preflight-free source selected the higher-ranked conflicting candidate; this is the real semantic red against the targeted selection property.",
+      "artifact_directory": "n5-applicability/runs/b10-red-import-fixed"
+    },
+    {
+      "name": "b10-green-bf465",
+      "candidate_sha": "bf465f6d486816c1de8579f4c19faf1ec0772fbb",
+      "candidate_tree_sha": "57d8dd8e6254a8f63e3b59074bd58902ce0247bf",
+      "outcome": "FAIL",
+      "summary": "All four integration tests failed because the canonical request digest was not established for nested Decimal input; this revision could not distinguish the high conflict from the eligible control.",
+      "artifact_directory": "n5-applicability/runs/b10-green-bf465"
+    },
+    {
+      "name": "b10-typed-money-wave",
+      "candidate_sha": "afc25de16e987dd7e6b80e6f2d024997eb24e7a8",
+      "candidate_tree_sha": "3352e99c5426da510908db91c848f5df8146ad55",
+      "outcome": "FAIL",
+      "summary": "Ten of eleven tests passed; the remaining subclass-atom fixture failed validation. The subsequent 6565 test-only fix is included in the final candidate.",
+      "artifact_directory": "n5-applicability/runs/b10-typed-money-wave"
+    }
+  ],
+  "property": {
+    "statement": "For the bounded default-production, owner-built NCM data-only request path, the same canonical prepared request is assessed by the N5 owner before grounded candidate selection. A high-ranked candidate with contradictory direct assignments is retained with typed ineligible reason intervention_assignment_conflict and excluded; a lower-ranked single-atom candidate is eligible, selected, run, persisted to CAS, loaded by identity, and read by a fresh N8 process.",
+    "runtime_path": [
+      "fixture-controlled candidate list and rankings",
+      "GenerationCycleController grounded-candidate flow",
+      "JointSimulationPort.prepare_candidate",
+      "JointSimulationHorizonController.assess_applicability shared owner checks",
+      "JointSimulationPort execution revalidating the prepared request",
+      "CAS result receipt and load_joint_simulation_result readback",
+      "fresh-process default N8 consumer"
+    ],
+    "proxy_divergence": "Ranking-only selection prefers candidate_high_conflict (score 0.99, VOI estimate 20.0) over candidate_feasible_single (score 0.90, VOI estimate 8.0). The owner check detects the high candidate’s same-slot incompatible writes and admits the lower candidate. The removal probe keeps the refusal marker but removes the selector applicability map; selection changes back to the high candidate, demonstrating marker presence is not the property.",
+    "negative_controls": [
+      "All candidates conflicting: typed ineligible summaries remain; cycle is simulation_blocked; simulation result is absent; VOI action is not_run_hard_feasibility_blocked; N5 run call count is zero.",
+      "Removal probe: preserve high-candidate ineligible marker, remove only the selector applicability map; the high candidate is selected and no N5 result is created.",
+      "Prepared digest: mutate candidate atom or problem runtime hints after preparation; currentness check refuses. A profile-handoff path does not claim support for this preflight.",
+      "Opaque live engine-plan state is rejected as not_established; finite Decimal values are typed in the request digest, while NaN and infinities are rejected."
+    ],
+    "persisted_result_checks": "The selected result receipt is loaded from CAS and bound to WMR identity/content, atom IDs, requested outcome and payload receipt. The test compares stored engine decisions and trajectories with a second call to the same internal N5 controller runner. A separate N8 process reads the CAS-backed result reference and remains value_conditional with simulation_only_k_sim_not_world_evidence authority blocker.",
+    "authority_purpose": "Shadow research simulation only. The candidate remains non-promotable; the fresh N8 consumer explicitly retains the simulation-only authority blocker.",
+    "surface": "The bounded outcome is exposed on typed GenerationCycleRun candidate summaries and the cycle selection/simulation result. This slice does not establish a new external API or audit endpoint contract for this field."
+  },
+  "predicate_basis": "not_established",
+  "predicate_annotations": {
+    "bounded_default_ncm_conflict_assessment": "recomputed by the canonical N5 owner from the exact prepared typed request",
+    "candidate selector effect in the bounded fixture": "recomputed by runtime selection and removal-probe counterfactual",
+    "CAS readback identity": "recomputed from the persisted receipt and fresh consumer reference",
+    "whole CYC-04 first-missing-input/second-present acceptance": "not_established; not run",
+    "owner-complete feasibility across methods/modalities/cost/science/profile handoffs": "not_established; explicitly outside this bounded path"
+  },
+  "capability_state_or_finding_state": "verification_missing",
+  "attempt_history": {
+    "candidate_source_chain": [
+      "0b558c7ba12b0de3c94ec9c1ed959de173ef5f11",
+      "e5796dd1c45a6c82bc0d425e6c3a11bb16fdd097",
+      "bf465f6d486816c1de8579f4c19faf1ec0772fbb",
+      "afc25de16e987dd7e6b80e6f2d024997eb24e7a8",
+      "6565fcd91d0ac251396dbde5852aaad92627bf40"
+    ],
+    "runs": [
+      "n5-applicability/runs/b10-red-0b558",
+      "n5-applicability/runs/b10-red-import-fixed",
+      "n5-applicability/runs/b10-green-bf465",
+      "n5-applicability/runs/b10-typed-money-wave",
+      "n5-applicability/runs/frozen-consumer-wave-6565-corrected"
+    ]
+  },
+  "independent_review_and_census": {
+    "path": "n5-applicability/independent-review-and-census.md",
+    "sha256": "ec77411c14ef2d80462a0fcc9132e8a682e507913df82ffc21f6dbfc43191bcd",
+    "bytes": 18896,
+    "derived_views": "Full leaf lists retained locally by raw path/SHA, omitted from tracked companion; deciding pytest outputs remain complete byte-exact."
+  },
+  "pattern_pass": {
+    "ids": [
+      "P04",
+      "P10",
+      "P27",
+      "P32",
+      "P33",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "found": "P04: keep original partial status and no finding closure; P10: exercised contradiction is a narrower mechanical conflict than the missing-input acceptance; P27/P32: reuse N5 owner checks and bind exact typed request; P33/P38: removing the selector map proves marker presence/score ranking would be a proxy; P37: the bounded status is runtime-recomputed while whole-finding scope is not_established; P41: retain each exact run/candidate identity and distinguish authoring error, expected semantic red, codec failures, fixture failure, and final pass.",
+    "target_pattern": "A single canonical owner assessment on the exact prepared request, consumed by candidate selection and execution; typed refusal retained in the candidate summary; persisted CAS result consumed by fresh N8.",
+    "remaining_labels": [
+      "verification_missing for the complete B10 criterion",
+      "surface_missing or not established for dedicated external/audit exposure of the new applicability summary"
+    ]
+  },
+  "limitations_and_next_owner": [
+    "The criterion-specific first candidate lacks a needed input / second possesses it witness remains UNRUN. The implemented witness is different: a higher-scoring candidate has a same-target direct-assignment conflict, while a lower-scoring single-atom candidate is owner-eligible.",
+    "This is bounded mechanical hard-feasibility for the default-production NCM data-only request path; it is not owner-complete method, modality, outcome, cost, scientific or general applicability.",
+    "Configured profile-handoff preflight is not applied. The current test confirms supports_applicability_preflight is false for its profile-handoff path, but does not claim that path has been fully integrated or independently tested end-to-end.",
+    "Persisted CAS readback and fresh-process N8 consumption are tested. The “direct” comparison invokes the same version of the internal N5 controller on the prepared request; it is not an independent direct-engine oracle. The direct-engine oracle named in B10 remains UNRUN.",
+    "The typed refusal is asserted on the returned GenerationCycleRun candidate summaries; this slice does not prove a separate durable/audit rejection artifact or summary round-trip.",
+    "The baseline requirement that unexplored alternatives receive no invented zeros and that budget/diversity remain explicit was not adjudicated here. No actual spend, monetary cost, budget exhaustion, exactly-once debit, or B11 behavior is claimed.",
+    "A separate pre-pytest selector input error names a nonexistent test path; product runtime did not execute in that check.",
+    "Next: extend the same canonical owner request pipeline with a criterion-faithful first-missing-input/second-available fixture only when the real owner provides that typed input and applicability rule; add an independent direct-engine oracle; cover or explicitly bound configured profile handoff; then update B10 closure only against the full CYC-04 criterion."
+  ],
+  "artifact_policy": "Moderate deciding stdout/stderr/JUnit/environment-input manifests are copied byte-exactly with SHA-256 and size. CAS basetemp and large derived inventories are excluded.",
+  "independent_review_scope": "The b656 and f30 reviews are static reviews of their cited patch revisions, both before the later behavioral tests. They support bounded source review only and are not independent review of the final 6565 candidate or a test receipt.",
+  "implementation_commit_roles": [
+    {
+      "sha": "0b558c7ba12b0de3c94ec9c1ed959de173ef5f11",
+      "role": "initial behavioral test attempt; test import error"
+    },
+    {
+      "sha": "e5796dd1c45a6c82bc0d425e6c3a11bb16fdd097",
+      "role": "test import fixed; reproduced real high-conflict selection red"
+    },
+    {
+      "sha": "bf465f6d486816c1de8579f4c19faf1ec0772fbb",
+      "role": "bounded default-NCM preflight implementation"
+    },
+    {
+      "sha": "afc25de16e987dd7e6b80e6f2d024997eb24e7a8",
+      "role": "lossless finite Decimal codec and opaque-state refusal"
+    },
+    {
+      "sha": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+      "role": "subclass fixture/test correction; frozen candidate"
+    }
+  ],
+  "capability_scope_detail": "B10 remains recorded partial; closure_now is not_adjudicated; the full finding remains verification_missing. The bounded default-NCM mechanical conflict preflight is implemented and has a passing behavioral test, but is not full B10 closure.",
+  "finding_outcomes": {
+    "B10": {
+      "status": "limited",
+      "original_status": "partial",
+      "source_closure_now": "not_adjudicated",
+      "closure_ids": [],
+      "source_ref": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json@905820ceac5860c7d1c4ebcbdde7b1265afb0b15#B10",
+      "source_blob": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a"
+    }
+  },
+  "later_delta_checks": [
+    {
+      "name": "b23-positive-and-affected-9794",
+      "target_sha": "9794b716a74aee98545449ac97dc98825d2471de",
+      "target_tree_sha": "97a03bcab3f2d50afc3e262ff4a041e9c24042b2",
+      "relationship": "Later delta; not the frozen 6565 candidate and does not replace or extend its 157-test receipt.",
+      "change_scope": "Affected 49-test pytest wave for the later typed-projection/type-checking delta. It includes the B10 integration test file. The source delta at 9794 changes joint_simulation_horizon.py and tests/unit/remediation/test_sim_03.py; this receipt makes no broader test-coverage claim.",
+      "outcome": "PASS",
+      "summary": "49 passed, 1 warning; 64.39s pytest runtime, 68.323s outer wall.",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-positive-and-affected-9794/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-positive-and-affected-9794/junit.xml tests/unit/remediation/test_sim_01.py tests/unit/remediation/test_sim_02.py tests/unit/remediation/test_sim_03.py tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs",
+      "environment": "The in-place physical-cache manifest below records command environment, Python/platform, inputs, and exact source blobs.",
+      "input_closure": "policy-engine/_build/e02-A-full-queue/b23-positive-and-affected-9794/environment-and-inputs.json sha256 812695a31857f813d1390a725caf6c042b3582575bbe78243c60d79779abdc20 (4363 bytes)",
+      "output": "This later-delta run is referenced from the separate physical-cache companion at `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache/positive-and-affected-9794/`; this n5-applicability lease does not duplicate its logs.",
+      "physical_cache_artifacts": {
+        "environment-and-inputs.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache/positive-and-affected-9794/environment-and-inputs.json",
+          "sha256": "812695a31857f813d1390a725caf6c042b3582575bbe78243c60d79779abdc20",
+          "bytes": 4363
+        },
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache/positive-and-affected-9794/stdout.txt",
+          "sha256": "593e20451709ec8e0a23ff4eaf8dcf636a7386e5f0dc402143ec1075e0b136b1",
+          "bytes": 14637
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache/positive-and-affected-9794/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache/positive-and-affected-9794/junit.xml",
+          "sha256": "abb6e81c535a7468a987476f1981dbce25b562053222d4dc6db952784e2709ec",
+          "bytes": 7762
+        }
+      },
+      "physical_cache_owner_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/physical-cache/positive-and-affected-9794/"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+
+> @polisyos/runtime-dashboard@0.1.0 generate:api /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/apps/runtime-dashboard
+> ./scripts/generate-api-client.sh -- --openapi /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/runtime-api-contract-f5fbc9e6/wave-20261006T185530930517Z-51924/rendered/schemas/runtime_api_v1.openapi.json --output-root /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/runtime-api-contract-f5fbc9e6/wave-20261006T185530930517Z-51924/dashboard-output
+
+✨ openapi-typescript 7.13.0
+🚀 /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/runtime-api-contract-f5fbc9e6/wave-20261006T185530930517Z-51924/rendered/schemas/runtime_api_v1.openapi.json → /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/runtime-api-contract-f5fbc9e6/wave-20261006T185530930517Z-51924/dashboard-output/apps/runtime-dashboard/src/api/types.ts [508.1ms]
+../../_build/runtime-api-contract-f5fbc9e6/wave-20261006T185530930517Z-51924/dashboard-output/apps/runtime-dashboard/src/api/types.ts 504ms
+Generated /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/runtime-api-contract-f5fbc9e6/wave-20261006T185530930517Z-51924/dashboard-output/apps/runtime-dashboard/src/api/types.ts

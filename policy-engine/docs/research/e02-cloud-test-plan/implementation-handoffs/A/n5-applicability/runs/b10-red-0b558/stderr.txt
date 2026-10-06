@@ -1,0 +1,2 @@
+ERROR: found no collectors for /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result
+

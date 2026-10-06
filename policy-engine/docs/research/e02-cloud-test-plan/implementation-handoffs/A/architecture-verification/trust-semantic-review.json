@@ -1,0 +1,1239 @@
+{
+  "schema": "e02-trust-posture-semantic-review.v1",
+  "generation_receipt_path": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/trust-owner-execution.json",
+  "execution_receipt_sha256": "b46a0d95fb8041ed54341a9f5175f2974b0f634734198a21426964855d830412",
+  "candidate_path": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/trust-candidate/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+  "candidate_sha256": "7ee28857085cf584a613a1d42d6d8f735ddeb8e0153ed66ffe22b0c46ad8eb56",
+  "candidate_bytes": 2376651,
+  "tracked_target_path": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+  "tracked_target_sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba",
+  "tracked_target_bytes": 2365635,
+  "cli_verdict": "PASS",
+  "cli_verdict_scope": "owner check execution/report passed; does not ratify scientific or authority meaning of the regenerated projection",
+  "complete_json_diff": {
+    "report_path": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/trust-json-structural-diff.json",
+    "root_keys_old": 19,
+    "root_keys_new": 19,
+    "added": [],
+    "removed": [],
+    "all_19_root_key_summary": [
+      {
+        "key": "accessibility_document",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "dict",
+        "new_type": "dict",
+        "old_cardinality": 10,
+        "new_cardinality": 10,
+        "equal": true
+      },
+      {
+        "key": "admitted_sources",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "list",
+        "new_type": "list",
+        "old_cardinality": 149,
+        "new_cardinality": 152,
+        "equal": false
+      },
+      {
+        "key": "admitted_verifiers",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "list",
+        "new_type": "list",
+        "old_cardinality": 3,
+        "new_cardinality": 3,
+        "equal": true
+      },
+      {
+        "key": "ast_derivation",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "dict",
+        "new_type": "dict",
+        "old_cardinality": 21,
+        "new_cardinality": 21,
+        "equal": false
+      },
+      {
+        "key": "claims",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "list",
+        "new_type": "list",
+        "old_cardinality": 371,
+        "new_cardinality": 375,
+        "equal": false
+      },
+      {
+        "key": "custody_appointment_sources",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "list",
+        "new_type": "list",
+        "old_cardinality": 3,
+        "new_cardinality": 3,
+        "equal": true
+      },
+      {
+        "key": "identity_boundary",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "dict",
+        "new_type": "dict",
+        "old_cardinality": 17,
+        "new_cardinality": 17,
+        "equal": true
+      },
+      {
+        "key": "machine_admission_boundary",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "dict",
+        "new_type": "dict",
+        "old_cardinality": 5,
+        "new_cardinality": 5,
+        "equal": true
+      },
+      {
+        "key": "may_not_use_for_denied_only_sites",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "list",
+        "new_type": "list",
+        "old_cardinality": 4,
+        "new_cardinality": 4,
+        "equal": true
+      },
+      {
+        "key": "page_a11y_receipt",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "dict",
+        "new_type": "dict",
+        "old_cardinality": 20,
+        "new_cardinality": 20,
+        "equal": true
+      },
+      {
+        "key": "payload_digest",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "str",
+        "new_type": "str",
+        "old_cardinality": null,
+        "new_cardinality": null,
+        "equal": false
+      },
+      {
+        "key": "projection_groups",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "list",
+        "new_type": "list",
+        "old_cardinality": 5,
+        "new_cardinality": 5,
+        "equal": false
+      },
+      {
+        "key": "register_as_of",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "str",
+        "new_type": "str",
+        "old_cardinality": null,
+        "new_cardinality": null,
+        "equal": true
+      },
+      {
+        "key": "rule_version",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "str",
+        "new_type": "str",
+        "old_cardinality": null,
+        "new_cardinality": null,
+        "equal": true
+      },
+      {
+        "key": "schema_version",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "str",
+        "new_type": "str",
+        "old_cardinality": null,
+        "new_cardinality": null,
+        "equal": true
+      },
+      {
+        "key": "slice_base_ref",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "str",
+        "new_type": "str",
+        "old_cardinality": null,
+        "new_cardinality": null,
+        "equal": true
+      },
+      {
+        "key": "source_inventory",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "list",
+        "new_type": "list",
+        "old_cardinality": 126,
+        "new_cardinality": 128,
+        "equal": false
+      },
+      {
+        "key": "source_set_digest",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "str",
+        "new_type": "str",
+        "old_cardinality": null,
+        "new_cardinality": null,
+        "equal": false
+      },
+      {
+        "key": "token_derivation",
+        "old_present": true,
+        "new_present": true,
+        "old_type": "dict",
+        "new_type": "dict",
+        "old_cardinality": 21,
+        "new_cardinality": 21,
+        "equal": false
+      }
+    ],
+    "structural_change_count": 896,
+    "change_kind_counts": {
+      "added_list_item": 31,
+      "added_list_item_unmatched": 60,
+      "added_list_value": 36,
+      "removed_list_item": 16,
+      "removed_list_item_unmatched": 48,
+      "removed_list_value": 68,
+      "value_change": 637
+    },
+    "status_sensitive_change_count": 44,
+    "status_sensitive_change_rows": [
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca'].may_not_use_for",
+        "value": "approval_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca'].may_not_use_for",
+        "value": "claim_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca'].may_not_use_for",
+        "value": "closeout_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca'].may_not_use_for",
+        "value": "preference_learning_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca'].may_not_use_for",
+        "value": "production_claim_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca'].may_not_use_for",
+        "value": "production_recommendation",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca'].may_not_use_for",
+        "value": "publication_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca'].may_not_use_for",
+        "value": "rollout_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca'].may_not_use_for",
+        "value": "s11_calibration",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca'].may_not_use_for",
+        "value": "s12_envelope_growth",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca'].may_not_use_for",
+        "value": "s13_accountability_closure",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca'].may_not_use_for",
+        "value": "s14_universality",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca'].may_not_use_for",
+        "value": "scorecard_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005'].may_not_use_for",
+        "value": "approval_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005'].may_not_use_for",
+        "value": "claim_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005'].may_not_use_for",
+        "value": "closeout_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005'].may_not_use_for",
+        "value": "preference_learning_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005'].may_not_use_for",
+        "value": "production_claim_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005'].may_not_use_for",
+        "value": "production_recommendation",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005'].may_not_use_for",
+        "value": "publication_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005'].may_not_use_for",
+        "value": "rollout_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005'].may_not_use_for",
+        "value": "s11_calibration",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005'].may_not_use_for",
+        "value": "s12_envelope_growth",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005'].may_not_use_for",
+        "value": "s13_accountability_closure",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005'].may_not_use_for",
+        "value": "s14_universality",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005'].may_not_use_for",
+        "value": "scorecard_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab'].may_not_use_for",
+        "value": "approval_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab'].may_not_use_for",
+        "value": "claim_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab'].may_not_use_for",
+        "value": "closeout_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab'].may_not_use_for",
+        "value": "preference_learning_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab'].may_not_use_for",
+        "value": "production_claim_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab'].may_not_use_for",
+        "value": "production_recommendation",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab'].may_not_use_for",
+        "value": "publication_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab'].may_not_use_for",
+        "value": "rollout_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab'].may_not_use_for",
+        "value": "s11_calibration",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab'].may_not_use_for",
+        "value": "s12_envelope_growth",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab'].may_not_use_for",
+        "value": "s13_accountability_closure",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab'].may_not_use_for",
+        "value": "s14_universality",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "removed_list_value",
+        "path": "$.claims[claim_id='claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab'].may_not_use_for",
+        "value": "scorecard_authority",
+        "old_count": 1,
+        "new_count": 0
+      },
+      {
+        "kind": "value_change",
+        "path": "$.source_inventory[path='src/polisyos/runtime/quality/generation_cycle.py'].authoritative_sites[0].resolution",
+        "old": "resolved",
+        "new": "runtime_bound"
+      },
+      {
+        "kind": "added_list_value",
+        "path": "$.source_inventory[path='src/polisyos/runtime/quality/generation_cycle.py'].issue_codes",
+        "value": "DS11-SOURCE-RUNTIME-BOUND",
+        "old_count": 0,
+        "new_count": 1
+      },
+      {
+        "kind": "value_change",
+        "path": "$.source_inventory[path='src/polisyos/runtime/quality/generation_cycle.py'].resolution",
+        "old": "resolved",
+        "new": "runtime_bound"
+      },
+      {
+        "kind": "added_list_value",
+        "path": "$.source_inventory[path='src/polisyos/runtime/quality/promotion_sequence.py'].issue_codes",
+        "value": "DS11-SOURCE-RUNTIME-BOUND",
+        "old_count": 0,
+        "new_count": 1
+      },
+      {
+        "kind": "value_change",
+        "path": "$.source_inventory[path='src/polisyos/runtime/quality/promotion_sequence.py'].resolution",
+        "old": "resolved",
+        "new": "runtime_bound"
+      }
+    ]
+  },
+  "claim_cardinality_and_state": {
+    "old_count": 371,
+    "new_count": 375,
+    "added_count": 17,
+    "removed_count": 13,
+    "old_effective_state_counts": {
+      "blocked": 370,
+      "supported": 1
+    },
+    "new_effective_state_counts": {
+      "blocked": 374,
+      "supported": 1
+    },
+    "existing_claims_with_effective_state_change": [],
+    "existing_claims_with_closure_signal_change": [],
+    "new_claims_all_blocked": true,
+    "removed_claims_all_blocked": true
+  },
+  "restriction_join_review": {
+    "observed_claims": [
+      {
+        "claim_id": "claim-posture:0afc37195f4a6be7b3aa74866e730b0c3aa2a471f8e41bc6fab8489ba3e9aeca",
+        "subject": "forecast_support_tiering",
+        "old_effective_state": "blocked",
+        "new_effective_state": "blocked",
+        "old_closure_signal": null,
+        "new_closure_signal": null,
+        "old_blocker_codes": [
+          "DS11-GATE-PREDICATE-NOT-ESTABLISHED",
+          "DS11-JURISDICTION-NOT-ESTABLISHED",
+          "DS11-OWNER-NOT-ESTABLISHED",
+          "DS11-REVIEW-MISSING",
+          "DS11-SOURCE-BLOCKER-PRESENT"
+        ],
+        "new_blocker_codes": [
+          "DS11-GATE-PREDICATE-NOT-ESTABLISHED",
+          "DS11-JURISDICTION-NOT-ESTABLISHED",
+          "DS11-OWNER-NOT-ESTABLISHED",
+          "DS11-REVIEW-MISSING",
+          "DS11-SOURCE-BLOCKER-PRESENT"
+        ],
+        "old_authoritative_for": [
+          "forecast_support_tiering"
+        ],
+        "new_authoritative_for": [
+          "forecast_support_tiering"
+        ],
+        "old_may_not_use_for": [
+          "approval_authority",
+          "claim_authority",
+          "closeout_authority",
+          "preference_learning_authority",
+          "production_claim_authority",
+          "production_recommendation",
+          "publication_authority",
+          "rollout_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "scorecard_authority"
+        ],
+        "new_may_not_use_for": [],
+        "old_limitations": [
+          "Missing independent claim metadata"
+        ],
+        "new_limitations": [
+          "Missing independent claim metadata"
+        ],
+        "old_owner_basis": "not_established",
+        "new_owner_basis": "not_established",
+        "old_source_bindings": [
+          {
+            "path": "src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+            "line": 448,
+            "symbol": "build_forecast_support",
+            "field_name": "authoritative_for",
+            "use_kind": "declaration",
+            "authoritative_for": [
+              "forecast_support_tiering"
+            ],
+            "may_not_use_for": [],
+            "source_state": "not_established",
+            "resolution": "resolved",
+            "content_digest": "sha256:0024b1abd7ac64ef2240f1a9c72684a5e0948fe33cc01e891f47c9444b676df1"
+          },
+          {
+            "path": "src/polisyos/runtime/quality/generation_cycle.py",
+            "line": 5246,
+            "symbol": "_s10_value_authority_boundary",
+            "field_name": "authoritative_for",
+            "use_kind": "declaration",
+            "authoritative_for": [
+              "forecast_support_tiering"
+            ],
+            "may_not_use_for": [
+              "approval_authority",
+              "claim_authority",
+              "closeout_authority",
+              "preference_learning_authority",
+              "production_claim_authority",
+              "production_recommendation",
+              "publication_authority",
+              "rollout_authority",
+              "s11_calibration",
+              "s12_envelope_growth",
+              "s13_accountability_closure",
+              "s14_universality",
+              "scorecard_authority"
+            ],
+            "source_state": "not_established",
+            "resolution": "resolved",
+            "content_digest": "sha256:7f4eeb68239be05955bd470451f6de7813134690bd5f653d6a74259e880f4aa3"
+          }
+        ],
+        "new_source_bindings": [
+          {
+            "path": "src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+            "line": 459,
+            "symbol": "build_forecast_support",
+            "field_name": "authoritative_for",
+            "use_kind": "declaration",
+            "authoritative_for": [
+              "forecast_support_tiering"
+            ],
+            "may_not_use_for": [],
+            "source_state": "not_established",
+            "resolution": "resolved",
+            "content_digest": "sha256:ab0c9c125124c4273ba0d696c912c7434d77e3b987480bab456dd38d753846da"
+          }
+        ]
+      },
+      {
+        "claim_id": "claim-posture:0b8d1cdfb4f17747b4978cdf5fff8b2ac4461d6eed40a4771ccbd356e146f005",
+        "subject": "value_grounded_welfare_comparison",
+        "old_effective_state": "blocked",
+        "new_effective_state": "blocked",
+        "old_closure_signal": null,
+        "new_closure_signal": null,
+        "old_blocker_codes": [
+          "DS11-GATE-PREDICATE-NOT-ESTABLISHED",
+          "DS11-JURISDICTION-NOT-ESTABLISHED",
+          "DS11-OWNER-NOT-ESTABLISHED",
+          "DS11-REVIEW-MISSING",
+          "DS11-SOURCE-BLOCKER-PRESENT"
+        ],
+        "new_blocker_codes": [
+          "DS11-GATE-PREDICATE-NOT-ESTABLISHED",
+          "DS11-JURISDICTION-NOT-ESTABLISHED",
+          "DS11-OWNER-NOT-ESTABLISHED",
+          "DS11-REVIEW-MISSING",
+          "DS11-SOURCE-BLOCKER-PRESENT"
+        ],
+        "old_authoritative_for": [
+          "value_grounded_welfare_comparison"
+        ],
+        "new_authoritative_for": [
+          "value_grounded_welfare_comparison"
+        ],
+        "old_may_not_use_for": [
+          "approval_authority",
+          "claim_authority",
+          "closeout_authority",
+          "preference_learning_authority",
+          "production_claim_authority",
+          "production_recommendation",
+          "publication_authority",
+          "rollout_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "scorecard_authority"
+        ],
+        "new_may_not_use_for": [],
+        "old_limitations": [
+          "Missing independent claim metadata"
+        ],
+        "new_limitations": [
+          "Missing independent claim metadata"
+        ],
+        "old_owner_basis": "not_established",
+        "new_owner_basis": "not_established",
+        "old_source_bindings": [
+          {
+            "path": "src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+            "line": 466,
+            "symbol": "build_welfare_comparison_record",
+            "field_name": "authoritative_for",
+            "use_kind": "declaration",
+            "authoritative_for": [
+              "value_grounded_welfare_comparison"
+            ],
+            "may_not_use_for": [],
+            "source_state": "not_established",
+            "resolution": "resolved",
+            "content_digest": "sha256:0024b1abd7ac64ef2240f1a9c72684a5e0948fe33cc01e891f47c9444b676df1"
+          },
+          {
+            "path": "src/polisyos/runtime/quality/generation_cycle.py",
+            "line": 5246,
+            "symbol": "_s10_value_authority_boundary",
+            "field_name": "authoritative_for",
+            "use_kind": "declaration",
+            "authoritative_for": [
+              "value_grounded_welfare_comparison"
+            ],
+            "may_not_use_for": [
+              "approval_authority",
+              "claim_authority",
+              "closeout_authority",
+              "preference_learning_authority",
+              "production_claim_authority",
+              "production_recommendation",
+              "publication_authority",
+              "rollout_authority",
+              "s11_calibration",
+              "s12_envelope_growth",
+              "s13_accountability_closure",
+              "s14_universality",
+              "scorecard_authority"
+            ],
+            "source_state": "not_established",
+            "resolution": "resolved",
+            "content_digest": "sha256:7f4eeb68239be05955bd470451f6de7813134690bd5f653d6a74259e880f4aa3"
+          }
+        ],
+        "new_source_bindings": [
+          {
+            "path": "src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+            "line": 477,
+            "symbol": "build_welfare_comparison_record",
+            "field_name": "authoritative_for",
+            "use_kind": "declaration",
+            "authoritative_for": [
+              "value_grounded_welfare_comparison"
+            ],
+            "may_not_use_for": [],
+            "source_state": "not_established",
+            "resolution": "resolved",
+            "content_digest": "sha256:ab0c9c125124c4273ba0d696c912c7434d77e3b987480bab456dd38d753846da"
+          }
+        ]
+      },
+      {
+        "claim_id": "claim-posture:24b6dc42c8c5d9bae4466ec7f23e3bd0560d7bccc28c442e163b2bceb39938ab",
+        "subject": "observable_subset_calibration",
+        "old_effective_state": "blocked",
+        "new_effective_state": "blocked",
+        "old_closure_signal": null,
+        "new_closure_signal": null,
+        "old_blocker_codes": [
+          "DS11-GATE-PREDICATE-NOT-ESTABLISHED",
+          "DS11-JURISDICTION-NOT-ESTABLISHED",
+          "DS11-OWNER-NOT-ESTABLISHED",
+          "DS11-REVIEW-MISSING",
+          "DS11-SOURCE-BLOCKER-PRESENT"
+        ],
+        "new_blocker_codes": [
+          "DS11-GATE-PREDICATE-NOT-ESTABLISHED",
+          "DS11-JURISDICTION-NOT-ESTABLISHED",
+          "DS11-OWNER-NOT-ESTABLISHED",
+          "DS11-REVIEW-MISSING",
+          "DS11-SOURCE-BLOCKER-PRESENT"
+        ],
+        "old_authoritative_for": [
+          "observable_subset_calibration"
+        ],
+        "new_authoritative_for": [
+          "observable_subset_calibration"
+        ],
+        "old_may_not_use_for": [
+          "approval_authority",
+          "claim_authority",
+          "closeout_authority",
+          "preference_learning_authority",
+          "production_claim_authority",
+          "production_recommendation",
+          "publication_authority",
+          "rollout_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "scorecard_authority"
+        ],
+        "new_may_not_use_for": [],
+        "old_limitations": [
+          "Missing independent claim metadata"
+        ],
+        "new_limitations": [
+          "Missing independent claim metadata"
+        ],
+        "old_owner_basis": "not_established",
+        "new_owner_basis": "not_established",
+        "old_source_bindings": [
+          {
+            "path": "src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+            "line": 424,
+            "symbol": "build_forecast_calibration_record",
+            "field_name": "authoritative_for",
+            "use_kind": "declaration",
+            "authoritative_for": [
+              "observable_subset_calibration"
+            ],
+            "may_not_use_for": [],
+            "source_state": "not_established",
+            "resolution": "resolved",
+            "content_digest": "sha256:0024b1abd7ac64ef2240f1a9c72684a5e0948fe33cc01e891f47c9444b676df1"
+          },
+          {
+            "path": "src/polisyos/runtime/quality/generation_cycle.py",
+            "line": 5246,
+            "symbol": "_s10_value_authority_boundary",
+            "field_name": "authoritative_for",
+            "use_kind": "declaration",
+            "authoritative_for": [
+              "observable_subset_calibration"
+            ],
+            "may_not_use_for": [
+              "approval_authority",
+              "claim_authority",
+              "closeout_authority",
+              "preference_learning_authority",
+              "production_claim_authority",
+              "production_recommendation",
+              "publication_authority",
+              "rollout_authority",
+              "s11_calibration",
+              "s12_envelope_growth",
+              "s13_accountability_closure",
+              "s14_universality",
+              "scorecard_authority"
+            ],
+            "source_state": "not_established",
+            "resolution": "resolved",
+            "content_digest": "sha256:7f4eeb68239be05955bd470451f6de7813134690bd5f653d6a74259e880f4aa3"
+          }
+        ],
+        "new_source_bindings": [
+          {
+            "path": "src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+            "line": 432,
+            "symbol": "build_forecast_calibration_record",
+            "field_name": "authoritative_for",
+            "use_kind": "declaration",
+            "authoritative_for": [
+              "observable_subset_calibration"
+            ],
+            "may_not_use_for": [],
+            "source_state": "not_established",
+            "resolution": "resolved",
+            "content_digest": "sha256:ab0c9c125124c4273ba0d696c912c7434d77e3b987480bab456dd38d753846da"
+          }
+        ]
+      }
+    ],
+    "source_site_comparison": {
+      "historical_artifact_generation_cycle_source_sha256": "sha256:7f4eeb68239be05955bd470451f6de7813134690bd5f653d6a74259e880f4aa3",
+      "historical_source_ref": "f8f4b828024dc3cb827415e127d21bd58c77d0d2",
+      "historical_source_definition": "_s10_value_authority_boundary() returned a literal authoritative_for list with three scopes and the same 13 may_not_use_for values.",
+      "current_run_source_ref": "9794b716a74aee98545449ac97dc98825d2471de",
+      "current_source_definition": "_s10_value_authority_boundary(*, predictive=False) keeps the 13 denials as a local literal list, extends them conditionally for predictive mode, and returns authoritative_for via a predictive conditional expression; the owner extractor resolves the denial site but marks authoritative_for runtime_bound because the values depend on that parameter.",
+      "same_helper_identity": "_s10_value_authority_boundary in src/polisyos/runtime/quality/generation_cycle.py",
+      "new_unscoped_runtime_bound_claims": [
+        {
+          "claim_id": "claim-posture:0a7821e88469e8ee71a04bbc6b5a479d1b3501f1740b8d637b9fa2d64627dc77",
+          "subject": null,
+          "effective_state": "blocked",
+          "blocker_codes": [
+            "DS11-AUTHORITY-PURPOSE-DENIED",
+            "DS11-GATE-PREDICATE-NOT-ESTABLISHED",
+            "DS11-JURISDICTION-NOT-ESTABLISHED",
+            "DS11-OWNER-NOT-ESTABLISHED",
+            "DS11-REVIEW-MISSING",
+            "DS11-SOURCE-BLOCKER-PRESENT",
+            "DS11-SOURCE-CONTENT-NOT-BOUND",
+            "DS11-SOURCE-RUNTIME-BOUND"
+          ],
+          "authoritative_for": [],
+          "may_not_use_for": [
+            "approval_authority",
+            "claim_authority",
+            "closeout_authority",
+            "preference_learning_authority",
+            "production_claim_authority",
+            "production_recommendation",
+            "publication_authority",
+            "rollout_authority",
+            "s11_calibration",
+            "s12_envelope_growth",
+            "s13_accountability_closure",
+            "s14_universality",
+            "scorecard_authority"
+          ],
+          "binding": {
+            "path": "src/polisyos/runtime/quality/generation_cycle.py",
+            "line": 11977,
+            "symbol": "_s10_value_authority_boundary",
+            "field_name": "authoritative_for",
+            "use_kind": "declaration",
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "approval_authority",
+              "claim_authority",
+              "closeout_authority",
+              "preference_learning_authority",
+              "production_claim_authority",
+              "production_recommendation",
+              "publication_authority",
+              "rollout_authority",
+              "s11_calibration",
+              "s12_envelope_growth",
+              "s13_accountability_closure",
+              "s14_universality",
+              "scorecard_authority"
+            ],
+            "source_state": "blocked",
+            "resolution": "runtime_bound",
+            "content_digest": "sha256:d3ddffe520320e06fe06cc63627a30241973beb8cad6d21a06276945a2b68a7e"
+          }
+        }
+      ]
+    },
+    "interpretation": "This is not a line-only match and does not remove the source denials: the helper now has a conditional scope, so the extractor no longer joins that literal denial list to the three scope-specific claim rows. Those claims remain blocked, but their projected may_not_use_for arrays become empty while the same denials persist in a separate blocked runtime-bound row. This is a material projection/association change and remains unresolved for owner review; do not treat the candidate PASS as a semantic ratification."
+  },
+  "file_resolution_changes": [
+    {
+      "path": "src/polisyos/runtime/quality/generation_cycle.py",
+      "old_file_content_digest": "sha256:7f4eeb68239be05955bd470451f6de7813134690bd5f653d6a74259e880f4aa3",
+      "new_file_content_digest": "sha256:d3ddffe520320e06fe06cc63627a30241973beb8cad6d21a06276945a2b68a7e",
+      "old_file_resolution": "resolved",
+      "new_file_resolution": "runtime_bound",
+      "old_runtime_bound": false,
+      "new_runtime_bound": true,
+      "old_issue_codes": [],
+      "new_issue_codes": [
+        "DS11-SOURCE-RUNTIME-BOUND"
+      ],
+      "old_authoritative_sites": [
+        {
+          "coordinate": {
+            "column": 8,
+            "field_name": "authoritative_for",
+            "line": 5246,
+            "path": "src/polisyos/runtime/quality/generation_cycle.py",
+            "symbol": "_s10_value_authority_boundary",
+            "use_kind": "declaration"
+          },
+          "declaration_form": "dict_key",
+          "resolution": "resolved",
+          "values": [
+            "forecast_support_tiering",
+            "observable_subset_calibration",
+            "value_grounded_welfare_comparison"
+          ],
+          "wrapper_kind": "direct"
+        }
+      ],
+      "new_authoritative_sites": [
+        {
+          "coordinate": {
+            "column": 8,
+            "field_name": "authoritative_for",
+            "line": 11977,
+            "path": "src/polisyos/runtime/quality/generation_cycle.py",
+            "symbol": "_s10_value_authority_boundary",
+            "use_kind": "declaration"
+          },
+          "declaration_form": "dict_key",
+          "resolution": "runtime_bound",
+          "values": [],
+          "wrapper_kind": "dynamic"
+        }
+      ],
+      "old_forbidden_sites": [
+        {
+          "coordinate": {
+            "column": 8,
+            "field_name": "may_not_use_for",
+            "line": 5251,
+            "path": "src/polisyos/runtime/quality/generation_cycle.py",
+            "symbol": "_s10_value_authority_boundary",
+            "use_kind": "declaration"
+          },
+          "declaration_form": "dict_key",
+          "resolution": "resolved",
+          "values": [
+            "production_recommendation",
+            "production_claim_authority",
+            "rollout_authority",
+            "publication_authority",
+            "claim_authority",
+            "closeout_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "preference_learning_authority",
+            "s11_calibration",
+            "s12_envelope_growth",
+            "s13_accountability_closure",
+            "s14_universality"
+          ],
+          "wrapper_kind": "direct"
+        }
+      ],
+      "new_forbidden_sites": [
+        {
+          "coordinate": {
+            "column": 8,
+            "field_name": "may_not_use_for",
+            "line": 11410,
+            "path": "src/polisyos/runtime/quality/generation_cycle.py",
+            "symbol": "_s10_empirical_projection",
+            "use_kind": "declaration"
+          },
+          "declaration_form": "dict_key",
+          "resolution": "runtime_bound",
+          "values": [],
+          "wrapper_kind": "dynamic"
+        },
+        {
+          "coordinate": {
+            "column": 4,
+            "field_name": "may_not_use_for",
+            "line": 11955,
+            "path": "src/polisyos/runtime/quality/generation_cycle.py",
+            "symbol": "_s10_value_authority_boundary",
+            "use_kind": "declaration"
+          },
+          "declaration_form": "assignment",
+          "resolution": "resolved",
+          "values": [
+            "production_recommendation",
+            "production_claim_authority",
+            "rollout_authority",
+            "publication_authority",
+            "claim_authority",
+            "closeout_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "preference_learning_authority",
+            "s11_calibration",
+            "s12_envelope_growth",
+            "s13_accountability_closure",
+            "s14_universality"
+          ],
+          "wrapper_kind": "direct"
+        }
+      ]
+    },
+    {
+      "path": "src/polisyos/runtime/quality/promotion_sequence.py",
+      "old_file_content_digest": "sha256:0a8aea760583e596d4e9198102b1e11b122d8d82224670d39446c28a58041173",
+      "new_file_content_digest": "sha256:21b53b3e001138e7d086b3daa0897103e439dd3ad7c62315f9b90eff4b76b34a",
+      "old_file_resolution": "resolved",
+      "new_file_resolution": "runtime_bound",
+      "old_runtime_bound": false,
+      "new_runtime_bound": true,
+      "old_issue_codes": [],
+      "new_issue_codes": [
+        "DS11-SOURCE-RUNTIME-BOUND"
+      ],
+      "old_authoritative_sites": [
+        {
+          "coordinate": {
+            "column": 8,
+            "field_name": "authoritative_for",
+            "line": 5892,
+            "path": "src/polisyos/runtime/quality/promotion_sequence.py",
+            "symbol": "_computed_authority_boundary",
+            "use_kind": "declaration"
+          },
+          "declaration_form": "keyword",
+          "resolution": "resolved",
+          "values": [
+            "grounded_partial_admissible_policy_design"
+          ],
+          "wrapper_kind": "direct"
+        }
+      ],
+      "new_authoritative_sites": [
+        {
+          "coordinate": {
+            "column": 4,
+            "field_name": "authoritative_for",
+            "line": 2567,
+            "path": "src/polisyos/runtime/quality/promotion_sequence.py",
+            "symbol": "_LegacyV1AuthorityBoundary",
+            "use_kind": "declaration"
+          },
+          "declaration_form": "assignment",
+          "resolution": "runtime_bound",
+          "values": [],
+          "wrapper_kind": "dynamic"
+        },
+        {
+          "coordinate": {
+            "column": 8,
+            "field_name": "authoritative_for",
+            "line": 6689,
+            "path": "src/polisyos/runtime/quality/promotion_sequence.py",
+            "symbol": "_computed_authority_boundary",
+            "use_kind": "declaration"
+          },
+          "declaration_form": "keyword",
+          "resolution": "resolved",
+          "values": [
+            "grounded_partial_admissible_policy_design"
+          ],
+          "wrapper_kind": "direct"
+        }
+      ],
+      "old_forbidden_sites": [
+        {
+          "coordinate": {
+            "column": 8,
+            "field_name": "may_not_use_for",
+            "line": 5893,
+            "path": "src/polisyos/runtime/quality/promotion_sequence.py",
+            "symbol": "_computed_authority_boundary",
+            "use_kind": "declaration"
+          },
+          "declaration_form": "keyword",
+          "resolution": "resolved",
+          "values": [
+            "production_deployment",
+            "unguarded_champion_promotion"
+          ],
+          "wrapper_kind": "direct"
+        }
+      ],
+      "new_forbidden_sites": [
+        {
+          "coordinate": {
+            "column": 4,
+            "field_name": "may_not_use_for",
+            "line": 2568,
+            "path": "src/polisyos/runtime/quality/promotion_sequence.py",
+            "symbol": "_LegacyV1AuthorityBoundary",
+            "use_kind": "declaration"
+          },
+          "declaration_form": "assignment",
+          "resolution": "runtime_bound",
+          "values": [],
+          "wrapper_kind": "dynamic"
+        },
+        {
+          "coordinate": {
+            "column": 8,
+            "field_name": "may_not_use_for",
+            "line": 6690,
+            "path": "src/polisyos/runtime/quality/promotion_sequence.py",
+            "symbol": "_computed_authority_boundary",
+            "use_kind": "declaration"
+          },
+          "declaration_form": "keyword",
+          "resolution": "resolved",
+          "values": [
+            "production_deployment",
+            "unguarded_champion_promotion"
+          ],
+          "wrapper_kind": "direct"
+        }
+      ]
+    }
+  ],
+  "copy_decision": "HELD pending appointed owner semantic decision on the conditional S10 scope-to-denial projection; no manual artifact/waiver substitution",
+  "source_blob_attribution": {
+    "captured_run_ref": "9794b716a74aee98545449ac97dc98825d2471de",
+    "captured_run_tree": "97a03bcab3f2d50afc3e262ff4a041e9c24042b2",
+    "current_branch_commit_after_two_public_companion_copy": "65ea9072e4877e2198f1ba96b72d2892b2f3fbbb",
+    "current_branch_tree_after_two_public_companion_copy": "3e703510169f8b6592668138ef607c3d5bd00dcc",
+    "tracked_source_blobs": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "original_source_ref": "f8f4b828024dc3cb827415e127d21bd58c77d0d2",
+        "original_git_blob_oid": "783793ef24227aa1e94e7473f91a9a35c7fe336a",
+        "original_sha256": "7f4eeb68239be05955bd470451f6de7813134690bd5f653d6a74259e880f4aa3",
+        "current_source_ref": "9794b716a74aee98545449ac97dc98825d2471de",
+        "current_git_blob_oid": "6e5e26d256f3cdb9a61ce69c6832debed0a2d262",
+        "current_sha256": "d3ddffe520320e06fe06cc63627a30241973beb8cad6d21a06276945a2b68a7e",
+        "original_bytes": 273162,
+        "current_bytes": 607685
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "original_source_ref": "f8f4b828024dc3cb827415e127d21bd58c77d0d2",
+        "original_git_blob_oid": "dc8beab981b714e80e54bef22ba83bc66ab3ffd4",
+        "original_sha256": "0a8aea760583e596d4e9198102b1e11b122d8d82224670d39446c28a58041173",
+        "current_source_ref": "9794b716a74aee98545449ac97dc98825d2471de",
+        "current_git_blob_oid": "b7e2f72a9cd8352da62a2c04208a58776592b8a4",
+        "current_sha256": "21b53b3e001138e7d086b3daa0897103e439dd3ad7c62315f9b90eff4b76b34a",
+        "original_bytes": 260019,
+        "current_bytes": 293905
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+        "original_source_ref": "584bd7b72deb74694db87f4612176be0cb78724f",
+        "original_git_blob_oid": "860e1f0fc73f23ca7b3831ee3daf3cbcaabd04c1",
+        "original_sha256": "0024b1abd7ac64ef2240f1a9c72684a5e0948fe33cc01e891f47c9444b676df1",
+        "current_source_ref": "9794b716a74aee98545449ac97dc98825d2471de",
+        "current_git_blob_oid": "bfad9e36e2874e8a8f65ac524060e8f072e0cdb3",
+        "current_sha256": "ab0c9c125124c4273ba0d696c912c7434d77e3b987480bab456dd38d753846da",
+        "original_bytes": 38784,
+        "current_bytes": 43270
+      }
+    ],
+    "attribution": "The old target source digests match the cited historical blobs; current source bytes match the source inventory produced at 9794. Current generated register is therefore attributable to tracked source evolution between these refs, not an invented waiver or line-only identity. Semantic significance of the conditional scope-to-denial association remains unratified."
+  }
+}

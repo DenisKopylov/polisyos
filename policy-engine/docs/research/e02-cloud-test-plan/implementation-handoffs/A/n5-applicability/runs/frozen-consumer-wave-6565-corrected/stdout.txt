@@ -1,0 +1,354 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 157 items
+
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result PASSED [  0%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_all_hard_infeasible_candidates_block_before_n5_and_voi PASSED [  1%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_removing_candidate_filter_keeps_refusal_marker_but_selects_refused_candidate PASSED [  1%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_prepared_n5_digest_rejects_changed_atom_problem_and_profile_route PASSED [  2%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_subclass_atom_identity_is_distinct_but_preflight_refuses_it PASSED [  3%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_request_digest_refuses_unserialized_live_engine_plan_state PASSED [  3%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_injected_legacy_controller_keeps_one_argument_run_shape PASSED [  4%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_preflight_decimal_codec_rejects_nonfinite_values[NaN] PASSED [  5%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_preflight_decimal_codec_rejects_nonfinite_values[Infinity] PASSED [  5%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_preflight_decimal_codec_rejects_nonfinite_values[-Infinity] PASSED [  6%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_preflight_decimal_codec_binds_exact_value_and_separates_fake_mapping PASSED [  7%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_static_engine_eligibility_uses_the_requested_grid_not_hint_strings PASSED [  7%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_conflicting_canonical_slot_writes_refuse_before_any_singleton[left-right] PASSED [  8%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_conflicting_canonical_slot_writes_refuse_before_any_singleton[right-left] PASSED [  8%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_engine_variable_alias_conflict_rejects_candidate_before_runner PASSED [  9%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[short-trailing] PASSED [ 10%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[missing-middle] PASSED [ 10%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[suffix-only] PASSED [ 11%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[reordered-full-set] PASSED [ 12%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[overlong] PASSED [ 12%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_physical_run_identity_canonicalizes_atoms_and_binds_comparator_inputs PASSED [ 13%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_missing_queue_and_mass_balance_output_never_becomes_numeric_zero PASSED [ 14%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_values[null] PASSED [ 14%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_values[malformed] PASSED [ 15%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_values[nan] PASSED [ 15%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_required_output_projection_rejects_invalid_values[infinity] PASSED [ 16%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_cache_executor_rejects_nonfinite_adapter_output PASSED [ 17%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_generic_scalar_result_is_unavailable_without_terminal_binding PASSED [ 17%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_registered_stock_flow_mass_balance_is_terminal_only_not_broadcast PASSED [ 18%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_registered_stock_flow_marks_unbound_time_grid_when_dt_disagrees PASSED [ 19%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_single_point_stock_flow_can_mix_initial_row_with_terminal_scalar PASSED [ 19%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_invocation_cache_hits_and_semantic_misses_execute_the_real_engine PASSED [ 20%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs PASSED [ 21%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_controller_preserves_store_handles_and_snapshots_state PASSED [ 21%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_stock_flow_runner_does_not_fill_a_short_trajectory_with_final_state PASSED [ 22%]
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_real_ncm_cubic_exposes_joint_residual_with_zero_lower_order_terms PASSED [ 22%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_static_ncm_multistep_request_is_typed_no_run_before_runner PASSED [ 23%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_registered_ncm_single_atom_checks_only_first_order PASSED [ 24%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff PASSED [ 24%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_committed_v1_joint_result_keeps_original_receipt_projection PASSED [ 25%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[shared_resource-unsupported_coupling_class:shared_resource] PASSED [ 26%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[feedback-unsupported_coupling_class:feedback] PASSED [ 26%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[general_equilibrium-general_equilibrium_coupling_not_grounded_by_available_engine] PASSED [ 27%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_supported_shared_resource_runs_on_coupled_engine_with_gate_receipt PASSED [ 28%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation PASSED [ 28%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_safe_public_policy_exposes_no_gate_bypass_knobs PASSED [ 29%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_declared_unbacked_equilibrium_semantics_is_gated PASSED [ 29%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_receipt_verification_fails_when_run_is_claimed_without_trajectories PASSED [ 30%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_program_graph_plan_loops_real_shared_state_executor PASSED [ 31%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_served_program_graph_refuses_foreign_selected_manifest_profile PASSED [ 31%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_served_program_graph_output_lineage_keeps_selected_manifest_profiles PASSED [ 32%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_system_dynamics_plan_runs_registered_stock_flow_engine PASSED [ 33%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_method_registry_estimator_selects_registered_dynamic_method_without_engine_branch PASSED [ 33%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_registry_des_queue_tag_does_not_back_time_series_semantics PASSED [ 34%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_fresh_scalar_method_contract_does_not_back_agent_based_semantics PASSED [ 35%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_newly_registered_dynamic_method_is_selectable_without_controller_code PASSED [ 35%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_matching_coupled_engine_runs_individual_pairwise_joint_with_real_interaction PASSED [ 36%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_receipt_verification_fails_for_fabricated_stub_refs PASSED [ 36%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_non_matching_domain_is_not_routed_to_unemployment_coupled_kernel PASSED [ 37%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_cyclic_ncm_is_rejected_not_silently_grounded PASSED [ 38%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_pending_world_model_record_ref_fails_closed PASSED [ 38%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_receipt_builder_is_deterministic_and_strangles_abm_stub_fields PASSED [ 39%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_abm_strangle_probe_censuses_every_production_stub_caller PASSED [ 40%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_rederive_audit_validates_live_payload_without_frozen_artifact PASSED [ 40%]
+tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_abm_source_flip_runs_behavior_and_restores_bytes PASSED [ 41%]
+tests/unit/runtime/http/test_runs_api.py::test_run_index_generation_invalidates_cached_active_status PASSED [ 42%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current PASSED [ 42%]
+tests/unit/runtime/http/test_runs_api.py::test_hidden_runs_sse_channels_emit_versioned_contracts PASSED [ 43%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_emission_rejects_marker_complete_malformed_payload PASSED [ 43%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_timeout_emits_a_versioned_strict_contract PASSED [ 44%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_exit_consumes_producer_terminality_not_status_text PASSED [ 45%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_does_not_exit_on_completed_looking_status_without_terminal_fact[non_terminal] PASSED [ 45%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_does_not_exit_on_completed_looking_status_without_terminal_fact[not_established] PASSED [ 46%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_final_encoder_rejects_malformed_timeout_data PASSED [ 47%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_snapshot_and_timeout_share_final_data_encoder PASSED [ 47%]
+tests/unit/runtime/http/test_runs_api.py::test_runs_sse_keepalive_comment_bypasses_data_encoder PASSED [ 48%]
+tests/unit/runtime/http/test_runs_api.py::test_list_runs_returns_only_core_sources PASSED [ 49%]
+tests/unit/runtime/http/test_runs_api.py::test_run_terminality_is_producer_owned_and_novel_status_labels_stay_opaque PASSED [ 49%]
+tests/unit/runtime/http/test_runs_api.py::test_unknown_run_terminality_cannot_be_read_as_non_terminal PASSED [ 50%]
+tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record0-core_run_trace_record_invalid] PASSED [ 50%]
+tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record1-core_run_terminality_fact_conflict] PASSED [ 51%]
+tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record2-core_run_terminality_fact_conflict] PASSED [ 52%]
+tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record3-core_run_finalized_without_terminality] PASSED [ 52%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_ref] PASSED [ 53%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[unresolvable_ref] PASSED [ 54%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[wrong_media_ref] PASSED [ 54%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_schema_provenance] PASSED [ 55%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[producer_mismatch] PASSED [ 56%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[environment_mismatch] PASSED [ 56%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[registry_lineage_mismatch] PASSED [ 57%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[duplicate_manifest_refs] PASSED [ 57%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_manifest_scope_must_match_started_owner PASSED [ 58%]
+tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact PASSED [ 59%]
+tests/unit/runtime/http/test_runs_api.py::test_foreign_finalize_journal_cannot_sign_or_clear_another_run PASSED [ 59%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_journal_without_owner_start PASSED [ 60%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_same_run_with_substituted_scope PASSED [ 61%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_ambiguous_started_owner PASSED [ 61%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[non_mapping] PASSED [ 62%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[missing_version] PASSED [ 63%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[future_version] PASSED [ 63%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_requires_exact_manifest_ref_metadata PASSED [ 64%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs PASSED [ 64%]
+tests/unit/runtime/http/test_runs_api.py::test_cached_active_run_observes_journal_only_finalize_recovery PASSED [ 65%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_keeps_journal_when_required_local_trace_write_fails PASSED [ 66%]
+tests/unit/runtime/http/test_runs_api.py::test_finalize_isolates_optional_audit_emit_and_close_failures PASSED [ 66%]
+tests/unit/runtime/http/test_runs_api.py::test_recovery_rebinds_unlinked_terminal_event_to_its_manifest PASSED [ 67%]
+tests/unit/runtime/http/test_runs_api.py::test_get_run_details_returns_normalized_payload PASSED [ 68%]
+tests/unit/runtime/http/test_runs_api.py::test_list_runs_cursor_pagination PASSED [ 68%]
+tests/unit/runtime/http/test_runs_api.py::test_list_runs_applies_server_side_query_filter_before_pagination PASSED [ 69%]
+tests/unit/runtime/http/test_runs_api.py::test_evaluate_feedback_endpoint_persists_monitoring_report PASSED [ 70%]
+tests/unit/runtime/http/test_runs_api.py::test_reissue_endpoint_fails_closed_without_durable_control_plane PASSED [ 70%]
+tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_context_control PASSED [ 71%]
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly PASSED [ 71%]
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph PASSED [ 72%]
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_v1_projection_removal_probe_rejects_post_v1_field_with_markers_retained PASSED [ 73%]
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_v2_history_rejects_post_version_nested_fields_with_markers_retained[path0-grounding_issue_codes-value0] PASSED [ 73%]
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_v2_history_rejects_post_version_nested_fields_with_markers_retained[path1-design_problem_basis_ref-sha256:0000000000000000000000000000000000000000000000000000000000000000] PASSED [ 74%]
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_v2_history_rejects_post_version_nested_fields_with_markers_retained[path2-simulation_result_ref-value2] PASSED [ 75%]
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_v2_history_rejects_post_version_nested_fields_with_markers_retained[path3-source_file_count-0] PASSED [ 75%]
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_accepts_nested_design_problem_v2_dotted_target_slot PASSED [ 76%]
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_accepts_nested_design_problem_v3_qualified_outcome PASSED [ 77%]
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_history_replay_is_read_only_and_does_not_consult_current_source PASSED [ 77%]
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_source_comment_preserves_actual_v1_v2_history[.v1] PASSED [ 78%]
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_source_comment_preserves_actual_v1_v2_history[.v2] PASSED [ 78%]
+tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v3] PASSED [ 79%]
+tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v4] PASSED [ 80%]
+tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v5] PASSED [ 80%]
+tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v3] PASSED [ 81%]
+tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v4] PASSED [ 82%]
+tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v5] PASSED [ 82%]
+tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_resolves_exact_selected_candidate_ncm_view PASSED [ 83%]
+tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_refuses_same_id_sibling_ncm_views_before_n5 PASSED [ 84%]
+tests/integration/core_runtime/test_e02_higher_order_n8_intake.py::test_real_n5_cubic_cas_is_recomputed_by_fresh_default_n8_consumer PASSED [ 84%]
+tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_default_root_gateway_uses_exact_c_members_before_cap_and_grouping PASSED [ 85%]
+tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_same_country_nonmember_cannot_replace_a_missing_c_member_in_denominator PASSED [ 85%]
+tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field PASSED [ 86%]
+tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_c_owner_rejects_rehashed_nonphysical_provenance_forgery[acquisition_method] PASSED [ 87%]
+tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_c_owner_rejects_rehashed_nonphysical_provenance_forgery[source_watermark] PASSED [ 87%]
+tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_c_owner_rejects_rehashed_nonphysical_provenance_forgery[dataset_version] PASSED [ 88%]
+tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_c_admitted_condition_unit_conflict_is_refused_by_a_profile_owner PASSED [ 89%]
+tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_nonfinite_scoped_row_refuses_instead_of_reducing_profile_denominator PASSED [ 89%]
+tests/unit/remediation/test_cyc_02.py::test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence PASSED [ 90%]
+tests/unit/remediation/test_cyc_02.py::test_legacy_recursive_v1_allowlist_covers_tracked_sources PASSED [ 91%]
+tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity PASSED [ 91%]
+tests/unit/remediation/test_cyc_02.py::test_k_sim_limitation_remains_a_usable_simulation_input PASSED [ 92%]
+tests/unit/remediation/test_cyc_02.py::test_n5_transient_store_failure_is_unavailable_not_integrity_invalid PASSED [ 92%]
+tests/unit/remediation/test_cyc_02.py::test_n5_guarded_runtime_store_errors_are_typed_unavailable[unavailable-RuntimeDependencyUnavailableError] PASSED [ 93%]
+tests/unit/remediation/test_cyc_02.py::test_n5_guarded_runtime_store_errors_are_typed_unavailable[timeout-RuntimeDependencyTimeoutError] PASSED [ 94%]
+tests/unit/remediation/test_cyc_02.py::test_n5_replay_does_not_mask_store_programming_errors PASSED [ 94%]
+tests/unit/remediation/test_cyc_02.py::test_conditional_n8_status_is_not_authority_ready PASSED [ 95%]
+tests/unit/remediation/test_cyc_02.py::test_program_graph_v2_blocker_removal_stays_out_of_eval_safety PASSED [ 96%]
+tests/unit/remediation/test_cyc_02.py::test_n5_result_has_reopenable_cas_reference PASSED [ 96%]
+tests/unit/remediation/test_cyc_02.py::test_recursive_parent_keeps_n5_cas_reference PASSED [ 97%]
+tests/unit/remediation/test_cyc_02.py::test_recursive_parent_without_store_refuses_before_n5_execution PASSED [ 98%]
+tests/unit/remediation/test_cyc_02.py::test_n5_replay_uses_supplied_guarded_tenant_store PASSED [ 98%]
+tests/unit/remediation/test_cyc_02.py::test_n5_does_not_execute_without_runtime_owned_store PASSED [ 99%]
+tests/integration/core_runtime/test_e02_n9_refusal.py::test_6f9_public_n9_value_result_is_unchanged_when_persisted_ksim_is_unreadable PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_subclass_atom_identity_is_distinct_but_preflight_refuses_it
+  /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `OperatorKind` - serialized value may not be as expected [field_name='operator_kind', input_value={'trinity_kind': 'tax_sub...ntionType.NODE: 'node'>}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `TargetSelectorBinding` - serialized value may not be as expected [field_name='target_selector', input_value={'trinity_target': {'kind...e3a837ca092796e5e38f61'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `DirectEffectBundle` - serialized value may not be as expected [field_name='direct_effect_bundle', input_value={'params': {'rate': Decim...nnels': (), 'notes': ()}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `CausalDoExpression` - serialized value may not be as expected [field_name='causal_do_expr', input_value={'intervention_type': <Pr...lector_content_bound']}}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `IntendedDownstreamEstimand` - serialized value may not be as expected [field_name='intended_downstream_estimand', input_value={'target_kind': <QueryTar...: None, 'unit_id': None}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `IdentificationPlanRef` - serialized value may not be as expected [field_name='causal_path_or_identification_plan_ref', input_value={'plan_ref': 'sha256:5fe4...tions': (), 'notes': ()}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly
+  tests/unit/runtime/quality/test_generation_cycle_history.py:529: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frozen-consumer-wave-6565-corrected/junit.xml -
+============================== slowest durations ===============================
+34.37s call     tests/integration/core_runtime/test_e02_n9_refusal.py::test_6f9_public_n9_value_result_is_unchanged_when_persisted_ksim_is_unreadable
+24.95s call     tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity
+17.79s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result
+14.17s call     tests/integration/core_runtime/test_e02_higher_order_n8_intake.py::test_real_n5_cubic_cas_is_recomputed_by_fresh_default_n8_consumer
+6.84s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_default_root_gateway_uses_exact_c_members_before_cap_and_grouping
+2.52s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_served_program_graph_output_lineage_keeps_selected_manifest_profiles
+2.47s call     tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly
+2.31s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field
+1.82s call     tests/unit/remediation/test_cyc_02.py::test_program_graph_v2_blocker_removal_stays_out_of_eval_safety
+1.64s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_request_digest_refuses_unserialized_live_engine_plan_state
+1.60s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_static_engine_eligibility_uses_the_requested_grid_not_hint_strings
+1.24s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_program_graph_plan_loops_real_shared_state_executor
+1.15s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_controller_preserves_store_handles_and_snapshots_state
+1.08s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_c_admitted_condition_unit_conflict_is_refused_by_a_profile_owner
+1.06s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_c_owner_rejects_rehashed_nonphysical_provenance_forgery[dataset_version]
+1.06s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_same_country_nonmember_cannot_replace_a_missing_c_member_in_denominator
+1.06s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_c_owner_rejects_rehashed_nonphysical_provenance_forgery[acquisition_method]
+1.05s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_c_owner_rejects_rehashed_nonphysical_provenance_forgery[source_watermark]
+1.04s call     tests/unit/remediation/test_cyc_02.py::test_recursive_parent_keeps_n5_cas_reference
+0.97s call     tests/unit/remediation/test_cyc_02.py::test_n5_guarded_runtime_store_errors_are_typed_unavailable[timeout-RuntimeDependencyTimeoutError]
+0.94s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_physical_run_identity_canonicalizes_atoms_and_binds_comparator_inputs
+0.91s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_fresh_scalar_method_contract_does_not_back_agent_based_semantics
+0.91s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_removing_candidate_filter_keeps_refusal_marker_but_selects_refused_candidate
+0.91s call     tests/unit/remediation/test_cyc_02.py::test_n5_result_has_reopenable_cas_reference
+0.90s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_newly_registered_dynamic_method_is_selectable_without_controller_code
+0.90s call     tests/unit/remediation/test_cyc_02.py::test_k_sim_limitation_remains_a_usable_simulation_input
+0.89s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_method_registry_estimator_selects_registered_dynamic_method_without_engine_branch
+0.88s call     tests/unit/remediation/test_cyc_02.py::test_conditional_n8_status_is_not_authority_ready
+0.88s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_registry_des_queue_tag_does_not_back_time_series_semantics
+0.88s call     tests/unit/remediation/test_cyc_02.py::test_n5_transient_store_failure_is_unavailable_not_integrity_invalid
+0.87s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_prepared_n5_digest_rejects_changed_atom_problem_and_profile_route
+0.87s call     tests/unit/remediation/test_cyc_02.py::test_n5_replay_does_not_mask_store_programming_errors
+0.86s call     tests/unit/remediation/test_cyc_02.py::test_n5_replay_uses_supplied_guarded_tenant_store
+0.86s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation
+0.86s call     tests/unit/remediation/test_cyc_02.py::test_n5_guarded_runtime_store_errors_are_typed_unavailable[unavailable-RuntimeDependencyUnavailableError]
+0.83s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_invocation_cache_hits_and_semantic_misses_execute_the_real_engine
+0.83s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_real_ncm_cubic_exposes_joint_residual_with_zero_lower_order_terms
+0.82s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_shared_cache_executor_rejects_nonfinite_adapter_output
+0.81s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff
+0.81s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_declared_unbacked_equilibrium_semantics_is_gated
+0.80s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_engine_variable_alias_conflict_rejects_candidate_before_runner
+0.79s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[shared_resource-unsupported_coupling_class:shared_resource]
+0.79s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_receipt_verification_fails_for_fabricated_stub_refs
+0.79s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_registered_ncm_single_atom_checks_only_first_order
+0.79s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[feedback-unsupported_coupling_class:feedback]
+0.79s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_static_ncm_multistep_request_is_typed_no_run_before_runner
+0.78s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_cyclic_ncm_is_rejected_not_silently_grounded
+0.78s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_unsupported_coupling_is_gated_not_summed[general_equilibrium-general_equilibrium_coupling_not_grounded_by_available_engine]
+0.77s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs
+0.70s setup    tests/unit/runtime/http/test_runs_api.py::test_run_index_generation_invalidates_cached_active_status
+0.61s setup    tests/unit/runtime/http/test_runs_api.py::test_recovery_rebinds_unlinked_terminal_event_to_its_manifest
+0.60s setup    tests/unit/runtime/http/test_runs_api.py::test_foreign_finalize_journal_cannot_sign_or_clear_another_run
+0.60s setup    tests/unit/runtime/http/test_runs_api.py::test_list_runs_applies_server_side_query_filter_before_pagination
+0.60s setup    tests/unit/runtime/http/test_runs_api.py::test_reissue_endpoint_fails_closed_without_durable_control_plane
+0.59s setup    tests/unit/runtime/http/test_runs_api.py::test_get_run_details_returns_normalized_payload
+0.59s setup    tests/unit/runtime/http/test_runs_api.py::test_evaluate_feedback_endpoint_persists_monitoring_report
+0.59s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact
+0.59s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_manifest_scope_must_match_started_owner
+0.59s setup    tests/unit/runtime/http/test_runs_api.py::test_list_runs_cursor_pagination
+0.58s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_requires_exact_manifest_ref_metadata
+0.57s setup    tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record2-core_run_terminality_fact_conflict]
+0.56s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[future_version]
+0.56s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[duplicate_manifest_refs]
+0.56s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_isolates_optional_audit_emit_and_close_failures
+0.56s setup    tests/unit/runtime/http/test_runs_api.py::test_unknown_run_terminality_cannot_be_read_as_non_terminal
+0.56s setup    tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record0-core_run_trace_record_invalid]
+0.56s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[unresolvable_ref]
+0.56s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_ambiguous_started_owner
+0.56s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[environment_mismatch]
+0.56s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[wrong_media_ref]
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_same_run_with_substituted_scope
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_schema_provenance]
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record3-core_run_finalized_without_terminality]
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_keeps_journal_when_required_local_trace_write_fails
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_run_terminality_is_producer_owned_and_novel_status_labels_stay_opaque
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record1-core_run_terminality_fact_conflict]
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[producer_mismatch]
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_journal_without_owner_start
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[missing_version]
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_cached_active_run_observes_journal_only_finalize_recovery
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_list_runs_returns_only_core_sources
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[non_mapping]
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_hidden_runs_sse_channels_emit_versioned_contracts
+0.55s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_ref]
+0.54s setup    tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[registry_lineage_mismatch]
+0.33s call     tests/unit/runtime/http/test_runs_api.py::test_reissue_endpoint_fails_closed_without_durable_control_plane
+0.32s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_supported_shared_resource_runs_on_coupled_engine_with_gate_receipt
+0.28s call     tests/unit/remediation/test_cyc_02.py::test_legacy_recursive_v1_allowlist_covers_tracked_sources
+0.24s call     tests/unit/runtime/http/test_runs_api.py::test_list_runs_cursor_pagination
+0.15s call     tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v5]
+0.15s call     tests/unit/runtime/http/test_runs_api.py::test_evaluate_feedback_endpoint_persists_monitoring_report
+0.15s call     tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v4]
+0.14s call     tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v5]
+0.14s call     tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v4]
+0.13s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_matching_coupled_engine_runs_individual_pairwise_joint_with_real_interaction
+0.12s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_n5_abm_strangle_probe_censuses_every_production_stub_caller
+0.11s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_registered_stock_flow_marks_unbound_time_grid_when_dt_disagrees
+0.11s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_single_point_stock_flow_can_mix_initial_row_with_terminal_scalar
+0.11s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_registered_stock_flow_mass_balance_is_terminal_only_not_broadcast
+0.11s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_system_dynamics_plan_runs_registered_stock_flow_engine
+0.11s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_stock_flow_runner_does_not_fill_a_short_trajectory_with_final_state
+0.10s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_non_matching_domain_is_not_routed_to_unemployment_coupled_kernel
+0.08s call     tests/unit/runtime/http/test_runs_api.py::test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current
+0.08s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_all_hard_infeasible_candidates_block_before_n5_and_voi
+0.08s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[duplicate_manifest_refs]
+0.08s call     tests/unit/runtime/http/test_runs_api.py::test_run_terminality_is_producer_owned_and_novel_status_labels_stay_opaque
+0.08s call     tests/unit/runtime/quality/test_joint_simulation_horizon.py::test_served_program_graph_refuses_foreign_selected_manifest_profile
+0.08s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact
+0.08s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs
+0.08s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_isolates_optional_audit_emit_and_close_failures
+0.08s call     tests/unit/runtime/http/test_runs_api.py::test_hidden_runs_sse_channels_emit_versioned_contracts
+0.07s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[registry_lineage_mismatch]
+0.07s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_keeps_journal_when_required_local_trace_write_fails
+0.07s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_requires_exact_manifest_ref_metadata
+0.07s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[producer_mismatch]
+0.06s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[wrong_media_ref]
+0.06s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_schema_provenance]
+0.06s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_manifest_scope_must_match_started_owner
+0.06s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[environment_mismatch]
+0.06s call     tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_refuses_same_id_sibling_ncm_views_before_n5
+0.05s call     tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record1-core_run_terminality_fact_conflict]
+0.05s call     tests/unit/remediation/test_cyc_02.py::test_recursive_parent_without_store_refuses_before_n5_execution
+0.05s call     tests/unit/runtime/http/test_runs_api.py::test_run_index_generation_invalidates_cached_active_status
+0.05s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[unresolvable_ref]
+0.05s call     tests/unit/runtime/http/test_runs_api.py::test_get_run_details_returns_normalized_payload
+0.05s call     tests/unit/runtime/http/test_runs_api.py::test_foreign_finalize_journal_cannot_sign_or_clear_another_run
+0.05s call     tests/unit/runtime/quality/test_generation_cycle_history.py::test_history_replay_is_read_only_and_does_not_consult_current_source
+0.05s call     tests/unit/runtime/http/test_runs_api.py::test_terminal_fact_requires_a_resolved_owner_manifest_ref[missing_ref]
+0.05s call     tests/unit/runtime/quality/test_generation_cycle_history.py::test_source_comment_preserves_actual_v1_v2_history[.v2]
+0.05s call     tests/unit/runtime/http/test_runs_api.py::test_recovery_rebinds_unlinked_terminal_event_to_its_manifest
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[future_version]
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_cached_active_run_observes_journal_only_finalize_recovery
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_same_run_with_substituted_scope
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[missing_version]
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_ambiguous_started_owner
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_unknown_run_terminality_cannot_be_read_as_non_terminal
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_invalid_journal_envelope[non_mapping]
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record3-core_run_finalized_without_terminality]
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record2-core_run_terminality_fact_conflict]
+0.04s call     tests/unit/runtime/http/test_runs_api.py::test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established[lifecycle_record0-core_run_trace_record_invalid]
+0.03s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_injected_legacy_controller_keeps_one_argument_run_shape
+0.03s call     tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_context_control
+0.03s call     tests/unit/runtime/http/test_runs_api.py::test_finalize_recovery_refuses_journal_without_owner_start
+0.03s call     tests/unit/runtime/http/test_runs_api.py::test_list_runs_applies_server_side_query_filter_before_pagination
+0.03s call     tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_resolves_exact_selected_candidate_ncm_view
+0.03s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_subclass_atom_identity_is_distinct_but_preflight_refuses_it
+0.03s call     tests/unit/runtime/http/test_runs_api.py::test_list_runs_returns_only_core_sources
+0.03s call     tests/unit/runtime/quality/test_generation_cycle_history.py::test_source_comment_preserves_actual_v1_v2_history[.v1]
+0.02s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_nonfinite_scoped_row_refuses_instead_of_reducing_profile_denominator
+0.02s call     tests/unit/remediation/test_cyc_02.py::test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence
+0.02s call     tests/unit/runtime/quality/test_generation_cycle_history.py::test_v2_history_rejects_post_version_nested_fields_with_markers_retained[path0-grounding_issue_codes-value0]
+0.02s call     tests/unit/remediation/test_cyc_02.py::test_n5_does_not_execute_without_runtime_owned_store
+0.02s call     tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[a-v3]
+0.01s call     tests/unit/runtime/quality/test_generation_cycle_history.py::test_v2_history_rejects_post_version_nested_fields_with_markers_retained[path1-design_problem_basis_ref-sha256:0000000000000000000000000000000000000000000000000000000000000000]
+0.01s call     tests/unit/runtime/quality/test_generation_cycle_history.py::test_v2_history_rejects_post_version_nested_fields_with_markers_retained[path3-source_file_count-0]
+0.01s call     tests/unit/runtime/quality/test_generation_cycle_history.py::test_v2_history_rejects_post_version_nested_fields_with_markers_retained[path2-simulation_result_ref-value2]
+0.01s call     tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views[f-v3]
+0.01s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_conflicting_canonical_slot_writes_refuse_before_any_singleton[left-right]
+0.01s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_conflicting_canonical_slot_writes_refuse_before_any_singleton[right-left]
+0.01s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[short-trailing]
+0.01s call     tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_interaction_coverage_requires_exact_ordered_requested_grid[overlong]
+
+(308 durations < 0.005s hidden.  Use -vv to show these durations.)
+================= 157 passed, 2 warnings in 172.38s (0:02:52) ==================

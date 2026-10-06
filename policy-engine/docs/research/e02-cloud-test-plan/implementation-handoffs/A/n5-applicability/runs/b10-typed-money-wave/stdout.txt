@@ -1,0 +1,62 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 11 items
+
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result PASSED [  9%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_all_hard_infeasible_candidates_block_before_n5_and_voi PASSED [ 18%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_removing_candidate_filter_keeps_refusal_marker_but_selects_refused_candidate PASSED [ 27%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_prepared_n5_digest_rejects_changed_atom_problem_and_profile_route PASSED [ 36%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_subclass_atom_identity_is_distinct_but_preflight_refuses_it FAILED [ 45%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_request_digest_refuses_unserialized_live_engine_plan_state PASSED [ 54%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_injected_legacy_controller_keeps_one_argument_run_shape PASSED [ 63%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_preflight_decimal_codec_rejects_nonfinite_values[NaN] PASSED [ 72%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_preflight_decimal_codec_rejects_nonfinite_values[Infinity] PASSED [ 81%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_preflight_decimal_codec_rejects_nonfinite_values[-Infinity] PASSED [ 90%]
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_preflight_decimal_codec_binds_exact_value_and_separates_fake_mapping PASSED [100%]
+
+=================================== FAILURES ===================================
+_______ test_subclass_atom_identity_is_distinct_but_preflight_refuses_it _______
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-typed-money-wave/basetemp/test_subclass_atom_identity_is0')
+
+    def test_subclass_atom_identity_is_distinct_but_preflight_refuses_it(
+        tmp_path: Path,
+    ) -> None:
+        """Same base atom hash cannot collapse distinct typed extension records."""
+    
+        class _ExtendedAtom(InterventionAtomBinding):
+            extension_marker: str
+    
+        store, problem, context, _high, low = _owner_fixture(tmp_path)
+        repo_root = Path(__file__).resolve().parents[3]
+        base_payload = low.atom.model_dump(mode="python")
+        try:
+>           left_atom = _ExtendedAtom.model_validate({**base_payload, "extension_marker": "left"})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 1 validation error for _ExtendedAtom
+E             Value error, content_hash_mismatch: expected sha256:9f9ede431ea0295a102c74ed642d90d2ab913a074100d1ce63a42c5eb05e0271, got sha256:8f724f0a96310cc6a42b2dac9639be7b92597f4628139ca0cdc1eef73e2d37d5 [type=value_error, input_value={'atom_id': 'atom_8f724f0...tension_marker': 'left'}, input_type=dict]
+E               For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py:647: ValidationError
+- generated xml file: /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-typed-money-wave/junit.xml -
+============================== slowest durations ===============================
+17.83s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result
+1.71s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_request_digest_refuses_unserialized_live_engine_plan_state
+0.98s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_removing_candidate_filter_keeps_refusal_marker_but_selects_refused_candidate
+0.88s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_prepared_n5_digest_rejects_changed_atom_problem_and_profile_route
+0.09s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_all_hard_infeasible_candidates_block_before_n5_and_voi
+0.03s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_injected_legacy_controller_keeps_one_argument_run_shape
+0.03s call     tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_subclass_atom_identity_is_distinct_but_preflight_refuses_it
+
+(26 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+FAILED tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_subclass_atom_identity_is_distinct_but_preflight_refuses_it
+======================== 1 failed, 10 passed in 32.75s =========================

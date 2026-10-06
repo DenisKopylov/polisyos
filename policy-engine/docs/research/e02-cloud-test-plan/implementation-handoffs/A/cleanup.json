@@ -1,0 +1,45 @@
+{
+  "schema": "e02.A.cleanup.v1",
+  "status": "preservation_before_native_trash",
+  "moves": [],
+  "protected": [
+    "original checkout/production_data",
+    "all source and useful documentation",
+    "unique CAS/replay artifacts",
+    "complete deciding raw outputs",
+    "shared pytest roots and external Python runtime"
+  ],
+  "candidate_policy": "Native Trash only; no empty or permanent delete. Per-path lstat and open-handle checks precede any move. Active root environment remains needed until final publication checks.",
+  "native_tool": "/usr/bin/trash",
+  "tool_args": [
+    "--stopOnError"
+  ],
+  "never_empty_trash": true,
+  "approved_candidates": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos/policy-engine/.venv",
+      "expected_dev": 16777231,
+      "expected_inode": 170913458,
+      "reason": "Completed isolated compiler wheel environment; wheels, source and deciding receipts outside the environment preserved. Shared external Python target preserved.",
+      "state": "pending_immediate_recheck"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/frozen-full-gate-905820",
+      "expected_dev": 16777231,
+      "expected_inode": 172986172,
+      "reason": "Three byte-identical duplicate outputs; canonical guardrails outputs are retained separately and must be committed/read back first.",
+      "state": "pending_git_primary_readback"
+    }
+  ],
+  "retained_active_environments": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv",
+      "reason": "Root publication checks and remaining A consumer verification need this environment; current work remains incomplete."
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/node_modules",
+      "reason": "Topic pre-push dashboard verification still pending; workspace package links and sibling dependencies remain active."
+    }
+  ],
+  "retention": "All worktrees/source branches, production originals, useful documentation, unique CAS/checkpoints/wheels, and complete raw deciding outputs remain available. No worktree prune or archive, no shared pytest cleanup."
+}

@@ -1,0 +1,254 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "frc01-consumer-delta",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CYC-01",
+    "FRC-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "294d9137417944f90a0b4a6ab34311a046f15074",
+    "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+    "766f8b4c1ba336c987a5da4a57f8b6ba73e39e8f",
+    "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f"
+  ],
+  "candidate_tree_sha": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+  "branch": "codex/e02-A-full-queue",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "policy-engine/tests/unit/remediation/test_frc_01.py"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "name": "FRC-01 pre-delta baseline at 9794b716",
+      "target_sha": "9794b716a74aee98545449ac97dc98825d2471de",
+      "target_tree_sha": "97a03bcab3f2d50afc3e262ff4a041e9c24042b2",
+      "input_test_blob": "10af66233d02c2d7a6a04ef163d9241a760316a8",
+      "input_generation_cycle_blob": "6e5e26d256f3cdb9a61ce69c6832debed0a2d262",
+      "command": "tests/unit/remediation/test_frc_01.py",
+      "outcome": "FAIL",
+      "result": {
+        "tests": 7,
+        "passed": 5,
+        "failed": 2,
+        "failed_nodes": [
+          "test_calibration_time_roles_are_preserved_from_bound_evidence",
+          "test_missing_calibration_evidence_refs_stays_typed_blocked"
+        ]
+      },
+      "failure_classification": "Historical baseline outcomes are preserved. The time-role witness received no forecast_calibration_record; the insufficient-history limitation reason was absent. This is the older checkout result, not the post-fix result.",
+      "artifacts": {
+        "stdout": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta/baseline-9794/stdout.txt",
+          "bytes": 10824,
+          "sha256": "4d99b9046344f440121e9a6f9228ecd278db94ef2cbc5afe3ff7755ecc13a5f5"
+        },
+        "stderr": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta/baseline-9794/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta/baseline-9794/junit.xml",
+          "bytes": 11810,
+          "sha256": "6816dfa55854e1589be9a490881cfff05416dc8f8411a68e601cdd3891505a19"
+        },
+        "environment": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta/baseline-9794/environment-and-inputs.json",
+          "bytes": 3183,
+          "sha256": "08555e0b46e23212ef8a0459edb176b9925cea3ba653defa7407b27c6fd5d7ad"
+        }
+      }
+    },
+    {
+      "name": "FRC-01 persisted-evidence test delta at 294d913",
+      "target_sha": "294d9137417944f90a0b4a6ab34311a046f15074",
+      "target_tree_sha": "a47eb8c51f16cacd4a7cff855083c958f39d648b",
+      "input_test_blob": "e8f46078b3ae0ca3d5a42425bfd3b6c647b8168a",
+      "input_generation_cycle_blob": "6e5e26d256f3cdb9a61ce69c6832debed0a2d262",
+      "command": "tests/unit/remediation/test_frc_01.py",
+      "outcome": "FAIL",
+      "result": {
+        "tests": 10,
+        "passed": 6,
+        "failed": 4,
+        "failed_nodes": [
+          "test_calibration_time_roles_are_preserved_from_bound_evidence",
+          "test_content_complete_projection_without_resolved_evidence_stays_blocked",
+          "test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence",
+          "test_missing_calibration_evidence_refs_stays_typed_blocked"
+        ]
+      },
+      "failure_classification": {
+        "fixture_guard_failures": {
+          "count": 3,
+          "nodes": [
+            "test_calibration_time_roles_are_preserved_from_bound_evidence",
+            "test_content_complete_projection_without_resolved_evidence_stays_blocked",
+            "test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence"
+          ],
+          "cause": "Each stopped in _persisted_bridge_fixture: the E bridge correctly refused to persist synthetic evidence with scope_binding_relation_not_established and forbidden_provenance_marker. These are invalid-fixture setup failures, not evidence that the consumer accepted forged scope or temporal bindings."
+        },
+        "consumer_reason_loss": {
+          "count": 1,
+          "node": "test_missing_calibration_evidence_refs_stays_typed_blocked",
+          "cause": "The blocked support omitted s10://calibration/fail-closed/insufficient-history even though calibration_status was supplied. Commit ffd6ccda adds calibration_status to the limitation builder input and checks it alongside the evidence map; this post-fix behavior has not yet been dynamically checked in this handoff."
+        }
+      },
+      "artifacts": {
+        "stdout": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta/delta-294d/stdout.txt",
+          "bytes": 16112,
+          "sha256": "7c1ca91a16c38d482bd5327025e6ee3ee5eb6e5f4736f58c80adbcf205eb9c97"
+        },
+        "stderr": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta/delta-294d/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta/delta-294d/junit.xml",
+          "bytes": 16690,
+          "sha256": "f858363e99515c9524627b8714dbdd48f6947f57f0027237b98cb4e8fb1ed448"
+        },
+        "environment": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta/delta-294d/environment-and-inputs.json",
+          "bytes": 5644,
+          "sha256": "8c13cc97b6fb1eea2d1a7d6d58f7c6a2c38fc0d33733b10c3ee14ef1d35f2a02"
+        }
+      }
+    },
+    {
+      "name": "Frozen-candidate dynamic FRC-01 checks",
+      "target_sha": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+      "target_tree_sha": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+      "input_generation_cycle_blob": "a9bee33288e66aecada88a58b44fd504a33b78c7",
+      "input_test_blob": "c906eeb7fc678f2028f9b9525b7c4c30a8ff71c4",
+      "command": "tests/unit/remediation/test_frc_01.py",
+      "outcome": "PASS",
+      "result": {
+        "tests": 12,
+        "passed": 12,
+        "failed": 0,
+        "skipped": 0,
+        "junit_seconds": 11.712,
+        "wall_seconds": 15.01672866602894,
+        "property_witnesses": [
+          "Limited owner evidence preserves its six time roles while support remains blocked.",
+          "A caller-forged pass and an omitted-status forged pass do not turn content-limited evidence into admitted calibration.",
+          "The missing-evidence case retains the typed insufficient-history limitation reason.",
+          "Temporal-role disagreement is refused and S10 purpose denials remain present."
+        ],
+        "extra_admission_guard": "NOT_APPLIED: the existing downstream calibration_bound/limited-tier consumer predicate already refuses caller-forged pass and omitted-status cases; no separate admission guard was needed."
+      },
+      "artifacts": {
+        "stdout": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta/frozen-6f1e/stdout.txt",
+          "bytes": 3745,
+          "sha256": "e25379ab2d1524b5edcc6f5572301262452cfe41d24fd53e2ae068f3b656cd1b"
+        },
+        "stderr": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta/frozen-6f1e/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta/frozen-6f1e/junit.xml",
+          "bytes": 2058,
+          "sha256": "1dc051677bb84c058614f8a81a900b39e4275683c4d51878a274cc72b9fdac5e"
+        },
+        "environment": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta/frozen-6f1e/environment-and-inputs.json",
+          "bytes": 6263,
+          "sha256": "1377848b56297c3dbecf4627b4bb9f28f07d7b9e36967b2c752bfa7e3fd9df24"
+        }
+      },
+      "note": "Root's targeted dynamic run only; the synthetic typed bridge fixture is not a configured production ETS run or C-admitted forecast series. This reviewer ran no tests or numerical checks. The separate shared 217-case affected wave is recorded below."
+    },
+    {
+      "name": "Final combined affected-owner wave (shared receipt)",
+      "target_sha": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+      "target_tree_sha": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+      "command": "Exact argv is retained in the shared environment-and-inputs receipt.",
+      "environment": "Use the environment-and-inputs receipt for exact interpreter, environment, command arguments, and complete input hashes.",
+      "input_closure": "The shared receipt records the complete 217-case affected wave and all pinned inputs, including tests/unit/remediation/test_frc_01.py at Git blob c906eeb7fc678f2028f9b9525b7c4c30a8ff71c4.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "duration_seconds": 236.9039597910014,
+      "result": {
+        "tests": 217,
+        "passed": 217,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 219.953,
+        "frc01_cases": 12,
+        "frc01_passed": 12
+      },
+      "output_owner": "n5_intake copied the four shared outputs into numeric-scalar-validation/frozen-owner-delta-6f1e; this FRC handoff references them without duplicating the full stdout.",
+      "output": {
+        "stdout": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/numeric-scalar-validation/frozen-owner-delta-6f1e/stdout.txt",
+          "bytes": 60323,
+          "sha256": "66be680fec1efa5942c2ec111b16bb6b8212cd28811f6ec3bea5d820de661350"
+        },
+        "stderr": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/numeric-scalar-validation/frozen-owner-delta-6f1e/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/numeric-scalar-validation/frozen-owner-delta-6f1e/junit.xml",
+          "bytes": 35813,
+          "sha256": "0dbbb71dbbe971b2e527927712f6943216b1d13ef8d14d3be057cd623609a1f6"
+        },
+        "environment": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/numeric-scalar-validation/frozen-owner-delta-6f1e/environment-and-inputs.json",
+          "bytes": 8641,
+          "sha256": "7274f0366161eadb50e9c0daed78a842ac0690155693355579b0e69d1addba88"
+        }
+      },
+      "scope_limit": "This is broad affected regression evidence, not an ETS/C-profile/default-served production forecast positive. The FRC tests exercise synthetic persisted limited DTO evidence only."
+    }
+  ],
+  "property": {
+    "statement": "When empirical calibration cannot be admitted but the S10 caller has a calibration status, the bounded forecast remains blocked and retains the typed insufficient-history limitation reason. A loaded limited evidence DTO preserves its six temporal roles without being promoted to an observable-calibrated tier.",
+    "actual_predicate": "generation_cycle.py passes calibration_status into _s10_limitation_refs; when calibration_bound is false, that helper emits the insufficient-history limitation if either the evidence map or the status carries calibration state.",
+    "authority_boundary": "This reason-preservation change does not create calibration evidence, promote forecast tier, grant causal/recommendation authority, or establish a production E-to-A route.",
+    "source_refs": [
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py@ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+      "policy-engine/tests/unit/remediation/test_frc_01.py@6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f"
+    ],
+    "independent_review": {
+      "verdict": "GO",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/frc01-consumer-delta/frc01-review.json",
+      "bytes": 5008,
+      "sha256": "bc11b73394eb6e0fa54ade97a1342c8012eb0c3bbf9ccacfa19e3eafa412447a",
+      "scope": "Independent static review of the FRC-01 limitation-ref patch, committed tests, downstream ForecastSupport tier derivation, and recorded 12-case JUnit. Reviewer ran no tests or numerical/ETS run.",
+      "decision": "The old omitted-status escape is DISPROVEN at the materialized ForecastSupport consumer: _derive_forecast_tier observes the fail-closed S6 reason and materializes blocked. Do not apply an extra source admission guard; the downstream property already blocks the caller-forged and omitted-status cases."
+    },
+    "current_head_readback": {
+      "head": "b3de1ec3158e5c257edb548e7ef43ac82078531f",
+      "head_tree": "d6092e27161185a882ca7179187dfd6e3b0cc83a",
+      "source_blob": "a9bee33288e66aecada88a58b44fd504a33b78c7",
+      "test_blob": "c906eeb7fc678f2028f9b9525b7c4c30a8ff71c4",
+      "post_run_path_change": "Only policy-engine/schemas/runtime_api_v1.openapi.json changed after the 6f1e test target; no FRC source/test blob changed."
+    },
+    "synthetic_fixture_only": true
+  },
+  "predicate_basis": "recomputed for the narrow A refusal-reason and limited-evidence consumer behavior; not_established for production source/time authority",
+  "capability_state_or_finding_state": "implemented_but_not_orchestrated; verification_missing for configured E/default served route",
+  "limitations_and_next_owner": [
+    "Closure remains empty. This is an A consumer-delta handoff only; B16 remains limited and B31 remains held.",
+    "The copied 9794 and 294d outcomes are historical checkout receipts. The 294d result contains three E-owner guard refusals from invalid synthetic fixtures plus one actual A reason-loss failure; do not aggregate the four failures into one product regression class.",
+    "The ffd6cc reason-preservation fix and 6f1e forged-status/omitted-status cases pass in the 12-case targeted unit wave. This is bounded synthetic consumer evidence only.",
+    "The test fixture uses synthetic legacy/typed bridge artifacts. It is not an actual configured ETS producer run, C-admitted forecast series, independent held-out validation, production default-gateway path, or served HTTP lifecycle.",
+    "C's activated observation projection still declares source_time_status=not_established, and the configured E producer/report contract is not G127-accepted. Source/profile scope, unit, valid-time, completeness, training/holdout admission, leakage, foreign-scope negatives, and read-time served verification remain unestablished or UNRUN.",
+    "The targeted 12/12 FRC-01 wave and shared 217/217 combined affected wave both pass at candidate 6f1e/tree ba0f. Full shared stdout remains at the single N5-owned central receipt path and is not duplicated here.",
+    "The dynamic wave exercises the A consumer over synthetic persisted legacy DTO evidence; it does not run statsmodels ETS with an admitted C series, independently test held-out leakage/count/scope rates, or verify default served POST→GET read-time replay. Do not add finding closures or upgrade B16 from this consumer-only evidence."
+  ]
+}

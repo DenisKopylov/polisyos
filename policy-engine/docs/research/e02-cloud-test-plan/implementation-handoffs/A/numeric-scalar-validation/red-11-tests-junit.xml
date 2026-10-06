@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="11" time="12.890" timestamp="2026-10-06T21:37:23.541657+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[mixed-python-bool-float]" time="0.003"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError'&gt;">value = [True, 1.0]
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            pytest.param([True, 1.0], id="mixed-python-bool-float"),
+            pytest.param((np.bool_(True), 1.0), id="mixed-numpy-bool-float"),
+            pytest.param(np.array([True, 1.0], dtype=object), id="object-bool-float"),
+            pytest.param([[True, 1.0]], id="nested-bool-float"),
+            pytest.param(np.array([None, 1.0], dtype=object), id="object-none-float"),
+            pytest.param(np.array(["1", 1.0], dtype=object), id="object-string-float"),
+            pytest.param(np.array([b"1", 1.0], dtype=object), id="object-bytes-float"),
+            pytest.param(np.array([1.0 + 0j, 1.0], dtype=object), id="object-complex-float"),
+        ],
+    )
+    def test_shared_required_output_projection_rejects_invalid_original_elements(
+        value: object,
+    ) -&gt; None:
+&gt;       with pytest.raises(JointSimulationControllerError) as raised:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError'&gt;
+
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py:372: Failed</failure></testcase><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[mixed-numpy-bool-float]" time="0.001"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError'&gt;">value = (np.True_, 1.0)
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            pytest.param([True, 1.0], id="mixed-python-bool-float"),
+            pytest.param((np.bool_(True), 1.0), id="mixed-numpy-bool-float"),
+            pytest.param(np.array([True, 1.0], dtype=object), id="object-bool-float"),
+            pytest.param([[True, 1.0]], id="nested-bool-float"),
+            pytest.param(np.array([None, 1.0], dtype=object), id="object-none-float"),
+            pytest.param(np.array(["1", 1.0], dtype=object), id="object-string-float"),
+            pytest.param(np.array([b"1", 1.0], dtype=object), id="object-bytes-float"),
+            pytest.param(np.array([1.0 + 0j, 1.0], dtype=object), id="object-complex-float"),
+        ],
+    )
+    def test_shared_required_output_projection_rejects_invalid_original_elements(
+        value: object,
+    ) -&gt; None:
+&gt;       with pytest.raises(JointSimulationControllerError) as raised:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError'&gt;
+
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py:372: Failed</failure></testcase><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[object-bool-float]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[nested-bool-float]" time="0.000"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError'&gt;">value = [[True, 1.0]]
+
+    @pytest.mark.parametrize(
+        "value",
+        [
+            pytest.param([True, 1.0], id="mixed-python-bool-float"),
+            pytest.param((np.bool_(True), 1.0), id="mixed-numpy-bool-float"),
+            pytest.param(np.array([True, 1.0], dtype=object), id="object-bool-float"),
+            pytest.param([[True, 1.0]], id="nested-bool-float"),
+            pytest.param(np.array([None, 1.0], dtype=object), id="object-none-float"),
+            pytest.param(np.array(["1", 1.0], dtype=object), id="object-string-float"),
+            pytest.param(np.array([b"1", 1.0], dtype=object), id="object-bytes-float"),
+            pytest.param(np.array([1.0 + 0j, 1.0], dtype=object), id="object-complex-float"),
+        ],
+    )
+    def test_shared_required_output_projection_rejects_invalid_original_elements(
+        value: object,
+    ) -&gt; None:
+&gt;       with pytest.raises(JointSimulationControllerError) as raised:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError'&gt;
+
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py:372: Failed</failure></testcase><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[object-none-float]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[object-string-float]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[object-bytes-float]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[object-complex-float]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_preserves_zero_and_finite_arrays" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_coupled_output_adapter_rejects_mixed_boolean_sequence" time="0.000"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError'&gt;">def test_coupled_output_adapter_rejects_mixed_boolean_sequence() -&gt; None:
+&gt;       with pytest.raises(JointSimulationControllerError) as raised:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError'&gt;
+
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py:426: Failed</failure></testcase><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_replication_cache_aggregator_rejects_mixed_boolean_sequence" time="0.000"><failure message="Failed: DID NOT RAISE &lt;class 'polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError'&gt;">def test_replication_cache_aggregator_rejects_mixed_boolean_sequence() -&gt; None:
+        malformed_point = TrajectoryPoint.model_construct(
+            step=0,
+            outcomes={"y": [True, 1.0]},
+            effect={"y": 0.0},
+            engine_state={},
+        )
+        malformed_trajectory = SimulationTrajectory.model_construct(
+            run_level="joint",
+            atom_ids=("atom-a",),
+            engine_kind="ncm_parallel_worlds",
+            method_fqn="polisyos.foreign.test_ncm@1.0.0",
+            objective_ref="objective://mixed-boolean-output",
+            points=(malformed_point,),
+            diagnostics={},
+        )
+    
+&gt;       with pytest.raises(JointSimulationControllerError) as raised:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'polisyos.runtime.quality.joint_simulation_horizon.JointSimulationControllerError'&gt;
+
+tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py:454: Failed</failure></testcase></testsuite></testsuites>

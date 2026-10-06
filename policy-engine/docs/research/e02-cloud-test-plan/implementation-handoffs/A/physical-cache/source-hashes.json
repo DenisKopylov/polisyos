@@ -1,0 +1,106 @@
+{
+  "schema": "policyos.e02.b23_physical_cache_source_lease.v1",
+  "recorded_for": "B23 physical-spec invocation-cache evidence",
+  "source_pins": {
+    "full_mechanism_base": {
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+      "role": "Full mechanism review baseline; distinct from the later probe slice base."
+    },
+    "criterion_pin": {
+      "commit": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+      "tree": "a1177b8113e1b75973e7975f6809553c38e65b52",
+      "role": "Exact B23 source criterion and original removal-probe candidate."
+    },
+    "probe_slice_base": {
+      "commit": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+      "tree": "98405fab6c567d9fd44a5e30387c0ba32a7c7cf9",
+      "role": "Parent of the corrected B23 removal-probe candidate."
+    },
+    "corrected_probe_candidate": {
+      "commit": "9794b716a74aee98545449ac97dc98825d2471de",
+      "tree": "97a03bcab3f2d50afc3e262ff4a041e9c24042b2",
+      "parent": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+      "role": "Current candidate for the corrected removal falsifiers and positive affected wave."
+    }
+  },
+  "criterion": {
+    "id": "B23",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "lines": [477, 487],
+    "commit": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+    "git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+    "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+  },
+  "files": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "baseline": {
+        "commit": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+        "git_blob": "05a5df3c91025920a81b37a281db9f65c0d8e87d",
+        "sha256": "20a657776363a36b81e5d867753bc1551b85993fdc32811d0362ae4c6fd4dac8"
+      },
+      "candidate": {
+        "commit": "9794b716a74aee98545449ac97dc98825d2471de",
+        "git_blob": "c3a0207a8adc5f7b9bd5af2ae6521eb72f57a15e",
+        "sha256": "b820bd1d12ebff27966ccf51e2824aad9a15394aeed3212e8f2dd57ce406db74"
+      },
+      "review_note": "The 9794 delta changes a TYPE_CHECKING import and annotation only; the physical-key algorithm is pinned at the candidate and criterion source."
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+      "old_probe": {
+        "commit": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+        "git_blob": "7b5ed26ee97b4485c3d2c5dc6d6a2b40cf1cc202",
+        "sha256": "89cd9e8dda50593ce02db09c9a279bcbe90d48d67b1e389c6dd5911b46c7f4f8"
+      },
+      "slice_base": {
+        "commit": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+        "git_blob": "7b5ed26ee97b4485c3d2c5dc6d6a2b40cf1cc202",
+        "sha256": "89cd9e8dda50593ce02db09c9a279bcbe90d48d67b1e389c6dd5911b46c7f4f8"
+      },
+      "corrected_probe": {
+        "commit": "9794b716a74aee98545449ac97dc98825d2471de",
+        "git_blob": "4804ffac006db662bbd912ae835c1c8fafbb6f05",
+        "sha256": "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8"
+      },
+      "review_note": "The old exact-frozenset guard omits program_base_state_content_hash, which is present in the physical identity payload. The corrected test wraps the actual _physical_run_ref path, requires the removed key to exist, mutates that emitted payload, and requires a positive mutation count before the ref-collapse assertion."
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+      "candidate": {
+        "commit": "9794b716a74aee98545449ac97dc98825d2471de",
+        "git_blob": "e32b91d15ff90e42ca6cd24901a9cfa359054fc6",
+        "sha256": "924181fb0cd41682f076ab09b80fea81c14aa6eb312dbc24a00dbc402c837098"
+      },
+      "review_note": "Contains the same-invocation real registered-NCM semantic-miss and positive reuse witness."
+    }
+  ],
+  "related_simulation_commits": [
+    {
+      "commit": "dd6fde7d0d1635ca659c0c57e5db77c40559d0e2",
+      "tree": "a04248c3d57d57b1a8cc392a7292499b5fff9373",
+      "subject": "Fix joint simulation composition semantics"
+    },
+    {
+      "commit": "a6183e54008fd5b36302937ae3b803ef3d8c2be0",
+      "tree": "3b69617588ea8af4286d0c1af718ed4a0086a891",
+      "subject": "Adjust simulation test fixtures for static horizons"
+    },
+    {
+      "commit": "c2200989612bcdc21b26c96eafb22526a54059ed",
+      "tree": "7a2729b235c3ae5050c44ea335db507beb830b11",
+      "subject": "Use typed snapshot refs in ProgramGraph cache test"
+    },
+    {
+      "commit": "4716dec3486e4f3ac0a9ed92c1254eba9a8eda34",
+      "tree": "55c8d5cc56f52554c4494705438f7157ecb94f43",
+      "subject": "Fix singleton interaction order coverage"
+    },
+    {
+      "commit": "9794b716a74aee98545449ac97dc98825d2471de",
+      "tree": "97a03bcab3f2d50afc3e262ff4a041e9c24042b2",
+      "subject": "test(e02): bind B23 removals to actual physical identity emission"
+    }
+  ]
+}

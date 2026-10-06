@@ -1,0 +1,967 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "review_date": "2026-10-06",
+  "reviewer_role": "independent read-only B23 reviewer and evidence recorder",
+  "source_hashes_ref": "physical-cache/source-hashes.json",
+  "output_hashes_ref": "physical-cache/output-hashes.json",
+  "source_basis": {
+    "criterion_id": "B23",
+    "criterion_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "criterion_lines": [
+      477,
+      487
+    ],
+    "criterion_source_commit": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+    "full_mechanism_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "probe_slice_base": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+    "corrected_probe_candidate": "9794b716a74aee98545449ac97dc98825d2471de",
+    "corrected_probe_tree": "97a03bcab3f2d50afc3e262ff4a041e9c24042b2"
+  },
+  "decision": {
+    "closure_ids": [
+      "B23"
+    ],
+    "status": "CLOSED_ORIGINAL_BOUNDED_CRITERION",
+    "scope": "Registered NCM invocation-local physical-spec cache and its one-/two-atom role projection.",
+    "capability_state": "surface_out_of_scope",
+    "summary": "The original bounded B23 behavior is evidenced: the identical two-atom pairwise/joint physical specification is computed once while each role remains addressable; changed seed and plan inputs produce distinct physical refs and actual registered-method execution; separate controller invocations own fresh local caches. The corrected seed and plan removal falsifiers now mutate the actual payload emitted by _physical_run_ref and fail at the expected ref-collapse assertion. The R1 seed and plan removals were repeated on frozen candidate 6f1e (source ffd): each actual payload mutation was witnessed before the expected 3-to-2 reference-count assertion failed, with zero runner errors. The referenced central 217/217 frozen owner wave includes the B23 positive suites; these receipts preserve only the same bounded registered-NCM closure.",
+    "criteria": [
+      {
+        "criterion": "A duplicate one-/two-atom physical specification does not cause a second calculation while both roles retain references.",
+        "result": "MET",
+        "evidence": [
+          "tests/unit/remediation/test_sim_03.py::test_joint_simulation_reuses_physical_spec_across_roles",
+          "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+        ],
+        "detail": "The actual two-atom registered-NCM controller path records three engine calls for the three distinct subsets. Pairwise and joint outputs retain distinct role views and share the same physical_run_ref; the joint role is marked reused."
+      },
+      {
+        "criterion": "The reuse discriminator binds semantic inputs, including seed/replication, plan, evidence, baseline, comparator, method version, and material model/runtime identity.",
+        "result": "MET_FOR_BOUNDED_NCM_PATH",
+        "evidence": [
+          "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:517-558",
+          "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_invocation_cache_hits_and_semantic_misses_execute_the_real_engine"
+        ],
+        "detail": "The same-cache registered-NCM test exercises duplicate hits and seed, plan, evidence, baseline, and comparator misses through the actual pure_step. The method FQN carries its registry version. Program-graph and other-engine semantics are outside this row's bounded NCM claim."
+      },
+      {
+        "criterion": "Independent repeats requiring separate runs are not collapsed by atom identity.",
+        "result": "MET_FOR_CHANGED_SEED_AND_PLAN_RUNS",
+        "evidence": [
+          "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:829-887",
+          "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+          "physical-cache/b23-removal-seed-6f1e/junit.xml",
+          "physical-cache/b23-removal-plan-6f1e/junit.xml"
+        ],
+        "detail": "Each controller invocation constructs a new invocation-local cache. The current-source run records real NCM seeds 17, 18, and 17 for the baseline, changed-seed, and changed-plan requests, respectively; the changed plan also changes the observed outcome."
+      }
+    ],
+    "limits": [
+      "Closure is restricted to the original bounded registered-NCM cache criterion; no claim is made for other engine adapters.",
+      "This runtime-quality reuse property does not establish scientific validity, causal truth, sampling precision, or workload-wide savings.",
+      "No public cache surface is claimed; surface_out_of_scope is the recorded capability state for this local helper property."
+    ]
+  },
+  "removal_probe_reconciliation": {
+    "test": "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+    "probe_environment_variable": "POLISYOS_SIM03_PHYSICAL_IDENTITY_REMOVAL_PROBE",
+    "historical_candidate": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+    "corrected_candidate": "9794b716a74aee98545449ac97dc98825d2471de",
+    "old_outcomes": [
+      {
+        "input_removed": "seed and replication_seeds",
+        "pytest_outcome": "PASS",
+        "pytest_exit_code": 0,
+        "junit": "1 test, 0 failures",
+        "removal_witness_result": "INVALID_NO_OP",
+        "detail": "The old guard required frozenset(payload) to equal a hand-maintained _PHYSICAL_RUN_IDENTITY_FIELDS set. The real payload also contains program_base_state_content_hash, so the guard skipped its mutation. Preserve the historical test PASS as the checkout outcome; it is not evidence that seed removal was detected."
+      },
+      {
+        "input_removed": "plan",
+        "pytest_outcome": "PASS",
+        "pytest_exit_code": 0,
+        "junit": "1 test, 0 failures",
+        "removal_witness_result": "INVALID_NO_OP",
+        "detail": "Same skipped exact-key-set guard; the plan-removal mutation did not reach the actual identity payload. Preserve the historical test PASS as the checkout outcome; it is not evidence that plan removal was detected."
+      }
+    ],
+    "corrected_outcomes": [
+      {
+        "input_removed": "seed and replication_seeds",
+        "pytest_outcome": "EXPECTED_ASSERTION_FAILURE",
+        "pytest_exit_code": 1,
+        "junit": "1 test, 1 failure",
+        "removal_witness_result": "PASS_EXPECTED_FALSIFIER",
+        "expected_assertion": "test_sim_03.py:447: len(physical_refs) == 3; actual 2",
+        "detail": "The corrected wrapper surrounds the actual _physical_run_ref call, confirms the requested keys are present, removes them from that emitted key payload, and increments removal_hash_call_count. The positive mutation-count assertion executes before the expected ref-collapse failure."
+      },
+      {
+        "input_removed": "plan",
+        "pytest_outcome": "EXPECTED_ASSERTION_FAILURE",
+        "pytest_exit_code": 1,
+        "junit": "1 test, 1 failure",
+        "removal_witness_result": "PASS_EXPECTED_FALSIFIER",
+        "expected_assertion": "test_sim_03.py:447: len(physical_refs) == 3; actual 2",
+        "detail": "The corrected wrapper surrounds the actual _physical_run_ref call, confirms the requested key is present, removes it from that emitted key payload, and increments removal_hash_call_count. The positive mutation-count assertion executes before the expected ref-collapse failure."
+      }
+    ],
+    "interpretation_rule": "A corrected removal run is a passing falsifier when it exits nonzero at the expected ref-collapse AssertionError after confirming mutation; a wrapper/setup error is not a passing falsifier. The old exit-zero results remain recorded as test PASS but removal-witness NO-OP.",
+    "later_candidate_runs": [
+      {
+        "candidate": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+        "candidate_tree": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+        "target_source_commit": "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+        "target_source_blob": "7965deabd278db8a4e9e73092ad3fc7bfaf59545",
+        "input_removed": "seed and replication_seeds",
+        "pytest_outcome": "EXPECTED_ASSERTION_FAILURE",
+        "pytest_exit_code": 1,
+        "junit": "1 test, 1 failure, 0 errors; test duration 16.151 s",
+        "runner_wall_seconds": 19.734494999982417,
+        "expected_assertion": "test_sim_03.py:447: len(physical_refs) == 3; actual 2",
+        "mutation_counter": "removal_hash_call_count > 0 assertion passed before the expected cardinality failure",
+        "removal_witness_result": "PASS_EXPECTED_FALSIFIER",
+        "artifact_directory": "b23-removal-seed-6f1e"
+      },
+      {
+        "candidate": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+        "candidate_tree": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+        "target_source_commit": "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+        "target_source_blob": "7965deabd278db8a4e9e73092ad3fc7bfaf59545",
+        "input_removed": "plan",
+        "pytest_outcome": "EXPECTED_ASSERTION_FAILURE",
+        "pytest_exit_code": 1,
+        "junit": "1 test, 1 failure, 0 errors; test duration 13.653 s",
+        "runner_wall_seconds": 17.075429500022437,
+        "expected_assertion": "test_sim_03.py:447: len(physical_refs) == 3; actual 2",
+        "mutation_counter": "removal_hash_call_count > 0 assertion passed before the expected cardinality failure",
+        "removal_witness_result": "PASS_EXPECTED_FALSIFIER",
+        "artifact_directory": "b23-removal-plan-6f1e"
+      }
+    ]
+  },
+  "recorded_waves": [
+    {
+      "id": "b23-removal-seed-6565",
+      "candidate": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+      "environment_value": "seed",
+      "pytest_exit_code": 0,
+      "junit": {
+        "tests": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "interpretation": "Historical PASS retained; removal mutation was a no-op.",
+      "artifact_directory": "physical-cache/removal-seed-6565"
+    },
+    {
+      "id": "b23-removal-plan-6565",
+      "candidate": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+      "environment_value": "plan",
+      "pytest_exit_code": 0,
+      "junit": {
+        "tests": 1,
+        "passed": 1,
+        "failed": 0
+      },
+      "interpretation": "Historical PASS retained; removal mutation was a no-op.",
+      "artifact_directory": "physical-cache/removal-plan-6565"
+    },
+    {
+      "id": "b23-removal-seed-9794",
+      "candidate": "9794b716a74aee98545449ac97dc98825d2471de",
+      "environment_value": "seed",
+      "pytest_exit_code": 1,
+      "junit": {
+        "tests": 1,
+        "passed": 0,
+        "failed": 1
+      },
+      "interpretation": "Expected false-eligibility falsifier: actual seed removal collapses the reference set to two and fails the cardinality assertion.",
+      "artifact_directory": "physical-cache/removal-seed-9794"
+    },
+    {
+      "id": "b23-removal-plan-9794",
+      "candidate": "9794b716a74aee98545449ac97dc98825d2471de",
+      "environment_value": "plan",
+      "pytest_exit_code": 1,
+      "junit": {
+        "tests": 1,
+        "passed": 0,
+        "failed": 1
+      },
+      "interpretation": "Expected false-eligibility falsifier: actual plan removal collapses the reference set to two and fails the cardinality assertion.",
+      "artifact_directory": "physical-cache/removal-plan-9794"
+    },
+    {
+      "id": "b23-positive-and-affected-9794",
+      "candidate": "9794b716a74aee98545449ac97dc98825d2471de",
+      "pytest_exit_code": 0,
+      "junit": {
+        "tests": 49,
+        "passed": 49,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "warnings": 1
+      },
+      "junit_seconds": 64.395,
+      "runner_wall_seconds": 68.32297087501502,
+      "interpretation": "Positive current-candidate and affected-surface wave; not a replay of the older broad 37/157-test receipts.",
+      "artifact_directory": "physical-cache/positive-and-affected-9794"
+    },
+    {
+      "id": "b23-removal-seed-6f1e",
+      "candidate": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+      "candidate_tree": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+      "target_source_commit": "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+      "target_source_blob": "7965deabd278db8a4e9e73092ad3fc7bfaf59545",
+      "probe_iteration": "R1",
+      "environment_value": "seed",
+      "pytest_exit_code": 1,
+      "junit": {
+        "tests": 1,
+        "passed": 0,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 16.151
+      },
+      "runner_wall_seconds": 19.734494999982417,
+      "expected_child_outcome": "FAIL",
+      "removal_experiment_result": "PASS_EXPECTED_FALSIFIER",
+      "interpretation": "R1 removed seed, replication_seeds from the actual _physical_run_ref hash payload; the positive mutation counter passed, then the expected len(physical_refs) == 3 assertion observed 2. This is a passing property-removal falsifier, not a product regression or harness error.",
+      "artifact_directory": "b23-removal-seed-6f1e"
+    },
+    {
+      "id": "b23-removal-plan-6f1e",
+      "candidate": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+      "candidate_tree": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+      "target_source_commit": "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+      "target_source_blob": "7965deabd278db8a4e9e73092ad3fc7bfaf59545",
+      "probe_iteration": "R1",
+      "environment_value": "plan",
+      "pytest_exit_code": 1,
+      "junit": {
+        "tests": 1,
+        "passed": 0,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_seconds": 13.653
+      },
+      "runner_wall_seconds": 17.075429500022437,
+      "expected_child_outcome": "FAIL",
+      "removal_experiment_result": "PASS_EXPECTED_FALSIFIER",
+      "interpretation": "R1 removed plan from the actual _physical_run_ref hash payload; the positive mutation counter passed, then the expected len(physical_refs) == 3 assertion observed 2. This is a passing property-removal falsifier, not a product regression or harness error.",
+      "artifact_directory": "b23-removal-plan-6f1e"
+    }
+  ],
+  "adjacent_rows": {
+    "B25": "Already closed in its separate exact-moment decision; the current 49-test positive wave corroborates that registered regression. This receipt does not reopen or replace that decision."
+  },
+  "receipt_limits": [
+    "Seven run-output sets under physical-cache/ are byte copies pinned by output-hashes.json: the five historical/9794 sets are preserved and the two R1 6f1e seed/plan sets are appended.",
+    "The earlier broad 37/157-test output sets were not duplicated; retain their existing receipt ownership and source pins.",
+    "The source review was read-only and did not run tests or edit production/test source. The recorded pytest waves are owner-produced evidence, not reviewer-run checks.",
+    "The 217/217 frozen owner delta output is referenced at its canonical numeric-scalar-validation handoff and is not duplicated in physical-cache/."
+  ],
+  "evidence_record_schema": "policyos.e02.b23_physical_cache_review.v1",
+  "unit": "A",
+  "slice": "physical-cache",
+  "closure_ids": [
+    "B23"
+  ],
+  "bundle_ids": [
+    "SIM-03"
+  ],
+  "slice_base_sha": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+  "implementation_commits": [
+    "9794b716a74aee98545449ac97dc98825d2471de"
+  ],
+  "candidate_tree_sha": "97a03bcab3f2d50afc3e262ff4a041e9c24042b2",
+  "branch": "codex/e02-A-full-queue",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "policy-engine/tests/unit/remediation/test_sim_03.py"
+  ],
+  "baseline_cells": [
+    {
+      "cell_id": "historical-seed-removal",
+      "baseline_sha": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+      "baseline_tree_sha": "a1177b8113e1b75973e7975f6809553c38e65b52",
+      "slice_base_sha": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+      "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+      "git_blob_at_baseline_and_slice_base": "7b5ed26ee97b4485c3d2c5dc6d6a2b40cf1cc202",
+      "reported_state": "PASS",
+      "source_locator": "physical-cache/removal-seed-6565/junit.xml",
+      "evidence_grade": "Raw historical pytest/JUnit PASS only; invalid removal witness because the exact-key guard skipped mutation when program_base_state_content_hash was present."
+    },
+    {
+      "cell_id": "historical-plan-removal",
+      "baseline_sha": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+      "baseline_tree_sha": "a1177b8113e1b75973e7975f6809553c38e65b52",
+      "slice_base_sha": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+      "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+      "git_blob_at_baseline_and_slice_base": "7b5ed26ee97b4485c3d2c5dc6d6a2b40cf1cc202",
+      "reported_state": "PASS",
+      "source_locator": "physical-cache/removal-plan-6565/junit.xml",
+      "evidence_grade": "Raw historical pytest/JUnit PASS only; invalid removal witness because the exact-key guard skipped mutation when program_base_state_content_hash was present."
+    }
+  ],
+  "property": {
+    "statement": "For the original bounded registered-NCM path, the invocation-local physical-spec cache reuses a physically identical one-/two-atom request once while retaining both semantic role references; changed seed/replication or plan inputs produce distinct physical refs and execute the registered method again.",
+    "runtime_path": [
+      "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py::_run_or_reuse_physical_spec and _run_cached_replicates",
+      "registered NCM callback through the production controller path",
+      "tests/unit/remediation/test_sim_03.py::test_joint_simulation_reuses_physical_spec_across_roles",
+      "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+      "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_invocation_cache_hits_and_semantic_misses_execute_the_real_engine"
+    ],
+    "proxy_divergence": "The historical removal probe treated an enumerated exact payload-key set as if it were the actual identity. The emitted identity also contained program_base_state_content_hash, so the old seed/plan mutation was skipped and the test stayed green. The corrected probe mutates the payload emitted by the real _physical_run_ref callback, asserts the mutation count is positive, and observes the physical-ref set collapse from three to two.",
+    "negative_controls": [
+      "Historical seed-removal and plan-removal runs are retained as raw PASS outcomes but classified INVALID_NO_OP.",
+      "Corrected seed-removal and plan-removal runs fail at the expected ref-collapse assertion after proving mutation; each is a passing falsifier, not a setup failure.",
+      "Same-invocation tests check semantic misses for seed, plan, evidence, baseline, and comparator; duplicate physical specifications reuse the result while role references remain separate."
+    ],
+    "scope_boundary": "This closes only the original bounded registered-NCM invocation-local cache criterion. It does not establish behavior for other engines, statistical precision, causal validity, or workload-wide savings."
+  },
+  "predicate_basis": "recomputed",
+  "predicate_basis_detail": {
+    "runtime_cache_and_removal_predicate": "recomputed from the actual registered-NCM callback, emitted physical refs, same-invocation cache behavior, and corrected actual-payload mutation witnesses pinned in the cited source and run artifacts. The seed and plan R1 probes repeat the corrected actual-payload removal witness at 6f1e; each hit counter is asserted before the expected reference-collapse failure.",
+    "row_closure_decision": "Root-adjudicated for the exact B23 source criterion at B_r19_original.md:477-487; no broader scientific or cross-engine claim is admitted."
+  },
+  "capability_state_or_finding_state": "surface_out_of_scope",
+  "limitations_and_next_owner": [
+    "B23 is closed only for the original bounded registered-NCM invocation-local physical-spec cache criterion and its one-/two-atom role projection.",
+    "No claim is made for other engine adapters, scientific validity, causal truth, sampling precision, or workload-wide savings.",
+    "No public cache surface is claimed; surface_out_of_scope is the recorded state for this local helper property.",
+    "Next owner: root HANDOFF integrator should carry closure_ids=[\"B23\"] and this bounded scope into the standard full HANDOFF."
+  ],
+  "checks": [
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-removal-seed-6565/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-removal-seed-6565/junit.xml tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+      "target_sha": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+      "environment": {
+        "artifact_ref": "physical-cache/removal-seed-6565/environment-and-inputs.json",
+        "cwd_recorded": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "pytest": "9.0.2",
+        "probe": "historical no-op witness; see raw stdout/JUnit and reconciliation"
+      },
+      "input_closure": {
+        "test_selectors": [
+          "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+        ],
+        "captured_input_paths": [
+          "src/polisyos/runtime/quality/generation_cycle.py",
+          "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "src/polisyos/core/contracts/runtime.py",
+          "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "tests/unit/remediation/test_sim_03.py"
+        ],
+        "source_and_output_pins": [
+          "physical-cache/source-hashes.json",
+          "physical-cache/output-hashes.json"
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "artifact_directory": "physical-cache/removal-seed-6565",
+        "stdout": "physical-cache/removal-seed-6565/stdout.txt",
+        "stderr": "physical-cache/removal-seed-6565/stderr.txt",
+        "junit": "physical-cache/removal-seed-6565/junit.xml",
+        "raw_result": "Historical pytest PASS; invalid no-op removal witness."
+      }
+    },
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-removal-plan-6565/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-removal-plan-6565/junit.xml tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+      "target_sha": "6565fcd91d0ac251396dbde5852aaad92627bf40",
+      "environment": {
+        "artifact_ref": "physical-cache/removal-plan-6565/environment-and-inputs.json",
+        "cwd_recorded": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "pytest": "9.0.2",
+        "probe": "historical no-op witness; see raw stdout/JUnit and reconciliation"
+      },
+      "input_closure": {
+        "test_selectors": [
+          "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+        ],
+        "captured_input_paths": [
+          "src/polisyos/runtime/quality/generation_cycle.py",
+          "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "src/polisyos/core/contracts/runtime.py",
+          "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "tests/unit/remediation/test_sim_03.py"
+        ],
+        "source_and_output_pins": [
+          "physical-cache/source-hashes.json",
+          "physical-cache/output-hashes.json"
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "artifact_directory": "physical-cache/removal-plan-6565",
+        "stdout": "physical-cache/removal-plan-6565/stdout.txt",
+        "stderr": "physical-cache/removal-plan-6565/stderr.txt",
+        "junit": "physical-cache/removal-plan-6565/junit.xml",
+        "raw_result": "Historical pytest PASS; invalid no-op removal witness."
+      }
+    },
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-removal-seed-9794/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-removal-seed-9794/junit.xml tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+      "target_sha": "9794b716a74aee98545449ac97dc98825d2471de",
+      "environment": {
+        "artifact_ref": "physical-cache/removal-seed-9794/environment-and-inputs.json",
+        "cwd_recorded": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "pytest": "9.0.2",
+        "probe": "POLISYOS_SIM03_PHYSICAL_IDENTITY_REMOVAL_PROBE=seed"
+      },
+      "input_closure": {
+        "test_selectors": [
+          "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+        ],
+        "captured_input_paths": [
+          "src/polisyos/runtime/quality/generation_cycle.py",
+          "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "src/polisyos/core/contracts/runtime.py",
+          "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "tests/unit/remediation/test_sim_03.py"
+        ],
+        "source_and_output_pins": [
+          "physical-cache/source-hashes.json",
+          "physical-cache/output-hashes.json"
+        ]
+      },
+      "outcome": "FAIL",
+      "output": {
+        "artifact_directory": "physical-cache/removal-seed-9794",
+        "stdout": "physical-cache/removal-seed-9794/stdout.txt",
+        "stderr": "physical-cache/removal-seed-9794/stderr.txt",
+        "junit": "physical-cache/removal-seed-9794/junit.xml",
+        "raw_result": "Expected assertion failure after actual seed/replication_seeds removal; removal falsifier verdict PASS_EXPECTED_FALSIFIER."
+      }
+    },
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-removal-plan-9794/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-removal-plan-9794/junit.xml tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+      "target_sha": "9794b716a74aee98545449ac97dc98825d2471de",
+      "environment": {
+        "artifact_ref": "physical-cache/removal-plan-9794/environment-and-inputs.json",
+        "cwd_recorded": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "pytest": "9.0.2",
+        "probe": "POLISYOS_SIM03_PHYSICAL_IDENTITY_REMOVAL_PROBE=plan"
+      },
+      "input_closure": {
+        "test_selectors": [
+          "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+        ],
+        "captured_input_paths": [
+          "src/polisyos/runtime/quality/generation_cycle.py",
+          "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "src/polisyos/core/contracts/runtime.py",
+          "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "tests/unit/remediation/test_sim_03.py"
+        ],
+        "source_and_output_pins": [
+          "physical-cache/source-hashes.json",
+          "physical-cache/output-hashes.json"
+        ]
+      },
+      "outcome": "FAIL",
+      "output": {
+        "artifact_directory": "physical-cache/removal-plan-9794",
+        "stdout": "physical-cache/removal-plan-9794/stdout.txt",
+        "stderr": "physical-cache/removal-plan-9794/stderr.txt",
+        "junit": "physical-cache/removal-plan-9794/junit.xml",
+        "raw_result": "Expected assertion failure after actual plan removal; removal falsifier verdict PASS_EXPECTED_FALSIFIER."
+      }
+    },
+    {
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-positive-and-affected-9794/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-positive-and-affected-9794/junit.xml tests/unit/remediation/test_sim_01.py tests/unit/remediation/test_sim_02.py tests/unit/remediation/test_sim_03.py tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs",
+      "target_sha": "9794b716a74aee98545449ac97dc98825d2471de",
+      "environment": {
+        "artifact_ref": "physical-cache/positive-and-affected-9794/environment-and-inputs.json",
+        "cwd_recorded": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "pytest": "9.0.2",
+        "probe": null
+      },
+      "input_closure": {
+        "test_selectors": [
+          "tests/unit/remediation/test_sim_01.py",
+          "tests/unit/remediation/test_sim_02.py",
+          "tests/unit/remediation/test_sim_03.py",
+          "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+          "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py::test_program_graph_cache_binds_mutated_state_with_same_cas_refs"
+        ],
+        "captured_input_paths": [
+          "src/polisyos/runtime/quality/generation_cycle.py",
+          "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "src/polisyos/core/contracts/runtime.py",
+          "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "tests/unit/remediation/test_sim_01.py",
+          "tests/unit/remediation/test_sim_02.py",
+          "tests/unit/remediation/test_sim_03.py",
+          "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+          "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py"
+        ],
+        "source_and_output_pins": [
+          "physical-cache/source-hashes.json",
+          "physical-cache/output-hashes.json"
+        ]
+      },
+      "outcome": "PASS",
+      "output": {
+        "artifact_directory": "physical-cache/positive-and-affected-9794",
+        "stdout": "physical-cache/positive-and-affected-9794/stdout.txt",
+        "stderr": "physical-cache/positive-and-affected-9794/stderr.txt",
+        "junit": "physical-cache/positive-and-affected-9794/junit.xml",
+        "raw_result": "49 passed, 0 failed, 0 errors, 0 skipped, 1 warning; JUnit 64.395 s; runner wall 68.32297087501502 s."
+      }
+    },
+    {
+      "name": "R1 seed removal falsifier on frozen NCM candidate",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-removal-seed-6f1e/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-removal-seed-6f1e/junit.xml tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+      "target_sha": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+      "target_tree_sha": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+      "target_source_commit": "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+      "target_source_blob": "7965deabd278db8a4e9e73092ad3fc7bfaf59545",
+      "environment": {
+        "artifact_ref": "b23-removal-seed-6f1e/environment-and-inputs.json",
+        "sha256": "57abd27d6deb1ade10b56815be07dcb42cee0c4b9f2ddb9c475517766353a28d",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+        "status_before": "## codex/e02-A-n5-verify-current",
+        "status_after": "## codex/e02-A-n5-verify-current",
+        "interpreter_literal": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "interpreter_prefix": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv",
+        "interpreter_target_identity_only": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "pytest": "9.0.2",
+        "probe_environment_variable": "POLISYOS_SIM03_PHYSICAL_IDENTITY_REMOVAL_PROBE",
+        "probe_value": "seed",
+        "timeout_seconds": 300,
+        "exit_code": 1,
+        "wall_seconds": 19.734494999982417
+      },
+      "input_closure": {
+        "test_selectors": [
+          "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+        ],
+        "captured_input_paths": {
+          "src/polisyos/runtime/quality/generation_cycle.py": {
+            "sha256": "bdaea4b96f17b15f2404b3ab94b2f4531977e0a96e4cc0b7b49cde1ee5366553",
+            "git_blob": "a9bee33288e66aecada88a58b44fd504a33b78c7"
+          },
+          "src/polisyos/runtime/quality/joint_simulation_horizon.py": {
+            "sha256": "b18a18ef5a3b7a87f9036cab74444e27274d305d87abfd2435ab314c82d60568",
+            "git_blob": "7965deabd278db8a4e9e73092ad3fc7bfaf59545"
+          },
+          "src/polisyos/core/contracts/runtime.py": {
+            "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+            "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+          },
+          "src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+            "sha256": "96a5c9a4b4777694b8583d0d929a63ed03c28965a50fb1ff12e0702d4882e7eb",
+            "git_blob": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e"
+          },
+          "tests/unit/remediation/test_sim_03.py": {
+            "sha256": "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8",
+            "git_blob": "4804ffac006db662bbd912ae835c1c8fafbb6f05"
+          }
+        },
+        "manifest_ref": "b23-removal-seed-6f1e/environment-and-inputs.json",
+        "manifest_sha256": "57abd27d6deb1ade10b56815be07dcb42cee0c4b9f2ddb9c475517766353a28d",
+        "source_and_output_pins": [
+          "physical-cache/source-hashes.json",
+          "physical-cache/output-hashes.json"
+        ]
+      },
+      "outcome": "FAIL",
+      "classification": "EXPECTED_ASSERTION_FAILURE_AFTER_SUCCESSFUL_MUTATION",
+      "result": {
+        "tests": 1,
+        "passed": 0,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_exit_code": 1,
+        "pytest_duration_seconds": 16.151,
+        "wall_seconds": 19.734494999982417,
+        "expected_child_outcome": "FAIL",
+        "expected_assertion": "tests/unit/remediation/test_sim_03.py:447: len(physical_refs) == 3; actual 2",
+        "mutated_identity_inputs": [
+          "seed",
+          "replication_seeds"
+        ],
+        "mutation_witness": "The in-test removal_hash_call_count > 0 assertion passed before the later physical_refs cardinality assertion failed; the same actual test mutates the payload passed through _physical_run_ref.",
+        "removal_experiment_result": "PASS_EXPECTED_FALSIFIER",
+        "harness_error_signal_present": false
+      },
+      "output": {
+        "artifact_directory": "b23-removal-seed-6f1e",
+        "files": {
+          "stdout.txt": {
+            "path": "b23-removal-seed-6f1e/stdout.txt",
+            "bytes": 58064,
+            "sha256": "f297265389e4fbd2922fb6a07e0936dd3a9d4fb5b694f57e7df2425a2678c810"
+          },
+          "stderr.txt": {
+            "path": "b23-removal-seed-6f1e/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "environment-and-inputs.json": {
+            "path": "b23-removal-seed-6f1e/environment-and-inputs.json",
+            "bytes": 3321,
+            "sha256": "57abd27d6deb1ade10b56815be07dcb42cee0c4b9f2ddb9c475517766353a28d"
+          },
+          "junit.xml": {
+            "path": "b23-removal-seed-6f1e/junit.xml",
+            "bytes": 5576,
+            "sha256": "c1254f11f45ea094daf58233625aec8788ccafb5ea2dd468f8f485b8fbc0bb1f"
+          }
+        },
+        "raw_result": "One expected pytest assertion failure, zero errors; actual physical-reference count collapsed from 3 to 2 after the named input was removed."
+      }
+    },
+    {
+      "name": "R1 plan removal falsifier on frozen NCM candidate",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-removal-plan-6f1e/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b23-removal-plan-6f1e/junit.xml tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request",
+      "target_sha": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+      "target_tree_sha": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+      "target_source_commit": "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+      "target_source_blob": "7965deabd278db8a4e9e73092ad3fc7bfaf59545",
+      "environment": {
+        "artifact_ref": "b23-removal-plan-6f1e/environment-and-inputs.json",
+        "sha256": "25b8396aea9a6ac628481517c3fd5b7e6a18cd40fe2ec23c0f40869e3a59d913",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+        "status_before": "## codex/e02-A-n5-verify-current",
+        "status_after": "## codex/e02-A-n5-verify-current",
+        "interpreter_literal": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "interpreter_prefix": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv",
+        "interpreter_target_identity_only": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "pytest": "9.0.2",
+        "probe_environment_variable": "POLISYOS_SIM03_PHYSICAL_IDENTITY_REMOVAL_PROBE",
+        "probe_value": "plan",
+        "timeout_seconds": 300,
+        "exit_code": 1,
+        "wall_seconds": 17.075429500022437
+      },
+      "input_closure": {
+        "test_selectors": [
+          "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+        ],
+        "captured_input_paths": {
+          "src/polisyos/runtime/quality/generation_cycle.py": {
+            "sha256": "bdaea4b96f17b15f2404b3ab94b2f4531977e0a96e4cc0b7b49cde1ee5366553",
+            "git_blob": "a9bee33288e66aecada88a58b44fd504a33b78c7"
+          },
+          "src/polisyos/runtime/quality/joint_simulation_horizon.py": {
+            "sha256": "b18a18ef5a3b7a87f9036cab74444e27274d305d87abfd2435ab314c82d60568",
+            "git_blob": "7965deabd278db8a4e9e73092ad3fc7bfaf59545"
+          },
+          "src/polisyos/core/contracts/runtime.py": {
+            "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+            "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+          },
+          "src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+            "sha256": "96a5c9a4b4777694b8583d0d929a63ed03c28965a50fb1ff12e0702d4882e7eb",
+            "git_blob": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e"
+          },
+          "tests/unit/remediation/test_sim_03.py": {
+            "sha256": "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8",
+            "git_blob": "4804ffac006db662bbd912ae835c1c8fafbb6f05"
+          }
+        },
+        "manifest_ref": "b23-removal-plan-6f1e/environment-and-inputs.json",
+        "manifest_sha256": "25b8396aea9a6ac628481517c3fd5b7e6a18cd40fe2ec23c0f40869e3a59d913",
+        "source_and_output_pins": [
+          "physical-cache/source-hashes.json",
+          "physical-cache/output-hashes.json"
+        ]
+      },
+      "outcome": "FAIL",
+      "classification": "EXPECTED_ASSERTION_FAILURE_AFTER_SUCCESSFUL_MUTATION",
+      "result": {
+        "tests": 1,
+        "passed": 0,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_exit_code": 1,
+        "pytest_duration_seconds": 13.653,
+        "wall_seconds": 17.075429500022437,
+        "expected_child_outcome": "FAIL",
+        "expected_assertion": "tests/unit/remediation/test_sim_03.py:447: len(physical_refs) == 3; actual 2",
+        "mutated_identity_inputs": [
+          "plan"
+        ],
+        "mutation_witness": "The in-test removal_hash_call_count > 0 assertion passed before the later physical_refs cardinality assertion failed; the same actual test mutates the payload passed through _physical_run_ref.",
+        "removal_experiment_result": "PASS_EXPECTED_FALSIFIER",
+        "harness_error_signal_present": false
+      },
+      "output": {
+        "artifact_directory": "b23-removal-plan-6f1e",
+        "files": {
+          "stdout.txt": {
+            "path": "b23-removal-plan-6f1e/stdout.txt",
+            "bytes": 58064,
+            "sha256": "498d6d394ce4f7a2bc68b788bfd67d69cceac1e4be48a401e837867b4299fc00"
+          },
+          "stderr.txt": {
+            "path": "b23-removal-plan-6f1e/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "environment-and-inputs.json": {
+            "path": "b23-removal-plan-6f1e/environment-and-inputs.json",
+            "bytes": 3321,
+            "sha256": "25b8396aea9a6ac628481517c3fd5b7e6a18cd40fe2ec23c0f40869e3a59d913"
+          },
+          "junit.xml": {
+            "path": "b23-removal-plan-6f1e/junit.xml",
+            "bytes": 5576,
+            "sha256": "40e3f2a0aa53704285a878edc2ab299eb21ba2ec765300fa364d8b67e2f5b33d"
+          }
+        },
+        "raw_result": "One expected pytest assertion failure, zero errors; actual physical-reference count collapsed from 3 to 2 after the named input was removed."
+      }
+    },
+    {
+      "name": "Referenced central frozen post-patch owner delta wave (217 tests; includes B23 positive cases)",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python -u -m pytest -c pytest.ini -vv --durations=0 --basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frozen-owner-delta-6f1e/basetemp --junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frozen-owner-delta-6f1e/junit.xml tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py tests/unit/runtime/quality/test_joint_simulation_horizon.py tests/unit/runtime/http/test_runs_api.py tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_context_control tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly tests/unit/runtime/quality/test_generation_cycle_history.py::test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph tests/unit/runtime/quality/test_generation_cycle_history.py::test_v1_projection_removal_probe_rejects_post_v1_field_with_markers_retained tests/unit/runtime/quality/test_generation_cycle_history.py::test_v2_history_rejects_post_version_nested_fields_with_markers_retained tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_accepts_nested_design_problem_v2_dotted_target_slot tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_accepts_nested_design_problem_v3_qualified_outcome tests/unit/runtime/quality/test_generation_cycle_history.py::test_history_replay_is_read_only_and_does_not_consult_current_source tests/unit/runtime/quality/test_generation_cycle_history.py::test_source_comment_preserves_actual_v1_v2_history tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_resolves_exact_selected_candidate_ncm_view tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_refuses_same_id_sibling_ncm_views_before_n5 tests/integration/core_runtime/test_e02_higher_order_n8_intake.py tests/integration/core_runtime/test_e02_empirical_member_intake.py tests/unit/remediation/test_cyc_02.py tests/integration/core_runtime/test_e02_n9_refusal.py tests/unit/remediation/test_sim_01.py tests/unit/remediation/test_sim_02.py tests/unit/remediation/test_sim_03.py tests/unit/remediation/test_frc_01.py",
+      "target_sha": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+      "target_tree_sha": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c",
+      "target_source_commit": "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+      "target_source_blob": "7965deabd278db8a4e9e73092ad3fc7bfaf59545",
+      "environment": {
+        "artifact_ref": "numeric-scalar-validation/frozen-owner-delta-6f1e/environment-and-inputs.json",
+        "sha256": "7274f0366161eadb50e9c0daed78a842ac0690155693355579b0e69d1addba88",
+        "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+        "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+        "pytest": "9.0.2",
+        "exit_code": 0,
+        "wall_seconds": 236.9039597910014,
+        "full_manifest_is_canonical_reference": true
+      },
+      "input_closure": {
+        "test_selectors": [
+          "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+          "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+          "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+          "tests/unit/runtime/http/test_runs_api.py",
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_context_control",
+          "tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly",
+          "tests/unit/runtime/quality/test_generation_cycle_history.py::test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph",
+          "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v1_projection_removal_probe_rejects_post_v1_field_with_markers_retained",
+          "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v2_history_rejects_post_version_nested_fields_with_markers_retained",
+          "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_accepts_nested_design_problem_v2_dotted_target_slot",
+          "tests/unit/runtime/quality/test_generation_cycle_history.py::test_v3_history_accepts_nested_design_problem_v3_qualified_outcome",
+          "tests/unit/runtime/quality/test_generation_cycle_history.py::test_history_replay_is_read_only_and_does_not_consult_current_source",
+          "tests/unit/runtime/quality/test_generation_cycle_history.py::test_source_comment_preserves_actual_v1_v2_history",
+          "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+          "tests/unit/runtime/quality/test_generation_source.py::test_candidate_simulation_execution_versions_roundtrip_selected_views",
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_resolves_exact_selected_candidate_ncm_view",
+          "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_refuses_same_id_sibling_ncm_views_before_n5",
+          "tests/integration/core_runtime/test_e02_higher_order_n8_intake.py",
+          "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+          "tests/unit/remediation/test_cyc_02.py",
+          "tests/integration/core_runtime/test_e02_n9_refusal.py",
+          "tests/unit/remediation/test_sim_01.py",
+          "tests/unit/remediation/test_sim_02.py",
+          "tests/unit/remediation/test_sim_03.py",
+          "tests/unit/remediation/test_frc_01.py"
+        ],
+        "captured_input_paths": {
+          "src/polisyos/runtime/quality/generation_cycle.py": {
+            "sha256": "bdaea4b96f17b15f2404b3ab94b2f4531977e0a96e4cc0b7b49cde1ee5366553",
+            "git_blob": "a9bee33288e66aecada88a58b44fd504a33b78c7"
+          },
+          "src/polisyos/runtime/quality/joint_simulation_horizon.py": {
+            "sha256": "b18a18ef5a3b7a87f9036cab74444e27274d305d87abfd2435ab314c82d60568",
+            "git_blob": "7965deabd278db8a4e9e73092ad3fc7bfaf59545"
+          },
+          "src/polisyos/core/contracts/runtime.py": {
+            "sha256": "5b49a0b7e1b201292e36736d65c0dddf637f05ab9d2001315f364300a62350d7",
+            "git_blob": "d60b2a6e046968a21727d7a9f20129cf4fd6519d"
+          },
+          "src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+            "sha256": "96a5c9a4b4777694b8583d0d929a63ed03c28965a50fb1ff12e0702d4882e7eb",
+            "git_blob": "1e5fa71b8f8e6ecfbf9c087459787a1377bb0f9e"
+          },
+          "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py": {
+            "sha256": "b0b02f79fe6a206309c87b849a02ec86d129f4b9458d6a35e1234842417ccf13",
+            "git_blob": "6eff1cdf5d663b626dc35d97cf17ea75ff2dd03b"
+          },
+          "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py": {
+            "sha256": "cdfe6360f8df6c5b23b5b50eee7830834fd92761e7711ff7f921925fb82421d8",
+            "git_blob": "f10006ebaa677d876ad7477ce09fbda36b837cf5"
+          },
+          "tests/unit/runtime/quality/test_joint_simulation_horizon.py": {
+            "sha256": "6e495bb92c93b2c75f08500f37074972f5076b75de577916a832f1788870b842",
+            "git_blob": "1fa96c8dc88007f685e267b2d598772139205e64"
+          },
+          "tests/unit/runtime/http/test_runs_api.py": {
+            "sha256": "dd66370ce4b374479319a99692163e172760ca7a749c5e820123ed7e63dbeeb1",
+            "git_blob": "29ba4eab2aefc127f2604ef47f8abdc6fa8edf61"
+          },
+          "tests/unit/runtime/quality/test_generation_cycle.py": {
+            "sha256": "930637f7be4141c6073259b0909a2cc246ba61790280e92f1512f6e3ad0733a0",
+            "git_blob": "5fb9c75d734a2398fd6639d983adafb8054d40da"
+          },
+          "tests/unit/runtime/quality/test_generation_cycle_history.py": {
+            "sha256": "634266febf09444a9456807ad4e7d410cc710b88fb14f3442bfa96ae34535839",
+            "git_blob": "e6235b9994425dbcb5996c744524c785e7bb73a0"
+          },
+          "tests/unit/remediation/test_cyc_02.py": {
+            "sha256": "fb9c9bf715a760d3191a30acb41bbc49ea2df4b436f6e2e0b1e7c533dd0f7063",
+            "git_blob": "3a265b00e1e099f074e83965c3a4600e0e11dda2"
+          },
+          "tests/unit/runtime/quality/test_generation_source.py": {
+            "sha256": "23fb0e1dfe5250abbdacf8b41b611ea5c430fdd22f39c51aa2cc0fe37e6584f9",
+            "git_blob": "8d4a1dae9a6563e125f0566bbb48ebaa82861a8c"
+          },
+          "tests/integration/core_runtime/test_e02_higher_order_n8_intake.py": {
+            "sha256": "7dd0ea1d4867ad159afae4246c4e118d74523c56715007413202fda061fd45ba",
+            "git_blob": "9277e0f55a8529d86cdce45e315ae9ca6a05be1a"
+          },
+          "tests/integration/core_runtime/test_e02_empirical_member_intake.py": {
+            "sha256": "cf4f91f18b33484e22ec11d83e575cbe2325b9b4d1478221c60db78706371308",
+            "git_blob": "6ab30561f0a4e2c22fd41985499661af1c1966a6"
+          },
+          "tests/integration/core_runtime/test_e02_n9_refusal.py": {
+            "sha256": "48595d5d42806c699de72f932a19049b9fd928dabcba17a54f340fbba2f4c721",
+            "git_blob": "248b1c2c115fbf0cb3a15c7d883acc40067e7684"
+          },
+          "tests/unit/remediation/test_sim_01.py": {
+            "sha256": "946f870cbfdfe33f6d66a66bb3703f0a8405eca7f58f182efe591fcf65022ec6",
+            "git_blob": "52628ed5703bdbbc16290ccfc8d92a4bcbf5567b"
+          },
+          "tests/unit/remediation/test_sim_02.py": {
+            "sha256": "98107b627a72662ea16e2a3130299e2fc3662de6ad79d75edb5cc0bca5a91a54",
+            "git_blob": "accd28a967752fb69342fb3acba3ceb0f4dec281"
+          },
+          "tests/unit/remediation/test_sim_03.py": {
+            "sha256": "fa52277ca351e95ae50ed9cea086281036475aae5c8f8ebf4209309c50e333c8",
+            "git_blob": "4804ffac006db662bbd912ae835c1c8fafbb6f05"
+          },
+          "tests/unit/remediation/test_frc_01.py": {
+            "sha256": "4ef73be7d06ac8afdab9c2149ddb01ff0924b5343fbde1e617479fb8daf0bc85",
+            "git_blob": "c906eeb7fc678f2028f9b9525b7c4c30a8ff71c4"
+          }
+        },
+        "manifest_ref": "numeric-scalar-validation/frozen-owner-delta-6f1e/environment-and-inputs.json",
+        "manifest_sha256": "7274f0366161eadb50e9c0daed78a842ac0690155693355579b0e69d1addba88",
+        "positive_b23_test_files": [
+          "tests/unit/remediation/test_sim_01.py",
+          "tests/unit/remediation/test_sim_02.py",
+          "tests/unit/remediation/test_sim_03.py",
+          "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py"
+        ],
+        "junit_case_counts_by_sim_file": {
+          "tests.unit.remediation.test_sim_01": 5,
+          "tests.unit.remediation.test_sim_02": 10,
+          "tests.unit.remediation.test_sim_03": 22
+        }
+      },
+      "outcome": "PASS",
+      "result": {
+        "tests": 217,
+        "passed": 217,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "pytest_duration_seconds": 219.96,
+        "wall_seconds": 236.9039597910014,
+        "exit_code": 0
+      },
+      "output": {
+        "canonical_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/numeric-scalar-validation.json",
+        "canonical_receipt_sha256": "86d00115c8d5bb6cae6eca796b0da3197577e840893e4c788a1b84cb514851f7",
+        "check_name": "Frozen post-patch owner delta wave (217 tests)",
+        "output_files": [
+          {
+            "path": "numeric-scalar-validation/frozen-owner-delta-6f1e/stdout.txt",
+            "bytes": 60323,
+            "sha256": "66be680fec1efa5942c2ec111b16bb6b8212cd28811f6ec3bea5d820de661350"
+          },
+          {
+            "path": "numeric-scalar-validation/frozen-owner-delta-6f1e/stderr.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "numeric-scalar-validation/frozen-owner-delta-6f1e/environment-and-inputs.json",
+            "bytes": 8641,
+            "sha256": "7274f0366161eadb50e9c0daed78a842ac0690155693355579b0e69d1addba88"
+          },
+          {
+            "path": "numeric-scalar-validation/frozen-owner-delta-6f1e/junit.xml",
+            "bytes": 35813,
+            "sha256": "0dbbb71dbbe971b2e527927712f6943216b1d13ef8d14d3be057cd623609a1f6"
+          }
+        ],
+        "full_output_copied_here": false,
+        "note": "The 217/217 wave and its four deciding files remain in the N5-author canonical numeric-scalar-validation handoff; this entry references their exact bytes without duplicating them."
+      }
+    }
+  ],
+  "latest_frozen_recheck": {
+    "publisher_checkpoint": {
+      "commit": "b3de1ec3158e5c257edb548e7ef43ac82078531f",
+      "tree": "d6092e27161185a882ca7179187dfd6e3b0cc83a"
+    },
+    "current_source_commit": "ffd6ccda2ee00189d38d0d601b1cb9cc5c6f30da",
+    "current_source_blob": "7965deabd278db8a4e9e73092ad3fc7bfaf59545",
+    "tested_candidate": {
+      "commit": "6f1e5e7aa62b1f050030aafb0a321bf1628bbb6f",
+      "tree": "ba0f37a481beaa782166b88ef29e21ac48f5aa2c"
+    },
+    "source_identity_reconciliation": {
+      "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py": {
+        "blob_at_source_commit": "7965deabd278db8a4e9e73092ad3fc7bfaf59545",
+        "blob_at_test_candidate": "7965deabd278db8a4e9e73092ad3fc7bfaf59545",
+        "blob_at_publisher_checkpoint": "7965deabd278db8a4e9e73092ad3fc7bfaf59545"
+      },
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": {
+        "blob_at_test_candidate": "a9bee33288e66aecada88a58b44fd504a33b78c7",
+        "blob_at_publisher_checkpoint": "a9bee33288e66aecada88a58b44fd504a33b78c7"
+      },
+      "policy-engine/tests/unit/remediation/test_sim_03.py": {
+        "blob_at_test_candidate": "4804ffac006db662bbd912ae835c1c8fafbb6f05",
+        "blob_at_publisher_checkpoint": "4804ffac006db662bbd912ae835c1c8fafbb6f05"
+      },
+      "result": "The b3de publisher checkpoint uses the same B23-relevant source/test blobs as the frozen 6f1e run; the recheck is on the ffd source candidate."
+    },
+    "central_positive_receipt_check_index": 7,
+    "removal_check_indices": [
+      5,
+      6
+    ],
+    "scope": "Only the existing B23 bounded registered-NCM invocation-local physical-spec cache and one-/two-atom role projection. No science, causal truth, precision, other-engine, or workload-wide claim."
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "existing_failure_mode": "The historical 6565 exact-key guard let the marker remain while it skipped mutating the actual _physical_run_ref payload; those PASS runs remain classified INVALID_NO_OP.",
+    "closure_move": "The R1 harness mutates actual emitted seed/replication_seeds or plan inputs, proves the mutation counter is positive, and observes the expected physical-reference collapse; full output is hashed and the central 217 test wave is referenced without duplicate logs.",
+    "predicate_basis": "recomputed from the actual test callback, physical refs, JUnit failure point, and nonzero mutation assertion; scope remains the bounded registered-NCM cache criterion."
+  }
+}

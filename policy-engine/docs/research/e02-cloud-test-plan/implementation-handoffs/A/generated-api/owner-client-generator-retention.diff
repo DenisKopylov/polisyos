@@ -1,0 +1,21 @@
+--- owner@b34db71557e853c590694a3e127ee547ef72c686:policy-engine/packages/runtime-api-client/scripts/generate-runtime-api-client.sh
++++ policy-engine/_build/runtime-api-contract-f5fbc9e6/wrappers/generate-runtime-api-client-retain-raw.sh
+@@ -2,7 +2,7 @@
+ set -euo pipefail
+ 
+ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+-PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
++PROJECT_ROOT="/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine"
+ OUTPUT_ROOT="${PROJECT_ROOT}"
+ OPENAPI_FILE="${PROJECT_ROOT}/schemas/runtime_api_v1.openapi.json"
+ 
+@@ -52,7 +52,8 @@
+ RUNTIME_TS_OUT="${SCRATCH_ROOT}/runtimeApiClient.ts"
+ RUNTIME_JS_OUT="${SCRATCH_ROOT}/runtimeApiClient.js"
+ cleanup() {
+-  rm -rf -- "${SCRATCH_ROOT}"
++  printf '%s\n' "${SCRATCH_ROOT}" >> "${POLISYOS_RUNTIME_CLIENT_RETAIN_LOG:?set POLISYOS_RUNTIME_CLIENT_RETAIN_LOG to an ignored retained-path manifest}"
++  printf 'Preserved runtime client raw handoff: %s\n' "${SCRATCH_ROOT}" >&2
+ }
+ trap cleanup EXIT
+ 

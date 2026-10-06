@@ -1,0 +1,24 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.3, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 0 items / 1 error
+
+==================================== ERRORS ====================================
+_ ERROR collecting tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py _
+ImportError while importing test module '/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py:20: in <module>
+    from polisyos.runtime.quality.generation_cycle import (
+E   ImportError: cannot import name 'PromotionRuntime' from 'polisyos.runtime.quality.generation_cycle' (/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src/polisyos/runtime/quality/generation_cycle.py)
+- generated xml file: /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/b10-red-0b558/junit.xml -
+=========================== short test summary info ============================
+ERROR tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py
+============================== 1 error in 14.05s ===============================

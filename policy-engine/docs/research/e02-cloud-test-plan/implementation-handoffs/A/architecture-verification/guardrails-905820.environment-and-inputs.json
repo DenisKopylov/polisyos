@@ -1,0 +1,37 @@
+{
+  "candidate_sha": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+  "candidate_tree_sha": "98405fab6c567d9fd44a5e30387c0ba32a7c7cf9",
+  "status_before": "## codex/e02-A-full-queue...origin/codex/e02-A-full-queue\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-applicability.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-applicability/",
+  "command_argv": [
+    "uv",
+    "run",
+    "--no-sync",
+    "polisyos-tools",
+    "architecture",
+    "guardrails",
+    "check"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+  "timeout_seconds": 600,
+  "timeout_basis": "Previous exact guardrails wave measured 182.047 seconds.",
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "inherited_attribution": "not_established; no slice-base replay/disjoint denominator evidence",
+  "exit_code": 1,
+  "wall_seconds": 197.65400170796784,
+  "status_after": "## codex/e02-A-full-queue...origin/codex/e02-A-full-queue\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-applicability.json\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/n5-applicability/",
+  "stdout.txt": {
+    "bytes": 119607,
+    "sha256": "56d2c5f1d58b9eff517038b1da5088753975010a4ef4af59c1e8cd6c9891078d"
+  },
+  "stderr.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

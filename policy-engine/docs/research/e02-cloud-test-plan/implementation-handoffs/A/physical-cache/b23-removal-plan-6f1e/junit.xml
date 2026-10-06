@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="13.653" timestamp="2026-10-06T22:00:38.814506+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.remediation.test_sim_03" name="test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request" time="2.609"><failure message="AssertionError: assert 2 == 3&#10; +  where 2 = len({'sha256:1bbd7f93e12e9e07eae9037048513d6e4452f4f920f998176e0ca31a097a9417', 'sha256:6d6e5bc9e27f2824cbb745940f9a041cd97c968c5f1fd50148d1285ad219b0f3'})">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13e653230&gt;
+
+    def test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """B23: changed inputs get new refs; the same counted witness can remove either input."""
+    
+        original = NCMEngineMethod.pure_step
+        observed_seeds: list[int] = []
+    
+        def counted(state: Mapping[str, object], params: Mapping[str, object]) -&gt; dict[str, Any]:
+            observed_seeds.append(int(params["__seed__"]))
+            return original(state, params)
+    
+        removal_probe = os.environ.get(_REMOVAL_PROBE_ENV)
+        if removal_probe not in {None, "seed", "plan"}:
+            raise ValueError("B23 removal probe must be 'seed', 'plan', or unset")
+        removal_hash_call_count = 0
+        if removal_probe is not None:
+            from polisyos.runtime.quality import (
+                joint_simulation_horizon as joint_simulation,
+            )
+    
+            original_hash = joint_simulation.gy_content_hash
+            original_physical_run_ref = joint_simulation._physical_run_ref
+            removed_fields = {"seed", "replication_seeds"} if removal_probe == "seed" else {"plan"}
+            inside_physical_run_ref = False
+    
+            def hash_without_selected_input(payload: object) -&gt; str:
+                nonlocal removal_hash_call_count
+                if inside_physical_run_ref:
+                    if not isinstance(payload, dict):
+                        raise AssertionError("physical_run_ref_hash_payload_not_mapping")
+                    if not removed_fields.issubset(payload):
+                        raise AssertionError("physical_run_ref_removal_marker_missing")
+                    payload = {
+                        key: value for key, value in payload.items() if key not in removed_fields
+                    }
+                    removal_hash_call_count += 1
+                return original_hash(payload)
+    
+            def physical_run_ref_with_removal(
+                request: JointSimulationRequest,
+                plan: EnginePlan,
+                decision: EngineDecision,
+                subset: Sequence[InterventionAtomBinding],
+            ) -&gt; str:
+                nonlocal inside_physical_run_ref
+                previous_context = inside_physical_run_ref
+                inside_physical_run_ref = True
+                try:
+                    return original_physical_run_ref(request, plan, decision, subset)
+                finally:
+                    inside_physical_run_ref = previous_context
+    
+            monkeypatch.setattr(joint_simulation, "gy_content_hash", hash_without_selected_input)
+            monkeypatch.setattr(joint_simulation, "_physical_run_ref", physical_run_ref_with_removal)
+    
+        monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(counted))
+        request = _request().model_copy(update={"seed": 17, "horizon": HorizonSpec(start=0, end=0)})
+        changed_seed = request.model_copy(update={"seed": 18})
+        changed_plan = _request_with_interaction_multiplier(request, 6.0)
+        controller = JointSimulationHorizonController()
+    
+        results = (
+            controller.run(request),
+            controller.run(changed_seed),
+            controller.run(changed_plan),
+        )
+        if removal_probe is not None:
+            assert removal_hash_call_count &gt; 0, (  # noqa: S101
+                "removed_property_keep_markers:no _physical_run_ref hash payload was mutated"
+            )
+    
+        pair = ("income_subsidy", "balance_grant")
+        role_views = []
+        for result in results:
+            pairwise = result.trajectory_for("pairwise", pair)
+            joint = result.trajectory_for("joint", pair)
+            assert pairwise.diagnostics["physical_run_ref"] == joint.diagnostics["physical_run_ref"]  # noqa: S101
+            assert pairwise.diagnostics["physical_run_reused"] is False  # noqa: S101
+            assert joint.diagnostics["physical_run_reused"] is True  # noqa: S101
+            assert pairwise.points == joint.points  # noqa: S101
+            role_views.append((pairwise, joint))
+    
+        base_pair, base_joint = role_views[0]
+        seed_pair, seed_joint = role_views[1]
+        plan_pair, plan_joint = role_views[2]
+        physical_refs = {
+            base_pair.diagnostics["physical_run_ref"],
+            seed_pair.diagnostics["physical_run_ref"],
+            plan_pair.diagnostics["physical_run_ref"],
+        }
+&gt;       assert len(physical_refs) == 3  # noqa: S101
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert 2 == 3
+E        +  where 2 = len({'sha256:1bbd7f93e12e9e07eae9037048513d6e4452f4f920f998176e0ca31a097a9417', 'sha256:6d6e5bc9e27f2824cbb745940f9a041cd97c968c5f1fd50148d1285ad219b0f3'})
+
+tests/unit/remediation/test_sim_03.py:447: AssertionError</failure></testcase></testsuite></testsuites>

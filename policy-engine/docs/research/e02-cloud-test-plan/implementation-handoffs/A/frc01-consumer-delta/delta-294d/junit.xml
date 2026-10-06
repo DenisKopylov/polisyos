@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="10" time="14.449" timestamp="2026-10-06T21:44:40.854485+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.remediation.test_frc_01" name="test_finite_estimator_report_without_observations_cannot_pass_calibration" time="13.953" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_nominal_confidence_is_not_empirical_coverage_without_observations" time="0.000" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_missing_report_remains_blocked_and_records_false_clear" time="0.000" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_failed_estimator_diagnostic_remains_limited" time="0.000" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_calibration_time_roles_are_preserved_from_bound_evidence" time="0.099"><failure message="ValueError: blocked empirical calibration evidence cannot be persisted">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frc01-resolved-red-294d/basetemp/test_calibration_time_roles_ar0')
+
+    def test_calibration_time_roles_are_preserved_from_bound_evidence(
+        tmp_path: Path,
+    ) -&gt; None:
+        """The gateway preserves six roles only after strict evidence resolution."""
+    
+        from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
+    
+&gt;       store, evidence_ref, evidence = _persisted_bridge_fixture(tmp_path)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_frc_01.py:354: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/remediation/test_frc_01.py:252: in _persisted_bridge_fixture
+    evidence_ref = bridge.persist_empirical_calibration_evidence(store, evidence)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x130896cf0&gt;
+evidence = EmpiricalCalibrationEvidence(schema_version='1.1', report_id='frc01-synthetic-bridge-fixture', report_ref=BacktestRepo...or=2, persisted_denominator=2, failure_codes=('scope_binding_relation_not_established', 'forbidden_provenance_marker'))
+
+    def persist_empirical_calibration_evidence(
+        store: ArtifactStore,
+        evidence: EmpiricalCalibrationEvidence,
+    ) -&gt; EmpiricalCalibrationEvidenceRef:
+        """Persist neutral evidence and return its typed CAS reference."""
+    
+        if evidence.schema_version != EVIDENCE_SCHEMA_VERSION:
+            raise ValueError(
+                "legacy empirical calibration evidence must not be repersisted"
+            )
+        expected = _reproduce_evidence(store, evidence)
+        if expected.schema_version != EVIDENCE_SCHEMA_VERSION:
+            raise ValueError("new empirical calibration evidence must use schema 1.1")
+        if not expected.context_bound or any(
+            code not in _PERSISTENCE_ALLOWED_LIMITATIONS for code in expected.failure_codes
+        ):
+&gt;           raise ValueError("blocked empirical calibration evidence cannot be persisted")
+E           ValueError: blocked empirical calibration evidence cannot be persisted
+
+src/polisyos/calibration/forecast_bridge.py:526: ValueError</failure></testcase><testcase classname="tests.unit.remediation.test_frc_01" name="test_content_complete_projection_without_resolved_evidence_stays_blocked" time="0.085"><failure message="ValueError: blocked empirical calibration evidence cannot be persisted">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frc01-resolved-red-294d/basetemp/test_content_complete_projecti0')
+
+    def test_content_complete_projection_without_resolved_evidence_stays_blocked(
+        tmp_path: Path,
+    ) -&gt; None:
+        """Valid projected fields alone cannot stand in for resolver admission."""
+    
+&gt;       _store, evidence_ref, evidence = _persisted_bridge_fixture(tmp_path)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_frc_01.py:429: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/remediation/test_frc_01.py:252: in _persisted_bridge_fixture
+    evidence_ref = bridge.persist_empirical_calibration_evidence(store, evidence)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x130bd1a90&gt;
+evidence = EmpiricalCalibrationEvidence(schema_version='1.1', report_id='frc01-synthetic-bridge-fixture', report_ref=BacktestRepo...or=2, persisted_denominator=2, failure_codes=('scope_binding_relation_not_established', 'forbidden_provenance_marker'))
+
+    def persist_empirical_calibration_evidence(
+        store: ArtifactStore,
+        evidence: EmpiricalCalibrationEvidence,
+    ) -&gt; EmpiricalCalibrationEvidenceRef:
+        """Persist neutral evidence and return its typed CAS reference."""
+    
+        if evidence.schema_version != EVIDENCE_SCHEMA_VERSION:
+            raise ValueError(
+                "legacy empirical calibration evidence must not be repersisted"
+            )
+        expected = _reproduce_evidence(store, evidence)
+        if expected.schema_version != EVIDENCE_SCHEMA_VERSION:
+            raise ValueError("new empirical calibration evidence must use schema 1.1")
+        if not expected.context_bound or any(
+            code not in _PERSISTENCE_ALLOWED_LIMITATIONS for code in expected.failure_codes
+        ):
+&gt;           raise ValueError("blocked empirical calibration evidence cannot be persisted")
+E           ValueError: blocked empirical calibration evidence cannot be persisted
+
+src/polisyos/calibration/forecast_bridge.py:526: ValueError</failure></testcase><testcase classname="tests.unit.remediation.test_frc_01" name="test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence" time="0.083"><failure message="ValueError: blocked empirical calibration evidence cannot be persisted">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/frc01-resolved-red-294d/basetemp/test_gateway_rejects_temporal_0')
+
+    def test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence(
+        tmp_path: Path,
+    ) -&gt; None:
+        """A valid CAS body cannot repair caller roles that disagree with its bytes."""
+    
+        from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
+    
+&gt;       store, evidence_ref, evidence = _persisted_bridge_fixture(tmp_path)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/remediation/test_frc_01.py:466: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/remediation/test_frc_01.py:252: in _persisted_bridge_fixture
+    evidence_ref = bridge.persist_empirical_calibration_evidence(store, evidence)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = &lt;polisyos.core.artifacts.store.FileSystemCAS object at 0x130bd2710&gt;
+evidence = EmpiricalCalibrationEvidence(schema_version='1.1', report_id='frc01-synthetic-bridge-fixture', report_ref=BacktestRepo...or=2, persisted_denominator=2, failure_codes=('scope_binding_relation_not_established', 'forbidden_provenance_marker'))
+
+    def persist_empirical_calibration_evidence(
+        store: ArtifactStore,
+        evidence: EmpiricalCalibrationEvidence,
+    ) -&gt; EmpiricalCalibrationEvidenceRef:
+        """Persist neutral evidence and return its typed CAS reference."""
+    
+        if evidence.schema_version != EVIDENCE_SCHEMA_VERSION:
+            raise ValueError(
+                "legacy empirical calibration evidence must not be repersisted"
+            )
+        expected = _reproduce_evidence(store, evidence)
+        if expected.schema_version != EVIDENCE_SCHEMA_VERSION:
+            raise ValueError("new empirical calibration evidence must use schema 1.1")
+        if not expected.context_bound or any(
+            code not in _PERSISTENCE_ALLOWED_LIMITATIONS for code in expected.failure_codes
+        ):
+&gt;           raise ValueError("blocked empirical calibration evidence cannot be persisted")
+E           ValueError: blocked empirical calibration evidence cannot be persisted
+
+src/polisyos/calibration/forecast_bridge.py:526: ValueError</failure></testcase><testcase classname="tests.unit.remediation.test_frc_01" name="test_missing_calibration_evidence_refs_stays_typed_blocked" time="0.001"><failure message="AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []&#10; +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast-support.3a64478bae362a65', support_ref='s10://n8/sha256:3a64478bae362a65f59ab16c06dad31b002abf2fe61de980f656d32fa781c842/forecast-support', case_id='frc01-problem', source_design_record_ref='design://frc01-problem', design_graph_ref='design-graph://frc01-problem', prediction_context_ref='prediction-context://world_model_record_frc01', policy_context_ref='policy-context://world_model_record_frc01', candidate_design_ref='candidate://frc01-candidate', baseline_design_ref='baseline://frc01-problem', alternative_design_refs=[], prediction_horizon_ref='horizon://2025-Q2', target_outcome_refs=['outcome://firm_survival'], jurisdiction_scope_ref='UA', s5_forecast_support_ref='s5://sha256:3a64478bae362a65f59ab16c06dad31b002abf2fe61de980f656d32fa781c842', s5_support_label='validated_local_dynamic_model', s5_base_origin='validated_local_model', s5_claim_scope='system_effect', s6_firewall_status_refs=['s6://frc01-candidate'], s6_limitation_refs=[], s8_value_choice_provenance_ref='s8://frc01-problem/value-choice', s8_value_tradeoff_disclosure_ref='s8://frc01-problem/tradeoff',...b16c06dad31b002abf2fe61de980f656d32fa781c842/95'], limitation_refs=[], abstention_refs=[], authority_boundary=AuthorityBoundary(boundary_id=None, authoritative_for=['forecast_support_tiering', 'observable_subset_calibration', 'value_grounded_welfare_comparison'], may_not_use_for=['production_recommendation', 'production_claim_authority', 'rollout_authority', 'publication_authority', 'claim_authority', 'closeout_authority', 'approval_authority', 'scorecard_authority', 'preference_learning_authority', 's11_calibration', 's12_envelope_growth', 's13_accountability_closure', 's14_universality'], source_authority='deterministic_producer', posture='shadow', rule_version_refs=['policyos.layer2.s10.outcome_prediction.v1'], evidence_kind=None, decision_grade=None, evidence_basis=None, known_limits=[]), may_not_use_for=['production_recommendation', 'production_claim_authority', 'rollout_authority', 'publication_authority', 'claim_authority', 'closeout_authority', 'approval_authority', 'scorecard_authority', 'preference_learning_authority', 's11_calibration', 's12_envelope_growth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs">def test_missing_calibration_evidence_refs_stays_typed_blocked() -&gt; None:
+        """Temporal dates alone cannot mint a calibration record or pass-through tier."""
+    
+        build_inputs = _generation_cycle("_build_s10_forecast_inputs")
+        timestamp = datetime(2025, 1, 15, 8, 30, tzinfo=UTC).isoformat()
+        world_record = SimpleNamespace(
+            world_model_record_id="world_model_record_frc01",
+            content_hash="sha256:" + "a" * 64,
+            valid_time_scope="2025-Q2",
+            region_or_jurisdiction="UA",
+        )
+        problem = SimpleNamespace(
+            design_problem_id="frc01-problem",
+            outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
+        )
+        candidate = SimpleNamespace(candidate_id="frc01-candidate")
+        method_result = SimpleNamespace(output={"report": _finite_estimator_report()})
+    
+        evidence_without_status = {
+            "counterfactual_credibility": "insufficient_history",
+            "prediction_time": timestamp,
+            "observation_time": timestamp,
+            "policy_effective_time": timestamp,
+            "data_valid_time": timestamp,
+            "calibration_window_start": timestamp,
+            "calibration_window_end": timestamp,
+        }
+        assert "calibration_status" not in evidence_without_status
+        inputs = build_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            method_result=method_result,
+            selected_method_fqn="foundry.methods.example",
+            forecast_tier="observable_calibrated",
+            calibration_status="limit",
+            policy_context_ref="policy-context://world_model_record_frc01",
+            expected_policy_context_ref="policy-context://world_model_record_frc01",
+            false_clear_counts={},
+            calibration_evidence=evidence_without_status,
+        )
+    
+        support = inputs["forecast_support"]
+        assert inputs["forecast_calibration_record"] is None
+        assert support.forecast_tier == "blocked"
+        assert support.calibration_record_ref is None
+&gt;       assert "s10://calibration/fail-closed/insufficient-history" in support.s6_limitation_refs
+E       AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []
+E        +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast-support.3a64478bae362a65', support_ref='s10://n8/sha256:3a64478bae362a65f59ab16c06dad31b002abf2fe61de980f656d32fa781c842/forecast-support', case_id='frc01-problem', source_design_record_ref='design://frc01-problem', design_graph_ref='design-graph://frc01-problem', prediction_context_ref='prediction-context://world_model_record_frc01', policy_context_ref='policy-context://world_model_record_frc01', candidate_design_ref='candidate://frc01-candidate', baseline_design_ref='baseline://frc01-problem', alternative_design_refs=[], prediction_horizon_ref='horizon://2025-Q2', target_outcome_refs=['outcome://firm_survival'], jurisdiction_scope_ref='UA', s5_forecast_support_ref='s5://sha256:3a64478bae362a65f59ab16c06dad31b002abf2fe61de980f656d32fa781c842', s5_support_label='validated_local_dynamic_model', s5_base_origin='validated_local_model', s5_claim_scope='system_effect', s6_firewall_status_refs=['s6://frc01-candidate'], s6_limitation_refs=[], s8_value_choice_provenance_ref='s8://frc01-problem/value-choice', s8_value_tradeoff_disclosure_ref='s8://frc01-problem/tradeoff',...b16c06dad31b002abf2fe61de980f656d32fa781c842/95'], limitation_refs=[], abstention_refs=[], authority_boundary=AuthorityBoundary(boundary_id=None, authoritative_for=['forecast_support_tiering', 'observable_subset_calibration', 'value_grounded_welfare_comparison'], may_not_use_for=['production_recommendation', 'production_claim_authority', 'rollout_authority', 'publication_authority', 'claim_authority', 'closeout_authority', 'approval_authority', 'scorecard_authority', 'preference_learning_authority', 's11_calibration', 's12_envelope_growth', 's13_accountability_closure', 's14_universality'], source_authority='deterministic_producer', posture='shadow', rule_version_refs=['policyos.layer2.s10.outcome_prediction.v1'], evidence_kind=None, decision_grade=None, evidence_basis=None, known_limits=[]), may_not_use_for=['production_recommendation', 'production_claim_authority', 'rollout_authority', 'publication_authority', 'claim_authority', 'closeout_authority', 'approval_authority', 'scorecard_authority', 'preference_learning_authority', 's11_calibration', 's12_envelope_growth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs
+
+tests/unit/remediation/test_frc_01.py:550: AssertionError</failure></testcase><testcase classname="tests.unit.remediation.test_frc_01" name="test_unbound_forecast_without_calibration_status_has_no_history_claim" time="0.000" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_s10_authority_boundary_keeps_purpose_denials" time="0.000" /></testsuite></testsuites>

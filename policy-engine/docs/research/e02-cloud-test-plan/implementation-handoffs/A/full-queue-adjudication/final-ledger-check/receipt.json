@@ -1,0 +1,15 @@
+{
+  "command": [
+    "python3",
+    "policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+    "--check"
+  ],
+  "candidate_sha": "b3de1ec3158e5c257edb548e7ef43ac82078531f",
+  "exit_code": 0,
+  "wall_seconds": 0.20814379100920632,
+  "verification_json": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json",
+    "sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17",
+    "bytes": 13971
+  }
+}

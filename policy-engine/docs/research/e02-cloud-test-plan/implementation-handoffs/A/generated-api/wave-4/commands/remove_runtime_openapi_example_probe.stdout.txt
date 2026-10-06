@@ -1,0 +1,17 @@
+{
+  "baseline_violations": [],
+  "expected_violation": "POST /api/v1/analysis/attractors: missing 2xx success response example",
+  "negative_violations": [
+    "POST /api/v1/analysis/attractors: missing 2xx success response example"
+  ],
+  "operation_count": 113,
+  "owner_validator": "polisyos.runtime.http.openapi_contract.validate_runtime_openapi_contract",
+  "selected": {
+    "media_type": "application/json",
+    "method": "POST",
+    "path": "/api/v1/analysis/attractors",
+    "removed_field": "examples",
+    "status_code": "200"
+  },
+  "status": "PASS"
+}

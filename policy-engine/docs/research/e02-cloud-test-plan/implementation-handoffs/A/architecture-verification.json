@@ -1,0 +1,217 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "architecture-verification",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "9794b716a74aee98545449ac97dc98825d2471de",
+  "implementation_commits": [
+    "65ea9072e4877e2198f1ba96b72d2892b2f3fbbb"
+  ],
+  "candidate_tree_sha": "3e703510169f8b6592668138ef607c3d5bd00dcc",
+  "branch": "codex/e02-A-full-queue",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/public-surface.md"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "name": "Full architecture guardrails observation on the pre-slice checkpoint",
+      "command": "uv run --no-sync polisyos-tools architecture guardrails check",
+      "argv": [
+        "uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check"
+      ],
+      "target_sha": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+      "target_tree_sha": "98405fab6c567d9fd44a5e30387c0ba32a7c7cf9",
+      "environment": "Local macOS; PYTHONPATH and single-thread overrides are fully recorded in architecture-verification/guardrails-905820.environment-and-inputs.json.",
+      "input_closure": "Full repository candidate tree at pre-slice checkpoint 905820. The captured output reports public-surface inventory JSON drift, public-surface Markdown drift, deep-import creep against the existing baseline, and trust-claim-posture generated-output drift. No deep-import baseline edit was made.",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "duration_seconds": 197.65400170796784,
+      "output": {
+        "stdout": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/guardrails-905820.stdout.txt",
+          "bytes": 119607,
+          "sha256": "56d2c5f1d58b9eff517038b1da5088753975010a4ef4af59c1e8cd6c9891078d"
+        },
+        "stderr": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/guardrails-905820.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "environment_receipt": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/guardrails-905820.environment-and-inputs.json",
+          "bytes": 1771,
+          "sha256": "ab0e258fd22e4ec43ab586ad7fc53d54b2b797dc1db6862728971281d6cb2f8f"
+        }
+      },
+      "attribution": "This failed at 905820, which predates the actual slice base 9794b716. It is retained as historical diagnostic evidence only; it is not a slice-base replay and is not classified as inherited or candidate failure under P41."
+    },
+    {
+      "name": "Public-surface AST inventory renderer",
+      "command": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python _build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/render_public_surface_inventory.py",
+      "target_sha": "905820ceac5860c7d1c4ebcbdde7b1265afb0b15",
+      "target_tree_sha": "98405fab6c567d9fd44a5e30387c0ba32a7c7cf9",
+      "environment": "Observed interpreter is the product .venv Python; exact interpreter, wrapper, and three tracked input hashes are recorded in architecture-verification/public-surface-render-manifest-before-trust-run.json.",
+      "input_closure": "tools/devx/architecture/guardrails.py, architecture/public_surface/contract.toml, and src/polisyos/core/contracts/__init__.py. Rendered only the two public-surface companions into ignored scratch; deep-import baseline and docs/reference/generated-artifacts.md were out of scope.",
+      "outcome": "PASS",
+      "output": {
+        "manifest": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/public-surface-render-manifest-before-trust-run.json",
+          "bytes": 6344,
+          "sha256": "e5c7d88fe8d3937b50d3dc4517b2ddbd925039f8c0d1370f6d58a3868e34bebb"
+        },
+        "diff": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/public-surface.diff",
+          "bytes": 2017,
+          "sha256": "33354ddfc0c328b959578b70d0b430ac926d436afcfff51143effa1b7e9bb354"
+        },
+        "candidate_inventory": {
+          "path": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/candidate/inventory.json",
+          "bytes": 220894,
+          "sha256": "6cdd125598ef0f0567f53fda6931f6340a728f4a69d978da1f758c691a1d7d7b",
+          "readback_at_candidate_commit": {
+            "path": "policy-engine/architecture/public_surface/inventory.json",
+            "git_ref": "65ea9072e4877e2198f1ba96b72d2892b2f3fbbb",
+            "bytes": 220894,
+            "sha256": "6cdd125598ef0f0567f53fda6931f6340a728f4a69d978da1f758c691a1d7d7b"
+          }
+        },
+        "candidate_markdown": {
+          "path": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/candidate/public-surface.md",
+          "bytes": 152824,
+          "sha256": "557be95d54907de3c95f80c2e639692502473157ad3070314d0532c5b140cd9e",
+          "readback_at_candidate_commit": {
+            "path": "policy-engine/docs/reference/public-surface.md",
+            "git_ref": "65ea9072e4877e2198f1ba96b72d2892b2f3fbbb",
+            "bytes": 152824,
+            "sha256": "557be95d54907de3c95f80c2e639692502473157ad3070314d0532c5b140cd9e"
+          }
+        }
+      }
+    },
+    {
+      "name": "Trust-claim-posture owner generator execution",
+      "command": ".venv/bin/python tools/quality/validation/check_trust_claim_posture.py --repo-root /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine --write --output-root /Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/trust-candidate",
+      "argv": [
+        ".venv/bin/python",
+        "tools/quality/validation/check_trust_claim_posture.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine",
+        "--write",
+        "--output-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/trust-candidate"
+      ],
+      "target_sha": "9794b716a74aee98545449ac97dc98825d2471de",
+      "target_tree_sha": "97a03bcab3f2d50afc3e262ff4a041e9c24042b2",
+      "environment": "Python 3.14.3 on macOS arm64. Explicit PYTHONDONTWRITEBYTECODE=1 and OMP/OPENBLAS/MKL/NUMEXPR/VECLIB thread limits are 1; inherited/effective environment digests are in the execution receipt.",
+      "input_closure": "The owner generator source tools/quality/validation/check_trust_claim_posture.py (SHA-256 3cc47926a168f903a0dd6921eaa131b2d335ef850e8586e7cfbf2ae5837a5ac5) and tracked source identities in trust-semantic-review.json; it wrote only to the ignored output root.",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "owner_verdict": "PASS",
+      "scope_limit": "Owner generation/check execution only; it does not ratify the scientific or authority meaning of the regenerated public projection.",
+      "output": {
+        "execution_receipt": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/trust-owner-execution.json",
+          "bytes": 20476,
+          "sha256": "b46a0d95fb8041ed54341a9f5175f2974b0f634734198a21426964855d830412"
+        },
+        "stderr": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/trust-owner.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout_ignored_path": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/trust-owner.stdout.txt",
+        "stdout_bytes": 2557025,
+        "stdout_sha256": "d6d8db8175cff413cb9c11909af2b1ed72fe5d5010f41e014d9fac7ec16675e3",
+        "candidate_ignored_path": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/trust-candidate/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "candidate_bytes": 2376651,
+        "candidate_sha256": "7ee28857085cf584a613a1d42d6d8f735ddeb8e0153ed66ffe22b0c46ad8eb56",
+        "tracked_target_path": "policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "tracked_target_bytes": 2365635,
+        "tracked_target_sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+      }
+    },
+    {
+      "name": "Trust projection semantic acceptance review",
+      "command": "Complete JSON structural comparison and source-to-claim projection review using helper _build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/compare_trust_json.py (SHA-256 52adceb43a1f1c319e6d114dfe9f4907d419c2e440be692e24fe49ff4f1606b2); this is a review result, not an independently captured test-process receipt.",
+      "target_sha": "9794b716a74aee98545449ac97dc98825d2471de",
+      "target_tree_sha": "97a03bcab3f2d50afc3e262ff4a041e9c24042b2",
+      "environment": "Local comparison; process argv/timing receipt was not captured. Full semantic review and complete diff identities are retained in local scratch and the moderate semantic review is attached here.",
+      "input_closure": "Tracked trust posture JSON at SHA-256 0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba; ignored generated candidate at SHA-256 7ee28857085cf584a613a1d42d6d8f735ddeb8e0153ed66ffe22b0c46ad8eb56; all 19 top-level keys were compared.",
+      "outcome": "FAIL",
+      "result": "Candidate is not acceptable for publication pending source-to-scope association repair/review. The 44 status-sensitive changes comprise 39 lost may_not_use_for values across three scope-specific claims, three resolution changes, and two DS11-SOURCE-RUNTIME-BOUND issue additions. The 13 prohibitions still occur in a separate runtime-bound record, but are no longer attached to each of the three affected claims. All three claims remain blocked; no effective-state or closure signal changed.",
+      "output": {
+        "semantic_review": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/trust-semantic-review.json",
+          "bytes": 46214,
+          "sha256": "04ebfcca63cf60c5ed8805dec278e7c3449f30fbbc4378c8806492786054fc43"
+        },
+        "complete_896_row_structural_diff_ignored_path": "_build/e02-A-full-queue/architecture-frozen-905820/generated-companion-review-905820/trust-json-structural-diff.json",
+        "complete_896_row_structural_diff_bytes": 472669,
+        "complete_896_row_structural_diff_sha256": "26f62deb898bb9632061e4fecb66ab769fa07874a0d387f782f1f66716f35f22"
+      }
+    },
+    {
+      "name": "Full architecture guardrails check at the actual slice base",
+      "command": "uv run --no-sync polisyos-tools architecture guardrails check",
+      "target_sha": "9794b716a74aee98545449ac97dc98825d2471de",
+      "target_tree_sha": "97a03bcab3f2d50afc3e262ff4a041e9c24042b2",
+      "environment": "Not run at this slice base.",
+      "input_closure": "Full architecture guardrail suite at the actual parent of the public-surface companion commit.",
+      "outcome": "UNRUN",
+      "output": "No full architecture gate replay at slice base 9794b716a74aee98545449ac97dc98825d2471de."
+    },
+    {
+      "name": "Full architecture guardrails check at the public-surface candidate commit",
+      "command": "uv run --no-sync polisyos-tools architecture guardrails check",
+      "target_sha": "65ea9072e4877e2198f1ba96b72d2892b2f3fbbb",
+      "target_tree_sha": "3e703510169f8b6592668138ef607c3d5bd00dcc",
+      "environment": "Not run at this candidate.",
+      "input_closure": "Full architecture guardrail suite at the public-surface candidate tree.",
+      "outcome": "UNRUN",
+      "output": "No full architecture gate replay at 65ea9072e4877e2198f1ba96b72d2892b2f3fbbb. The branch later advanced, but that is outside this candidate receipt."
+    },
+    {
+      "name": "Appointed scientific owner decision on trust-projection meaning",
+      "command": "No owner-decision command; awaiting a tracked declaration from the appointed authority.",
+      "target_sha": "9794b716a74aee98545449ac97dc98825d2471de",
+      "environment": "No owner decision recorded in this handoff evidence.",
+      "input_closure": "Conditional S10 scope-to-denial projection and the affected public trust claims.",
+      "outcome": "UNRUN",
+      "output": "No scientific semantic ratification or manual projection override is asserted."
+    }
+  ],
+  "property": {
+    "statement": "Generated public-surface inventory and documentation must match their canonical AST producer. Separately, the public trust-posture projection must preserve source-bound restrictions on each scoped claim and must not treat unresolved dynamic source binding as proof that a restriction is absent.",
+    "runtime_path": [
+      "Canonical public interface: src/polisyos/core/contracts/__init__.py -> tools/devx/architecture/guardrails.py AST inventory renderer -> architecture/public_surface/inventory.json and docs/reference/public-surface.md.",
+      "Trust posture: source declarations in runtime/quality/generation_cycle.py, runtime/quality/promotion_sequence.py, and runtime/quality/design_axes/outcome_prediction.py -> tools/quality/validation/check_trust_claim_posture.py -> apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json -> Atlas trust consumer/surface.",
+      "Projection bridge under review: source-bound declaration extraction and association of may_not_use_for values with each claim scope."
+    ],
+    "proxy_divergence": "The owner generator exits 0 with verdict PASS, but this is not the scoped-denial property. On the captured candidate, three claims lose all 13 may_not_use_for values because the conditional S10 authority site is runtime_bound and its dynamic scope-to-denial join does not attach the values to those scope-specific claims. The restrictions still appear in a separate runtime-bound record. This is a concrete P38 divergence; it does not show that the affected claims became supported or closed.",
+    "negative_controls": [
+      "The three affected existing claims remain blocked with the same blocker codes; there is no effective-state promotion or closure-signal change.",
+      "New and removed claim rows in the candidate are blocked; no scientific owner ratification or manual JSON/status override was used.",
+      "The public AST renderer was limited to two generated outputs; it did not update the deep-import baseline or generated-artifacts reference."
+    ]
+  },
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": "verification_missing",
+  "limitations_and_next_owner": [
+    "Closure IDs remain empty. B31 remains held; this architecture check does not ratify owner semantics or close B31.",
+    "G trust-projection owner: repair or otherwise technically resolve the consumer-plane join so source-bound deny-use restrictions stay associated with their scoped claims under conditional/runtime-bound source declarations; provide a source-bound negative test and regenerated output for review.",
+    "An appointed scientific/semantic authority decision is still required before treating any disputed projection meaning as ratified. No such authority is invented or inferred from this generator pass.",
+    "Do not hand-copy or manually edit the trust JSON to bypass the owner. Keep architecture/imports/deep_import_baseline.json unchanged until its proper owner decides the separate deep-import findings.",
+    "The full architecture run at 905820 failed before this slice base. There is no exact full-gate replay at slice base 9794 or candidate 65ea; P41 attribution is not established. The full gate remains UNRUN for this slice.",
+    "The exact 9794-to-65ea implementation footprint is the two public-surface companions. Their committed bytes at 65ea match the renderer candidates exactly. The branch later advanced to 00fa6d8; that descendant is outside this handoff candidate."
+  ]
+}

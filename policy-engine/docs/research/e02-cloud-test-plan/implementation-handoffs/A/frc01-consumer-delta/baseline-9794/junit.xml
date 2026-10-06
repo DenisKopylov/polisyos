@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="7" time="12.132" timestamp="2026-10-06T21:32:46.581737+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.remediation.test_frc_01" name="test_finite_estimator_report_without_observations_cannot_pass_calibration" time="11.975" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_nominal_confidence_is_not_empirical_coverage_without_observations" time="0.000" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_missing_report_remains_blocked_and_records_false_clear" time="0.000" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_failed_estimator_diagnostic_remains_limited" time="0.000" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_calibration_time_roles_are_preserved_from_bound_evidence" time="0.001"><failure message="AttributeError: 'NoneType' object has no attribute 'prediction_time'">def test_calibration_time_roles_are_preserved_from_bound_evidence() -&gt; None:
+        """Prediction, observation, effective, valid, and window times stay distinct."""
+    
+        build_inputs = _generation_cycle("_build_s10_forecast_inputs")
+        prediction_time = datetime(2025, 1, 15, 8, 30, tzinfo=UTC)
+        observation_time = datetime(2025, 4, 20, 9, 45, tzinfo=UTC)
+        policy_effective_time = datetime(2025, 2, 1, 0, 0, tzinfo=UTC)
+        data_valid_time = datetime(2025, 4, 1, 0, 0, tzinfo=UTC)
+        window_start = datetime(2025, 3, 1, 0, 0, tzinfo=UTC)
+        window_end = datetime(2025, 4, 30, 23, 59, tzinfo=UTC)
+        world_record = SimpleNamespace(
+            world_model_record_id="world_model_record_frc01",
+            content_hash="sha256:" + "a" * 64,
+            valid_time_scope="2025-Q2",
+            region_or_jurisdiction="UA",
+        )
+        problem = SimpleNamespace(
+            design_problem_id="frc01-problem",
+            outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
+        )
+        candidate = SimpleNamespace(candidate_id="frc01-candidate")
+        method_result = SimpleNamespace(
+            output={"report": _finite_estimator_report()}
+        )
+    
+        inputs = build_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            method_result=method_result,
+            selected_method_fqn="foundry.methods.example",
+            forecast_tier="observable_calibrated",
+            calibration_status="limit",
+            policy_context_ref="policy-context://world_model_record_frc01",
+            expected_policy_context_ref="policy-context://world_model_record_frc01",
+            false_clear_counts={},
+            calibration_evidence={
+                "denominator": 0,
+                "numerator": 0,
+                "pass_rate": 0.0,
+                "floor_passed": False,
+                "counterfactual_credibility": "insufficient_history",
+                "prediction_time": prediction_time.isoformat(),
+                "observation_time": observation_time.isoformat(),
+                "policy_effective_time": policy_effective_time.isoformat(),
+                "data_valid_time": data_valid_time.isoformat(),
+                "calibration_window_start": window_start.isoformat(),
+                "calibration_window_end": window_end.isoformat(),
+                "observed_outcome_ref": "outcome://frc01/observed",
+                "historical_implementation_ref": "implementation://frc01/history",
+                "evaluation_design_ref": "evaluation://frc01/design",
+                "credible_evaluation_evidence_ref": "evidence://frc01/credible",
+                "source_lineage_refs": ["lineage://frc01/source"],
+                "method_lineage_refs": ["lineage://frc01/method"],
+            },
+        )
+        record = inputs["forecast_calibration_record"]
+    
+&gt;       assert record.prediction_time == prediction_time
+               ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'prediction_time'
+
+tests/unit/remediation/test_frc_01.py:158: AttributeError</failure></testcase><testcase classname="tests.unit.remediation.test_frc_01" name="test_missing_calibration_evidence_refs_stays_typed_blocked" time="0.000"><failure message="AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []&#10; +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast-support.3a64478bae362a65', support_ref='s10://n8/sha256:3a64478bae362a65f59ab16c06dad31b002abf2fe61de980f656d32fa781c842/forecast-support', case_id='frc01-problem', source_design_record_ref='design://frc01-problem', design_graph_ref='design-graph://frc01-problem', prediction_context_ref='prediction-context://world_model_record_frc01', policy_context_ref='policy-context://world_model_record_frc01', candidate_design_ref='candidate://frc01-candidate', baseline_design_ref='baseline://frc01-problem', alternative_design_refs=[], prediction_horizon_ref='horizon://2025-Q2', target_outcome_refs=['outcome://firm_survival'], jurisdiction_scope_ref='UA', s5_forecast_support_ref='s5://sha256:3a64478bae362a65f59ab16c06dad31b002abf2fe61de980f656d32fa781c842', s5_support_label='validated_local_dynamic_model', s5_base_origin='validated_local_model', s5_claim_scope='system_effect', s6_firewall_status_refs=['s6://frc01-candidate'], s6_limitation_refs=[], s8_value_choice_provenance_ref='s8://frc01-problem/value-choice', s8_value_tradeoff_disclosure_ref='s8://frc01-problem/tradeoff',...b16c06dad31b002abf2fe61de980f656d32fa781c842/95'], limitation_refs=[], abstention_refs=[], authority_boundary=AuthorityBoundary(boundary_id=None, authoritative_for=['forecast_support_tiering', 'observable_subset_calibration', 'value_grounded_welfare_comparison'], may_not_use_for=['production_recommendation', 'production_claim_authority', 'rollout_authority', 'publication_authority', 'claim_authority', 'closeout_authority', 'approval_authority', 'scorecard_authority', 'preference_learning_authority', 's11_calibration', 's12_envelope_growth', 's13_accountability_closure', 's14_universality'], source_authority='deterministic_producer', posture='shadow', rule_version_refs=['policyos.layer2.s10.outcome_prediction.v1'], evidence_kind=None, decision_grade=None, evidence_basis=None, known_limits=[]), may_not_use_for=['production_recommendation', 'production_claim_authority', 'rollout_authority', 'publication_authority', 'claim_authority', 'closeout_authority', 'approval_authority', 'scorecard_authority', 'preference_learning_authority', 's11_calibration', 's12_envelope_growth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs">def test_missing_calibration_evidence_refs_stays_typed_blocked() -&gt; None:
+        """Temporal dates alone cannot mint a calibration record or pass-through tier."""
+    
+        build_inputs = _generation_cycle("_build_s10_forecast_inputs")
+        timestamp = datetime(2025, 1, 15, 8, 30, tzinfo=UTC).isoformat()
+        world_record = SimpleNamespace(
+            world_model_record_id="world_model_record_frc01",
+            content_hash="sha256:" + "a" * 64,
+            valid_time_scope="2025-Q2",
+            region_or_jurisdiction="UA",
+        )
+        problem = SimpleNamespace(
+            design_problem_id="frc01-problem",
+            outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
+        )
+        candidate = SimpleNamespace(candidate_id="frc01-candidate")
+        method_result = SimpleNamespace(output={"report": _finite_estimator_report()})
+    
+        inputs = build_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            method_result=method_result,
+            selected_method_fqn="foundry.methods.example",
+            forecast_tier="observable_calibrated",
+            calibration_status="limit",
+            policy_context_ref="policy-context://world_model_record_frc01",
+            expected_policy_context_ref="policy-context://world_model_record_frc01",
+            false_clear_counts={},
+            calibration_evidence={
+                "counterfactual_credibility": "insufficient_history",
+                "prediction_time": timestamp,
+                "observation_time": timestamp,
+                "policy_effective_time": timestamp,
+                "data_valid_time": timestamp,
+                "calibration_window_start": timestamp,
+                "calibration_window_end": timestamp,
+            },
+        )
+    
+        support = inputs["forecast_support"]
+        assert inputs["forecast_calibration_record"] is None
+        assert support.forecast_tier == "blocked"
+        assert support.calibration_record_ref is None
+&gt;       assert "s10://calibration/fail-closed/insufficient-history" in support.s6_limitation_refs
+E       AssertionError: assert 's10://calibration/fail-closed/insufficient-history' in []
+E        +  where [] = ForecastSupport(schema_version='policyos.policy_design_case.layer2_s10_outcome_prediction.v1', support_id='n8.forecast-support.3a64478bae362a65', support_ref='s10://n8/sha256:3a64478bae362a65f59ab16c06dad31b002abf2fe61de980f656d32fa781c842/forecast-support', case_id='frc01-problem', source_design_record_ref='design://frc01-problem', design_graph_ref='design-graph://frc01-problem', prediction_context_ref='prediction-context://world_model_record_frc01', policy_context_ref='policy-context://world_model_record_frc01', candidate_design_ref='candidate://frc01-candidate', baseline_design_ref='baseline://frc01-problem', alternative_design_refs=[], prediction_horizon_ref='horizon://2025-Q2', target_outcome_refs=['outcome://firm_survival'], jurisdiction_scope_ref='UA', s5_forecast_support_ref='s5://sha256:3a64478bae362a65f59ab16c06dad31b002abf2fe61de980f656d32fa781c842', s5_support_label='validated_local_dynamic_model', s5_base_origin='validated_local_model', s5_claim_scope='system_effect', s6_firewall_status_refs=['s6://frc01-candidate'], s6_limitation_refs=[], s8_value_choice_provenance_ref='s8://frc01-problem/value-choice', s8_value_tradeoff_disclosure_ref='s8://frc01-problem/tradeoff',...b16c06dad31b002abf2fe61de980f656d32fa781c842/95'], limitation_refs=[], abstention_refs=[], authority_boundary=AuthorityBoundary(boundary_id=None, authoritative_for=['forecast_support_tiering', 'observable_subset_calibration', 'value_grounded_welfare_comparison'], may_not_use_for=['production_recommendation', 'production_claim_authority', 'rollout_authority', 'publication_authority', 'claim_authority', 'closeout_authority', 'approval_authority', 'scorecard_authority', 'preference_learning_authority', 's11_calibration', 's12_envelope_growth', 's13_accountability_closure', 's14_universality'], source_authority='deterministic_producer', posture='shadow', rule_version_refs=['policyos.layer2.s10.outcome_prediction.v1'], evidence_kind=None, decision_grade=None, evidence_basis=None, known_limits=[]), may_not_use_for=['production_recommendation', 'production_claim_authority', 'rollout_authority', 'publication_authority', 'claim_authority', 'closeout_authority', 'approval_authority', 'scorecard_authority', 'preference_learning_authority', 's11_calibration', 's12_envelope_growth', 's13_accountability_closure', 's14_universality'], rule_version_ref='policyos.layer2.s10.outcome_prediction.v1').s6_limitation_refs
+
+tests/unit/remediation/test_frc_01.py:224: AssertionError</failure></testcase><testcase classname="tests.unit.remediation.test_frc_01" name="test_s10_authority_boundary_keeps_purpose_denials" time="0.000" /></testsuite></testsuites>

@@ -1,0 +1,51 @@
+--- tracked/architecture/public_surface/inventory.json
++++ candidate/inventory.json
+@@ -539,7 +539,7 @@
+         {
+           "module": "polisyos.core.contracts",
+           "facade_mode_observed": "lazy_facade",
+-          "export_count": 489,
++          "export_count": 492,
+           "exports": [
+             "*_CHRONOLOGY_EXPORTS",
+             "BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION",
+@@ -641,6 +641,9 @@
+             "CompileRequest",
+             "CompileResult",
+             "ComplianceIssue",
++            "ConditionalSimulationInteractionEvidence",
++            "ConditionalSimulationObservation",
++            "ConditionalSimulationValueProjection",
+             "ConnectorInfo",
+             "ConnectorsListResponse",
+             "ContinuationBranch",
+--- tracked/docs/reference/public-surface.md
++++ candidate/public-surface.md
+@@ -196,7 +196,7 @@
+ | Entrypoint | Source | Facade | Exports |
+ | --- | --- | --- | ---: |
+ | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 134 |
+-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 489 |
++| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 492 |
+ | `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `eager_exports` | 25 |
+ | `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 106 |
+ | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 5 |
+@@ -354,7 +354,7 @@
+ - Facade: `lazy_facade`
+ - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
+ 
+-<details><summary>Entrypoint exports (489)</summary>
++<details><summary>Entrypoint exports (492)</summary>
+ 
+ ```text
+ *_CHRONOLOGY_EXPORTS
+@@ -457,6 +457,9 @@
+ CompileRequest
+ CompileResult
+ ComplianceIssue
++ConditionalSimulationInteractionEvidence
++ConditionalSimulationObservation
++ConditionalSimulationValueProjection
+ ConnectorInfo
+ ConnectorsListResponse
+ ContinuationBranch

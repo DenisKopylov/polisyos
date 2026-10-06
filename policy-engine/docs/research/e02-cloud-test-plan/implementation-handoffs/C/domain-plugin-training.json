@@ -219,7 +219,7 @@
     "reward_characterization": "Real PolisySimulator.run(3) returns a four-state trajectory. The controlled plugin supplies per-agent rewards [2,2,2] on each of three transitions. CompositeReward.total is the mean across agents (2 per transition); summing three evaluations yields 6. SimulationResult has no reward_history field, so this records the existing trajectory/reward consumer and does not add a history DTO or assert durable historical reward storage."
   },
   "predicate_basis": "recomputed",
-  "capability_state_or_finding_state": "Current candidate assessment: LA-022 closed for the bounded PLG-01 discovery-migration criterion; the historical G97 ledger status remains partial. Owner-issued plugin verification/admission remains a separate open verification_missing capability and is not a closure blocker for LA-022. LA-023 is limited to the demonstrated Economics one-call trainer-to-tenant-CAS/readback path; broader public .train claims and cross-call continuation remain held/unestablished. Historical G97 ledger status remains partial.",
+  "capability_state_or_finding_state": "Current candidate assessment: LA-022 is closed for the bounded PLG-01 discovery-migration criterion; separate owner-issued plugin verification/admission remains verification_missing and does not expand that criterion. LA-023's overall finding verdict is held. Its bounded Economics one-call trainer-to-tenant-CAS/policy-readback code outcome is implemented and verified, but the named Product owner decision and remaining original-scope verification are outstanding. Historical G97 ledger status remains partial for both findings.",
   "finding_dispositions": {
     "historical_ledger_status": {
       "LA-022": "partial",
@@ -227,7 +227,7 @@
     },
     "current_candidate_status": {
       "LA-022": "closed",
-      "LA-023": "limited"
+      "LA-023": "held"
     },
     "LA-022": {
       "status": "closed",
@@ -239,20 +239,33 @@
       "historical_status_preserved": true
     },
     "LA-023": {
-      "status": "limited",
+      "status": "held",
+      "finding_verdict": "held",
+      "code_outcome": "GO for the bounded one-call Economics path: implemented and verified on the frozen candidate through real native optimizer updates, tenant-CAS persistence, fresh persisted-policy action readback, and the marker-preserving optimizer-removal negative control. Unsupported composite and tier profiles remain bridge_pending before optimizer/CAS. This bounded code result does not decide the full LA-023 finding.",
       "supported_scope": "One actual Economics PolisySimulator.train call invokes the existing native actor-critic optimizer, changes the learned policy's independently recomputed same-observation action, writes to the supplied tenant CAS, and strictly reloads the persisted artifact with the runtime-observed tier. The marker-preserving optimizer-removal control keeps trained/loss/artifact/CAS/readback markers but fails the independent action oracle. Unsupported composite and unsupported tier profiles are refused with bridge_pending before optimizer/CAS.",
       "held_or_unestablished": "The full PLG-03 contract is not closed: the separate true zero-gradient criterion, train/eval and RNG/reset/continuation criteria, typed cross-call checkpoint/resume, historical TrainingResult reader/compatibility, and public .train scope ratification remain unestablished or held. The separate identity/no-update probe is synthetic and is not claimed as a native zero-gradient optimizer run. No training-history DTO or wider trainer framework is introduced.",
+      "missing_inputs": [
+        "Product owner decision recording the narrowed public .train claim (Economics one-call training only), bridge_pending behavior for other profiles, the compatibility facade sunset, and whether or when cross-call checkpoint/resume is in scope. The tracked ruling in closure-decisions/C.md states this owner decision is separate from the already available bounded Economics mechanism.",
+        "A typed cross-call checkpoint profile for optimizer state, RNG state, reset semantics, domain/schema and artifact identity does not exist; do not claim cross-call continuation or invent the contract in this handoff."
+      ],
+      "remaining_verification": [
+        "Run the original PLG-03 true zero-gradient criterion through the native optimizer; the synthetic identity/no-update control is not this witness.",
+        "Verify the original train/eval, RNG, reset and continuation criteria on the bridge path.",
+        "Resolve and test historical TrainingResult reader/compatibility and provenance; no supported reader was found, which does not establish that no external reader exists.",
+        "Do not claim cross-call checkpoint/resume until its typed profile and consumer readback are defined and verified."
+      ],
+      "adjudication_basis": "The overall finding remains held because the original LA-023 scope includes the public .train promise and semantic criteria beyond the bounded code path. Follow the tracked Product-owner boundary in policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md (Economics training section; LA-023 row; order of implementation), which explicitly preserves the bounded one-call mechanism while reserving public wording/facade-sunset ratification and forbidding cross-call continuation claims without a typed checkpoint profile.",
       "historical_status_preserved": true
     },
     "global_ledger_mutated": false,
-    "current_assessment_source": "Frozen candidate a452011da3de26d90877ae95ab10a72cce8e0b45, tree d35c3e132b930eb7b9512ab7314a5f94c4733d3a. These bounded candidate dispositions are separate from the historical G97 ledger rows; only LA-022 is marked closed for its original PLG-01 criterion here."
+    "current_assessment_source": "Frozen candidate a452011da3de26d90877ae95ab10a72cce8e0b45, tree d35c3e132b930eb7b9512ab7314a5f94c4733d3a. Current finding verdicts are separate from historical G97 ledger rows: LA-022 is closed for its original PLG-01 criterion; LA-023 is held overall with a verified bounded one-call code outcome."
   },
   "pattern_pass": {
     "ids": ["P01", "P02", "P04", "P05", "P06", "P10", "P14", "P27", "P29", "P32", "P33", "P37", "P38"],
     "existing_failure_modes": "Discovery had separate source paths and candidate validation gaps; legacy training reported rollout rewards as if they were optimizer losses and could return an unchanged policy as trained. Review also found a P38 runtime-profile proxy: the adapter hardcoded STRICT_CPU while the native helper only emitted tier-validation warnings.",
     "target_pattern": "Reuse Core's collector and preserve the legacy DomainPlugin ABI; keep its list/error-log semantics without inventing a report DTO; route only the supported Economics profile through the existing trainer; derive its tier from the existing runtime-fingerprint owner and hold missing or mismatched profiles; use typed bridge_pending for unsupported profiles; verify training with independent persisted-policy action readback and an optimizer-removal negative control.",
     "missing_capability_labels": ["verification_missing", "semantic_test_missing"],
-    "acceptance_signal": "The exact frozen candidate passes independent installed-distribution/ABI and 26-test discovery evidence, before/after source/error/order/lifecycle probes, the 17-test actual CPU trainer/CAS/action and marker-removal suite, runtime-tier negatives, lint and formatting. LA-022's bounded primary criterion is closed in this candidate handoff; separate plugin authority and the wider LA-023 promise/checkpoint criteria remain explicitly open or held."
+    "acceptance_signal": "The exact frozen candidate passes independent installed-distribution/ABI and 26-test discovery evidence, before/after source/error/order/lifecycle probes, the 17-test actual CPU trainer/CAS/action and marker-removal suite, runtime-tier negatives, lint and formatting. LA-022's bounded primary criterion is closed. LA-023's overall finding verdict remains held while its bounded one-call code outcome is GO; its Product-owner public-scope decision and remaining original-scope verification are explicit outstanding inputs."
   },
   "limitations_and_next_owner": [
     "PLG-01 now has both its isolated-fixture source/error/order/lifecycle probes and a genuine installed-wheel external DomainPlugin check alongside built-in Economics. The installed fixture is intentionally tiny and verifies ABI availability, not arbitrary third-party ecosystem compatibility.",
@@ -261,7 +274,7 @@
     "PLG-03's bounded actual one-call positive and optimizer-removal tests ran. The full card's separate zero-gradient control and bridge-level train/eval, RNG/reset, and cross-call continuation criteria remain unverified. No typed checkpoint profile exists for RNG state, optimizer state, domain schema, or artifact identity; do not claim cross-call resume.",
     "No supported historical TrainingResult reader/deserializer was found. Historical result provenance/compatibility is unverified rather than declared absent from all possible external callers.",
     "The reward fixture proves current live trajectory and CompositeReward evaluation semantics, but SimulationResult does not persist or expose reward_history; durable historical reward readback is not implemented by this change.",
-    "The PLG implementation received an independent frozen-source review. Product-owner ratification is still required before treating Economics-only one-call training, typed bridge_pending for other profiles, or any checkpoint/resume boundary as the full public .train promise. This handoff records a bounded candidate assessment and does not mutate the historical G97 closure ledger.",
+    "Product-owner ratification is still required for the narrowed public .train wording, bridge_pending behavior for other profiles, compatibility facade sunset, and any decision about checkpoint/resume scope. The bounded one-call mechanism remains available; the overall LA-023 verdict stays held until the owner decision and remaining semantic verification are resolved. This handoff does not mutate the historical G97 closure ledger.",
     "No pyproject/lockfile or backend service change was needed. A separate final check built the exact candidate archive, synced a fresh offline base profile with no extras and no pytest, installed the wheel without changing dependencies, and ran isolated public CLI/DomainPlugin ABI probes. That installation check did not train a model or execute the optimizer. The native trainer run remained CPU-only; no GPU, shared database, production dataset, or full backend suite was used.",
     "The repository pre-commit hook could not run because its configured runtime-dashboard lefthook executable is absent in this worktree. Installs were prohibited; implementation commits therefore used a one-command git -c core.hooksPath=/dev/null override after recording the failed hook condition.",
     "Runtime tier/device alignment is enforced against the existing fingerprint owner's observation before the optimizer and on strict artifact readback. Only the actual CPU profile was exercised numerically in this slice; no GPU numerical replay was run."

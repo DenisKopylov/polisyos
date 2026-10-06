@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from functools import wraps
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar
 from uuid import uuid4
 
 from opentelemetry import trace
@@ -27,10 +27,10 @@ from opentelemetry.trace import Status, StatusCode, Tracer
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
+from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.resilience._bounded_registry import (
     BoundedResourceRegistry,
 )
-from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -401,9 +401,7 @@ class CircuitBreaker:
                 f"Circuit '{self.circuit_id}' lease '{lease_id}' was finalized twice"
             )
         if lease_id not in self._active_attempts:
-            raise CircuitLeaseError(
-                f"Circuit '{self.circuit_id}' lease '{lease_id}' is not owned"
-            )
+            raise CircuitLeaseError(f"Circuit '{self.circuit_id}' lease '{lease_id}' is not owned")
 
     def _release_half_open_lease_locked(self, lease: CircuitAttemptLease | None) -> None:
         if lease is None or not lease.owns_half_open_slot or lease.token is None:
@@ -699,7 +697,7 @@ def with_circuit_breaker(
         func: Callable[..., Awaitable[T]],
         args: tuple[Any, ...],
         kwargs: dict[str, Any],
-    ) -> CircuitBreaker:
+    ) -> Any:
         if callable(circuit_id):
             resolved_id = circuit_id(*args, **kwargs)
         elif isinstance(circuit_id, str):
@@ -707,19 +705,16 @@ def with_circuit_breaker(
         else:
             resolved_id = _default_circuit_id(func, args, kwargs)
 
-        return cast(
-            "CircuitBreaker",
-            breakers.get_or_create(
-                resolved_id,
-                lambda: CircuitBreaker(circuit_id=resolved_id, config=config),
-            ),
+        return breakers.lease(
+            resolved_id,
+            lambda: CircuitBreaker(circuit_id=resolved_id, config=config),
         )
 
     def decorator(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
         @wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> T:
-            breaker = _resolve_breaker(func, args, kwargs)
-            return await breaker.execute(func, *args, **kwargs)
+            with _resolve_breaker(func, args, kwargs) as breaker:
+                return await breaker.execute(func, *args, **kwargs)
 
         wrapper._circuit_breakers = breakers  # type: ignore[attr-defined]
         return wrapper

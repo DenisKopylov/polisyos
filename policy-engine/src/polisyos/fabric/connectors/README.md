@@ -114,3 +114,14 @@ admission budget. Failed disconnect retains the cleanup owner and its permit;
 `close_all()` retries that owner and refuses to report a completed drain until
 physical cleanup succeeds. Circuit/live journal permissions are independent of
 this admission budget and do not establish external data authority.
+
+## Resilience operation ownership
+
+Rate-limit and circuit decorators lease the same keyed regulator for the complete
+provider operation. Registry TTL/LRU may remove an entry only when its regulator is
+neutral and no operation owns it. A refilled token bucket remains owned while its
+provider awaits; later Retry-After feedback applies to the original keyed regulator.
+Protected capacity is finite and refuses a new owner before provider work starts.
+Same-key concurrent owners share the regulator, and cancellation/error releases
+only that operation's lease. State-based `get_or_create` remains a lookup API;
+operation consumers use `lease` across their awaited work.

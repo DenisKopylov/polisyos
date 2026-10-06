@@ -1,6 +1,6 @@
 {
-  "checked_complete_files": 40,
+  "checked_complete_files": 49,
   "credential_or_signed_query_hits": [],
-  "sanitation": "none; all output bytes retained; gzip lossless with decompressed hashes",
-  "scope": "all delivered companion outputs, receipts, independent test, baseline queries"
+  "sanitation": "none; complete output bytes retained; gzip lossless with decompressed hashes",
+  "scope": "all current delivered companions incl release replay"
 }

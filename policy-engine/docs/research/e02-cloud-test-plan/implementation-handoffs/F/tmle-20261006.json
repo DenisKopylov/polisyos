@@ -15,7 +15,7 @@
   ],
   "candidate_tree_sha": "4d87ce0690e001967b245ce18217cb36fff3c988",
   "branch": "codex/e02-F-tmle-20261006",
-  "pull_request": null,
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/50",
   "changed_paths": [
     "policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
     "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
@@ -238,6 +238,32 @@
       "exit": 0,
       "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/ruff-format.json",
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/ruff-format.stdout.txt"
+    },
+    {
+      "command": [
+        "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+        "tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py",
+        "tests/unit/remediation/test_fit_01.py",
+        "tests/unit/foundry/methods/catalog/causal/test_nuisance_layer.py",
+        "tests/unit/foundry/methods/catalog/causal/test_nuisance_resolver_wiring.py",
+        "tests/unit/foundry/methods/catalog/causal/test_stochastic_policies.py",
+        "-v",
+        "-s"
+      ],
+      "target_sha": "58937768a8ce9ea7a445a9cdda60d3abf02553e6",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/environment.json",
+      "input_closure": "same complete six-selector native suite on release-companion commit; runtime/test blobs read back equal exact55d2",
+      "outcome": "PASS",
+      "exit": 0,
+      "passed": 82,
+      "warnings": 102,
+      "pytest_duration_s": 16.56,
+      "wall_s": 21.773692585993558,
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-release.json",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-20261006/native-release.stdout.txt.gz"
     }
   ],
   "property": {
@@ -406,5 +432,15 @@
       "missing_input": "common production MethodJob bridge not yet integrated in this source",
       "semantic_owner": "root F consumer; G exact integrated-SHA local rerun"
     }
+  },
+  "release_companion": {
+    "implementation_doc_commit": "58937768a8ce9ea7a445a9cdda60d3abf02553e6",
+    "tree": "e83b4434309cb188ffbf0f32ff3b8c02f8cf7f71",
+    "path": "policy-engine/release-fragments/unreleased/2026-10-06-tmle-fit-contract.toml",
+    "sha256": "25cbd36a7541d8f0754784418681ae6015e35abba07a1a175a2d9092dbd00421",
+    "source_runtime_implementation": "55d2e14755bda6af31c41acd4fe1dcb76f3814b1",
+    "unchanged_runtime_and_test_blobs": true,
+    "release_class": "python-public-api",
+    "finding_decision_delta": "none; genericB54 closed andB56 limited remain exact originalscope"
   }
 }

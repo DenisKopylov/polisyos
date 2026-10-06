@@ -49,4 +49,6 @@
 - N7/budget/recursion: typed compiler→C variable mapping и B66 settlement ещё не G-admitted; A dispatch/served ledger bridge, двух-child producer и persisted partial frontier остаются отдельными A gaps. N6 signed/currentness positive также UNRUN.
 - G — единственный integration publisher. Fetched main `198076863e143dea9f89f02734b13d50dae3eed5` / tree `2b754a92c27959e2e747738d47ed0b419f3b6dd8`, anchor `1ddcd7b3905e52c0d19db091823a64830139fa64` подтверждён. G integration `127dc7ab8365d29eb656fe32c0c894f6cc971286`; broad frozen backend/CI wave остаётся G verification. В main ничего не публикуется.
 
-Cleanup и preservation: [cleanup.json](cleanup.json). Уникальные CAS/checkpoints, production originals, code/docs и полные deciding outputs сохраняются; reusable каталоги/окружения перемещаются только в Корзину после окончательного сохранения receipts. Корзина не очищается.
+Receipts сохранены в `7a4c1c55387035bb78a3f9bb9240cd3cd956899d` / tree `f46cddc783e089952d72c9b3c01df8ed046eb844`; полная 463-path branch readback дала ноль несовпадений.
+
+Cleanup: [cleanup.json](cleanup.json). После readback двух native Trash moves перемещены завершённая compiler `.venv` и три дублирующих 905820 лог-файла. Source absence и Trash destination подтверждены тем же dev/inode. Корзина не очищена, physical reclamation не заявлена. Root runtime/node_modules остаются активными для publication/remaining consumer checks; production originals, shared Python, source/docs, уникальные CAS/checkpoints/wheels и полные deciding outputs сохранены.

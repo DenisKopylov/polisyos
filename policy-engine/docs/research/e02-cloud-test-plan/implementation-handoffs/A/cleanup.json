@@ -1,7 +1,84 @@
 {
   "schema": "e02.A.cleanup.v1",
-  "status": "preservation_before_native_trash",
-  "moves": [],
+  "status": "two_completed_native_trash_moves_active_and_unique_inputs_retained",
+  "moves": [
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos/policy-engine/.venv",
+      "source_lstat": {
+        "dev": 16777231,
+        "inode": 170913458,
+        "mode": 16877,
+        "size": 320
+      },
+      "open_handle_check": {
+        "command": [
+          "/usr/sbin/lsof",
+          "+D",
+          "/Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos/policy-engine/.venv"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      "command": [
+        "/usr/bin/trash",
+        "--stopOnError",
+        "--verbose",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos/policy-engine/.venv"
+      ],
+      "exit_code": 0,
+      "stdout": "# Moved \"/Users/deniskopylov/.codex/worktrees/e02-a-compiler-full/polisyos/policy-engine/.venv\" to \"/Users/deniskopylov/.Trash/.venv\"\n",
+      "stderr": "",
+      "source_absent": true,
+      "trash_destination": "/Users/deniskopylov/.Trash/.venv",
+      "destination_lstat": {
+        "dev": 16777231,
+        "inode": 170913458,
+        "mode": 16877,
+        "size": 320
+      },
+      "identity_matches": true,
+      "wall_seconds": 0.7624502080143429
+    },
+    {
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/frozen-full-gate-905820",
+      "source_lstat": {
+        "dev": 16777231,
+        "inode": 172986172,
+        "mode": 16877,
+        "size": 160
+      },
+      "open_handle_check": {
+        "command": [
+          "/usr/sbin/lsof",
+          "+D",
+          "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/frozen-full-gate-905820"
+        ],
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      "command": [
+        "/usr/bin/trash",
+        "--stopOnError",
+        "--verbose",
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/frozen-full-gate-905820"
+      ],
+      "exit_code": 0,
+      "stdout": "# Moved \"/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/frozen-full-gate-905820\" to \"/Users/deniskopylov/.Trash/frozen-full-gate-905820\"\n",
+      "stderr": "",
+      "source_absent": true,
+      "trash_destination": "/Users/deniskopylov/.Trash/frozen-full-gate-905820",
+      "destination_lstat": {
+        "dev": 16777231,
+        "inode": 172986172,
+        "mode": 16877,
+        "size": 160
+      },
+      "identity_matches": true,
+      "wall_seconds": 0.09017224999843165
+    }
+  ],
   "protected": [
     "original checkout/production_data",
     "all source and useful documentation",
@@ -21,14 +98,14 @@
       "expected_dev": 16777231,
       "expected_inode": 170913458,
       "reason": "Completed isolated compiler wheel environment; wheels, source and deciding receipts outside the environment preserved. Shared external Python target preserved.",
-      "state": "pending_immediate_recheck"
+      "state": "moved_to_native_trash_and_read_back"
     },
     {
       "path": "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/architecture-verification/frozen-full-gate-905820",
       "expected_dev": 16777231,
       "expected_inode": 172986172,
       "reason": "Three byte-identical duplicate outputs; canonical guardrails outputs are retained separately and must be committed/read back first.",
-      "state": "pending_git_primary_readback"
+      "state": "moved_to_native_trash_and_read_back"
     }
   ],
   "retained_active_environments": [
@@ -41,5 +118,68 @@
       "reason": "Topic pre-push dashboard verification still pending; workspace package links and sibling dependencies remain active."
     }
   ],
-  "retention": "All worktrees/source branches, production originals, useful documentation, unique CAS/checkpoints/wheels, and complete raw deciding outputs remain available. No worktree prune or archive, no shared pytest cleanup."
+  "retention": "All worktrees/source branches, production originals, useful documentation, unique CAS/checkpoints/wheels, and complete raw deciding outputs remain available. No worktree prune or archive, no shared pytest cleanup.",
+  "preservation_commit": "7a4c1c55387035bb78a3f9bb9240cd3cd956899d",
+  "preservation_tree": "f46cddc783e089952d72c9b3c01df8ed046eb844",
+  "preservation_branch_readback": {
+    "complete_footprint": 463,
+    "mismatched_paths": 0,
+    "duplicate_architecture_primary_readback": "all3 canonical blobs matched duplicate bytes from this committed branch before move"
+  },
+  "protected_identity_before": {
+    "/Users/deniskopylov/polisyos/policy-engine/production_data": {
+      "dev": 16777231,
+      "inode": 42880998,
+      "mode": 16749,
+      "size": 288
+    },
+    "/Users/deniskopylov/polisyos/policy-engine/.venv": {
+      "dev": 16777231,
+      "inode": 26512390,
+      "mode": 16877,
+      "size": 384
+    },
+    "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv": {
+      "dev": 16777231,
+      "inode": 168488377,
+      "mode": 16877,
+      "size": 320
+    },
+    "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14": {
+      "dev": 16777231,
+      "inode": 126316011,
+      "mode": 33261,
+      "size": 49968
+    }
+  },
+  "protected_identity_after": {
+    "/Users/deniskopylov/polisyos/policy-engine/production_data": {
+      "dev": 16777231,
+      "inode": 42880998,
+      "mode": 16749,
+      "size": 288
+    },
+    "/Users/deniskopylov/polisyos/policy-engine/.venv": {
+      "dev": 16777231,
+      "inode": 26512390,
+      "mode": 16877,
+      "size": 384
+    },
+    "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv": {
+      "dev": 16777231,
+      "inode": 168488377,
+      "mode": 16877,
+      "size": 320
+    },
+    "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14": {
+      "dev": 16777231,
+      "inode": 126316011,
+      "mode": 33261,
+      "size": 49968
+    }
+  },
+  "protected_identities_unchanged": true,
+  "finished_at": "2026-10-06T19:16:18.906919+00:00",
+  "physical_reclamation_claimed": false,
+  "trash_emptied": false
 }

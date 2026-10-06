@@ -12,6 +12,7 @@ from polisyos.common.serialization import extract_llm_json_object
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.llm.traced_client import LLMAccountingError
 from polisyos.scientist.methods.autotune.models import BenchmarkSplitManifest
 from polisyos.scientist.methods.backtesting.adversarial import AdversarialGenerator
 from polisyos.scientist.methods.doe.designs import (
@@ -26,8 +27,10 @@ from polisyos.scientist.methods.doe.stress_report import StressTestReport
 from polisyos.scientist.methods.search.adversarial import run_stress_test
 from polisyos.scientist.methods.search.objective import CompositeObjective
 from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
 from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
+from polisyos.scientist.policy_design._llm_accounting import worker_budget_state
 from polisyos.scientist.policy_design.prompts import (
     build_policy_adversary_user_payload,
     get_policy_adversary_prompt,
@@ -104,8 +107,15 @@ class AdversaryExecutionResult(BaseModel):
 class ScenarioAdversaryWorker:
     """LLM-assisted scenario proposer with deterministic execution."""
 
-    def __init__(self, config: ScenarioAdversaryConfig | None = None) -> None:
+    def __init__(
+        self,
+        config: ScenarioAdversaryConfig | None = None,
+        *,
+        budget_middleware: BudgetMiddleware | None = None,
+    ) -> None:
         self._config = config or ScenarioAdversaryConfig()
+        self._budget_middleware = budget_middleware
+        worker_budget_state(budget_state=None, budget_middleware=budget_middleware)
 
     async def propose_async(
         self,
@@ -114,6 +124,9 @@ class ScenarioAdversaryWorker:
         run_id: str = "policy_adversary",
         budget_state: BudgetState | None = None,
     ) -> AdversarialScenarioBundle:
+        admitted_state = worker_budget_state(
+            budget_state=budget_state, budget_middleware=self._budget_middleware
+        )
         client = create_traced_gateway_client(
             model_name=self._config.model_name,
             provider_hint=self._config.provider_hint,
@@ -123,10 +136,11 @@ class ScenarioAdversaryWorker:
             return self._fallback_bundle(surface)
 
         llm_client: Any = client
-        if budget_state is not None:
+        if admitted_state is not None:
             llm_client = LLMBudgetEnforcer(
                 client=client,
-                budget_state=budget_state,
+                budget_state=admitted_state,
+                budget_middleware=self._budget_middleware,
                 budget_keys=list(self._config.budget_keys),
                 model_name=self._config.model_name,
                 run_id=run_id,
@@ -162,6 +176,8 @@ class ScenarioAdversaryWorker:
             if not proposals:
                 return self._fallback_bundle(surface)
             return self._build_bundle(surface, proposals, fallback_used=False)
+        except LLMAccountingError:
+            raise
         except Exception:
             if not self._config.fallback_on_error:
                 raise
@@ -174,6 +190,7 @@ class ScenarioAdversaryWorker:
         run_id: str = "policy_adversary",
         budget_state: BudgetState | None = None,
     ) -> AdversarialScenarioBundle:
+        worker_budget_state(budget_state=budget_state, budget_middleware=self._budget_middleware)
         try:
             asyncio.get_running_loop()
         except RuntimeError:

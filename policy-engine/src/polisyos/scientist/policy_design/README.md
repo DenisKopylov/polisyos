@@ -5,6 +5,30 @@ critique, search, translation, and adversarial review. Runtime authority remains
 outside this package: outputs here are candidate or analytic material until
 they are bound by governed runtime-quality producers and closeout gates.
 
+## LLM Worker Accounting
+
+`ScenarioAdversaryWorker` and `PolicyTranslatorWorker` accept an optional
+constructor `budget_middleware`. Budgeted use requires an explicitly
+initialized `BudgetMiddleware` backed by a readable durable ledger. Its state
+is the sole budget authority. The caller selects and initializes the ledger;
+workers never choose a storage path or bootstrap a budget.
+
+Raw `BudgetState` arguments, a raw state combined with middleware, and
+ledgerless middleware raise `PolicyWorkerAccountingAdmissionError` before
+gateway factory or provider work. This also applies to synchronous calls
+inside an active event loop. Migrate `propose(..., budget_state=...)` and
+`TranslatorInputBundle.budget_state` to constructor middleware, leaving the
+raw field unset. Neither input retains the explicit unbudgeted contour,
+which provides no durable accounting guarantee.
+
+An obtained `LLMAccountingError` propagates unchanged before scientific
+fallback. Unknown usage cannot become a successful fallback after a budgeted
+physical call. Its exact pending obligation stays in the ledger; a newly
+constructed worker or reopened middleware on intersecting keys refuses
+another provider admission until trusted completion resolves it. Known
+charges remain separate from unknown completion and protected audit status.
+Ordinary parsing or scientific errors retain the configured fallback policy.
+
 ## Persisted Frontier Artifacts
 
 `PolicyFrontierReport` and `RejectedAlternativesSummary` support schema v1 and

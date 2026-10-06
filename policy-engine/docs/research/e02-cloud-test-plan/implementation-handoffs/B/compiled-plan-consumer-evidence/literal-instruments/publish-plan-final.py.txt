@@ -1,0 +1,71 @@
+import datetime
+import hashlib
+import json
+import shutil
+import subprocess
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-B-current-cas-generation')
+BASE = Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/compiled-plan-consumer-evidence')
+DEST = ROOT / BASE
+HERE = Path(__file__).resolve().parent
+ORIGINAL = Path('/tmp/e02-B-reopened-compiled-plan-ba48c7c5fe41')
+LABEL = 'final-6d7'
+transfers = []
+
+
+def custody(path):
+    content = path.read_bytes()
+    return {'path': str(path.relative_to(ROOT)), 'bytes': len(content), 'sha256': hashlib.sha256(content).hexdigest()}
+
+
+for path in sorted(ORIGINAL.rglob('*')):
+    relative = path.relative_to(ORIGINAL)
+    if not path.is_file() or path.is_symlink() or 'cache' in relative.parts or path.suffix == '.pyc':
+        continue
+    target = DEST / LABEL / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(path, target)
+    assert target.read_bytes() == path.read_bytes()
+    transfers.append({'original_path': str(path), 'source_mode': oct(path.stat().st_mode), **custody(target)})
+for name in ('plan_run_final.py', 'plan_origins_final.py', 'publish-plan-final.py'):
+    target = DEST / 'literal-instruments' / (name + '.txt')
+    shutil.copy2(HERE / name, target)
+    transfers.append({'original_path': str(HERE / name), 'source_mode': oct((HERE / name).stat().st_mode), **custody(target)})
+profile = json.loads((ORIGINAL / 'profile.json').read_text())
+result = json.loads((ORIGINAL / 'result.json').read_text())
+cases = []
+for case in ET.parse(ORIGINAL / 'native.xml').getroot().iter('testcase'):
+    outcome = 'ERROR' if case.find('error') is not None else 'FAIL' if case.find('failure') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS'
+    cases.append({'classname': case.get('classname'), 'name': case.get('name'), 'duration_seconds': case.get('time'), 'outcome': outcome})
+phases = [json.loads(line) for line in (ORIGINAL / 'phases.jsonl').read_text().splitlines()]
+source_root = '/workspace/e02-B-current-composition'
+diff_argv = ['git', '-C', source_root, 'diff', '--name-only', '885b3e0eff36ee8a733e32a0c604bdcd58a62eb5', '6d7f42f0f2b19e98685c21e512e040b6ddd69a37', '--', 'policy-engine/src', 'policy-engine/tests', 'policy-engine/pytest.ini', 'policy-engine/pyproject.toml', 'policy-engine/uv.lock']
+projection_diff = subprocess.check_output(diff_argv).decode()
+assert projection_diff == ''
+observation = {
+    'schema': 'policyos.e02.independent_compiled_plan_final_replay.v1',
+    'created_utc': datetime.datetime.now(datetime.UTC).isoformat(),
+    'predicate_basis': 'recomputed',
+    'source_checkout_before': profile['source_checkout_before'],
+    'source_checkout_after': result['source_checkout_after'],
+    'production_source_projection_sha': '885b3e0eff36ee8a733e32a0c604bdcd58a62eb5',
+    'production_source_projection_tree': 'fccab3a77a1e4d257d8e347a4d27c63cee286c0f',
+    'test_checkout_before': profile['test_checkout_before'],
+    'test_checkout_after': result['test_checkout_after'],
+    'test_file_original_implementation_sha': '5a3f466b0457ed4afbda53381617762a34cb05ed',
+    'test_byte_identity': 'Actual test/config bytes in final profile; no test edit after5a3f, ownf3fec adds only deciding docs custody.',
+    'argv': profile['argv'],
+    'cwd': profile['cwd'],
+    'counts': result['counts'],
+    'returncode': result['returncode'],
+    'elapsed_seconds': result['elapsed_seconds'],
+    'actual_phase_count': len(phases),
+    'actual_cases': cases,
+    'source_projection_full_src_test_config_diff': {'argv': diff_argv, 'stdout': projection_diff, 'source_checkout_qualification': 'Actual clean6d7 checkout; not a literal885 checkout. Exact source/tests/config equality plus all loaded module origins/Git bytes independently checked against6d7 AND885 at collection/session finish.'},
+    'artifact_transfers': transfers,
+    'qualifications': ['Final16PASS retains12soft output-validation warnings; no strict scientific output schema/validity/RNG-distribution/old-source/cache-prefix/all-Ray deployment authority claim.', 'No repeated property-removal or broader gate run after type-only companion; prior9ce actual three distinguishing removalFAIL controls remain separately pinned historical controls.', 'Original full DD native/global gate FAIL remains unchanged historical evidence; no P41 inheritance waiver or final combined root PASS claimed.', 'Sourcehold released only after terminal source/test beforeafter and full module origins verified; no canonical producer source change by independent test author.'],
+}
+(DEST / 'final-replay.json').write_text(json.dumps(observation, indent=2, sort_keys=True) + '\n')
+print(json.dumps({'new_artifact_count': len(transfers) + 1, 'new_artifact_bytes': sum(item['bytes'] for item in transfers) + (DEST / 'final-replay.json').stat().st_size, 'observation': custody(DEST / 'final-replay.json')}))

@@ -1,0 +1,1285 @@
+{
+  "schema": "policyos.e02.D.final_G_verification_packet.v1",
+  "unit": "D",
+  "role": "DRAFT_ONLY; bounded final-source/runtime deciding-output request, separate from16 actual producer/law/contract packets",
+  "closure_ids": [],
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "predicate_basis": "not_established",
+  "predicate_scope": "Root/G complete composed original criterion and same100-selector execution contract. Actual Git/event/source reconciliation is subordinate independently_reconciled; no current numerical/full consumer acceptance.",
+  "requested_canonical_owner": "Root/G final verification operator and actual execution environment owner",
+  "appointment_not_established": true,
+  "owner_decision_ref": null,
+  "current_source": {
+    "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+  },
+  "final_freeze_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+  "final_freeze_tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+  "state": "FINAL_SOURCE_VERIFICATION_OPEN_AFTER_ZERO_TEST_SIGNAL_TERMINATION",
+  "existing_producer": "Existing real DOE/native scientific profile with actual pytest consumers and passive origin/event observer",
+  "artifact": "Complete final source/config/lock/selector manifest + native deciding stdout/stderr/JUnit/result and source-before/after/origins; retain actual ERROR if interrupted.",
+  "bridge": "Frozen ordinary admitted Git source -> actual existing native caller/tests -> complete source-bound receipt",
+  "consumer": "Root/G original45 findings/46 criterion occurrences adjudication, with held law/permit positives and B120 raw-cost productFAIL remaining separate.",
+  "current_received_subset_refs": {
+    "broad_interruption": {
+      "source_sha": "83fffc0f74fe3ef88857f57e5132187c8fb7101a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption.json",
+      "git_blob": "678496b12e96df131fac306de40b77fe221e3086",
+      "bytes": 7753,
+      "sha256": "1267222ccb79b5e14e4d027f5a76203d3eeeb73dacf0762e2f41a220fe2e652e"
+    },
+    "configured_GP": {
+      "source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+      "git_blob": "69e8c91f4a25ac68a38e546abceecfef85da39a8",
+      "bytes": 52230,
+      "sha256": "73e37f1527877e0e4da0baa8534b96fa871980a84d0b50c5b2a78b6039e6d3af"
+    },
+    "preliminary_ledger": {
+      "source_sha": "ed991c1f523c45dba9d1cc71c0ad3767f09457ac",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-preliminary-8c/ledger.json"
+    },
+    "configured_GP_independent": {
+      "source_sha": "f102a63abc63e35aef2b4ed9e480ccc248c650a3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-independent-handoff.json",
+      "git_blob": "e65c7a0122c4975eb0b876e2d8a9eb728ced116a",
+      "bytes": 3513,
+      "sha256": "857fdab3eb386e8b641d2ccfbdcd3cd3c2aa8a7d31b8ef947e3bef5e19fa2f21"
+    },
+    "minimal_runtime_profile": {
+      "source_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json",
+      "git_blob": "5c8c4d3470e43133acf9d6ff7882651ac5942877",
+      "bytes": 11996,
+      "sha256": "ffaad852c0b507931a7b2337a314446712aa9feb319d8450a9046068fe98d859"
+    },
+    "minimal_collection": {
+      "source_sha": "8f3fd532ce3e6a668e297bdce11d3d4bbcb3b019",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-profile-613-collection-independent-handoff.json",
+      "git_blob": "40f9334102441a9a4e3f44ba34cccc97b51d38cf",
+      "bytes": 7329,
+      "sha256": "760fe833dc97323dec0ecd4ee540eb581a7831b96f79cd82903cbf17b88a3be6"
+    },
+    "native_B11_fixture": {
+      "source_sha": "0ca2b7b0664785e51c8a0b809c9967b9885e3407",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-budget-B11-fixture.json",
+      "git_blob": "08b4777037920462c8296f1645038dd9c141c331",
+      "bytes": 11295,
+      "sha256": "2b58d51e33b21b5c79c5aa028b15c730413ad67e22c25ef9aecafaa0bea6810a"
+    },
+    "root_composed44": {
+      "source_sha": "aa6c7b589c465bfe3aa5204be774195b627b72ea",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44.json",
+      "git_blob": "b38e35e70f824ff81ba60ee41bcc0fe6e44a3c13",
+      "bytes": 17900,
+      "sha256": "b7fcb87fb8e555c6f7e96a1468d2413cd23972bc8cfd275145359d5ceffc5a13"
+    },
+    "root_composed44_independent": {
+      "source_sha": "672384852a3b9fedb0cbb8fa4019d4df7dc6845b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-affected44-independent-handoff.json",
+      "git_blob": "ed29d60a45138c7c08ae778f0624b19bb05d997e",
+      "bytes": 5996,
+      "sha256": "fd3792354d1777e7401a19d9f9691042c7d8609261c99994b570fc6e8b48d3e4"
+    }
+  },
+  "original_wave_prepared_commands": {
+    "source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "source_tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+    "cwd": "/workspace/e02-D-published-root/policy-engine",
+    "canonical_commands": [
+      {
+        "bundle": "CTL-01",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_search_loop.py tests/unit/scientist/search/test_controller_api.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+          "tests/unit/scientist/search/test_search_loop.py",
+          "tests/unit/scientist/search/test_controller_api.py"
+        ]
+      },
+      {
+        "bundle": "CTL-02",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_strategy_state.py tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+          "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+          "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py"
+        ]
+      },
+      {
+        "bundle": "CTL-03",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective tests/unit/scientist/search/test_cost_stopping.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+        "selectors": [
+          "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective",
+          "tests/unit/scientist/search/test_cost_stopping.py",
+          "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+          "tests/unit/scientist/orchestration/engine/test_budget.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_ledger.py"
+        ]
+      },
+      {
+        "bundle": "FUN-01",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/orchestration/engine/test_budget.py tests/unit/scientist/orchestration/engine/test_budget_middleware.py tests/unit/scientist/orchestration/engine/test_budget_ledger.py -ra",
+        "selectors": [
+          "tests/unit/scientist/search/funnel/test_orchestrator.py",
+          "tests/unit/scientist/orchestration/engine/test_budget.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_ledger.py"
+        ]
+      },
+      {
+        "bundle": "FUN-02",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/remediation/test_fun_02.py -ra",
+        "selectors": [
+          "tests/unit/scientist/search/funnel/test_orchestrator.py",
+          "tests/unit/remediation/test_fun_02.py"
+        ]
+      },
+      {
+        "bundle": "FUN-03",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/funnel/test_orchestrator.py tests/unit/scientist/search/funnel/test_level6_promotion.py tests/unit/remediation/test_fun_03.py -ra",
+        "selectors": [
+          "tests/unit/scientist/search/funnel/test_orchestrator.py",
+          "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+          "tests/unit/remediation/test_fun_03.py"
+        ]
+      },
+      {
+        "bundle": "OPT-01",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_pareto.py",
+          "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+          "tests/unit/scientist/methods/search/test_hypervolume_limitations.py"
+        ]
+      },
+      {
+        "bundle": "OPT-02",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_bayesian_generator.py tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py tests/unit/scientist/methods/search/strategies/test_effective_actions.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+          "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+          "tests/unit/scientist/methods/search/strategies/test_effective_actions.py"
+        ]
+      },
+      {
+        "bundle": "OPT-03",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+          "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+          "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+        ]
+      },
+      {
+        "bundle": "OPT-04",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_frontier.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+          "tests/unit/scientist/search/test_frontier.py",
+          "tests/unit/scientist/methods/autotune/test_registry_and_runner.py"
+        ]
+      },
+      {
+        "bundle": "SRV-01",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/search/test_contracts.py tests/unit/scientist/search/test_search_loop.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+          "tests/unit/scientist/search/test_contracts.py",
+          "tests/unit/scientist/search/test_search_loop.py"
+        ]
+      },
+      {
+        "bundle": "SRV-03",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py tests/unit/scientist/methods/autotune/test_registry_and_runner.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+          "tests/unit/scientist/methods/autotune/test_registry_and_runner.py"
+        ]
+      },
+      {
+        "bundle": "STP-01",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py tests/unit/scientist/methods/search/test_stopping_limitations.py tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py -ra",
+        "selectors": [
+          "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+          "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+          "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py"
+        ]
+      },
+      {
+        "bundle": "STR-01",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/search/test_adversarial_streaming.py tests/unit/scientist/search/test_adversarial.py tests/unit/scientist/policy_design/test_phase_b_policy_workers.py -ra",
+        "selectors": [
+          "tests/unit/scientist/search/test_adversarial_streaming.py",
+          "tests/unit/scientist/search/test_adversarial.py",
+          "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py"
+        ]
+      },
+      {
+        "bundle": "TRN-01",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/strategies/test_transfer.py tests/unit/scientist/methods/autotune/test_warm_start.py tests/unit/scientist/methods/autotune/test_transfer_workflow.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+          "tests/unit/scientist/methods/autotune/test_warm_start.py",
+          "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+        ]
+      },
+      {
+        "bundle": "TRN-02",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/agent/test_vector_memory.py tests/unit/remediation/test_trn_02.py tests/unit/scientist/methods/search/strategies/test_transfer.py -ra",
+        "selectors": [
+          "tests/unit/scientist/agent/test_vector_memory.py",
+          "tests/unit/remediation/test_trn_02.py",
+          "tests/unit/scientist/methods/search/strategies/test_transfer.py"
+        ]
+      },
+      {
+        "bundle": "TRN-03",
+        "literal_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/search/test_lesson_query_persistence.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py -ra",
+        "selectors": [
+          "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+          "tests/unit/scientist/search/test_lessons.py",
+          "tests/unit/scientist/search/test_lesson_transfer.py"
+        ]
+      }
+    ],
+    "canonical_command_count": 17,
+    "union_selectors": [
+      "tests/integration/core/llm/test_cache_response_binding.py",
+      "tests/integration/core/llm/test_gateway_response_text_cost.py",
+      "tests/integration/core/llm/test_native_gateway_cost_intake.py",
+      "tests/integration/core/llm/test_native_gateway_cost_range.py",
+      "tests/integration/core/llm/test_provider_cost_consistency.py",
+      "tests/integration/scientist/methods/search/funnel/test_default_worker_resource_scopes.py",
+      "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+      "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+      "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py",
+      "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+      "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay.py",
+      "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+      "tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+      "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+      "tests/unit/remediation/test_fun_02.py",
+      "tests/unit/remediation/test_fun_03.py",
+      "tests/unit/remediation/test_llm_01.py",
+      "tests/unit/remediation/test_trn_02.py",
+      "tests/unit/scientist/agent/test_vector_memory.py",
+      "tests/unit/scientist/agent/test_vector_transfer_process.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+      "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+      "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+      "tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+      "tests/unit/scientist/methods/autotune/test_hypervolume_representability.py",
+      "tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+      "tests/unit/scientist/methods/autotune/test_pareto.py",
+      "tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+      "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+      "tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py",
+      "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+      "tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+      "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "tests/unit/scientist/methods/search/funnel/test_level5_component_assessment.py",
+      "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+      "tests/unit/scientist/methods/search/funnel/test_resource_factory_contract.py",
+      "tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+      "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+      "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+      "tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+      "tests/unit/scientist/methods/search/test_controller.py",
+      "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+      "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+      "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+      "tests/unit/scientist/methods/search/test_service_ask_publication_review.py",
+      "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+      "tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+      "tests/unit/scientist/methods/search/test_service_persistence.py",
+      "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+      "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+      "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+      "tests/unit/scientist/orchestration/engine/test_budget.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+      "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "tests/unit/scientist/policy_design/test_phase_b_output.py",
+      "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+      "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "tests/unit/scientist/search/test_adversarial.py",
+      "tests/unit/scientist/search/test_adversarial_streaming.py",
+      "tests/unit/scientist/search/test_blueprint_resource_projection.py",
+      "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+      "tests/unit/scientist/search/test_contracts.py",
+      "tests/unit/scientist/search/test_controller_api.py",
+      "tests/unit/scientist/search/test_cost_stopping.py",
+      "tests/unit/scientist/search/test_frontier.py",
+      "tests/unit/scientist/search/test_lesson_as_of.py",
+      "tests/unit/scientist/search/test_lesson_partial_consumer.py",
+      "tests/unit/scientist/search/test_lesson_transfer.py",
+      "tests/unit/scientist/search/test_lessons.py",
+      "tests/unit/scientist/search/test_search_loop.py",
+      "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+      "tests/unit/scientist/search/test_transfer_context_criteria.py"
+    ],
+    "union_selector_count": 100,
+    "complete_argv": [
+      "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+      "-m",
+      "pytest",
+      "-p",
+      "e02_broad_observer",
+      "-q",
+      "tests/integration/core/llm/test_cache_response_binding.py",
+      "tests/integration/core/llm/test_gateway_response_text_cost.py",
+      "tests/integration/core/llm/test_native_gateway_cost_intake.py",
+      "tests/integration/core/llm/test_native_gateway_cost_range.py",
+      "tests/integration/core/llm/test_provider_cost_consistency.py",
+      "tests/integration/scientist/methods/search/funnel/test_default_worker_resource_scopes.py",
+      "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+      "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+      "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py",
+      "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+      "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay.py",
+      "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+      "tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+      "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+      "tests/unit/remediation/test_fun_02.py",
+      "tests/unit/remediation/test_fun_03.py",
+      "tests/unit/remediation/test_llm_01.py",
+      "tests/unit/remediation/test_trn_02.py",
+      "tests/unit/scientist/agent/test_vector_memory.py",
+      "tests/unit/scientist/agent/test_vector_transfer_process.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+      "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+      "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+      "tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+      "tests/unit/scientist/methods/autotune/test_hypervolume_representability.py",
+      "tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+      "tests/unit/scientist/methods/autotune/test_pareto.py",
+      "tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+      "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+      "tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py",
+      "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+      "tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+      "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "tests/unit/scientist/methods/search/funnel/test_level5_component_assessment.py",
+      "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+      "tests/unit/scientist/methods/search/funnel/test_resource_factory_contract.py",
+      "tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+      "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+      "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+      "tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+      "tests/unit/scientist/methods/search/test_controller.py",
+      "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+      "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+      "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+      "tests/unit/scientist/methods/search/test_service_ask_publication_review.py",
+      "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+      "tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+      "tests/unit/scientist/methods/search/test_service_persistence.py",
+      "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+      "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+      "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+      "tests/unit/scientist/orchestration/engine/test_budget.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+      "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+      "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "tests/unit/scientist/policy_design/test_phase_b_output.py",
+      "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+      "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+      "tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "tests/unit/scientist/search/test_adversarial.py",
+      "tests/unit/scientist/search/test_adversarial_streaming.py",
+      "tests/unit/scientist/search/test_blueprint_resource_projection.py",
+      "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+      "tests/unit/scientist/search/test_contracts.py",
+      "tests/unit/scientist/search/test_controller_api.py",
+      "tests/unit/scientist/search/test_cost_stopping.py",
+      "tests/unit/scientist/search/test_frontier.py",
+      "tests/unit/scientist/search/test_lesson_as_of.py",
+      "tests/unit/scientist/search/test_lesson_partial_consumer.py",
+      "tests/unit/scientist/search/test_lesson_transfer.py",
+      "tests/unit/scientist/search/test_lessons.py",
+      "tests/unit/scientist/search/test_search_loop.py",
+      "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+      "tests/unit/scientist/search/test_transfer_context_criteria.py",
+      "-ra",
+      "--run-quarantine",
+      "--basetemp=/tmp/e02-D-final-root-wave-258a6c89-20261006/pytest-basetemp-0c08bfdbbe1d4d0eb0720f69f4b5cec1",
+      "--junitxml=/tmp/e02-D-final-root-wave-258a6c89-20261006/junit.xml"
+    ],
+    "argv_sha256": "b7ea0ad6d42c553580895540caee2b04827e4611760a7d37d6a39b2f70b53cda",
+    "canonical_plan_counts": {
+      "canonical_commands": 17,
+      "canonical_raw_selectors": 53,
+      "canonical_unique_paths": 38,
+      "changed_test_inputs": 79,
+      "changed_pytest_files": 73,
+      "unique_union_selectors": 100,
+      "non_pytest_probes": 4,
+      "worker_helpers": 2
+    },
+    "environment_assignments": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONUNBUFFERED": "1",
+      "PYTHONPATH": "/workspace/e02-D-published-root/policy-engine/src:/workspace/e02-D-published-root/policy-engine:/tmp",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+    },
+    "inherited_numeric_caps_and_addopts": {},
+    "standalone_probes": [
+      {
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+        "commands": [
+          {
+            "role": "positive",
+            "argv": [
+              "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+              "tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+              "positive",
+              "258a6c89ea7cbb8394d39965a243a4bab3592358"
+            ]
+          },
+          {
+            "role": "property_removal",
+            "argv": [
+              "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+              "tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+              "invent_attempt",
+              "258a6c89ea7cbb8394d39965a243a4bab3592358"
+            ],
+            "expected_exit": 1
+          }
+        ],
+        "status": "UNRUN_SEPARATE_COMMISSION",
+        "cwd": "/workspace/e02-D-published-root/policy-engine",
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "src:.",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_default_temp_warning": "absent-report and DOE probes explicitly mkdtemp under /dev/shm; no replacement/cleanup or source execution by this harness"
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_case_intake_probe.py",
+        "commands": [
+          {
+            "role": "positive",
+            "argv": [
+              "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+              "tests/integration/scientist/methods/search/stress_case_intake_probe.py",
+              "positive",
+              "258a6c89ea7cbb8394d39965a243a4bab3592358"
+            ]
+          },
+          {
+            "role": "property_removal",
+            "argv": [
+              "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+              "tests/integration/scientist/methods/search/stress_case_intake_probe.py",
+              "remove_strict_bool",
+              "258a6c89ea7cbb8394d39965a243a4bab3592358"
+            ],
+            "expected_exit": 1
+          }
+        ],
+        "status": "UNRUN_SEPARATE_COMMISSION",
+        "cwd": "/workspace/e02-D-published-root/policy-engine",
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "src:.",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_default_temp_warning": "absent-report and DOE probes explicitly mkdtemp under /dev/shm; no replacement/cleanup or source execution by this harness"
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_doe_bridge_probe.py",
+        "commands": [
+          {
+            "role": "positive_actual_SALib",
+            "argv": [
+              "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+              "tests/integration/scientist/methods/search/stress_doe_bridge_probe.py"
+            ]
+          }
+        ],
+        "status": "UNRUN_SEPARATE_COMMISSION",
+        "cwd": "/workspace/e02-D-published-root/policy-engine",
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "src:.",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_default_temp_warning": "absent-report and DOE probes explicitly mkdtemp under /dev/shm; no replacement/cleanup or source execution by this harness"
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+        "commands": [
+          {
+            "role": "property_removal:example_fraction",
+            "argv": [
+              "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+              "tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+              "example_fraction",
+              "258a6c89ea7cbb8394d39965a243a4bab3592358",
+              "-q",
+              "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+              "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+              "-ra",
+              "--run-quarantine",
+              "--basetemp=/tmp/e02-D-final-root-wave-258a6c89-20261006/UNCREATED-probe-example_fraction-5d73461a8aa74d51b81a4a3c6f746c6d",
+              "--junitxml=/tmp/e02-D-final-root-wave-258a6c89-20261006/probe-example_fraction.xml"
+            ],
+            "expected_exit": 1
+          },
+          {
+            "role": "property_removal:raw_bool",
+            "argv": [
+              "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+              "tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+              "raw_bool",
+              "258a6c89ea7cbb8394d39965a243a4bab3592358",
+              "-q",
+              "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+              "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+              "-ra",
+              "--run-quarantine",
+              "--basetemp=/tmp/e02-D-final-root-wave-258a6c89-20261006/UNCREATED-probe-raw_bool-f081b0f8450845df84bb8bea0b356da4",
+              "--junitxml=/tmp/e02-D-final-root-wave-258a6c89-20261006/probe-raw_bool.xml"
+            ],
+            "expected_exit": 1
+          }
+        ],
+        "status": "UNRUN_SEPARATE_COMMISSION",
+        "cwd": "/workspace/e02-D-published-root/policy-engine",
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "src:.",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "source_default_temp_warning": "absent-report and DOE probes explicitly mkdtemp under /dev/shm; no replacement/cleanup or source execution by this harness"
+      }
+    ],
+    "worker_helpers": [
+      {
+        "status": "A",
+        "path": "policy-engine/tests/unit/core/artifacts/snapshot_special_path_worker.py",
+        "bytes": 1326,
+        "rawfile_sha256": "cabb8b449999c0153d9f67cd65621404437c0df1f890a82b733fa3d54acf16eb",
+        "test_function_names": [],
+        "role": "worker_helper_dependency"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tests/unit/scientist/agent/vector_transfer_process_worker.py",
+        "bytes": 7517,
+        "rawfile_sha256": "4c47861187c5411c8add98f4424153dd48273c9aa5038baa0db74bf47f9f71ca",
+        "test_function_names": [],
+        "role": "worker_helper_dependency"
+      }
+    ],
+    "actual_manifest_local_ref": {
+      "name": "execution-manifest.json",
+      "bytes": 34461,
+      "sha256": "fe9956570b8d2981d7a58f0d00b43f763e4000c759770548563addc662567e96",
+      "path": "/tmp/e02-D-final-root-wave-258a6c89-20261006/execution-manifest.json",
+      "Git_source_ref": null,
+      "role": "received_execution_output_not_domain_input"
+    },
+    "execution_outcome": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+    "unchanged_future_denominator_not_asserted": true,
+    "actual_manifest_Git_ref": {
+      "source_sha": "ba9f1a664b818b37878e8c62454cb60bad80209c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/complete-output.json.xz",
+      "git_blob": "069ee3f12165a1650819b883c9be418116ec9228",
+      "bytes": 783012,
+      "sha256": "2814a0afd62219bd03527b3dbd1d6635014f69b35c311b431bde7c11db824f88",
+      "member_name": "execution-manifest.json"
+    }
+  },
+  "existing_backend": {
+    "python": "/workspace/e02-D-doe-env/bin/python",
+    "python_version": "3.14.7",
+    "configured_GP_constructor_and_fit_actual_observed": true,
+    "four_prefit_guards_actual_PASS": 4,
+    "complete_positive_state": "ERROR_PARTIAL_UNRUN",
+    "receipt_ref": {
+      "source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+      "git_blob": "69e8c91f4a25ac68a38e546abceecfef85da39a8",
+      "bytes": 52230,
+      "sha256": "73e37f1527877e0e4da0baa8534b96fa871980a84d0b50c5b2a78b6039e6d3af"
+    },
+    "scientific_population_source_not_required_for_finite_control": true,
+    "installed_native_backend_and_actual_fit_substeps_observed": true
+  },
+  "minimum_verification_input": {
+    "exact_final_candidate_and_tree_ref": {
+      "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+    },
+    "complete100_selector_manifest_local_ref": {
+      "name": "execution-manifest.json",
+      "bytes": 34461,
+      "sha256": "fe9956570b8d2981d7a58f0d00b43f763e4000c759770548563addc662567e96",
+      "path": "/tmp/e02-D-final-root-wave-258a6c89-20261006/execution-manifest.json",
+      "Git_source_ref": null,
+      "role": "received_execution_output_not_domain_input"
+    },
+    "actual_environment_readiness_observation_ref": null,
+    "owner_supplied_profile_ref": null,
+    "complete_next_consumer_output_ref": null,
+    "actual_operation": "G/root supplies an actual supported execution profile/window, executes the existing exact100-selector criterion/changed-input union with defining native backends, and retains complete true terminal/input/origin/test outputs. This document schedules no blind unchanged repeat and adds no limit/quota.",
+    "source_ownership": "Use existing admitted Git lane and ordinary canonical dependency refs. No source mirrors, new body packages, rewritten baseline or wholesale B1.2 overlay.",
+    "deciding_outputs": "Complete case/JUnit/phase outcomes and defining actual native consumer bodies for original predicates; separate supported fallback, SKIP/UNRUN, model constructor/fit substeps and deliberate-removal failures.",
+    "unavailable_refs": null,
+    "accepted_G_ref": null
+  },
+  "falsifier": "With final candidate/observed-substep markers retained, remove real native positive controller/acquisition/evaluation completion: no full acceptance must be asserted. A negative-only guard suite or fitted-state recording cannot satisfy that missing consumer verdict.",
+  "environment_capacity_scope": {
+    "known": "Separate interrupted8c broad/configuredGP, c17 partial100 and final258 zero-test100, plus completed root44/cache13/profile17PASS+21UNRUN/stress57/negative controls.",
+    "actual_native_backend_available": true,
+    "physical_fit_observed": true,
+    "full_positive_verdict": "ERROR_PARTIAL_UNRUN",
+    "cause": "not_established",
+    "new_execution_environment_ref": null,
+    "authoritative_capacity_policy_ref": null,
+    "artificial_caps_or_compute_quotas_requested": false,
+    "scope": "No global offline/backend-unavailable verdict or killed-PID cause from cumulative OOM counters. Root/G receives actual final exact-profile verification; optional minimal skips stay UNRUN.",
+    "current_minimal_profile_native_extras": {
+      "torch": null,
+      "botorch": null,
+      "gpytorch": null,
+      "hnswlib": null,
+      "SALib": null
+    },
+    "whole_final258_result": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+    "no_invented_scientific_law": true
+  },
+  "separate_owner_inputs": {
+    "original_held": [
+      "B131",
+      "B137",
+      "B157",
+      "B161",
+      "B164"
+    ],
+    "current_B120": "Current canonical B response-text24=21FAIL3PASS; existing intake seam needs owner engineering fix",
+    "D_quantity_corrective": "Provided bounded own13/independent13/ordinary2 evidence, not a missing owner input",
+    "A_default_workflow": "Existing D bridge actively being completed; actual A minimal context contract/producer export remains requested, no predeclared completion"
+  },
+  "no_new_runtime_here": true,
+  "no_source_test_or_root_writes": true,
+  "current_root_metadata_checkpoint": {
+    "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+    "freeze_role": "ACTUAL_INTERRUPTED_C17_ATTEMPT; pending test-guard successor is not yet frozen",
+    "source_lineage_from_actual44": {
+      "executed_source_sha": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+      "executed_tree": "ff727db3e7dec74b3b82e3a67b3fd013382c74bb",
+      "reviewed_attempt_source": {
+        "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+        "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d"
+      },
+      "all_src_and_test_blobs_and_modes_equal": true,
+      "raw_Git_diff": "",
+      "classification": "lineage_checked",
+      "predicate_basis": "independently_reconciled",
+      "scope": "Whole source/test Git equality only; no new44 execution or final combined property verdict."
+    }
+  },
+  "new_freeze_manifest_ref": {
+    "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+  },
+  "new_candidate_assertion_equality_ref": {
+    "artifact_relative_path": "source-bindings.json",
+    "scope": "Exact byte relations and recorded assertion-preservation reviews only; whole semantic equivalence not_established."
+  },
+  "new_complete_runtime_ref": {
+    "reference_key": "final258_complete_output",
+    "scope": "Actual terminal ERROR/UNRUN with zero tests; not completed positive verification."
+  },
+  "new_run_environment_ref": {
+    "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "profile_ref": {
+      "reference_key": "minimal_runtime_profile"
+    },
+    "actual_backend_state": {
+      "torch": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "botorch": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "gpytorch": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "hnswlib": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "SALib": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "numpy": {
+        "installed_version": "2.3.5",
+        "actually_loaded_in_main_process": true,
+        "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/__init__.py",
+        "module_version": "2.3.5",
+        "module_file_sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+        "module_file_bytes": 25919
+      },
+      "scipy": {
+        "installed_version": "1.16.3",
+        "actually_loaded_in_main_process": false
+      },
+      "pytest": {
+        "installed_version": "9.0.2",
+        "actually_loaded_in_main_process": true,
+        "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/pytest/__init__.py",
+        "module_version": "9.0.2",
+        "module_file_sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+        "module_file_bytes": 5582
+      },
+      "numpy._core._multiarray_umath:binary": {
+        "path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+        "bytes": 10800697,
+        "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+      }
+    },
+    "environment_assignments": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONUNBUFFERED": "1",
+      "PYTHONPATH": "/workspace/e02-D-published-root/policy-engine/src:/workspace/e02-D-published-root/policy-engine:/tmp",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+    },
+    "selected_options": {
+      "maxfail": 0,
+      "markexpr": "",
+      "keyword": "",
+      "numprocesses": null,
+      "timeout": null,
+      "run_quarantine": true,
+      "collectonly": false,
+      "ignore": null
+    }
+  },
+  "references": {
+    "configured_transfer_actual8c": {
+      "source_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-verification.json",
+      "git_blob": "69e8c91f4a25ac68a38e546abceecfef85da39a8",
+      "bytes": 52230,
+      "sha256": "73e37f1527877e0e4da0baa8534b96fa871980a84d0b50c5b2a78b6039e6d3af"
+    },
+    "configured_GP_independent": {
+      "source_sha": "f102a63abc63e35aef2b4ed9e480ccc248c650a3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-independent-handoff.json",
+      "git_blob": "e65c7a0122c4975eb0b876e2d8a9eb728ced116a",
+      "bytes": 3513,
+      "sha256": "857fdab3eb386e8b641d2ccfbdcd3cd3c2aa8a7d31b8ef947e3bef5e19fa2f21"
+    },
+    "minimal_runtime_profile": {
+      "source_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json",
+      "git_blob": "5c8c4d3470e43133acf9d6ff7882651ac5942877",
+      "bytes": 11996,
+      "sha256": "ffaad852c0b507931a7b2337a314446712aa9feb319d8450a9046068fe98d859"
+    },
+    "minimal_collection_independent": {
+      "source_sha": "8f3fd532ce3e6a668e297bdce11d3d4bbcb3b019",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-profile-613-collection-independent-handoff.json",
+      "git_blob": "40f9334102441a9a4e3f44ba34cccc97b51d38cf",
+      "bytes": 7329,
+      "sha256": "760fe833dc97323dec0ecd4ee540eb581a7831b96f79cd82903cbf17b88a3be6"
+    },
+    "native_B11_fixture_author": {
+      "source_sha": "0ca2b7b0664785e51c8a0b809c9967b9885e3407",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-budget-B11-fixture.json",
+      "git_blob": "08b4777037920462c8296f1645038dd9c141c331",
+      "bytes": 11295,
+      "sha256": "2b58d51e33b21b5c79c5aa028b15c730413ad67e22c25ef9aecafaa0bea6810a"
+    },
+    "native_B11_fixture_independent": {
+      "source_sha": "e09be07ade0e439e1c28094230da53de1962a0cd",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-B11-fixture-independent-handoff.json",
+      "git_blob": "9d1e211a570b0f1ce1adcf416079b781565309fb",
+      "bytes": 4492,
+      "sha256": "f417947238b0f83068d2d72bd1555d8d69cc27f011a3ae9a16cd5eda29ee5a18"
+    },
+    "interrupted_wave_receipt": {
+      "source_sha": "83fffc0f74fe3ef88857f57e5132187c8fb7101a",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption.json",
+      "git_blob": "678496b12e96df131fac306de40b77fe221e3086",
+      "bytes": 7753,
+      "sha256": "1267222ccb79b5e14e4d027f5a76203d3eeeb73dacf0762e2f41a220fe2e652e"
+    },
+    "final_cache13": {
+      "source_sha": "89f0520e7176bc15e86fdad4ca087e5b8335e2af",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/llm-cache-native-custody.json",
+      "git_blob": "9c54487e8e1897a4e46b0bb7931143828ad6eccf",
+      "bytes": 19059,
+      "sha256": "7fce7141f096d38fa637c8acdb8e7645b48cfd0fdfd55d4a392e16fd4c7daf33"
+    },
+    "final_cache_independent": {
+      "source_sha": "861feab4f83bd31c9386e771838753e112df49d7",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review/paid-cache-consumer-06c-readonly-review.json",
+      "sha256": "97a56cc6abc00ee88bfa730ee70cefbb7cb0eaa894e7b6c3cc36497aa80f258c",
+      "bytes": 74329,
+      "git_blob": "29dc7fd9a6b971b452cafba3d7432c916a41f54c"
+    },
+    "final_profile38": {
+      "source_sha": "415621e89b059d432f1b24a00262b73b3fe99e22",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-handoff.json",
+      "sha256": "0f8fa634d703b8030b5f0811aff2af37b80c08939548bd8ff04acbeae4b74c1c",
+      "bytes": 13005,
+      "git_blob": "4a7204b67e889a5c50ef6e2e292d3e02484683e8"
+    },
+    "final_profile_independent": {
+      "source_sha": "e40afbb3c800c3de245d07b481eff3a1e567798d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-independent-review-native-profile-handoff.json",
+      "sha256": "541dd1452cd0fe6dab1b5195c5abc2f926fac4755ecc09621224bf7cc878b4b9",
+      "bytes": 22567,
+      "git_blob": "82754259121163e98c624baab80e081499f05fe6"
+    },
+    "final_partial_independent": {
+      "source_sha": "8c0970e164bc427cc1a223922018dcaa50b5ca6e",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent-handoff.json",
+      "sha256": "3b93823fc06b34c8d7eef300fd9e5aa5697644cadd1303fa69dd8aa653e5313e",
+      "bytes": 10305,
+      "git_blob": "f4a7ca4da355ba8a0ce460a73753c5fdb5777b0c"
+    },
+    "final_stress57": {
+      "source_sha": "115b8efa503b82a15fa4e2c97bf796846dd97632",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-stress-probes-independent-review.json",
+      "git_blob": "1e458cefd26d1cc8e1b4fb7fd585e1505ada0a6c",
+      "bytes": 21774,
+      "sha256": "920a59cdbc6cb7aae7c3e3d58234e5dea41c039e98d75a5c9efd79fdcc12b864"
+    },
+    "final_c17_partial_author": {
+      "source_sha": "74c5db27add77cfd96102433012244033515ea4b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-c17-partial.json",
+      "sha256": "1e77802e3953bc1f5cb8a4cdbeb25fc7e56952c5fb74b50b92c6dd97d07b1ff1",
+      "bytes": 50656,
+      "git_blob": "aa960c3b481248f08be3a801a6e6e32c249f9377"
+    },
+    "final258_complete_output": {
+      "source_sha": "ba9f1a664b818b37878e8c62454cb60bad80209c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/complete-output.json.xz",
+      "git_blob": "069ee3f12165a1650819b883c9be418116ec9228",
+      "bytes": 783012,
+      "sha256": "2814a0afd62219bd03527b3dbd1d6635014f69b35c311b431bde7c11db824f88"
+    },
+    "final258_root_receipt": {
+      "source_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final.json",
+      "bytes": 18121,
+      "sha256": "347ee5b42191a13b183534bd266b20bd2baaf332a478006144bde174191a3f5a",
+      "git_blob": "1005ac27633215d816e8c334531b2561068baf9b"
+    },
+    "final258_complete_changed_paths": {
+      "source_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final258-complete-changed-paths.json",
+      "bytes": 345835,
+      "sha256": "66f37aec338e34accfdb65d9edfe18ba2e747f0f812efbca72f5ce2ee4f52d06",
+      "git_blob": "10c191dd6920acb78b31c067a288534028616494"
+    }
+  },
+  "received_c17_wave": {
+    "source": {
+      "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+      "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d"
+    },
+    "partial_finished": 279,
+    "collected": 1244,
+    "uncompleted": 965,
+    "call_outcomes": {
+      "PASS": 229,
+      "FAIL": 45,
+      "SKIP_UNRUN": 5
+    },
+    "receipt_ref": {
+      "reference_key": "final_c17_partial_author"
+    },
+    "independent_ref": {
+      "reference_key": "final_partial_independent"
+    },
+    "no_whole_suite_PASS": true
+  },
+  "owned_profile_guard_correction": {
+    "receipt_ref": {
+      "reference_key": "final_profile38"
+    },
+    "source": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+    "passed": 17,
+    "native_SKIP_UNRUN": 21
+  },
+  "received_final258_wave": {
+    "source": {
+      "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+    },
+    "state": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+    "child_exit": -9,
+    "signal": 9,
+    "wall_seconds": 85.5190040430025,
+    "collected_artifact_predicates": 1249,
+    "completed_test_cases": 0,
+    "observed_test_phases": 0,
+    "predicates": "UNRUN",
+    "module_collection_SKIP_UNRUN": 15,
+    "JUnit": "missing",
+    "cause": "not_established",
+    "environment": {
+      "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "profile_ref": {
+        "reference_key": "minimal_runtime_profile"
+      },
+      "actual_backend_state": {
+        "torch": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "botorch": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "gpytorch": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "hnswlib": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "SALib": {
+          "installed_version": null,
+          "actually_loaded_in_main_process": false
+        },
+        "numpy": {
+          "installed_version": "2.3.5",
+          "actually_loaded_in_main_process": true,
+          "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/__init__.py",
+          "module_version": "2.3.5",
+          "module_file_sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+          "module_file_bytes": 25919
+        },
+        "scipy": {
+          "installed_version": "1.16.3",
+          "actually_loaded_in_main_process": false
+        },
+        "pytest": {
+          "installed_version": "9.0.2",
+          "actually_loaded_in_main_process": true,
+          "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/pytest/__init__.py",
+          "module_version": "9.0.2",
+          "module_file_sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+          "module_file_bytes": 5582
+        },
+        "numpy._core._multiarray_umath:binary": {
+          "path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+          "bytes": 10800697,
+          "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+        }
+      },
+      "environment_assignments": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONPATH": "/workspace/e02-D-published-root/policy-engine/src:/workspace/e02-D-published-root/policy-engine:/tmp",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "selected_options": {
+        "maxfail": 0,
+        "markexpr": "",
+        "keyword": "",
+        "numprocesses": null,
+        "timeout": null,
+        "run_quarantine": true,
+        "collectonly": false,
+        "ignore": null
+      }
+    },
+    "raw_locator_document": "ledger.json#/final_acceptance_wave/local_deciding_output_locators",
+    "Git_output_ref": {
+      "reference_key": "final258_complete_output"
+    },
+    "root_receipt_ref": {
+      "reference_key": "final258_root_receipt"
+    }
+  },
+  "provided_native_paid_cache_correction": {
+    "receipt_ref": {
+      "reference_key": "final_cache13"
+    },
+    "independent_ref": {
+      "reference_key": "final_cache_independent"
+    },
+    "source": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+    "PASS": 13,
+    "paid_producer_missing": false
+  },
+  "provided_stress_negative_controls": {
+    "receipt_ref": {
+      "reference_key": "final_stress57"
+    },
+    "baseline_PASS": 57,
+    "example_fraction": {
+      "PASS": 53,
+      "FAIL_as_required": 4
+    },
+    "raw_bool": {
+      "PASS": 53,
+      "FAIL_as_required": 4
+    },
+    "old_raw39_NOT_DETECTED_preserved": true
+  },
+  "local_read_only_reconciliation_recipe": [
+    {
+      "step": 1,
+      "command": "git show 258a6c89ea7cbb8394d39965a243a4bab3592358^{tree}",
+      "expected_tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+      "scope": "Exact implementation candidate; future receipt head does not rebind runtime."
+    },
+    {
+      "step": 2,
+      "command": "git show 5b8b0b05b3b4dbd4972f1e0edbf139f77a0cce0a:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/canonical15-input-lineage.json",
+      "scope": "Read exact15 historical lineages/617 execution-count packet; not a current test command."
+    },
+    {
+      "step": 3,
+      "method": "read existing manifest",
+      "path": "/tmp/e02-D-final-root-wave-258a6c89-20261006/execution-manifest.json",
+      "sha256": "fe9956570b8d2981d7a58f0d00b43f763e4000c759770548563addc662567e96",
+      "scope": "Original complete100 argv/17 canonical command identities, input denominator and actual configured minimal profile."
+    },
+    {
+      "step": 4,
+      "method": "read source-qualified exact receipts",
+      "reference_keys": [
+        "root_composed44",
+        "root_composed44_independent",
+        "final_cache13",
+        "final_cache_independent",
+        "final_profile38",
+        "final_partial_independent",
+        "final_stress57",
+        "configured_transfer_actual8c",
+        "configured_GP_independent"
+      ],
+      "scope": "Reconcile already completed bounded scopes without backend replay; classify each actual producer, source, backend and result separately."
+    },
+    {
+      "step": 5,
+      "method": "future authorized G/root verification recipe",
+      "source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "canonical_argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_broad_observer",
+        "-q",
+        "tests/integration/core/llm/test_cache_response_binding.py",
+        "tests/integration/core/llm/test_gateway_response_text_cost.py",
+        "tests/integration/core/llm/test_native_gateway_cost_intake.py",
+        "tests/integration/core/llm/test_native_gateway_cost_range.py",
+        "tests/integration/core/llm/test_provider_cost_consistency.py",
+        "tests/integration/scientist/methods/search/funnel/test_default_worker_resource_scopes.py",
+        "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+        "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+        "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py",
+        "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+        "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay.py",
+        "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+        "tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+        "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "tests/unit/remediation/test_fun_02.py",
+        "tests/unit/remediation/test_fun_03.py",
+        "tests/unit/remediation/test_llm_01.py",
+        "tests/unit/remediation/test_trn_02.py",
+        "tests/unit/scientist/agent/test_vector_memory.py",
+        "tests/unit/scientist/agent/test_vector_transfer_process.py",
+        "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+        "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+        "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+        "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+        "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+        "tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+        "tests/unit/scientist/methods/autotune/test_hypervolume_representability.py",
+        "tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py",
+        "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/scientist/methods/autotune/test_pareto.py",
+        "tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+        "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+        "tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py",
+        "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+        "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py",
+        "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+        "tests/unit/scientist/methods/autotune/test_warm_start.py",
+        "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+        "tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+        "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "tests/unit/scientist/methods/search/funnel/test_level5_component_assessment.py",
+        "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+        "tests/unit/scientist/methods/search/funnel/test_resource_factory_contract.py",
+        "tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+        "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+        "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+        "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+        "tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+        "tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+        "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+        "tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+        "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+        "tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py",
+        "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+        "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+        "tests/unit/scientist/methods/search/test_controller.py",
+        "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+        "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+        "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+        "tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+        "tests/unit/scientist/methods/search/test_service_ask_publication_review.py",
+        "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+        "tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+        "tests/unit/scientist/methods/search/test_service_persistence.py",
+        "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+        "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+        "tests/unit/scientist/orchestration/engine/test_budget.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+        "tests/unit/scientist/policy_design/test_phase_b_output.py",
+        "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+        "tests/unit/scientist/search/test_adversarial.py",
+        "tests/unit/scientist/search/test_adversarial_streaming.py",
+        "tests/unit/scientist/search/test_blueprint_resource_projection.py",
+        "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+        "tests/unit/scientist/search/test_contracts.py",
+        "tests/unit/scientist/search/test_controller_api.py",
+        "tests/unit/scientist/search/test_cost_stopping.py",
+        "tests/unit/scientist/search/test_frontier.py",
+        "tests/unit/scientist/search/test_lesson_as_of.py",
+        "tests/unit/scientist/search/test_lesson_partial_consumer.py",
+        "tests/unit/scientist/search/test_lesson_transfer.py",
+        "tests/unit/scientist/search/test_lessons.py",
+        "tests/unit/scientist/search/test_search_loop.py",
+        "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+        "tests/unit/scientist/search/test_transfer_context_criteria.py",
+        "-ra",
+        "--run-quarantine",
+        "--basetemp=/tmp/e02-D-final-root-wave-258a6c89-20261006/pytest-basetemp-0c08bfdbbe1d4d0eb0720f69f4b5cec1",
+        "--junitxml=/tmp/e02-D-final-root-wave-258a6c89-20261006/junit.xml"
+      ],
+      "ordinary_native_interpreter_available_at_prior_record": "/workspace/e02-D-doe-env/bin/python",
+      "actual_future_profile_readiness_ref": null,
+      "minimum_owner_supplied_profile_ref": null,
+      "output_directory": null,
+      "recipe": "Use the same ordinary canonical100 selectors/configuration from complete_argv. Before any future run, G/root records actually available native backend identities/profile against the exact source. A future output/basetemp/cache namespace must be fresh and nonexisting. Any real missing extra or interruption remains UNRUN/ERROR; no mock or mathematical fallback replaces a defining native test.",
+      "executed_here": false
+    }
+  ],
+  "complete_changed_pathset": {
+    "reference_key": "final258_complete_changed_paths",
+    "path_count": 973,
+    "status_counts": {
+      "A": 880,
+      "M": 93
+    },
+    "source_path_count": 67,
+    "production_Python_path_count": 60,
+    "test_input_path_count": 79,
+    "independent_full_tuple_match": true
+  },
+  "original_root_profile_locator_caveat": {
+    "source_receipt_ref": {
+      "reference_key": "final258_root_receipt"
+    },
+    "field": "/environment/profile_git_ref + /environment/profile_git_path",
+    "unavailable_declared_pair": {
+      "source_sha": "8391c8db699564a6af39cf66477e141cc6d30030",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json"
+    },
+    "actual_existing_profile_receipt_ref": {
+      "reference_key": "minimal_runtime_profile"
+    },
+    "actual_existing_profile_source_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+    "state": "METADATA_LOCATOR_CORRECTION_REQUESTED_ROOT; immutable source receipt preserved",
+    "effect": "Locator only. Actual148 interpreter/package profile and ERROR/UNRUN remain unchanged.",
+    "predicate_basis": "independently_reconciled"
+  }
+}

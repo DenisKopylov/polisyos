@@ -1,0 +1,119 @@
+{
+  "schema": "policyos.e02.D.final_accounting_summary.v1",
+  "source": {
+    "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+  },
+  "predicate_basis": "not_established",
+  "predicate_scope": "Original45/46 criterion acceptance remains open/held after final zero-test ERROR. All byte/hash/owner/outcome reconciliations are subordinate independently_reconciled.",
+  "denominator": {
+    "findings": 45,
+    "criteria": 46,
+    "bundles": 17,
+    "queues": 5,
+    "minimum_owner_packets": 16
+  },
+  "distribution": {
+    "OPEN_VERIFICATION_PENDING": 39,
+    "HELD_ORIGINAL_POSITIVE_INPUT": 5,
+    "OPEN_CURRENT_UPSTREAM_FAIL": 1
+  },
+  "conditional_engineering_proposals": 39,
+  "held_ids": [
+    "B131",
+    "B137",
+    "B157",
+    "B161",
+    "B164"
+  ],
+  "open_upstream_id": "B120",
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "final100": {
+    "status": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+    "exit": -9,
+    "wall_seconds": 85.5190040430025,
+    "recorded_collected_artifact": 1249,
+    "observed_test_phases": 0,
+    "all1249": "UNRUN",
+    "module_collection_SKIP_UNRUN": 15,
+    "JUnit": "MISSING",
+    "cause": "not_established"
+  },
+  "targeted_scopes": {
+    "root44": "44PASS at exactf2",
+    "native_cache": "13PASS at exact06c; existing native producer/readback/D resolver, not new orchestrator run",
+    "optional_admission": "17PASS21nativeSKIP/UNRUN at exactb9",
+    "stress": "57PASS; two marker-preserving mutants each53PASS4FAIL; historical raw39NOT_DETECTED retained",
+    "configured_GP": "8c native constructor and MLLfit returned learned state beforeSIGKILL; whole positiveERROR/UNRUN, separatefourprefitguards4PASS"
+  },
+  "complete973_changed_path_ref": {
+    "source_sha": "2e0a48f7e522663f6dfcb231fa105e09f05e34ad",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final258-complete-changed-paths.json",
+    "bytes": 345835,
+    "sha256": "66f37aec338e34accfdb65d9edfe18ba2e747f0f812efbca72f5ce2ee4f52d06",
+    "git_blob": "10c191dd6920acb78b31c067a288534028616494"
+  },
+  "final13member_output_ref": {
+    "source_sha": "ba9f1a664b818b37878e8c62454cb60bad80209c",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-258-final/complete-output.json.xz",
+    "git_blob": "069ee3f12165a1650819b883c9be418116ec9228",
+    "bytes": 783012,
+    "sha256": "2814a0afd62219bd03527b3dbd1d6635014f69b35c311b431bde7c11db824f88"
+  },
+  "original617": {
+    "quantity_role": "historical_execution_count",
+    "actual_execution_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "input_lineage_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+    "current92input_occurrences": {
+      "byte_equal": 76,
+      "changed": 16,
+      "changed_unique_paths": 11,
+      "semantic_runtime_equivalence": "not_established"
+    }
+  },
+  "actual_binding_reconciliation": {
+    "final_members": 13,
+    "raw_member_bytes": 5395382,
+    "declared_inputs": 5568,
+    "observed_execs": 1366,
+    "unique_Git_blobs": 5493,
+    "errors": 0,
+    "full_changed_path_tuples": 973
+  },
+  "LA015": "CTL-01 supplier_companion_only; canonical closure SRV-03",
+  "root_profile_locator": "Immutable2e0a used unavailable8391+receiptpath; actual existing profile6a source used here, root append-only correction confirmed.",
+  "unknown_minimum_owner_refs": null,
+  "owner_appointments": "not_established",
+  "P41_baseline_attribution": "not_established",
+  "source_test_root_writes": 0,
+  "backend_runs": 0,
+  "children": 0,
+  "files": {
+    "ledger.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+      "bytes": 555218,
+      "sha256": "702638d85dacaddcb6a7952a4c0a279897f08b23840e15a7d8af8beacb506bc4"
+    },
+    "source-bindings.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/source-bindings.json",
+      "bytes": 116230,
+      "sha256": "63baca73e6c0691daf537c9d4dafa3db83533ab92d62e110aa0339b24baf7b7f"
+    },
+    "root-G-verification-packet.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/root-G-verification-packet.json",
+      "bytes": 71761,
+      "sha256": "02800726dc16b224135e80f7b1ca7e9e71a1502872d362c69ccf4d248101059a"
+    },
+    "validation.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/validation.json",
+      "bytes": 1352,
+      "sha256": "29bc5339324c5fecd50f49162d11ed077755f99f9fb54d0e5128e068a52f6fca"
+    },
+    "owner-inputs.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+      "bytes": 135805,
+      "sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+    }
+  }
+}

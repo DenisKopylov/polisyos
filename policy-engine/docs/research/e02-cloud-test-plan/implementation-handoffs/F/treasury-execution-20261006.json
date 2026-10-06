@@ -3,6 +3,9 @@
   "unit": "F",
   "slice": "treasury-execution-20261006",
   "closure_ids": [
+    "LA-001"
+  ],
+  "related_finding_ids": [
     "LA-001",
     "LA-002",
     "LA-037"

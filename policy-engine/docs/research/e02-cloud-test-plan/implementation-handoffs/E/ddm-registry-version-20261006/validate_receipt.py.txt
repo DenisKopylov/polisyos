@@ -1,0 +1,28 @@
+import copy, hashlib, json, subprocess
+from pathlib import Path
+import xml.etree.ElementTree as ET
+RECEIPT=Path("policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/ddm-registry-version-20261006.json")
+data=json.loads(RECEIPT.read_text())
+def validate(d):
+ candidate=d["implementation_commits"][0]
+ assert subprocess.check_output(["git","rev-parse",candidate+"^{tree}"],text=True).strip()==d["candidate_tree_sha"]
+ assert subprocess.check_output(["git","diff","--name-only",d["slice_base_sha"],candidate],text=True).splitlines()==d["changed_paths"]
+ for ref in d["output_refs"].values():
+  raw=Path(ref["path"]).read_bytes()
+  assert len(raw)==ref["bytes"]
+  assert hashlib.sha256(raw).hexdigest()==ref["sha256"]
+ cases=ET.parse(d["output_refs"]["native-candidate.xml"]["path"]).findall(".//testcase")
+ counts={"PASS":sum(not any(x.find(n) is not None for n in ["failure","error","skipped"]) for x in cases),"FAIL":sum(x.find("failure") is not None for x in cases),"ERROR":sum(x.find("error") is not None for x in cases),"SKIP":sum(x.find("skipped") is not None for x in cases)}
+ assert all(d["native_result"][key]==value for key,value in counts.items())
+ legacy=Path("policy-engine/src/polisyos/ddm/integration/model_registry_record.v1.schema.json").read_bytes()
+ assert legacy==subprocess.check_output(["git","show","198076863e143dea9f89f02734b13d50dae3eed5:policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json"])
+validate(data)
+for field in ["candidate_tree_sha","output_sha256","native_pass_count"]:
+ bad=copy.deepcopy(data)
+ if field=="candidate_tree_sha":bad[field]="0"*40
+ elif field=="output_sha256":bad["output_refs"]["native-candidate.stdout"]["sha256"]="0"*64
+ else:bad["native_result"]["PASS"]=81
+ try:validate(bad)
+ except AssertionError:print(json.dumps({"negative":field,"result":"REJECTED"}))
+ else:raise AssertionError(field)
+print(json.dumps({"receipt":"PASS","XML_cases":len(ET.parse(data["output_refs"]["native-candidate.xml"]["path"]).findall(".//testcase")),"output_files":len(data["output_refs"])}))

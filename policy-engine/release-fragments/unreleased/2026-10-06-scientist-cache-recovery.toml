@@ -1,0 +1,15 @@
+type = "fix"
+area = "scientist-runtime"
+owner = "team-policyos-runtime"
+summary = "Recover trace and checkpoint cache entries off the event loop under one absolute workflow deadline, publish successful cache entries to the durable trace, and verify the complete selected manifest view."
+evidence = ["tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py", "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py"]
+compatibility = "The optional seed/load deadline is additive for synchronous callers. Existing journal, entry and checkpoint bytes retain their versions. Native per-node read-budget failure remains observable. A different manifest profile is independently verified; valid blob bytes cannot substitute another profile's producer epoch."
+change_class = "runtime_behavior"
+surface_classification = "internal_runtime"
+migration = "Async recovery requires a synchronous store usable by the shared executor, matching the existing async adapter contract. Operators can inspect NODE_CACHE_STORE references in the run trace."
+api = "NodeResultCache.load_entry, seed_from_trace and seed_from_entry_refs accept an optional absolute deadline_monotonic. Cache operations explicitly select shared-executor unbounded=True when no owner deadline exists."
+limitations = "Already-entered backend I/O cannot be preempted. The private recovery boundary does not establish arbitrary store thread affinity or fully concurrent reentrant execution on one executor. Production source snapshot B61 remains held by its semantic owner."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]

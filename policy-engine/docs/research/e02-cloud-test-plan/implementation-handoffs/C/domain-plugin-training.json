@@ -22,6 +22,20 @@
     "fb5a66e4a522a2c208ec5b76d8380021e1cd6cc2",
     "a452011da3de26d90877ae95ab10a72cce8e0b45"
   ],
+  "verification_source": {
+    "commit_sha": "443f346f5cf33f37175fc8e4dfe61d1060bc07f5",
+    "tree_sha": "2fba3a9d2f78d96471eaf45b66b04054ad3a6bc8",
+    "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "full_slice_base_diff_sha256": "8729e732bf4e667f6451deb27fa7754900e89064936183c9b41de27375c0d22d",
+    "full_slice_base_diff_path_count": 44,
+    "test_path": "policy-engine/tests/unit/remediation/test_plg_03.py",
+    "test_file_git_blob_sha1": "30786ba124a172e19502d1e196ec503e9b0a90cd",
+    "test_file_sha256": "d523133120baa67b700f881adca297be4528a66a75e31ef3e910685069231972",
+    "production_implementation_freeze_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+    "production_implementation_freeze_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
+    "relationship": "The numerical selectors ran against this separately pinned test-source commit. The production implementation freeze remains a452011da3de26d90877ae95ab10a72cce8e0b45/tree d35c3e132b930eb7b9512ab7314a5f94c4733d3a; this verification commit adds tests and handoff evidence, and does not revise the production freeze. The exact command is pinned in the subsequent run-plan receipt."
+  },
   "candidate_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
   "branch": "codex/e02-C-plugins-20261006",
   "pull_request": null,
@@ -197,6 +211,39 @@
       "outcome": "PASS",
       "exit_code": 0,
       "output": "No output; exit 0."
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 JAX_PLATFORMS=cpu OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 PYTHONPATH=src /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -p no:cacheprovider -o addopts='' -q -c pytest.ini --basetemp=/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/plg03-numerical-controls-20261006/pytest-tmp tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact tests/unit/remediation/test_plg_03.py::test_true_zero_gradient_native_update_and_facade_result_are_honest",
+      "target_sha": "a452011da3de26d90877ae95ab10a72cce8e0b45",
+      "target_tree_sha": "d35c3e132b930eb7b9512ab7314a5f94c4733d3a",
+      "test_source_sha": "443f346f5cf33f37175fc8e4dfe61d1060bc07f5",
+      "test_source_tree_sha": "2fba3a9d2f78d96471eaf45b66b04054ad3a6bc8",
+      "test_source_blob_sha": "30786ba124a172e19502d1e196ec503e9b0a90cd",
+      "environment": "macOS; original policy-engine .venv Python 3.14; frozen candidate implementation on this worktree with the separately pinned PLG-03 selector tests; JAX_PLATFORMS=cpu; OPENBLAS_NUM_THREADS=1, OMP_NUM_THREADS=1, MKL_NUM_THREADS=1, NUMEXPR_NUM_THREADS=1; PYTHONDONTWRITEBYTECODE=1; exclusive CPU/JAX numerical slot.",
+      "input_closure": "Exactly the two PLG-03 selector tests pinned in receipts/plg03-numerical-controls-20261006/run-plan.json. No production source, full suite, package installation, GPU, production data, or shared database.",
+      "outcome": "PASS for the selected one-call and zero-gradient controls; LA-023 remains held overall.",
+      "exit_code": 0,
+      "pytest_elapsed_seconds": 25.18,
+      "launcher_elapsed_seconds": 29.137,
+      "timeout_seconds": 1500,
+      "output": "2 passed, 8 warnings in 25.18s; launcher exit 0 and elapsed 29.137s. The warnings are one existing unknown pytest cache_dir config option (plugins disabled) and seven Equinox LayerNorm(elementwise_affine=...) deprecations. Full stdout is preserved losslessly as gzip in receipts/plg03-numerical-controls-20261006/ (compressed SHA-256 6a2cc293716cc4427b4b680e2ce6a5aab1df8ea001d7c0ef28a0709c2105778b; decompressed SHA-256 2e926b28f7d3c9ca9073cbbf886c456f7a20ba7d8ad5ada4746a6e1c391866d4); stderr, exit, and run metadata are retained alongside it.",
+      "coverage": [
+        "A mathematically exact zero PPO objective (zero reward, zero critic output, value_coef=0, entropy_coef=0) has independently computed zero gradients across all 17 leaves: max absolute gradient and L2 norm are exactly 0.",
+        "Both canonical train_actor_critic and the actual facade JIT/artifact trainer leave parameters and the tested deterministic action unchanged; the facade yields bridge_pending/training_update_not_observed and makes zero CAS store calls, so no trained policy is published.",
+        "The positive one-call Economics path still trains, persists and reloads the policy, and exercises the simulator consumer. In-memory seeded post-training evaluation's two successive one-step calls match a two-step evaluation from the same state; this is not a checkpoint/resume witness.",
+        "initialize(seed=7) clears policy/config and restores the checked reset observables: time_step, agent wealth, income, and active mask. The test-generated summary key initialize_restores_initial_economics_snapshot is broader than the actual field-by-field assertions; the handoff claim is limited to those checked observables.",
+        "These checks do not establish a typed cross-call optimizer/RNG checkpoint or a broader train/eval contract."
+      ],
+      "evidence": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/plg03-numerical-controls-20261006/run-plan.json@3c277c5472220974d7263eebce2f0b7bf7a1389961f7a4da35a9f3d5a6ae5216",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/plg03-numerical-controls-20261006/pytest.stdout.gz@6a2cc293716cc4427b4b680e2ce6a5aab1df8ea001d7c0ef28a0709c2105778b",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/plg03-numerical-controls-20261006/pytest.stderr@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/plg03-numerical-controls-20261006/pytest.exit@9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/plg03-numerical-controls-20261006/run-metadata.json@3d1310fd2bd56986673e9d13c9993f21052a0e1ca9accf4415991d946abc25ce",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/plg03-numerical-controls-20261006/native-gradient-summary.json@31d9cba6d2937692ed5c27f0d193829a6de32cde5be890bae759d4243ac69338",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/plg03-numerical-controls-20261006/training-evaluation-reset.json@264ce6dc481b4c98c2827c600805427ceb07aff6b2aacac413fe28a31998e457",
+        "policy-engine/tests/unit/remediation/test_plg_03.py@d523133120baa67b700f881adca297be4528a66a75e31ef3e910685069231972"
+      ]
     }
   ],
   "property": {
@@ -214,6 +261,7 @@
       "candidate-added verified=True does not create registry verification state or an owner-issued admission artifact",
       "unsupported Economics composite and controlled reward-evaluation fixture cannot enter the native optimizer and return bridge_pending with no policy, artifact, or loss",
       "optimizer-removal control retains trained/loss/artifact/CAS/readback markers but the true saved-action oracle fails",
+      "an actual zero PPO objective has 17 independently computed all-zero gradient leaves; direct and facade Optax trainers leave parameters/actions unchanged and the facade returns bridge_pending without CAS publication",
       "foreign tenant cannot read the persisted policy manifest"
     ],
     "reward_characterization": "Real PolisySimulator.run(3) returns a four-state trajectory. The controlled plugin supplies per-agent rewards [2,2,2] on each of three transitions. CompositeReward.total is the mean across agents (2 per transition); summing three evaluations yields 6. SimulationResult has no reward_history field, so this records the existing trajectory/reward consumer and does not add a history DTO or assert durable historical reward storage."
@@ -243,14 +291,13 @@
       "finding_verdict": "held",
       "code_outcome": "GO for the bounded one-call Economics path: implemented and verified on the frozen candidate through real native optimizer updates, tenant-CAS persistence, fresh persisted-policy action readback, and the marker-preserving optimizer-removal negative control. Unsupported composite and tier profiles remain bridge_pending before optimizer/CAS. This bounded code result does not decide the full LA-023 finding.",
       "supported_scope": "One actual Economics PolisySimulator.train call invokes the existing native actor-critic optimizer, changes the learned policy's independently recomputed same-observation action, writes to the supplied tenant CAS, and strictly reloads the persisted artifact with the runtime-observed tier. The marker-preserving optimizer-removal control keeps trained/loss/artifact/CAS/readback markers but fails the independent action oracle. Unsupported composite and unsupported tier profiles are refused with bridge_pending before optimizer/CAS.",
-      "held_or_unestablished": "The full PLG-03 contract is not closed: the separate true zero-gradient criterion, train/eval and RNG/reset/continuation criteria, typed cross-call checkpoint/resume, historical TrainingResult reader/compatibility, and public .train scope ratification remain unestablished or held. The separate identity/no-update probe is synthetic and is not claimed as a native zero-gradient optimizer run. No training-history DTO or wider trainer framework is introduced.",
+      "held_or_unestablished": "The full PLG-03 contract is not closed. The true zero-gradient criterion now has a genuine native PPO/Optax and facade refusal witness. The seeded post-training in-memory consumer evaluation segmentation and initialize reset behavior for the checked state observables are verified for the tested Economics path. Broader train/eval and RNG semantics, a typed cross-call checkpoint/resume profile, historical TrainingResult reader/compatibility, and public .train scope ratification remain unestablished or held. No training-history DTO or wider trainer framework is introduced.",
       "missing_inputs": [
         "Product owner decision recording the narrowed public .train claim (Economics one-call training only), bridge_pending behavior for other profiles, the compatibility facade sunset, and whether or when cross-call checkpoint/resume is in scope. The tracked ruling in closure-decisions/C.md states this owner decision is separate from the already available bounded Economics mechanism.",
         "A typed cross-call checkpoint profile for optimizer state, RNG state, reset semantics, domain/schema and artifact identity does not exist; do not claim cross-call continuation or invent the contract in this handoff."
       ],
       "remaining_verification": [
-        "Run the original PLG-03 true zero-gradient criterion through the native optimizer; the synthetic identity/no-update control is not this witness.",
-        "Verify the original train/eval, RNG, reset and continuation criteria on the bridge path.",
+        "Verify broader train/eval and RNG semantics on the bridge path; the completed test establishes only in-memory seeded post-training consumer one-step segmentation equivalence and initialize reset of the checked time_step, wealth, income, active-mask, policy, and config observables for this fixture.",
         "Resolve and test historical TrainingResult reader/compatibility and provenance; no supported reader was found, which does not establish that no external reader exists.",
         "Do not claim cross-call checkpoint/resume until its typed profile and consumer readback are defined and verified."
       ],
@@ -265,13 +312,13 @@
     "existing_failure_modes": "Discovery had separate source paths and candidate validation gaps; legacy training reported rollout rewards as if they were optimizer losses and could return an unchanged policy as trained. Review also found a P38 runtime-profile proxy: the adapter hardcoded STRICT_CPU while the native helper only emitted tier-validation warnings.",
     "target_pattern": "Reuse Core's collector and preserve the legacy DomainPlugin ABI; keep its list/error-log semantics without inventing a report DTO; route only the supported Economics profile through the existing trainer; derive its tier from the existing runtime-fingerprint owner and hold missing or mismatched profiles; use typed bridge_pending for unsupported profiles; verify training with independent persisted-policy action readback and an optimizer-removal negative control.",
     "missing_capability_labels": ["verification_missing", "semantic_test_missing"],
-    "acceptance_signal": "The exact frozen candidate passes independent installed-distribution/ABI and 26-test discovery evidence, before/after source/error/order/lifecycle probes, the 17-test actual CPU trainer/CAS/action and marker-removal suite, runtime-tier negatives, lint and formatting. LA-022's bounded primary criterion is closed. LA-023's overall finding verdict remains held while its bounded one-call code outcome is GO; its Product-owner public-scope decision and remaining original-scope verification are explicit outstanding inputs."
+    "acceptance_signal": "The frozen candidate passes independent installed-distribution/ABI and 26-test discovery evidence, before/after source/error/order/lifecycle probes, the 17-test actual CPU trainer/CAS/action and marker-removal suite, runtime-tier negatives, lint and formatting. Two additional pinned PLG-03 selectors verify an actual zero-gradient PPO/Optax refusal and seeded consumer/reset behavior. LA-022's bounded primary criterion is closed. LA-023's overall finding verdict remains held while its bounded one-call code outcome is GO; its Product-owner public-scope decision and remaining original-scope verification are explicit outstanding inputs."
   },
   "limitations_and_next_owner": [
     "PLG-01 now has both its isolated-fixture source/error/order/lifecycle probes and a genuine installed-wheel external DomainPlugin check alongside built-in Economics. The installed fixture is intentionally tiny and verifies ABI availability, not arbitrary third-party ecosystem compatibility.",
     "The one Core BaseDiscovery collector handles ordered source batches and logs whole-source errors; established per-entrypoint/package/directory exceptions remain reported through their existing logs/warnings while the public discovery API returns list[DomainPlugin]. No criterion or existing consumer establishes a structured error-report DTO requirement, so none was added.",
     "A candidate can attach an arbitrary .verified=True attribute and the registry retains the Python object. No verifier, owner-admission contract, provenance artifact, or downstream admission consumer exists in this plugin path; that flag must not be treated as verification. This separate capability remains open/verification_missing and is not folded into the bounded LA-022 discovery closure.",
-    "PLG-03's bounded actual one-call positive and optimizer-removal tests ran. The full card's separate zero-gradient control and bridge-level train/eval, RNG/reset, and cross-call continuation criteria remain unverified. No typed checkpoint profile exists for RNG state, optimizer state, domain schema, or artifact identity; do not claim cross-call resume.",
+    "PLG-03's bounded actual one-call positive and optimizer-removal tests ran. A separate frozen test now verifies a mathematically exact zero PPO objective through the canonical trainer and actual facade, with 17 all-zero gradient leaves, unchanged parameters/actions, typed bridge_pending, and no CAS publication. The existing post-training in-memory consumer matches two seeded one-step calls against a two-step evaluation. initialize(seed=7) clears policy/config and restores the checked reset observables (time_step, wealth, income, active mask); the generated summary file's full-snapshot label exceeds the actual assertions and is not relied on as a whole-state comparison. Broader train/eval and RNG semantics and cross-call continuation remain unverified; no typed checkpoint profile exists for RNG state, optimizer state, domain schema, or artifact identity, so do not claim cross-call resume.",
     "No supported historical TrainingResult reader/deserializer was found. Historical result provenance/compatibility is unverified rather than declared absent from all possible external callers.",
     "The reward fixture proves current live trajectory and CompositeReward evaluation semantics, but SimulationResult does not persist or expose reward_history; durable historical reward readback is not implemented by this change.",
     "Product-owner ratification is still required for the narrowed public .train wording, bridge_pending behavior for other profiles, compatibility facade sunset, and any decision about checkpoint/resume scope. The bounded one-call mechanism remains available; the overall LA-023 verdict stays held until the owner decision and remaining semantic verification are resolved. This handoff does not mutate the historical G97 closure ledger.",

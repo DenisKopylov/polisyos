@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "addopts=",
+    "-q",
+    "-c",
+    "pytest.ini",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/raw/plg03-numerical-controls-20261006/pytest-tmp",
+    "tests/unit/remediation/test_plg_03.py::test_economics_training_updates_policy_and_produces_readable_artifact",
+    "tests/unit/remediation/test_plg_03.py::test_true_zero_gradient_native_update_and_facade_result_are_honest"
+  ],
+  "controlled_environment": {
+    "JAX_PLATFORMS": "cpu",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src"
+  },
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-plugins-20261006/polisyos/policy-engine",
+  "elapsed_seconds": 29.137,
+  "ended_at_utc": "2026-10-06T15:49:11.723788+00:00",
+  "generated_test_metadata": {
+    "native-gradient-summary.json": "31d9cba6d2937692ed5c27f0d193829a6de32cde5be890bae759d4243ac69338",
+    "training-evaluation-reset.json": "264ce6dc481b4c98c2827c600805427ceb07aff6b2aacac413fe28a31998e457"
+  },
+  "returncode": 0,
+  "started_at_utc": "2026-10-06T15:48:42.586403+00:00",
+  "stderr_bytes": 0,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_bytes": 1626,
+  "stdout_sha256": "2e926b28f7d3c9ca9073cbbf886c456f7a20ba7d8ad5ada4746a6e1c391866d4",
+  "timed_out": false,
+  "timeout_seconds": 1500
+}

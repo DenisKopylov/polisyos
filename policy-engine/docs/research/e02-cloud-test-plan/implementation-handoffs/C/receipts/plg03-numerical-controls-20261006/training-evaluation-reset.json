@@ -1,0 +1,11 @@
+{
+  "first_consumer_time_step": 3,
+  "initialize_clears_policy_and_training_config": true,
+  "initialize_restores_initial_economics_snapshot": true,
+  "second_consumer_time_step": 4,
+  "seed": 7,
+  "separate_one_step_calls_match_two_step_consumer": true,
+  "training_config_reused_for_post_training_consumer": true,
+  "training_result_steps_after_one_call": 2,
+  "training_status": "trained"
+}

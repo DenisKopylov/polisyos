@@ -1,0 +1,19 @@
+{
+  "actual_facade_jit_action_delta": 0.0,
+  "actual_facade_jit_parameter_delta": 0.0,
+  "advantage_max_abs": 0.0,
+  "artifact_store_calls": 0,
+  "direct_train_actor_critic_action_delta": 0.0,
+  "direct_train_actor_critic_parameter_delta": 0.0,
+  "facade_reason_code": "training_update_not_observed",
+  "facade_status": "bridge_pending",
+  "gradient_l2_norm": 0.0,
+  "gradient_leaf_count": 17,
+  "gradient_max_abs": 0.0,
+  "loss": 0.0,
+  "objective_fixture": "zero reward, zero critic output, value_coef=0, entropy_coef=0",
+  "return_max_abs": 0.0,
+  "reward_max_abs": 0.0,
+  "seed": 7,
+  "trained_policy_published": false
+}

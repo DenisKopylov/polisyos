@@ -1,0 +1,67 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "transfer-retention-origins-and-workflow-fixture-followup",
+  "closure_ids": [],
+  "finding_ids": [
+    "B137",
+    "B128",
+    "B130",
+    "B131",
+    "B132"
+  ],
+  "bundle_ids": [
+    "TRN-01",
+    "TRN-03"
+  ],
+  "recorded_at": "2026-10-06T10:45:50.481648+00:00",
+  "supersedes_only": {
+    "receipt_commit": "b4fb812810d1bfb221d81057b602804d96498a92",
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-lessons-retention-followup.json",
+    "field": "environment.origins",
+    "reason": "The asynchronous origin capture had not completed when the previous receipt copied its output. The old empty-file hash was accurate but supplied no origin evidence. Original receipt and empty file remain preserved."
+  },
+  "origin_capture": {
+    "source_sha": "5239df01fb7e6a1c66c9b7453556fd3009f022f0",
+    "source_tree_sha": "4672f9d3fb257cacaf1fe2fb6db2ab530038efda",
+    "working_directory": "/dev/shm/e02-D2-transfer-retention-final/policy-engine",
+    "environment": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:.",
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "method": "Import actual lessons/vector_memory/public artifacts modules from the unchanged immutable tracked-input source archive and print __file__, interpreter and installed versions. Capture completed before output hashing.",
+    "timing_scope": "Follow-up source-origin capture; not contemporaneous instrumentation of the already recorded 18-test run.",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lesson-retention-origins-followup.txt",
+      "sha256": "59011561862d74f16b00be126c53a32d292c824e438d3320ed9a1a04d4aaaaca"
+    }
+  },
+  "workflow_fixture": {
+    "implementation_commits": [
+      "61b772806f57cd8bd49b6062d864c3d9eca2963f",
+      "f202bc90e07650f9b13ddcba62ca84ffd80d1550"
+    ],
+    "source_tree_sha": "16b9ef410ed1bf1cd37d758ca1457daf32ae6f17",
+    "path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+    "change": "The analytic receiving BenchmarkSuite declares existing data_basis=candidate_only. Its evaluator consumes the persisted receiving candidate bytes and has no external data input.",
+    "preserved": "Native configured generator, original CAS admission, SearchLoopRunner consumer, admitted corpus, malformed/origin controls, checkpoint restore and same-ref content mutation assertions.",
+    "checks": [
+      {
+        "command": "/workspace/e02-D-locked-env/bin/ruff check tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+        "outcome": "PASS",
+        "result": "All checks passed!"
+      },
+      {
+        "command": "/workspace/e02-D-locked-env/bin/ruff format --check tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+        "outcome": "PASS",
+        "result": "1 file already formatted"
+      }
+    ],
+    "actual_workflow_execution": "UNRUN; corrected immutable root composition not yet routed."
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Receipt correction and explicit conditional fixture input only; no finding closure adjudication.",
+  "limitations_and_next_owner": [
+    "The conditional analytic fixture and its declared owner descriptors do not establish institutional source authorization, scientific truth or a production-history benefit.",
+    "No source/runtime behavior or retention test verdict changed by this receipt.",
+    "Previous permanent deletion deviation remains recorded in transfer-scratch-trash-deviation.json; no subsequent deletion occurred."
+  ]
+}

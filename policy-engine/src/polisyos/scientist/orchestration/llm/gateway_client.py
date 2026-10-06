@@ -631,6 +631,7 @@ class GatewayLLMClient:
                     )
                 )
 
+        response_headers = payload.get("_gateway_response_headers")
         return GatewayLLMResponse(
             content=content,
             usage=usage,
@@ -638,9 +639,7 @@ class GatewayLLMClient:
             provider=_as_str(payload.get("provider")) or self.provider_hint,
             request_id=_as_str(payload.get("_gateway_request_id")),
             response_headers=(
-                dict(payload.get("_gateway_response_headers"))
-                if isinstance(payload.get("_gateway_response_headers"), dict)
-                else None
+                dict(response_headers) if isinstance(response_headers, dict) else None
             ),
             raw=payload,
             tool_calls=tool_calls,

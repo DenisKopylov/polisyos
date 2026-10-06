@@ -1,0 +1,19 @@
+{
+  "operation": "native_git_index_v4_prefix_compression",
+  "root": "/workspace/e02-D-published-transfer",
+  "index": "/workspace/polisyos/.git/worktrees/e02-D-published-transfer/index",
+  "head": "4fff9e8089bfba442e2ec8710cda45bfd9b6959c",
+  "branch": "refs/heads/codex/e02-D-published-transfer",
+  "old_backup": "/tmp/e02-D-index-v4-3b3xlnmv/original.index",
+  "old_bytes": 2160410,
+  "new_bytes": 1261831,
+  "old_sha256": "55a7e832718606050841d22934d00b6bb7cd098c7112b4c8943179701a047108",
+  "new_sha256": "a3a760100d004cc8616f6ebe992389be35443ae42d50818c1f93caeeb9b937fc",
+  "complete_stage_debug_sha256_before_and_after": "31285be71b3e7b2f97c93fb18a28a823bcdc7531220bff1027d27cef809739b5",
+  "status_before_and_after": "",
+  "head_branch_entries_flags_staged_tree_identity_unchanged": true,
+  "source_tests_hooks_unchanged": true,
+  "permanent_cleanup": false,
+  "available_bytes_before": 2662400,
+  "available_bytes_after": 3559424
+}

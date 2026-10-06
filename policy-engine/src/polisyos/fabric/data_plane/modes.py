@@ -373,9 +373,7 @@ def _complete_source_boundary(
             return None
         version_value = getattr(version, "value", None)
         version_timestamp = getattr(version, "timestamp", None)
-        if not isinstance(version_value, str) or not isinstance(
-            version_timestamp, datetime
-        ):
+        if not isinstance(version_value, str) or not isinstance(version_timestamp, datetime):
             return None
         parsed_version_value = _parse_timestamp_value(version_value)
         if parsed_version_value is None:
@@ -776,6 +774,23 @@ def _sanitize_stream_rows(
                         reason = "poison_stream_message"
                         context["non_nullable_fields"] = non_nullable
 
+                if reason is None:
+                    from polisyos.fabric.data_plane.schema_rows import field_value_violation
+
+                    violations = {
+                        name: violation
+                        for name, field in field_by_name.items()
+                        if name in row and row[name] is not None
+                        if (violation := field_value_violation(row[name], field)) is not None
+                    }
+                    if violations:
+                        reason = (
+                            "non_finite_metric"
+                            if "schema_non_finite" in violations.values()
+                            else "poison_stream_message"
+                        )
+                        context["field_violations"] = violations
+
             if reason is None:
                 non_finite = _non_finite_fields(row)
                 if non_finite:
@@ -1078,12 +1093,13 @@ def _stream_runtime_options_from_manifest(
         partition_key=partition_key,
         batch_size=int(raw_streaming.get("batch_size", 1_000)),
         checkpoint_every_chunks=int(raw_streaming.get("checkpoint_every_chunks", 1)),
-        dedupe_key_fields=tuple(
-            raw_streaming.get("dedupe_key_fields", ("_message_id", "message_id", "id"))
-        ),
+        dedupe_key_fields=tuple(raw_streaming.get("dedupe_key_fields", ("_message_id",))),
         max_dedupe_keys=int(raw_streaming.get("max_dedupe_keys", 4_096)),
         max_buffered_rows=int(raw_streaming.get("max_buffered_rows", 10_000)),
         max_buffered_bytes=int(raw_streaming.get("max_buffered_bytes", 16 * 1024 * 1024)),
+        max_input_rows=raw_streaming.get("max_input_rows"),
+        max_input_bytes=raw_streaming.get("max_input_bytes"),
+        max_output_refs=raw_streaming.get("max_output_refs", 4_096),
         pause_seconds=float(raw_streaming.get("pause_seconds", 0.01)),
         window_policy=window_policy,
     )

@@ -1,0 +1,13 @@
+id = "2026-10-06-c2-stream-admission"
+title = "Admit stream state and exact-key horizons before advancing frontiers"
+type = "fixed"
+component = "fabric"
+owner = "team-fabric"
+summary = "Streaming refuses oversized restored state, input, prospective window transitions, and output-reference sets before frontier advancement. Exact configured dedupe keys retain persisted UTC first-ingestion times without live-key eviction; declared schema membership is row-local."
+evidence = ["src/polisyos/fabric/data_plane/README.md", "tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py", "tests/unit/fabric/data_plane/test_streaming_runtime.py"]
+compatibility = "Missing dedupe components, overflow of live keys, and legacy nonempty key checkpoints without UTC retention evidence now produce typed unsupported errors. Source-owned key semantics remain a supplier obligation."
+change_class = "internal"
+surface_classification = "internal: Fabric streaming ingestion and checkpoint recovery"
+migration = "Use an exact source-owned event/version key and a complete persisted UTC horizon. Do not infer times for legacy keys; replay under the source owner's approved recovery profile."
+limitations = "No staged spill reader, whole-process RSS claim, source-key ownership admission, or confirmed-progress content binder is introduced."
+generated_client_compatibility = "not_applicable"

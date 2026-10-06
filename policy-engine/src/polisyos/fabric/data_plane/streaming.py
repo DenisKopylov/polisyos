@@ -6,10 +6,11 @@ import asyncio
 import json
 import sys
 from collections import deque
+from copy import copy
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from math import floor
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.core.artifacts.async_store import (
@@ -20,7 +21,7 @@ from polisyos.core.artifacts.async_store import (
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, content_hash, fingerprint
+from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts.cursor import (
     CursorState,
     StreamCheckpoint,
@@ -55,7 +56,7 @@ from polisyos.fabric.quality.processing_guarantees import (
 from polisyos.ir.connectors import FetchRequest
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator, Callable
+    from collections.abc import AsyncIterator, Callable, Iterator
 
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
     from polisyos.fabric.connectors.contracts import ConnectorSchemaContract, DataSchema
@@ -71,6 +72,111 @@ if TYPE_CHECKING:
     ConnectorRegistryProvider = Callable[[], ConnectorRegistry]
 
 
+class StreamCapacityError(RuntimeError):
+    """Refuse a stream capacity transition without advancing its frontier.
+
+    These limits cover retained operator rows, runtime input materialization,
+    and retained output references. They do not describe process RSS or the
+    connector's allocation before returning a chunk.
+    """
+
+    def __init__(
+        self,
+        *,
+        stage: Literal["restore", "operator", "input", "output"],
+        rows: int,
+        bytes_size: int,
+        max_rows: int,
+        max_bytes: int,
+        strategy: str,
+    ) -> None:
+        self.stage = stage
+        self.rows = rows
+        self.bytes_size = bytes_size
+        self.max_rows = max_rows
+        self.max_bytes = max_bytes
+        self.strategy = strategy
+        super().__init__(
+            f"stream capacity unsupported at {stage}: rows={rows}/{max_rows} "
+            f"bytes={bytes_size}/{max_bytes}; {strategy} cannot enlarge the "
+            "budget without a staged spill reader"
+        )
+
+
+class StreamDedupeUnsupported(RuntimeError):
+    """Refuse unsupported event-key or persisted ingestion-horizon semantics."""
+
+
+class _DedupeHorizon:
+    """Exact keys retained from first admitted UTC ingestion until expiry.
+
+    Key semantics remain the source owner's responsibility. This index never
+    substitutes entity IDs or payload hashes for a configured event/version
+    key, and never evicts a live key merely to meet a count budget.
+    """
+
+    def __init__(
+        self, scope: tuple[str, str, str], fields: tuple[str, ...], seconds: int, cap: int
+    ):
+        self.scope = scope
+        self.fields = fields
+        self.seconds = seconds
+        self.cap = cap
+        self.entries: dict[str, datetime] = {}
+
+    def expire(self, now: datetime) -> None:
+        cutoff = now - timedelta(seconds=self.seconds)
+        self.entries = {key: at for key, at in self.entries.items() if at > cutoff}
+
+    def remember(self, key: str, now: datetime) -> bool:
+        self.expire(now)
+        if key in self.entries:
+            return False
+        if len(self.entries) >= self.cap:
+            raise StreamDedupeUnsupported(
+                "live event-key capacity exceeded; refusing before eviction; "
+                "a durable spill index/reader is not installed"
+            )
+        self.entries[key] = now
+        return True
+
+    def snapshot(self) -> dict[str, Any]:
+        return {
+            "version": 1,
+            "scope": list(self.scope),
+            "fields": list(self.fields),
+            "window_seconds": self.seconds,
+            "entries": {key: at.isoformat() for key, at in self.entries.items()},
+        }
+
+    def restore(self, state: Any, now: datetime) -> None:
+        if (
+            not isinstance(state, dict)
+            or type(state.get("version")) is not int
+            or state["version"] != 1
+            or state.get("scope") != list(self.scope)
+            or state.get("fields") != list(self.fields)
+            or state.get("window_seconds") != self.seconds
+            or not isinstance(state.get("entries"), dict)
+        ):
+            raise StreamDedupeUnsupported("dedupe UTC horizon/scope contract is unavailable")
+        for key, raw_at in state["entries"].items():
+            try:
+                at = datetime.fromisoformat(raw_at)
+            except (TypeError, ValueError) as exc:
+                raise StreamDedupeUnsupported("invalid persisted UTC ingestion time") from exc
+            if not isinstance(key, str) or at.utcoffset() != timedelta(0) or at > now:
+                raise StreamDedupeUnsupported("invalid persisted UTC ingestion time or key")
+            self.entries[key] = at
+        self.expire(now)
+        if len(self.entries) > self.cap:
+            raise StreamDedupeUnsupported("restored live event-key capacity exceeded")
+
+
+def _ingestion_utc() -> datetime:
+    return datetime.now(UTC)
+
+
 @dataclass(frozen=True)
 class StreamRuntimeOptions:
     """Runtime controls for bounded, resumable stream processing."""
@@ -78,15 +184,33 @@ class StreamRuntimeOptions:
     partition_key: str = "default"
     batch_size: int = 1_000
     checkpoint_every_chunks: int = 1
-    dedupe_key_fields: tuple[str, ...] = ("_message_id", "message_id", "id")
+    dedupe_key_fields: tuple[str, ...] = ("_message_id",)
     max_dedupe_keys: int = 4_096
     max_buffered_rows: int = 10_000
     max_buffered_bytes: int = 16 * 1024 * 1024
+    max_input_rows: int | None = None
+    max_input_bytes: int | None = None
+    max_output_refs: int = 4_096
     pause_seconds: float = 0.01
     window_policy: WindowPolicy = field(default_factory=WindowPolicy)
     processing_contract: ProcessingGuaranteeContract = field(
         default_factory=stream_processing_contract
     )
+
+    def __post_init__(self) -> None:
+        for name in (
+            "batch_size",
+            "checkpoint_every_chunks",
+            "max_dedupe_keys",
+            "max_buffered_rows",
+            "max_buffered_bytes",
+            "max_input_rows",
+            "max_input_bytes",
+            "max_output_refs",
+        ):
+            value = getattr(self, name)
+            if value is not None and (type(value) is not int or value < 1):
+                raise ValueError(f"{name} must be a positive integer")
 
 
 @dataclass
@@ -283,8 +407,7 @@ class StreamingSourceSession:
                 # original startup error remains authoritative and the note
                 # records that the pool owner is still pending.
                 exc.add_note(
-                    "stream session startup cleanup remains pending after retry: "
-                    f"{cleanup_exc!r}"
+                    f"stream session startup cleanup remains pending after retry: {cleanup_exc!r}"
                 )
             if session._cleanup_pending or session.handle is not None:
                 retain_pending_cleanup = getattr(
@@ -297,8 +420,7 @@ class StreamingSourceSession:
                         retain_pending_cleanup(connector_id, session.pool)
                     except BaseException as transfer_exc:
                         exc.add_note(
-                            "stream session startup owner transfer failed: "
-                            f"{transfer_exc!r}"
+                            f"stream session startup owner transfer failed: {transfer_exc!r}"
                         )
             raise
         return session
@@ -392,11 +514,7 @@ class StreamingSourceSession:
         fallback to ``_last_chunk`` remains for compatibility with direct
         session users, but it must not be used as an error-handler frontier.
         """
-        last_chunk = (
-            chunk
-            if chunk is not None or not use_observed_chunk
-            else self._last_chunk
-        )
+        last_chunk = chunk if chunk is not None or not use_observed_chunk else self._last_chunk
         offset = int(last_chunk.chunk_index) if last_chunk is not None else 0
         resume_token = last_chunk.resume_token if last_chunk is not None else None
         return StreamCheckpoint(
@@ -576,8 +694,16 @@ class StreamWindowAccumulator:
 
     _STATE_VERSION = 1
 
-    def __init__(self, policy: WindowPolicy) -> None:
+    def __init__(
+        self,
+        policy: WindowPolicy,
+        *,
+        max_rows: int | None = None,
+        max_bytes: int | None = None,
+    ) -> None:
         self.policy = policy
+        self._max_rows = max_rows
+        self._max_bytes = max_bytes
         self._ordinal = 0
         self._count_buffer: list[dict[str, Any]] = []
         self._sliding_rows: deque[dict[str, Any]] = deque()
@@ -607,19 +733,48 @@ class StreamWindowAccumulator:
         contributor_refs: tuple[str, ...],
     ) -> list[_WindowEmission]:
         """Add rows and return assignments with their actual source refs."""
+        return list(self.iter_rows_with_refs(rows, contributor_refs))
+
+    def iter_rows_with_refs(
+        self,
+        rows: list[dict[str, Any]],
+        contributor_refs: tuple[str, ...],
+    ) -> Iterator[_WindowEmission]:
+        """Emit each window before retaining the next input row's windows."""
         refs = self._validate_refs(contributor_refs)
-        emissions: list[_WindowEmission] = []
         for row in rows:
             self._set_row_refs(row, refs)
             for assignment in self._add_row(row):
-                emissions.append(
-                    _WindowEmission(
-                        assignment=assignment,
-                        contributor_refs=self._refs_for_assignment(assignment),
-                    )
+                yield _WindowEmission(
+                    assignment=assignment,
+                    contributor_refs=self._refs_for_assignment(assignment),
                 )
-        self._prune_row_refs()
-        return emissions
+            self._prune_row_refs()
+
+    def _admit_append(self, row: dict[str, Any]) -> None:
+        if self._max_rows is None or self._max_bytes is None:
+            return
+        _admit_stream_capacity(
+            stage="operator",
+            rows=self.buffered_rows() + 1,
+            bytes_size=self.buffered_bytes() + _estimate_row_bytes(row),
+            max_rows=self._max_rows,
+            max_bytes=self._max_bytes,
+            strategy=self.policy.strategy.value,
+        )
+
+    def admit_rows(self, rows: list[dict[str, Any]]) -> int:
+        """Exercise the actual transition before publishing its input artifact.
+
+        The preview owns separate bounded containers, sharing the already
+        admitted immutable input row objects. It neither copies row payloads
+        nor changes this accumulator. No output or frontier is published here.
+        """
+        preview = copy(self)
+        for name, value in vars(self).items():
+            if isinstance(value, list | dict | deque | set):
+                setattr(preview, name, copy(value))
+        return sum(1 for _ in preview.iter_rows_with_refs(rows, ()))
 
     def flush(self, *, _retain_refs: bool = False) -> list[WindowAssignment]:
         strategy = self.policy.strategy
@@ -863,6 +1018,7 @@ class StreamWindowAccumulator:
         row: dict[str, Any],
         strategy: WindowStrategy,
     ) -> list[WindowAssignment]:
+        self._admit_append(row)
         self._count_buffer.append(row)
         size = max(1, int(self.policy.size))
         if len(self._count_buffer) < size:
@@ -896,9 +1052,12 @@ class StreamWindowAccumulator:
             self._bucket_key = bucket_key
         if bucket_key != self._bucket_key and self._bucket_rows:
             assignment = self._emit_bucket_window()
+            self._bucket_rows = []
+            self._admit_append(row)
             self._bucket_rows = [row]
             self._bucket_key = bucket_key
             return [assignment]
+        self._admit_append(row)
         self._bucket_rows.append(row)
         return []
 
@@ -921,6 +1080,7 @@ class StreamWindowAccumulator:
     def _session_add(self, row: dict[str, Any]) -> list[WindowAssignment]:
         ts = self._timestamp(row)
         if ts is None:
+            self._admit_append(row)
             self._session_rows.append(row)
             return []
         gap_seconds = float(self.policy.session_gap_seconds or self.policy.size or 60.0)
@@ -928,10 +1088,13 @@ class StreamWindowAccumulator:
             self._session_start = ts
         if self._previous_ts is not None and (ts - self._previous_ts).total_seconds() > gap_seconds:
             assignment = self._emit_session_window()
+            self._session_rows = []
+            self._admit_append(row)
             self._session_rows = [row]
             self._session_start = ts
             self._previous_ts = ts
             return [assignment]
+        self._admit_append(row)
         self._session_rows.append(row)
         self._previous_ts = ts
         return []
@@ -957,9 +1120,10 @@ class StreamWindowAccumulator:
     def _sliding_count_add(self, row: dict[str, Any]) -> list[WindowAssignment]:
         size = max(1, int(self.policy.size))
         slide = max(1, int(self.policy.slide or 1))
-        self._sliding_rows.append(row)
-        while len(self._sliding_rows) > size:
+        while len(self._sliding_rows) >= size:
             self._sliding_rows.popleft()
+        self._admit_append(row)
+        self._sliding_rows.append(row)
         self._rows_since_emit += 1
         if len(self._sliding_rows) < size or self._rows_since_emit < slide:
             return []
@@ -977,12 +1141,13 @@ class StreamWindowAccumulator:
     def _sliding_time_add(self, row: dict[str, Any], ts: datetime) -> list[WindowAssignment]:
         window_seconds = max(1, int(self.policy.size))
         slide_seconds = max(1, int(self.policy.slide or self.policy.size))
-        self._sliding_time_rows.append((row, ts))
         while (
             self._sliding_time_rows
             and (ts - self._sliding_time_rows[0][1]).total_seconds() > window_seconds
         ):
             self._sliding_time_rows.popleft()
+        self._admit_append(row)
+        self._sliding_time_rows.append((row, ts))
         if self._next_slide_at is None:
             self._next_slide_at = ts
         if ts < self._next_slide_at:
@@ -1021,7 +1186,7 @@ class StreamWindowAccumulator:
         return ordinal
 
 
-def _estimate_row_bytes(row: dict[str, Any]) -> int:
+def _estimate_row_bytes(row: object) -> int:
     return len(json.dumps(row, sort_keys=True, default=str).encode("utf-8"))
 
 
@@ -1115,6 +1280,7 @@ def _stream_checkpoint_metadata(
     schema_binding: StreamSchemaBinding | None,
     result: StreamDatasetRunResult,
     processing_contract: ProcessingGuaranteeContract,
+    dedupe_horizon: _DedupeHorizon,
 ) -> dict[str, Any]:
     """Build metadata whose operator state matches the committed outputs."""
     return {
@@ -1138,6 +1304,7 @@ def _stream_checkpoint_metadata(
         "operator_state_required": True,
         "operator_state": _stream_operator_state(accumulator, ordering_state),
         "frontier_committed": True,
+        "dedupe_horizon": dedupe_horizon.snapshot(),
     }
 
 
@@ -1253,13 +1420,9 @@ def _stream_frontier_marker(
     return checkpoint.model_copy(
         update={
             "lifecycle_state": (
-                checkpoint.lifecycle_state
-                if state == "committed"
-                else StreamLifecycleState.PAUSED
+                checkpoint.lifecycle_state if state == "committed" else StreamLifecycleState.PAUSED
             ),
-            "committed_at": (
-                checkpoint.committed_at if state == "committed" else None
-            ),
+            "committed_at": (checkpoint.committed_at if state == "committed" else None),
             "metadata": metadata,
         }
     )
@@ -1334,10 +1497,7 @@ async def _save_unresolved_frontier(
     try:
         await async_cursor_store.save_stream_checkpoint(unresolved)
     except Exception as marker_exc:
-        error.add_note(
-            "unresolved stream frontier marker could not be persisted: "
-            f"{marker_exc!r}"
-        )
+        error.add_note(f"unresolved stream frontier marker could not be persisted: {marker_exc!r}")
 
 
 async def _verify_prepared_frontier(
@@ -1517,8 +1677,7 @@ async def _commit_stream_frontier(
                 error=compensation_exc,
             )
             exc.add_note(
-                "source compensation or local frontier restore failed: "
-                f"{compensation_exc!r}"
+                f"source compensation or local frontier restore failed: {compensation_exc!r}"
             )
         else:
             exc.add_note("source compensation rewind restored the previous local frontier")
@@ -1566,6 +1725,7 @@ def _effective_processing_contract(
         update={
             "key_fields": tuple(options.dedupe_key_fields),
             "max_dedupe_keys": max(1, int(options.max_dedupe_keys)),
+            "missing_key_action": "reject",
         }
     )
     backpressure = options.processing_contract.backpressure.model_copy(
@@ -1581,22 +1741,6 @@ def _effective_processing_contract(
             "backpressure": backpressure,
         }
     )
-
-
-def _remember_dedupe_key(
-    dedupe_keys: deque[str],
-    dedupe_seen: set[str],
-    dedupe_key: str,
-) -> None:
-    """Append one key while keeping membership aligned with the bounded deque."""
-
-    maxlen = dedupe_keys.maxlen
-    if maxlen is not None and len(dedupe_keys) >= maxlen:
-        evicted = dedupe_keys.popleft()
-        if evicted not in dedupe_keys:
-            dedupe_seen.discard(evicted)
-    dedupe_keys.append(dedupe_key)
-    dedupe_seen.add(dedupe_key)
 
 
 def _apply_out_of_order_policy(
@@ -1620,12 +1764,10 @@ def _apply_out_of_order_policy(
         if ts is not None and state.max_event_time is not None and ts < state.max_event_time:
             late = True
             out_of_order += 1
-            too_late = (
-                state.max_event_time - ts
-            ).total_seconds() > float(policy.max_lateness_seconds)
-        if ts is not None and (
-            state.max_event_time is None or ts > state.max_event_time
-        ):
+            too_late = (state.max_event_time - ts).total_seconds() > float(
+                policy.max_lateness_seconds
+            )
+        if ts is not None and (state.max_event_time is None or ts > state.max_event_time):
             state.max_event_time = ts
 
         if not late:
@@ -1756,6 +1898,138 @@ def _assert_stream_schema_binding_current(
         )
 
 
+def _admit_stream_capacity(
+    *,
+    stage: Literal["restore", "operator", "input", "output"],
+    rows: int,
+    bytes_size: int,
+    max_rows: int,
+    max_bytes: int,
+    strategy: str,
+) -> None:
+    if rows > max_rows or bytes_size > max_bytes:
+        raise StreamCapacityError(
+            stage=stage,
+            rows=rows,
+            bytes_size=bytes_size,
+            max_rows=max_rows,
+            max_bytes=max_bytes,
+            strategy=strategy,
+        )
+
+
+def _admit_restored_operator_state(
+    state: Any,
+    *,
+    options: StreamRuntimeOptions,
+    contract: ProcessingGuaranteeContract,
+) -> None:
+    """Inspect persisted rows before copying them into a live accumulator."""
+    if not isinstance(state, dict):
+        raise ValueError("corrupt stream operator state")
+    accumulator = state.get("accumulator")
+    if not isinstance(accumulator, dict):
+        raise ValueError("corrupt stream operator state")
+    rows = bytes_size = 0
+    refs: set[str] = set()
+    for name in (
+        "count_buffer",
+        "sliding_rows",
+        "bucket_rows",
+        "session_rows",
+        "sliding_time_rows",
+    ):
+        entries = accumulator.get(name)
+        if not isinstance(entries, list):
+            raise ValueError("corrupt stream operator state")
+        for entry in entries:
+            if not isinstance(entry, dict) or not isinstance(entry.get("row"), dict):
+                raise ValueError("corrupt stream operator state")
+            rows += 1
+            bytes_size += _estimate_row_bytes(entry["row"])
+            refs.update(StreamWindowAccumulator._validate_refs(entry.get("refs")))
+            _admit_stream_capacity(
+                stage="restore",
+                rows=rows,
+                bytes_size=bytes_size,
+                max_rows=contract.backpressure.max_buffered_rows,
+                max_bytes=contract.backpressure.max_buffered_bytes,
+                strategy=str(contract.backpressure.strategy),
+            )
+            _admit_stream_capacity(
+                stage="output",
+                rows=len(refs),
+                bytes_size=0,
+                max_rows=options.max_output_refs,
+                max_bytes=1,
+                strategy=str(contract.backpressure.strategy),
+            )
+
+
+def _admit_stream_input(payload: Any, options: StreamRuntimeOptions) -> None:
+    """Bound the returned source payload before runtime batch materialization.
+
+    Source allocation before returning the payload is outside this boundary.
+    Counts come from the actual payload, never DataChunk's declared counters.
+    """
+    max_rows = options.max_input_rows or options.max_buffered_rows
+    max_bytes = options.max_input_bytes or options.max_buffered_bytes
+    if hasattr(payload, "itertuples") and hasattr(payload, "columns"):
+        count = len(payload.index)
+        _admit_stream_capacity(
+            stage="input",
+            rows=count,
+            bytes_size=0,
+            max_rows=max_rows,
+            max_bytes=max_bytes,
+            strategy="bounded_input",
+        )
+        names = tuple(str(name) for name in payload.columns)
+        source_rows = (
+            dict(zip(names, row, strict=True)) for row in payload.itertuples(index=False, name=None)
+        )
+    elif isinstance(payload, list):
+        _admit_stream_capacity(
+            stage="input",
+            rows=len(payload),
+            bytes_size=0,
+            max_rows=max_rows,
+            max_bytes=max_bytes,
+            strategy="bounded_input",
+        )
+        source_rows = iter(payload)
+    else:
+        source_rows = iter((payload,))
+    bytes_size = 0
+    for ordinal, row in enumerate(source_rows, 1):
+        bytes_size += _estimate_row_bytes(row)
+        _admit_stream_capacity(
+            stage="input",
+            rows=ordinal,
+            bytes_size=bytes_size,
+            max_rows=max_rows,
+            max_bytes=max_bytes,
+            strategy="bounded_input",
+        )
+
+
+def _admit_output_ref(
+    result: StreamDatasetRunResult,
+    options: StreamRuntimeOptions,
+    *,
+    additional_count: int = 1,
+) -> None:
+    count = len(result.chunk_refs) + len(result.window_refs) + len(result.cdc_event_refs)
+    _admit_stream_capacity(
+        stage="output",
+        rows=count + additional_count,
+        bytes_size=0,
+        max_rows=options.max_output_refs,
+        max_bytes=1,
+        strategy="retained_output_refs",
+    )
+
+
 async def process_stream_dataset(
     *,
     connector_id: str,
@@ -1800,12 +2074,18 @@ async def process_stream_dataset(
             partition_key=options.partition_key,
             processing_guarantee=processing_contract.guarantee_value,
         )
-        accumulator = StreamWindowAccumulator(options.window_policy)
-        ordering_state = _StreamOrderingState()
-        dedupe_keys: deque[str] = deque(
-            maxlen=max(1, int(processing_contract.idempotency.max_dedupe_keys))
+        accumulator = StreamWindowAccumulator(
+            options.window_policy,
+            max_rows=processing_contract.backpressure.max_buffered_rows,
+            max_bytes=processing_contract.backpressure.max_buffered_bytes,
         )
-        dedupe_seen: set[str] = set()
+        ordering_state = _StreamOrderingState()
+        dedupe_horizon = _DedupeHorizon(
+            (connector_id, dataset_id, options.partition_key),
+            processing_contract.idempotency.key_fields,
+            processing_contract.idempotency.dedupe_window_seconds,
+            processing_contract.idempotency.max_dedupe_keys,
+        )
         previous_schema: tuple[str, ...] | None = None
         visible_schema: tuple[str, ...] | None = None
         committed_checkpoint: StreamCheckpoint | None = None
@@ -1851,21 +2131,20 @@ async def process_stream_dataset(
                     dataset_id,
                     partition_key=options.partition_key,
                 )
-            # Let source rewind/reconnect failures remain the primary evidence
-            # for a broken source lease.  State validation follows only after
-            # the source has accepted the requested recovery position.
-            await session.rewind(latest_checkpoint)
             if frontier_intent is None:
                 latest_cursor = await async_cursor_store.find_latest_cursor(
                     connector_id,
                     dataset_id,
                     partition_key=options.partition_key,
                 )
-            # The deque is the persisted bounded horizon.  Rebuild membership
-            # from the retained deque after maxlen clips any oversized or old
-            # checkpoint rather than reviving evicted keys on restart.
-            dedupe_keys.extend(latest_checkpoint.dedupe_keys)
-            dedupe_seen.update(dedupe_keys)
+            horizon_state = latest_checkpoint.metadata.get("dedupe_horizon")
+            if horizon_state is not None:
+                dedupe_horizon.restore(horizon_state, _ingestion_utc())
+            elif latest_checkpoint.dedupe_keys:
+                raise StreamDedupeUnsupported(
+                    "legacy dedupe keys have no persisted UTC ingestion time; "
+                    "refusing to manufacture a retention horizon"
+                )
             operator_state = latest_checkpoint.metadata.get("operator_state")
             if operator_state is None:
                 # Checkpoints produced before ING-02 did not carry operator
@@ -1877,8 +2156,7 @@ async def process_stream_dataset(
                 has_frontier_evidence = (
                     latest_checkpoint.offset > 0
                     or bool(latest_checkpoint.dedupe_keys)
-                    or latest_checkpoint.lifecycle_state
-                    != StreamLifecycleState.ACTIVE
+                    or latest_checkpoint.lifecycle_state != StreamLifecycleState.ACTIVE
                     or any(
                         latest_checkpoint.metadata.get(name)
                         for name in (
@@ -1897,11 +2175,19 @@ async def process_stream_dataset(
                         "missing stream operator state for a non-empty checkpoint"
                     )
             else:
+                _admit_restored_operator_state(
+                    operator_state,
+                    options=options,
+                    contract=processing_contract,
+                )
                 _restore_stream_operator_state(
                     operator_state,
                     accumulator=accumulator,
                     ordering_state=ordering_state,
                 )
+            # Admission precedes rewind: a fallback rewind polls the source,
+            # and an over-cap predecessor must remain entirely unadvanced.
+            await session.rewind(latest_checkpoint)
             committed_checkpoint = latest_checkpoint
             committed_cursor = latest_cursor
 
@@ -1920,53 +2206,47 @@ async def process_stream_dataset(
         while True:
             buffered_rows = accumulator.buffered_rows()
             buffered_bytes = accumulator.buffered_bytes()
+            _admit_stream_capacity(
+                stage="operator",
+                rows=buffered_rows,
+                bytes_size=buffered_bytes,
+                max_rows=processing_contract.backpressure.max_buffered_rows,
+                max_bytes=processing_contract.backpressure.max_buffered_bytes,
+                strategy=str(processing_contract.backpressure.strategy),
+            )
+            chunk = await session.poll()
+            if chunk is None:
+                break
             if buffered_rows >= processing_contract.backpressure.max_buffered_rows or (
                 buffered_bytes >= processing_contract.backpressure.max_buffered_bytes
             ):
                 result.backpressure_events += 1
-                max_backpressure_events = (
-                    processing_contract.backpressure.max_backpressure_events
-                )
+                max_backpressure_events = processing_contract.backpressure.max_backpressure_events
                 if (
                     max_backpressure_events is not None
                     and result.backpressure_events > max_backpressure_events
                 ):
                     raise RuntimeError("stream backpressure event budget exceeded")
-                if (
-                    processing_contract.backpressure.strategy
-                    == BackpressureStrategy.FAIL_CLOSED
+                # A full window may release its old rows on this input. Refuse
+                # only if the actual post-transition retention exceeds its cap.
+                # No strategy authorizes exceeding it or asserts a spill reader.
+                if processing_contract.backpressure.strategy in (
+                    BackpressureStrategy.PAUSE,
+                    BackpressureStrategy.THROTTLE,
                 ):
-                    raise RuntimeError("stream backpressure contract failed closed")
-                if (
-                    processing_contract.backpressure.strategy
-                    == BackpressureStrategy.SPILL_TO_DISK
-                ):
-                    # This runtime has no spill-segment consumer yet.  Continuing
-                    # through the pause path would only defer the same unbounded
-                    # accumulator growth until the next poll, so refuse the
-                    # unsupported capacity explicitly instead of claiming spill.
-                    raise RuntimeError(
-                        "spill_to_disk backpressure is unsupported without a "
-                        "spill consumer; refusing to exceed the stream window "
-                        f"capacity rows={buffered_rows} bytes={buffered_bytes}"
+                    await session.pause(
+                        reason=(
+                            "window buffer at threshold "
+                            f"rows={buffered_rows} bytes={buffered_bytes}"
+                        )
                     )
-                await session.pause(
-                    reason=(
-                        "window buffer above threshold "
-                        f"rows={buffered_rows} bytes={buffered_bytes}"
-                    )
-                )
-                await asyncio.sleep(processing_contract.backpressure.pause_seconds)
-                await session.resume()
+                    await asyncio.sleep(processing_contract.backpressure.pause_seconds)
+                    await session.resume()
 
-            chunk = await session.poll()
-            if chunk is None:
-                break
+            _admit_stream_input(chunk.data, options)
 
             result.chunks_processed += 1
             clean_rows: list[dict[str, Any]] = []
-            spill_buffered_rows = buffered_rows
-            spill_buffered_bytes = buffered_bytes
             clean_rows_bytes = 0
             chunk_warnings: list[str] = []
             chunk_quarantined = 0
@@ -1983,50 +2263,25 @@ async def process_stream_dataset(
                 chunk_warnings.extend(warnings)
                 chunk_quarantined += quarantined
                 for row in valid_rows:
-                    dedupe_key = resolve_dedupe_key(
-                        row,
-                        fields=processing_contract.idempotency.key_fields,
-                        missing_key_action=(
-                            processing_contract.idempotency.missing_key_action
-                        ),
+                    if processing_contract.idempotency.enabled:
+                        dedupe_key = resolve_dedupe_key(
+                            row,
+                            fields=processing_contract.idempotency.key_fields,
+                            missing_key_action="reject",
+                        )
+                        if not dedupe_horizon.remember(dedupe_key, _ingestion_utc()):
+                            result.dedupe_dropped += 1
+                            continue
+                    row_bytes = _estimate_row_bytes(row)
+                    _admit_stream_capacity(
+                        stage="input",
+                        rows=len(clean_rows) + 1,
+                        bytes_size=clean_rows_bytes + row_bytes,
+                        max_rows=options.max_input_rows or options.max_buffered_rows,
+                        max_bytes=options.max_input_bytes or options.max_buffered_bytes,
+                        strategy="bounded_input",
                     )
-                    if not dedupe_key:
-                        result.late_rows_quarantined += 1
-                        chunk_quarantined += 1
-                        chunk_warnings.append("missing dedupe key quarantined")
-                        continue
-                    if dedupe_key in dedupe_seen:
-                        result.dedupe_dropped += 1
-                        continue
-                    if (
-                        processing_contract.backpressure.strategy
-                        == BackpressureStrategy.SPILL_TO_DISK
-                    ):
-                        row_bytes = _estimate_row_bytes(row)
-                        next_rows = spill_buffered_rows + len(clean_rows) + 1
-                        next_bytes = spill_buffered_bytes + clean_rows_bytes + row_bytes
-                        if (
-                            next_rows
-                            > processing_contract.backpressure.max_buffered_rows
-                        ):
-                            raise RuntimeError(
-                                "spill_to_disk backpressure is unsupported for an "
-                                "oversized input chunk; refusing to materialize "
-                                f"more than max_buffered_rows="
-                                f"{processing_contract.backpressure.max_buffered_rows}"
-                            )
-                        if (
-                            next_bytes
-                            > processing_contract.backpressure.max_buffered_bytes
-                        ):
-                            raise RuntimeError(
-                                "spill_to_disk backpressure is unsupported for an "
-                                "oversized input chunk; refusing to materialize "
-                                f"more than max_buffered_bytes="
-                                f"{processing_contract.backpressure.max_buffered_bytes}"
-                            )
-                        clean_rows_bytes += row_bytes
-                    _remember_dedupe_key(dedupe_keys, dedupe_seen, dedupe_key)
+                    clean_rows_bytes += row_bytes
                     clean_rows.append(row)
 
             result.warnings.extend(chunk_warnings)
@@ -2053,6 +2308,10 @@ async def process_stream_dataset(
             if not clean_rows:
                 continue
 
+            # Run the same window transition against isolated containers before
+            # any chunk/CDC publication. Refusal cannot leave a rejected raw
+            # chunk in CAS or move the live accumulator beyond its predecessor.
+            pending_window_count = accumulator.admit_rows(clean_rows)
             visible_schema = tuple(sorted({str(key) for row in clean_rows for key in row}))
             declared_schema = (
                 set(schema_binding.schema.field_names()) if schema_binding is not None else set()
@@ -2062,6 +2321,13 @@ async def process_stream_dataset(
             # diagnostic.  Optional absence therefore cannot look like removal,
             # but unknown fields are not silently hidden from CDC.
             current_schema = tuple(sorted(declared_schema | set(visible_schema)))
+            _admit_output_ref(
+                result,
+                options,
+                additional_count=1
+                + pending_window_count
+                + int(previous_schema is not None and current_schema != previous_schema),
+            )
             if previous_schema is not None and current_schema != previous_schema:
                 compatibility = classify_cdc_schema_change(
                     previous_schema,
@@ -2071,6 +2337,7 @@ async def process_stream_dataset(
                     compatibility,
                     processing_contract,
                 )
+                _admit_output_ref(result, options)
                 cdc_ref = await _persist_cdc_schema_change_event_async(
                     store=async_store,
                     connector_id=connector_id,
@@ -2104,9 +2371,7 @@ async def process_stream_dataset(
                     handling_action,
                 ):
                     result.quarantined_rows += len(clean_rows)
-                    result.warnings.append(
-                        "CDC incompatible breaking change quarantined"
-                    )
+                    result.warnings.append("CDC incompatible breaking change quarantined")
                     persist_quarantine_record(
                         sync_store,
                         record=QuarantineRecord.new(
@@ -2135,6 +2400,7 @@ async def process_stream_dataset(
                     continue
             previous_schema = current_schema
 
+            _admit_output_ref(result, options)
             chunk_ref = await _persist_stream_chunk_async(
                 store=async_store,
                 connector_id=connector_id,
@@ -2150,10 +2416,11 @@ async def process_stream_dataset(
             result.chunk_refs.append(chunk_ref)
             result.rows_emitted += len(clean_rows)
 
-            for emission in accumulator.add_rows_with_refs(
+            for emission in accumulator.iter_rows_with_refs(
                 clean_rows,
                 (str(chunk_ref.artifact_id),),
             ):
+                _admit_output_ref(result, options)
                 result.window_refs.append(
                     await _persist_stream_window_async(
                         store=async_store,
@@ -2176,7 +2443,7 @@ async def process_stream_dataset(
                 )
                 checkpoint = session.checkpoint(
                     chunk=chunk,
-                    dedupe_keys=tuple(dedupe_keys),
+                    dedupe_keys=tuple(dedupe_horizon.entries),
                     schema_fingerprint=_stream_schema_fingerprint(
                         schema_binding,
                         previous_schema,
@@ -2194,6 +2461,7 @@ async def process_stream_dataset(
                                 schema_binding=schema_binding,
                                 result=result,
                                 processing_contract=processing_contract,
+                                dedupe_horizon=dedupe_horizon,
                             ),
                         },
                         "committed_at": datetime.now(UTC),
@@ -2232,6 +2500,7 @@ async def process_stream_dataset(
                 result.final_checkpoint = committed_checkpoint
 
         for emission in accumulator.flush_with_refs():
+            _admit_output_ref(result, options)
             result.window_refs.append(
                 await _persist_stream_window_async(
                     store=async_store,
@@ -2257,7 +2526,7 @@ async def process_stream_dataset(
             )
         else:
             final_checkpoint = session.checkpoint(
-                dedupe_keys=tuple(dedupe_keys),
+                dedupe_keys=tuple(dedupe_horizon.entries),
                 schema_fingerprint=_stream_schema_fingerprint(
                     schema_binding,
                     previous_schema,
@@ -2276,6 +2545,7 @@ async def process_stream_dataset(
                         schema_binding=schema_binding,
                         result=result,
                         processing_contract=processing_contract,
+                        dedupe_horizon=dedupe_horizon,
                     ),
                 },
                 "committed_at": datetime.now(UTC),
@@ -2318,6 +2588,10 @@ async def process_stream_dataset(
         )
         return result
     except Exception as exc:
+        if isinstance(exc, StreamCapacityError | StreamDedupeUnsupported):
+            # Capacity refusal is not a new frontier. Preserve the exact
+            # predecessor rather than publishing a diagnostic over it.
+            raise
         if pending_frontier is not None:
             raise
         if session.last_chunk is not None:
@@ -2369,9 +2643,7 @@ async def process_stream_dataset(
                         "observed_offset": int(session.last_chunk.chunk_index),
                         "observed_resume_token": session.last_chunk.resume_token,
                         "rows_emitted": frontier_rows,
-                        "processing": processing_contract_snapshot(
-                            processing_contract
-                        ),
+                        "processing": processing_contract_snapshot(processing_contract),
                     },
                 }
             )
@@ -2386,9 +2658,7 @@ async def process_stream_dataset(
         except BaseException as cleanup_exc:
             if primary_exc is None:
                 raise
-            primary_exc.add_note(
-                f"stream session final cleanup failed: {cleanup_exc!r}"
-            )
+            primary_exc.add_note(f"stream session final cleanup failed: {cleanup_exc!r}")
 
 
 async def _persist_stream_chunk_async(
@@ -2457,8 +2727,10 @@ async def _persist_stream_window_async(
             artifact_id=(ref.artifact_id if isinstance(ref, ArtifactRef) else ref),
             role="stream_chunk",
         )
-        for ref in dict.fromkeys(str(ref.artifact_id) if isinstance(ref, ArtifactRef) else str(ref)
-                                 for ref in resolved_refs)
+        for ref in dict.fromkeys(
+            str(ref.artifact_id) if isinstance(ref, ArtifactRef) else str(ref)
+            for ref in resolved_refs
+        )
     ] or None
     payload = {
         "connector_id": connector_id,
@@ -2499,20 +2771,23 @@ def resolve_dedupe_key(
     row: dict[str, Any],
     *,
     fields: tuple[str, ...],
-    missing_key_action: str = "hash_payload",
+    missing_key_action: str = "reject",
 ) -> str:
-    """Resolve a deterministic dedupe key for exactly-once/effectively-once semantics."""
-    for field_name in fields:
-        value = row.get(field_name)
-        if value not in (None, ""):
-            return f"{field_name}:{value!s}"
-    if missing_key_action == "quarantine":
-        return ""
-    if missing_key_action == "reject":
-        raise ValueError("row is missing all configured dedupe key fields")
-    return cast(
-        "str",
-        content_hash(json.dumps(row, sort_keys=True, default=str).encode("utf-8")),
+    """Encode exact configured event/version components without a payload fallback.
+
+    The source owner must establish their meaning; names alone do not prove
+    source ownership. Every configured component and its primitive type matter.
+    """
+    del missing_key_action
+    if not fields or any(
+        field_name not in row or type(row[field_name]) not in (str, int) or row[field_name] == ""
+        for field_name in fields
+    ):
+        raise StreamDedupeUnsupported("source event/version key is missing or unsupported")
+    return json.dumps(
+        [(field_name, row[field_name]) for field_name in fields],
+        ensure_ascii=False,
+        separators=(",", ":"),
     )
 
 
@@ -2747,7 +3022,9 @@ def persist_cdc_schema_change_event(
 
 
 __all__ = [
+    "StreamCapacityError",
     "StreamDatasetRunResult",
+    "StreamDedupeUnsupported",
     "StreamRuntimeOptions",
     "StreamingSourceSession",
     "iter_record_batches",

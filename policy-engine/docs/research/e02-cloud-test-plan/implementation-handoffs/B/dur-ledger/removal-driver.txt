@@ -1,0 +1,4 @@
+import importlib.util,sys,pytest
+name='polisyos.scientist.orchestration.engine.budget_ledger'
+spec=importlib.util.spec_from_file_location(name,sys.argv[1]);module=importlib.util.module_from_spec(spec);sys.modules[name]=module;spec.loader.exec_module(module)
+raise SystemExit(pytest.main(['tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py','-q','-k','missing_snapshot_field or missing_budget_map or corruption_differs or invalid_persisted or invalid_journal or invalid_producer or invalid_snapshot_identity','--tb=short','-o','cache_dir=_build/e02-B-dur-ledger/removal-cache']))

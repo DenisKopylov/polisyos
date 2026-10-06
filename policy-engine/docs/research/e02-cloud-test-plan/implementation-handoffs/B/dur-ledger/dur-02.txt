@@ -1,0 +1,46 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+cachedir: _build/e02-B-dur-ledger/dur-02-cache
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-dur-ledger/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-dur-ledger/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 32 items
+
+tests/unit/remediation/test_dur_02.py::test_stale_worker_cannot_finalize_new_attempt_but_current_worker_can PASSED [  3%]
+tests/unit/remediation/test_dur_02.py::test_terminal_status_progress_and_event_are_one_transaction PASSED [  6%]
+tests/unit/remediation/test_dur_02.py::test_post_dispatch_failure_does_not_blindly_replay_locally PASSED [  9%]
+tests/unit/remediation/test_dur_02.py::test_transient_pre_dispatch_probe_failure_allows_local_fallback PASSED [ 12%]
+tests/unit/remediation/test_dur_02.py::test_access_or_contract_probe_failure_does_not_grant_fallback_authority PASSED [ 15%]
+tests/unit/runtime/http/test_acquisition_control_worker.py::test_worker_missing_durable_decision_fails_before_owner_effect PASSED [ 18%]
+tests/unit/runtime/http/test_acquisition_control_worker.py::test_worker_loads_durable_decision_before_sealed_effect_and_terminal PASSED [ 21%]
+tests/unit/runtime/http/test_acquisition_control_worker.py::test_stale_worker_cannot_write_after_guarded_store_takeover[raw-store-completion] PASSED [ 25%]
+tests/unit/runtime/http/test_acquisition_control_worker.py::test_stale_worker_cannot_write_after_guarded_store_takeover[guarded-store-completion] PASSED [ 28%]
+tests/unit/runtime/http/test_acquisition_control_worker.py::test_stale_worker_cannot_write_after_guarded_store_takeover[guarded-store-manifest] PASSED [ 31%]
+tests/unit/runtime/http/test_acquisition_control_worker.py::test_guarded_current_worker_can_update_manifest_and_complete PASSED [ 34%]
+tests/unit/runtime/http/test_acquisition_control_worker.py::test_stale_guarded_worker_terminal_evidence_does_not_advance_head_after_takeover PASSED [ 37%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::TestFallbackRunner::test_healthy_primary_used PASSED [ 40%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::TestFallbackRunner::test_unhealthy_falls_back_to_local PASSED [ 43%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::TestFallbackRunner::test_health_ttl_caching PASSED [ 46%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::TestFallbackRunner::test_health_ttl_expired_reprobes PASSED [ 50%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::TestFallbackRunner::test_primary_execution_error_falls_back PASSED [ 53%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::TestFallbackRunner::test_primary_execution_error_emits_degraded_path_and_uses_fallback PASSED [ 56%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::test_typed_transient_health_sample_allows_fallback PASSED [ 59%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::test_access_contract_and_unknown_health_samples_block_fallback[connection refused; tenant access denied by contract] PASSED [ 62%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::test_access_contract_and_unknown_health_samples_block_fallback[invalid runner contract] PASSED [ 65%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::test_access_contract_and_unknown_health_samples_block_fallback[probe status is unknown] PASSED [ 68%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::test_stale_allow_sample_is_not_inherited_by_new_probe PASSED [ 71%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::test_probe_exception_classification_is_typed_not_message_based[probe_error0-True] PASSED [ 75%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::test_probe_exception_classification_is_typed_not_message_based[probe_error1-False] PASSED [ 78%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::test_probe_exception_classification_is_typed_not_message_based[probe_error2-False] PASSED [ 81%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::test_probe_exception_classification_is_typed_not_message_based[probe_error3-False] PASSED [ 84%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::test_synthetic_value_error_sample_precedes_legacy_allow_for_generic_backend PASSED [ 87%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::test_synthetic_connection_error_sample_allows_generic_backend_without_classifier PASSED [ 90%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::test_synthetic_connection_error_sample_cannot_override_legacy_block PASSED [ 93%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::test_returned_unhealthy_health_retains_legacy_classifier_without_probe_sample PASSED [ 96%]
+tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py::test_temporal_rpc_status_controls_fallback_disposition PASSED [100%]
+
+============================== 32 passed in 3.06s ==============================

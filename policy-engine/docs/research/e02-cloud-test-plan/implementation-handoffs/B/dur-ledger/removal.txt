@@ -1,0 +1,125 @@
+FFFFFFFF...FFF.....F.....F.....F.....FF...FFFF                           [100%]
+=================================== FAILURES ===================================
+__ test_missing_snapshot_field_never_defaults_into_permission[schema_version] __
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:47: in test_missing_snapshot_field_never_defaults_into_permission
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+_____ test_missing_snapshot_field_never_defaults_into_permission[revision] _____
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:47: in test_missing_snapshot_field_never_defaults_into_permission
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+____ test_missing_snapshot_field_never_defaults_into_permission[updated_at] ____
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:47: in test_missing_snapshot_field_never_defaults_into_permission
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+______ test_missing_snapshot_field_never_defaults_into_permission[state] _______
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:47: in test_missing_snapshot_field_never_defaults_into_permission
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+_______ test_missing_budget_map_refuses_all_existing_file_paths[limits] ________
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:65: in test_missing_budget_map_refuses_all_existing_file_paths
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+________ test_missing_budget_map_refuses_all_existing_file_paths[spent] ________
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:65: in test_missing_budget_map_refuses_all_existing_file_paths
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+___ test_missing_budget_map_refuses_all_existing_file_paths[provider_spent] ____
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:66: in test_missing_budget_map_refuses_all_existing_file_paths
+    middleware.pre_check("protected-node")
+src/polisyos/scientist/orchestration/engine/budget_middleware.py:48: in pre_check
+    raise BudgetExhaustedError(
+E   polisyos.scientist.orchestration.engine.budget.BudgetExhaustedError: Budget 'run' exhausted before node 'protected-node'
+______ test_missing_budget_map_refuses_all_existing_file_paths[reserved] _______
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:66: in test_missing_budget_map_refuses_all_existing_file_paths
+    middleware.pre_check("protected-node")
+src/polisyos/scientist/orchestration/engine/budget_middleware.py:48: in pre_check
+    raise BudgetExhaustedError(
+E   polisyos.scientist.orchestration.engine.budget.BudgetExhaustedError: Budget 'run' exhausted before node 'protected-node'
+______________ test_corruption_differs_from_absent_bootstrap[{}] _______________
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:82: in test_corruption_differs_from_absent_bootstrap
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+________ test_corruption_differs_from_absent_bootstrap[{"revision":1}] _________
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:82: in test_corruption_differs_from_absent_bootstrap
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+________ test_invalid_persisted_amounts_never_admit_consumer[spent--1] _________
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:102: in test_invalid_persisted_amounts_never_admit_consumer
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+_______ test_invalid_persisted_amounts_never_admit_consumer[reserved--1] _______
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:102: in test_invalid_persisted_amounts_never_admit_consumer
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+____ test_invalid_persisted_amounts_never_admit_consumer[provider_spent--1] ____
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:102: in test_invalid_persisted_amounts_never_admit_consumer
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+________ test_invalid_persisted_amounts_never_admit_consumer[limits--1] ________
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:102: in test_invalid_persisted_amounts_never_admit_consumer
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+______ test_invalid_snapshot_identity_is_not_reconstructed[revision-True] ______
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:142: in test_invalid_snapshot_identity_is_not_reconstructed
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+_______ test_invalid_snapshot_identity_is_not_reconstructed[revision-1] ________
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:142: in test_invalid_snapshot_identity_is_not_reconstructed
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+______ test_invalid_snapshot_identity_is_not_reconstructed[updated_at-0] _______
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:142: in test_invalid_snapshot_identity_is_not_reconstructed
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+_______ test_invalid_producer_amount_never_replaces_last_valid_snapshot ________
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:174: in test_invalid_producer_amount_never_replaces_last_valid_snapshot
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+_______ test_invalid_journal_amount_is_refused_with_valid_totals[amount] _______
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:190: in test_invalid_journal_amount_is_refused_with_valid_totals
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+___ test_invalid_journal_amount_is_refused_with_valid_totals[applied_amount] ___
+tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py:190: in test_invalid_journal_amount_is_refused_with_valid_totals
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE <class 'ValueError'>
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_missing_snapshot_field_never_defaults_into_permission[schema_version]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_missing_snapshot_field_never_defaults_into_permission[revision]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_missing_snapshot_field_never_defaults_into_permission[updated_at]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_missing_snapshot_field_never_defaults_into_permission[state]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_missing_budget_map_refuses_all_existing_file_paths[limits]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_missing_budget_map_refuses_all_existing_file_paths[spent]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_missing_budget_map_refuses_all_existing_file_paths[provider_spent]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_missing_budget_map_refuses_all_existing_file_paths[reserved]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_corruption_differs_from_absent_bootstrap[{}]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_corruption_differs_from_absent_bootstrap[{"revision":1}]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_invalid_persisted_amounts_never_admit_consumer[spent--1]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_invalid_persisted_amounts_never_admit_consumer[reserved--1]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_invalid_persisted_amounts_never_admit_consumer[provider_spent--1]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_invalid_persisted_amounts_never_admit_consumer[limits--1]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_invalid_snapshot_identity_is_not_reconstructed[revision-True]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_invalid_snapshot_identity_is_not_reconstructed[revision-1]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_invalid_snapshot_identity_is_not_reconstructed[updated_at-0]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_invalid_producer_amount_never_replaces_last_valid_snapshot
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_invalid_journal_amount_is_refused_with_valid_totals[amount]
+FAILED tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py::test_invalid_journal_amount_is_refused_with_valid_totals[applied_amount]

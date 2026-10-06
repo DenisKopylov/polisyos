@@ -8,7 +8,6 @@ native raw-sample/estimand wiring remains an integration boundary.
 import json
 from dataclasses import replace
 from decimal import Decimal
-from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -22,7 +21,7 @@ from polisyos.scientist.methods.search.readiness import DecisionReadiness, Decis
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
-from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayUsage
+from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
 from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
 from polisyos.scientist.policy_design.adversary import (
     ScenarioAdversaryConfig,
@@ -77,41 +76,59 @@ def configured_workflow(tmp_path, monkeypatch, *, cost=1.0, fail_after_paid=Fals
     calls = []
     observed = []
 
-    class Transport:
-        def __init__(self, kind):
-            self.kind = kind
+    class HTTPResponse:
+        status = 200
 
-        async def generate(self, **kwargs):
-            assert all(not key.startswith("_") for key in kwargs)
-            calls.append(self.kind)
+        def __init__(self, kind):
+            calls.append(kind)
+            self.headers = {"x-request-id": f"request-{len(calls)}"}
             payload = (
                 {"scenarios": [{"scenario_id": "scenario-1", "scenario_type": "bounded_shift"}]}
-                if self.kind == "adversary"
+                if kind == "adversary"
                 else {
                     "title": "Provider brief",
                     "executive_summary": "Observed candidate.",
                     "readiness_level": "research_artifact",
                 }
             )
-            return GatewayLLMResponse(
-                content=json.dumps(payload),
-                provider="provider-a",
-                request_id=f"request-{len(calls)}",
-                usage=GatewayUsage(prompt_tokens=1, completion_tokens=1, cost_usd=cost),
+            self.body = json.dumps(
+                {
+                    "choices": [{"message": {"content": json.dumps(payload)}}],
+                    "provider": "provider-a",
+                    "usage": {"prompt_tokens": 1, "completion_tokens": 1, "cost_usd": cost},
+                }
             )
 
-    def factory(kind, **kwargs):
-        assert kwargs["run_id"] == "run-1"
-        return Transport(kind)
+        async def __aenter__(self):
+            return self
 
-    monkeypatch.setattr(
-        "polisyos.scientist.policy_design.adversary.create_traced_gateway_client",
-        lambda **kwargs: factory("adversary", **kwargs),
-    )
-    monkeypatch.setattr(
-        "polisyos.scientist.policy_design.translator.create_traced_gateway_client",
-        lambda **kwargs: factory("translator", **kwargs),
-    )
+        async def __aexit__(self, *args):
+            return False
+
+        async def text(self):
+            return self.body
+
+    class HTTPSession:
+        def post(self, *args, **kwargs):
+            payload = kwargs["json"]
+            assert all(not key.startswith("_") for key in payload)
+            return HTTPResponse(
+                "adversary" if payload["model"] == "gpt-3.5-turbo" else "translator"
+            )
+
+        async def close(self):
+            pass
+
+    async def transport_only(self, timeout_s):
+        return HTTPSession()
+
+    # Real configured factory -> TracedLLMClient -> budget owner -> native Gateway
+    # decoder. Only the physical HTTP exchange is controlled by this fixture.
+    monkeypatch.setenv("POLISYOS_LLM_GATEWAY_BASE_URL", "https://fixture.invalid")
+    monkeypatch.setenv("POLISYOS_LLM_GATEWAY_API_KEY", "sk-fixture-native-transport")
+    monkeypatch.setenv("POLISYOS_LLM_CACHE_MAXSIZE", "0")
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "false")
+    monkeypatch.setattr(GatewayLLMClient, "_ensure_session", transport_only)
 
     def estimate(runtime_state):
         assert runtime_state["_resource_budget_middleware"] is owner
@@ -119,7 +136,9 @@ def configured_workflow(tmp_path, monkeypatch, *, cost=1.0, fail_after_paid=Fals
         params = runtime_state["estimation_config"]
         if params["n_bootstrap"] == 20:
             worker = ScenarioAdversaryWorker(
-                ScenarioAdversaryConfig(budget_keys=["run"], fallback_on_error=False),
+                ScenarioAdversaryConfig(
+                    model_name="gpt-3.5-turbo", budget_keys=["run"], fallback_on_error=False
+                ),
                 budget_middleware=runtime_state["_resource_budget_middleware"],
             )
             result = worker.propose(
@@ -130,7 +149,9 @@ def configured_workflow(tmp_path, monkeypatch, *, cost=1.0, fail_after_paid=Fals
             assert not result.fallback_used
         else:
             worker = PolicyTranslatorWorker(
-                PolicyTranslatorConfig(budget_keys=["run"], fallback_on_error=False),
+                PolicyTranslatorConfig(
+                    model_name="gpt-4", budget_keys=["run"], fallback_on_error=False
+                ),
                 budget_middleware=runtime_state["_resource_budget_middleware"],
             )
             result = worker.translate(translator_input(), evaluation_id=evaluation_id)
@@ -173,7 +194,21 @@ def assert_receipts(path, outcome, expected):
     assert reopened.state.reserved["run"] == 0
     assert outcome.provider_spend_usd == Decimal(str(expected))
     assert outcome.compute_cost_source == "provider_reported_only"
-    assert set(outcome.resource_event_ids) == set(reopened.resource_events)
+    assert len(outcome.resource_event_ids) == len(reopened.spend_receipts)
+    assert all(
+        any(
+            receipt.event_id.startswith(event_id + ":budget:")
+            for receipt in reopened.spend_receipts.values()
+        )
+        for event_id in outcome.resource_event_ids
+    )
+    assert sum(
+        (receipt.amount for receipt in reopened.spend_receipts.values()), Decimal(0)
+    ) == Decimal(str(expected))
+    assert all(
+        receipt.provider == "provider-a" and receipt.key == "run"
+        for receipt in reopened.spend_receipts.values()
+    )
     return reopened
 
 
@@ -198,19 +233,19 @@ def test_native_policy_callers_full_split_actual_events_and_fresh_reopen(tmp_pat
         snapshot = assert_receipts(path, outcome, 2)
         assert [step.provider_spend_usd for step in outcome.trace] == [Decimal("1"), Decimal("1")]
         assert [result["n_bootstrap"] for result in observed] == [20, 80]
+        # Current B receipt persists key/provider/digest, not evaluation/run scope.
         assert all(
-            event.evaluation_id.startswith(ticket.ticket_id + ":L")
-            for event in snapshot.resource_events.values()
+            len(receipt.payload_digest) == 64 for receipt in snapshot.spend_receipts.values()
         )
         cached = funnel.submit({"candidate_id": "candidate-1"}, context)
         assert cached is ticket
         assert funnel.advance(cached, policy="full").provider_spend_usd == Decimal("2")
         assert calls == ["adversary", "translator"]
         completed.append(
-            {
-                event.event_id: (event.request_id, event.amount_usd)
-                for event in snapshot.resource_events.values()
-            }
+            [
+                (receipt.key, receipt.provider, receipt.amount)
+                for receipt in snapshot.spend_receipts.values()
+            ]
         )
     assert completed[0] == completed[1]
 
@@ -250,19 +285,36 @@ def test_zero_measurement_and_paid_failed_stage_are_distinct(tmp_path, monkeypat
 def test_trace_cost_one_without_settlement_fails_accounting_control(tmp_path, monkeypatch):
     path, owner, funnel, calls, _, context = configured_workflow(tmp_path, monkeypatch, levels=(4,))
 
-    def remove_settlement(reservation_id, event):
-        owner.release_resource(reservation_id)
-        snapshot = owner.resource_snapshot()
-        return SimpleNamespace(
-            state=snapshot.state, applied_amount=Decimal(0), revision=snapshot.revision
+    def remove_settlement(event_id, key, amount, *, payload_digest, provider=None):
+        from datetime import UTC, datetime
+
+        from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedgerSpendReceipt
+
+        # Counterfactual ACK retains all new markers but has no durable receipt.
+        return BudgetLedgerSpendReceipt(
+            event_id=event_id,
+            key=key,
+            amount=amount,
+            payload_digest=payload_digest,
+            provider=provider,
+            revision=1,
+            committed_at=datetime.now(UTC),
         )
 
-    monkeypatch.setattr(owner, "settle_resource", remove_settlement)
+    monkeypatch.setattr(owner, "settle_spend_safe", remove_settlement)
+    stage = funnel._stages_by_level[4]
+    native = stage.evaluate
+    monkeypatch.setattr(
+        stage,
+        "evaluate",
+        lambda candidate, ctx: replace(native(candidate, ctx), compute_actual_usd=1.0),
+    )
     outcome = funnel.advance(funnel.submit({"candidate_id": "candidate-1"}, context), policy="full")
     assert calls == ["translator"]
     assert outcome.trace[0].compute_actual_usd == 1.0
+    assert outcome.final_result.is_promising is False
     assert outcome.stage_results[4].feedback["fidelity_level"] == 4
-    assert FileBudgetLedger(path).snapshot().resource_events == {}
+    assert FileBudgetLedger(path).snapshot().spend_receipts == {}
     with pytest.raises(AssertionError):
         assert_receipts(path, outcome, 1)
 
@@ -293,13 +345,9 @@ def test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remai
     tmp_path, monkeypatch
 ):
     path, owner, funnel, calls, _, context = configured_workflow(tmp_path, monkeypatch)
-    assert owner.reserve_resource(
-        reservation_id="other-owned-attempt",
-        run_id="run-1",
-        budget_keys=("run",),
-        estimated_usd=Decimal("3.5"),
-        evaluation_id="other-attempt",
-    )
+    # B1.1 exposes scalar reservations. This historical selector does not prove
+    # durable reservation ownership; that part of the original criterion is held.
+    assert owner.reserve_safe("run", Decimal("3.5"))
     candidate = {"candidate_id": "candidate-1"}
     ticket = funnel.submit(candidate, context)
     paused = funnel.advance(ticket, policy="full")
@@ -307,7 +355,9 @@ def test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remai
     assert calls == ["adversary"]
     assert FileBudgetLedger(path).load().remaining("run") == Decimal("0.5")
     unrelated = ScenarioAdversaryWorker(
-        ScenarioAdversaryConfig(budget_keys=["run"], fallback_on_error=False),
+        ScenarioAdversaryConfig(
+            model_name="gpt-3.5-turbo", budget_keys=["run"], fallback_on_error=False
+        ),
         budget_middleware=owner,
     )
     unrelated.propose(
@@ -319,7 +369,7 @@ def test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remai
     assert funnel.submit(candidate, context) is ticket
     assert funnel.advance(ticket, policy="full").final_action == "defer"
     assert calls == ["adversary", "adversary"]
-    owner.release_resource("other-owned-attempt")
+    owner.release_safe("run", Decimal("3.5"))
     successor = funnel.submit(candidate, context)
     assert successor is not ticket
     assert successor.parent_ticket_id == ticket.ticket_id
@@ -332,18 +382,12 @@ def test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remai
     assert snapshot.state.remaining("run") == Decimal("2")
     assert completed.provider_spend_usd == Decimal("2")
     assert len(completed.resource_event_ids) == 2
-    assert len(snapshot.resource_events) == 3
+    assert len(snapshot.spend_receipts) == 3
 
 
 def test_removing_signal_absent_budget_guard_fails_zero_downstream_effects(tmp_path, monkeypatch):
     path, owner, funnel, calls, _, context = configured_workflow(tmp_path, monkeypatch)
-    assert owner.reserve_resource(
-        reservation_id="other-owned-attempt",
-        run_id="run-1",
-        budget_keys=("run",),
-        estimated_usd=Decimal("3.5"),
-        evaluation_id="other-attempt",
-    )
+    assert owner.reserve_safe("run", Decimal("3.5"))
     original = funnel._maybe_schedule_transition
 
     def remove_signal_absent_capacity_guard(ticket, **kwargs):
@@ -385,10 +429,16 @@ def test_actual_native_cost_identity_survives_routing_and_compatibility_projecti
     assert calls == expected_calls
     snapshot = FileBudgetLedger(path).snapshot()
     assert snapshot.state.spent["run"] == Decimal(str(cost)) * len(expected_calls)
-    assert len(snapshot.resource_events) == len(expected_calls)
+    assert len(snapshot.spend_receipts) == len(expected_calls)
     assert outcome.final_action == ("reject" if routing_reject else "complete")
     assert outcome.provider_spend_usd == snapshot.state.spent["run"]
-    assert set(outcome.resource_event_ids) == set(snapshot.resource_events)
+    assert all(
+        any(
+            receipt.event_id.startswith(event_id + ":budget:")
+            for receipt in snapshot.spend_receipts.values()
+        )
+        for event_id in outcome.resource_event_ids
+    )
     final_stage = outcome.final_result
     assert final_stage.provider_spend_usd == Decimal(str(cost))
     assert final_stage.compute_cost_source == "provider_reported_only"

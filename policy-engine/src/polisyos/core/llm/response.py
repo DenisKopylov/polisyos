@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import Decimal, InvalidOperation
 from math import isfinite
 from typing import Any
@@ -50,6 +50,10 @@ class LLMResponseData:
 
 def extract_llm_response_data(response: Any) -> LLMResponseData:
     """Extract content, usage, model, and cost fields from heterogeneous LLM SDK responses."""
+    from .settlement import LLMSettledResponse
+
+    if isinstance(response, LLMSettledResponse):
+        response = response.response
     content = response.content if hasattr(response, "content") else str(response)
     cache_hit, usage_origin, reuse_event_id, cache_key = _extract_cache_provenance(response)
     origin_prompt_tokens = 0
@@ -115,24 +119,27 @@ def extract_llm_response_data(response: Any) -> LLMResponseData:
 def _extract_cache_provenance(
     response: Any,
 ) -> tuple[bool, str, str | None, str | None]:
-    """Read cache provenance only from the internal cache-owned envelope.
+    """Consume B's receiver-bound operational cache capability, not a type marker."""
+    from .settlement import _cache_reuse_provenance
 
-    Provider ``raw`` payloads are data, not authority over billing.  The
-    cache wrapper attaches these private fields to the response it returns;
-    a provider-supplied ``_polisyos_cache`` mapping is intentionally ignored.
-    """
-
-    response_type = type(response)
-    cache_hit = (
-        response_type.__name__ == "_CacheReuseGatewayResponse"
-        and response_type.__module__.endswith(".prompt_cache")
-        and getattr(response, "_polisyos_cache_hit", False) is True
-    )
-    if not cache_hit:
+    provenance = _cache_reuse_provenance(response)
+    if provenance is None:
         return False, "provider", None, None
-    reuse_event_id = _as_str(getattr(response, "_polisyos_reuse_event_id", None))
-    cache_key = _as_str(getattr(response, "_polisyos_cache_key", None))
-    return True, "provider", reuse_event_id, cache_key
+    return True, "provider", provenance.reuse_event_id, provenance.cache_key
+
+
+def _extract_physical_provider_response_data(response: Any) -> LLMResponseData:
+    """Preserve B's billable physical-completion boundary with strict D cost intake."""
+    parsed = extract_llm_response_data(response)
+    return replace(
+        parsed,
+        prompt_tokens=parsed.origin_prompt_tokens or 0,
+        completion_tokens=parsed.origin_completion_tokens or 0,
+        cost_usd=parsed.origin_cost_usd,
+        cache_hit=False,
+        reuse_event_id=None,
+        cache_key=None,
+    )
 
 
 def _as_float(value: Any) -> float | None:

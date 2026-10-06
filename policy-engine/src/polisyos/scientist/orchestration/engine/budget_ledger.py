@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -79,6 +79,70 @@ class BudgetLedgerSnapshot(BaseModel):
     last_writer: BudgetLedgerWriter | None = None
     recent_mutations: list[BudgetLedgerMutation] = Field(default_factory=list)
     state: BudgetState = Field(default_factory=BudgetState)
+
+
+_PERSISTED_SNAPSHOT_SCHEMA = BudgetLedgerSnapshot.model_json_schema(mode="serialization")
+
+
+def _require_wire_fields(
+    value: object,
+    schema: dict[str, Any],
+    definitions: dict[str, Any],
+    *,
+    location: str = "snapshot",
+) -> None:
+    """Require non-nullable writer fields before constructor defaults can apply."""
+    if "$ref" in schema:
+        schema = definitions[schema["$ref"].rsplit("/", 1)[1]]
+    alternatives = schema.get("anyOf", [])
+    if alternatives:
+        schema = next((item for item in alternatives if item.get("type") != "null"), schema)
+        if "$ref" in schema:
+            schema = definitions[schema["$ref"].rsplit("/", 1)[1]]
+    if isinstance(value, dict):
+        properties = schema.get("properties", {})
+        for name, field_schema in properties.items():
+            nullable = any(item.get("type") == "null" for item in field_schema.get("anyOf", []))
+            if name not in value and not nullable:
+                raise ValueError(f"incomplete budget ledger: missing {location}.{name}")
+        for name, item in value.items():
+            field_schema = properties.get(name, schema.get("additionalProperties", {}))
+            if isinstance(field_schema, dict):
+                _require_wire_fields(item, field_schema, definitions, location=f"{location}.{name}")
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            _require_wire_fields(
+                item, schema.get("items", {}), definitions, location=f"{location}[{index}]"
+            )
+
+
+def _require_nonnegative_amounts(value: object) -> None:
+    """Reject nonfinite or negative accounting amounts in a persisted snapshot."""
+    if isinstance(value, Decimal):
+        if not value.is_finite() or value < 0:
+            raise ValueError("budget ledger accounting amounts must be finite and nonnegative")
+    elif isinstance(value, BaseModel):
+        for name in type(value).model_fields:
+            _require_nonnegative_amounts(getattr(value, name))
+    elif isinstance(value, dict):
+        for item in value.values():
+            _require_nonnegative_amounts(item)
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            _require_nonnegative_amounts(item)
+
+
+def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
+    """Decode complete persisted wire data without treating corruption as defaults."""
+    if not raw.strip():
+        raise ValueError("existing budget ledger is empty")
+    value = json.loads(raw)
+    _require_wire_fields(
+        value, _PERSISTED_SNAPSHOT_SCHEMA, _PERSISTED_SNAPSHOT_SCHEMA.get("$defs", {})
+    )
+    snapshot = BudgetLedgerSnapshot.model_validate_json(raw, strict=True)
+    _require_nonnegative_amounts(snapshot)
+    return snapshot
 
 
 @dataclass(frozen=True)
@@ -155,43 +219,39 @@ class FileBudgetLedger:
     def load(self) -> BudgetState:
         with self._file_lock(exclusive=False):
             snapshot = self._load_snapshot()
-        return snapshot.state if snapshot is not None else BudgetState()
+        if snapshot is None:
+            raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
+        return snapshot.state
 
     def snapshot(self) -> BudgetLedgerSnapshot:
         with self._file_lock(exclusive=False):
             snapshot = self._load_snapshot()
         if snapshot is None:
-            return self._build_snapshot(state=BudgetState())
+            raise FileNotFoundError("budget ledger requires explicit load_or_bootstrap before use")
         return self._normalize_snapshot(snapshot)
 
     def load_or_bootstrap(self, initial_state: BudgetState) -> BudgetState:
         with self._thread_lock:
             with self._file_lock(exclusive=True):
-                existed = self._path.exists()
-                fd = os.open(str(self._path), os.O_RDWR | os.O_CREAT, 0o644)
-                try:
-                    snapshot = self._read_snapshot_from_fd(fd) if existed else None
-                    if snapshot is None:
-                        snapshot = self._persist_snapshot(
-                            fd,
-                            self._build_snapshot(
-                                state=initial_state,
-                                recent_mutations=(
-                                    self._build_mutation(
-                                        revision=0,
-                                        operation="bootstrap",
-                                    ),
+                snapshot = self._load_snapshot()
+                if snapshot is None:
+                    snapshot = self._persist_snapshot(
+                        self._build_snapshot(
+                            state=initial_state,
+                            recent_mutations=(
+                                self._build_mutation(
+                                    revision=0,
+                                    operation="bootstrap",
                                 ),
                             ),
                         )
-                    else:
-                        needs_upgrade = self._needs_contract_upgrade(snapshot)
-                        snapshot = self._normalize_snapshot(snapshot)
-                        if needs_upgrade:
-                            snapshot = self._persist_snapshot(fd, snapshot)
-                    return snapshot.state
-                finally:
-                    os.close(fd)
+                    )
+                else:
+                    needs_upgrade = self._needs_contract_upgrade(snapshot)
+                    snapshot = self._normalize_snapshot(snapshot)
+                    if needs_upgrade:
+                        snapshot = self._persist_snapshot(snapshot)
+                return snapshot.state
 
     def record_spend(
         self,
@@ -294,64 +354,56 @@ class FileBudgetLedger:
     ) -> BudgetLedgerMutationResult:
         with self._thread_lock:
             with self._file_lock(exclusive=True):
-                existed = self._path.exists()
-                fd = os.open(str(self._path), os.O_RDWR | os.O_CREAT, 0o644)
-                try:
-                    snapshot = self._normalize_snapshot(
-                        self._read_snapshot_from_fd(fd) if existed else BudgetLedgerSnapshot()
+                snapshot = self._load_snapshot()
+                if snapshot is None:
+                    raise FileNotFoundError(
+                        "budget ledger requires explicit load_or_bootstrap before use"
                     )
-                    state = _branch_budget_state(snapshot.state)
-                    result = operation(state)
-                    revision = snapshot.revision + 1
-                    mutations = list(snapshot.recent_mutations)
-                    mutations.append(
-                        self._build_mutation(
-                            revision=revision,
-                            operation=mutation_kind,
-                            key=key,
-                            amount=amount,
-                            applied_amount=result.applied_amount,
-                            provider=provider,
-                            reserved=result.reserved,
-                        )
-                    )
-                    written = self._persist_snapshot(
-                        fd,
-                        self._build_snapshot(
-                            revision=revision,
-                            state=state,
-                            recent_mutations=tuple(mutations[-self._mutation_history_limit :]),
-                        ),
-                    )
-                    return BudgetLedgerMutationResult(
-                        state=written.state,
-                        revision=written.revision,
+                snapshot = self._normalize_snapshot(snapshot)
+                state = _branch_budget_state(snapshot.state)
+                result = operation(state)
+                revision = snapshot.revision + 1
+                mutations = list(snapshot.recent_mutations)
+                mutations.append(
+                    self._build_mutation(
+                        revision=revision,
+                        operation=mutation_kind,
+                        key=key,
+                        amount=amount,
                         applied_amount=result.applied_amount,
+                        provider=provider,
                         reserved=result.reserved,
                     )
-                finally:
-                    os.close(fd)
-
-    def _read_snapshot_from_fd(self, fd: int) -> BudgetLedgerSnapshot | None:
-        os.lseek(fd, 0, os.SEEK_SET)
-        raw = os.read(fd, 1_000_000).decode("utf-8").strip()
-        if not raw:
-            raise ValueError("existing budget ledger is empty")
-        return BudgetLedgerSnapshot.model_validate(json.loads(raw))
+                )
+                written = self._persist_snapshot(
+                    self._build_snapshot(
+                        revision=revision,
+                        state=state,
+                        recent_mutations=tuple(mutations[-self._mutation_history_limit :]),
+                    )
+                )
+                return BudgetLedgerMutationResult(
+                    state=written.state,
+                    revision=written.revision,
+                    applied_amount=result.applied_amount,
+                    reserved=result.reserved,
+                )
 
     def _load_snapshot(self) -> BudgetLedgerSnapshot | None:
-        if not self._path.exists():
+        try:
+            raw = self._path.read_text(encoding="utf-8")
+        except FileNotFoundError:
             return None
-        raw = self._path.read_text(encoding="utf-8").strip()
-        if not raw:
-            raise ValueError("existing budget ledger is empty")
-        return BudgetLedgerSnapshot.model_validate(json.loads(raw))
+        return _decode_snapshot(raw)
 
-    def _persist_snapshot(self, fd: int, snapshot: BudgetLedgerSnapshot) -> BudgetLedgerSnapshot:
+    def _persist_snapshot(self, snapshot: BudgetLedgerSnapshot) -> BudgetLedgerSnapshot:
         normalized = self._normalize_snapshot(snapshot)
         payload = normalized.model_dump_json(by_alias=True, exclude_none=True, indent=2).encode(
             "utf-8"
         )
+        # Constructor defaults are permitted for an explicit bootstrap only.
+        # Every published byte record must also pass the strict persisted inlet.
+        normalized = _decode_snapshot(payload.decode("utf-8"))
         temp_fd, temp_name = tempfile.mkstemp(
             prefix=f".{self._path.name}.tmp-",
             dir=self._path.parent,

@@ -1,0 +1,20 @@
+id = "2026-10-06-e02-budget-ledger-admission"
+title = "Require explicit budget ledger bootstrap and complete persisted state"
+type = "fixed"
+component = "scientist-engine"
+owner = "team-policyos-runtime"
+summary = "FileBudgetLedger refuses reads and mutations before explicit bootstrap, rejects incomplete persisted writer records before defaults, and never creates an empty data target before atomic publication."
+evidence = [
+  "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+  "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+  "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+]
+compatibility = "Complete existing schema 1.0 writer snapshots remain readable, including legally omitted nullable fields. Sparse or malformed existing records fail without rewriting bytes; constructor defaults remain available for explicit bootstrap."
+change_class = "python-public-api"
+surface_classification = "public_experimental: scientist.orchestration.engine FileBudgetLedger"
+migration = "Call load_or_bootstrap with an explicit BudgetState before public reads or mutations. BudgetMiddleware already supplies this explicit configuration. Intentional unlimited BudgetState bootstrap remains supported; recover incomplete records from an independently valid snapshot rather than silently replacing accounting."
+limitations = "POSIX filesystem/process controls do not establish power-loss, hostile-file authenticity, multi-host filesystem semantics or external billing authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

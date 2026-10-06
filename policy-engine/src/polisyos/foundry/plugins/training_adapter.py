@@ -62,6 +62,14 @@ _ECONOMICS_MECHANISMS = (
 )
 _ECONOMICS_MECHANISM_SET = frozenset(_ECONOMICS_MECHANISMS)
 _DEFAULT_WAGE_GROWTH_RATE = 0.02
+_SUPPORTED_JAX_TRAINING_TIERS = frozenset(
+    {
+        DeterminismTier.STRICT_CPU,
+        DeterminismTier.BEST_EFFORT_GPU,
+        DeterminismTier.NONDETERMINISTIC,
+    }
+)
+_GPU_DEVICE_PLATFORMS = frozenset({"gpu", "metal", "mps", "apple"})
 
 
 class TrainingBridgeError(ValueError):
@@ -498,6 +506,7 @@ class EconomicsTrainingAdapter:
                 "Training requires positive episodes, rollout steps, and PPO epochs.",
             )
 
+        tier = _training_runtime_tier(seed)
         initial_state = self.to_native_state(seed=seed)
         trained_policy, metrics, artifact = train_actor_critic_with_artifact(
             actor,
@@ -505,7 +514,7 @@ class EconomicsTrainingAdapter:
             config,
             make_executor=lambda current_actor: self.make_executor(current_actor, config),
             run_id=f"plugins-{ECONOMICS_DOMAIN}-{seed}",
-            tier=DeterminismTier.STRICT_CPU,
+            tier=tier,
             seed=seed,
         )
         parameter_delta = _parameter_delta(actor, trained_policy)
@@ -523,14 +532,12 @@ class EconomicsTrainingAdapter:
 
         artifact_refs: tuple[ArtifactRef, ArtifactRef] | None = None
         if artifact_store is not None:
-            artifact_refs = store_policy_artifact(
-                artifact_store, _artifact_for_cas(artifact)
-            )
+            artifact_refs = store_policy_artifact(artifact_store, _artifact_for_cas(artifact))
             trained_policy, _ = load_policy_artifact(
                 artifact_store,
                 artifact_refs[1],
                 actor,
-                DeterminismTier.STRICT_CPU,
+                tier,
                 seed,
                 strict=True,
             )
@@ -551,6 +558,62 @@ class EconomicsTrainingAdapter:
             artifact=artifact,
             artifact_refs=artifact_refs,
         )
+
+
+def _training_runtime_tier(seed: int) -> DeterminismTier:
+    """Return the existing backend owner's observed JAX training tier.
+
+    The selected tier is passed unchanged to the native trainer and artifact
+    readback. Unsupported or self-contradictory runtime profiles are held
+    before training or artifact publication.
+    """
+
+    try:
+        from polisyos.foundry.methods.backends.runtime_fingerprint import (
+            BackendRuntimeFingerprint,
+            capture_backend_runtime_fingerprint,
+        )
+        from polisyos.foundry.methods.base import ComputeBackend
+
+        profile = capture_backend_runtime_fingerprint(ComputeBackend.JAX, seed=seed)
+    except (AttributeError, ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise TrainingBridgeError(
+            "training_runtime_profile_unavailable",
+            f"Could not observe the JAX runtime profile ({type(exc).__name__}).",
+        ) from exc
+
+    if (
+        not isinstance(profile, BackendRuntimeFingerprint)
+        or profile.backend is not ComputeBackend.JAX
+        or not profile.available
+        or profile.determinism_tier is None
+        or profile.seed != seed
+        or not profile.execution_device
+        or profile.execution_device.lower().endswith(":unknown")
+    ):
+        raise TrainingBridgeError(
+            "training_runtime_profile_unavailable",
+            "The JAX runtime owner did not provide an available, seeded execution profile.",
+        )
+
+    tier = profile.determinism_tier
+    device_platform = profile.execution_device.split(":", maxsplit=1)[0].strip().lower()
+    if tier not in _SUPPORTED_JAX_TRAINING_TIERS:
+        raise TrainingBridgeError(
+            "training_runtime_profile_unsupported",
+            f"The Economics bridge does not support JAX determinism tier '{tier.value}'.",
+        )
+    if tier is DeterminismTier.STRICT_CPU and device_platform != "cpu":
+        raise TrainingBridgeError(
+            "training_runtime_tier_mismatch",
+            f"STRICT_CPU requires the observed JAX CPU device; runtime owner reported '{profile.execution_device}'.",
+        )
+    if tier is DeterminismTier.BEST_EFFORT_GPU and device_platform not in _GPU_DEVICE_PLATFORMS:
+        raise TrainingBridgeError(
+            "training_runtime_tier_mismatch",
+            f"BEST_EFFORT_GPU requires an observed GPU device; runtime owner reported '{profile.execution_device}'.",
+        )
+    return tier
 
 
 def _artifact_for_cas(

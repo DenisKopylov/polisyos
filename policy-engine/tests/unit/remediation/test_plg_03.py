@@ -90,13 +90,117 @@ def test_native_projection_preserves_economics_wage_and_hours(
     assert jnp.array_equal(native_state.agents.education_years, economic_state.agents.hours_worked)
 
 
+@pytest.mark.parametrize(
+    ("available", "device", "tier", "expected_code", "owner_raises"),
+    [
+        (
+            True,
+            "gpu:NVIDIA A100",
+            DeterminismTier.STRICT_CPU,
+            "training_runtime_tier_mismatch",
+            False,
+        ),
+        (
+            True,
+            "cpu:cpu",
+            DeterminismTier.BEST_EFFORT_GPU,
+            "training_runtime_tier_mismatch",
+            False,
+        ),
+        (False, None, None, "training_runtime_profile_unavailable", False),
+        (True, "cpu:cpu", None, "training_runtime_profile_unavailable", False),
+        (True, "cpu:cpu", DeterminismTier.STRICT_CPU, "training_runtime_profile_unavailable", True),
+    ],
+)
+def test_runtime_tier_mismatch_or_absence_holds_before_training_and_publication(
+    simulator: PolisySimulator,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    available: bool,
+    device: str | None,
+    tier: DeterminismTier | None,
+    expected_code: str,
+    owner_raises: bool,
+) -> None:
+    """Runtime-owner absence or tier/device divergence must fail closed before PPO/CAS."""
+
+    from polisyos.foundry.methods.backends import runtime_fingerprint
+    from polisyos.foundry.methods.backends.runtime_fingerprint import BackendRuntimeFingerprint
+    from polisyos.foundry.methods.base import ComputeBackend
+    from polisyos.foundry.plugins import training_adapter as training_adapter_module
+
+    runtime_profile = BackendRuntimeFingerprint(
+        backend=ComputeBackend.JAX,
+        available=available,
+        determinism_tier=tier,
+        execution_device=device,
+        runtime_stack=(),
+        seed=7,
+    )
+
+    def capture_runtime_profile(*_args, **_kwargs):
+        if owner_raises:
+            raise RuntimeError("runtime observation unavailable")
+        return runtime_profile
+
+    monkeypatch.setattr(
+        runtime_fingerprint, "capture_backend_runtime_fingerprint", capture_runtime_profile
+    )
+    monkeypatch.setattr(
+        training_adapter_module,
+        "train_actor_critic_with_artifact",
+        lambda *_args, **_kwargs: pytest.fail(
+            "unsupported runtime tier must be held before invoking the native optimizer"
+        ),
+    )
+    monkeypatch.setattr(
+        training_adapter_module,
+        "store_policy_artifact",
+        lambda *_args, **_kwargs: pytest.fail(
+            "unsupported runtime tier must be held before publishing an artifact"
+        ),
+    )
+    tenant_store = FileSystemCAS(tmp_path / "runtime-tier-cas").for_tenant(
+        "tenant-a",
+        cell_id="cell-a",
+    )
+
+    result = simulator.train(
+        training_config=_small_config(),
+        seed=7,
+        artifact_store=tenant_store,
+    )
+
+    assert result.status == "bridge_pending"
+    assert result.reason is not None
+    assert result.reason.code == expected_code
+    assert result.trained_policy is None
+    assert result.artifact is None
+    assert result.artifact_refs is None
+    assert (
+        tenant_store.ownership_evidence(tenant_id="tenant-a", cell_id="cell-a")[
+            "tenant_artifact_count"
+        ]
+        == 0
+    )
+
+
 def test_economics_training_updates_policy_and_produces_readable_artifact(
     simulator: PolisySimulator,
     tmp_path: Path,
 ) -> None:
     """The bridge must use the native optimizer and expose a learned artifact."""
 
+    from polisyos.foundry.methods.backends.runtime_fingerprint import (
+        capture_backend_runtime_fingerprint,
+    )
+    from polisyos.foundry.methods.base import ComputeBackend
+
     simulator.initialize(seed=7)
+    runtime_profile = capture_backend_runtime_fingerprint(ComputeBackend.JAX, seed=7)
+    assert runtime_profile.available
+    assert runtime_profile.determinism_tier is not None
+    assert runtime_profile.execution_device is not None
     adapter = EconomicsTrainingAdapter.from_composite(
         simulator.get_state(),
         simulator._executor,
@@ -131,6 +235,8 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
     assert result.loss_history
     assert all(jnp.isfinite(jnp.asarray(result.loss_history)))
     assert _tree_delta(initial_policy, result.trained_policy) > 0.0
+    assert result.artifact.fingerprint.determinism_tier is runtime_profile.determinism_tier
+    assert result.artifact.fingerprint.device_name == runtime_profile.execution_device
 
     weights_ref, manifest_ref = result.artifact_refs
     manifest_payload = from_canonical_bytes(tenant_store.get_bytes(manifest_ref))
@@ -148,7 +254,7 @@ def test_economics_training_updates_policy_and_produces_readable_artifact(
         tenant_store,
         manifest_ref,
         initial_policy,
-        DeterminismTier.STRICT_CPU,
+        runtime_profile.determinism_tier,
         7,
         strict=True,
     )
@@ -282,12 +388,32 @@ def test_training_uses_supplied_tenant_store_for_persist_and_readback(
     """Training keeps the caller's tenant store through artifact write and readback."""
 
     from polisyos.foundry.agent_sim.artifact import AgentPolicyArtifact
+    from polisyos.foundry.methods.backends import runtime_fingerprint
+    from polisyos.foundry.methods.backends.runtime_fingerprint import BackendRuntimeFingerprint
+    from polisyos.foundry.methods.base import ComputeBackend
     from polisyos.foundry.plugins import training_adapter as training_adapter_module
 
     simulator.initialize(seed=7)
     config = _small_config()
+    selected_tier = DeterminismTier.NONDETERMINISTIC
+    observed_profile = BackendRuntimeFingerprint(
+        backend=ComputeBackend.JAX,
+        available=True,
+        determinism_tier=selected_tier,
+        execution_device="cpu:cpu",
+        runtime_stack=(),
+        seed=7,
+    )
+    monkeypatch.setattr(
+        runtime_fingerprint,
+        "capture_backend_runtime_fingerprint",
+        lambda *_args, **_kwargs: observed_profile,
+    )
+    native_tiers: list[DeterminismTier] = []
+    readback_tiers: list[DeterminismTier] = []
 
     def stub_native_training(policy, _initial_state, _config, **kwargs):
+        native_tiers.append(kwargs["tier"])
         trained_artifact = AgentPolicyArtifact.from_trained_policy(
             policy,
             run_id="tenant-store-test",
@@ -341,6 +467,7 @@ def test_training_uses_supplied_tenant_store_for_persist_and_readback(
 
     def record_load(store, *args, **kwargs):
         load_calls.append(store)
+        readback_tiers.append(args[2])
         return load_policy_artifact(store, *args, **kwargs)
 
     monkeypatch.setattr(training_adapter_module, "store_policy_artifact", record_store)
@@ -357,6 +484,8 @@ def test_training_uses_supplied_tenant_store_for_persist_and_readback(
     assert result.artifact_refs is not None
     assert len(store_calls) == 1 and store_calls[0] is supplied_store
     assert len(load_calls) == 1 and load_calls[0] is supplied_store
+    assert native_tiers == [selected_tier]
+    assert readback_tiers == [selected_tier]
     weights_ref, manifest_ref = result.artifact_refs
     assert supplied_store.has(weights_ref)
     assert supplied_store.has(manifest_ref)

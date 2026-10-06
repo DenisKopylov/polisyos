@@ -19,12 +19,15 @@ from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import (
     DataSnapshot,
     DerivedArtifact,
+    ExecPlan,
     ExecuteRequest,
     ExecuteResult,
     FoundryExecConfig,
     FoundryInputBindingRule,
     FoundryInputBindings,
     FoundryInputBindingsRef,
+    LoweredIR,
+    ProgramGraph,
     SimulationResult,
     StateSnapshotRef,
 )
@@ -107,6 +110,13 @@ class NativeForecastTrajectory(BaseModel):
     values: dict[str, list[float]]
 
 
+def _schema_version(value: str) -> tuple[int, ...]:
+    parts = [int(x) for x in value.split(".")]
+    while len(parts) > 2 and parts[-1] == 0:
+        parts.pop()
+    return tuple(parts)
+
+
 def _read(store: ArtifactStore, ref: ArtifactRef, kind: str, schema: str | None = None) -> Any:
     manifest = store.get_manifest(ref)
     if ref.kind != kind or manifest.kind != kind or manifest.media_type != "application/json":
@@ -121,7 +131,8 @@ def _read(store: ArtifactStore, ref: ArtifactRef, kind: str, schema: str | None 
         and isinstance(payload, dict)
         and (
             "schema_version" in payload
-            and manifest.artifact_schema.version != payload["schema_version"]
+            and _schema_version(manifest.artifact_schema.version)
+            != _schema_version(str(payload["schema_version"]))
         )
     ):
         raise ValueError("native replay artifact schema version differs from payload")
@@ -345,6 +356,38 @@ def _observations(
     return values
 
 
+def _same_ref(left: ArtifactRef, right: ArtifactRef) -> bool:
+    return left.model_dump(mode="json") == right.model_dump(mode="json")
+
+
+def _require_lineage(
+    store: ArtifactStore, ref: ArtifactRef, parent: ArtifactRef, role: str
+) -> None:
+    expected = input_ref_from_artifact_ref(parent, role=role).model_dump(mode="json")
+    if not any(edge.model_dump(mode="json") == expected for edge in store.get_manifest(ref).inputs):
+        raise ValueError(f"native forecast missing exact {role} lineage")
+
+
+def _validate_compiled_model(
+    store: ArtifactStore, request: NativeForecastRequest, exec_plan_ref: ArtifactRef
+) -> None:
+    """Resolve the actual execution program back to its compiled Trinity/model."""
+    plan = ExecPlan.model_validate(_read(store, exec_plan_ref, "foundry.exec_plan"))
+    program = ProgramGraph.model_validate(_read(store, plan.program_ref, "foundry.program_graph"))
+    if not _same_ref(program.ir_ref, request.trinity_bundle_ref) or program.lowered_ir_ref is None:
+        raise ValueError("native forecast executed program differs from declared Trinity")
+    lowered = LoweredIR.model_validate(_read(store, program.lowered_ir_ref, "foundry.lowered_ir"))
+    if not _same_ref(lowered.ir_ref, request.trinity_bundle_ref):
+        raise ValueError("native forecast executed LoweredIR differs from declared Trinity")
+    trinity = TrinityBundle.model_validate(
+        _read(store, request.trinity_bundle_ref, "ir.trinity_bundle")
+    )
+    if trinity.model_spec.data_snapshot_ref != str(
+        request.data_snapshot_ref.artifact_id
+    ) or trinity.model_spec.registry_bundle_ref != str(request.registry_bundle_ref.artifact_id):
+        raise ValueError("native forecast compiled model source/registry mismatch")
+
+
 def execute_native_forecast(
     ctx: ExecutionContext,
     execution: ExecuteRequest,
@@ -383,6 +426,7 @@ def execute_native_forecast(
     result: ExecuteResult | None = None
     base = load_state_snapshot(ctx.store, snapshot_ref=initial_ref)
     initial_step = int(np.asarray(base.step))
+    _validate_compiled_model(ctx.store, request, execution.exec_plan_ref)
     for index in range(len(request.profile.time_index)):
         if index:
             base = load_state_snapshot(ctx.store, snapshot_ref=snapshots[-1])
@@ -487,11 +531,49 @@ def load_native_forecast(
         forecast.execution_bindings_refs
     ) != len(forecast.state_snapshot_refs):
         raise ValueError("native forecast simulation/snapshot axis mismatch")
-    for simulation_ref, snapshot, binding_ref in zip(
-        forecast.simulation_refs,
-        forecast.state_snapshot_refs,
-        forecast.execution_bindings_refs,
-        strict=True,
+    if not _same_ref(forecast.input_bindings_ref, forecast.execution_bindings_refs[0]):
+        raise ValueError("native forecast initial binding anchor differs from first execution")
+    initial_binding = FoundryInputBindings.model_validate(
+        _read(store, forecast.input_bindings_ref, "foundry.input_bindings")
+    )
+    _require_lineage(
+        store, forecast.input_bindings_ref, request.data_snapshot_ref, "input.data_snapshot_ref"
+    )
+    _require_lineage(
+        store, forecast.input_bindings_ref, request.registry_bundle_ref, "input.registry_bundle_ref"
+    )
+    _require_lineage(
+        store,
+        forecast.input_bindings_ref,
+        initial_binding.bound_state_snapshot_ref,
+        "artifact.bound_state_snapshot_ref",
+    )
+    _require_lineage(
+        store,
+        initial_binding.bound_state_snapshot_ref,
+        request.data_snapshot_ref,
+        "input.data_snapshot_ref",
+    )
+    _require_lineage(
+        store,
+        initial_binding.bound_state_snapshot_ref,
+        request.registry_bundle_ref,
+        "input.registry_bundle_ref",
+    )
+    initial_step = int(
+        np.asarray(
+            load_state_snapshot(store, snapshot_ref=initial_binding.bound_state_snapshot_ref).step
+        )
+    )
+    previous_snapshot: ArtifactRef | None = None
+    exec_plan_ref: ArtifactRef | None = None
+    for index, (simulation_ref, snapshot, binding_ref) in enumerate(
+        zip(
+            forecast.simulation_refs,
+            forecast.state_snapshot_refs,
+            forecast.execution_bindings_refs,
+            strict=True,
+        )
     ):
         binding = FoundryInputBindings.model_validate(
             _read(store, binding_ref, "foundry.input_bindings")
@@ -501,6 +583,23 @@ def load_native_forecast(
             or binding.registry_bundle_ref != request.registry_bundle_ref
         ):
             raise ValueError("native forecast persisted bindings changed source/registry")
+        # Each future coordinate advances the anchored materializer's native
+        # clock by one step, preserving the actual predecessor state chain.
+        bound = load_state_snapshot(store, snapshot_ref=binding.bound_state_snapshot_ref)
+        observed = load_state_snapshot(store, snapshot_ref=snapshot)
+        if (
+            int(np.asarray(bound.step)) != initial_step + index
+            or int(np.asarray(observed.step)) != initial_step + index
+        ):
+            raise ValueError("native forecast chronological clock/order mismatch")
+        if previous_snapshot is not None:
+            _require_lineage(
+                store,
+                binding.bound_state_snapshot_ref,
+                previous_snapshot,
+                "previous_forecast_state",
+            )
+        _require_lineage(store, snapshot, binding.bound_state_snapshot_ref, "base_state")
         simulation = SimulationResult.model_validate(
             _read(store, simulation_ref, "foundry.simulation_result")
         )
@@ -510,10 +609,15 @@ def load_native_forecast(
             for edge in lineage
         ):
             raise ValueError("native forecast simulation did not consume declared bindings")
+        _validate_compiled_model(store, request, simulation.exec_plan_ref)
+        if exec_plan_ref is not None and not _same_ref(exec_plan_ref, simulation.exec_plan_ref):
+            raise ValueError("native forecast execution plan changed along the trajectory")
+        exec_plan_ref = simulation.exec_plan_ref
         if simulation.state_snapshot_ref is None or simulation.state_snapshot_ref.model_dump(
             mode="json"
         ) != snapshot.model_dump(mode="json"):
             raise ValueError("native forecast state is not a consumed simulation output")
+        previous_snapshot = snapshot
     if forecast.values != _observations(store, request, forecast.state_snapshot_refs):
         raise ValueError("native forecast values differ from recomputed state observations")
     return forecast, request

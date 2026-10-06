@@ -214,6 +214,7 @@ def test_default_native_forecast_replays_consume_masked_rows_and_actual_seeds(
         )
         with pytest.raises(ValueError, match="schema version differs"):
             load_native_forecast(store, wrong_schema, forecast.request_ref)
+        _assert_real_cas_chain_controls(store, forecast, request)
     assert len({s.metadata["backend_run_id"] for s in report.scenarios}) == count
     assert len({s.metadata["actual_foundry_seed"] for s in report.scenarios}) == count
     original_snapshot = from_canonical_bytes(
@@ -222,6 +223,78 @@ def test_default_native_forecast_replays_consume_masked_rows_and_actual_seeds(
     assert from_canonical_bytes(store.get_bytes(original_snapshot["data_ref"]["artifact_id"]))[
         "income"
     ] == [1.0, 2.0, 900.0, 901.0]
+
+
+def _assert_real_cas_chain_controls(store, forecast, request):
+    """Integrity-valid substitutions must fail independently of numeric value readback."""
+    from polisyos.scientist.methods.backtesting.native_replay import load_native_forecast
+
+    def persist(payload):
+        return store.put_json(
+            payload,
+            PutOptions(
+                kind="scientist.backtest.native_forecast",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.backtesting.NativeForecastTrajectory", version="1.0"
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+
+    for order in [[1, 0], [1, 1], [0, 0]]:
+        fake = forecast.model_copy(
+            update={
+                "simulation_refs": [forecast.simulation_refs[i] for i in order],
+                "state_snapshot_refs": [forecast.state_snapshot_refs[i] for i in order],
+                "execution_bindings_refs": [forecast.execution_bindings_refs[i] for i in order],
+                "values": {
+                    name: [values[i] for i in order] for name, values in forecast.values.items()
+                },
+            }
+        )
+        ref = persist(fake)
+        assert store.verify(ref).ok
+        with pytest.raises(ValueError, match="initial binding anchor|chronological clock"):
+            load_native_forecast(FileSystemCAS(store.root), ref, forecast.request_ref)
+    fake = forecast.model_copy(update={"input_bindings_ref": forecast.execution_bindings_refs[1]})
+    ref = persist(fake)
+    assert store.verify(ref).ok
+    with pytest.raises(ValueError, match="initial binding anchor"):
+        load_native_forecast(FileSystemCAS(store.root), ref, forecast.request_ref)
+
+    trinity = TrinityBundle.model_validate(
+        from_canonical_bytes(store.get_bytes(request.trinity_bundle_ref))
+    )
+    policy = trinity.policy_spec.model_dump(mode="json")
+    policy["interventions"][0]["params"]["rate"] = "0.5"
+    fake_trinity = trinity.model_copy(update={"policy_spec": PolicySpec.model_validate(policy)})
+    fake_trinity_ref = store.put_json(
+        fake_trinity,
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.ir.TrinityBundle", version=fake_trinity.schema_version
+            ),
+        ),
+    )
+    fake_request = request.model_copy(update={"trinity_bundle_ref": fake_trinity_ref})
+    fake_request_ref = store.put_json(
+        fake_request,
+        PutOptions(
+            kind="scientist.backtest.native_forecast_request",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.backtesting.NativeForecastRequest", version="1.0"
+            ),
+        ),
+    )
+    fake_forecast = forecast.model_copy(update={"request_ref": fake_request_ref})
+    ref = persist(fake_forecast)
+    assert store.verify(ref).ok
+    with pytest.raises(ValueError, match="executed program differs from declared Trinity"):
+        load_native_forecast(FileSystemCAS(store.root), ref, fake_request_ref)
 
 
 @pytest.mark.parametrize(

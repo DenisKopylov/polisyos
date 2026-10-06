@@ -1,0 +1,39 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_content_valid_fake_receipt_refuses_at_actual_consumer[result] ______
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f58fa48ba10>
+mutation = 'result'
+
+    @pytest.mark.parametrize("mutation", ["result", "order", "seed", "kind", "schema"])
+    def test_content_valid_fake_receipt_refuses_at_actual_consumer(store, mutation):
+        answer = SensitivityBridge().analyze_search_space(
+            _bounds(),
+            lambda p: 2 * p["x"] + 3 * p["z"],
+            seed=43,
+            store=store,
+        )
+        import json
+    
+        payload = json.loads(store.get_bytes(answer["analysis_ref"]))
+        kind, schema_version = "doe_sensitivity_analysis", "1.0"
+        if mutation == "result":
+            payload["result"]["mu_star"]["x"] = 999.0
+        elif mutation == "order":
+            payload["samples"] = payload["samples"][::-1]
+        elif mutation == "seed":
+            payload["plan"]["seed"] = 44
+        elif mutation == "kind":
+            kind = "not_doe_sensitivity_analysis"
+        else:
+            schema_version = "9.0"
+        fake = put_json_artifact(store, payload, kind=kind, schema_version=schema_version)
+        assert store.verify(fake).ok  # Byte/hash validity is the cheap proxy, not numerical validity.
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/doe/test_analysis_receipt.py:201: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/doe/test_analysis_receipt.py::test_content_valid_fake_receipt_refuses_at_actual_consumer[result]
+1 failed, 18 deselected in 6.56s

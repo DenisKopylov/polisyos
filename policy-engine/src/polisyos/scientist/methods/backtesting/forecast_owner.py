@@ -19,6 +19,21 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.calibration import evaluate_continuous
+from polisyos.calibration.forecast_bridge import (
+    PREDICTIVE_AUTHORITY_DENIALS,
+    REFERENCE_PROFILES,
+    EmpiricalCalibrationContext,
+    EmpiricalCalibrationEvidenceRef,
+    EvidenceArtifactRef,
+    ForecastCalibrationProfile,
+    ForecastCandidateReceipt,
+    ForecastCandidateReceiptRef,
+    load_empirical_calibration_evidence,
+    load_forecast_calibration_profile,
+    persist_empirical_calibration_evidence,
+    persist_forecast_candidate_receipt,
+    produce_empirical_calibration_evidence,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.foundry.methods.artifacts import MethodArtifact, store_method_artifact
@@ -266,6 +281,8 @@ class ForecastOwnerResult(BaseModel):
     model_spec_ref: ArtifactRefModel | None = None
     policy_spec_ref: ArtifactRefModel | None = None
     temporal_roles: ForecastTemporalRoles
+    empirical_evidence_ref: EmpiricalCalibrationEvidenceRef | None = None
+    candidate_receipt_ref: ForecastCandidateReceiptRef | None = None
 
     @property
     def numerator(self) -> int:
@@ -501,14 +518,221 @@ def _expected_input_pairs(
     return required
 
 
+def persist_forecast_owner_request(
+    store: ArtifactStore, request: ForecastOwnerRequest
+) -> ArtifactRefModel:
+    """Persist an exact request for configuration outside the served payload."""
+
+    inputs = [
+        _input(request.observed_source_ref.artifact_id, "observed_source"),
+        _input(request.calibration_rule.artifact_ref.artifact_id, "calibration_rule"),
+    ]
+    if request.model_spec_ref is not None and request.policy_spec_ref is not None:
+        inputs.extend(
+            [
+                _input(request.model_spec_ref, "model_spec"),
+                _input(request.policy_spec_ref, "policy_spec"),
+            ]
+        )
+    return _ref_from_payload(
+        put_json_artifact(
+            store,
+            request.model_dump(mode="json"),
+            kind="ir.forecast_owner_request",
+            schema_name="polisyos.calibration.forecast_owner_request",
+            schema_version="1.0",
+            inputs=inputs,
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+    )
+
+
+def _empirical_context_refs(
+    context: EmpiricalCalibrationContext,
+) -> list[tuple[str, EvidenceArtifactRef]]:
+    return [
+        ("scope_binding", context.scope_binding_ref),
+        ("calibration_threshold", context.calibration_threshold_ref),
+        ("observed_outcome", context.observed_outcome_ref),
+        ("prediction", context.prediction_ref),
+        ("evaluation_design", context.evaluation_design_ref),
+        ("credible_evaluation", context.credible_evaluation_evidence_ref),
+        *(("source_lineage", ref) for ref in context.source_lineage_refs),
+        *(("method_lineage", ref) for ref in context.method_lineage_refs),
+    ]
+
+
+def _build_empirical_context(
+    store: ArtifactStore,
+    *,
+    request: ForecastOwnerRequest,
+    profile: ForecastCalibrationProfile,
+    profile_ref: ArtifactRefModel,
+    observed_source_ref: ArtifactRefModel,
+    observed_data_ref: ArtifactRefModel,
+    holdout: list[float],
+    point_forecast: tuple[float, ...],
+    predictive_intervals: list[tuple[float, float]],
+    training_slice_ref: ArtifactRefModel,
+    method_artifact_ref: ArtifactRefModel,
+    uncertainty_bundle_ref: ForecastingUncertaintyBundleRef,
+    calibration_rule_ref: ArtifactRefModel,
+) -> EmpiricalCalibrationContext:
+    """Emit actual ordered execution artifacts; none authenticates a verifier."""
+
+    method_ref, _, method_version = request.method_fqn.rpartition("@")
+    binding = {
+        "report_id": request.report_id,
+        "model_spec_ref": str(request.model_spec_ref),
+        "policy_spec_ref": str(request.policy_spec_ref),
+        "estimand": request.estimand,
+        "method_ref": method_ref,
+        "method_version": method_version,
+        "rule_version_ref": request.calibration_rule.rule_id,
+        "authority_scope": "predictive_only",
+        "calibration_threshold": profile.calibration_threshold,
+    }
+    row_ids = [
+        f"{observed_source_ref.artifact_id}:{request.target_metric}:{index}"
+        for index in range(request.split.holdout_start, request.split.holdout_end)
+    ]
+    payloads = {
+        "scope_binding": {"binding": binding},
+        "calibration_threshold": {"threshold": profile.calibration_threshold},
+        "observed_outcome": {
+            "source_ref": observed_source_ref.model_dump(mode="json"),
+            "rows": [
+                {
+                    "row_id": row_id,
+                    "source_index": request.split.holdout_start + index,
+                    "horizon": index + 1,
+                    "value": value,
+                }
+                for index, (row_id, value) in enumerate(zip(row_ids, holdout, strict=True))
+            ],
+        },
+        "prediction": {
+            "uncertainty_bundle_ref": uncertainty_bundle_ref.model_dump(mode="json"),
+            "rows": [
+                {
+                    "row_id": row_id,
+                    "horizon": index + 1,
+                    "point": point,
+                    "lower": bounds[0],
+                    "upper": bounds[1],
+                }
+                for index, (row_id, point, bounds) in enumerate(
+                    zip(row_ids, point_forecast, predictive_intervals, strict=True)
+                )
+            ],
+        },
+        "evaluation_design": {
+            "split": request.split.model_dump(mode="json"),
+            "row_ids": row_ids,
+            "seed": request.seed,
+            "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+            "training_slice_ref": training_slice_ref.model_dump(mode="json"),
+        },
+        "credible_evaluation": {
+            "evaluation_basis": "executed_predictive_intervals",
+            "verifier_provenance": "not_established",
+            "requested_count": len(row_ids),
+            "eligible_count": len(row_ids),
+            "observed_count": len(holdout),
+        },
+        "source_lineage": {
+            "source_ref": observed_source_ref.model_dump(mode="json"),
+            "data_ref": observed_data_ref.model_dump(mode="json"),
+            "row_ids": row_ids,
+        },
+        "method_lineage": {
+            "method_artifact_ref": method_artifact_ref.model_dump(mode="json"),
+            "calibration_rule_ref": calibration_rule_ref.model_dump(mode="json"),
+            "method_fqn": request.method_fqn,
+            "method_params": request.method_params.model_dump(mode="json"),
+            "seed": request.seed,
+        },
+    }
+    common_inputs = [
+        _input(profile_ref.artifact_id, "forecast_profile"),
+        _input(profile.request_ref.artifact_id, "forecast_request"),
+        _input(observed_source_ref.artifact_id, "observed_source"),
+        _input(observed_data_ref.artifact_id, "observed_data"),
+        _input(training_slice_ref.artifact_id, "training_slice"),
+        _input(method_artifact_ref.artifact_id, "method_artifact"),
+        _input(uncertainty_bundle_ref.artifact_id, "uncertainty_bundle"),
+        _input(calibration_rule_ref.artifact_id, "calibration_rule"),
+    ]
+    refs = {}
+    for role, payload in payloads.items():
+        kind, schema_name, schema_version = REFERENCE_PROFILES[role]
+        identity = f"{request.report_id}:{role}:{profile.profile_id}:{profile.profile_version}"
+        ref = put_json_artifact(
+            store,
+            {
+                "report_id": request.report_id,
+                "role": role,
+                "identity": identity,
+                "purpose": "predictive_calibration",
+                "authority_scope": "predictive_only",
+                **payload,
+            },
+            kind=kind,
+            schema_name=schema_name,
+            schema_version=schema_version,
+            inputs=common_inputs,
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        refs[role] = EvidenceArtifactRef(
+            artifact_id=ref["artifact_id"],
+            role=role,
+            kind=kind,
+            schema_name=schema_name,
+            schema_version=schema_version,
+            identity_path="report_id" if role == "scope_binding" else "identity",
+            identity_value=request.report_id if role == "scope_binding" else identity,
+        )
+    return EmpiricalCalibrationContext(
+        model_spec_ref=str(request.model_spec_ref),
+        policy_spec_ref=str(request.policy_spec_ref),
+        method_ref=method_ref,
+        method_version=method_version,
+        rule_version_ref=request.calibration_rule.rule_id,
+        calibration_threshold=profile.calibration_threshold,
+        scope_binding_ref=refs["scope_binding"],
+        calibration_threshold_ref=refs["calibration_threshold"],
+        observed_outcome_ref=refs["observed_outcome"],
+        prediction_ref=refs["prediction"],
+        evaluation_design_ref=refs["evaluation_design"],
+        credible_evaluation_evidence_ref=refs["credible_evaluation"],
+        source_lineage_refs=(refs["source_lineage"],),
+        method_lineage_refs=(refs["method_lineage"],),
+        **request.temporal_roles.model_dump(mode="python"),
+    )
+
+
 class ForecastOwner:
     """Own one real ETS -> predictive calibration -> backtest artifact chain."""
 
-    def __init__(self, store: FileSystemCAS) -> None:
+    def __init__(
+        self, store: FileSystemCAS, *, empirical_profile_ref: ArtifactRefModel | None = None
+    ) -> None:
         self._store = store
+        self._empirical_profile_ref = empirical_profile_ref
 
     def run(self, request: ForecastOwnerRequest) -> ForecastOwnerResult:
         """Execute and persist one fail-closed predictive owner result."""
+
+        profile = None
+        if self._empirical_profile_ref is not None:
+            profile = load_forecast_calibration_profile(self._store, self._empirical_profile_ref)
+            configured_request = ForecastOwnerRequest.model_validate(
+                get_json_artifact(self._store, profile.request_ref.artifact_id)
+            )
+            if configured_request != request:
+                raise ValueError("forecast request differs from the configured empirical profile")
+            if request.model_spec_ref is None or request.policy_spec_ref is None:
+                raise ValueError("empirical forecast profile requires the model/policy pair")
 
         model_spec_ref, policy_spec_ref = _resolve_model_policy_pair(
             self._store,
@@ -810,6 +1034,37 @@ class ForecastOwner:
             model_spec_ref=model_spec_ref,
             policy_spec_ref=policy_spec_ref,
         )
+        empirical_context = None
+        if profile is not None:
+            assert self._empirical_profile_ref is not None
+            empirical_context = _build_empirical_context(
+                self._store,
+                request=request,
+                profile=profile,
+                profile_ref=self._empirical_profile_ref,
+                observed_source_ref=observed_source_ref,
+                observed_data_ref=observed_data_ref,
+                holdout=holdout.tolist(),
+                point_forecast=tuple(
+                    _interval_scalar(interval.point, field="persisted forecast point")
+                    for interval in sorted(
+                        persisted_bundle.prediction_interval, key=lambda item: item.horizon
+                    )
+                ),
+                predictive_intervals=predictive_intervals,
+                training_slice_ref=training_slice_ref,
+                method_artifact_ref=method_artifact_ref,
+                uncertainty_bundle_ref=uncertainty_bundle_ref,
+                calibration_rule_ref=calibration_rule_ref,
+            )
+            for role, ref in _empirical_context_refs(empirical_context):
+                required_inputs.append(_input(ref.artifact_id, role))
+            required_inputs.extend(
+                [
+                    _input(profile.request_ref.artifact_id, "forecast_request"),
+                    _input(self._empirical_profile_ref.artifact_id, "forecast_profile"),
+                ]
+            )
         report_inputs = (
             list(request.manifest_inputs) if request.manifest_inputs else required_inputs
         )
@@ -939,6 +1194,27 @@ class ForecastOwner:
             else:
                 suitability = "limited"
 
+        empirical_evidence_ref = None
+        candidate_receipt_ref = None
+        if empirical_context is not None:
+            assert profile is not None
+            assert self._empirical_profile_ref is not None
+            empirical = produce_empirical_calibration_evidence(
+                self._store,
+                report_ref,
+                context=empirical_context,
+            )
+            empirical_evidence_ref = persist_empirical_calibration_evidence(self._store, empirical)
+            load_empirical_calibration_evidence(self._store, empirical_evidence_ref)
+            candidate_receipt_ref = persist_forecast_candidate_receipt(
+                self._store,
+                ForecastCandidateReceipt(
+                    profile_ref=self._empirical_profile_ref,
+                    request_ref=profile.request_ref,
+                    empirical_evidence_ref=empirical_evidence_ref,
+                ),
+            )
+
         return ForecastOwnerResult(
             report_id=request.report_id,
             method_fqn=METHOD_FQN,
@@ -961,6 +1237,8 @@ class ForecastOwner:
             model_spec_ref=model_spec_ref,
             policy_spec_ref=policy_spec_ref,
             temporal_roles=request.temporal_roles,
+            empirical_evidence_ref=empirical_evidence_ref,
+            candidate_receipt_ref=candidate_receipt_ref,
         )
 
 
@@ -979,4 +1257,5 @@ __all__ = [
     "ForecastTemporalRoles",
     "TrainHoldoutSplit",
     "run_forecast_owner",
+    "persist_forecast_owner_request",
 ]

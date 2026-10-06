@@ -24,3 +24,19 @@ separate `scientist/calibration` package root.
 - `apply_calibrator`
 - `compare_calibrators`
 - `to_validation_report`
+
+## Internal forecast evidence boundary
+
+`forecast_bridge` persists and reloads empirical evidence independently of the
+ETS owner result. A configured `ForecastCalibrationProfile` content-binds an
+exact persisted forecast request and an explicit coverage threshold. The
+profile is supplied by runtime composition; its presence establishes no
+admission or institutional issuer identity.
+
+The separate `ForecastCandidateReceipt` links that profile, request, and
+empirical evidence in the same CAS. Its loader replays source positions,
+ordered forecast/outcome pairs, split, horizon, method/rule, times, seed and
+counts. It always retains `verifier_provenance="not_established"` and predictive
+purpose denials. A owns trusted profile admission, independent verification,
+default orchestration, and fresh served readback. The internal receipt is not
+an S10 verification result.

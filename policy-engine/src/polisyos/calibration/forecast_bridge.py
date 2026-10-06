@@ -15,6 +15,7 @@ self-described lineage cannot substitute for those observations.
 from __future__ import annotations
 
 import hashlib
+import math
 from collections.abc import Mapping, Sequence
 from decimal import Decimal, InvalidOperation
 from typing import Literal
@@ -183,6 +184,7 @@ _PERSISTENCE_ALLOWED_LIMITATIONS = frozenset(
     }
 )
 
+
 class EvidenceArtifactRef(BaseModel):
     """Typed CAS reference with the contract needed to verify provenance."""
 
@@ -222,6 +224,52 @@ class EmpiricalCalibrationEvidenceRef(ArtifactRefModel):
 
     kind: Literal[EVIDENCE_KIND] = EVIDENCE_KIND
     media_type: Literal["application/json"] = "application/json"
+
+
+class ForecastCalibrationProfile(BaseModel):
+    """Explicit candidate configuration, selected outside the forecast request.
+
+    Content binding establishes which request and threshold are evaluated. It
+    does not establish who admitted the profile; that remains the runtime
+    verifier's responsibility.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    profile_id: str = Field(min_length=1)
+    profile_version: str = Field(min_length=1)
+    request_ref: ArtifactRefModel
+    calibration_threshold: float = Field(gt=0.0, le=1.0)
+    purpose: Literal["predictive_calibration"] = "predictive_calibration"
+
+
+class ForecastCandidateReceiptRef(ArtifactRefModel):
+    """Reference to a candidate computation receipt, without verifier authority."""
+
+    kind: Literal["ir.forecast_candidate_receipt"] = "ir.forecast_candidate_receipt"
+    media_type: Literal["application/json"] = "application/json"
+
+
+class ForecastCandidateReceipt(BaseModel):
+    """Separate, content-bound input for the independent runtime verifier."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    profile_ref: ArtifactRefModel
+    request_ref: ArtifactRefModel
+    empirical_evidence_ref: EmpiricalCalibrationEvidenceRef
+    authority_scope: PredictiveAuthorityScope = PREDICTIVE_AUTHORITY_SCOPE
+    verifier_provenance: Literal["not_established"] = "not_established"
+    purpose: Literal["predictive_calibration"] = "predictive_calibration"
+    may_not_use_for: tuple[AuthorityDenial, ...] = PREDICTIVE_AUTHORITY_DENIALS
+
+    @model_validator(mode="after")
+    def _validate_denials(self) -> ForecastCandidateReceipt:
+        if self.may_not_use_for != PREDICTIVE_AUTHORITY_DENIALS:
+            raise ValueError("candidate receipt authority denials are immutable")
+        return self
 
 
 class EmpiricalCalibrationContext(BaseModel):
@@ -430,19 +478,14 @@ def produce_empirical_calibration_evidence(
         issues.extend(binding_issues)
         issues.extend(provenance_issues)
 
-    pass_rate = (
-        recomputed_numerator / recomputed_denominator
-        if recomputed_denominator
-        else None
-    )
+    pass_rate = recomputed_numerator / recomputed_denominator if recomputed_denominator else None
     if context is not None and pass_rate is not None and pass_rate < context.calibration_threshold:
         issues.append("calibration_floor_not_met")
 
     failure_codes = _dedupe(issues)
     context_bound = context is not None and not binding_issues and not provenance_issues
-    empirical_observations_available = (
-        recomputed_denominator > 0
-        and not any(issue in _OBSERVATION_BLOCKERS for issue in failure_codes)
+    empirical_observations_available = recomputed_denominator > 0 and not any(
+        issue in _OBSERVATION_BLOCKERS for issue in failure_codes
     )
     floor_passed = bool(
         context_bound
@@ -462,12 +505,8 @@ def produce_empirical_calibration_evidence(
         method_ref=context.method_ref if context else None,
         method_version=context.method_version if context else None,
         rule_version_ref=context.rule_version_ref if context else None,
-        authority_scope=(
-            context.authority_scope if context else PREDICTIVE_AUTHORITY_SCOPE
-        ),
-        may_not_use_for=(
-            context.may_not_use_for if context else PREDICTIVE_AUTHORITY_DENIALS
-        ),
+        authority_scope=(context.authority_scope if context else PREDICTIVE_AUTHORITY_SCOPE),
+        may_not_use_for=(context.may_not_use_for if context else PREDICTIVE_AUTHORITY_DENIALS),
         evidence_origin=context.evidence_origin if context else None,
         calibration_threshold=context.calibration_threshold if context else None,
         nominal_confidence_level=nominal_confidence_level,
@@ -488,9 +527,7 @@ def produce_empirical_calibration_evidence(
         calibration_window_start=context.calibration_window_start if context else None,
         calibration_window_end=context.calibration_window_end if context else None,
         evidence_kind=(
-            "observed_interval_comparisons"
-            if recomputed_denominator
-            else "unavailable"
+            "observed_interval_comparisons" if recomputed_denominator else "unavailable"
         ),
         empirical_observations_available=empirical_observations_available,
         context_bound=context_bound,
@@ -514,9 +551,7 @@ def persist_empirical_calibration_evidence(
     """Persist neutral evidence and return its typed CAS reference."""
 
     if evidence.schema_version != EVIDENCE_SCHEMA_VERSION:
-        raise ValueError(
-            "legacy empirical calibration evidence must not be repersisted"
-        )
+        raise ValueError("legacy empirical calibration evidence must not be repersisted")
     expected = _reproduce_evidence(store, evidence)
     if expected.schema_version != EVIDENCE_SCHEMA_VERSION:
         raise ValueError("new empirical calibration evidence must use schema 1.1")
@@ -593,6 +628,304 @@ def load_empirical_calibration_evidence(
     return evidence
 
 
+def load_forecast_calibration_profile(
+    store: ArtifactStore, profile_ref: ArtifactRefModel
+) -> ForecastCalibrationProfile:
+    """Resolve a configured profile without treating its presence as admission."""
+
+    _validate_json_artifact(
+        store,
+        profile_ref,
+        expected_kind="ir.forecast_calibration_profile",
+        expected_media_type="application/json",
+        expected_schema_name="polisyos.calibration.forecast_calibration_profile",
+        expected_schema_version="1.0",
+    )
+    profile = ForecastCalibrationProfile.model_validate(
+        get_json_artifact(store, profile_ref.artifact_id)
+    )
+    _validate_json_artifact(
+        store,
+        profile.request_ref,
+        expected_kind="ir.forecast_owner_request",
+        expected_media_type="application/json",
+        expected_schema_name="polisyos.calibration.forecast_owner_request",
+        expected_schema_version="1.0",
+    )
+    if _manifest_input_edges(store, profile_ref.artifact_id) != (
+        (str(profile.request_ref.artifact_id), "forecast_request"),
+    ):
+        raise ValueError("forecast profile request input binding mismatch")
+    return profile
+
+
+def persist_forecast_candidate_receipt(
+    store: ArtifactStore, receipt: ForecastCandidateReceipt
+) -> ForecastCandidateReceiptRef:
+    """Persist a replayed candidate receipt separately from empirical evidence."""
+
+    _replay_forecast_candidate(store, receipt)
+    payload = put_json_artifact(
+        store,
+        receipt.model_dump(mode="json"),
+        kind="ir.forecast_candidate_receipt",
+        schema_name="polisyos.calibration.forecast_candidate_receipt",
+        schema_version="1.0",
+        inputs=_candidate_receipt_inputs(receipt),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return ForecastCandidateReceiptRef.model_validate(payload)
+
+
+def load_forecast_candidate_receipt(
+    store: ArtifactStore, receipt_ref: ForecastCandidateReceiptRef
+) -> ForecastCandidateReceipt:
+    """Reopen and replay source, ordered pairs, split, and configured threshold."""
+
+    receipt_ref = ForecastCandidateReceiptRef.model_validate(receipt_ref)
+    _validate_json_artifact(
+        store,
+        receipt_ref,
+        expected_kind="ir.forecast_candidate_receipt",
+        expected_media_type="application/json",
+        expected_schema_name="polisyos.calibration.forecast_candidate_receipt",
+        expected_schema_version="1.0",
+    )
+    receipt = ForecastCandidateReceipt.model_validate(
+        get_json_artifact(store, receipt_ref.artifact_id)
+    )
+    expected = tuple(
+        (str(item["artifact_id"]), str(item["role"])) for item in _candidate_receipt_inputs(receipt)
+    )
+    if _manifest_input_edges(store, receipt_ref.artifact_id) != expected:
+        raise ValueError("forecast candidate receipt input binding mismatch")
+    _replay_forecast_candidate(store, receipt)
+    return receipt
+
+
+def _candidate_receipt_inputs(receipt: ForecastCandidateReceipt) -> list[dict[str, str]]:
+    return [
+        {"artifact_id": str(receipt.profile_ref.artifact_id), "role": "forecast_profile"},
+        {"artifact_id": str(receipt.request_ref.artifact_id), "role": "forecast_request"},
+        {
+            "artifact_id": str(receipt.empirical_evidence_ref.artifact_id),
+            "role": "empirical_evidence",
+        },
+    ]
+
+
+def _replay_forecast_candidate(store: ArtifactStore, receipt: ForecastCandidateReceipt) -> None:
+    """Reconcile candidate bytes; this is not an independent issuer verifier."""
+
+    profile = load_forecast_calibration_profile(store, receipt.profile_ref)
+    if profile.request_ref != receipt.request_ref:
+        raise ValueError("candidate receipt request differs from configured profile")
+    request = _as_mapping(get_json_artifact(store, receipt.request_ref.artifact_id))
+    evidence = load_empirical_calibration_evidence(store, receipt.empirical_evidence_ref)
+    report = load_backtest_report(store, evidence.report_ref)
+    if len(report.scenarios) != 1:
+        raise ValueError("forecast candidate requires exactly one ordered scenario")
+    method_fqn = request.get("method_fqn")
+    if method_fqn != "forecasting.univariate.exponential_smoothing@1.0.0":
+        raise ValueError("forecast candidate method is outside the configured ETS profile")
+    method_ref, _, method_version = method_fqn.rpartition("@")
+    if evidence.method_ref != method_ref or evidence.method_version != method_version:
+        raise ValueError("forecast candidate method/version binding mismatch")
+    rule_binding = _as_mapping(request.get("calibration_rule"))
+    rule_ref = ArtifactRefModel.model_validate(rule_binding.get("artifact_ref"))
+    _verify_generic_json(store, rule_ref, kind="ir.forecast_calibration_rule")
+    rule = _as_mapping(get_json_artifact(store, rule_ref.artifact_id))
+    if (
+        rule_binding.get("rule_id") != evidence.rule_version_ref
+        or rule.get("rule_id") != evidence.rule_version_ref
+        or rule.get("nominal_coverage") != evidence.nominal_confidence_level
+    ):
+        raise ValueError("forecast candidate calibration rule binding mismatch")
+    expected_binding = {
+        "report_id": evidence.report_id,
+        "model_spec_ref": evidence.model_spec_ref,
+        "policy_spec_ref": evidence.policy_spec_ref,
+        "estimand": evidence.estimand,
+        "temporal_roles": {
+            name: getattr(evidence, name).isoformat().replace("+00:00", "Z")
+            for name in (
+                "prediction_time",
+                "observation_time",
+                "policy_effective_time",
+                "data_valid_time",
+                "calibration_window_start",
+                "calibration_window_end",
+            )
+        },
+    }
+    if any(request.get(key) != value for key, value in expected_binding.items()):
+        raise ValueError("forecast candidate request/evidence binding mismatch")
+    if evidence.calibration_threshold != profile.calibration_threshold:
+        raise ValueError("forecast candidate threshold differs from configured profile")
+    source_ref = ArtifactRefModel.model_validate(request.get("observed_source_ref"))
+    _verify_generic_json(store, source_ref, kind="fabric.data_snapshot")
+    snapshot = _as_mapping(get_json_artifact(store, source_ref.artifact_id))
+    data_ref = ArtifactRefModel.model_validate(snapshot.get("data_ref"))
+    _verify_generic_json(store, data_ref)
+    source = _as_mapping(get_json_artifact(store, data_ref.artifact_id))
+    target = request.get("target_metric")
+    values = source.get(str(target))
+    split = _as_mapping(request.get("split"))
+    params = _as_mapping(request.get("method_params"))
+    positions = [
+        split.get(name)
+        for name in (
+            "train_start",
+            "train_end",
+            "holdout_start",
+            "holdout_end",
+            "horizon",
+        )
+    ]
+    if any(not isinstance(value, int) or isinstance(value, bool) for value in positions):
+        raise ValueError("forecast candidate split positions must be integers")
+    start, end, holdout_start, holdout_end, horizon = positions
+    if not (
+        0 <= start < end == holdout_start < holdout_end
+        and horizon == holdout_end - holdout_start
+        and params.get("horizon") == horizon
+    ):
+        raise ValueError("forecast candidate split is leaky or horizon-incompatible")
+    if not isinstance(values, list) or holdout_end > len(values):
+        raise ValueError("forecast candidate source support is incomplete")
+    refs = dict(_context_refs(evidence))
+    observed = _as_mapping(
+        _validate_and_load_reference(
+            store,
+            refs["observed_outcome"],
+            role="observed_outcome",
+        )
+    )
+    prediction = _as_mapping(
+        _validate_and_load_reference(
+            store,
+            refs["prediction"],
+            role="prediction",
+        )
+    )
+    design = _as_mapping(
+        _validate_and_load_reference(
+            store,
+            refs["evaluation_design"],
+            role="evaluation_design",
+        )
+    )
+    method_lineage = _as_mapping(
+        _validate_and_load_reference(
+            store,
+            refs["method_lineage"],
+            role="method_lineage",
+        )
+    )
+    if (
+        method_lineage.get("method_fqn") != method_fqn
+        or method_lineage.get("method_params") != dict(params)
+        or method_lineage.get("seed") != request.get("seed")
+        or method_lineage.get("calibration_rule_ref") != rule_ref.model_dump(mode="json")
+    ):
+        raise ValueError("forecast candidate method/rule/seed lineage mismatch")
+    expected_rows = [
+        {
+            "row_id": f"{source_ref.artifact_id}:{target}:{index}",
+            "source_index": index,
+            "horizon": index - holdout_start + 1,
+            "value": values[index],
+        }
+        for index in range(holdout_start, holdout_end)
+    ]
+    if observed.get("rows") != expected_rows or design.get("row_ids") != [
+        row["row_id"] for row in expected_rows
+    ]:
+        raise ValueError("forecast candidate observed source/ordered row binding mismatch")
+    if (
+        design.get("split") != dict(split)
+        or design.get("temporal_roles") != request.get("temporal_roles")
+        or design.get("seed") != request.get("seed")
+    ):
+        raise ValueError("forecast candidate design/time/seed binding mismatch")
+    training_ref = ArtifactRefModel.model_validate(design.get("training_slice_ref"))
+    _verify_generic_json(store, training_ref, kind="ir.forecast_training_slice")
+    training = _as_mapping(get_json_artifact(store, training_ref.artifact_id))
+    if (
+        training.get("values") != values[start:end]
+        or training.get("split") != dict(split)
+        or training.get("method_params") != dict(params)
+        or training.get("source_ref") != source_ref.model_dump(mode="json")
+    ):
+        raise ValueError("forecast candidate training/source/request binding mismatch")
+    from polisyos.ir.analytics.forecasting_uncertainty import (
+        load_forecasting_uncertainty_bundle,
+    )
+    from polisyos.ir.registry.refs import ForecastingUncertaintyBundleRef
+
+    bundle_ref = ForecastingUncertaintyBundleRef.model_validate(
+        prediction.get("uncertainty_bundle_ref")
+    )
+    bundle = load_forecasting_uncertainty_bundle(store, bundle_ref)
+    if (
+        bundle.method_fqn != method_fqn
+        or bundle.target_id != target
+        or bundle.metadata.get("temporal_roles") != request.get("temporal_roles")
+    ):
+        raise ValueError("forecast candidate prediction method/target/time binding mismatch")
+    intervals = {item.horizon: item for item in bundle.prediction_interval}
+    comparisons = report.scenarios[0].outcome_comparisons
+    if set(intervals) != set(range(1, horizon + 1)) or len(comparisons) != horizon:
+        raise ValueError("forecast candidate requested/observed denominator mismatch")
+    expected_predictions = []
+    for row, comparison in zip(expected_rows, comparisons, strict=True):
+        interval = intervals[row["horizon"]]
+        item = {
+            "row_id": row["row_id"],
+            "horizon": row["horizon"],
+            "point": _forecast_scalar(interval.point),
+            "lower": _forecast_scalar(interval.lower),
+            "upper": _forecast_scalar(interval.upper),
+        }
+        expected_predictions.append(item)
+        if (
+            comparison.metric_name != target
+            or comparison.y_true != row["value"]
+            or not math.isclose(comparison.y_pred, item["point"], rel_tol=0.0, abs_tol=1e-12)
+            or comparison.ci_lower is None
+            or comparison.ci_upper is None
+            or not math.isclose(comparison.ci_lower, item["lower"], rel_tol=0.0, abs_tol=1e-12)
+            or not math.isclose(comparison.ci_upper, item["upper"], rel_tol=0.0, abs_tol=1e-12)
+        ):
+            raise ValueError("forecast candidate persisted report/prediction/outcome mismatch")
+    if prediction.get("rows") != expected_predictions:
+        raise ValueError("forecast candidate prediction row identity mismatch")
+
+
+def _verify_generic_json(
+    store: ArtifactStore, ref: ArtifactRefModel, *, kind: str | None = None
+) -> None:
+    manifest = _as_mapping(store.get_manifest(ref.artifact_id))
+    schema = _as_mapping(_field(manifest, "schema") or _field(manifest, "artifact_schema"))
+    _validate_json_artifact(
+        store,
+        ref,
+        expected_kind=kind or ref.kind,
+        expected_media_type="application/json",
+        expected_schema_name=schema.get("name"),
+        expected_schema_version=schema.get("version"),
+    )
+
+
+def _forecast_scalar(value: object) -> float:
+    if isinstance(value, (list, tuple)) and len(value) == 1:
+        value = value[0]
+    numeric = _coerce_decimal(value)
+    if numeric is None:
+        raise ValueError("forecast candidate interval must be a finite scalar")
+    return float(numeric)
+
+
 def _validate_evidence_input_edges(
     store: ArtifactStore,
     evidence_ref: EmpiricalCalibrationEvidenceRef,
@@ -602,16 +935,11 @@ def _validate_evidence_input_edges(
 
     expected = [
         (str(evidence.report_ref.artifact_id), "backtest_report"),
-        *(
-            (str(ref.artifact_id), role)
-            for role, ref in _context_refs(evidence)
-        ),
+        *((str(ref.artifact_id), role) for role, ref in _context_refs(evidence)),
     ]
     actual = _manifest_input_edges(store, evidence_ref.artifact_id)
     if sorted(actual) != sorted(expected):
-        raise ValueError(
-            "empirical evidence manifest input edge/role binding mismatch"
-        )
+        raise ValueError("empirical evidence manifest input edge/role binding mismatch")
 
 
 def _manifest_input_edges(
@@ -622,9 +950,7 @@ def _manifest_input_edges(
 
     manifest = _as_mapping(store.get_manifest(artifact_id))
     raw_inputs = _field(manifest, "inputs")
-    if not isinstance(raw_inputs, Sequence) or isinstance(
-        raw_inputs, (str, bytes, bytearray)
-    ):
+    if not isinstance(raw_inputs, Sequence) or isinstance(raw_inputs, (str, bytes, bytearray)):
         raise ValueError("artifact manifest inputs are missing or malformed")
     edges: list[tuple[str, str]] = []
     for raw_input in raw_inputs:
@@ -659,9 +985,7 @@ def _reproduce_evidence(
         expected_payload["schema_version"] = LEGACY_EVIDENCE_SCHEMA_VERSION
         expected_payload["nominal_confidence_level"] = None
     if expected_payload != evidence.model_dump(mode="json"):
-        raise ValueError(
-            "empirical evidence payload is not reproducible from its report"
-        )
+        raise ValueError("empirical evidence payload is not reproducible from its report")
     return expected
 
 
@@ -725,9 +1049,7 @@ def _context_from_evidence(
 
     _report_ref, report = _load_verified_report(store, evidence.report_ref)
     if not report.model_spec_ref or not report.policy_spec_ref:
-        raise ValueError(
-            "persisted evidence context lacks a complete report model/policy pair"
-        )
+        raise ValueError("persisted evidence context lacks a complete report model/policy pair")
     return EmpiricalCalibrationContext.model_validate(
         {
             "model_spec_ref": report.model_spec_ref,
@@ -785,8 +1107,8 @@ def _validate_json_artifact(
     *,
     expected_kind: str,
     expected_media_type: str,
-    expected_schema_name: str,
-    expected_schema_version: str,
+    expected_schema_name: str | None,
+    expected_schema_version: str | None,
 ) -> bytes:
     """Validate manifest profile, byte digest, and artifact identity."""
 
@@ -849,9 +1171,7 @@ def _context_reference_issues(
         (str(ref.artifact_id), role) for role, ref in _context_refs(context)
     )
     actual_context_edges = tuple(
-        (artifact_id, role)
-        for artifact_id, role in input_edges
-        if role in _REFERENCE_INPUT_ROLES
+        (artifact_id, role) for artifact_id, role in input_edges if role in _REFERENCE_INPUT_ROLES
     )
     if sorted(actual_context_edges) != sorted(expected_context_edges):
         issues.append("report_context_input_edges_mismatch")
@@ -866,9 +1186,7 @@ def _context_reference_issues(
         try:
             payload = _validate_and_load_reference(store, ref, role=role)
         except (FileNotFoundError, OSError, TypeError, ValueError):
-            issues.extend(
-                ("provenance_ref_unresolved", f"provenance_ref_invalid:{role}")
-            )
+            issues.extend(("provenance_ref_unresolved", f"provenance_ref_invalid:{role}"))
             continue
         payloads.setdefault(role, []).append(payload)
 
@@ -897,9 +1215,7 @@ def _context_reference_issues(
             context,
         )
     )
-    return _dedupe(issues), {
-        role: tuple(values) for role, values in payloads.items()
-    }
+    return _dedupe(issues), {role: tuple(values) for role, values in payloads.items()}
 
 
 def _report_input_edges(
@@ -918,9 +1234,7 @@ def _report_input_edges(
     except (FileNotFoundError, OSError, TypeError, ValueError):
         return ()
     raw_inputs = _field(manifest, "inputs")
-    if not isinstance(raw_inputs, Sequence) or isinstance(
-        raw_inputs, (str, bytes, bytearray)
-    ):
+    if not isinstance(raw_inputs, Sequence) or isinstance(raw_inputs, (str, bytes, bytearray)):
         return ()
     relations: list[tuple[str, str]] = []
     for raw_input in raw_inputs:
@@ -990,9 +1304,7 @@ def _validate_and_load_reference(
         raise ValueError("evidence reference role mismatch")
     _validate_reference_identity_contract(ref, role)
     try:
-        expected_kind, expected_schema_name, expected_schema_version = (
-            REFERENCE_PROFILES[role]
-        )
+        expected_kind, expected_schema_name, expected_schema_version = REFERENCE_PROFILES[role]
     except KeyError as exc:
         raise ValueError("unsupported evidence reference role") from exc
     if ref.media_type != "application/json":
@@ -1131,9 +1443,7 @@ def _recompute_and_reconcile(
             issues.append("persisted_projection_incomplete")
     if report.overall_coverage_probability is not None:
         expected_overall = (
-            recomputed_numerator / recomputed_denominator
-            if recomputed_denominator
-            else None
+            recomputed_numerator / recomputed_denominator if recomputed_denominator else None
         )
         if expected_overall is None or report.overall_coverage_probability != expected_overall:
             issues.append("persisted_overall_coverage_mismatch")
@@ -1305,9 +1615,7 @@ def _collect_scope_values(value: object) -> dict[str, list[str]]:
                 target = str(key)
                 if target in collected or target in plural:
                     canonical = (
-                        collected[target]
-                        if target in collected
-                        else collected[plural[target]]
+                        collected[target] if target in collected else collected[plural[target]]
                     )
                     canonical.extend(_as_text_sequence(child))
                 else:
@@ -1355,9 +1663,7 @@ def _validate_reference_identity_contract(
     if expected_path is None:
         raise ValueError("unsupported evidence reference role")
     if ref.identity_path != expected_path:
-        raise ValueError(
-            f"evidence reference identity path must be {expected_path!r} for {role}"
-        )
+        raise ValueError(f"evidence reference identity path must be {expected_path!r} for {role}")
     normalized = ref.identity_value.strip().casefold()
     if (
         normalized in _TRIVIAL_IDENTITY_VALUES
@@ -1472,8 +1778,7 @@ def _payload_contains_forbidden_marker(payload: object) -> bool:
     markers = ("synthetic", "fixture", "self-attest", "self_attest", "self attest")
     if isinstance(payload, Mapping):
         return any(
-            _payload_contains_forbidden_marker(key)
-            or _payload_contains_forbidden_marker(value)
+            _payload_contains_forbidden_marker(key) or _payload_contains_forbidden_marker(value)
             for key, value in payload.items()
         )
     if isinstance(payload, Sequence) and not isinstance(payload, (str, bytes, bytearray)):
@@ -1518,8 +1823,14 @@ __all__ = [
     "EmpiricalCalibrationEvidenceRef",
     "EmpiricalEvidenceKind",
     "EvidenceArtifactRef",
+    "ForecastCalibrationProfile",
+    "ForecastCandidateReceipt",
+    "ForecastCandidateReceiptRef",
     "ReferenceRole",
     "load_empirical_calibration_evidence",
+    "load_forecast_calibration_profile",
+    "load_forecast_candidate_receipt",
     "persist_empirical_calibration_evidence",
+    "persist_forecast_candidate_receipt",
     "produce_empirical_calibration_evidence",
 ]

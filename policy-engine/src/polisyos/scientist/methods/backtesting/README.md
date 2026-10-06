@@ -30,6 +30,29 @@ governance calibration и backtest matrix контуром.
 
 Подробности: [Reference →](../../../../docs/reference/scientist/index.md)
 
+## Configured predictive producer (internal)
+
+`ForecastOwner` executes the registered NumPy ETS method on the strict
+`ForecastOwnerRequest` training slice. `persist_forecast_owner_request` stores
+the exact request. Runtime composition may supply an `empirical_profile_ref`
+to the owner constructor: the referenced `ForecastCalibrationProfile` must
+bind that same request and an explicit coverage threshold. A changed request
+is rejected before the numerical callback.
+
+For this configured path, the owner emits source-position-bound outcome,
+prediction, design and lineage artifacts, then calls the canonical empirical
+evidence producer/persistence path. `ForecastOwnerResult.empirical_evidence_ref`
+and `.candidate_receipt_ref` refer to separate CAS artifacts; neither is a
+cast of the owner result or a verifier admission. Without configuration the
+existing predictive-only, bridge-pending result remains available.
+
+Row identity is the source snapshot digest, metric and zero-based source
+position. The bounded producer consumes one contiguous training/holdout split
+and one univariate ETS method. Declared temporal roles are preserved; source
+profile admission, real-world history validity and independent A verifier
+provenance remain separate obligations. All paths retain causal and treatment
+authority denial, and the default runtime bridge remains owned by A.
+
 ## Текущее состояние
 
 - Последнее обновление: 2026-04-03

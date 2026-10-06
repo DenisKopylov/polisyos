@@ -1,0 +1,67 @@
+.....F.
+=================================== FAILURES ===================================
+_ test_multiobjective_incomplete_vector_is_excluded_or_explicitly_refused[missing] _
+
+malformed = 'missing'
+
+    @native
+    @pytest.mark.parametrize("malformed", ["missing", "nan"])
+    def test_multiobjective_incomplete_vector_is_excluded_or_explicitly_refused(malformed):
+        space = SearchSpace([ParameterBounds("x")])
+        strategy = MOBayesianOptimizer(
+            space, ["cost", "benefit"], [OptimizationDirection.MINIMIZE, OptimizationDirection.MAXIMIZE]
+        )
+        complete = Evaluation(
+            "complete",
+            {"x": 0.2},
+            (0.2,),
+            [
+                ObjectiveValue("cost", 1.0, OptimizationDirection.MINIMIZE),
+                ObjectiveValue("benefit", 1.0, OptimizationDirection.MAXIMIZE),
+            ],
+            1.0,
+            True,
+        )
+        objectives = [ObjectiveValue("benefit", 100.0, OptimizationDirection.MAXIMIZE)]
+        if malformed == "nan":
+            objectives.append(ObjectiveValue("cost", float("nan"), OptimizationDirection.MINIMIZE))
+        invalid = Evaluation("invalid", {"x": 0.8}, (0.8,), objectives, 0.0, True)
+        try:
+            front = strategy.get_pareto_front([complete, invalid])
+        except ValueError:
+            return
+>       assert [row.candidate_id for row in front] == ["complete"], (
+            "An incomplete/nonfinite declared objective vector cannot be a Pareto observation"
+        )
+E       AssertionError: An incomplete/nonfinite declared objective vector cannot be a Pareto observation
+E       assert ['invalid'] == ['complete']
+E         
+E         At index 0 diff: 'invalid' != 'complete'
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py:234: AssertionError
+=============================== warnings summary ===============================
+../../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_actual_neural_fit_recomputes_at_executed_action_after_adversarial_proposal
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_explicit_unsupported_affine_span_refuses_before_any_candidate[False]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_explicit_unsupported_affine_span_refuses_before_any_candidate[True]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_supported_log_endpoints_and_midpoint_follow_declared_geometry
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_actual_multiobjective_fit_and_acquisition_then_typed_converter
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_actual_neural_fit_recomputes_at_executed_action_after_adversarial_proposal
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_multiobjective_incomplete_vector_is_excluded_or_explicitly_refused[nan]
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_multiobjective_incomplete_vector_is_excluded_or_explicitly_refused[missing]
+1 failed, 6 passed, 3 warnings in 10.29s

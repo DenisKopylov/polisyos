@@ -17,17 +17,16 @@ deprecation, monitoring, and observability helpers for method execution.
 - Deprecation changes need a compatibility test and a documented removal path.
 - Monitoring helpers must stay optional when telemetry dependencies are absent.
 
-## Output Monitoring Contract
+## Контракт проверки выходов
 
-The dispatcher checks declared output names against the backend runner's
-normalized `MethodResult.slot_outputs`. Supported raw aliases and diagnostic
-sidecars remain available in `MethodResult.output` and do not create slot key
-anomalies. Numeric NaN/Inf diagnostics in either view still produce typed
-`AnomalyFlag` errors through the existing warning and telemetry routes.
+Dispatcher сверяет объявленные имена выходов с нормализованным
+`MethodResult.slot_outputs`. Поддерживаемые raw aliases и диагностические
+sidecars доступны в `MethodResult.output` и не создают ошибок имён slots.
+Числовые NaN/Inf в обоих представлениях сохраняют типизированные ошибки
+`AnomalyFlag`, предупреждения и передачу в telemetry.
 
-An empty untyped Python list or tuple carries no numeric dtype, so it can
-represent an empty diagnostic collection. An explicitly typed empty array
-or an empty sequence in a declared vector/matrix/tensor slot still produces
-`empty_array`. Missing declared slots and malformed array
-shapes remain contract failures during dematerialization; inconsistent
-canonical slot keys remain monitor anomalies.
+Пустой Python list или tuple без числового dtype может обозначать пустой
+набор диагностик. Явно типизированный пустой массив или пустая последовательность
+в объявленном vector/matrix/tensor slot сохраняет `empty_array`. Отсутствующий
+объявленный slot и неправильная форма массива остаются contract failures при
+дематериализации; несовпадающие canonical keys остаются ошибками monitor.

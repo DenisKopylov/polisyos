@@ -24,7 +24,7 @@
   },
   "changed_product_paths": [],
   "original_collection_error": {
-    "source_sha": "613343",
+    "source_sha": "613343c3ef00379038b5ac07127605528f166531",
     "status": "ERROR",
     "collected_cases": 1202,
     "optional_module_skips": 15,
@@ -36,7 +36,8 @@
       "sha256": "760fe833dc97323dec0ecd4ee540eb581a7831b96f79cd82903cbf17b88a3be6"
     },
     "proof_source_sha": "fa4b6f12afdb254ec3f5abb3a7a762b9905fd85d",
-    "interpretation": "Retained actual nonoptional collection failure; targeted successor does not relabel or supersede the complete original collection verdict."
+    "interpretation": "Retained actual nonoptional collection failure; targeted successor does not relabel or supersede the complete original collection verdict.",
+    "source_tree": "f66e7144053be71db9840f9b7d468237fd1c809e"
   },
   "environment": {
     "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",

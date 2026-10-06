@@ -1,0 +1,794 @@
+diff --git a/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py b/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py
+index f60b7cc4b..7f7886ab5 100644
+--- a/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py
++++ b/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py
+@@ -80,6 +80,7 @@ from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_w
+ from polisyos.scientist.orchestration.engine.state_branching import (
+     StateMutation,
+     StateMutationJournal,
++    _completed_producer_state,
+     branch_state,
+     mutation_journal_for_state,
+     mutation_journal_from_operations,
+@@ -1649,6 +1650,7 @@ class AsyncWorkflowExecutor:
+         branch = branch_state(
+             state,
+             write_paths=getattr(node.spec, "state_writes", ()),
++            enforce_write_scope=True,
+         )
+         node_state = branch.state
+         node_id = str(inv.node_id)
+@@ -2051,6 +2053,7 @@ class AsyncWorkflowExecutor:
+                 retry_count=actual_retry_count,
+             )
+ 
++        outcome = outcome.model_copy(update={"state": _completed_producer_state(outcome.state)})
+         return outcome, duration_ms, cache_hit, cache_entry_ref
+ 
+     async def _handle_tier_checkpoint(
+diff --git a/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py b/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py
+index f216fa091..abcede045 100644
+--- a/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py
++++ b/policy-engine/src/polisyos/scientist/orchestration/engine/executor.py
+@@ -65,6 +65,7 @@ from polisyos.scientist.orchestration.engine.retry import (
+     execute_with_retry_sync,
+ )
+ from polisyos.scientist.orchestration.engine.state_branching import (
++    _completed_producer_state,
+     branch_state,
+     mutation_journal_for_state,
+     snapshot_state,
+@@ -1355,6 +1356,7 @@ class WorkflowExecutor:
+                     branched_state = branch_state(
+                         state,
+                         write_paths=getattr(node.spec, "state_writes", ()),
++                        enforce_write_scope=True,
+                     )
+                     node_state = branched_state.state
+                     set_span_attribute(
+@@ -1538,6 +1540,9 @@ class WorkflowExecutor:
+                             _CACHE_BYPASS_PREPARED_READ,
+                         )
+ 
++                outcome = outcome.model_copy(
++                    update={"state": _completed_producer_state(outcome.state)}
++                )
+                 duration_ms = int((time.perf_counter() - started) * 1000)
+                 if self._ctx.metrics is not None:
+                     self._ctx.metrics.record_node_completed(
+diff --git a/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py b/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py
+index 9a9849361..854aec5c8 100644
+--- a/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py
++++ b/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py
+@@ -49,8 +49,8 @@ logger = get_logger(__name__)
+ IDEMPOTENCY_CONTRACT_VERSION = "2.0"
+ LEGACY_NODE_CACHE_ENTRY_SCHEMA_VERSION = "1.0"
+ NODE_CACHE_ENTRY_SCHEMA_VERSION = "2.0"
+-STATE_MUTATIONS_VERSION = "1.1"
+-LEGACY_STATE_MUTATIONS_VERSION = "1.0"
++STATE_MUTATIONS_VERSION = "1.2"
++LEGACY_STATE_MUTATIONS_VERSIONS = frozenset({"1.0", "1.1"})
+ REPLAY_EPOCH = "2.1"
+ 
+ _IDEM_CANON = CanonSpec(
+@@ -141,21 +141,28 @@ class NodeCacheEntry(BaseModel):
+     created_at: datetime = Field(default_factory=lambda: utc_now(drop_microseconds=True))
+ 
+ 
+-def _legacy_scalar_mutations_replayable(mutations: tuple[StateMutation, ...]) -> bool:
+-    """Keep proven scalar v1 intents without reinterpreting old list ownership."""
++def _legacy_scalar_mutations_replayable(
++    mutations: tuple[StateMutation, ...], producer_state: ExperimentState
++) -> bool:
++    """Retain direct primitive intents whose parent ownership was unambiguous.
+ 
+-    def contains_list(value: Any) -> bool:
+-        if isinstance(value, (list, tuple)):
++    Old nested journals do not prove whether their producer preserved aliases.
++    Even a non-indexed scalar path can have lost another live parent, so these
++    entries must miss rather than silently reinterpret the old algorithm.
++    """
++
++    def scalar_parent(path: str) -> bool:
++        parts = path.split(".")
++        if len(parts) == 1:
+             return True
+-        if isinstance(value, dict):
+-            return any(contains_list(child) for child in value.values())
+-        return False
++        return len(parts) == 2 and isinstance(getattr(producer_state, parts[0], None), dict)
+ 
+     return all(
+         mutation.operation in {"set", "delete"}
+-        and mutation.target_kind != "list"
+-        and not any(part.lstrip("-").isdigit() for part in mutation.path.split("."))
+-        and not contains_list(mutation.value)
++        and mutation.operation_group is None
++        and mutation.target_kind in {"missing", "scalar"}
++        and scalar_parent(mutation.path)
++        and not isinstance(mutation.value, (dict, list, tuple, set))
+         for mutation in mutations
+     )
+ 
+@@ -182,6 +189,10 @@ def _journal_payload(entry: NodeCacheEntry) -> dict[str, Any]:
+         payload.pop("outcome_payload", None)
+     if entry.tenant_context is None:
+         payload.pop("tenant_context", None)
++    if entry.state_mutations_version in LEGACY_STATE_MUTATIONS_VERSIONS:
++        for mutation in payload["state_mutations"]:
++            if mutation["operation_group"] is None:
++                mutation.pop("operation_group")
+     return payload
+ 
+ 
+@@ -526,6 +537,7 @@ class NodeResultCache:
+             entry,
+             entry_manifest=entry_manifest,
+             output_aware=output_aware,
++            producer_state=decoded.state,
+         )
+         return entry, decoded, proof_valid
+ 
+@@ -551,6 +563,7 @@ class NodeResultCache:
+         *,
+         entry_manifest: Any,
+         output_aware: bool,
++        producer_state: ExperimentState,
+     ) -> bool:
+         """Check the versioned replay contract without trusting payload shape."""
+         if entry.schema_version == NODE_CACHE_ENTRY_SCHEMA_VERSION:
+@@ -560,8 +573,8 @@ class NodeResultCache:
+         else:
+             return False
+         supported_mutations = entry.state_mutations_version == STATE_MUTATIONS_VERSION or (
+-            entry.state_mutations_version == LEGACY_STATE_MUTATIONS_VERSION
+-            and _legacy_scalar_mutations_replayable(entry.state_mutations)
++            entry.state_mutations_version in LEGACY_STATE_MUTATIONS_VERSIONS
++            and _legacy_scalar_mutations_replayable(entry.state_mutations, producer_state)
+         )
+         if (
+             not supported_mutations
+@@ -569,6 +582,10 @@ class NodeResultCache:
+             or entry.journal_proof is None
+         ):
+             return False
++        try:
++            mutation_journal_from_operations(entry.state_mutations)
++        except ValueError:
++            return False
+         proof = entry.journal_proof
+         expected_producer = _cache_producer(output_aware=output_aware)
+         return (
+diff --git a/policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py b/policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py
+index cf3613c67..c6aeddebf 100644
+--- a/policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py
++++ b/policy-engine/src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py
+@@ -87,6 +87,7 @@ async def run_node_in_worker(payload: dict[str, Any]) -> bytes:
+         state = branch_state(
+             state,
+             write_paths=getattr(node.spec, "state_writes", ()),
++            enforce_write_scope=True,
+         ).state
+ 
+         # Execute with retry/timeout under a child span
+diff --git a/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py b/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py
+index c658fb600..db5a1be4d 100644
+--- a/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py
++++ b/policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py
+@@ -49,6 +49,9 @@ class StateMutationJournal:
+     isolated_fields: tuple[str, ...]
+     isolated_paths: tuple[str, ...]
+     operations: list[StateMutation] = field(default_factory=list)
++    enforce_write_scope: bool = False
++    _isolated_values: dict[int, Any] = field(default_factory=dict, repr=False, compare=False)
++    _wrapped_values: dict[int, Any] = field(default_factory=dict, repr=False, compare=False)
+ 
+     def record(
+         self,
+@@ -61,6 +64,7 @@ class StateMutationJournal:
+         stop: int | None = None,
+         step: int | None = None,
+         target: Any = _MISSING,
++        operation_group: int | None = None,
+     ) -> None:
+         """Append one concrete mutation to the branch journal."""
+         target_presence, target_kind = _target_descriptor(target)
+@@ -76,6 +80,7 @@ class StateMutationJournal:
+                 step=step,
+                 target_presence=target_presence,
+                 target_kind=target_kind,
++                operation_group=operation_group,
+             )
+         )
+ 
+@@ -95,9 +100,15 @@ class _JournaledExperimentState(ExperimentState):
+             journal = object.__getattribute__(self, _MUTATION_JOURNAL_ATTR)
+         except AttributeError:
+             journal = None
++        if isinstance(journal, StateMutationJournal) and journal.enforce_write_scope:
++            if name not in journal.isolated_paths:
++                raise ValueError(f"undeclared state_writes at live paths: {[name]}")
++            _validate_mutation_attachment(None, value)
++            value = _wrap_mutable_value(value, (name,), journal)
+         if isinstance(journal, StateMutationJournal) and name in journal.isolated_paths:
+             previous = getattr(self, name, _MISSING)
+             super().__setattr__(name, value)
++            _bind_mutation_root(getattr(self, name), self, name, (name,))
+             if previous is not _MISSING:
+                 journal.record(path=(name,), operation="set", value=value, target=previous)
+             return
+@@ -138,6 +149,7 @@ class StateMutation(BaseModel):
+     step: int | None = None
+     target_presence: StateMutationTargetPresence = "present"
+     target_kind: StateMutationTargetKind = "scalar"
++    operation_group: int | None = Field(default=None, ge=0, strict=True)
+ 
+ 
+ def _mutation_value_kind(value: Any) -> StateMutationValueKind:
+@@ -172,6 +184,7 @@ def branch_state(
+     base_state: ExperimentState,
+     *,
+     write_paths: Iterable[str] = (),
++    enforce_write_scope: bool | None = None,
+ ) -> BranchedState:
+     """Return a branch-local state with copy-on-write isolation for *write_paths*.
+ 
+@@ -180,7 +193,22 @@ def branch_state(
+     declared path are isolated lazily by cloning only the traversed branches.
+     """
+ 
++    source_journal = mutation_journal_for_state(base_state)
++    normalized_paths = _normalize_paths(write_paths)
++    if source_journal is not None and source_journal.enforce_write_scope:
++        if enforce_write_scope is False:
++            raise ValueError("cannot release active producer write scope")
++        grant = [tuple(path.split(".")) for path in source_journal.isolated_paths]
++        if any(
++            not any(_is_path_prefix(allowed, path) for allowed in grant)
++            for path in normalized_paths
++        ):
++            raise ValueError("nested branch cannot broaden active producer write scope")
++        enforce_write_scope = True
++    if enforce_write_scope is None:
++        enforce_write_scope = source_journal.enforce_write_scope if source_journal else False
+     branched = _promote_to_journaled_state(base_state.model_copy(deep=False))
++    object.__setattr__(branched, _MUTATION_JOURNAL_ATTR, None)
+     isolated_fields: list[str] = []
+     for field_name in _TOP_LEVEL_MUTABLE_FIELDS:
+         value = getattr(base_state, field_name, None)
+@@ -188,14 +216,16 @@ def branch_state(
+             setattr(branched, field_name, dict(value))
+             isolated_fields.append(field_name)
+ 
+-    normalized_paths = _normalize_paths(write_paths)
++    isolation_memo: dict[int, Any] = {}
+     journal = StateMutationJournal(
+         isolated_fields=tuple(isolated_fields),
+         isolated_paths=tuple(".".join(parts) for parts in normalized_paths),
+         operations=[],
++        enforce_write_scope=enforce_write_scope,
++        _isolated_values=isolation_memo,
+     )
+     for parts in normalized_paths:
+-        _isolate_write_path(base_state, branched, parts)
++        _isolate_write_path(base_state, branched, parts, isolation_memo)
+ 
+     _install_mutation_tracking(branched, normalized_paths, journal)
+     _attach_mutation_journal(branched, journal)
+@@ -210,13 +240,57 @@ def snapshot_state(base_state: ExperimentState) -> ExperimentState:
+     """Return a full rollback-safe snapshot of the mutable state surfaces."""
+ 
+     branched = base_state.model_copy(deep=False)
++    memo: dict[int, Any] = {}
+     for field_name in _TOP_LEVEL_MUTABLE_FIELDS:
+         value = getattr(base_state, field_name, None)
+         if isinstance(value, dict):
+-            setattr(branched, field_name, deepcopy(value))
++            object.__setattr__(branched, field_name, deepcopy(value, memo))
++            _bind_mutation_root(getattr(branched, field_name), branched, field_name, (field_name,))
+     return branched
+ 
+ 
++def _completed_producer_state(state: ExperimentState) -> ExperimentState:
++    """Detach settled engine-owned completion from its producer's live grant.
++
++    The original producer view stays guarded.  Only the executor calls this
++    boundary after invocation and cache publication have settled; ordinary
++    nested branching cannot release an active grant.
++    """
++    source = mutation_journal_for_state(state)
++    if source is None or not source.enforce_write_scope:
++        return state
++    completed = state.model_copy(deep=True)
++    journal = StateMutationJournal(
++        isolated_fields=source.isolated_fields,
++        isolated_paths=source.isolated_paths,
++        operations=list(source.operations),
++    )
++    _attach_mutation_journal(completed, journal)
++    seen: set[int] = set()
++
++    def rebind(value: Any) -> None:
++        if id(value) in seen:
++            return
++        seen.add(id(value))
++        if isinstance(value, (_TrackedDict, _TrackedList)):
++            value._mutation_journal = journal
++        if isinstance(value, BaseModel):
++            children = value.__dict__.values()
++        elif isinstance(value, dict):
++            children = value.values()
++        elif isinstance(value, (list, tuple)):
++            children = value
++        else:
++            return
++        for child in children:
++            rebind(child)
++
++    rebind(completed)
++    for name in _TOP_LEVEL_MUTABLE_FIELDS:
++        _bind_mutation_root(getattr(completed, name), completed, name, (name,))
++    return completed
++
++
+ def _normalize_paths(write_paths: Iterable[str]) -> list[tuple[str, ...]]:
+     normalized = {
+         tuple(part for part in str(path).split(".") if part)
+@@ -230,6 +304,7 @@ def _isolate_write_path(
+     source_state: ExperimentState,
+     target_state: ExperimentState,
+     parts: tuple[str, ...],
++    memo: dict[int, Any],
+ ) -> None:
+     if not parts:
+         return
+@@ -241,13 +316,14 @@ def _isolate_write_path(
+         return
+ 
+     if len(parts) == 1:
+-        setattr(target_state, top_level, deepcopy(source_value))
++        setattr(target_state, top_level, deepcopy(source_value, memo))
+         return
+ 
+     _ensure_isolated_container(
+         source_parent=source_value,
+         target_parent=target_value,
+         parts=parts[1:],
++        memo=memo,
+     )
+ 
+ 
+@@ -256,6 +332,7 @@ def _ensure_isolated_container(
+     source_parent: Any,
+     target_parent: Any,
+     parts: tuple[str, ...],
++    memo: dict[int, Any],
+ ) -> None:
+     if not parts:
+         return
+@@ -267,11 +344,11 @@ def _ensure_isolated_container(
+ 
+     target_child = _get_child(target_parent, part)
+     if target_child is source_child:
+-        cloned = _clone_container(source_child, deep=len(parts) == 1)
++        cloned = _clone_container(source_child, deep=len(parts) == 1, memo=memo)
+         _set_child(target_parent, part, cloned)
+         target_child = cloned
+     elif target_child is _MISSING:
+-        target_child = _clone_container(source_child, deep=len(parts) == 1)
++        target_child = _clone_container(source_child, deep=len(parts) == 1, memo=memo)
+         _set_child(target_parent, part, target_child)
+ 
+     if len(parts) > 1 and _is_branchable_container(target_child):
+@@ -279,6 +356,7 @@ def _ensure_isolated_container(
+             source_parent=source_child,
+             target_parent=target_child,
+             parts=parts[1:],
++            memo=memo,
+         )
+ 
+ 
+@@ -312,23 +390,28 @@ def _set_child(container: Any, key: str, value: Any) -> None:
+     raise TypeError(f"Cannot assign nested state field {key!r} on {type(container).__name__}")
+ 
+ 
+-def _clone_container(value: Any, *, deep: bool = False) -> Any:
++def _clone_container(value: Any, *, deep: bool = False, memo: dict[int, Any]) -> Any:
++    if id(value) in memo:
++        return memo[id(value)]
+     if deep:
+-        return deepcopy(value)
++        return deepcopy(value, memo)
+     if isinstance(value, dict):
+-        return dict(value)
+-    if isinstance(value, list):
+-        return list(value)
+-    if isinstance(value, tuple):
+-        return tuple(value)
+-    if isinstance(value, set):
+-        return set(value)
+-    if isinstance(value, BaseModel):
++        clone = dict(value)
++    elif isinstance(value, list):
++        clone = list(value)
++    elif isinstance(value, tuple):
++        clone = tuple(value)
++    elif isinstance(value, set):
++        clone = set(value)
++    elif isinstance(value, BaseModel):
+         # Preserve copy-on-write behavior for nested models: clone only the
+         # model shell here and let deeper path isolation materialize mutable
+         # children lazily as traversal reaches them.
+-        return value.model_copy(deep=False)
+-    return deepcopy(value)
++        clone = value.model_copy(deep=False)
++    else:
++        clone = deepcopy(value, memo)
++    memo[id(value)] = clone
++    return clone
+ 
+ 
+ def _is_branchable_container(value: Any) -> bool:
+@@ -358,10 +441,19 @@ def mutation_journal_from_operations(
+     operations: Iterable[StateMutation],
+ ) -> StateMutationJournal:
+     """Build a replay journal for operations loaded from a cache artifact."""
++    operations = list(operations)
++    groups: dict[int, dict[str, Any]] = {}
++    for operation in operations:
++        if operation.operation_group is None:
++            continue
++        intent = operation.model_dump(exclude={"path", "operation_group"})
++        previous = groups.setdefault(operation.operation_group, intent)
++        if previous != intent:
++            raise ValueError("inconsistent state mutation operation group")
+     return StateMutationJournal(
+         isolated_fields=(),
+         isolated_paths=(),
+-        operations=list(operations),
++        operations=operations,
+     )
+ 
+ 
+@@ -395,12 +487,29 @@ def _install_mutation_tracking(
+     paths: list[tuple[str, ...]],
+     journal: StateMutationJournal,
+ ) -> None:
+-    """Wrap only declared mutable leaves/parents with operation-recording views."""
++    """Preserve the branch's JSON graph while guarding every mutable neighbor.
++
++    Views do not expand the declared write paths.  A single memo reconciles
++    isolated descendants with aliases reached through other parents, so an
++    out-of-scope alias is checked before either location can change.
++    """
++    if journal.enforce_write_scope:
++        for field_name in _TOP_LEVEL_MUTABLE_FIELDS:
++            value = getattr(state, field_name, None)
++            if isinstance(value, dict):
++                _validate_mutation_attachment(None, value)
++                _set_path(state, (field_name,), _wrap_mutable_value(value, (field_name,), journal))
+     for parts in paths:
+         for length in range(1, len(parts)):
+             prefix = parts[:length]
+             parent = _get_path(state, prefix)
+-            if isinstance(parent, list) and not isinstance(parent, _TrackedList):
++            if isinstance(parent, dict) and not isinstance(parent, _TrackedDict):
++                _set_path(
++                    state,
++                    prefix,
++                    _TrackedDict(parent, path=prefix, journal=journal, recursive=False),
++                )
++            elif isinstance(parent, list) and not isinstance(parent, _TrackedList):
+                 _set_path(
+                     state,
+                     prefix,
+@@ -474,11 +583,15 @@ def _get_path(root: Any, parts: tuple[str, ...]) -> Any:
+ def _set_path(root: Any, parts: tuple[str, ...], value: Any) -> None:
+     if len(parts) == 1:
+         _set_child(root, parts[0], value)
++        if isinstance(root, BaseModel):
++            _bind_mutation_root(value, root, parts[0], parts)
+         return
+     parent = _get_path(root, parts[:-1])
+     if parent is _MISSING:
+         return
+     _set_child(parent, parts[-1], value)
++    if isinstance(parent, BaseModel):
++        _bind_mutation_root(value, parent, parts[-1], parts)
+ 
+ 
+ def _normalize_artifacts_index_ref(path: tuple[str, ...], value: Any) -> Any:
+@@ -502,9 +615,9 @@ class _TrackedDict(dict[str, Any]):
+         dict.__init__(self)
+         self._mutation_path = path
+         self._mutation_journal = journal
+-        self._mutation_parent = None
+-        self._mutation_owner_value = self
+-        self._mutation_owner_suffix = ()
++        self._mutation_owners = []
++        self._mutation_roots = []
++        journal._wrapped_values[id(values)] = (values, self)
+         for key, value in values.items():
+             dict.__setitem__(
+                 self,
+@@ -515,6 +628,7 @@ class _TrackedDict(dict[str, Any]):
+ 
+     def __setitem__(self, key: str, value: Any) -> None:
+         _authorize_container_mutation(self, suffixes=((str(key),),))
++        _validate_mutation_attachment(self, value)
+         previous = self.get(key, _MISSING)
+         value = _normalize_artifacts_index_ref(self._mutation_path, value)
+         wrapped = _wrap_mutable_value(
+@@ -546,9 +660,15 @@ class _TrackedDict(dict[str, Any]):
+     def update(self, *args: Any, **kwargs: Any) -> None:
+         values = dict(*args, **kwargs)
+         _authorize_container_mutation(self, suffixes=[(str(key),) for key in values])
++        for value in values.values():
++            _validate_mutation_attachment(self, value)
+         for key, value in values.items():
+             self[key] = value
+ 
++    def __ior__(self, values: Any) -> _TrackedDict:
++        self.update(values)
++        return self
++
+     def setdefault(self, key: str, default: Any = None) -> Any:
+         if key in self:
+             return self[key]
+@@ -602,9 +722,8 @@ class _TrackedDict(dict[str, Any]):
+         memo[id(self)] = clone
+         clone._mutation_path = self._mutation_path
+         clone._mutation_journal = self._mutation_journal
+-        clone._mutation_parent = None
+-        clone._mutation_owner_value = clone
+-        clone._mutation_owner_suffix = ()
++        clone._mutation_owners = []
++        clone._mutation_roots = []
+         dict.__init__(clone)
+         for key, value in self.items():
+             dict.__setitem__(clone, deepcopy(key, memo), deepcopy(value, memo))
+@@ -626,9 +745,9 @@ class _TrackedList(list[Any]):
+         list.__init__(self)
+         self._mutation_path = path
+         self._mutation_journal = journal
+-        self._mutation_parent = None
+-        self._mutation_owner_value = self
+-        self._mutation_owner_suffix = ()
++        self._mutation_owners = []
++        self._mutation_roots = []
++        journal._wrapped_values[id(values)] = (values, self)
+         for index, value in enumerate(values):
+             list.append(
+                 self,
+@@ -640,6 +759,8 @@ class _TrackedList(list[Any]):
+         _authorize_container_mutation(self)
+         if isinstance(index, slice):
+             values = list(value)
++            for child in values:
++                _validate_mutation_attachment(self, child)
+             list.__setitem__(
+                 self,
+                 index,
+@@ -664,6 +785,7 @@ class _TrackedList(list[Any]):
+                 target=self,
+             )
+             return
++        _validate_mutation_attachment(self, value)
+         list.__setitem__(
+             self,
+             index,
+@@ -704,6 +826,7 @@ class _TrackedList(list[Any]):
+ 
+     def append(self, value: Any) -> None:
+         _authorize_container_mutation(self)
++        _validate_mutation_attachment(self, value)
+         list.append(
+             self,
+             _wrap_mutable_value(
+@@ -723,11 +846,14 @@ class _TrackedList(list[Any]):
+     def extend(self, values: Iterable[Any]) -> None:
+         _authorize_container_mutation(self)
+         values_list = list(values)
++        for value in values_list:
++            _validate_mutation_attachment(self, value)
+         for value in values_list:
+             self.append(value)
+ 
+     def insert(self, index: int, value: Any) -> None:
+         _authorize_container_mutation(self)
++        _validate_mutation_attachment(self, value)
+         list.insert(
+             self,
+             index,
+@@ -807,9 +933,8 @@ class _TrackedList(list[Any]):
+         memo[id(self)] = clone
+         clone._mutation_path = self._mutation_path
+         clone._mutation_journal = self._mutation_journal
+-        clone._mutation_parent = None
+-        clone._mutation_owner_value = clone
+-        clone._mutation_owner_suffix = ()
++        clone._mutation_owners = []
++        clone._mutation_roots = []
+         list.__init__(clone)
+         for value in self:
+             list.append(clone, deepcopy(value, memo))
+@@ -817,6 +942,13 @@ class _TrackedList(list[Any]):
+         return clone
+ 
+ 
++def _bind_mutation_root(value: Any, model: BaseModel, name: str, path: tuple[str, ...]) -> None:
++    if isinstance(value, (_TrackedDict, _TrackedList)) and not any(
++        root is model and field == name for root, field, _ in value._mutation_roots
++    ):
++        value._mutation_roots.append((model, name, path))
++
++
+ def _bind_mutation_parent(
+     value: Any,
+     parent: _TrackedDict | _TrackedList,
+@@ -828,9 +960,12 @@ def _bind_mutation_parent(
+     if isinstance(value, (_TrackedDict, _TrackedList)):
+         if value._mutation_journal is not parent._mutation_journal:
+             return
+-        value._mutation_parent = parent
+-        value._mutation_owner_value = value if owner_value is _MISSING else owner_value
+-        value._mutation_owner_suffix = suffix
++        member = value if owner_value is _MISSING else owner_value
++        if not any(
++            owner is parent and owned_value is member and owned_suffix == suffix
++            for owner, owned_value, owned_suffix in value._mutation_owners
++        ):
++            value._mutation_owners.append((parent, member, suffix))
+     elif isinstance(value, tuple):
+         for index, child in enumerate(value):
+             _bind_mutation_parent(
+@@ -848,13 +983,40 @@ def _current_mutation_paths(
+     """Resolve every live location, or none for a removed descendant view."""
+     if id(value) in seen:
+         return []
+-    parent = value._mutation_parent
+-    if parent is None:
++    if not value._mutation_owners and not value._mutation_roots:
+         return [value._mutation_path]
+-    parent_paths = _current_mutation_paths(parent, seen | {id(value)})
+-    members = parent.items() if isinstance(parent, dict) else enumerate(parent)
+-    keys = [str(key) for key, child in members if child is value._mutation_owner_value]
+-    return [(*path, key, *value._mutation_owner_suffix) for path in parent_paths for key in keys]
++    paths = [
++        path
++        for model, name, path in value._mutation_roots
++        if getattr(model, name, _MISSING) is value
++    ]
++    for parent, owner_value, suffix in value._mutation_owners:
++        parent_paths = _current_mutation_paths(parent, seen | {id(value)})
++        members = parent.items() if isinstance(parent, dict) else enumerate(parent)
++        keys = [str(key) for key, child in members if child is owner_value]
++        paths.extend((*path, key, *suffix) for path in parent_paths for key in keys)
++    return list(dict.fromkeys(paths))
++
++
++def _validate_mutation_attachment(
++    container: _TrackedDict | _TrackedList | None, value: Any
++) -> None:
++    """Reject a cyclic attachment before changing the finite owned JSON graph."""
++
++    def visit(child: Any, ancestors: frozenset[int]) -> None:
++        if isinstance(child, (set, bytearray)):
++            raise TypeError("state mutation journaling requires a finite JSON container graph")
++        if container is not None and child is container:
++            raise ValueError("cyclic state mutation attachment")
++        if not isinstance(child, (dict, list, tuple)):
++            return
++        if id(child) in ancestors:
++            raise ValueError("cyclic state mutation value")
++        nested = child.values() if isinstance(child, dict) else child
++        for item in nested:
++            visit(item, ancestors | {id(child)})
++
++    visit(value, frozenset())
+ 
+ 
+ def _authorize_container_mutation(
+@@ -863,7 +1025,10 @@ def _authorize_container_mutation(
+     suffixes: Iterable[tuple[str, ...]] = ((),),
+ ) -> None:
+     """Refuse a moved or aliased live target before changing any branch bytes."""
++    if not container._mutation_journal.enforce_write_scope:
++        return
+     declared = [tuple(path.split(".")) for path in container._mutation_journal.isolated_paths]
++    suffixes = tuple(suffixes)
+     paths = [(*path, *suffix) for path in _current_mutation_paths(container) for suffix in suffixes]
+     unauthorized = [
+         path for path in paths if not any(_is_path_prefix(write, path) for write in declared)
+@@ -881,8 +1046,10 @@ def _record_container_mutation(
+     **kwargs: Any,
+ ) -> None:
+     """Journal an intent against the current live state, preserving list aliases."""
+-    for path in _current_mutation_paths(container):
+-        container._mutation_journal.record(path=(*path, *suffix), **kwargs)
++    paths = _current_mutation_paths(container)
++    group = len(container._mutation_journal.operations) if len(paths) > 1 else None
++    for path in paths:
++        container._mutation_journal.record(path=(*path, *suffix), operation_group=group, **kwargs)
+ 
+ 
+ def _wrap_mutable_value(
+@@ -892,18 +1059,16 @@ def _wrap_mutable_value(
+     *,
+     recursive: bool = True,
+ ) -> Any:
+-    if isinstance(value, _TrackedDict):
+-        if value._mutation_journal is journal and value._mutation_path == path:
+-            return value
+-        return _TrackedDict(dict(value), path=path, journal=journal, recursive=recursive)
++    value = journal._isolated_values.get(id(value), value)
++    if isinstance(value, (_TrackedDict, _TrackedList)) and value._mutation_journal is journal:
++        return value
++    existing = journal._wrapped_values.get(id(value))
++    if existing is not None and existing[0] is value:
++        return existing[1]
+     if isinstance(value, dict):
+         return _TrackedDict(value, path=path, journal=journal, recursive=recursive)
+-    if isinstance(value, _TrackedList):
+-        if value._mutation_journal is journal and value._mutation_path == path:
+-            return value
+-        return _TrackedList(list(value), path=path, journal=journal)
+     if isinstance(value, list):
+-        return _TrackedList(value, path=path, journal=journal)
++        return _TrackedList(value, path=path, journal=journal, recursive=recursive)
+     if isinstance(value, tuple):
+         return tuple(
+             _wrap_mutable_value(item, (*path, str(index)), journal)
+diff --git a/policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py b/policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py
+index 638cfce7e..5a5eb7588 100644
+--- a/policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py
++++ b/policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py
+@@ -85,6 +85,7 @@ class _StagedWrite:
+     ordinal: int | None = None
+     expected_target_presence: StateMutationTargetPresence | None = None
+     expected_target_kind: StateMutationTargetKind | None = None
++    operation_group: int | None = None
+ 
+ 
+ @dataclass(frozen=True)
+@@ -149,7 +150,22 @@ def merge_parallel_outcomes(
+         base_state,
+         write_paths=(write.path for write in accepted),
+     ).state
++    applied_targets: set[tuple[str, int, int, str | None]] = set()
+     for write in sorted(accepted, key=_write_order_key):
++        if write.operation_group is not None:
++            target = _get_path(
++                merged,
++                write.parts[:-1]
++                if write.operation in {"set", "delete", "replace"}
++                else write.parts,
++            )
++            target_key = (
++                write.parts[-1] if write.operation in {"set", "delete", "replace"} else None
++            )
++            group_target = (write.alias, write.operation_group, id(target), target_key)
++            if group_target in applied_targets:
++                continue
++            applied_targets.add(group_target)
+         _apply_staged_write(merged, write)
+ 
+     return MergeResult(
+@@ -294,6 +310,7 @@ def _writes_from_mutations(
+                 ordinal=ordinal,
+                 expected_target_presence=mutation.target_presence,
+                 expected_target_kind=mutation.target_kind,
++                operation_group=mutation.operation_group,
+             )
+         )
+     return staged
+@@ -488,8 +505,7 @@ def _validate_target_precondition(root: ExperimentState, write: _StagedWrite) ->
+     if actual_kind != write.expected_target_kind:
+         raise StateReplayIncompatible(
+             write.path,
+-            f"operation target kind changed from {write.expected_target_kind!r} "
+-            f"to {actual_kind!r}",
++            f"operation target kind changed from {write.expected_target_kind!r} to {actual_kind!r}",
+         )
+ 
+ 

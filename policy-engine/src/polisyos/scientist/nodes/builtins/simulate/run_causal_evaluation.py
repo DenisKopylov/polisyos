@@ -25,7 +25,6 @@ from polisyos.foundry.methods import MethodRegistry
 from polisyos.foundry.methods.catalog import (
     ensure_all_methods_registered as ensure_causal_methods_registered,
 )
-from polisyos.foundry.methods.catalog.causal.treatment_effects import TMLEEstimator
 from polisyos.foundry.methods.causal import (
     DoWhyIdentifyEstimate,
     GraphCausalData,
@@ -35,6 +34,7 @@ from polisyos.foundry.methods.causal import (
     RDDObservationalData,
     StaggeredDifferenceInDifferences,
     StandardDifferenceInDifferences,
+    TMLEEstimator,
 )
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,

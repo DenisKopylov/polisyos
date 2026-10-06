@@ -201,14 +201,57 @@ def _eval_safety_blocker(name: str) -> str:
     return f"{_EVAL_SAFETY_BLOCKER_PREFIX}.{name}@1.0.0"
 
 
-def _actual_causal_input_identities(state: ExperimentState) -> tuple[tuple[str, str], ...]:
-    refs = (
-        state.observational_data_ref,
-        state.inputs.get(INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF),
-        state.inputs.get(INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF),
-        state.artifacts_index.get(_UKRAINE_INTAKE_RECEIPT_KEY),
+def _actual_causal_input_identities(
+    state: ExperimentState, *, store: core_artifacts.ArtifactStore
+) -> tuple[tuple[str, str], ...]:
+    """Resolve the complete input set under the maintained CAS byte-hash profile.
+
+    This is input identity only. PDC semantic hashes and evaluation authority
+    require their respective owner contracts; neither is inferred from a ref.
+    """
+    if state.observational_data_ref is None:
+        raise ValueError("causal observational source missing")
+    optional = (
+        (
+            state.inputs.get(INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF),
+            "foundry.ukraine_method_input",
+        ),
+        (
+            state.inputs.get(INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF),
+            "foundry.ukraine_method_input_bundle",
+        ),
+        (state.artifacts_index.get(_UKRAINE_INTAKE_RECEIPT_KEY), "foundry.ukraine_intake_receipt"),
     )
-    return tuple((str(ref.artifact_id), str(ref.artifact_id)) for ref in refs if ref is not None)
+    if any(ref is not None for ref, _ in optional) and not all(
+        ref is not None for ref, _ in optional
+    ):
+        raise ValueError("causal staged input set incomplete")
+    resolved: list[tuple[str, str]] = []
+    for offered, expected_kind in ((state.observational_data_ref, None), *optional):
+        if offered is None:
+            continue
+        ref = _to_core_artifact_ref(offered)
+        assert ref is not None
+        # Exact typed views matter when several manifests share physical bytes.
+        raw = store.get_bytes(ref)
+        manifest = core_artifacts.ArtifactManifest.model_validate(store.get_manifest(ref))
+        digest = sha256(raw).hexdigest()
+        if (
+            str(manifest.artifact_id) != str(ref.artifact_id)
+            or manifest.kind != ref.kind
+            or manifest.media_type != ref.media_type
+            or ref.media_type != "application/json"
+            or (expected_kind is not None and ref.kind != expected_kind)
+            or manifest.integrity.sha256 != digest
+            or manifest.byte_size != len(raw)
+            or str(ref.artifact_id) != "sha256:" + digest
+            or not store.verify(ref).ok
+        ):
+            raise ValueError("causal input byte/manifest identity mismatch")
+        resolved.append((str(ref.artifact_id), "sha256:" + digest))
+    if len(resolved) != len({identity for identity, _ in resolved}):
+        raise ValueError("causal input references duplicated")
+    return tuple(resolved)
 
 
 def _causal_evaluation_safety_blockers(
@@ -227,7 +270,10 @@ def _causal_evaluation_safety_blockers(
     if context.evaluator_owner_id != evaluator_owner_id:
         return (_eval_safety_blocker("evaluator_owner_mismatch"),)
 
-    actual_identities = _actual_causal_input_identities(state)
+    try:
+        actual_identities = _actual_causal_input_identities(state, store=ctx.store)
+    except _CAUSAL_EVALUATION_LOAD_ERRORS:
+        return (_eval_safety_blocker("execution_input_resolution_failed"),)
     context_identities = tuple(
         (ref.artifact_id, ref.content_hash) for ref in context.evaluation_input_refs
     )

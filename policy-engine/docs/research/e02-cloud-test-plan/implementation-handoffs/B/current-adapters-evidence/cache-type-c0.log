@@ -1,0 +1,20 @@
+{"target_sha": "c0c7b6f815096dc4642c093b9ef6f4bf27b649ac", "driver_sha256": "85d55ba065e9cc6c5ee05e401d9d4fe7943a5fe7058f37d1d1c6e031450a8958", "module_file": "/workspace/e02-B-current-adapters/policy-engine/src/polisyos/core/llm/response.py", "module_sha256": "62221768c47cda348a088097f466b6c454d48247bfd2e43ead1df2900884ed25", "fixture_sha256": "807107849835c67abf9b789b3e4373a9144beef9c02e6d7984c25955dbc44f46"}
+2026-10-06 11:08:02.145 | DEBUG    | polisyos.common.logger:_call:120 - Prompt cache miss model=e02 key=306b48bc4ddd
+{"physical_provider_calls": 1, "spent": "0", "cache_size": 1, "event_kind": "reuse", "ack_status": "committed", "ack_durability": "ledger", "receipt_count": 0, "provider_metrics_events": 0}
+Traceback (most recent call last):
+  File "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/cache-type-probe.py", line 30, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/workspace/e02-B-current-adapters/policy-engine/_build/e02-B-current-adapters/raw/cache-type-probe.py", line 29, in main
+    assert value["spent"]=="0.02" and value["event_kind"]=="provider" and value["receipt_count"]==1, "a type name supplied by a paid provider is not cache-owned billing authority"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: a type name supplied by a paid provider is not cache-owned billing authority

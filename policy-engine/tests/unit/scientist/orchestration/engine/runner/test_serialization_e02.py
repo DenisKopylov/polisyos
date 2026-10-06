@@ -4,15 +4,19 @@ from __future__ import annotations
 
 import hashlib
 import json
+import multiprocessing
+import os
 from decimal import Decimal
 
 import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
     NodeOutcome,
+    NodeSpec,
     OutputAwareNodeOutcome,
 )
 from polisyos.scientist.orchestration.engine.runner import serialization as wire
@@ -93,6 +97,92 @@ def test_output_aware_outcome_remains_typed(backend) -> None:
     restored = wire.deserialize_outcome(wire.serialize_outcome(outcome))
     assert type(restored) is OutputAwareNodeOutcome
     _assert_budgets(outcome.state, restored.state)
+
+
+def test_real_worker_process_consumes_state_and_emits_exact_typed_outcome(
+    backend, tmp_path, monkeypatch
+):
+    """Exercise the actual remote worker bridge, not a direct codec-only loop."""
+    from polisyos.scientist.orchestration.engine.runner._activity_worker import (
+        run_node_in_worker_sync,
+    )
+
+    physical_attempts = tmp_path / "attempts.jsonl"
+    original = _state()
+
+    class DecimalWorkerNode:
+        spec = NodeSpec(
+            metadata=ComponentMetadata(
+                component_id=ComponentId.parse("scientist.node_decimal_transport@1.0.0"),
+                kind=ComponentKind.SCIENTIST_NODE,
+                abi_targets={"world_abi": "1.x"},
+                display_name="DecimalTransport",
+                description="Physical Decimal transport probe",
+                tags=["test"],
+                capabilities=Capability.SCIENTIST_NODE,
+            ),
+            state_reads=["budgets"],
+            state_writes=[],
+        )
+
+        def execute(self, ctx, state):
+            for key, value in original.budgets.items():
+                assert type(state.budgets[key]) is Decimal
+                assert state.budgets[key].as_tuple() == value.as_tuple()
+            with physical_attempts.open("a") as output:
+                output.write(
+                    json.dumps({"pid": os.getpid(), "ppid": os.getppid(), "run_id": state.run_id})
+                    + "\n"
+                )
+            return NodeOutcome(status="ok", state=state, events=[], artifacts=[])
+
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.engine.registry.discover_nodes",
+        lambda registry: registry.register(DecimalWorkerNode()),
+    )
+    payload = {
+        "node_id": "scientist.node_decimal_transport@1.0.0",
+        "alias": "decimal",
+        "state_bytes": wire.serialize_state(original),
+        "timeout_s": 2.0,
+        "context_meta": {
+            "run_id": original.run_id,
+            "store_config": {"backend": "filesystem", "root": str(tmp_path / "store")},
+        },
+    }
+    parent, child = multiprocessing.get_context("fork").Pipe()
+
+    def worker():
+        try:
+            child.send(("result", run_node_in_worker_sync(payload)))
+        except BaseException as error:
+            child.send(("error", repr(error)))
+        finally:
+            child.close()
+
+    process = multiprocessing.get_context("fork").Process(target=worker)
+    process.start()
+    child.close()
+    try:
+        assert parent.poll(10.0), "actual worker did not emit an outcome"
+        kind, actual_bytes = parent.recv()
+        assert kind == "result", actual_bytes
+        restored = wire.deserialize_outcome(actual_bytes)
+        assert restored.status == "ok"
+        _assert_budgets(original, restored.state)
+        attempts = [json.loads(line) for line in physical_attempts.read_text().splitlines()]
+        assert len(attempts) == 1
+        assert attempts[0]["run_id"] == original.run_id
+        assert attempts[0]["ppid"] == process.pid  # The real retry owner forks the node attempt.
+        assert attempts[0]["pid"] not in {os.getpid(), process.pid}
+        assert process.pid != os.getpid()
+    finally:
+        process.join(10.0)
+        if process.is_alive():
+            process.terminate()
+            process.join(5.0)
+        parent.close()
+    assert process.exitcode == 0
 
 
 @pytest.mark.parametrize(

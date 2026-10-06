@@ -215,9 +215,9 @@ def test_real_persisted_binding_missing_and_malformed_fields_are_typed_refusals(
     # Self-consistent hashes/version markers must not turn malformed JSON scalars
     # into numerical evidence at the persisted consumer boundary.
     for key, values in {
-        "point": ["2.0", True],
+        "point": ["2.0", True, 10**1000],
         "standard_error": ["0.1", False],
-        "interval": [["1.0", "3.0"], [True, 3.0]],
+        "interval": [["1.0", "3.0"], [True, 3.0], [0, 10**1000]],
         "control_value": [False],
         "treatment_value": [True],
     }.items():

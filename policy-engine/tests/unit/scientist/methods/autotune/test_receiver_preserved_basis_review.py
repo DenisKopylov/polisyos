@@ -103,7 +103,9 @@ def test_cold_registry_refuses_raw_wrong_types_with_complete_consumed_basis(
         ),
     )
     candidate_ref = persist_mutation_artifact(
-        store, ReviewMutation(loop_id="receiver-review", x=0.0)
+        store,
+        ReviewMutation(loop_id="receiver-review", x=0.0),
+        inputs=[artifacts.input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
     )
     policy = PromotionPolicy(
         loop_id="receiver-review",

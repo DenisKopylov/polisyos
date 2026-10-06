@@ -608,6 +608,7 @@ async def test_invalid_accounting_target_index_refuses_before_actual_provider_or
             budget_keys=keys,
             budget_middleware=middleware,
             model_name="e02",
+            run_id="invalid-target-index",
         )
         await owner.generate(
             user="invalid target index", temperature=0.0, _prompt_tokens_estimate=1

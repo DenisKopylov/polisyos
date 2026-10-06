@@ -408,6 +408,7 @@ class TestLLMBudgetEnforcer:
             model_name="test-model",
             audit_log=audit,
             budget_middleware=middleware,
+            run_id="entered-provider-failure",
         )
 
         with (

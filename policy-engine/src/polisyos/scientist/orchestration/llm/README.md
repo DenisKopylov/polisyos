@@ -68,6 +68,9 @@ not invent zero cost or blindly append a replacement act. A plain `BudgetState` 
 accounting. Existing deployment call sites and the factory must explicitly compose initialized
 middleware to obtain the durable profile; these capabilities do not imply a deployed billing or
 institutional reuse-authority contract.
+The durable profile requires an explicit nonempty `run_id` on the constructor or the existing
+per-call `_run_id` input; absence refuses before reservation/provider work. The library does not
+invent a run identity for a missing operational scope.
 The factory's traced client refuses delegated streaming when required accounting is configured;
 streaming is not a supported financial completion port in this profile. Unmanaged streaming is
 outside these completion receipts.

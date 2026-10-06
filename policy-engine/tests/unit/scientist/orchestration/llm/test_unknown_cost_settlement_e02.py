@@ -57,6 +57,7 @@ _UNKNOWN = (
     "cost-accessor-fault",
     "positive-cost-underflow",
     "negative-cost-underflow",
+    "input-token-accessor-fault",
 )
 _KNOWN = (
     "reported-positive",
@@ -123,6 +124,22 @@ def _assert_source_custody() -> list[dict[str, Any]]:
 def _actual_response(kind: str, model: str) -> Any:
     if kind == "none-response":
         return None
+    if kind == "input-token-accessor-fault":
+
+        class UnavailableInput:
+            content = "actual completed response"
+            provider = "synthetic-operation"
+            request_id = "actual-provider-request"
+            completion_tokens = 3
+            raw = None
+
+            @property
+            def input_tokens(self) -> int:
+                raise OSError("obtained input-token evidence is inaccessible")
+
+        actual = UnavailableInput()
+        actual.model = model
+        return actual
     if kind == "cost-accessor-fault":
 
         class UnavailableCost:
@@ -214,14 +231,16 @@ class _PhysicalProvider:
         self.started = asyncio.Event()
         self.release = asyncio.Event()
 
-    async def generate(self, **kwargs: Any) -> Any:
+    def _write_actual_work(self, kwargs: dict[str, Any]) -> None:
         self.calls += 1
         with self.path.open("a", encoding="utf-8") as stream:
             stream.write(json.dumps({"call": self.calls, "request": kwargs}) + "\n")
             stream.flush()
             os.fsync(stream.fileno())
-        self.started.set()
-        await self.release.wait()
+
+    def _complete(self) -> Any:
+        if self.kind == "entered-provider-error":
+            raise RuntimeError("provider completion unavailable after actual work")
         self.response = _actual_response(self.kind, self.model)
         parsed = extract_llm_response_data(self.response)
         self.input_summary = {
@@ -236,6 +255,19 @@ class _PhysicalProvider:
             "raw_is_none": getattr(self.response, "raw", None) is None,
         }
         return self.response
+
+    async def generate(self, **kwargs: Any) -> Any:
+        self._write_actual_work(kwargs)
+        self.started.set()
+        await self.release.wait()
+        return self._complete()
+
+    def invoke(self, prompt: str, **kwargs: Any) -> Any:
+        self._write_actual_work({"prompt": prompt, **kwargs})
+        return self._complete()
+
+    async def ainvoke(self, prompt: str, **kwargs: Any) -> Any:
+        return await self.generate(prompt=prompt, **kwargs)
 
 
 def _event_view(event: Any) -> dict[str, Any]:
@@ -258,6 +290,7 @@ async def _exercise(
     cancelled: bool,
     *,
     reopened_owner: bool = False,
+    direct_cache: bool = False,
 ) -> tuple[Any, dict[str, Any]]:
     source_origins = _assert_source_custody()
     model = "configured-free-model" if kind == "priced-free-usage" else "gpt-4o"
@@ -285,7 +318,7 @@ async def _exercise(
         ledger=ledger,
     )
     enforcer = LLMBudgetEnforcer(
-        client=traced,
+        client=cache if direct_cache else traced,
         budget_state=middleware.budget_state,
         budget_keys=["run"],
         budget_middleware=middleware,
@@ -383,6 +416,7 @@ async def _exercise(
     output = {
         "profile": kind,
         "caller_cancelled": cancelled,
+        "direct_cache_without_traced": direct_cache,
         "source_origins": source_origins,
         "provider_calls": provider.calls,
         "actual_provider_work": work,
@@ -496,7 +530,7 @@ def test_factory_streaming_cannot_bypass_configured_completion(
     )
 
 
-@pytest.mark.parametrize("kind", _UNKNOWN[:4])
+@pytest.mark.parametrize("kind", _UNKNOWN)
 @pytest.mark.parametrize("cancelled", [False, True])
 def test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_provider(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, kind: str, cancelled: bool
@@ -513,4 +547,143 @@ def test_unknown_completion_blocks_reopened_intersecting_owner_before_actual_pro
     assert reopened["different_key_ack_status"] == "committed"
     assert not output["actual_acks"] and not output["fresh_ledger_snapshot"]["state"]["spent"].get(
         "run"
+    )
+
+
+@pytest.mark.parametrize("kind", _UNKNOWN)
+@pytest.mark.parametrize("cancelled", [False, True])
+def test_direct_cache_unknown_error_retires_owned_intent_into_pending_completion(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, kind: str, cancelled: bool
+) -> None:
+    result, output = asyncio.run(
+        _exercise(tmp_path, monkeypatch, kind, cancelled, reopened_owner=True, direct_cache=True)
+    )
+    assert isinstance(result, LLMAccountingError)
+    assert result.response is not None or kind == "none-response"
+    assert result.event["producer_event"].amount is None
+    assert output["cache_entries"] == 0 and not output["actual_acks"]
+    pending = output["fresh_ledger_snapshot"]["completion_obligations"]
+    assert len(pending) == 1
+    assert next(iter(pending.values()))["phase"] == "cost_unknown"
+    assert output["reopened_owner"]["same_key_actual_provider_calls"] == 1
+    assert output["reopened_owner"]["same_key_result_exception"] == "LLMAccountingError"
+
+
+@pytest.mark.parametrize("route", ["generate", "invoke", "ainvoke"])
+@pytest.mark.parametrize("kind", ["sdk-missing-usage", "entered-provider-error", "reported-zero"])
+def test_supported_accounting_ports_preserve_actual_work_knowledge_and_owner_gate(
+    tmp_path: Path, kind: str, route: str
+) -> None:
+    _assert_source_custody()
+    provider = _PhysicalProvider(tmp_path, kind, "gpt-4o")
+    provider.release.set()
+    client = TracedLLMClient(
+        provider,
+        model_name="gpt-4o",
+        tracer=SimpleNamespace(start_as_current_span=lambda *_a, **_k: _Span()),
+        metrics=SimpleNamespace(record_llm_call=lambda **_k: None),
+    )
+    path = tmp_path / "port-ledger.json"
+    middleware = BudgetMiddleware(
+        BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}),
+        ledger=FileBudgetLedger(path),
+    )
+    owner = LLMBudgetEnforcer(
+        client=client,
+        budget_state=middleware.budget_state,
+        budget_keys=["run"],
+        budget_middleware=middleware,
+        model_name="gpt-4o",
+        run_id="real-port-knowledge",
+    )
+
+    def call(target: LLMBudgetEnforcer) -> Any:
+        kwargs = {"_prompt_tokens_estimate": 1, "max_tokens": 2}
+        if route == "invoke":
+            return target.invoke("actual request", **kwargs)
+        if route == "ainvoke":
+            return asyncio.run(target.ainvoke("actual request", **kwargs))
+        return asyncio.run(target.generate(user="actual request", **kwargs))
+
+    if kind == "reported-zero":
+        settled = producer_settlement(call(owner))
+        assert settled.event.amount == 0 and settled.ack.status == "committed"
+    else:
+        with pytest.raises(LLMAccountingError) as error:
+            call(owner)
+        assert error.value.event["producer_event"].amount is None
+        sibling = LLMBudgetEnforcer(
+            client=client,
+            budget_state=middleware.budget_state,
+            budget_keys=["run"],
+            budget_middleware=middleware,
+            model_name="gpt-4o",
+            run_id="same-live-owner-sibling",
+        )
+        with pytest.raises(LLMAccountingError):
+            call(sibling)
+    snapshot = FileBudgetLedger(path).snapshot()
+    print(
+        "B66_PUBLIC_PORT "
+        + json.dumps(
+            {
+                "route": route,
+                "kind": kind,
+                "provider_calls": provider.calls,
+                "actual_work": provider.path.read_text(),
+                "fresh_ledger": snapshot.model_dump(mode="json"),
+            }
+        )
+    )
+    assert provider.calls == len(provider.path.read_text().splitlines()) == 1
+    if kind != "reported-zero":
+        assert not snapshot.spend_receipts and snapshot.state.reserved["run"] > 0
+        assert next(iter(snapshot.completion_obligations.values())).phase == "cost_unknown"
+
+
+def test_durable_missing_run_refuses_before_work_without_inventing_scope(tmp_path: Path) -> None:
+    _assert_source_custody()
+    provider = _PhysicalProvider(tmp_path, "reported-positive", "gpt-4o")
+    provider.release.set()
+    path = tmp_path / "explicit-run-ledger.json"
+    middleware = BudgetMiddleware(
+        BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}),
+        ledger=FileBudgetLedger(path),
+    )
+    owner = LLMBudgetEnforcer(
+        client=TracedLLMClient(
+            provider,
+            model_name="gpt-4o",
+            tracer=SimpleNamespace(start_as_current_span=lambda *_a, **_k: _Span()),
+            metrics=SimpleNamespace(record_llm_call=lambda **_k: None),
+        ),
+        budget_state=middleware.budget_state,
+        budget_keys=["run"],
+        budget_middleware=middleware,
+        model_name="gpt-4o",
+    )
+    before = path.read_bytes()
+    with pytest.raises(ValueError, match="explicit nonempty run_id"):
+        asyncio.run(owner.generate(user="no known run", _prompt_tokens_estimate=1, max_tokens=2))
+    assert path.read_bytes() == before and provider.calls == 0 and not provider.path.exists()
+    result = asyncio.run(
+        owner.generate(
+            user="explicit actual run",
+            _run_id="owner-supplied-run",
+            _prompt_tokens_estimate=1,
+            max_tokens=2,
+        )
+    )
+    settled = producer_settlement(result)
+    assert settled.ack.status == "committed" and settled.event.amount == Decimal("0.02")
+    assert provider.calls == 1
+    print(
+        "B66_EXPLICIT_RUN "
+        + json.dumps(
+            {
+                "before_missing_run_provider_calls": 0,
+                "actual_provider_calls": provider.calls,
+                "fresh_ledger": FileBudgetLedger(path).snapshot().model_dump(mode="json"),
+            }
+        )
     )

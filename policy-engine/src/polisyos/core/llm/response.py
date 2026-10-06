@@ -66,16 +66,18 @@ def extract_llm_response_data(response: Any) -> LLMResponseData:
     usage = _field(response, "usage")
     prompt_value = _field(usage, "prompt_tokens")
     completion_value = _field(usage, "completion_tokens")
-    if usage is None and hasattr(response, "input_tokens"):
+    if usage is None:
         prompt_value = _field(response, "input_tokens")
         completion_value = _field(response, "output_tokens")
     prompt_count = _usage_token(prompt_value)
     completion_count = _usage_token(completion_value)
     usage_status: LLMUsageStatus = "known"
-    if prompt_value is None or completion_value is None:
-        usage_status = "missing"
-    elif prompt_count is None or completion_count is None:
+    if (prompt_value is not None and prompt_count is None) or (
+        completion_value is not None and completion_count is None
+    ):
         usage_status = "invalid"
+    elif prompt_value is None or completion_value is None:
+        usage_status = "missing"
     declared_usage = _field(usage, "usage_status")
     if declared_usage in ("missing", "invalid"):
         usage_status = declared_usage

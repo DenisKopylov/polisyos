@@ -241,8 +241,10 @@ class LLMBudgetEnforcer:
                     cause=RuntimeError("persisted budget completion obligation is unresolved"),
                 )
             self._budget_state = self._budget_middleware.budget_state
-        estimated = self._estimate_cost(kwargs)
         run_id = kwargs.get("_run_id", self._run_id)
+        if self._budget_middleware is not None and (not isinstance(run_id, str) or not run_id):
+            raise ValueError("durable LLM accounting requires an explicit nonempty run_id")
+        estimated = self._estimate_cost(kwargs)
 
         reserved_keys: list[str] = []
         reservation = _BudgetReservation(
@@ -600,6 +602,15 @@ class LLMBudgetEnforcer:
         )
 
         existing = self._completion_records.get(obligation_id)
+        if existing is not None:
+            # A prior publication can have replaced the file and lost its ACK,
+            # or failed before replacement. Resolve the actual old/new record
+            # before an exact CAS transition; local intended bytes are not proof
+            # that the filesystem published that phase.
+            persisted = self._budget_middleware.list_completion_obligations_safe(self._budget_keys)
+            existing = next(
+                (record for record in persisted if record.obligation_id == obligation_id), None
+            )
         body = (
             self._event_body(event)
             if event is not None
@@ -1042,22 +1053,31 @@ class LLMBudgetEnforcer:
         return await asyncio.shield(task)
 
     def _retain_failed_attempt(
-        self, reservation: _BudgetReservation, run_id: str, cause: BaseException
+        self,
+        reservation: _BudgetReservation,
+        run_id: str,
+        cause: BaseException,
+        *,
+        obtained_response: Any = None,
     ) -> LLMAccountingError:
         observed = next(
             (event for event, owned in self._unknown_settlements.values() if owned is reservation),
             None,
         )
+        parsed = extract_llm_response_data(obtained_response)
+        amount, cost_origin = _completion_amount(parsed, self._model_name)
         event = observed or LLMProducerEvent(
             event_id=reservation.attempt_id,
             request_digest=reservation.request_digest,
-            response_digest=_request_digest({"completion_failure_type": type(cause).__qualname__}),
-            model=self._model_name,
-            provider="unknown",
-            amount=None,
-            cost_origin="unknown",
+            response_digest=_request_digest(
+                {"content": parsed.content, "completion_failure_type": type(cause).__qualname__}
+            ),
+            model=parsed.model or self._model_name,
+            provider=parsed.provider or "unknown",
+            amount=amount,
+            cost_origin=cost_origin,
         )
-        response = self._retained_responses.get(event.event_id)
+        response = self._retained_responses.get(event.event_id, obtained_response)
         self._unknown_settlements[event.event_id] = (event, reservation)
         self._retained_responses[event.event_id] = response
         self._retained_run_ids[event.event_id] = run_id
@@ -1146,7 +1166,15 @@ class LLMBudgetEnforcer:
             except Exception:
                 logger.warning("Optional LLM latency metrics sink failed")
             return response
-        except LLMAccountingError:
+        except LLMAccountingError as exc:
+            if (
+                reservation.provider_started
+                and not committed
+                and not any(owned is reservation for _, owned in self._unknown_settlements.values())
+            ):
+                raise self._retain_failed_attempt(
+                    reservation, run_id, exc.cause, obtained_response=exc.response
+                ) from exc
             raise
         except BaseException as exc:
             if reservation.provider_started and not committed:
@@ -1211,7 +1239,15 @@ class LLMBudgetEnforcer:
             except Exception:
                 logger.warning("Optional LLM latency metrics sink failed")
             return response
-        except LLMAccountingError:
+        except LLMAccountingError as exc:
+            if (
+                reservation.provider_started
+                and not committed
+                and not any(owned is reservation for _, owned in self._unknown_settlements.values())
+            ):
+                raise self._retain_failed_attempt(
+                    reservation, run_id, exc.cause, obtained_response=exc.response
+                ) from exc
             raise
         except BaseException as exc:
             if reservation.provider_started and not committed:

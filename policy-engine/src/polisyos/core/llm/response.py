@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal
+from math import isfinite
 from typing import Any
+
+
+class _InvalidLLMCostError(ValueError):
+    """A present provider cost is invalid; it cannot become absent or zero."""
 
 
 @dataclass(frozen=True)
@@ -56,21 +61,9 @@ def extract_llm_response_data(response: Any) -> LLMResponseData:
 
     try:
         usage = getattr(response, "usage", None)
-        if usage is not None:
-            origin_prompt_tokens = int(getattr(usage, "prompt_tokens", 0) or 0)
-            origin_completion_tokens = int(getattr(usage, "completion_tokens", 0) or 0)
-            cost_usd = _extract_cost_usd(
-                usage=usage,
-                payload=response,
-            )
-        elif isinstance(response, dict):
-            usage = response.get("usage", {})
-            origin_prompt_tokens = int(usage.get("prompt_tokens", 0) or 0)
-            origin_completion_tokens = int(usage.get("completion_tokens", 0) or 0)
-            cost_usd = _extract_cost_usd(usage=usage, payload=response)
-        elif hasattr(response, "input_tokens"):
-            origin_prompt_tokens = int(getattr(response, "input_tokens", 0) or 0)
-            origin_completion_tokens = int(getattr(response, "output_tokens", 0) or 0)
+        if isinstance(response, dict):
+            usage = response.get("usage")
+        cost_usd = _extract_cost_usd(usage=usage, payload=response)
         provider = _as_str(getattr(response, "provider", None))
         model = _as_str(getattr(response, "model", None))
         request_id = _as_str(getattr(response, "request_id", None))
@@ -78,18 +71,23 @@ def extract_llm_response_data(response: Any) -> LLMResponseData:
             provider = provider or _as_str(response.get("provider"))
             model = model or _as_str(response.get("model"))
             request_id = request_id or _as_str(response.get("request_id"))
-            if cost_usd is None:
-                cost_usd = _extract_cost_usd(
-                    usage=response.get("usage"),
-                    payload=response,
-                )
+        if usage is not None and not isinstance(response, dict):
+            origin_prompt_tokens = int(getattr(usage, "prompt_tokens", 0) or 0)
+            origin_completion_tokens = int(getattr(usage, "completion_tokens", 0) or 0)
+        elif isinstance(response, dict):
+            usage = response.get("usage") or {}
+            origin_prompt_tokens = int(usage.get("prompt_tokens", 0) or 0)
+            origin_completion_tokens = int(usage.get("completion_tokens", 0) or 0)
+        elif hasattr(response, "input_tokens"):
+            origin_prompt_tokens = int(getattr(response, "input_tokens", 0) or 0)
+            origin_completion_tokens = int(getattr(response, "output_tokens", 0) or 0)
+    except _InvalidLLMCostError:
+        raise
     except Exception:
         origin_prompt_tokens = 0
         origin_completion_tokens = 0
-        provider = None
-        model = None
-        cost_usd = None
-        request_id = None
+        # Usage counts are ancillary to an independently admitted paid receipt.
+        # Invalid token metadata must not turn known provider spend into absence.
 
     reported_cost_usd = cost_usd
     billable_prompt_tokens = 0 if cache_hit else origin_prompt_tokens
@@ -141,58 +139,34 @@ def _as_float(value: Any) -> float | None:
     if value is None:
         return None
     if isinstance(value, bool):
-        return None
+        raise _InvalidLLMCostError("provider cost cannot be boolean")
     if not isinstance(value, (int, float, Decimal, str)):
-        return None
+        raise _InvalidLLMCostError("provider cost must be numeric")
     try:
         parsed = float(value)
-    except (TypeError, ValueError):
-        return None
-    if parsed < 0:
-        return 0.0
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise _InvalidLLMCostError("provider cost must be finite and nonnegative") from exc
+    if not isfinite(parsed) or parsed < 0:
+        raise _InvalidLLMCostError("provider cost must be finite and nonnegative")
     return parsed
 
 
 def _extract_cost_usd(*, usage: Any, payload: Any) -> float | None:
-    candidates = [
-        getattr(usage, "total_cost_usd", None) if usage is not None else None,
-        getattr(usage, "cost_usd", None) if usage is not None else None,
-        getattr(usage, "cost", None) if usage is not None else None,
-    ]
-    if isinstance(usage, dict):
-        candidates.extend(
-            [
-                usage.get("total_cost_usd"),
-                usage.get("cost_usd"),
-                usage.get("cost"),
-            ]
-        )
-        base_cost = _as_float(usage.get("base_cost_usd"))
-        platform_fee = _as_float(usage.get("platform_fee_usd"))
-        if base_cost is not None or platform_fee is not None:
-            candidates.append((base_cost or 0.0) + (platform_fee or 0.0))
-    if isinstance(payload, dict):
-        candidates.extend(
-            [
-                payload.get("total_cost_usd"),
-                payload.get("cost_usd"),
-                payload.get("cost"),
-            ]
-        )
-    else:
-        candidates.extend(
-            [
-                getattr(payload, "total_cost_usd", None),
-                getattr(payload, "cost_usd", None),
-                getattr(payload, "cost", None),
-            ]
-        )
+    def field(source: Any, name: str) -> Any:
+        return source.get(name) if isinstance(source, dict) else getattr(source, name, None)
 
-    for candidate in candidates:
-        parsed = _as_float(candidate)
-        if parsed is not None:
-            return parsed
-    return None
+    candidates: list[float | None] = []
+    for source in (usage, payload):
+        # Validate every declared cost before choosing one, for mapping and
+        # SDK-object responses alike. Bad alternate fields cannot become absent.
+        candidates.extend(
+            _as_float(field(source, name)) for name in ("total_cost_usd", "cost_usd", "cost")
+        )
+        base_cost = _as_float(field(source, "base_cost_usd"))
+        platform_fee = _as_float(field(source, "platform_fee_usd"))
+        if base_cost is not None or platform_fee is not None:
+            candidates.append(_as_float((base_cost or 0.0) + (platform_fee or 0.0)))
+    return next((value for value in candidates if value is not None), None)
 
 
 def _as_str(value: Any) -> str | None:

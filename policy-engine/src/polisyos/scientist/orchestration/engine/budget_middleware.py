@@ -10,7 +10,13 @@ import threading
 from decimal import Decimal
 
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetState
-from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedger
+from polisyos.scientist.orchestration.engine.budget_ledger import (
+    BudgetLedger,
+    BudgetLedgerMutationResult,
+    BudgetLedgerSnapshot,
+    BudgetResourceEvent,
+    BudgetResourceReservation,
+)
 
 __all__ = ["BudgetMiddleware"]
 
@@ -110,3 +116,58 @@ class BudgetMiddleware:
             result = self._ledger.commit_reservation(key, amount, provider=provider)
             self._budget = result.state
             return result.applied_amount
+
+    def reserve_resource(
+        self,
+        reservation_id: str,
+        *,
+        run_id: str,
+        budget_keys: tuple[str, ...],
+        estimated_usd: Decimal,
+        evaluation_id: str | None = None,
+    ) -> bool:
+        """Reserve an owned attempt through the existing durable ledger."""
+        reservation = BudgetResourceReservation(
+            reservation_id=reservation_id,
+            run_id=run_id,
+            budget_keys=budget_keys,
+            estimated_usd=estimated_usd,
+            evaluation_id=evaluation_id,
+        )
+        with self._lock:
+            result = self._resource_ledger().reserve_resource(reservation)
+            self._budget = result.state
+            return bool(result.reserved)
+
+    def settle_resource(
+        self,
+        reservation_id: str,
+        event: BudgetResourceEvent,
+    ) -> BudgetLedgerMutationResult:
+        """Reconcile full measured cost once and refresh the budget consumer snapshot."""
+        with self._lock:
+            result = self._resource_ledger().settle_resource(reservation_id, event)
+            self._budget = result.state
+            return result
+
+    def release_resource(self, reservation_id: str) -> None:
+        """Release an owned attempt known not to require provider reconciliation."""
+        with self._lock:
+            self._budget = self._resource_ledger().release_resource(reservation_id).state
+
+    def require_reconciliation(self, reservation_id: str) -> None:
+        """Keep an unresolved call's reservation visible across reopening."""
+        with self._lock:
+            self._budget = self._resource_ledger().require_reconciliation(reservation_id).state
+
+    def _resource_ledger(self) -> BudgetLedger:
+        if self._ledger is None:
+            raise ValueError("measured resource accounting requires a persisted budget ledger")
+        return self._ledger
+
+    def resource_snapshot(self) -> BudgetLedgerSnapshot:
+        """Return the existing persisted owner's detached resource accounting snapshot."""
+        with self._lock:
+            snapshot = self._resource_ledger().snapshot()
+            self._budget = snapshot.state
+            return snapshot

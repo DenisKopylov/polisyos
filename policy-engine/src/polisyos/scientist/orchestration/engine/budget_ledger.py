@@ -16,7 +16,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.scientist.orchestration.engine.budget import BudgetState
 
@@ -29,8 +29,72 @@ __all__ = [
     "BudgetLedgerMutationResult",
     "BudgetLedgerSnapshot",
     "BudgetLedgerWriter",
+    "BudgetResourceEvent",
+    "BudgetResourceReservation",
     "FileBudgetLedger",
 ]
+
+
+class BudgetResourceEvent(BaseModel):
+    """A measured provider receipt or a cache-owner reuse event.
+
+    Identity follows the physical provider request, not a delivery attempt.
+    Amounts are provider reported; admission estimates are never receipts.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, str_strip_whitespace=True)
+
+    provider: str = Field(min_length=1)
+    request_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    budget_keys: tuple[str, ...]
+    amount_usd: Decimal = Field(ge=0, allow_inf_nan=False)
+    evaluation_id: str | None = None
+    source: Literal["provider_reported", "cache_reuse"] = "provider_reported"
+    reuse_event_id: str | None = None
+
+    @model_validator(mode="after")
+    def validate_scope(self) -> BudgetResourceEvent:
+        """Require a definite charge scope and honest cache-reuse amount."""
+        _validate_budget_keys(self.budget_keys)
+        if self.source == "cache_reuse":
+            if self.amount_usd != 0 or not self.reuse_event_id:
+                raise ValueError("cache reuse requires its owner event ID and zero new charge")
+        elif self.reuse_event_id is not None:
+            raise ValueError("provider charge cannot use a cache reuse event ID")
+        return self
+
+    @property
+    def event_id(self) -> str:
+        """Return stable physical-request identity across repeated deliveries."""
+        identity = (self.source, self.provider, self.request_id, self.reuse_event_id)
+        return hashlib.sha256(json.dumps(identity).encode("utf-8")).hexdigest()
+
+
+class BudgetResourceReservation(BaseModel):
+    """One owned resource attempt, retained through settlement or reconciliation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, str_strip_whitespace=True)
+
+    reservation_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    budget_keys: tuple[str, ...]
+    estimated_usd: Decimal = Field(ge=0, allow_inf_nan=False)
+    evaluation_id: str | None = None
+    reserved_amounts: dict[str, Decimal] = Field(default_factory=dict)
+    status: Literal["reserved", "released", "settled", "reconciliation_required"] = "reserved"
+    event_id: str | None = None
+
+    @model_validator(mode="after")
+    def validate_scope(self) -> BudgetResourceReservation:
+        """Reject ambiguous duplicate or empty budget keys."""
+        _validate_budget_keys(self.budget_keys)
+        return self
+
+
+def _validate_budget_keys(keys: tuple[str, ...]) -> None:
+    if not keys or any(not key.strip() for key in keys) or len(set(keys)) != len(keys):
+        raise ValueError("budget_keys must contain distinct nonempty keys")
 
 
 class BudgetLedgerWriter(BaseModel):
@@ -55,6 +119,10 @@ class BudgetLedgerMutation(BaseModel):
         "reserve",
         "release",
         "commit_reservation",
+        "reserve_resource",
+        "settle_resource",
+        "release_resource",
+        "require_reconciliation",
     ]
     key: str | None = None
     amount: Decimal | None = None
@@ -79,6 +147,9 @@ class BudgetLedgerSnapshot(BaseModel):
     last_writer: BudgetLedgerWriter | None = None
     recent_mutations: list[BudgetLedgerMutation] = Field(default_factory=list)
     state: BudgetState = Field(default_factory=BudgetState)
+    # These identities are durable accounting state, not the bounded debug journal.
+    resource_reservations: dict[str, BudgetResourceReservation] = Field(default_factory=dict)
+    resource_events: dict[str, BudgetResourceEvent] = Field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -89,6 +160,7 @@ class BudgetLedgerMutationResult:
     revision: int
     applied_amount: Decimal = Decimal("0")
     reserved: bool | None = None
+    duplicate: bool = False
 
 
 class BudgetLedger(Protocol):
@@ -113,6 +185,14 @@ class BudgetLedger(Protocol):
         *,
         provider: str | None = None,
     ) -> BudgetLedgerMutationResult: ...
+    def reserve_resource(
+        self, reservation: BudgetResourceReservation
+    ) -> BudgetLedgerMutationResult: ...
+    def settle_resource(
+        self, reservation_id: str, event: BudgetResourceEvent
+    ) -> BudgetLedgerMutationResult: ...
+    def release_resource(self, reservation_id: str) -> BudgetLedgerMutationResult: ...
+    def require_reconciliation(self, reservation_id: str) -> BudgetLedgerMutationResult: ...
 
 
 def _fsync_dir(path: Path) -> None:
@@ -262,6 +342,155 @@ class FileBudgetLedger:
             operation=apply,
         )
 
+    def reserve_resource(
+        self, reservation: BudgetResourceReservation
+    ) -> BudgetLedgerMutationResult:
+        """Atomically reserve every key for one distinct physical attempt."""
+        if (
+            reservation.status != "reserved"
+            or reservation.event_id is not None
+            or reservation.reserved_amounts
+        ):
+            raise ValueError("resource reservation request cannot assert settled accounting state")
+
+        def apply(snapshot: BudgetLedgerSnapshot) -> BudgetLedgerMutationResult:
+            previous = snapshot.resource_reservations.get(reservation.reservation_id)
+            if previous is not None:
+                original = previous.model_copy(
+                    update={"reserved_amounts": {}, "status": "reserved", "event_id": None}
+                )
+                if original != reservation:
+                    raise ValueError("resource reservation identity conflict")
+                if previous.status != "reserved":
+                    raise ValueError(
+                        "resource reservation already completed or pending reconciliation"
+                    )
+                return BudgetLedgerMutationResult(
+                    snapshot.state, snapshot.revision, reserved=True, duplicate=True
+                )
+            if any(
+                snapshot.state.would_exceed(key, reservation.estimated_usd)
+                for key in reservation.budget_keys
+            ):
+                return BudgetLedgerMutationResult(
+                    snapshot.state, snapshot.revision, reserved=False, duplicate=True
+                )
+            amounts = {}
+            for key in reservation.budget_keys:
+                snapshot.state.reserve(key, reservation.estimated_usd)
+                amounts[key] = (
+                    reservation.estimated_usd if key in snapshot.state.limits else Decimal(0)
+                )
+            snapshot.resource_reservations[reservation.reservation_id] = reservation.model_copy(
+                update={"reserved_amounts": amounts}
+            )
+            return BudgetLedgerMutationResult(snapshot.state, snapshot.revision, reserved=True)
+
+        return self._mutate_resource("reserve_resource", apply)
+
+    def settle_resource(
+        self, reservation_id: str, event: BudgetResourceEvent
+    ) -> BudgetLedgerMutationResult:
+        """Release this attempt's reservation and debit its full measured receipt once."""
+
+        def apply(snapshot: BudgetLedgerSnapshot) -> BudgetLedgerMutationResult:
+            reservation = snapshot.resource_reservations[reservation_id]
+            if (reservation.run_id, reservation.budget_keys, reservation.evaluation_id) != (
+                event.run_id,
+                event.budget_keys,
+                event.evaluation_id,
+            ):
+                raise ValueError("resource receipt scope conflict")
+            previous = snapshot.resource_events.get(event.event_id)
+            if previous is not None and previous != event:
+                raise ValueError("resource receipt identity conflict")
+            if reservation.status == "settled":
+                if reservation.event_id != event.event_id or previous != event:
+                    raise ValueError("resource reservation settlement conflict")
+                return BudgetLedgerMutationResult(snapshot.state, snapshot.revision, duplicate=True)
+            if reservation.status == "released":
+                raise ValueError("released resource reservation cannot be settled")
+            for key, amount in reservation.reserved_amounts.items():
+                snapshot.state.release(key, amount)
+            applied = Decimal(0)
+            if previous is None:
+                for key in event.budget_keys:
+                    snapshot.state.record_spend(key, event.amount_usd)
+                snapshot.state.provider_spent[event.provider] = (
+                    snapshot.state.provider_spent.get(event.provider, Decimal(0)) + event.amount_usd
+                )
+                snapshot.resource_events[event.event_id] = event
+                applied = event.amount_usd
+            snapshot.resource_reservations[reservation_id] = reservation.model_copy(
+                update={"status": "settled", "event_id": event.event_id}
+            )
+            return BudgetLedgerMutationResult(
+                snapshot.state, snapshot.revision, applied_amount=applied
+            )
+
+        return self._mutate_resource("settle_resource", apply)
+
+    def release_resource(self, reservation_id: str) -> BudgetLedgerMutationResult:
+        """Release an attempt only when its caller knows no billing reconciliation is due."""
+
+        def apply(snapshot: BudgetLedgerSnapshot) -> BudgetLedgerMutationResult:
+            reservation = snapshot.resource_reservations[reservation_id]
+            if reservation.status != "reserved":
+                if reservation.status == "released":
+                    return BudgetLedgerMutationResult(
+                        snapshot.state, snapshot.revision, duplicate=True
+                    )
+                raise ValueError("cannot release a settled or unresolved resource attempt")
+            for key, amount in reservation.reserved_amounts.items():
+                snapshot.state.release(key, amount)
+            snapshot.resource_reservations[reservation_id] = reservation.model_copy(
+                update={"status": "released"}
+            )
+            return BudgetLedgerMutationResult(snapshot.state, snapshot.revision)
+
+        return self._mutate_resource("release_resource", apply)
+
+    def require_reconciliation(self, reservation_id: str) -> BudgetLedgerMutationResult:
+        """Retain admission reservation when actual provider billing is unknown."""
+
+        def apply(snapshot: BudgetLedgerSnapshot) -> BudgetLedgerMutationResult:
+            reservation = snapshot.resource_reservations[reservation_id]
+            if reservation.status != "reserved":
+                return BudgetLedgerMutationResult(snapshot.state, snapshot.revision, duplicate=True)
+            snapshot.resource_reservations[reservation_id] = reservation.model_copy(
+                update={"status": "reconciliation_required"}
+            )
+            return BudgetLedgerMutationResult(snapshot.state, snapshot.revision)
+
+        return self._mutate_resource("require_reconciliation", apply)
+
+    def _mutate_resource(
+        self, operation: str, apply: Callable[[BudgetLedgerSnapshot], BudgetLedgerMutationResult]
+    ) -> BudgetLedgerMutationResult:
+        with self._thread_lock, self._file_lock(exclusive=True):
+            snapshot = self._normalize_snapshot(
+                self._load_snapshot() or self._build_snapshot(state=BudgetState())
+            ).model_copy(deep=True)
+            result = apply(snapshot)
+            if result.duplicate:
+                return result
+            snapshot.revision += 1
+            snapshot.updated_at = datetime.now(UTC)
+            snapshot.last_writer = self._writer
+            mutation = self._build_mutation(
+                revision=snapshot.revision,
+                operation=operation,
+                applied_amount=result.applied_amount,
+                reserved=result.reserved,
+            )
+            snapshot.recent_mutations = [*snapshot.recent_mutations, mutation][
+                -self._mutation_history_limit :
+            ]
+            self._persist_snapshot(-1, snapshot)
+            return BudgetLedgerMutationResult(
+                snapshot.state, snapshot.revision, result.applied_amount, result.reserved
+            )
+
     @contextmanager
     def _file_lock(self, *, exclusive: bool) -> Iterator[None]:
         """Hold the stable lockfile for one complete read or publication."""
@@ -321,6 +550,8 @@ class FileBudgetLedger:
                             revision=revision,
                             state=state,
                             recent_mutations=tuple(mutations[-self._mutation_history_limit :]),
+                            resource_reservations=snapshot.resource_reservations,
+                            resource_events=snapshot.resource_events,
                         ),
                     )
                     return BudgetLedgerMutationResult(
@@ -334,7 +565,8 @@ class FileBudgetLedger:
 
     def _read_snapshot_from_fd(self, fd: int) -> BudgetLedgerSnapshot | None:
         os.lseek(fd, 0, os.SEEK_SET)
-        raw = os.read(fd, 1_000_000).decode("utf-8").strip()
+        with os.fdopen(os.dup(fd), "r", encoding="utf-8") as stream:
+            raw = stream.read().strip()
         if not raw:
             raise ValueError("existing budget ledger is empty")
         return BudgetLedgerSnapshot.model_validate(json.loads(raw))
@@ -380,6 +612,8 @@ class FileBudgetLedger:
         state: BudgetState,
         revision: int = 0,
         recent_mutations: tuple[BudgetLedgerMutation, ...] | list[BudgetLedgerMutation] = (),
+        resource_reservations: dict[str, BudgetResourceReservation] | None = None,
+        resource_events: dict[str, BudgetResourceEvent] | None = None,
     ) -> BudgetLedgerSnapshot:
         return BudgetLedgerSnapshot(
             canonical_contract=_CANONICAL_LEDGER_CONTRACT,
@@ -390,6 +624,8 @@ class FileBudgetLedger:
             last_writer=self._writer,
             recent_mutations=list(recent_mutations)[-self._mutation_history_limit :],
             state=state,
+            resource_reservations=resource_reservations or {},
+            resource_events=resource_events or {},
         )
 
     def _build_mutation(
@@ -402,6 +638,10 @@ class FileBudgetLedger:
             "reserve",
             "release",
             "commit_reservation",
+            "reserve_resource",
+            "settle_resource",
+            "release_resource",
+            "require_reconciliation",
         ],
         key: str | None = None,
         amount: Decimal | None = None,

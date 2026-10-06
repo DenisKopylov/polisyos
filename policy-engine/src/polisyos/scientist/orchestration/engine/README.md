@@ -64,6 +64,21 @@ control removes only required-field admission inside the child process; the
 same consumer tests must then fail. These witnesses do not establish power-loss
 or multi-host filesystem guarantees.
 
+The ledger's current snapshot version is `1.1`. Version `1.0` has an explicit
+migration; unknown versions, contracts and coordination modes are rejected.
+Version `1.1` requires the settlement receipt index as part of the same atomic
+snapshot as budget state. The index is retained without eviction until an owner
+supplies a retirement rule.
+
+`BudgetMiddleware.settle_spend_safe(...)` records an exact producer event under
+the ledger lock and returns its immutable `BudgetLedgerSpendReceipt`. Retrying
+the same event and payload charges once; reusing its identity with a different
+payload refuses. `resolve_spend_safe(event_id)` reads the persisted receipt after
+an uncertain acknowledgement. A missing receipt means unknown settlement;
+filesystem failure raises `BudgetLedgerSettlementOutcomeUnknownError` rather
+than reporting zero spend. This contract acknowledges local ledger accounting;
+an external provider needs its own receipt or status/idempotency contract.
+
 ## Reference Docs
 
 - Scientist workflow reference: [`../../../../docs/reference/scientist/workflows.md`](../../../../docs/reference/scientist/workflows.md)

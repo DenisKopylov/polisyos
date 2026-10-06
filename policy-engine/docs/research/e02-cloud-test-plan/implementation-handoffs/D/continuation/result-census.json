@@ -469,7 +469,17 @@
       "source_file": "received/F01.txt",
       "source_line": "139",
       "environment_context_ref": "/jobs/F01",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B122",
+        "B123",
+        "B41",
+        "LA-015"
+      ]
     },
     {
       "id": "F01-P027",
@@ -481,7 +491,12 @@
       "source_file": "received/F01.txt",
       "source_line": "144",
       "environment_context_ref": "/jobs/F01",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B161",
+        "B163",
+        "B164"
+      ]
     },
     {
       "id": "F01-P052",
@@ -493,7 +508,12 @@
       "source_file": "received/F01.txt",
       "source_line": "169",
       "environment_context_ref": "/jobs/F01",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B116",
+        "B117",
+        "LA-015"
+      ]
     },
     {
       "id": "F01-P095",
@@ -505,7 +525,13 @@
       "source_file": "received/F01.txt",
       "source_line": "212",
       "environment_context_ref": "/jobs/F01",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B157",
+        "B160",
+        "B162",
+        "B165"
+      ]
     },
     {
       "id": "F01-P110",
@@ -517,7 +543,12 @@
       "source_file": "received/F01.txt",
       "source_line": "227",
       "environment_context_ref": "/jobs/F01",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "LA-015"
+      ]
     },
     {
       "id": "F01-P128",
@@ -529,7 +560,12 @@
       "source_file": "received/F01.txt",
       "source_line": "245",
       "environment_context_ref": "/jobs/F01",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F02-P029",
@@ -541,7 +577,11 @@
       "source_file": "received/F02.txt",
       "source_line": "157",
       "environment_context_ref": "/jobs/F02",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B122",
+        "B41"
+      ]
     },
     {
       "id": "F02-P057",
@@ -553,7 +593,12 @@
       "source_file": "received/F02.txt",
       "source_line": "185",
       "environment_context_ref": "/jobs/F02",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B112",
+        "B113",
+        "B127"
+      ]
     },
     {
       "id": "F02-P067",
@@ -565,7 +610,11 @@
       "source_file": "received/F02.txt",
       "source_line": "195",
       "environment_context_ref": "/jobs/F02",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B106",
+        "B107"
+      ]
     },
     {
       "id": "F02-P081",
@@ -577,7 +626,13 @@
       "source_file": "received/F02.txt",
       "source_line": "209",
       "environment_context_ref": "/jobs/F02",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B128",
+        "B130",
+        "B131",
+        "B132"
+      ]
     },
     {
       "id": "F02-P093",
@@ -589,7 +644,16 @@
       "source_file": "received/F02.txt",
       "source_line": "221",
       "environment_context_ref": "/jobs/F02",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B123",
+        "LA-014",
+        "LA-015"
+      ]
     },
     {
       "id": "F02-P095",
@@ -601,7 +665,14 @@
       "source_file": "received/F02.txt",
       "source_line": "223",
       "environment_context_ref": "/jobs/F02",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B112",
+        "B113",
+        "B114",
+        "B115",
+        "B127"
+      ]
     },
     {
       "id": "F02-P111",
@@ -613,7 +684,12 @@
       "source_file": "received/F02.txt",
       "source_line": "239",
       "environment_context_ref": "/jobs/F02",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B129",
+        "B133",
+        "B134"
+      ]
     },
     {
       "id": "F02-P129",
@@ -625,7 +701,12 @@
       "source_file": "received/F02.txt",
       "source_line": "257",
       "environment_context_ref": "/jobs/F02",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B120",
+        "B121",
+        "B123"
+      ]
     },
     {
       "id": "F03-P018",
@@ -637,7 +718,13 @@
       "source_file": "received/F03.txt",
       "source_line": "148",
       "environment_context_ref": "/jobs/F03",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ]
     },
     {
       "id": "F03-P025",
@@ -649,7 +736,19 @@
       "source_file": "received/F03.txt",
       "source_line": "155",
       "environment_context_ref": "/jobs/F03",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B156",
+        "B157",
+        "B158",
+        "B159",
+        "B160",
+        "B161",
+        "B162",
+        "B163",
+        "B164",
+        "B165"
+      ]
     },
     {
       "id": "F03-P026",
@@ -661,7 +760,11 @@
       "source_file": "received/F03.txt",
       "source_line": "156",
       "environment_context_ref": "/jobs/F03",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B122",
+        "B41"
+      ]
     },
     {
       "id": "F03-P064",
@@ -673,7 +776,12 @@
       "source_file": "received/F03.txt",
       "source_line": "194",
       "environment_context_ref": "/jobs/F03",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B161",
+        "B163",
+        "B164"
+      ]
     },
     {
       "id": "F03-P073",
@@ -685,7 +793,12 @@
       "source_file": "received/F03.txt",
       "source_line": "203",
       "environment_context_ref": "/jobs/F03",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F03-P100",
@@ -697,7 +810,12 @@
       "source_file": "received/F03.txt",
       "source_line": "230",
       "environment_context_ref": "/jobs/F03",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B135",
+        "B136",
+        "B137"
+      ]
     },
     {
       "id": "F03-P121",
@@ -709,7 +827,12 @@
       "source_file": "received/F03.txt",
       "source_line": "251",
       "environment_context_ref": "/jobs/F03",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F03-P141",
@@ -721,7 +844,13 @@
       "source_file": "received/F03.txt",
       "source_line": "271",
       "environment_context_ref": "/jobs/F03",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B157",
+        "B160",
+        "B162",
+        "B165"
+      ]
     },
     {
       "id": "F04-P048",
@@ -733,7 +862,12 @@
       "source_file": "received/F04.txt",
       "source_line": "258",
       "environment_context_ref": "/jobs/F04",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B120",
+        "B121",
+        "B123"
+      ]
     },
     {
       "id": "F04-P063",
@@ -745,7 +879,12 @@
       "source_file": "received/F04.txt",
       "source_line": "273",
       "environment_context_ref": "/jobs/F04",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B156",
+        "B158",
+        "B159"
+      ]
     },
     {
       "id": "F04-P071",
@@ -757,7 +896,12 @@
       "source_file": "received/F04.txt",
       "source_line": "281",
       "environment_context_ref": "/jobs/F04",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B161",
+        "B163",
+        "B164"
+      ]
     },
     {
       "id": "F04-P073",
@@ -769,7 +913,13 @@
       "source_file": "received/F04.txt",
       "source_line": "283",
       "environment_context_ref": "/jobs/F04",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B157",
+        "B160",
+        "B162",
+        "B165"
+      ]
     },
     {
       "id": "F04-P088",
@@ -781,7 +931,13 @@
       "source_file": "received/F04.txt",
       "source_line": "298",
       "environment_context_ref": "/jobs/F04",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B128",
+        "B130",
+        "B131",
+        "B132"
+      ]
     },
     {
       "id": "F04-P114",
@@ -793,7 +949,15 @@
       "source_file": "received/F04.txt",
       "source_line": "324",
       "environment_context_ref": "/jobs/F04",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B123",
+        "LA-015"
+      ]
     },
     {
       "id": "F04-P120",
@@ -805,7 +969,15 @@
       "source_file": "received/F04.txt",
       "source_line": "330",
       "environment_context_ref": "/jobs/F04",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B106",
+        "B107",
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ]
     },
     {
       "id": "F04-P121",
@@ -817,7 +989,12 @@
       "source_file": "received/F04.txt",
       "source_line": "331",
       "environment_context_ref": "/jobs/F04",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B135",
+        "B136",
+        "B137"
+      ]
     },
     {
       "id": "F04-P128",
@@ -829,7 +1006,12 @@
       "source_file": "received/F04.txt",
       "source_line": "338",
       "environment_context_ref": "/jobs/F04",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B135",
+        "B136",
+        "B137"
+      ]
     },
     {
       "id": "F05-P042",
@@ -841,7 +1023,17 @@
       "source_file": "received/F05.txt",
       "source_line": "452",
       "environment_context_ref": "/jobs/F05",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B122",
+        "B123",
+        "B41",
+        "LA-015"
+      ]
     },
     {
       "id": "F05-P044",
@@ -853,7 +1045,19 @@
       "source_file": "received/F05.txt",
       "source_line": "454",
       "environment_context_ref": "/jobs/F05",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B156",
+        "B157",
+        "B158",
+        "B159",
+        "B160",
+        "B161",
+        "B162",
+        "B163",
+        "B164",
+        "B165"
+      ]
     },
     {
       "id": "F05-P094",
@@ -865,7 +1069,12 @@
       "source_file": "received/F05.txt",
       "source_line": "504",
       "environment_context_ref": "/jobs/F05",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F05-P133",
@@ -877,7 +1086,12 @@
       "source_file": "received/F05.txt",
       "source_line": "543",
       "environment_context_ref": "/jobs/F05",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F05-P140",
@@ -889,7 +1103,12 @@
       "source_file": "received/F05.txt",
       "source_line": "550",
       "environment_context_ref": "/jobs/F05",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F06-P032",
@@ -901,7 +1120,13 @@
       "source_file": "received/F06.txt",
       "source_line": "216",
       "environment_context_ref": "/jobs/F06",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ]
     },
     {
       "id": "F06-P046",
@@ -913,7 +1138,11 @@
       "source_file": "received/F06.txt",
       "source_line": "230",
       "environment_context_ref": "/jobs/F06",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B122",
+        "B41"
+      ]
     },
     {
       "id": "F06-P047",
@@ -925,7 +1154,12 @@
       "source_file": "received/F06.txt",
       "source_line": "231",
       "environment_context_ref": "/jobs/F06",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B161",
+        "B163",
+        "B164"
+      ]
     },
     {
       "id": "F06-P069",
@@ -937,7 +1171,12 @@
       "source_file": "received/F06.txt",
       "source_line": "253",
       "environment_context_ref": "/jobs/F06",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B120",
+        "B121",
+        "B123"
+      ]
     },
     {
       "id": "F06-P074",
@@ -949,7 +1188,12 @@
       "source_file": "received/F06.txt",
       "source_line": "258",
       "environment_context_ref": "/jobs/F06",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B116",
+        "B117",
+        "LA-015"
+      ]
     },
     {
       "id": "F06-P080",
@@ -961,7 +1205,12 @@
       "source_file": "received/F06.txt",
       "source_line": "264",
       "environment_context_ref": "/jobs/F06",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B112",
+        "B113",
+        "B127"
+      ]
     },
     {
       "id": "F06-P088",
@@ -973,7 +1222,11 @@
       "source_file": "received/F06.txt",
       "source_line": "272",
       "environment_context_ref": "/jobs/F06",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B106",
+        "B107"
+      ]
     },
     {
       "id": "F06-P102",
@@ -985,7 +1238,13 @@
       "source_file": "received/F06.txt",
       "source_line": "286",
       "environment_context_ref": "/jobs/F06",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B128",
+        "B130",
+        "B131",
+        "B132"
+      ]
     },
     {
       "id": "F06-P112",
@@ -997,7 +1256,14 @@
       "source_file": "received/F06.txt",
       "source_line": "296",
       "environment_context_ref": "/jobs/F06",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B112",
+        "B113",
+        "B114",
+        "B115",
+        "B127"
+      ]
     },
     {
       "id": "F06-P117",
@@ -1009,7 +1275,12 @@
       "source_file": "received/F06.txt",
       "source_line": "301",
       "environment_context_ref": "/jobs/F06",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B135",
+        "B136",
+        "B137"
+      ]
     },
     {
       "id": "F06-P128",
@@ -1021,7 +1292,15 @@
       "source_file": "received/F06.txt",
       "source_line": "312",
       "environment_context_ref": "/jobs/F06",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B123",
+        "LA-015"
+      ]
     },
     {
       "id": "F06-P133",
@@ -1033,7 +1312,12 @@
       "source_file": "received/F06.txt",
       "source_line": "317",
       "environment_context_ref": "/jobs/F06",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B135",
+        "B136",
+        "B137"
+      ]
     },
     {
       "id": "F06-P140",
@@ -1045,7 +1329,12 @@
       "source_file": "received/F06.txt",
       "source_line": "324",
       "environment_context_ref": "/jobs/F06",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B120",
+        "B121",
+        "B123"
+      ]
     },
     {
       "id": "F07-P025",
@@ -1057,7 +1346,19 @@
       "source_file": "received/F07.txt",
       "source_line": "31",
       "environment_context_ref": "/jobs/F07",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B156",
+        "B157",
+        "B158",
+        "B159",
+        "B160",
+        "B161",
+        "B162",
+        "B163",
+        "B164",
+        "B165"
+      ]
     },
     {
       "id": "F07-P065",
@@ -1069,7 +1370,12 @@
       "source_file": "received/F07.txt",
       "source_line": "71",
       "environment_context_ref": "/jobs/F07",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F07-P086",
@@ -1081,7 +1387,16 @@
       "source_file": "received/F07.txt",
       "source_line": "92",
       "environment_context_ref": "/jobs/F07",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B123",
+        "LA-014",
+        "LA-015"
+      ]
     },
     {
       "id": "F07-P089",
@@ -1093,7 +1408,13 @@
       "source_file": "received/F07.txt",
       "source_line": "95",
       "environment_context_ref": "/jobs/F07",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B157",
+        "B160",
+        "B162",
+        "B165"
+      ]
     },
     {
       "id": "F07-P104",
@@ -1105,7 +1426,12 @@
       "source_file": "received/F07.txt",
       "source_line": "110",
       "environment_context_ref": "/jobs/F07",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "LA-015"
+      ]
     },
     {
       "id": "F07-P113",
@@ -1117,7 +1443,12 @@
       "source_file": "received/F07.txt",
       "source_line": "119",
       "environment_context_ref": "/jobs/F07",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B135",
+        "B136",
+        "B137"
+      ]
     },
     {
       "id": "F08-P036",
@@ -1129,7 +1460,12 @@
       "source_file": "received/F08.txt",
       "source_line": "159",
       "environment_context_ref": "/jobs/F08",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B161",
+        "B163",
+        "B164"
+      ]
     },
     {
       "id": "F08-P053",
@@ -1141,7 +1477,12 @@
       "source_file": "received/F08.txt",
       "source_line": "176",
       "environment_context_ref": "/jobs/F08",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B120",
+        "B121",
+        "B123"
+      ]
     },
     {
       "id": "F08-P056",
@@ -1153,7 +1494,12 @@
       "source_file": "received/F08.txt",
       "source_line": "179",
       "environment_context_ref": "/jobs/F08",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B116",
+        "B117",
+        "LA-015"
+      ]
     },
     {
       "id": "F08-P061",
@@ -1165,7 +1511,12 @@
       "source_file": "received/F08.txt",
       "source_line": "184",
       "environment_context_ref": "/jobs/F08",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B112",
+        "B113",
+        "B127"
+      ]
     },
     {
       "id": "F08-P082",
@@ -1177,7 +1528,13 @@
       "source_file": "received/F08.txt",
       "source_line": "205",
       "environment_context_ref": "/jobs/F08",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B128",
+        "B130",
+        "B131",
+        "B132"
+      ]
     },
     {
       "id": "F08-P096",
@@ -1189,7 +1546,14 @@
       "source_file": "received/F08.txt",
       "source_line": "219",
       "environment_context_ref": "/jobs/F08",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B112",
+        "B113",
+        "B114",
+        "B115",
+        "B127"
+      ]
     },
     {
       "id": "F08-P113",
@@ -1201,7 +1565,12 @@
       "source_file": "received/F08.txt",
       "source_line": "236",
       "environment_context_ref": "/jobs/F08",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B129",
+        "B133",
+        "B134"
+      ]
     },
     {
       "id": "F08-P115",
@@ -1213,7 +1582,15 @@
       "source_file": "received/F08.txt",
       "source_line": "238",
       "environment_context_ref": "/jobs/F08",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B123",
+        "LA-015"
+      ]
     },
     {
       "id": "F08-P120",
@@ -1225,7 +1602,15 @@
       "source_file": "received/F08.txt",
       "source_line": "243",
       "environment_context_ref": "/jobs/F08",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B106",
+        "B107",
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ]
     },
     {
       "id": "F08-P121",
@@ -1237,7 +1622,12 @@
       "source_file": "received/F08.txt",
       "source_line": "244",
       "environment_context_ref": "/jobs/F08",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F08-P126",
@@ -1249,7 +1639,12 @@
       "source_file": "received/F08.txt",
       "source_line": "249",
       "environment_context_ref": "/jobs/F08",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B120",
+        "B121",
+        "B123"
+      ]
     },
     {
       "id": "F09-P025",
@@ -1261,7 +1656,13 @@
       "source_file": "received/F09.txt",
       "source_line": "141",
       "environment_context_ref": "/jobs/F09",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ]
     },
     {
       "id": "F09-P032",
@@ -1273,7 +1674,17 @@
       "source_file": "received/F09.txt",
       "source_line": "148",
       "environment_context_ref": "/jobs/F09",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B122",
+        "B123",
+        "B41",
+        "LA-015"
+      ]
     },
     {
       "id": "F09-P035",
@@ -1285,7 +1696,11 @@
       "source_file": "received/F09.txt",
       "source_line": "151",
       "environment_context_ref": "/jobs/F09",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B122",
+        "B41"
+      ]
     },
     {
       "id": "F09-P068",
@@ -1297,7 +1712,11 @@
       "source_file": "received/F09.txt",
       "source_line": "184",
       "environment_context_ref": "/jobs/F09",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B106",
+        "B107"
+      ]
     },
     {
       "id": "F09-P071",
@@ -1309,7 +1728,12 @@
       "source_file": "received/F09.txt",
       "source_line": "187",
       "environment_context_ref": "/jobs/F09",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B161",
+        "B163",
+        "B164"
+      ]
     },
     {
       "id": "F09-P102",
@@ -1321,7 +1745,12 @@
       "source_file": "received/F09.txt",
       "source_line": "218",
       "environment_context_ref": "/jobs/F09",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B135",
+        "B136",
+        "B137"
+      ]
     },
     {
       "id": "F09-P126",
@@ -1333,7 +1762,12 @@
       "source_file": "received/F09.txt",
       "source_line": "242",
       "environment_context_ref": "/jobs/F09",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F10-P051",
@@ -1345,7 +1779,12 @@
       "source_file": "received/F10.txt",
       "source_line": "171",
       "environment_context_ref": "/jobs/F10",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B120",
+        "B121",
+        "B123"
+      ]
     },
     {
       "id": "F10-P068",
@@ -1357,7 +1796,11 @@
       "source_file": "received/F10.txt",
       "source_line": "188",
       "environment_context_ref": "/jobs/F10",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B106",
+        "B107"
+      ]
     },
     {
       "id": "F10-P086",
@@ -1369,7 +1812,14 @@
       "source_file": "received/F10.txt",
       "source_line": "206",
       "environment_context_ref": "/jobs/F10",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B112",
+        "B113",
+        "B114",
+        "B115",
+        "B127"
+      ]
     },
     {
       "id": "F10-P100",
@@ -1381,7 +1831,15 @@
       "source_file": "received/F10.txt",
       "source_line": "220",
       "environment_context_ref": "/jobs/F10",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B123",
+        "LA-015"
+      ]
     },
     {
       "id": "F10-P104",
@@ -1393,7 +1851,12 @@
       "source_file": "received/F10.txt",
       "source_line": "224",
       "environment_context_ref": "/jobs/F10",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B135",
+        "B136",
+        "B137"
+      ]
     },
     {
       "id": "F11-P031",
@@ -1405,7 +1868,17 @@
       "source_file": "received/F11.txt",
       "source_line": "160",
       "environment_context_ref": "/jobs/F11",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B122",
+        "B123",
+        "B41",
+        "LA-015"
+      ]
     },
     {
       "id": "F11-P033",
@@ -1417,7 +1890,19 @@
       "source_file": "received/F11.txt",
       "source_line": "162",
       "environment_context_ref": "/jobs/F11",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B156",
+        "B157",
+        "B158",
+        "B159",
+        "B160",
+        "B161",
+        "B162",
+        "B163",
+        "B164",
+        "B165"
+      ]
     },
     {
       "id": "F11-P034",
@@ -1429,7 +1914,11 @@
       "source_file": "received/F11.txt",
       "source_line": "163",
       "environment_context_ref": "/jobs/F11",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B122",
+        "B41"
+      ]
     },
     {
       "id": "F11-P036",
@@ -1441,7 +1930,12 @@
       "source_file": "received/F11.txt",
       "source_line": "165",
       "environment_context_ref": "/jobs/F11",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B161",
+        "B163",
+        "B164"
+      ]
     },
     {
       "id": "F11-P076",
@@ -1453,7 +1947,12 @@
       "source_file": "received/F11.txt",
       "source_line": "205",
       "environment_context_ref": "/jobs/F11",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F11-P082",
@@ -1465,7 +1964,13 @@
       "source_file": "received/F11.txt",
       "source_line": "211",
       "environment_context_ref": "/jobs/F11",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B128",
+        "B130",
+        "B131",
+        "B132"
+      ]
     },
     {
       "id": "F11-P095",
@@ -1477,7 +1982,12 @@
       "source_file": "received/F11.txt",
       "source_line": "224",
       "environment_context_ref": "/jobs/F11",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B135",
+        "B136",
+        "B137"
+      ]
     },
     {
       "id": "F11-P115",
@@ -1489,7 +1999,12 @@
       "source_file": "received/F11.txt",
       "source_line": "244",
       "environment_context_ref": "/jobs/F11",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F12-P024",
@@ -1501,7 +2016,13 @@
       "source_file": "received/F12.txt",
       "source_line": "609",
       "environment_context_ref": "/jobs/F12",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ]
     },
     {
       "id": "F12-P058",
@@ -1513,7 +2034,12 @@
       "source_file": "received/F12.txt",
       "source_line": "643",
       "environment_context_ref": "/jobs/F12",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B116",
+        "B117",
+        "LA-015"
+      ]
     },
     {
       "id": "F12-P063",
@@ -1525,7 +2051,12 @@
       "source_file": "received/F12.txt",
       "source_line": "648",
       "environment_context_ref": "/jobs/F12",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B112",
+        "B113",
+        "B127"
+      ]
     },
     {
       "id": "F12-P108",
@@ -1537,7 +2068,12 @@
       "source_file": "received/F12.txt",
       "source_line": "693",
       "environment_context_ref": "/jobs/F12",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F12-P115",
@@ -1549,7 +2085,12 @@
       "source_file": "received/F12.txt",
       "source_line": "700",
       "environment_context_ref": "/jobs/F12",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B120",
+        "B121",
+        "B123"
+      ]
     },
     {
       "id": "F13-P031",
@@ -1561,7 +2102,11 @@
       "source_file": "received/F13.txt",
       "source_line": "158",
       "environment_context_ref": "/jobs/F13",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B122",
+        "B41"
+      ]
     },
     {
       "id": "F13-P058",
@@ -1573,7 +2118,12 @@
       "source_file": "received/F13.txt",
       "source_line": "185",
       "environment_context_ref": "/jobs/F13",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B120",
+        "B121",
+        "B123"
+      ]
     },
     {
       "id": "F13-P061",
@@ -1585,7 +2135,12 @@
       "source_file": "received/F13.txt",
       "source_line": "188",
       "environment_context_ref": "/jobs/F13",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B116",
+        "B117",
+        "LA-015"
+      ]
     },
     {
       "id": "F13-P081",
@@ -1597,7 +2152,12 @@
       "source_file": "received/F13.txt",
       "source_line": "208",
       "environment_context_ref": "/jobs/F13",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B161",
+        "B163",
+        "B164"
+      ]
     },
     {
       "id": "F13-P093",
@@ -1609,7 +2169,13 @@
       "source_file": "received/F13.txt",
       "source_line": "220",
       "environment_context_ref": "/jobs/F13",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B128",
+        "B130",
+        "B131",
+        "B132"
+      ]
     },
     {
       "id": "F13-P106",
@@ -1621,7 +2187,16 @@
       "source_file": "received/F13.txt",
       "source_line": "233",
       "environment_context_ref": "/jobs/F13",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B123",
+        "LA-014",
+        "LA-015"
+      ]
     },
     {
       "id": "F13-P108",
@@ -1633,7 +2208,14 @@
       "source_file": "received/F13.txt",
       "source_line": "235",
       "environment_context_ref": "/jobs/F13",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B112",
+        "B113",
+        "B114",
+        "B115",
+        "B127"
+      ]
     },
     {
       "id": "F13-P115",
@@ -1645,7 +2227,12 @@
       "source_file": "received/F13.txt",
       "source_line": "242",
       "environment_context_ref": "/jobs/F13",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B135",
+        "B136",
+        "B137"
+      ]
     },
     {
       "id": "F13-P129",
@@ -1657,7 +2244,12 @@
       "source_file": "received/F13.txt",
       "source_line": "256",
       "environment_context_ref": "/jobs/F13",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B129",
+        "B133",
+        "B134"
+      ]
     },
     {
       "id": "F13-P142",
@@ -1669,7 +2261,12 @@
       "source_file": "received/F13.txt",
       "source_line": "269",
       "environment_context_ref": "/jobs/F13",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B135",
+        "B136",
+        "B137"
+      ]
     },
     {
       "id": "F14-P022",
@@ -1681,7 +2278,13 @@
       "source_file": "received/F14.txt",
       "source_line": "372",
       "environment_context_ref": "/jobs/F14",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ]
     },
     {
       "id": "F14-P034",
@@ -1693,7 +2296,12 @@
       "source_file": "received/F14.txt",
       "source_line": "384",
       "environment_context_ref": "/jobs/F14",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B161",
+        "B163",
+        "B164"
+      ]
     },
     {
       "id": "F14-P085",
@@ -1705,7 +2313,12 @@
       "source_file": "received/F14.txt",
       "source_line": "435",
       "environment_context_ref": "/jobs/F14",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F14-P111",
@@ -1717,7 +2330,13 @@
       "source_file": "received/F14.txt",
       "source_line": "461",
       "environment_context_ref": "/jobs/F14",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B157",
+        "B160",
+        "B162",
+        "B165"
+      ]
     },
     {
       "id": "F14-P134",
@@ -1729,7 +2348,15 @@
       "source_file": "received/F14.txt",
       "source_line": "484",
       "environment_context_ref": "/jobs/F14",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B123",
+        "LA-015"
+      ]
     },
     {
       "id": "F14-P151",
@@ -1741,7 +2368,12 @@
       "source_file": "received/F14.txt",
       "source_line": "501",
       "environment_context_ref": "/jobs/F14",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F15-P028",
@@ -1753,7 +2385,17 @@
       "source_file": "received/F15.txt",
       "source_line": "183",
       "environment_context_ref": "/jobs/F15",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "B120",
+        "B121",
+        "B122",
+        "B123",
+        "B41",
+        "LA-015"
+      ]
     },
     {
       "id": "F15-P030",
@@ -1765,7 +2407,19 @@
       "source_file": "received/F15.txt",
       "source_line": "185",
       "environment_context_ref": "/jobs/F15",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B156",
+        "B157",
+        "B158",
+        "B159",
+        "B160",
+        "B161",
+        "B162",
+        "B163",
+        "B164",
+        "B165"
+      ]
     },
     {
       "id": "F15-P069",
@@ -1777,7 +2431,12 @@
       "source_file": "received/F15.txt",
       "source_line": "224",
       "environment_context_ref": "/jobs/F15",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B112",
+        "B113",
+        "B127"
+      ]
     },
     {
       "id": "F15-P079",
@@ -1789,7 +2448,11 @@
       "source_file": "received/F15.txt",
       "source_line": "234",
       "environment_context_ref": "/jobs/F15",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B106",
+        "B107"
+      ]
     },
     {
       "id": "F15-P130",
@@ -1801,7 +2464,12 @@
       "source_file": "received/F15.txt",
       "source_line": "285",
       "environment_context_ref": "/jobs/F15",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B118",
+        "B119",
+        "LA-015"
+      ]
     },
     {
       "id": "F15-P142",
@@ -1813,7 +2481,15 @@
       "source_file": "received/F15.txt",
       "source_line": "297",
       "environment_context_ref": "/jobs/F15",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B106",
+        "B107",
+        "B108",
+        "B109",
+        "B110",
+        "B111"
+      ]
     },
     {
       "id": "F15-P143",
@@ -1825,7 +2501,12 @@
       "source_file": "received/F15.txt",
       "source_line": "298",
       "environment_context_ref": "/jobs/F15",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B124",
+        "B125",
+        "B126"
+      ]
     },
     {
       "id": "F15-P151",
@@ -1837,12 +2518,471 @@
       "source_file": "received/F15.txt",
       "source_line": "306",
       "environment_context_ref": "/jobs/F15",
-      "backend_assertion": "not_established_by_test_cell_alone"
+      "backend_assertion": "not_established_by_test_cell_alone",
+      "routed_candidate_findings": [
+        "B120",
+        "B121",
+        "B123"
+      ]
     }
   ],
   "limitations": [
     "Query route is navigation, not ownership. Exact ownership established separately from complete TSV/cards/accounting.",
     "Transferred reports do not include raw archives or establish semantic closure.",
     "Each test cell carries its exact historical source SHA; its complete recorded job context is included."
+  ],
+  "pointed_B110_B129_queries": [
+    {
+      "finding": "B110",
+      "matching_cells": 8,
+      "displayed_cells": 8,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B110.json",
+      "sha256": "c79a0ea4752f8c45a291a32a4e2e8fd2224ce99c68125ed01977f87bffc43354",
+      "cells": [
+        "F03-P018",
+        "F04-P120",
+        "F06-P032",
+        "F08-P120",
+        "F09-P025",
+        "F12-P024",
+        "F14-P022",
+        "F15-P142"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B111",
+      "matching_cells": 8,
+      "displayed_cells": 8,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B111.json",
+      "sha256": "f19bd72bc989cb9953d218380f56f44583081081a9452a57391902db85d411be",
+      "cells": [
+        "F03-P018",
+        "F04-P120",
+        "F06-P032",
+        "F08-P120",
+        "F09-P025",
+        "F12-P024",
+        "F14-P022",
+        "F15-P142"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B112",
+      "matching_cells": 10,
+      "displayed_cells": 10,
+      "matching_source_blocks": 3,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B112.json",
+      "sha256": "0d7b468514dc88f3cf23a1ee59ffe1da544bf6b9346bcc9f021e1c816a945569",
+      "cells": [
+        "F02-P057",
+        "F02-P095",
+        "F06-P080",
+        "F06-P112",
+        "F08-P061",
+        "F08-P096",
+        "F10-P086",
+        "F12-P063",
+        "F13-P108",
+        "F15-P069"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B113",
+      "matching_cells": 10,
+      "displayed_cells": 10,
+      "matching_source_blocks": 3,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B113.json",
+      "sha256": "c70ec76b70a51d18dfe3913f775b09fadcc201ec34837bca6a1c5512063be1eb",
+      "cells": [
+        "F02-P057",
+        "F02-P095",
+        "F06-P080",
+        "F06-P112",
+        "F08-P061",
+        "F08-P096",
+        "F10-P086",
+        "F12-P063",
+        "F13-P108",
+        "F15-P069"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B114",
+      "matching_cells": 5,
+      "displayed_cells": 5,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B114.json",
+      "sha256": "220e94012901cdc87fc2429604a1dd2ec3a9641bf3133b1c4a9f787ee300e364",
+      "cells": [
+        "F02-P095",
+        "F06-P112",
+        "F08-P096",
+        "F10-P086",
+        "F13-P108"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B115",
+      "matching_cells": 5,
+      "displayed_cells": 5,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B115.json",
+      "sha256": "ff3f3faf618865df86ee0364ecae6b0d16a0ae47c85e5371d702fdcef190186e",
+      "cells": [
+        "F02-P095",
+        "F06-P112",
+        "F08-P096",
+        "F10-P086",
+        "F13-P108"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B116",
+      "matching_cells": 5,
+      "displayed_cells": 5,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B116.json",
+      "sha256": "a7bc8d1cb1e5b2d593b17b6ed9aca46e62cc342bd777945cb3d09f1660ad292b",
+      "cells": [
+        "F01-P052",
+        "F06-P074",
+        "F08-P056",
+        "F12-P058",
+        "F13-P061"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B117",
+      "matching_cells": 5,
+      "displayed_cells": 5,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B117.json",
+      "sha256": "5fb4004d1de093462a855a60ef09bf528ebc4feb64e93472cdfd56cac104a0ff",
+      "cells": [
+        "F01-P052",
+        "F06-P074",
+        "F08-P056",
+        "F12-P058",
+        "F13-P061"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B118",
+      "matching_cells": 16,
+      "displayed_cells": 16,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B118.json",
+      "sha256": "d22a35a19198fc103b54ec639e5da9e89e04fe25b4220f24fad82546d488d9b0",
+      "cells": [
+        "F01-P022",
+        "F01-P110",
+        "F02-P093",
+        "F04-P114",
+        "F05-P042",
+        "F06-P128",
+        "F07-P086",
+        "F07-P104",
+        "F08-P115",
+        "F09-P032",
+        "F10-P100",
+        "F11-P031",
+        "F13-P106",
+        "F14-P134",
+        "F15-P028",
+        "F15-P130"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B119",
+      "matching_cells": 16,
+      "displayed_cells": 16,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B119.json",
+      "sha256": "71a5459fa558495769ae5db9106e86d64b1af4dcbf7cbb5a81e0663120c10fd0",
+      "cells": [
+        "F01-P022",
+        "F01-P110",
+        "F02-P093",
+        "F04-P114",
+        "F05-P042",
+        "F06-P128",
+        "F07-P086",
+        "F07-P104",
+        "F08-P115",
+        "F09-P032",
+        "F10-P100",
+        "F11-P031",
+        "F13-P106",
+        "F14-P134",
+        "F15-P028",
+        "F15-P130"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B120",
+      "matching_cells": 23,
+      "displayed_cells": 23,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B120.json",
+      "sha256": "09a202cd1a20d41855986ab7abff5a701c465eacaf16d6e7ec0b205b45592460",
+      "cells": [
+        "F01-P022",
+        "F02-P093",
+        "F02-P129",
+        "F04-P048",
+        "F04-P114",
+        "F05-P042",
+        "F06-P069",
+        "F06-P128",
+        "F06-P140",
+        "F07-P086",
+        "F08-P053",
+        "F08-P115",
+        "F08-P126",
+        "F09-P032",
+        "F10-P051",
+        "F10-P100",
+        "F11-P031",
+        "F12-P115",
+        "F13-P058",
+        "F13-P106",
+        "F14-P134",
+        "F15-P028",
+        "F15-P151"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B121",
+      "matching_cells": 23,
+      "displayed_cells": 23,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B121.json",
+      "sha256": "63246ac953dfe0067d2c988c66102458274f9da3b115270490e6827d745949e9",
+      "cells": [
+        "F01-P022",
+        "F02-P093",
+        "F02-P129",
+        "F04-P048",
+        "F04-P114",
+        "F05-P042",
+        "F06-P069",
+        "F06-P128",
+        "F06-P140",
+        "F07-P086",
+        "F08-P053",
+        "F08-P115",
+        "F08-P126",
+        "F09-P032",
+        "F10-P051",
+        "F10-P100",
+        "F11-P031",
+        "F12-P115",
+        "F13-P058",
+        "F13-P106",
+        "F14-P134",
+        "F15-P028",
+        "F15-P151"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B122",
+      "matching_cells": 11,
+      "displayed_cells": 11,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B122.json",
+      "sha256": "6286fbd178b13585d550f761849861369db9202bb730eb0e700307a7ba499eb8",
+      "cells": [
+        "F01-P022",
+        "F02-P029",
+        "F03-P026",
+        "F05-P042",
+        "F06-P046",
+        "F09-P032",
+        "F09-P035",
+        "F11-P031",
+        "F11-P034",
+        "F13-P031",
+        "F15-P028"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B123",
+      "matching_cells": 23,
+      "displayed_cells": 23,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B123.json",
+      "sha256": "fa55c06a524a7a03495a4a85ccb68d0ed7511c59063cbce473311305ec41d131",
+      "cells": [
+        "F01-P022",
+        "F02-P093",
+        "F02-P129",
+        "F04-P048",
+        "F04-P114",
+        "F05-P042",
+        "F06-P069",
+        "F06-P128",
+        "F06-P140",
+        "F07-P086",
+        "F08-P053",
+        "F08-P115",
+        "F08-P126",
+        "F09-P032",
+        "F10-P051",
+        "F10-P100",
+        "F11-P031",
+        "F12-P115",
+        "F13-P058",
+        "F13-P106",
+        "F14-P134",
+        "F15-P028",
+        "F15-P151"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B124",
+      "matching_cells": 15,
+      "displayed_cells": 15,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B124.json",
+      "sha256": "72760569b0088a740ea45140720aff74ca1daffb60d9583791f9924f2272be42",
+      "cells": [
+        "F01-P128",
+        "F03-P073",
+        "F03-P121",
+        "F05-P094",
+        "F05-P133",
+        "F05-P140",
+        "F07-P065",
+        "F08-P121",
+        "F09-P126",
+        "F11-P076",
+        "F11-P115",
+        "F12-P108",
+        "F14-P085",
+        "F14-P151",
+        "F15-P143"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B125",
+      "matching_cells": 15,
+      "displayed_cells": 15,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B125.json",
+      "sha256": "708a83dce63a04ffff4544d13d62fe8d48fb9285cbec3bef3f4437c4a25a9a61",
+      "cells": [
+        "F01-P128",
+        "F03-P073",
+        "F03-P121",
+        "F05-P094",
+        "F05-P133",
+        "F05-P140",
+        "F07-P065",
+        "F08-P121",
+        "F09-P126",
+        "F11-P076",
+        "F11-P115",
+        "F12-P108",
+        "F14-P085",
+        "F14-P151",
+        "F15-P143"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B126",
+      "matching_cells": 15,
+      "displayed_cells": 15,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B126.json",
+      "sha256": "e14c0ab5941f483a62ad5a186b6939a6cb614709722111dbf3fdd3af023daf37",
+      "cells": [
+        "F01-P128",
+        "F03-P073",
+        "F03-P121",
+        "F05-P094",
+        "F05-P133",
+        "F05-P140",
+        "F07-P065",
+        "F08-P121",
+        "F09-P126",
+        "F11-P076",
+        "F11-P115",
+        "F12-P108",
+        "F14-P085",
+        "F14-P151",
+        "F15-P143"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B127",
+      "matching_cells": 10,
+      "displayed_cells": 10,
+      "matching_source_blocks": 3,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B127.json",
+      "sha256": "0a74f6c9ee844c8867d63ce9061c2804f3c9e49962f1a6a7b12db8135e514e76",
+      "cells": [
+        "F02-P057",
+        "F02-P095",
+        "F06-P080",
+        "F06-P112",
+        "F08-P061",
+        "F08-P096",
+        "F10-P086",
+        "F12-P063",
+        "F13-P108",
+        "F15-P069"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B128",
+      "matching_cells": 6,
+      "displayed_cells": 6,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B128.json",
+      "sha256": "c91fe7c7f066cbc59e7e1d98bce994011a944875e115958c9b13db0bf1be7b5d",
+      "cells": [
+        "F02-P081",
+        "F04-P088",
+        "F06-P102",
+        "F08-P082",
+        "F11-P082",
+        "F13-P093"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    },
+    {
+      "finding": "B129",
+      "matching_cells": 3,
+      "displayed_cells": 3,
+      "matching_source_blocks": 0,
+      "raw_output_path": "/workspace/e02-D-continuation-receipts/raw/query-B129.json",
+      "sha256": "731cedf3da49a40db7d98e8116d5d13890287b4c1454c01ff389d6264ffe876f",
+      "cells": [
+        "F02-P111",
+        "F08-P113",
+        "F13-P129"
+      ],
+      "warning": "Navigation only; PASS does not close finding."
+    }
   ]
 }

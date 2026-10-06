@@ -1,0 +1,117 @@
+"""Independent immutable-source and actual-evidence review; no model execution."""
+from pathlib import Path
+import hashlib
+import json
+import subprocess
+import xml.etree.ElementTree as ET
+
+REPO = Path('/workspace/e02-D-published-oracle')
+DOC = REPO / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation'
+SOURCE = '656c7f614ecfd404af1fed912a8e02194551bfb4'
+TRANSPORT = '594b14654f5446f3900c564e05fc3cf5a5c4c498'
+BASE = '3a4e8f211a5384d9d61bec24d54477532b100574'
+ROOT = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/'
+HANDOFF = ROOT + 'search-space-numeric-continuation.json'
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=REPO)
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+def data(sha, path):
+    return git('show', f'{sha}:{path}')
+
+def bind(sha, path):
+    raw = data(sha, path)
+    return {'source_sha': sha, 'path': path, 'bytes': len(raw), 'sha256': digest(raw), 'git_blob': git('rev-parse', f'{sha}:{path}').decode().strip()}
+
+handoff = json.loads(data(TRANSPORT, HANDOFF))
+payload = []
+for row in handoff['evidence_manifest']:
+    actual = bind(TRANSPORT, row['path'])
+    assert actual['sha256'] == row['sha256'] and actual['bytes'] == row['bytes']
+    payload.append({**actual, 'status': 'MATCH'})
+changed = []
+for row in handoff['changed_paths']:
+    actual = bind(SOURCE, row['path'])
+    assert actual['sha256'] == row['sha256'] and actual['git_blob'] == row['git_blob']
+    changed.append({**actual, 'status': 'MATCH'})
+
+origins, inputs, runtime = [], [], []
+for check in handoff['checks']:
+    source = check['target_sha']
+    run = json.loads(data(TRANSPORT, check['input_closure']))
+    parent = str(Path(check['input_closure']).parent)
+    native = json.loads(data(TRANSPORT, parent + '/junit.native.json'))
+    xml = ET.fromstring(data(TRANSPORT, parent + '/junit.xml'))
+    suites = [xml] if xml.tag == 'testsuite' else xml.findall('testsuite')
+    counts = {key: sum(int(s.attrib.get(key, 0)) for s in suites) for key in ['tests', 'failures', 'errors', 'skipped']}
+    assert counts == check['junit']
+    assert run['source_sha'] == source == run['source_after']
+    assert run['source_tree'] == git('rev-parse', source + '^{tree}').decode().strip()
+    assert digest(data(TRANSPORT, check['complete_output'])) == run['output_sha256']
+    for path, expected in run['selector_sha256'].items():
+        target = 'policy-engine/' + path
+        overlay = check['id'] == 'baseline' and path.endswith('/test_space_numeric_admission.py')
+        actual = bind(SOURCE if overlay else source, target)
+        assert actual['sha256'] == expected
+        inputs.append({'cell': check['id'], **actual, 'status': 'EXACT_UNTRACKED_CHARACTERIZATION_OVERLAY' if overlay else 'MATCH'})
+    for path, expected in run['changed_file_sha256'].items():
+        actual = bind(source, path)
+        assert actual['sha256'] == expected
+        inputs.append({'cell': check['id'], **actual, 'status': 'MATCH_CHANGED_INPUT'})
+    for module, row in native['modules'].items():
+        if '/policy-engine/' in row['path']:
+            path = 'policy-engine/' + row['path'].split('/policy-engine/', 1)[1]
+            actual = bind(source, path)
+            assert actual['sha256'] == row['sha256']
+            origins.append({'cell': check['id'], 'module': module, 'loaded_path': row['path'], **actual, 'status': 'GIT_MATCH'})
+        else:
+            observed = Path(row['path']).read_bytes()
+            assert digest(observed) == row['sha256']
+            origins.append({'cell': check['id'], 'module': module, 'loaded_path': row['path'], 'sha256': row['sha256'], 'bytes': len(observed), 'status': 'LOCKED_FILE_BYTES_MATCH'})
+    runtime.append({'id': check['id'], 'counts': counts, 'returncode': run['returncode'], 'wall_seconds': run['wall_seconds'], 'source_sha': source, 'source_tree': run['source_tree'], 'status_after': run['status_after'], 'argv': run['argv'], 'environment_overrides': run['environment_overrides'], 'native_calls': native['native_calls'], 'complete_output': check['complete_output'], 'interpretation': check['meaning']})
+
+core_paths = ['policy-engine/src/polisyos/common/serialization.py', 'policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py']
+cores = []
+for path in core_paths:
+    assert data(SOURCE, path) == data('d38f94c8a8095abb00052b8e78f7b8a470453ed4', path)
+    cores.append({**bind(SOURCE, path), 'byte_identical_to': 'd38f94c8a8095abb00052b8e78f7b8a470453ed4'})
+criteria_path = ROOT + 'published-final-criterion-accounting.json'
+criteria_base = '96eb9b9fb7f2acfa872dc741cbfdd96949c5d203'
+criteria = json.loads(data(criteria_base, criteria_path))
+criteria = [row for row in criteria['criterion_occurrences'] if row['id'] in ['B112@OPT-02', 'B113@OPT-02', 'B127@OPT-02']]
+assert len(criteria) == 3
+
+review = {
+    'schema': 'e02.D.independent-source-review.v1', 'reviewer': 'numerical_oracle', 'role': 'independent non-author source/test/criteria and complete immutable evidence review', 'closure_ids': [],
+    'source_sha': SOURCE, 'source_tree': handoff['candidate_tree_sha'], 'slice_base_sha': BASE, 'transport_sha': TRANSPORT, 'transport_handoff': bind(TRANSPORT, HANDOFF),
+    'verdict': 'PASS within bounded conversion-first finite coordinate/bounds intake and actual native receiver exclusion. Original OPT02 finding acceptance remains a separate full contract decision.',
+    'full_source_diff_and_new_test_read': True, 'changed_files': changed, 'original_criteria': criteria,
+    'mechanism': [
+        'ParameterBounds explicit and post-init convert through canonical finite_real_scalar before numeric arithmetic. Bool/missing/malformed/nonfinite/float-overflow endpoints raise controlled ValueError; supported bounds become their float64 numeric values.',
+        'SearchSpace.normalize retains existing JSON int/float physical-domain guard and uses the same conversion-first reader. Denormalize validates every normalized scalar before clipping/projection/arithmetic.',
+        'Canonical primitive rejects bool/non-real and catches TypeError/ValueError/OverflowError before math.isfinite. It is the exact existing d38 helper, not a second permissive parser.',
+        'Actual unchanged Bayesian receiver catches the controlled ValueError and omits bad physical rows while preserving two valid measured records; new native case stays Sobol with no fitted model.',
+        'Supported zero, continuous numeric normalization, attainable integer projection, log endpoints and type-distinct category True/int1/text1 remain covered; emitted coordinates are normalize(actual executed params).',
+        'Unrepresentable finite affine span and empty integer interval are explicitly refused; no new midpoint or unbounded-precision interpolation law is supplied.',
+        'Existing space fingerprint already hashes float lower/upper; supported numeric endpoint canonicalization preserves that basis. Existing12 space codec/stream/checkpoint tests are actually replayed.'
+    ],
+    'original_acceptance_mapping': {
+        'B112': 'Same native SearchSpace API and receiving optimizer path used; optional availability is not a claimed fit. Four parameterized native cases have pre-import importorskip Torch/BoTorch/GPyTorch with explicit UNRUN reasons. No missing-backend success or fresh minimal-profile proof inferred.',
+        'B113': 'Invalid physical inputs no longer escape before receiver classification; usable measured values/physical coordinates remain distinct. Full IDs/source split/history artifact parsing are unchanged neighboring contract claims, not closed by the49 cases.',
+        'B127': 'Physical→canonical projected action identity retained; mixed typed category/integer/log controls executed. Independent stochastic replicate semantics/pending/completed/finite-exhaustion full acceptance are not newly re-proved by this intake slice.',
+        'units_and_schema': 'Only physical numerical float-representability/typed action domain is changed. No metric conversion, direction/reference policy, unit metadata, source authority, data split or checkpoint schema/version changes.'
+    },
+    'actual_cells': runtime, 'property_removal': 'Only space.finite_real_scalar alias is replaced in child with old math.isfinite-before-float reader, leaving source bytes/space/schema markers intact. Actual huge positive/negative native rows raise OverflowError (2FAIL); bool/Inf controls remain refused (2PASS). Mutation detects the conversion-order property, not every malformed-domain predicate.',
+    'payload_integrity': payload, 'runtime_input_integrity': inputs, 'loaded_origin_integrity': origins,
+    'unchanged_GP_core': cores, 'GP_scope': 'Independent full23 analytical d38 witness preserved at22b5fd724414416e3d617f0546479b122ed6f313. No current656 posterior/fullcovariance fit replay claimed. Affected coordinate/codec/scalar consumers actually49PASS; observed native calls contain no new GPfit.',
+    'quality_and_governance': {'scoped_quality': 'Author actual Ruff check/format complete captured bytes verified; full repository quality failures from prior independent receipts remain held.', 'fragment': bind(TRANSPORT, 'policy-engine/release-fragments/unreleased/2026-10-06-D-space-numeric-admission.toml'), 'classification': 'Owner declares existing internal numerical support surface. Typed physical supported-domain behavior documented; no public facade export or serialized checkpoint field added.'},
+    'limitations': ['Native evaluations in these four new cases are explicit local measured fixtures on the actual optimizer; not production history, CAS custody, true issuer or empirical improvement proof.', 'Unchanged GP/model mathematics not rerun; actual locked native imports/source bytes are distinct from statistical quality.', 'No independent new strict-denial collection run for this added mixed unit/native file; inline native dependency guards inspected only. Existing7SKIP/UNRUN profile retains its exact module scope.', 'Institutional unit/version ownership and full source authority remain outside this technical conversion predicate; no original finding automatically closed.', 'No reviewer backend child, model fits, children, source archives, dependency installs, CPU/thread/process/test-worker caps or deletion. All author moderate deciding bytes remain exact committed Git objects.'],
+}
+target = DOC / 'space656-independent-review.json'
+target.write_text(json.dumps(review, indent=2) + '\n')
+result = {'source_sha': SOURCE, 'source_tree': review['source_tree'], 'transport_sha': TRANSPORT, 'payload_files': len(payload), 'runtime_input_hash_matches': len(inputs), 'origins': len(origins), 'review_sha256': digest(target.read_bytes()), 'verdict': review['verdict']}
+(DOC / 'space656-independent-binding-output.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps(result, indent=2))

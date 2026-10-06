@@ -1,0 +1,336 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "served-input-review",
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "implementation_commits": [],
+  "candidate_sha": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+  "candidate_tree_sha": "a5c268e023720c5afc97af75a285b63e7f943528",
+  "tested_source_commit": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+  "review_snapshot": {
+    "sha": "4716dec3486e4f3ac0a9ed92c1254eba9a8eda34",
+    "tree_sha": "55c8d5cc56f52554c4494705438f7157ecb94f43",
+    "branch": "codex/e02-A-full-queue",
+    "note": "The root branch advanced after the retained wave. This review cites the wave candidate for test evidence and does not claim the later root HEAD was tested."
+  },
+  "branch": "codex/e02-A-full-queue",
+  "pull_request": null,
+  "closure_ids": [],
+  "finding_ids": [
+    "B01",
+    "B02",
+    "B03",
+    "B04",
+    "B05",
+    "B08",
+    "B26",
+    "B27"
+  ],
+  "finding_outcomes": {
+    "B01": "not_adjudicated",
+    "B02": "not_adjudicated",
+    "B03": "not_adjudicated",
+    "B04": "not_adjudicated_for_served_route",
+    "B05": "not_adjudicated",
+    "B08": "not_adjudicated_for_served_route",
+    "B26": "not_adjudicated",
+    "B27": "not_adjudicated"
+  },
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/report.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/wave-3bd/environment-and-inputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/wave-3bd/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/wave-3bd/stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/wave-3bd/junit.xml"
+  ],
+  "source_changed_paths": [],
+  "production_source_changes": false,
+  "checks": [
+    {
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-c",
+        "pytest.ini",
+        "-q",
+        "tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+        "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+        "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/junit.xml",
+        "--durations=0"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+      "target_sha": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+      "target_tree_sha": "a5c268e023720c5afc97af75a285b63e7f943528",
+      "environment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/wave-3bd/environment-and-inputs.json",
+      "input_closure": "L6 comparisons are recorded under input_identity below; the full read-only source bundle is not copied into the repository.",
+      "exit_code": 1,
+      "outcome": "FAIL",
+      "summary": "19 tests; 13 passed, 6 failed, 0 skipped; elapsed_seconds=82.26178002357483 in environment-and-inputs.json; JUnit time=77.022s.",
+      "served_route_deciding_failure": "FAILED during configured profile setup before create_runtime_api_app/client POST: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest (intervention_substrate.py:1061). The CYC-01/CYC-02 served property is UNRUN.",
+      "other_failures": "Five failures in test_e02_empirical_member_intake.py are retained in full logs and not attributed by this review.",
+      "raw_receipts": {
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/wave-3bd/stdout.txt",
+          "sha256": "2db18f6f162cda5af13e402b9183485eb29cfa530a573a2cbb53b8c51dc6f5b8"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/wave-3bd/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/wave-3bd/junit.xml",
+          "sha256": "0dc36ab4eb4eaab6dfd7b19eba191d1e7bdca510c36cb276766888f9f3f9ea04"
+        },
+        "environment_and_inputs": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review/wave-3bd/environment-and-inputs.json",
+          "sha256": "6e987120012ea42f479f565132ab624c0f865a4eff197337434795842678e5b4"
+        }
+      }
+    }
+  ],
+  "property": {
+    "statement": "The ordinary POST route compiles DesignProblem, binds an exact server-configured candidate profile/context, executes the actual N5 engine, persists its typed result and CAS lineage, then a fresh application/process GET re-resolves that lineage and recomputes only a conditional N8 candidate value while retaining candidate_scenario_n5_only blockers.",
+    "runtime_path": [
+      "POST /api/v1/control/runs/nl (routes/control.py@3bd5dc0d9f0385fe2662024e173c7f75e25798db#L369-L375)",
+      "configured profile and L6 input (_helpers/controlled_candidate_profile.py@3bd5dc0d9f0385fe2662024e173c7f75e25798db#L84-L120,L214-L220)",
+      "N5 L6 link and actual joint simulation (generation_cycle.py@3bd5dc0d9f0385fe2662024e173c7f75e25798db#L8608-L8616)",
+      "CAS result and conditional N8 fresh-read route (runs.py@3bd5dc0d9f0385fe2662024e173c7f75e25798db#L1091-L1155)"
+    ],
+    "implementation_property_divergence": "Selecting a typed CandidateSimulationScenarioProfile or accepting the launch HTTP request is only a selection/transport proxy. At this candidate the profile builder fails before POST because L6 is absent. The existing loader would also accept the two mismatched read-only files by hashing their actual bytes without reconciling the declared FINAL_ARTIFACTS_MANIFEST.",
+    "negative_controls": [
+      "Missing required L6 files fails closed with l6_control_artifact_missing before route execution.",
+      "The existing read-only root has two required source files whose actual bytes disagree with the nested manifest; do not turn those into a positive fixture.",
+      "Foreign scope, wrong profile/WMR/atom/outcome, unknown outcome, denied right, and tampered CAS controls are not exercised by this route attempt."
+    ]
+  },
+  "input_identity": {
+    "disposition": "fixture_input_unverified",
+    "worker_product_root": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+    "worker_production_data_path": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/production_data",
+    "worker_production_data_exists": false,
+    "POLISYOS_PRODUCTION_DATA_ROOT": null,
+    "read_only_original_data_root": "/Users/deniskopylov/polisyos/policy-engine/production_data",
+    "read_only_original_data_root_mode": "0555",
+    "root_manifest": {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/manifest.json",
+      "actual_sha256": "9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105",
+      "bundle_role": "ukraine_agent_simulation_baseline",
+      "version_id": "ukraine_agent_simulation_baseline_20260410",
+      "readiness": "ready",
+      "declared_final_manifest_sha256": "e65ca699c56b203097c5dc11d99fd171a337e89ee888132ce82e36557d87992d"
+    },
+    "final_artifacts_manifest": {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+      "actual_sha256": "e65ca699c56b203097c5dc11d99fd171a337e89ee888132ce82e36557d87992d",
+      "actual_bytes": 8488,
+      "root_manifest_digest_match": true,
+      "checked_file_count": 5,
+      "manifest_expected_actual_mismatches": 2,
+      "files": [
+        {
+          "relative_path": "production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+          "absolute_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+          "manifest_expected_sha256": "4f52f0a743a46f5c53cf5608cc73b1b05f0e8d7f8ee360d866e6f127863a840f",
+          "manifest_expected_bytes": 268,
+          "actual_sha256": "005d89f0ab1728a4f6c20cccad5781c1ef7721f82215c8de7c21622f3abe4328",
+          "actual_bytes": 581,
+          "matches": false,
+          "required_by_loader": true
+        },
+        {
+          "relative_path": "production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+          "absolute_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+          "manifest_expected_sha256": "49168c4779a0d1025c166f7eea04477efdd27fb3a3b7554ae7878da45af7fbaa",
+          "manifest_expected_bytes": 178,
+          "actual_sha256": "5c72461237a09605c39f180345de45cff55c59eed5d4d0e2ca80cc4aa446addf",
+          "actual_bytes": 972,
+          "matches": false,
+          "required_by_loader": true
+        },
+        {
+          "relative_path": "production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json",
+          "absolute_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json",
+          "manifest_expected_sha256": "6d565e724d4caf89841499ba31df47d0a8c0dcc800689ea159cfab608d4b382b",
+          "manifest_expected_bytes": 3021,
+          "actual_sha256": "6d565e724d4caf89841499ba31df47d0a8c0dcc800689ea159cfab608d4b382b",
+          "actual_bytes": 3021,
+          "matches": true,
+          "required_by_loader": true
+        },
+        {
+          "relative_path": "production_bundle/bundles/intervention_bundle_v1/policy_scenario_templates.json",
+          "absolute_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/policy_scenario_templates.json",
+          "manifest_expected_sha256": "6636f31ba297c2c52644c8a7e22830a8341abe1d72616468fb45bf808495dbe1",
+          "manifest_expected_bytes": 125,
+          "actual_sha256": "6636f31ba297c2c52644c8a7e22830a8341abe1d72616468fb45bf808495dbe1",
+          "actual_bytes": 125,
+          "matches": true,
+          "required_by_loader": false
+        },
+        {
+          "relative_path": "production_bundle/bundles/runtime_bundle_v1/slot_family_manifest.json",
+          "absolute_path": "/Users/deniskopylov/polisyos/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/slot_family_manifest.json",
+          "manifest_expected_sha256": "717c638f0baf717739e7e2e51195f8fdb5ba5782597f5a0eb81b74430f6d4882",
+          "manifest_expected_bytes": 1817,
+          "actual_sha256": "717c638f0baf717739e7e2e51195f8fdb5ba5782597f5a0eb81b74430f6d4882",
+          "actual_bytes": 1817,
+          "matches": true,
+          "required_by_loader": false
+        }
+      ]
+    },
+    "tracked_owner_authority_binding": {
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json",
+      "content_sha256": "3347976276700016a99d47301fd22a8e897678dfd7aef6a926561e9a4a044378",
+      "git_blob_at_3bd5dc0d9f0385fe2662024e173c7f75e25798db": "1705340a9f6bf75e60ae0f2b0777a97a1b957d7d",
+      "manifest_entry": null
+    }
+  },
+  "existing_fixture_census": {
+    "method": "Read-only script walked every path returned by git ls-files policy-engine/tests/**/*.py and searched exact text needles CandidateSimulationScenarioProfile, candidate_simulation_profiles, _configured_procurement_profile.",
+    "denominator": {
+      "tracked_test_python_files": 2763,
+      "matching_files": 10,
+      "served_profile_integration_files": 3
+    },
+    "matching_files": [
+      "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+      "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+      "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+      "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "policy-engine/tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py",
+      "policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py",
+      "policy-engine/tests/unit/runtime/quality/test_design_generation.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/runtime/quality/test_world_model_record.py"
+    ],
+    "served_profile_integration": [
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+        "l6_dependency": "_configured_procurement_profile -> load_l6_intervention_substrate; current test fails before POST."
+      },
+      {
+        "path": "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+        "l6_dependency": "_configured_procurement_profile -> load_l6_intervention_substrate."
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py",
+        "l6_dependency": "served builder directly calls load_l6_intervention_substrate."
+      }
+    ],
+    "generic_profile_fixtures": [
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py@3bd5dc0d9f0385fe2662024e173c7f75e25798db#L585-L598",
+        "property_proved": "typed profile/handoff/context owner persistence and lineage",
+        "route_or_n5_proved": false,
+        "intervention_substrate": "None via _cycle_context default"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py@3bd5dc0d9f0385fe2662024e173c7f75e25798db#L1027-L1037,L1347-L1376",
+        "property_proved": "context owner hash verification and bounded unresolved-lever refusal",
+        "route_or_n5_proved": false,
+        "intervention_substrate": "None default; separate manually synthesized one-knob bundle has empty Lex/observation maps and is not a source-backed route profile"
+      }
+    ],
+    "runtime_requirement": "generation_cycle.py@3bd5dc0d9f0385fe2662024e173c7f75e25798db#L8608-L8616 refuses candidate_simulation_l6_bundle_missing before N5."
+  },
+  "predicate_basis": "not_established for accepted L6 source authority and the served property. This review recomputed actual SHA/size against the declared manifest entries, but the manifest itself does not authenticate who issued its expectations.",
+  "capability_state_or_finding_state": "fixture_input_unverified; served semantic test missing; CYC-01/B01-B03/B27 and served CYC-02/B04-B05/B08 are not adjudicated.",
+  "finding_assessment": [
+    {
+      "id": "B01",
+      "outcome": "not_adjudicated",
+      "capability_label": "producer_missing",
+      "served_positive": "UNRUN fixture_input_unverified"
+    },
+    {
+      "id": "B02",
+      "outcome": "not_adjudicated",
+      "capability_label": "verification_missing",
+      "served_positive": "UNRUN fixture_input_unverified"
+    },
+    {
+      "id": "B03",
+      "outcome": "not_adjudicated",
+      "capability_label": "producer_missing",
+      "served_positive": "UNRUN fixture_input_unverified"
+    },
+    {
+      "id": "B27",
+      "outcome": "not_adjudicated",
+      "capability_label": "producer_missing",
+      "served_positive": "UNRUN fixture_input_unverified"
+    },
+    {
+      "id": "B04",
+      "outcome": "not_adjudicated",
+      "capability_label": "verification_missing",
+      "served_positive": "UNRUN on the ordinary served route; no claim about separate direct CAS unit evidence"
+    },
+    {
+      "id": "B05",
+      "outcome": "not_adjudicated",
+      "capability_label": "verification_missing",
+      "served_positive": "UNRUN; no N9 path or valid owner currentness positive control in this route attempt"
+    },
+    {
+      "id": "B08",
+      "outcome": "not_adjudicated",
+      "capability_label": "verification_missing",
+      "served_positive": "UNRUN conditional N8 served value"
+    },
+    {
+      "id": "B26",
+      "outcome": "not_adjudicated",
+      "capability_label": "surface_missing",
+      "served_positive": "fresh GET was not reached; interaction residual surface/recompute not demonstrated"
+    }
+  ],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P10",
+      "P27",
+      "P32",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "found": [
+      "P01/P02: source fixture failure interrupts producer-to-persisted-artifact-to-consumer chain before POST; direct owner tests do not fill the served bridge.",
+      "P05/P27: a synthetic or mismatched L6 bundle would create apparent source authority or a second owner.",
+      "P32/P37: actual bytes must be resolved and compared to a declared digest; source authority is not established by self-hash.",
+      "P38: profile selection/HTTP acceptance is a proxy for actual N5/CAS/fresh N8 property; missing and mismatched L6 are distinguishing cases.",
+      "P40/P41: fix/attribute the input-source class; the retained wave is FAIL and was not replayed at the slice base here."
+    ],
+    "target_pattern": "Reuse the existing configured profile, L6 loader, N5 bridge and fresh GET consumer, gated by a read-only, manifest-consistent source input. Do not synthesize source bundle data or weaken the consumer."
+  },
+  "limitations_and_next_owner": [
+    "L6/data owner: identify or provide a read-only source whose required bytes match a declared manifest, or issue a new authoritative manifest for the actual bytes. Existing original root is not a verified substitute because two required files mismatch.",
+    "A-W01: after the source is admitted and candidate frozen, rerun the exact ASGI route and preserve POST/job/context/N5/CAS/fresh-application GET identities, plus foreign scope, unknown outcome, denied-right and tampered-CAS negatives.",
+    "B05: a true runtime-backed N9 refusal and separate valid signed/currentness receipt positive control remain an owner requirement; no early status or test-local signature substitutes.",
+    "Do not attribute the five empirical-member-intake failures as inherited or unrelated until the exact command is replayed on the slice base under P41.",
+    "No source/test edits, data changes, tests, numerical work, commit, or finding closure were performed by this review."
+  ],
+  "closure_status": "not_adjudicated; no closure IDs",
+  "companion_footprint": {
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/served-input-review",
+    "files": [
+      "report.md",
+      "wave-3bd/environment-and-inputs.json",
+      "wave-3bd/stdout.txt",
+      "wave-3bd/stderr.txt",
+      "wave-3bd/junit.xml"
+    ]
+  }
+}

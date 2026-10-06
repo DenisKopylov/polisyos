@@ -1,0 +1,701 @@
+FF...........FFFF..                                                      [100%]
+=================================== FAILURES ===================================
+______ test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get ______
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/basetemp/test_served_candidate_value_is0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x140262ea0>
+
+    def test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """The ordinary run-details route replays one candidate-only value from CAS."""
+    
+        pytest.importorskip("fastapi.testclient")
+        from fastapi.testclient import TestClient
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.http import jwt_auth_middleware
+        from polisyos.runtime.http.app import create_runtime_api_app
+        from polisyos.runtime.http.container import RuntimeContainerOverrides
+        from polisyos.runtime.http.dependencies import build_runtime_api_context
+        from polisyos.runtime.http.security import PolicyOSRole, build_fixture_identity_claims
+        from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.http.services.control_plane_store import (
+            _control_job_execution_scope_from_event,
+        )
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationContextHandoff,
+            CandidateSimulationN5InputV5,
+            CandidateSimulationScenarioProfile,
+            CandidateSimulationSyntheticModelDeclarationV1,
+            candidate_simulation_profile_ref,
+        )
+        from polisyos.runtime.quality.conditional_simulation_replay import (
+            replay_conditional_simulation_values,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+            cycle_job_profile_selection_ref,
+        )
+        from polisyos.runtime.quality.generation_cycle import (
+            JointSimulationPort,
+            _DefaultSimulationBoundFoundryValuePort,
+            load_joint_simulation_result,
+            persist_joint_simulation_result,
+        )
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+            N4CandidateScenarioSourceRecordV2,
+            N4CandidateScenarioSourceRecordV3,
+        )
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            derive_candidate_scenario_atom,
+        )
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            JointSimulationResult,
+            build_content_bound_simulation_receipt,
+        )
+        from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
+        from polisyos.scientist.orchestration.llm import factory as llm_factory
+        from tests._helpers.control_worker import dispatch_one_control_job
+        from tests.unit.runtime.http.test_control_job_execution_intent import (
+            _valid_intake_for_mode,
+        )
+        from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+            _DeterministicSpanSupportClient,
+            _FakeDesignProblemGateway,
+        )
+    
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix())
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+        monkeypatch.setenv("JAX_PLATFORMS", "cpu")
+        monkeypatch.setenv("OMP_NUM_THREADS", "1")
+    
+        recording = next(
+            item
+            for item in n4_contract._load_recordings(REPO_ROOT)
+            if item.get("design_problem_id") == _RECORDING_ID
+        )
+        recorded_problem = _current_compiler_problem(recording)
+        controlled_recording = _controlled_procurement_recording(
+            recording,
+            outcome_variable=recorded_problem.outcome_of_interest.target_variable,
+        )
+        raw_request = recorded_problem.nl_provenance.raw_request
+        model_id = str(recording["model_id"])
+        compiler_gateway = _FakeDesignProblemGateway(
+            models=[model_id],
+            arguments=recorded_problem.model_dump(mode="json"),
+        )
+        cas_root = tmp_path / ".polisyos"
+        first_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+        )
+>       profile, model_declaration = _configured_procurement_profile(
+            recorded_problem=recorded_problem,
+            artifact_store=first_context.store,
+            tenant_id=_TENANT_ID,
+            cell_id=_CELL_ID,
+        )
+
+tests/integration/core_runtime/test_e02_served_cycle_custody.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/_helpers/controlled_candidate_profile.py:219: in _configured_procurement_profile
+    intervention_substrate=load_l6_intervention_substrate(REPO_ROOT),
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo_root = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine')
+
+    def load_l6_intervention_substrate(repo_root: Path) -> InterventionSubstrateBundle:
+        """Load the real L6 agent-sim control artifacts with content hashes."""
+    
+        paths = default_l6_bundle_paths(repo_root.resolve())
+        required = (
+            "intervention_knob_dictionary",
+            "lex_intervention_map",
+            "observation_to_contract_manifest",
+        )
+        missing = [name for name in required if not paths[name].is_file()]
+        if missing:
+>           raise InterventionSubstrateError(
+                "l6_control_artifact_missing",
+                ", ".join(sorted(missing)),
+            )
+E           polisyos.runtime.quality.intervention_substrate.InterventionSubstrateError: l6_control_artifact_missing: intervention_knob_dictionary, lex_intervention_map, observation_to_contract_manifest
+
+src/polisyos/runtime/quality/intervention_substrate.py:1061: InterventionSubstrateError
+____ test_default_root_gateway_uses_exact_c_members_before_cap_and_grouping ____
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/basetemp/test_default_root_gateway_uses0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x14176c050>
+
+    def test_default_root_gateway_uses_exact_c_members_before_cap_and_grouping(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Same-country nonmembers cannot alter the four admitted profile members."""
+        scenario, projection = _activate_four_row_scenario(tmp_path, monkeypatch)
+        outcome = scenario.passport.variable_id
+        selected = projection.observations[0].observation
+    
+        # A same-source/unit row at a nonprojected old period would expand the current
+        # country-scoped panel. A foreign source/unit row makes the leak observable
+        # even if a later source/unit check refuses the profile.
+        same_source_old_period = (
+            "same-source-old-period",
+            selected.dataset_id,
+            "distress_score",
+            outcome,
+            "UA",
+            1899,
+            None,
+            None,
+            0.31,
+            json.dumps({"unit": "ratio"}),
+        )
+        foreign_source_unit = (
+            "foreign-source-period",
+            "foreign-dataset",
+            "distress_score",
+            outcome,
+            "UA",
+            1900,
+            None,
+            None,
+            0.88,
+            json.dumps({"unit": "usd"}),
+        )
+        # More same-country rows than the whole profile cap distinguish exact member
+        # selection before LIMIT from a country predicate followed by post-filtering.
+        cap_fillers = [
+            (
+                f"unprojected-{index:05d}",
+                "foreign-dataset",
+                "distress_score",
+                outcome,
+                "UA",
+                20_000 + index,
+                None,
+                None,
+                0.99,
+                json.dumps({"unit": "ratio"}),
+            )
+            for index in range(20_001)
+        ]
+        _append_overlay_observations(
+            scenario,
+            [same_source_old_period, foreign_source_unit, *cap_fillers],
+        )
+    
+>       profile = _load_through_default_root_gateway(scenario, projection)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/integration/core_runtime/test_e02_empirical_member_intake.py:235: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/core_runtime/test_e02_empirical_member_intake.py:119: in _load_through_default_root_gateway
+    return root_port._owner_gateway.load_value_data_profile(
+src/polisyos/runtime/quality/generation_cycle.py:4351: in load_value_data_profile
+    profile = _load_value_data_profile_from_l1_dcat(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def _load_value_data_profile_from_l1_dcat(
+        *,
+        repo_root: Path,
+        outcome: str,
+        owner_access_ref: str,
+        overlay_path: Path | None = None,
+        scope_region: str | None = None,
+        artifact_store: ArtifactStore | None = None,
+        activated_observation_projection: (
+            data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
+        ) = None,
+    ) -> ValueDataProfile | None:
+        """Load deterministic owner rows without deriving an exposure assignment."""
+    
+        normalized_scope_region = _optional_text(scope_region)
+        owner_row_limit = 20_000
+        parameters: list[object] = [outcome]
+        observation_projection = None
+        registered_dataset_id: str | None = None
+        registered_canonical_unit: str | None = None
+        selected_wdi_observation_ids: tuple[str, ...] = ()
+        selected_projection_ids: tuple[str, ...] = ()
+        registered_measurement_units_by_id: dict[str, str] = {}
+        if activated_observation_projection is not None:
+            projection_type = (
+                data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+            )
+            try:
+                observation_projection = projection_type.model_validate(
+                    activated_observation_projection.model_dump(mode="json")
+                )
+            except Exception as exc:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_invalid",
+                    f"Data Forge active observation projection failed content validation: {exc}",
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                ) from exc
+            if artifact_store is None:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_passport_store_missing",
+                    "N8 requires the runtime artifact store to resolve the active passport",
+                    owner_access_ref=f"{owner_access_ref}#active-passport",
+                )
+            try:
+                passport_payload = core_contracts.epoch.load_verified_epoch_statement(
+                    store=artifact_store,
+                    ref=observation_projection.passport_ref,
+                    expected_kind="epoch.acquisition_passport_snapshot",
+                )
+                from polisyos.fabric.data_plane import content_sha256
+                from polisyos.runtime.quality import acquisition_executor
+    
+                passport = acquisition_executor.AdmissionPassport.model_validate(
+                    passport_payload
+                )
+                passport_content_hash = content_sha256(passport_payload)
+            except Exception as exc:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_passport_unresolved",
+                    f"N8 could not verify the Data Forge active passport: {exc}",
+                    owner_access_ref=f"{owner_access_ref}#active-passport",
+                ) from exc
+            if (
+                observation_projection.variable_id != outcome
+                or observation_projection.activation_state != "active"
+                or observation_projection.predicate_provenance != "recomputed"
+                or observation_projection.source_time_status != "not_established"
+                or passport_content_hash != observation_projection.passport_content_sha256
+                or passport.passport_id != observation_projection.passport_id
+                or passport.epoch_id != observation_projection.epoch_id
+                or passport.variable_id != outcome
+                or passport.registration.field_binding.canonical_variable != outcome
+                or passport.registration.field_binding != passport.field_binding
+                or getattr(passport.status, "value", passport.status)
+                not in {"admitted", "admitted_degraded"}
+            ):
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_binding_mismatch",
+                    "Data Forge active projection does not bind the verified passport and N8 outcome",
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                )
+            registered_dataset_id = passport.registration.catalog_dataset_id
+            registered_canonical_unit = _optional_text(
+                passport.registration.field_binding.canonical_unit
+            )
+            if any(
+                row.observation.dataset_id != registered_dataset_id
+                for row in observation_projection.observations
+            ):
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_registration_mismatch",
+                    "Data Forge active rows differ from their passport registration dataset",
+                    owner_access_ref=(
+                        f"{owner_access_ref}#activated-observation-projection"
+                    ),
+                )
+            if normalized_scope_region:
+                from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
+                    iso2_to_iso3,
+                    normalize_country_code,
+                )
+    
+                try:
+                    wdi_country_code = iso2_to_iso3(normalized_scope_region)
+                except Exception as exc:  # pragma: no cover - defensive owner-boundary guard.
+                    raise ValueOwnerAccessError(
+                        "acquire_data:active_observation_country_scheme_not_established",
+                        f"The registered WDI source code for this scope is unresolved: {exc}",
+                        owner_access_ref=(
+                            f"{owner_access_ref}#activated-observation-projection"
+                        ),
+                    ) from exc
+                selected_ids: list[str] = []
+                for row in observation_projection.observations:
+                    observation = row.observation
+                    if observation.country_code == normalized_scope_region:
+                        continue
+                    if normalize_country_code(observation.country_code) != normalized_scope_region:
+                        continue
+                    live_source = passport.live_source_execution
+                    live_authorization = (
+                        live_source.authorization if live_source is not None else None
+                    )
+                    if (
+                        passport.registration.connector_id != "worldbank.wdi"
+                        or passport.source_lane != "live_fetch"
+                        or live_authorization is None
+                        or live_authorization.connector_id
+                        != passport.registration.connector_id
+                        or live_authorization.profile_id
+                        != passport.registration.source_profile_id
+                        or live_authorization.request_variables
+                        != (passport.registration.request_dataset_id,)
+                        or observation.country_code
+                        not in passport.registration.country_codes
+                        or observation.country_code != wdi_country_code
+                    ):
+                        raise ValueOwnerAccessError(
+                            "acquire_data:active_observation_country_scheme_not_established",
+                            "Only the registered WDI ISO3 source code may bind to this ISO2 scope",
+                            owner_access_ref=(
+                                f"{owner_access_ref}#activated-observation-projection"
+                            ),
+                        )
+                    selected_ids.append(observation.observation_id)
+                if len(selected_ids) > owner_row_limit:
+                    raise ValueOwnerAccessError(
+                        "acquire_data:active_observation_projection_too_large",
+                        "The active selected-member projection exceeds the bounded N8 row limit",
+                        owner_access_ref=(
+                            f"{owner_access_ref}#activated-observation-projection"
+                        ),
+                    )
+                selected_wdi_observation_ids = tuple(sorted(set(selected_ids)))
+            selected_projection_ids = tuple(
+                sorted(
+                    row.observation.observation_id
+                    for row in observation_projection.observations
+                    if normalized_scope_region is None
+                    or row.observation.country_code == normalized_scope_region
+                    or row.observation.observation_id in selected_wdi_observation_ids
+                )
+            )
+            if len(selected_projection_ids) > owner_row_limit:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_too_large",
+                    "The admitted scoped member set exceeds the bounded N8 row limit",
+                    owner_access_ref=f"{owner_access_ref}#activated-observation-projection",
+                )
+        parameters.extend(
+            (
+                observation_projection is not None,
+                list(selected_projection_ids),
+                normalized_scope_region,
+                normalized_scope_region,
+                list(selected_wdi_observation_ids),
+                owner_row_limit + 1,
+            )
+        )
+        try:
+            from polisyos.runtime.quality.substrate_registry import (
+                default_substrate_catalog_paths,
+            )
+        except Exception as exc:  # pragma: no cover - local dependency surface.
+            raise ValueOwnerAccessError(
+                "acquire_data:value_owner_rows_missing",
+                f"substrate row loader dependencies unavailable: {exc}",
+                owner_access_ref="substrate_owner://row_loader_dependency_missing",
+            ) from exc
+    
+        dcat_path = default_substrate_catalog_paths(repo_root).l1_dcat_path
+        if not dcat_path.exists():
+            raise ValueOwnerAccessError(
+                "acquire_data:value_owner_rows_missing",
+                f"L1 DCAT catalog missing at {dcat_path}",
+                owner_access_ref="substrate_owner://l1_dcat_missing",
+            )
+        selected_overlay = overlay_path or (
+            data_forge_read_api.catalog.default_acquisition_overlay_path(repo_root)
+        )
+        con = data_forge_read_api.catalog.open_catalog_read_session(
+            dcat_path,
+            overlay_path=selected_overlay,
+        )
+        # C derives the class from its verified passport; the separate audit table
+        # is not an N8 authority input. Hash all physical fields from C's typed model.
+        physical_columns = (
+            tuple(
+                name
+                for name in type(observation_projection.observations[0].observation).model_fields
+                if name != "observation_class"
+            )
+            if observation_projection is not None
+            else ()
+        )
+        try:
+            cursor = con.execute(
+                """
+                SELECT
+                  COALESCE(NULLIF(country_code, ''), 'unknown') AS unit_id,
+                  COALESCE(year, survey_year, wave) AS period_id,
+                  value,
+                  dataset_id,
+                  observation_id,
+                  condition_json,
+                  *
+                FROM ds_observations
+                WHERE canonical_var = ?
+                  AND (
+                    NOT CAST(? AS BOOLEAN)
+                    OR observation_id IN (SELECT UNNEST(CAST(? AS VARCHAR[])))
+                  )
+                  AND value IS NOT NULL
+                  AND COALESCE(year, survey_year, wave) IS NOT NULL
+                  AND (
+                    CAST(? AS VARCHAR) IS NULL
+                    OR country_code = CAST(? AS VARCHAR)
+                    OR observation_id IN (
+                        SELECT UNNEST(CAST(? AS VARCHAR[]))
+                    )
+                  )
+                ORDER BY unit_id, period_id, dataset_id, observation_id, value
+                LIMIT ?
+                """,
+                parameters,
+            )
+            raw_rows = cursor.fetchall()
+            physical_row_columns = tuple(column[0] for column in cursor.description[6:])
+        finally:
+            con.close()
+        if len(raw_rows) > owner_row_limit:
+            raise ValueOwnerAccessError(
+                "acquire_data:value_owner_rows_truncated",
+                (
+                    f"owner profile exceeded the bounded row cap of {owner_row_limit}; "
+                    "refusing to classify a truncated panel"
+                ),
+                owner_access_ref=f"{owner_access_ref}#row-cap",
+            )
+        projected_rows_by_id: dict[str, tuple[object, ...]] = {}
+        if observation_projection is not None:
+            fetched_ids = tuple(sorted(str(row[4]) for row in raw_rows))
+            if fetched_ids != selected_projection_ids:
+                raise ValueOwnerAccessError(
+                    "acquire_data:active_observation_projection_drift",
+                    "N8 physical rows do not equal the admitted scoped member set",
+                    owner_access_ref=f"{owner_access_ref}#activated-observation-projection",
+                )
+            physical_rows_by_id: dict[str, list[tuple[object, ...]]] = {}
+            for raw_row in raw_rows:
+                physical_rows_by_id.setdefault(str(raw_row[4]), []).append(raw_row)
+            for projected in observation_projection.observations:
+                observation = projected.observation
+                projected_unit = observation.country_code
+                if normalized_scope_region:
+                    if (
+                        observation.country_code != normalized_scope_region
+                        and observation.observation_id not in selected_wdi_observation_ids
+                    ):
+                        continue
+                    projected_unit = normalized_scope_region
+                physical_matches = physical_rows_by_id.get(observation.observation_id, [])
+                actual_row_hash = None
+                if len(physical_matches) == 1:
+                    physical_row = dict(
+                        zip(physical_row_columns, physical_matches[0][6:], strict=True)
+                    )
+                    try:
+                        physical_payload = {
+                            column: physical_row[column] for column in physical_columns
+                        }
+                        physical_payload["observation_class"] = passport.observation_class
+                        physical_observation = type(observation).model_validate(physical_payload)
+                        actual_row_hash = content_sha256(
+                            physical_observation.model_dump(mode="json")
+                        )
+                    except (KeyError, ValueError):
+                        pass
+                if actual_row_hash != projected.row_content_sha256:
+>                   raise ValueOwnerAccessError(
+                        "acquire_data:active_observation_projection_drift",
+                        (
+                            "N8 query rows differ from the Data Forge verified active member "
+                            f"{observation.observation_id}"
+                        ),
+                        owner_access_ref=(
+                            f"{owner_access_ref}#activated-observation-projection"
+                        ),
+                    )
+E                   polisyos.runtime.quality.generation_cycle.ValueOwnerAccessError: N8 query rows differ from the Data Forge verified active member acquisition-observation:sha256:24c73fbade5115166855b72f8a9ea1c1e9327f53592753ed5b39555f39c0df72 owner_access_ref=repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/cells.distress_score#activated-observation-projection
+
+src/polisyos/runtime/quality/generation_cycle.py:10246: ValueOwnerAccessError
+_ test_active_projection_rejects_tampering_of_every_physical_c_field[acquisition_method] _
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/basetemp/test_active_projection_rejects10')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x141fcfe90>
+field_name = 'acquisition_method'
+
+    @pytest.mark.parametrize(
+        "field_name",
+        _PHYSICAL_CANONICAL_OBSERVATION_FIELDS,
+        ids=_PHYSICAL_CANONICAL_OBSERVATION_FIELDS,
+    )
+    def test_active_projection_rejects_tampering_of_every_physical_c_field(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        field_name: str,
+    ) -> None:
+        """Full C physical schema is content-bound while activation stays unchanged."""
+        scenario, projection = _activate_four_row_scenario(tmp_path, monkeypatch)
+        selected = projection.observations[0].observation
+        original_value = getattr(selected, field_name)
+        replacement = _different_valid_physical_value(field_name, original_value)
+        assert replacement != original_value
+        markers_before = _activation_markers(scenario)
+    
+        con = duckdb.connect(str(scenario.overlay.overlay_path))
+        try:
+            # The identifier comes only from CanonicalAcquisitionObservation.model_fields.
+>           con.execute(
+                f"UPDATE ds_observations SET {field_name} = ? WHERE observation_id = ?",  # noqa: S608
+                [replacement, selected.observation_id],
+            )
+E           _duckdb.BinderException: Binder Error: Referenced update column acquisition_method not found in table!
+E           
+E           Did you mean: "condition_json"
+
+tests/integration/core_runtime/test_e02_empirical_member_intake.py:343: BinderException
+_ test_active_projection_rejects_tampering_of_every_physical_c_field[source_watermark] _
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/basetemp/test_active_projection_rejects11')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x142347540>
+field_name = 'source_watermark'
+
+    @pytest.mark.parametrize(
+        "field_name",
+        _PHYSICAL_CANONICAL_OBSERVATION_FIELDS,
+        ids=_PHYSICAL_CANONICAL_OBSERVATION_FIELDS,
+    )
+    def test_active_projection_rejects_tampering_of_every_physical_c_field(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        field_name: str,
+    ) -> None:
+        """Full C physical schema is content-bound while activation stays unchanged."""
+        scenario, projection = _activate_four_row_scenario(tmp_path, monkeypatch)
+        selected = projection.observations[0].observation
+        original_value = getattr(selected, field_name)
+        replacement = _different_valid_physical_value(field_name, original_value)
+        assert replacement != original_value
+        markers_before = _activation_markers(scenario)
+    
+        con = duckdb.connect(str(scenario.overlay.overlay_path))
+        try:
+            # The identifier comes only from CanonicalAcquisitionObservation.model_fields.
+>           con.execute(
+                f"UPDATE ds_observations SET {field_name} = ? WHERE observation_id = ?",  # noqa: S608
+                [replacement, selected.observation_id],
+            )
+E           _duckdb.BinderException: Binder Error: Referenced update column source_watermark not found in table!
+E           
+E           Did you mean: "survey_year"
+
+tests/integration/core_runtime/test_e02_empirical_member_intake.py:343: BinderException
+_ test_active_projection_rejects_tampering_of_every_physical_c_field[dataset_version] _
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/basetemp/test_active_projection_rejects12')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x142347e30>
+field_name = 'dataset_version'
+
+    @pytest.mark.parametrize(
+        "field_name",
+        _PHYSICAL_CANONICAL_OBSERVATION_FIELDS,
+        ids=_PHYSICAL_CANONICAL_OBSERVATION_FIELDS,
+    )
+    def test_active_projection_rejects_tampering_of_every_physical_c_field(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        field_name: str,
+    ) -> None:
+        """Full C physical schema is content-bound while activation stays unchanged."""
+        scenario, projection = _activate_four_row_scenario(tmp_path, monkeypatch)
+        selected = projection.observations[0].observation
+        original_value = getattr(selected, field_name)
+        replacement = _different_valid_physical_value(field_name, original_value)
+        assert replacement != original_value
+        markers_before = _activation_markers(scenario)
+    
+        con = duckdb.connect(str(scenario.overlay.overlay_path))
+        try:
+            # The identifier comes only from CanonicalAcquisitionObservation.model_fields.
+>           con.execute(
+                f"UPDATE ds_observations SET {field_name} = ? WHERE observation_id = ?",  # noqa: S608
+                [replacement, selected.observation_id],
+            )
+E           _duckdb.BinderException: Binder Error: Referenced update column dataset_version not found in table!
+E           
+E           Did you mean: "dataset_id"
+
+tests/integration/core_runtime/test_e02_empirical_member_intake.py:343: BinderException
+____ test_c_admitted_condition_unit_conflict_is_refused_by_a_profile_owner _____
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/basetemp/test_c_admitted_condition_unit0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1420c5e50>
+
+    def test_c_admitted_condition_unit_conflict_is_refused_by_a_profile_owner(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """C can persist the signed body; A refuses a row unit that conflicts with its passport."""
+        rows = _four_ratio_rows()
+        rows[2]["condition_json"] = {"unit": "percent"}
+        scenario, projection = _activate_scenario(tmp_path, monkeypatch, rows)
+        binding = scenario.passport.registration.field_binding
+        declared_units = {
+            json.loads(projected.observation.condition_json).get("unit")
+            for projected in projection.observations
+        }
+    
+        # The actual C readback and active passport bind this stored source body; its
+        # condition metadata disagrees with the registered identity transform ratio.
+        assert projection.variable_id == scenario.passport.variable_id
+        assert len(projection.observations) == 4
+        assert binding.raw_unit == binding.canonical_unit == "ratio"
+        assert declared_units == {"ratio", "percent"}
+    
+        with pytest.raises(ValueOwnerAccessError) as raised:
+            _load_through_default_root_gateway(scenario, projection)
+    
+>       assert raised.value.code == "acquire_data:active_observation_unit_binding_mismatch"
+E       AssertionError: assert 'acquire_data...jection_drift' == 'acquire_data...ding_mismatch'
+E         
+E         - acquire_data:active_observation_unit_binding_mismatch
+E         + acquire_data:active_observation_projection_drift
+
+tests/integration/core_runtime/test_e02_empirical_member_intake.py:381: AssertionError
+============================== slowest durations ===============================
+35.29s call     tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity
+6.29s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_default_root_gateway_uses_exact_c_members_before_cap_and_grouping
+1.56s call     tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get
+1.23s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[dataset_id]
+1.13s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[raw_variable]
+1.12s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[year]
+1.12s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[condition_json]
+1.12s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[observation_id]
+1.11s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[country_code]
+1.11s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[value]
+1.10s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[wave]
+1.10s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[canonical_var]
+1.10s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[survey_year]
+1.09s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_same_country_nonmember_cannot_replace_a_missing_c_member_in_denominator
+1.08s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_c_admitted_condition_unit_conflict_is_refused_by_a_profile_owner
+1.08s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[acquisition_method]
+1.06s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[dataset_version]
+1.05s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[source_watermark]
+0.02s call     tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_nonfinite_scoped_row_refuses_instead_of_reducing_profile_denominator
+
+(38 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+FAILED tests/integration/core_runtime/test_e02_served_cycle_custody.py::test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get
+FAILED tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_default_root_gateway_uses_exact_c_members_before_cap_and_grouping
+FAILED tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[acquisition_method]
+FAILED tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[source_watermark]
+FAILED tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_active_projection_rejects_tampering_of_every_physical_c_field[dataset_version]
+FAILED tests/integration/core_runtime/test_e02_empirical_member_intake.py::test_c_admitted_condition_unit_conflict_is_refused_by_a_profile_owner

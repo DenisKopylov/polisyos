@@ -1,0 +1,52 @@
+{
+  "candidate": "3bd5dc0d9f0385fe2662024e173c7f75e25798db",
+  "tree": "a5c268e023720c5afc97af75a285b63e7f943528",
+  "branch": "refs/heads/codex/e02-A-n5-verify-current",
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-c",
+    "pytest.ini",
+    "-q",
+    "tests/integration/core_runtime/test_e02_served_cycle_custody.py",
+    "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+    "tests/unit/remediation/test_cyc_02.py::test_n5_fresh_process_readback_binds_default_n8_to_cas_identity",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/basetemp",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-full-queue/polisyos/policy-engine/_build/e02-A-full-queue/consumer-wave-3bd/junit.xml",
+    "--durations=0"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+  "source_test_sha256": {
+    "src/polisyos/runtime/quality/generation_cycle.py": "321ccea89c48845791a5fe115725228c6e2a45d5a586709a7450fa7844204aac",
+    "src/polisyos/runtime/quality/generation_source.py": "903a18803b93f1bdb6ea249ea9668167de1df5d022817214d1d5621b47339960",
+    "src/polisyos/runtime/quality/joint_simulation_horizon.py": "e41d1d5aad71337d8310894464278c0c61263523da7f8c067885c80dd90cf8f9",
+    "src/polisyos/runtime/quality/conditional_simulation_replay.py": "d8aaf87f891f4fc1a7a87a69db39e13006b5b1e83d9d0597fa1c436172338205",
+    "src/polisyos/runtime/http/services/control/run_lifecycle.py": "33a37c958bae4ca1c98fd80a45d5e34edb270d21efe29a1c6c3bc3b3e7b61d6f",
+    "src/polisyos/runtime/http/routes/runs.py": "5b5755e8368b3096fa4f4a750a34b6cd8e6797c7f9519dd5bc70c76311d4f2eb",
+    "src/polisyos/core/contracts/runtime.py": "df0996d221137e9979a100542a2b7744f0940f691802e4eea2f69f2e29a0b259",
+    "tests/integration/core_runtime/test_e02_served_cycle_custody.py": "1d2aa7cc165f85adcb8666b4836a7f24af34dd392b357554e23a57ed6d0d64f5",
+    "tests/integration/core_runtime/test_e02_empirical_member_intake.py": "603c081395cff6c05e8a6b3634f1b5c500a73f10c72d91d4612a683d5f9e7ef8",
+    "tests/unit/remediation/test_cyc_02.py": "e8ec4a70f2a7356b21907f601d41e9a6b27c90cfa69893d185897c4b84724218",
+    "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+  },
+  "controlled_environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-n5-verify-current/polisyos/policy-engine",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0",
+    "JAX_PLATFORM_NAME": "cpu",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "POLARS_MAX_THREADS": "1",
+    "BLIS_NUM_THREADS": "1",
+    "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+  },
+  "status_before": "",
+  "returncode": 1,
+  "elapsed_seconds": 82.26178002357483,
+  "status_after": ""
+}

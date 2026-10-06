@@ -59,10 +59,6 @@
     "bytes": 8116,
     "sha256": "d19261ef38ce62dd8db55c5629b069e09347decfb0d07179cc8732b0d389635d"
   },
-  "qualified-tokenized/test_actual_worker_preserves_acurrent-physical-provider-work.jsonl": {
-    "bytes": 8116,
-    "sha256": "d19261ef38ce62dd8db55c5629b069e09347decfb0d07179cc8732b0d389635d"
-  },
   "qualified-tokenized/wrapper.json": {
     "bytes": 2926,
     "sha256": "e77c75f28e5eb97edb1993e2574ed746bfea1f7738dca1f668140429c50e1a5d"

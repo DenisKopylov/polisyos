@@ -46,6 +46,12 @@ include = [
 """
 INCLUDES = tomllib.loads(LEGACY)["tool"]["hatch"]["build"]["targets"]["sdist"]["include"]
 WORKSPACE_ROOTS = ("apps", "packages")
+NATIVE_RESOURCE_SOURCE = (
+    "architecture/production_quality/method_catalog_dependency_digest_domains.toml"
+)
+NATIVE_RESOURCE_TARGET = (
+    "polisyos/foundry/methods/catalog/_resources/method_catalog_dependency_digest_domains.toml"
+)
 # Two governance documents are outside this lane's permitted content denominator.
 EXCLUDED_NAMES = {"debt-register.md", "ledger.md"}
 
@@ -98,6 +104,11 @@ def contexts(tmp_path_factory):
         .decode()
         .split("\0")
     )
+    native_build = tomllib.loads((ROOT / "hatch.toml").read_text(encoding="utf-8"))["build"]
+    native_sdist_inputs = native_build["targets"]["sdist"]["include"]
+    native_wheel_inputs = native_build["targets"]["wheel"].get("force-include", {})
+    assert native_wheel_inputs == {NATIVE_RESOURCE_SOURCE: NATIVE_RESOURCE_TARGET}
+    assert NATIVE_RESOURCE_SOURCE in native_sdist_inputs
     workspace_paths = tuple(
         sorted(
             name
@@ -117,7 +128,13 @@ def contexts(tmp_path_factory):
             and Path(name).name.casefold() not in EXCLUDED_NAMES
             and any(
                 name == prefix or name.startswith(prefix + "/")
-                for prefix in [*INCLUDES, *WORKSPACE_ROOTS, "hatch.toml"]
+                for prefix in [
+                    *INCLUDES,
+                    *WORKSPACE_ROOTS,
+                    *native_sdist_inputs,
+                    *native_wheel_inputs,
+                    "hatch.toml",
+                ]
             )
         }
     )
@@ -169,7 +186,10 @@ def test_native_backend_preserves_complete_wheel_and_sdist_contract(contexts):
         == new_sdist.parent.relative_to(native)
         == Path("_build/dist")
     )
-    assert old_members == new_members  # Every member, METADATA and all entry-point groups.
+    resource_hash = hashlib.sha256((native / NATIVE_RESOURCE_SOURCE).read_bytes()).hexdigest()
+    assert NATIVE_RESOURCE_TARGET not in old_members
+    assert set(new_members) == set(old_members) | {NATIVE_RESOURCE_TARGET}
+    assert new_members[NATIVE_RESOURCE_TARGET] == resource_hash
     assert any(name.startswith("tools/") for name in new_members)
     workspace_wheel_members = {
         name
@@ -190,8 +210,12 @@ def test_native_backend_preserves_complete_wheel_and_sdist_contract(contexts):
     new_wire = tomllib.loads((native / "pyproject.toml").read_text())
     del old_wire["tool"]["hatch"]
     assert old_wire == new_wire  # Also preserves empty extension groups and uv tables.
-    assert new_sdist_members.keys() - old_sdist_members.keys() == {"hatch.toml"}
+    assert new_sdist_members.keys() - old_sdist_members.keys() == {
+        "hatch.toml",
+        NATIVE_RESOURCE_SOURCE,
+    }
     assert not old_sdist_members.keys() - new_sdist_members.keys()
+    assert new_sdist_members[NATIVE_RESOURCE_SOURCE] == resource_hash
     assert {
         name for name in old_sdist_members if old_sdist_members[name] != new_sdist_members[name]
     } == {"pyproject.toml"}
@@ -206,7 +230,11 @@ def test_native_backend_preserves_complete_wheel_and_sdist_contract(contexts):
             {
                 "wheel_members_except_record": len(new_members),
                 "sdist_members": len(new_sdist_members),
-                "sdist_delta": ["hatch.toml", "pyproject.toml"],
+                "sdist_delta": [
+                    NATIVE_RESOURCE_SOURCE,
+                    "hatch.toml",
+                    "pyproject.toml",
+                ],
                 "workspace_sdist_members": sorted(workspace_sdist_members),
             }
         )

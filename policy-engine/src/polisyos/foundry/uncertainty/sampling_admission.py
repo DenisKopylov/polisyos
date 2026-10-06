@@ -132,7 +132,10 @@ def admit_sampling_budget(
         effective = replicas * per_replica
     if effective < minimum or (declared_maximum is not None and effective > declared_maximum):
         raise ValueError("computational sampling budget is below the admitted minimum")
-    return SamplingBudgetPlan(requested, effective, declared_maximum, minimum, replicas, method)
+    effective_replicas = 1 if method == "random" else replicas
+    return SamplingBudgetPlan(
+        requested, effective, declared_maximum, minimum, effective_replicas, method
+    )
 
 
 class BoundedIIDMeanPlan(BaseModel):

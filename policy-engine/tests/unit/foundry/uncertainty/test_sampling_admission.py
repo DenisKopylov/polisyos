@@ -334,6 +334,7 @@ def test_explicit_computational_budget_preserves_intent_without_exceeding_maximu
     assert len(calls) == effective + budget["nominal_evaluator_calls"]
     assert result.envelope.sample_size == effective
     assert len(result.diagnostics["draw_outcome_provenance"]["draw_records"]) == effective
+    assert budget["replica_count"] == (1 if method == "random" else replicas)
     if method != "random":
         sizes = result.envelope.metadata["qmc_replicate_sizes"]
         assert len(sizes) == replicas

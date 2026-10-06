@@ -12,6 +12,7 @@ from polisyos.common.serialization import extract_llm_json_object
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.llm.traced_client import LLMAccountingError
 from polisyos.scientist.methods.autotune.models import BenchmarkSplitManifest
 from polisyos.scientist.methods.backtesting.adversarial import AdversarialGenerator
 from polisyos.scientist.methods.doe.designs import (
@@ -24,6 +25,7 @@ from polisyos.scientist.methods.doe.designs import (
 )
 from polisyos.scientist.methods.doe.stress_report import StressTestReport
 from polisyos.scientist.methods.search.adversarial import run_stress_test
+from polisyos.scientist.methods.search.funnel.types import observe_funnel_resource_response
 from polisyos.scientist.methods.search.objective import CompositeObjective
 from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
@@ -170,6 +172,7 @@ class ScenarioAdversaryWorker:
                     {"_evaluation_id": evaluation_id} if self._budget_middleware is not None else {}
                 ),
             )
+            observe_funnel_resource_response(response)
             payload = _parse_json_object(getattr(response, "content", response))
             proposals = [
                 AdversarialScenarioProposal.model_validate(item)
@@ -179,6 +182,9 @@ class ScenarioAdversaryWorker:
             if not proposals:
                 return self._fallback_bundle(surface)
             return self._build_bundle(surface, proposals, fallback_used=False)
+        except LLMAccountingError:
+            # An ambiguous paid completion must remain unknown, not a fallback success.
+            raise
         except Exception:
             if not self._config.fallback_on_error:
                 raise

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections.abc import Mapping
+from collections.abc import Callable, Iterator, Mapping
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from decimal import Decimal
 from math import isfinite
@@ -18,6 +20,45 @@ from polisyos.scientist.methods.search.uncertainty import (
 )
 
 FunnelEvaluationStatus = Literal["not_evaluated", "partial", "evaluated"]
+_RESOURCE_RESPONSE_OBSERVER: ContextVar[Callable[[Any], None] | None] = ContextVar(
+    "funnel_resource_response_observer", default=None
+)
+
+
+@contextmanager
+def funnel_resource_response_observer(
+    observer: Callable[[Any], None] | None,
+) -> Iterator[None]:
+    """Bind operational response accounting to this stage execution only.
+
+    The observer consumes the existing producer settlement; it issues neither
+    accounting receipts nor permission. Async worker calls inherit this context.
+    """
+    token = _RESOURCE_RESPONSE_OBSERVER.set(observer)
+    try:
+        yield
+    finally:
+        _RESOURCE_RESPONSE_OBSERVER.reset(token)
+
+
+def observe_funnel_resource_response(response: Any) -> None:
+    """Forward a native returned settlement before any fallible payload parsing."""
+    observer = _RESOURCE_RESPONSE_OBSERVER.get()
+    if observer is not None:
+        from polisyos.core.llm.settlement import producer_settlement
+        from polisyos.core.llm.traced_client import LLMAccountingError
+
+        settlement = producer_settlement(response)
+        try:
+            if settlement is None:
+                raise ValueError("configured funnel resource producer returned no typed settlement")
+            observer(settlement)
+        except (ValueError, OSError) as exc:
+            raise LLMAccountingError(
+                response=response,
+                event={"funnel_accounting_status": "not_established", "settlement": settlement},
+                cause=exc,
+            ) from exc
 
 
 def statistical_uncertainty_from_ci_width(
@@ -184,7 +225,9 @@ class FunnelStageResult(StageResult):
     cheap_signal: CheapSignalVector | None = None
     failure_cards: list[TypedFailureCard] = field(default_factory=list)
     compute_actual_usd: float = 0.0
-    compute_cost_source: Literal["estimated", "provider_reported_only"] = "estimated"
+    compute_cost_source: Literal["estimated", "provider_reported_only", "cache_reuse", "mixed"] = (
+        "estimated"
+    )
     provider_spend_usd: Decimal | None = None
     resource_event_ids: tuple[str, ...] = ()
     fidelity_level: int = 0

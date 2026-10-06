@@ -1,0 +1,36 @@
+{
+  "source": "a82a02b816b619d706b398100024a9bb5b0daf21",
+  "tree": "5135c198a39906961a6496fabe0072c70cb2e31b",
+  "test_commit": "a1a833f2fbae50338c3ffd988d6af766451d43a8",
+  "test_sha256": "0598f51997d46664ea1342c6bc3cdf96fd1ed005019d368d5a5199c45d1c8947",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+    "-p",
+    "source_binding_probe",
+    "-ra",
+    "--basetemp=/dev/shm/pareto-box-union-candidate-5432d399d4ee4181acee4045fa866145",
+    "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/box-union-independent/candidate-junit.xml"
+  ],
+  "cwd": "/tmp/pareto-box-union-source-6a0ff2143b6244c99e555ec71d5af362/policy-engine",
+  "returncode": 0,
+  "wall_seconds": 18.432320514999446,
+  "scratch": "/tmp/pareto-box-union-source-6a0ff2143b6244c99e555ec71d5af362",
+  "fresh_basetemp": "/dev/shm/pareto-box-union-candidate-5432d399d4ee4181acee4045fa866145",
+  "caps_added": false,
+  "input_scope": [
+    "policy-engine/src",
+    "policy-engine/tools",
+    "policy-engine/architecture",
+    "policy-engine/pyproject.toml",
+    "policy-engine/tests/conftest.py",
+    "policy-engine/tests/_helpers",
+    "policy-engine/tests/quarantine.toml",
+    "policy-engine/tests/unit/scientist/conftest.py"
+  ],
+  "omitted_inputs": "Other tests/docs/fixtures/data are omitted, not claimed tested; an actual missing-input failure would remain ERROR/UNRUN.",
+  "harness_profile_limitation": "pytest.ini was omitted: strict/import/cache configuration not applied; unknownunit warning retained. Source/numerical21 positive is bounded, not full repository-profile acceptance."
+}

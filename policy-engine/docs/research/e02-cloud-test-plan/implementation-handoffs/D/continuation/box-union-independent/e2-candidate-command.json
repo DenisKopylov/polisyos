@@ -1,0 +1,37 @@
+{
+  "source": "e2b1c6f7e7157e72d4a56008da5edb85f01a9312",
+  "tree": "1b6e573e04df38c53b15944f314d3aad7309144c",
+  "test_commit": "a1a833f2fbae50338c3ffd988d6af766451d43a8",
+  "test_sha256": "0598f51997d46664ea1342c6bc3cdf96fd1ed005019d368d5a5199c45d1c8947",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+    "-p",
+    "source_binding_probe",
+    "-ra",
+    "--basetemp=/dev/shm/pareto-box-union-e2-7733050f598d4893b9769ec62adb5bab",
+    "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/box-union-independent/e2-candidate-junit.xml"
+  ],
+  "cwd": "/tmp/pareto-box-union-e2-113f4d507bb647d1a90639749330f2dc/policy-engine",
+  "returncode": 0,
+  "wall_seconds": 21.242098230999545,
+  "scratch": "/tmp/pareto-box-union-e2-113f4d507bb647d1a90639749330f2dc",
+  "fresh_basetemp": "/dev/shm/pareto-box-union-e2-7733050f598d4893b9769ec62adb5bab",
+  "caps_added": false,
+  "input_scope": [
+    "policy-engine/src",
+    "policy-engine/tools",
+    "policy-engine/architecture",
+    "policy-engine/pyproject.toml",
+    "policy-engine/tests/conftest.py",
+    "policy-engine/tests/_helpers",
+    "policy-engine/tests/quarantine.toml",
+    "policy-engine/tests/unit/scientist/conftest.py",
+    "policy-engine/pytest.ini"
+  ],
+  "read_only_hardlink_inputs": "Existing a82 archive unchanged files retained as read-only hardlinks; source delta files are fresh exact e2 Git blobs. No previous path deleted/overwritten. All imported polisyos bytes rechecked against e2 Git.",
+  "omitted_inputs": "Other tests/docs/fixtures/data are omitted, not claimed tested; an actual missing-input failure would remain ERROR/UNRUN."
+}

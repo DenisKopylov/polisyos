@@ -72,6 +72,12 @@ Boundary notes:
   and query binding. The shared chronology path persists and reopens the native
   projection before returning qualified evidence. Empty policy or owner slots
   still refuse; configuring a reference alone establishes no native predicate.
+- `design_axes/forecast_verification.py` resolves E's empirical evidence and
+  source/report artifacts, independently re-runs the registered ETS method
+  without a CAS writer, and reconciles held-out predictions, interval hits,
+  threshold, lineage, and request/report time roles. The current C projection
+  leaves jurisdiction, unit, and source-time binding unestablished, so this
+  result is always predictive-only and limited.
 - `acquisition_movement.py` is the internal supplier-receipt intake and native
   per-row GY movement family. `AcquisitionActionService` feeds durable terminal
   receipts to it; the existing Depth-N Cycle Board consumes its persisted,

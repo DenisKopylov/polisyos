@@ -1,14 +1,16 @@
-from _typeshed import Incomplete
 from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import Enum
+from types import MappingProxyType
+from typing import Any
+from uuid import UUID
+
+from _typeshed import Incomplete
+
 from polisyos.foundry.methods.backends.chain_executor import ExecutorMode, FxRateProvider
 from polisyos.foundry.methods.base import MethodSignature
 from polisyos.foundry.methods.components.linker import LinkResult, SlotBinding, SlotLinker
 from polisyos.foundry.methods.selection.registry import MethodRegistry
-from types import MappingProxyType
-from typing import Any
-from uuid import UUID
 
 __all__ = [
     "CompiledMethodChain",

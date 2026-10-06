@@ -869,9 +869,9 @@ class MethodComposer:
                     uid for uid in req_predecessors[node_id] if uid in frozen_dag.nodes
                 }
             upstream_digests = sorted(
-                frozen_dag.nodes[uid].node_key.static_params_digest
-                for uid in upstream_ids
-                if frozen_dag.nodes[uid].node_key is not None
+                key.static_params_digest
+                for key in (frozen_dag.nodes[uid].node_key for uid in upstream_ids)
+                if key is not None
             )
             combined = {
                 "static_params": dict(node.static_params),

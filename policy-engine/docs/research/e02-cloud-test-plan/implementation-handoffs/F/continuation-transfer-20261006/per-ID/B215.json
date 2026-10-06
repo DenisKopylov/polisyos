@@ -433,11 +433,11 @@
     ],
     "ROOT_adjudication_ref": {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
-      "bytes": 129187,
-      "sha256": "7632b23a21df1ec30829f0a1c960cd902695b0eebb40a597bbb013be857c76a0",
-      "json_pointer": "/rows/11",
-      "head": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c",
-      "git_ref": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c"
+      "bytes": 130025,
+      "sha256": "0fc3e6440719fc3094bb13d82a809586cf05776bcf6a4dc3807e9cbfde44126f",
+      "head": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "git_ref": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "json_pointer": "/rows/11"
     }
   },
   "independent_packet_review_resolution": {

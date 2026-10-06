@@ -16337,6 +16337,38 @@
         "0162e9b9da184a2e039fecd7340cf0fa856ec786"
       ],
       "tree": "39845ed259d163e8abfc7aa4ea00dfec290a5279"
+    },
+    {
+      "sha": "d645cea93fe5bde8419b5ecbe6b612209891e16d",
+      "parents": [
+        "7a311cc812bd0dfb8b16d31c56377e29c07ff14c"
+      ],
+      "tree": "80b462622fb762ca040582b66e58b184ce307f95"
+    },
+    {
+      "sha": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "parents": [
+        "d645cea93fe5bde8419b5ecbe6b612209891e16d"
+      ],
+      "tree": "0977f0bfd9cb8c39aadcab3da83406c2cf0aaa6f"
     }
-  ]
+  ],
+  "current_caption_forward_correction": {
+    "decision_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
+      "bytes": 130025,
+      "sha256": "0fc3e6440719fc3094bb13d82a809586cf05776bcf6a4dc3807e9cbfde44126f",
+      "head": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "git_ref": "cda9c4e57a4efc68386c5896775059abcfbe189e"
+    },
+    "preserved_frozen_packet_sha": "d645cea93fe5bde8419b5ecbe6b612209891e16d",
+    "affected_ids": [
+      "LA-007",
+      "LA-019",
+      "LA-020",
+      "LA-035"
+    ],
+    "code_source_unchanged": "8236d9c368336a5ea20c1586f29aea7321db6536",
+    "scope": "Current decision/caption corrections only; all historical literal owner/source records retained; no numerical rerun."
+  }
 }

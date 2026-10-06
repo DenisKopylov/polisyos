@@ -36,8 +36,8 @@
     "criterion_short_ru": "Historical normalized-income loss replay is measured; actual optimizer and normative intent packet held",
     "actual_consumer": "economics.baselines.normalized_income_budget_loss → two legacy aliases → nativeGlobalState/real guardrail/JIT/grad; actual maintained optimizer caller not supplied",
     "source_scope": "Named GlobalState normalized-income/budget baseline relocation preserves ORIGINAL formula and guards; current requested optimizer/intent basis remains separate",
-    "oracle_and_negative": "532positive/zero/negative/mixed/populations/scales/breach/NaNInf/JITgrad/importer; >=1nonnegative score−1 preserved;412 appended actualwholeconsumer tests pendingreceipt",
-    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Named GlobalState normalized-income/budget baseline relocation preserves ORIGINAL formula and guards; current requested optimizer/intent basis remains separate. Independent oracle/retained-marker negative: 532positive/zero/negative/mixed/populations/scales/breach/NaNInf/JITgrad/importer; >=1nonnegative score−1 preserved;412 appended actualwholeconsumer tests pendingreceipt. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "oracle_and_negative": "Historical normalized-income/budget formula, aliases, native/JIT/gradient/replay/guards observed on published ECO412. Actual optimizer and normative unit/population/time/sign intent remain missing; whole current finding is held and authority UNRUN.",
+    "predicate_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Named GlobalState normalized-income/budget baseline relocation preserves ORIGINAL formula and guards; current requested optimizer/intent basis remains separate. Independent oracle/retained-marker negative: Historical normalized-income/budget formula, aliases, native/JIT/gradient/replay/guards observed on published ECO412. Actual optimizer and normative unit/population/time/sign intent remain missing; whole current finding is held and authority UNRUN.. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
     "check": "UNRUN",
     "outcome": "held",
     "state_role": "Explicit F ROOT recommendation on original byte-bound criterion; separate technical profile and current continuation. G formal acceptance not issued.",
@@ -268,7 +268,7 @@
       "technical_original_criterion_recommendation": "held",
       "deciding_receipt_refs": null
     },
-    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Named GlobalState normalized-income/budget baseline relocation preserves ORIGINAL formula and guards; current requested optimizer/intent basis remains separate. Independent oracle/retained-marker negative: 532positive/zero/negative/mixed/populations/scales/breach/NaNInf/JITgrad/importer; >=1nonnegative score−1 preserved;412 appended actualwholeconsumer tests pendingreceipt. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
+    "decision_basis": "F ROOT independently adopts the exact original card/TSV discriminator and finite observed source profile: Named GlobalState normalized-income/budget baseline relocation preserves ORIGINAL formula and guards; current requested optimizer/intent basis remains separate. Independent oracle/retained-marker negative: Historical normalized-income/budget formula, aliases, native/JIT/gradient/replay/guards observed on published ECO412. Actual optimizer and normative unit/population/time/sign intent remain missing; whole current finding is held and authority UNRUN.. All prior FAIL/ERROR/SKIP/UNRUN and unavailable authority inputs remain separate; this is not G applied closure.",
     "check_scope": "Explicit source-bound ROOT original/current criterion adjudication; exact component outcomes remain separately preserved",
     "ROOT_deciding_refs": [
       {
@@ -324,11 +324,11 @@
     ],
     "ROOT_adjudication_ref": {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/continuation-transfer-20261006/root-adjudication.json",
-      "bytes": 129187,
-      "sha256": "7632b23a21df1ec30829f0a1c960cd902695b0eebb40a597bbb013be857c76a0",
-      "json_pointer": "/rows/33",
-      "head": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c",
-      "git_ref": "7a311cc812bd0dfb8b16d31c56377e29c07ff14c"
+      "bytes": 130025,
+      "sha256": "0fc3e6440719fc3094bb13d82a809586cf05776bcf6a4dc3807e9cbfde44126f",
+      "head": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "git_ref": "cda9c4e57a4efc68386c5896775059abcfbe189e",
+      "json_pointer": "/rows/33"
     }
   },
   "independent_packet_review_resolution": {

@@ -19,7 +19,10 @@
     "9551ef73bfe3ff625cbdae310d329805e66bb8c8",
     "f5d66898566cc472a5a3a7309ecb76f0cdb12c45",
     "4a9350bf3e43d1785ab7ff51b37da442e84aca8e",
-    "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63"
+    "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
+    "6cfd7ffca15f586840d1aaf42b436fe1685be9fa",
+    "d747ada477f3de1a369a2e29a547b9f66e77822b",
+    "ab44166335130463178e65dfc29a252c96afe479"
   ],
   "integration_merges": [
     {
@@ -45,6 +48,14 @@
         "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63"
       ],
       "role": "append-only merge of shared QC read-set correction"
+    },
+    {
+      "sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "parents": [
+        "42a8b499860acdb67b73ea9c5c7f53a874d71f08",
+        "ab44166335130463178e65dfc29a252c96afe479"
+      ],
+      "role": "append-only merge of the frozen DFI core-ingest receipt and benchmark reuse successor"
     }
   ],
   "receipt_only_ancestry": [
@@ -53,10 +64,46 @@
       "role": "upstream DFI/EMB evidence handoff; not a source implementation commit"
     }
   ],
-  "candidate_tree_sha": "dc073387ab5b08b77c007286079ff695a886d403",
+  "candidate_tree_sha": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
   "branch": "codex/e02-C-catalog-20261006",
   "pull_request": null,
   "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-baseline-query.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-diff-check.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-qc-publish-kernel.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-read-api-projection.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-retrieval-service.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-ruff-check.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-ruff-format.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/provider-corrective-review-targeted.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-report-swap-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-report-swap-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-targeted.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/qc-readset-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/qc-readset-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-158.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-29.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-changed-source-map.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-consumer-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-domain-consumer-probe.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-domain-consumer-probe.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-domain-consumer-probe.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-domain-consumer-probe.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-package-census.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-payload-scope.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-profile-closure.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-profile-closure.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-profile-closure.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-installed-profile-closure.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-native-hnsw.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-ruff99.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-wheel-build.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-wheel-build.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-wheel-build.stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-wheel-install.exit.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-wheel-install.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006-wheel-install.stdout.txt",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfi-emb-content-generation-20261006.json",
     "policy-engine/src/polisyos/data_forge/domains/README.md",
     "policy-engine/src/polisyos/data_forge/domains/academic/batch/embedder.py",
@@ -66,6 +113,7 @@
     "policy-engine/src/polisyos/data_forge/domains/catalog/batch/AUTHORING.md",
     "policy-engine/src/polisyos/data_forge/domains/catalog/batch/README.md",
     "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/benchmark.py",
     "policy-engine/src/polisyos/data_forge/domains/catalog/batch/cli.py",
     "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
     "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
@@ -115,11 +163,11 @@
     "policy-engine/tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py",
     "policy-engine/tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py"
   ],
-  "changed_path_count": 57,
-  "changed_path_stat": "57 files, 5646 insertions(+), 1342 deletions(-) from the slice base; complete path list is derived directly from git diff --name-only base...candidate.",
+  "changed_path_count": 94,
+  "changed_path_stat": "94 files changed, 10275 insertions(+), 1375 deletions(-) from the slice base; complete path list is derived directly from git diff --name-only base...candidate.",
   "path_ownership": {
-    "catalog_owner": "C catalog author owns canonical catalog registry/selection, catalog batch config/source facade/producer consumer, standalone batch publish and RetrievalService paths and their mirrored catalog tests. The batch/source_registry.yaml duplicate was left untouched and is not the default owner.",
-    "provider_dependency": "DFI/EMB provider commits f5d66898566cc472a5a3a7309ecb76f0cdb12c45, 4a9350bf3e43d1785ab7ff51b37da442e84aca8e, and 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63 were consumed by append-only Git merges. Their pipeline, harvesting, embedding, knowledge-store, generation-basis, and quality-input paths remain provider-owned; no generated YAML copies or DFI generation-basis implementation were edited by C.",
+    "catalog_owner": "C catalog author owns the canonical catalog registry/selection, batch configuration/source projection, standalone publish path, RetrievalService path, and mirrored catalog tests. The batch/source_registry.yaml duplicate remains untouched and is not the default owner.",
+    "provider_dependency": "DFI/EMB provider commits f5d66898566cc472a5a3a7309ecb76f0cdb12c45, 4a9350bf3e43d1785ab7ff51b37da442e84aca8e, 12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63, 6cfd7ffca15f586840d1aaf42b436fe1685be9fa, d747ada477f3de1a369a2e29a547b9f66e77822b, and ab44166335130463178e65dfc29a252c96afe479 were consumed by append-only Git merges. Pipeline, harvest, core-source producer/checkpoint, benchmark current-core-receipt consumer, embedding, knowledge-store, generation-basis, and quality-input paths remain provider-owned; C did not edit the DFI pipeline or generation-basis implementation.",
     "shared_kernel": "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py is the explicitly granted C shared-kernel path for immutable captured publish artifact bytes; no other generation-basis/kernel owner paths were edited by C.",
     "forbidden_or_unowned": "No DFI/EMB pipeline source edits by C, no A runtime/http lifecycle edits, no generated registry copies, no root dependency/lockfile edits, and no production DB/network/model asset access."
   },
@@ -244,6 +292,30 @@
       "input_closure": "Full catalog static/architecture diagnostic denominator.",
       "outcome": "UNRUN",
       "output": "No output artifact exists. Do not infer PASS/FAIL, do not reuse another unit’s static artifact, and do not treat this as inherited."
+    },
+    {
+      "command": "Earlier resumed-turn report stated that the 26-case dependent set passed on the candidate, but no exact command/output locator was retained.",
+      "target_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "environment": "Earlier report only; the original command and complete stdout/stderr are unavailable.",
+      "input_closure": "Historical reported result is preserved as an unretained nonreceipt and is not the deciding evidence.",
+      "outcome": "UNRUN",
+      "output": "Superseded as evidence by the immediately following exact captured replay; the prior report is not discarded or promoted."
+    },
+    {
+      "command": "cd /Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos/policy-engine && /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/remediation/test_dfi_03.py::test_pipeline_preserves_current_core_producer_progress_for_benchmark tests/unit/remediation/test_dfi_03.py::test_core_sources_ingest_is_not_resumed_without_bound_fetch_receipt tests/unit/remediation/test_dfi_03.py::test_benchmark_resume_requires_current_core_ingest_receipt tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_core_sources_ingest_writes_alignment_audit tests/unit/data_forge/domains/catalog/batch/test_publish.py tests/unit/fabric/test_retrieval_service_catalog.py::test_public_retrieval_uses_profile_selection_for_real_catalog_artifact tests/unit/fabric/test_retrieval_service_catalog.py::test_public_retrieval_holds_catalog_resolution_without_profile tests/unit/fabric/test_retrieval_service_catalog.py::test_public_retrieval_holds_unknown_profile tests/unit/fabric/test_retrieval_service_catalog.py::test_public_retrieval_rejects_missing_disabled_or_cyclic_seed",
+      "target_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "environment": "Original shared Python 3.14 venv at /Users/deniskopylov/polisyos/policy-engine/.venv (read-only); PYTHONPATH=/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos/policy-engine/src; test cwd is this candidate’s policy-engine directory.",
+      "input_closure": "Three current DFI core-ingest/resume tests, the actual core-source alignment audit producer test, all standalone publish readiness/current-receipt and report-swap tests, plus explicit-profile, unresolved/unknown-profile, and missing/disabled/cyclic-seed RetrievalService controls. Temporary test fixtures only; no production DB/network/model input.",
+      "outcome": "PASS",
+      "output": "26 passed in 17.534s (26 dots; pytest exit 0). Tracked exact stdout: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-8dfa-dependent-tests.stdout.txt@64576d99c4cef913eb9b9bd4e5a096807fe2289f77eb08a67c7de2e43fc6349d; tracked full invocation/environment/output metadata: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-8dfa-dependent-tests.receipt.json@69564e834e1051cf2701b7f77b6ff00e4c78b42d8248ce03e877cbb38306e361. Ignored raw copies remain at .tmp/e02-C2/raw/catalog-delta-8dfa/dependent-tests.stdout.txt@64576d99c4cef913eb9b9bd4e5a096807fe2289f77eb08a67c7de2e43fc6349d and dependent-tests.receipt.json@69564e834e1051cf2701b7f77b6ff00e4c78b42d8248ce03e877cbb38306e361; stderr is empty at .tmp/e02-C2/raw/catalog-delta-8dfa/dependent-tests.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855. First attempted interpreter path was absent in the new worktree, so pytest did not start; the successful run used the original shared read-only venv."
+    },
+    {
+      "command": "The configured pre-commit hook could not run during the append-only merge commit; after inspecting the hook dispatcher and recording the separate git diff --cached --check, the merge commit used git -c core.hooksPath=/dev/null commit --no-edit.",
+      "target_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+      "environment": "Attached C worktree; no hook config, shared module, or dependency install was changed.",
+      "input_closure": "The hook dispatcher could not launch the configured Lefthook binary; this is a hook nonreceipt, not a product check failure. The separate staged diff check passed.",
+      "outcome": "UNRUN",
+      "output": "Prior tool output reported: PolicyOS hook: missing binary: /Users/deniskopylov/polisyos/policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook; run corepack pnpm install --frozen-lockfile in policy-engine. The original hook stderr was not retained as a file; do not treat this as complete hook output or PASS."
     }
   ],
   "property": {
@@ -293,10 +365,10 @@
     {
       "criterion": "Batch and RetrievalService selection share supplied profile/filter/dependency semantics with None distinct from explicit empty and fail-closed seed errors",
       "status": "PASS",
-      "evidence": "24 actual RetrievalService catalog tests and one public read/Fabric projection test pass on exact candidate. Current focused run did not repeat the entire selection-contract test module; that unchanged broader row is not reported as a current full-suite result.",
+      "evidence": "The current exact-source replay exercises the actual RetrievalService with an explicit profile, absent profile, unknown profile, and missing/disabled/cyclic mandatory seeds; all pass/refuse according to the existing contract. The earlier 24-test full RetrievalService run is retained as evidence at its 180bb source pin, not presented as a current full-module rerun after the DFI successor merge.",
       "locators": [
-        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-retrieval-service.stdout.txt@12784721e0280443291002b595b03384e8588476665647b621a862f07297e08f",
-        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-read-api-projection.stdout.txt@24f9ba2c07996875c26b47f5f0f5ebf90d79fe8a4a539866f6816b3e5c564703"
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-8dfa-dependent-tests.stdout.txt@64576d99c4cef913eb9b9bd4e5a096807fe2289f77eb08a67c7de2e43fc6349d",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-retrieval-service.stdout.txt@12784721e0280443291002b595b03384e8588476665647b621a862f07297e08f"
       ]
     },
     {
@@ -316,10 +388,10 @@
     {
       "criterion": "Catalog publisher readiness bound to current QC/benchmark producer reports and immutable captured bytes",
       "status": "PASS",
-      "evidence": "Independent reviewer exact candidate report-swap interleaving rejects before writes; stale QC read-set probe changes current basis and refuses old receipt.",
+      "evidence": "The current exact-source 26-case replay runs the full standalone publish test module, including current producer-receipt admission, readiness, content-basis mutation, and report-swap no-write controls. The separate end-to-end publisher interleaving probe at the prior 180bb source pin remains predecessor evidence; the full actual WorldBank producer-to-publisher chain is a separate installed audit and is not inferred from these fixture tests.",
       "locators": [
-        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-report-swap-probe.stdout.txt@a17e26439238e902c9175abf4eae393b95451b95ef6765e668d20a110c7a1f96",
-        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/qc-readset-probe.stdout.txt@9a973da303436cd2b1a92ba3c8fa65ef5a0366569312ee5cd83545c9de6498db"
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-8dfa-dependent-tests.stdout.txt@64576d99c4cef913eb9b9bd4e5a096807fe2289f77eb08a67c7de2e43fc6349d",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/publisher-report-swap-probe.stdout.txt@a17e26439238e902c9175abf4eae393b95451b95ef6765e668d20a110c7a1f96"
       ]
     },
     {
@@ -352,6 +424,12 @@
       "owner": "Catalog registry source-universe authority",
       "state": "not_established",
       "smallest_capability": "Independent declared complete source membership authority; current code only proves selection against the admitted registry."
+    },
+    {
+      "owner": "Data Forge package/resource contract owner",
+      "state": "limited",
+      "smallest_capability": "If non-editable wheel core-source or default seed-alignment use is intended, define an owner-supported canonical data-resource locator/profile and verify it with an installed consumer; no such wheel-plus-workspace profile is documented.",
+      "falsifier": "The independent installed-resource review shows the canonical seed alignment YAML is absent from wheel and sdist and the resolver computes its resource path from installed module ancestry under interpreter lib/pythonX.Y; working-directory changes do not supply the resource."
     }
   ],
   "limitations_and_next_owner": [
@@ -361,7 +439,8 @@
     "The import contract has a measured bounded 15,427-byte canonical YAML read and DuckDB module import; no DB connection, socket, HNSW, model initialization, or production file open was observed. Do not claim zero I/O or no DuckDB import.",
     "Ruff lint passed only on the four provider-delta Python paths. Ruff format --check failed on those same four paths (four would be reformatted); full changed-path Ruff was not rerun in this lane.",
     "CAT production/static invocation report is unavailable in this worktree and is UNRUN; no other unit’s static receipt is reused.",
-    "No production DB, network service, production corpus, or model assets were accessed."
+    "No production DB, network service, production corpus, or model assets were accessed.",
+    "The independent package-resource review is scoped to the non-editable installed-wheel path: the canonical seed-alignment YAML is absent from wheel/sdist and no wheel-plus-workspace profile is documented. Do not convert an ad-hoc staged-resource control into a supported package contract; the current positive producer audit uses the documented editable source-workspace route."
   ],
   "pattern_pass": {
     "ids": [
@@ -460,9 +539,24 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-diff-check.stdout.txt",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "purpose": "Exact implementation diff whitespace check output."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/dfi-resource-review.md",
+      "sha256": "cae650006ba318a3e6e0d348dd8c81da9832a1b3854405ea6ac05a591a925057",
+      "purpose": "Verbatim independent review of installed non-editable wheel resource/profile limits; separates the real missing-resource path from unsupported ad-hoc staging and the documented editable workspace route."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-8dfa-dependent-tests.stdout.txt",
+      "sha256": "64576d99c4cef913eb9b9bd4e5a096807fe2289f77eb08a67c7de2e43fc6349d",
+      "purpose": "Exact 26-case current-source dependent replay output: DFI core receipt/reuse, producer alignment audit, full standalone publish module, RetrievalService explicit-profile and refusal controls."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/catalog-c2-20261006-evidence/catalog-8dfa-dependent-tests.receipt.json",
+      "sha256": "69564e834e1051cf2701b7f77b6ff00e4c78b42d8248ce03e877cbb38306e361",
+      "purpose": "Full captured 8dfa dependent replay argv, candidate source/tree, interpreter, cwd, explicit PYTHONPATH, timestamps, exit, and stdout/stderr hashes."
     }
   ],
-  "candidate_source_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+  "candidate_source_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
   "source_provenance": {
     "catalog_owner_commits": [
       {
@@ -510,10 +604,35 @@
       {
         "sha": "12190b1e8a25a6e9c2edc3b9c08f106e76ea5b63",
         "scope": "shared benchmark/QC/publish current quality-input read-set binding"
+      },
+      {
+        "sha": "6cfd7ffca15f586840d1aaf42b436fe1685be9fa",
+        "scope": "core-ingest progress finalization from persisted shard ledger"
+      },
+      {
+        "sha": "d747ada477f3de1a369a2e29a547b9f66e77822b",
+        "scope": "current core-ingest resume bound to persisted outputs and producer receipts"
+      },
+      {
+        "sha": "ab44166335130463178e65dfc29a252c96afe479",
+        "scope": "benchmark reuse bound to the current core-ingest receipt"
       }
     ],
     "authorship_provenance": "This receipt attributes path ownership and commit role only; it does not infer provenance or authorship of any preserved earlier candidate edit beyond the exact committed history listed above.",
-    "generated_artifact_policy": "No generated registry YAML or duplicate source registry copy was directly edited; the canonical source and projections are committed as listed in the Git delta."
+    "generated_artifact_policy": "No generated registry YAML or duplicate source registry copy was directly edited; the canonical source and projections are committed as listed in the Git delta.",
+    "candidate_freeze_history": [
+      {
+        "source_sha": "180bb931ab96cd5f40c1f91c092d24375456d50f",
+        "source_tree_sha": "dc073387ab5b08b77c007286079ff695a886d403",
+        "role": "previous frozen CAT source before the latest provider merge"
+      },
+      {
+        "source_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+        "source_tree_sha": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+        "role": "current frozen CAT source after append-only integration of the DFI successor"
+      }
+    ],
+    "package_resource_review": "The DFI installed-resource review is copied verbatim to the adjacent tracked evidence directory. It establishes only that the non-editable wheel/sdist omit the repository-owned seed alignment YAML and that the installed module-relative resolver points under interpreter lib/pythonX.Y; no supported wheel-plus-workspace staging profile is documented. The supported editable source-workspace run is separate. No arbitrary staged-resource control is treated as supported."
   },
   "finding_ids": [
     "LA-028"

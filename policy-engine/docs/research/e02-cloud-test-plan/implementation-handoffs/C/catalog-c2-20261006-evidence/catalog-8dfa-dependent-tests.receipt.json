@@ -1,0 +1,38 @@
+{
+  "candidate_source_sha": "8dfa7f3c544461c0ff081861848fcc5d8523da5b",
+  "candidate_tree_sha": "3eac9b5cf816e30f9c1bacc81d80e2dc75d81681",
+  "command_argv": [
+    "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/remediation/test_dfi_03.py::test_pipeline_preserves_current_core_producer_progress_for_benchmark",
+    "tests/unit/remediation/test_dfi_03.py::test_core_sources_ingest_is_not_resumed_without_bound_fetch_receipt",
+    "tests/unit/remediation/test_dfi_03.py::test_benchmark_resume_requires_current_core_ingest_receipt",
+    "tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py::test_core_sources_ingest_writes_alignment_audit",
+    "tests/unit/data_forge/domains/catalog/batch/test_publish.py",
+    "tests/unit/fabric/test_retrieval_service_catalog.py::test_public_retrieval_uses_profile_selection_for_real_catalog_artifact",
+    "tests/unit/fabric/test_retrieval_service_catalog.py::test_public_retrieval_holds_catalog_resolution_without_profile",
+    "tests/unit/fabric/test_retrieval_service_catalog.py::test_public_retrieval_holds_unknown_profile",
+    "tests/unit/fabric/test_retrieval_service_catalog.py::test_public_retrieval_rejects_missing_disabled_or_cyclic_seed"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos/policy-engine/src",
+    "python": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "note": "Original shared Python 3.14 venv read-only; test files use temporary fixtures only."
+  },
+  "started_utc": "2026-10-06T17:36:55.396188+00:00",
+  "finished_utc": "2026-10-06T17:37:12.930118+00:00",
+  "wall_seconds": 17.534,
+  "exit_code": 0,
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos/.tmp/e02-C2/raw/catalog-delta-8dfa/dependent-tests.stdout.txt",
+  "stdout_sha256": "64576d99c4cef913eb9b9bd4e5a096807fe2289f77eb08a67c7de2e43fc6349d",
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-catalog-20261006/polisyos/.tmp/e02-C2/raw/catalog-delta-8dfa/dependent-tests.stderr.txt",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "initial_attempt": {
+    "outcome": "setup_error_before_pytest_start",
+    "cause": "The C worktree does not have policy-engine/.venv/bin/python; no test process started.",
+    "corrective_environment": "Reused the original shared read-only Python 3.14 venv at /Users/deniskopylov/polisyos/policy-engine/.venv."
+  }
+}

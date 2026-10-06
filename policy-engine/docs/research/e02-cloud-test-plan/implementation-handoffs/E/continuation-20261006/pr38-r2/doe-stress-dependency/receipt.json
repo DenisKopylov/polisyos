@@ -1,0 +1,271 @@
+{
+  "actual_callers": [
+    {
+      "line": 225,
+      "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "property": "ScenarioAdversaryWorker.execute\u2192run_stress_test; compiler forwards surface threshold, bounded parameter list and declared strategy. Native propose fallback selected by existing running-event-loop behavior; no network/gateway substitute.",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452"
+    },
+    {
+      "line": 533,
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "property": "run_stress_test calls E generate_adversarial_samples; E sampler is upstream, not a reader of StressTestReport.",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452"
+    },
+    {
+      "line": 42,
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "property": "from_artifact independently loads/reproduces configured CAS analysis; generate enriches candidate metadata. Explicit API composition exercised; automatic production factory wiring and ranking used as an admission statistic are not established.",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452"
+    },
+    {
+      "line": 1676,
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "property": "Static body confirms grouped-list score recomputation remains D-owned; not a DOE E consumer and not dynamically re-run in this packet.",
+      "sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973"
+    }
+  ],
+  "author_role": "E independent read-only actual STR-01\u2192DOE-01 boundary trace; no D code integration or source edit",
+  "cleanup": {
+    "candidates_only_after_decidingoutputs_preserved_andhandoffcomplete": [
+      "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/cas"
+    ],
+    "permanent_deletion_performed": false,
+    "preserve": [
+      "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/receipt.json",
+      "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/trace.py",
+      "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/trace.stdout",
+      "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/source-census.json",
+      "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/native-deciding.json",
+      "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/controls.py",
+      "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/controls.stdout",
+      "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/controls-deciding.json"
+    ],
+    "shared_environment": "/workspace/e02-E-continuation-20261006/policy-engine/.venv retained; not owned by this leaf",
+    "trash_available": false
+  },
+  "commands": [
+    {
+      "command": "PYTHONPATH=/workspace/e02-E-backtest-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/trace.py > /workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/trace.stdout 2>&1",
+      "cwd": "/workspace/e02-E-backtest-20261006",
+      "exit": 0
+    },
+    {
+      "command": "PYTHONPATH=/workspace/e02-E-backtest-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/controls.py > /workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/controls.stdout 2>&1",
+      "cwd": "/workspace/e02-E-backtest-20261006",
+      "exit": 0
+    }
+  ],
+  "evidence_index": [
+    {
+      "bytes": 16861,
+      "path": "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/trace.py",
+      "sha256": "c893842c44de10a959f84c2c13225aaa65b6496db7486a8e387ec2a03b289331"
+    },
+    {
+      "bytes": 828,
+      "path": "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/trace.stdout",
+      "sha256": "3b66b28ed9e66a15ca251d26ccff34d7691623ba5a4cb0e1e4e82674a4298a2b"
+    },
+    {
+      "bytes": 8613,
+      "path": "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/source-census.json",
+      "sha256": "7ee1036dfe7a7f6005206bc1ee71286082a36d86a313f9d10aee104d36bc1146"
+    },
+    {
+      "bytes": 171757,
+      "path": "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/native-deciding.json",
+      "sha256": "45c335d5662353339b387d4fcdc2dbfd1017e2771d6bc946d61a277df6017fe8"
+    },
+    {
+      "bytes": 4752,
+      "path": "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/controls.py",
+      "sha256": "b28d8ad25177cd84ee81bb00894dc7f601029dd9f7237bc16cee83057d82d132"
+    },
+    {
+      "bytes": 333,
+      "path": "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/controls.stdout",
+      "sha256": "0b0cae689d4fdff35d72bf0db537fbd601f12d1e83c776c24e7ac2d8eaaba7b6"
+    },
+    {
+      "bytes": 8053,
+      "path": "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency/controls-deciding.json",
+      "sha256": "70c74a98cae4aa0491fee9d010778c445b4fe475c5e91d33402ed57564d11f11"
+    }
+  ],
+  "execution_limits": {
+    "CPU_process_worker_caps_added": false,
+    "DB": null,
+    "new_checkout": false,
+    "new_environment": false,
+    "ports": [],
+    "runtime_duration_measured": false,
+    "shared_mutable": "scratchCASonly",
+    "source_edits": false
+  },
+  "finding_statuses": {
+    "B106_B107": {
+      "G_audit": "bounded counters/direction evidence retained, missingthreshold and blueprint groupeddenominator remainD-owned",
+      "finding_closure_vote": "none",
+      "owner": "D"
+    },
+    "B97": {
+      "formal_closure": "unchanged owner adjudication",
+      "historical": "partial",
+      "property": "actual native cap witnessed with independent removalcontrol",
+      "proposal": "limited"
+    },
+    "B98": {
+      "formal_closure": "unchanged owner adjudication",
+      "historical": "partial",
+      "property": "separate existing adaptive-round suite not rerun; fixed stress initialization32+remaining8 counts observed, not a replacement for adaptive-round criterion",
+      "proposal": "limited"
+    },
+    "B99": {
+      "formal_closure": "unchanged owner adjudication",
+      "historical": "partial",
+      "property": "current native sensitivity-plan oversized guard0callbacks; permissive-parent override separateexistingcriterion",
+      "proposal": "limited"
+    }
+  },
+  "mandatory_sources": [
+    {
+      "blob": "12d257bab0c7037328730072e54e90f8269df1c8",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/DOE-01.md",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+      "sha256": "50f7d9acd0a0b44c97c9899d6ff29fc921ed2d8f6a1ba4a9bc33ffbce144dc78",
+      "tree": "cd83045f99de341ae40e2c56bf880ef49ec9f6dc"
+    },
+    {
+      "blob": "50f4c97e173d2ff9b30ebc9e8afc6d0ef62f5503",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STR-01.md",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+      "sha256": "e0532566d84e5e3d62d5e8b03a41eaf96d9a11aa155cc5475a0fb2a5d910d966",
+      "tree": "cd83045f99de341ae40e2c56bf880ef49ec9f6dc"
+    },
+    {
+      "blob": "79d1aa9699347140e343fb0b85518093c90dc947",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/E.md",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+      "sha256": "6abcd227184e20c15ef3770638497f1a4bb8dc79faccc2e1aa1f0f7abae6ccfa",
+      "tree": "cd83045f99de341ae40e2c56bf880ef49ec9f6dc"
+    },
+    {
+      "blob": "b242397fb26eaf0bee86a867aed6e21768d094e2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+      "sha256": "4d09c54010b46a6e9b59a37e82dce9b9d75b853bea3e799078382afb16ee8db0",
+      "tree": "cd83045f99de341ae40e2c56bf880ef49ec9f6dc"
+    },
+    {
+      "blob": "46aaa6a6b434bc335ef509659f3bd6864d676393",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-pr47-continuation-audit-2026-10-06.md",
+      "sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "sha256": "0c423188689ffaef40b73f5c4500e679fd56acf492706c7a541e74da5969accd",
+      "tree": "9e44e9e534cbf77bc59126e08a16d50b1eb0f12e"
+    }
+  ],
+  "next_owners": [
+    {
+      "input": "Recoverable persisted threshold/plan/statistic/unit profile and occurrence denominators preserved before regroup/top-k; absentthreshold mustremain unavailable; independent freshconsumerreadback afterexactDfix.",
+      "owner": "D STR/blueprint"
+    },
+    {
+      "input": "Preserve canonical E sampler/analysis/orderedrows/CAS readback on reconciled exactD candidate afterDfix; no E rewrite demanded by presentDOE-01criterion.",
+      "owner": "E DOE"
+    },
+    {
+      "input": "Typed metric statistic purpose, units/direction, meaningful threshold and samplinglaw needed for populationprobability claim. Generic arithmetic fixture doesnot issue authority.",
+      "owner": "scientific/evaluator/source-law owner"
+    },
+    {
+      "input": "Integrationacceptance and findingclosure separately; exactsourcecomposition cross-edgewave afterDfix; no blanketproductiondata blocker.",
+      "owner": "G"
+    }
+  ],
+  "predicate_basis": {
+    "P37": "Freeze before materialization count, exact actual evaluator calls, typed objective direction, complete trajectory/draw denominators, fresh CAS reproduced numerical result before metadata consumption. Output shape/hash/label is not criterion.",
+    "P38": "Compare old output proxies and full-space claims to native physical materialization and observed bounded sample scope.",
+    "P40": "Class property-removal witness covers early-cap mechanism; no source repair authored in this packet.",
+    "P41": "Exact pinned current E hotpath+exactD candidate blob composition recorded separately from root-tree/main integration or legacy F red replay."
+  },
+  "property_results": [
+    {
+      "observed": "96 native product rows/96 actual stage-B evaluations from4096 declared corners; full-space coverage not claimed",
+      "outcome": "PASS",
+      "property": "native GRID cap before materialization through actual worker"
+    },
+    {
+      "observed": "Both output3\u00d712 and owned-memory proxies PASS; native enumerates3, removed-property version enumerates4096 and defining predicate FAIL",
+      "outcome": "PASS",
+      "property": "present-but-fake shape/ownership proxy and cap-removal negative"
+    },
+    {
+      "observed": "Typed GDP maximize lower raw-5 selected; typed deficit minimize rawcost10 selected after composite normalization; attempted=finite2 each",
+      "outcome": "PASS",
+      "property": "native metric direction table"
+    },
+    {
+      "observed": "top_k1 and10 same ten native rows, attempted=finite=violated10, score0",
+      "outcome": "PASS bounded D behavior",
+      "property": "D top-k denominator behavior with actual E seeded sampling"
+    },
+    {
+      "observed": "seed31415 four complete trajectories/12 runs, mu_star x2,z1, dimensionless parameter units and unit_coordinate_full_range statistic, exactref/design/order/denominator preserved; purposeexploratory, lawnot_established",
+      "outcome": "PASS",
+      "property": "canonical native Morris producer\u2192configuredCAS\u2192actual candidate decorator reader"
+    },
+    {
+      "observed": "40 actual stage-B calls=32 native SciPy LHS+8 actual native SequenceCandidateGenerator wrapped by fresh CAS E decorator. Stage-B seesexactanalysisref metadata. Final persisted Dreport does not bind consumed DOE inputref. Fixture evaluator doesnot use ranking as a trust/statistical profile.",
+      "outcome": "PASS mechanism only",
+      "property": "existing native D runner receives E-carrier enriched generated candidates"
+    },
+    {
+      "observed": "mu_star.x=999 validhash/kind/schema refused because persisted result doesnot reproduce",
+      "outcome": "PASS negative refusal",
+      "property": "fresh CAS hash-valid forged sensitivity statistic"
+    },
+    {
+      "observed": "required12 > max_estimated_runs11 and allow_large_run defaultfalse: typedValidationError before0evaluatorcalls",
+      "outcome": "PASS negative refusal",
+      "property": "oversized sensitivity producer plan before callback"
+    },
+    {
+      "observed": "Actual worker compiled thresholdNone, evaluated96 rawGDP-5: freshreport robustness_score1, complete, high0. No numeric/profile authority inferred.",
+      "outcome": "FAIL reproduced D-owned escape",
+      "property": "D missing threshold"
+    },
+    {
+      "observed": "No adversarial_plan_ref, threshold, metric unit/statistic version or DOE inputref in actual persisted report; reportIDhashes plan but doesnot provide recoverable plan artifact. No probability law. OwnersD/profile/evaluator.",
+      "outcome": "not_established",
+      "property": "persisted stress scientific threshold/statistic/source provenance"
+    }
+  ],
+  "protocol": "e02-cross-owner-consumer-receipt-v1",
+  "scope": "generic actual native caller/sampler/analysis/CAS mechanism with declared analytic evaluator; no production source-law certificate",
+  "source": {
+    "D_candidate": {
+      "availability": "fetched by root after initial object-not-available; exact source replayed only via in-memory Git blobs",
+      "integration_accepted": false,
+      "sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+      "tree": "e674e22edb8d94d47579326135a786c832402a15"
+    },
+    "E_root": {
+      "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+      "tree": "cd83045f99de341ae40e2c56bf880ef49ec9f6dc"
+    },
+    "G_audit": {
+      "docs_only": true,
+      "sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "tree": "9e44e9e534cbf77bc59126e08a16d50b1eb0f12e"
+    },
+    "runtime_leaf": {
+      "branch": "codex/e02-E-backtest-20261006",
+      "hot_path_E_blobs_match_root": true,
+      "sha": "2acc4c8116fdf12e3ce9ca76e203a6e4f00e90d4",
+      "tree": "ec5e9c2c57d9236f36b21b97bfe9eae48aca1121",
+      "whole_root_tree_replay_claim": false,
+      "worktree": "/workspace/e02-E-backtest-20261006"
+    }
+  }
+}

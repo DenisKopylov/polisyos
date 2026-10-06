@@ -1,0 +1,23 @@
+# E02 final common-wave preparation
+
+No numerical/gate wave has been run by this preparation. The observed source is ec042402ec91fbdcb51006852e29fe67f38d9452, not the final freeze.
+
+`plan_wave.py` reconciles the prior tracked110-path six-family manifest with every required continuation test and later committed owned test delta. Proposed native denominator120: PCL10, DDM16, BKT/FRC25, CAL/welfare29, MC25, DOE14, ControlPlaneStore companion1. Two source-bound A CAS/status test packets add2 input files to the BKT/FRC job (122 total file inputs). Actual parametrized cases are determined by frozen JUnit; old1125 cases and G59 consumer cases are historical counts.
+
+Current preparation finds the welfare empirical-law path not yet in the observed root candidate. The required source is884681db485b7466b183a206f83bbe0635f86ca3. Independent review and merge must finish before root freezes and launches. Root source admission requires G checkpoint6f869, B197 source1e942, and Welfare884 in candidate history; no source reset/rebase or checkout is performed.
+
+## Run after root freeze
+
+From policy-engine, invoke the shared root interpreter with the scratch `plan_wave.py`, an actual exact `--candidate` SHA, a fresh absolute `--output-root` and `--execute`. Omit `--execute` for planning only. The runner checks clean live HEAD, required tracked paths and upstream ancestry before launching. A prepared output directory must not be reused: old plans/receipts are preserved. No command with an unresolved placeholder is issued.
+
+Environment is constructed from the known managed paths; do not source activate.sh because it sets numerical thread caps. PATH is prefixed with /workspace/.polisyos-environment/bin, /workspace/.polisyos-environment/uv/bin and /workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin. COREPACK_HOME and PLAYWRIGHT_BROWSERS_PATH point at the existing managed caches. UV_NO_SYNC=1 and UV_PROJECT_ENVIRONMENT=/workspace/e02-E-continuation-20261006/policy-engine/.venv are set for every job/nested uv command. Existing UV_CACHE_DIR is retained. The receipt captures the actual selected values. Thread/worker limit variables are removed, recorded explicitly, and never replaced with a quota.
+
+The importer runs first. After PASS, seven independent numerical jobs launch concurrently with no semaphore/process/worker/CPU cap. The global sequence can progress concurrently with the numerical groups but serializes architecture, runtime API, static invocation, Ruff, format, workspace verify and full CI parity because generators, `_build` and frontend caches are shared mutable seams. Each new pytest command has a unique previously nonexistent basetemp and separate TMPDIR; each new fixture uses its own CAS/SQLite. The ControlPlaneStore SQLite concurrency remains inside its own tmp_path.
+
+`uncapped_umbrella.py` builds the canonical declared workspace/CI command sequences and preserves ordering and fail-fast behavior. It removes only the operational numerical thread overrides and supplies unique pytest temporary paths. It records every internal stage, including actual FAIL and subsequent UNRUN; no failure is bypassed. Workspace verify remains backend-only; full CI parity retains doctor, backend, runtime/http, docs, frontend and browser stages. Browser doctor success never counts as full CI success.
+
+`run_check.py` requires the exact clean candidate, hashes all tracked inputs before/after, checks HEAD and effective Git-config stability, and records complete combined stdout/stderr, wall/RSS/CPU, JUnit counts and actual NumPy/JAX backend information. pyproject.toml and uv.lock have explicit content and Git-blob identities. Complete effective Git config stays privately under ignored `raw/` with a published hash/size only; credentials are not printed or copied to Git.
+
+Static invocation compares with the original E continuation baseline198076863e143dea9f89f02734b13d50dae3eed5 for consistent proxy denominator; it establishes no runtime non-invocation or inherited-red waiver. Its potentially171MB complete raw JSON remains under ignored raw/; publish only the complete moderate stdout, exact input/source denominator, hash/size custody, and necessary deciding summary. Code acceptance/finding closure, historical ledger labels and per-check outcomes remain separate.
+
+No permanent deletion is performed. Existing output/basetemp paths are refused so pytest cannot remove prior evidence. After deciding receipts, root may move only repeatable fixtures/environments with no active users to native Trash; if unavailable, list exact candidates. Preserve useful code/docs and unique evidence.

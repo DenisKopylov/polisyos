@@ -1,0 +1,313 @@
+"""Capture one explicit check on a clean, frozen E02 candidate; never overwrite evidence."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import importlib.metadata
+import json
+import os
+import platform
+import subprocess
+import sys
+import time
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+
+def git(repo: Path, *argv: str) -> str:
+    return subprocess.check_output(["git", "-C", str(repo), *argv], text=True).strip()
+
+
+def source_identity(repo: Path) -> dict[str, object]:
+    """Hash all tracked inputs, including tools, contracts and test helpers."""
+    paths = subprocess.check_output(["git", "-C", str(repo), "ls-files", "-z"]).split(
+        b"\0"
+    )
+    digest = hashlib.sha256()
+    count = byte_count = 0
+    for raw in sorted(path for path in paths if path):
+        path = repo / os.fsdecode(raw)
+        data = path.read_bytes() if path.is_file() else b"ABSENT"
+        digest.update(raw + b"\0" + data + b"\0")
+        count += 1
+        byte_count += len(data)
+    return {
+        "tracked_paths": count,
+        "bytes": byte_count,
+        "framed_sha256": digest.hexdigest(),
+    }
+
+
+def junit_counts(path: Path | None) -> dict[str, int] | None:
+    if path is None or not path.exists():
+        return None
+    counts = dict(cases=0, passed=0, failed=0, errors=0, skipped=0)
+    for case in ET.parse(path).getroot().iter("testcase"):
+        counts["cases"] += 1
+        name = (
+            "failed"
+            if case.find("failure") is not None
+            else "errors"
+            if case.find("error") is not None
+            else "skipped"
+            if case.find("skipped") is not None
+            else "passed"
+        )
+        counts[name] += 1
+    return counts
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--candidate", required=True)
+    parser.add_argument("--cwd", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--name", required=True)
+    parser.add_argument("--junit", type=Path)
+    parser.add_argument("command", nargs=argparse.REMAINDER)
+    args = parser.parse_args()
+    command = args.command[1:] if args.command[:1] == ["--"] else args.command
+    if not command:
+        parser.error("supply an explicit command after --")
+    if git(args.repo, "rev-parse", "HEAD") != args.candidate:
+        raise RuntimeError("HEAD differs from declared frozen candidate")
+    if git(args.repo, "status", "--porcelain", "--untracked-files=no"):
+        raise RuntimeError("tracked input changes precede the check")
+    args.output.mkdir(parents=True, exist_ok=True)
+    stdout_path = args.output / (args.name + ".stdout.txt")
+    receipt_path = args.output / (args.name + ".json")
+    if stdout_path.exists() or receipt_path.exists():
+        raise RuntimeError("evidence exists; refuse overwrite/repeat")
+    before = source_identity(args.repo)
+    input_paths = (
+        "AGENTS.md",
+        "policy-engine/CONTRIBUTING.md",
+        "policy-engine/pyproject.toml",
+        "policy-engine/uv.lock",
+    )
+    input_files = {
+        name: {
+            "sha256": hashlib.sha256((args.repo / name).read_bytes()).hexdigest(),
+            "bytes": (args.repo / name).stat().st_size,
+            "git_blob": git(args.repo, "rev-parse", args.candidate + ":" + name),
+        }
+        for name in input_paths
+    }
+    # Exact effective config is kept privately in ignored scratch; credentials are
+    # never copied into the moderate publication packet or printed to stdout.
+    git_config = subprocess.check_output(
+        [
+            "git",
+            "-C",
+            str(args.repo),
+            "config",
+            "--null",
+            "--list",
+            "--show-origin",
+            "--show-scope",
+        ]
+    )
+    private_root = args.output.parent.parent / "raw"
+    private_root.mkdir(parents=True, exist_ok=True)
+    private_config = private_root / (args.name + ".git-config-private.nul")
+    if private_config.exists():
+        raise RuntimeError("private input snapshot exists; refuse overwrite")
+    private_config.write_bytes(git_config)
+    git_input_config = {
+        "private_complete_path": str(private_config),
+        "sha256": hashlib.sha256(git_config).hexdigest(),
+        "bytes": len(git_config),
+        "publication": "hash/size only; full private config excluded from Git",
+        "effective_core": {
+            name: subprocess.run(
+                ["git", "-C", str(args.repo), "config", "--get", name],
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            for name in (
+                "core.autocrlf",
+                "core.eol",
+                "core.filemode",
+                "core.ignorecase",
+                "extensions.worktreeconfig",
+            )
+        },
+    }
+    started = time.time()
+    error = None
+    with stdout_path.open("xb") as handle:
+        try:
+            process = subprocess.Popen(
+                command, cwd=args.cwd, stdout=handle, stderr=subprocess.STDOUT
+            )
+            _, status, usage = os.wait4(process.pid, 0)
+            exit_code = os.waitstatus_to_exitcode(status)
+            process.returncode = exit_code
+        except OSError as exc:
+            exit_code, usage, error = 127, None, str(exc)
+            handle.write((type(exc).__name__ + ": " + str(exc) + "\n").encode())
+    after = source_identity(args.repo)
+    ending_head = git(args.repo, "rev-parse", "HEAD")
+    immutable = before == after and ending_head == args.candidate
+    counts = junit_counts(args.junit)
+    outcome = "PASS" if exit_code == 0 and immutable else "FAIL"
+    if error is not None:
+        outcome = "UNRUN"
+    elif (
+        counts is not None and counts["cases"] and counts["skipped"] == counts["cases"]
+    ):
+        outcome = "SKIP"
+    packages = {}
+    for name in (
+        "numpy",
+        "scipy",
+        "jax",
+        "SALib",
+        "pydantic",
+        "pytest",
+        "ruff",
+        "pytest-xdist",
+    ):
+        try:
+            packages[name] = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            packages[name] = "unavailable"
+    backend = {}
+    try:
+        import jax
+
+        backend["jax"] = {
+            "default_backend": jax.default_backend(),
+            "enable_x64": jax.config.jax_enable_x64,
+            "devices": [
+                {
+                    "platform": device.platform,
+                    "id": device.id,
+                    "kind": device.device_kind,
+                }
+                for device in jax.devices()
+            ],
+        }
+    except Exception as exc:
+        backend["jax"] = {
+            "availability": "unavailable",
+            "error_type": type(exc).__name__,
+            "reason": str(exc),
+        }
+    try:
+        import numpy as np
+
+        backend["numpy"] = np.show_config(mode="dicts")
+    except Exception as exc:
+        backend["numpy"] = {
+            "availability": "unavailable",
+            "error_type": type(exc).__name__,
+            "reason": str(exc),
+        }
+    after = source_identity(args.repo)
+    ending_head = git(args.repo, "rev-parse", "HEAD")
+    config_after = subprocess.check_output(
+        [
+            "git",
+            "-C",
+            str(args.repo),
+            "config",
+            "--null",
+            "--list",
+            "--show-origin",
+            "--show-scope",
+        ]
+    )
+    git_input_config["after_sha256"] = hashlib.sha256(config_after).hexdigest()
+    git_input_config["stable"] = git_config == config_after
+    immutable = (
+        before == after and ending_head == args.candidate and git_input_config["stable"]
+    )
+    if not immutable:
+        outcome = "FAIL"
+    variables = (
+        "UV_NO_SYNC",
+        "UV_PROJECT_ENVIRONMENT",
+        "PYTHONPATH",
+        "TMPDIR",
+        "RUFF_CACHE_DIR",
+        "PATH",
+        "COREPACK_HOME",
+        "PLAYWRIGHT_BROWSERS_PATH",
+        "UV_CACHE_DIR",
+        "PNPM_HOME",
+        "OMP_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "MKL_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+        "VECLIB_MAXIMUM_THREADS",
+        "BLIS_NUM_THREADS",
+        "XLA_FLAGS",
+        "JAX_PLATFORMS",
+        "JAX_ENABLE_X64",
+        "POLISYOS_PYTEST_WORKERS",
+        "POLISYOS_PYTEST_DIST",
+        "PYTEST_ADDOPTS",
+    )
+    result = {
+        "schema": "policyos.e02.frozen_check.v2",
+        "candidate_sha": args.candidate,
+        "candidate_tree_sha": git(args.repo, "rev-parse", args.candidate + "^{tree}"),
+        "head_at_end": ending_head,
+        "command": command,
+        "cwd": str(args.cwd),
+        "exit_code": exit_code,
+        "outcome": outcome,
+        "backend_error": error,
+        "started_unix": started,
+        "wall_seconds": time.time() - started,
+        "max_rss_kib": None if usage is None else usage.ru_maxrss,
+        "user_cpu_seconds": None if usage is None else usage.ru_utime,
+        "system_cpu_seconds": None if usage is None else usage.ru_stime,
+        "rss_scope": "wait4 command plus its waited descendants; not sum of overlapping jobs",
+        "environment": {
+            "python": sys.version,
+            "executable": sys.executable,
+            "platform": platform.platform(),
+            "cpu_count": os.cpu_count(),
+            "packages": packages,
+            "selected_variables": {name: os.environ.get(name) for name in variables},
+        },
+        "input_files": input_files,
+        "git_input_config": git_input_config,
+        "actual_numeric_backend": backend,
+        "source_identity_before": before,
+        "source_identity_after": after,
+        "source_immutable": immutable,
+        "junit": None if args.junit is None else str(args.junit),
+        "counts": counts,
+        "stdout_path": str(stdout_path),
+        "stdout_bytes": stdout_path.stat().st_size,
+        "stdout_sha256": hashlib.sha256(stdout_path.read_bytes()).hexdigest(),
+        "backend_capability": "SKIP/UNRUN retained; mixed skips separately counted",
+        "P41": "not_established until exact base/input replay; no inherited-red attribution",
+        "finding_closure": False,
+    }
+    receipt_path.write_text(json.dumps(result, indent=2, default=str) + "\n")
+    print(
+        json.dumps(
+            {
+                key: result[key]
+                for key in (
+                    "command",
+                    "exit_code",
+                    "outcome",
+                    "counts",
+                    "wall_seconds",
+                    "source_immutable",
+                )
+            }
+        )
+    )
+    return exit_code if immutable else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

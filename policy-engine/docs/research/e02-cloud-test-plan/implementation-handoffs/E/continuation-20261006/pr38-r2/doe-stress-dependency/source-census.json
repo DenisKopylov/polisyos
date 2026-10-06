@@ -1,0 +1,256 @@
+{
+  "files": [
+    {
+      "blob": "80ecfa1eb62284adc453c5c74724059d81d3121a",
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "rows": [],
+      "sha256": "9b711f5139397946be246aca817aacfb31c7637385cac570cff71872470e7d4e"
+    },
+    {
+      "blob": "cd4a7ae9e419d318c8d9a8b849fb1316bf814d23",
+      "path": "policy-engine/src/polisyos/core/contracts/scientist.py",
+      "rows": [],
+      "sha256": "987c21cf22a30459075f8adbc4469ff2a67055b264670392f64513ae7f0ce2a6"
+    },
+    {
+      "blob": "12f35c0e3bf16899fdfbed055dc19ddf012ab8e3",
+      "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+      "rows": [],
+      "sha256": "7665ea0eb7124104260017e1449312dc2102da66dd3a5d22c6849b9c8d9137a0"
+    },
+    {
+      "blob": "e06fe1d97b46bc6ff3227fa90d35640a9e11c197",
+      "path": "policy-engine/src/polisyos/scientist/governance/stress_scenarios.py",
+      "rows": [
+        {
+          "asname": null,
+          "kind": "import",
+          "line": 22,
+          "module": "polisyos.scientist.methods.doe.stress_report",
+          "symbol": "StressTestReport"
+        },
+        {
+          "kind": "call",
+          "line": 208,
+          "symbol": "StressTestReport"
+        }
+      ],
+      "sha256": "ad0a9d1ddbeed48741bc0c3ca26eb9aabdf7afa83115f9f16883c54495ec6f92"
+    },
+    {
+      "blob": "6ec3567995fac9550343013279d4bf12a269817a",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "rows": [],
+      "sha256": "c1a3b0550a853e6442c2e325d39436eabf6c266e1da6694341715295f6e1b631"
+    },
+    {
+      "blob": "110aae050c1006194238442ba03575ba18f81135",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+      "rows": [
+        {
+          "asname": null,
+          "kind": "import",
+          "line": 26,
+          "module": "polisyos.scientist.methods.doe.stress_report",
+          "symbol": "StressTestReport"
+        },
+        {
+          "kind": "call",
+          "line": 293,
+          "symbol": "StressTestReport"
+        }
+      ],
+      "sha256": "26b16eedb5fc8629931a5cae7fa44b4425b2c360114134c6bc6331fe2cb19496"
+    },
+    {
+      "blob": "1f1d5b6ea3728d9b7aba141bb0680644d358673f",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/__init__.py",
+      "rows": [
+        {
+          "asname": null,
+          "kind": "import",
+          "line": 16,
+          "module": "sampling",
+          "symbol": "generate_adversarial_samples"
+        },
+        {
+          "asname": null,
+          "kind": "import",
+          "line": 57,
+          "module": "stress_report",
+          "symbol": "StressTestReport"
+        }
+      ],
+      "sha256": "ed880fe654d655f4a4bc849f614f3d09daded7cfef268de99885d35623cfcd37"
+    },
+    {
+      "blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "rows": [],
+      "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+    },
+    {
+      "blob": "d5bd7558fe70ca9925bf37e774c7cd326e00a335",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "rows": [],
+      "sha256": "f6a76e683ef4fa3519d9af056e5b1466e2a26f2a8da4126d0353d9aa2b70bd17"
+    },
+    {
+      "blob": "69c4661034ebae8206c7c5e94ec06c7803befa57",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/__init__.py",
+      "rows": [
+        {
+          "asname": null,
+          "kind": "import",
+          "line": 20,
+          "module": "polisyos.scientist.methods.search.adversarial",
+          "symbol": "run_stress_test"
+        },
+        {
+          "asname": null,
+          "kind": "import",
+          "line": 78,
+          "module": "polisyos.scientist.methods.search.sensitivity_adapter",
+          "symbol": "SensitivityAwareCandidateGenerator"
+        }
+      ],
+      "sha256": "039e8c8ac2b66902071f1632145becb09faa680ad479f4ae36ed6fa8a17cb89a"
+    },
+    {
+      "blob": "41c5b6601df3c63d87f8f33427cb4514c6294ac5",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "rows": [
+        {
+          "asname": null,
+          "kind": "import",
+          "line": 18,
+          "module": "polisyos.scientist.methods.doe.sampling",
+          "symbol": "generate_adversarial_samples"
+        },
+        {
+          "asname": null,
+          "kind": "import",
+          "line": 19,
+          "module": "polisyos.scientist.methods.doe.stress_report",
+          "symbol": "StressTestReport"
+        },
+        {
+          "kind": "call",
+          "line": 533,
+          "symbol": "generate_adversarial_samples"
+        },
+        {
+          "kind": "call",
+          "line": 686,
+          "symbol": "StressTestReport"
+        }
+      ],
+      "sha256": "7ffbd3c4fc885d73f702bed615fbc5bb64296e304157fbef5bb5a0ba38483a63"
+    },
+    {
+      "blob": "dd62eb9e6b5cb2071dcef3858c153c69851b58d6",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "rows": [
+        {
+          "asname": null,
+          "kind": "import",
+          "line": 20,
+          "module": "polisyos.scientist.methods.doe.stress_report",
+          "symbol": "StressTestReport"
+        }
+      ],
+      "sha256": "c1f3613955dfa23f099e9635cffa68402ec74fc2a4a3d3726f59a38dfcfc57a8"
+    },
+    {
+      "blob": "c9f06d846f558d7ffb1db1db9013794503e430a1",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "rows": [],
+      "sha256": "d57967bd6f677d3613e3e1b2900d4cd1156855c774d1bd2a536778729622bafc"
+    },
+    {
+      "blob": "cb00a12a6256f3cc208569cc9acc8f6146c098f0",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+      "rows": [
+        {
+          "asname": null,
+          "kind": "import",
+          "line": 21,
+          "module": "polisyos.scientist.methods.doe.stress_report",
+          "symbol": "StressTestReport"
+        }
+      ],
+      "sha256": "8dc029683583c70fc9747b47324430b9b63946da233907592287a3e9b2d50e78"
+    },
+    {
+      "blob": "0b6832cd6ee46e09a10f3bbdc8972bcbaad22f81",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "rows": [
+        {
+          "asname": null,
+          "kind": "import",
+          "line": 52,
+          "module": "polisyos.scientist.methods.doe.stress_report",
+          "symbol": "StressTestReport"
+        },
+        {
+          "kind": "call",
+          "line": 1570,
+          "symbol": "StressTestReport"
+        }
+      ],
+      "sha256": "4690eec13c13bf594c5f8fddfbd6284738ef3e7c131a650e6c042dba31e9dc3b"
+    },
+    {
+      "blob": "11ac91e6e7a68453b2d322c448a1812dac1ff4cb",
+      "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "rows": [
+        {
+          "asname": null,
+          "kind": "import",
+          "line": 25,
+          "module": "polisyos.scientist.methods.doe.stress_report",
+          "symbol": "StressTestReport"
+        },
+        {
+          "asname": null,
+          "kind": "import",
+          "line": 26,
+          "module": "polisyos.scientist.methods.search.adversarial",
+          "symbol": "run_stress_test"
+        },
+        {
+          "kind": "call",
+          "line": 225,
+          "symbol": "run_stress_test"
+        }
+      ],
+      "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7"
+    },
+    {
+      "blob": "fb85325cfc6e93458979e0fe758e69d99d3aed3e",
+      "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+      "rows": [
+        {
+          "asname": null,
+          "kind": "import",
+          "line": 48,
+          "module": "polisyos.scientist.methods.doe.stress_report",
+          "symbol": "StressTestReport"
+        }
+      ],
+      "sha256": "7c6cc3c4c1f4e57d9c5ade7ada832d5881b88060c5cbdf8b23109de46a5542cd"
+    },
+    {
+      "blob": "f5b6aa539eb77a592eaf8ef49933c76e9a59dac5",
+      "path": "policy-engine/src/polisyos/scientist/validation/fairness_audit.py",
+      "rows": [],
+      "sha256": "58e62fbdaa7abf940c47183e6c38a10673f9f473c1479b21780ddf739c29d2bd"
+    }
+  ],
+  "lexical_hit_python_paths": 18,
+  "python_path_denominator": 2701,
+  "scope": "complete tracked production source lexical filter followed by AST call/import census; dynamic aliases outside this static census are not established",
+  "sha": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+  "tracked_path_denominator": 2914,
+  "tree": "cd83045f99de341ae40e2c56bf880ef49ec9f6dc"
+}

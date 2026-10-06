@@ -1,0 +1,6 @@
+{
+  "historical_file": "complex-covariance-callback.stdout",
+  "original_source_label": "1e0eb2f6c589b74c6adae850b27af6d720dfa5ea",
+  "deciding": false,
+  "reason": "Probe ran while owner completed common guard; source was not asserted before execution. Its0 callbacks must not be attributed to old1e source. Corrected exact c0f/newec scripts assert imported owner bytes and before/after hash. Old c0f owner/MC mechanism bytes equal1e; package export list differs16\u219219."
+}

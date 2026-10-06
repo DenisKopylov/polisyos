@@ -1,0 +1,294 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "final-all60-independent-criterion-proposal",
+  "bundle_ids": [
+    "CAS-01",
+    "CAS-02",
+    "CAS-03",
+    "CMP-01",
+    "CMP-02",
+    "CMP-03",
+    "DUR-01",
+    "DUR-02",
+    "EXE-01",
+    "EXE-02",
+    "JIT-01",
+    "LLM-01",
+    "LLM-02",
+    "NET-01",
+    "NET-02",
+    "RES-01",
+    "RES-02",
+    "RES-03",
+    "RES-04",
+    "RUN-01",
+    "RUN-02",
+    "RUN-03",
+    "STA-01",
+    "STA-02",
+    "WIRE-01"
+  ],
+  "finding_ids": [
+    "B13",
+    "B14",
+    "B24",
+    "B37",
+    "B38",
+    "B39",
+    "B40",
+    "B42",
+    "B43",
+    "B44",
+    "B45",
+    "B46",
+    "B47",
+    "B48",
+    "B49",
+    "B50",
+    "B51",
+    "B52",
+    "B53",
+    "B55",
+    "B57",
+    "B58",
+    "B59",
+    "B60",
+    "B61",
+    "B62",
+    "B63",
+    "B64",
+    "B65",
+    "B66",
+    "B67",
+    "B68",
+    "B69",
+    "B70",
+    "B71",
+    "B72",
+    "B73",
+    "B74",
+    "B75",
+    "B76",
+    "B77",
+    "B78",
+    "B87",
+    "B89",
+    "B90",
+    "B91",
+    "B92",
+    "B93",
+    "B94",
+    "B95",
+    "B96",
+    "B148",
+    "B149",
+    "B150",
+    "B151",
+    "B152",
+    "B153",
+    "B154",
+    "B155",
+    "LA-057"
+  ],
+  "closure_ids": [],
+  "slice_base_sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+  "implementation_commits": [
+    "d1efd64136815a04a96a534e1be8003783f444fe"
+  ],
+  "candidate_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+  "candidate_tree_sha": "098dabce914551eab464c15c229bbeb018dcfb2b",
+  "candidate_kind": "metadata-only proposal, not production code acceptance",
+  "checked_production_source": {
+    "sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+    "source_role": "All checked production remains1862; later author/root commits are metadata unless explicitly qualified."
+  },
+  "branch": "codex/e02-B-current-durability",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/43",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-evidence/reconcile.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-evidence/reconciliation.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json"
+  ],
+  "baseline_cells": [],
+  "baseline_cells_locator": {
+    "finding_to_routes_to_cells": "proposal.denominator pinned exact TSV objects",
+    "cells": 189,
+    "routes": 561,
+    "role": "Source-reported navigation only; exact equality lookup/cell source SHA/job context required, no imported baseline PASS used as fix proof."
+  },
+  "checks": [
+    {
+      "id": "full60-immutable-source-and-evidence-reconciliation",
+      "command": [
+        "python3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-evidence/reconcile.source.txt",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-evidence/reconciliation.json"
+      ],
+      "target_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+      "environment": {
+        "reader_checkout": "/workspace/e02-B-current-durability",
+        "cwd": "/workspace/e02-B-current-durability",
+        "actual_reader_HEAD": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "actual_reader_tree": "098dabce914551eab464c15c229bbeb018dcfb2b",
+        "reader_python": {
+          "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+        },
+        "scope": "Metadata/Git/XML only; no product import, pytest, collection, native or gates executed by this reader in this adjudication slice. Actual runtime executors/environments remain named in original immutable receipts."
+      },
+      "input_closure": {
+        "driver": {
+          "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-evidence/reconcile.source.txt",
+          "bytes": 13672,
+          "sha256": "ebd569a4b0e54e63a087bdd880e0de218ad428019e92d4a1bcf324565a307227"
+        },
+        "manual_60_proposal": {
+          "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+          "bytes": 199636,
+          "sha256": "30b689d59c28e5173d6957a70ca1403a87ecc2406383f36060e8fc9ebe2c28c1"
+        },
+        "checked_production_source": {
+          "sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "tree": "f765043b27b96a1fbb0795aa600db9bd94df0e36",
+          "source_role": "All checked production remains1862; later author/root commits are metadata unless explicitly qualified."
+        },
+        "canonical_full25cards": "proposal.canonical_source exact697 marker capture refs; all25 whole cards equal1862 and all60 raw blocks verified",
+        "baseline_navigation": "proposal.denominator exactfinding/routes/cells/context Git objects;60findings25bundles561routes189cells; baseline source SHA/env/input closure remains source-reported navigation, not fix proof",
+        "original_evidence": "proposal.evidence_index63 exactGit objects, plus all27 indexed new35 payloads bound at28b9; per-ID original runtime source/environment/input closure read via source_environment_input_resolution, not summary-only grading",
+        "new35_actual_source": {
+          "actual_execution_sha": "10e812a98d5f7f3997e7d0aa44de43dc90eb022c",
+          "actual_execution_tree": "071a52554be3c0eaa67ad0e870a0d9198ec0fa61",
+          "content_reference_only": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+          "source_test_product_content_projection": {
+            "entry_count": 6246,
+            "mismatch_count": 0,
+            "ref": "affected35_projection",
+            "role": "Exact Git blob equality is content custody, not execution restamping; declaring this join does not turn incomplete full250 files into PASS."
+          },
+          "whole_files": 35,
+          "actual_cases": 712,
+          "counts": {
+            "PASS": 712
+          },
+          "phase_counts": {
+            "setup_PASS": 712,
+            "call_PASS": 712,
+            "teardown_PASS": 712
+          },
+          "collection_reports": 63,
+          "wall_seconds": 432.1670279940008,
+          "max_rss_kib": 1026224,
+          "ref_ids": [
+            "affected35_index",
+            "affected35_xml",
+            "affected35_stdout_wrapper",
+            "affected35_wrapper",
+            "affected35_profile",
+            "affected35_projection",
+            "affected35_before",
+            "affected35_after",
+            "affected35_partition",
+            "affected35_phases",
+            "affected35_selectors"
+          ],
+          "source_environment_input_closure": "Exact argv/current194 Python3.14.2/tokenizer/no caps/profile and selected disk bytes before/after reside in affected35_profile/before/after/selectors; full original phase rows are losslessly preserved by affected35_phases. Resource/backend reads outside disclosed origin/profile are not_established."
+        },
+        "runtime_anchor_boundary": "50 explicit principal source anchors verified; this is not a universal import/resource closure",
+        "historical_execution_boundary": "633 exact historical testcase selectors remain bound to originalDD XML;49of51 old testinputs equal1862, changedT37/T50 are actualcurrent807 wholefile joins. No PASS restamp."
+      },
+      "outcome": "PASS",
+      "outcome_details": {
+        "errors": [],
+        "full25cards_and60raw_criterion_hashes": true,
+        "all60_manual_row_ids_and_canonical_owners": true,
+        "all63_original_evidence_refs_hash_size": true,
+        "current807_XML_row_selectors_verified": 9,
+        "new35_XML_row_selectors_verified": 23,
+        "new35_all712cases_and2136phase_outcomes_verified": true,
+        "new35_27full_payload_hashes_verified": true,
+        "new35_actual10e_vs6246_equal1862_projection_verified": true,
+        "manual_counts": {
+          "closed": 48,
+          "held": 4,
+          "limited": 7,
+          "open": 1
+        },
+        "formal_closure_ids": [],
+        "global_code_acceptance": "RED",
+        "full_joint_native_terminal_join": "UNRUN after actualSIGKILL(-9)"
+      },
+      "output": {
+        "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-evidence/reconciliation.json",
+        "bytes": 1861,
+        "sha256": "6b70a98e9183b15a9811304f8e6b946c97982bfa1fd4f0002407b9ebfe738cff"
+      },
+      "output_sha256": "6b70a98e9183b15a9811304f8e6b946c97982bfa1fd4f0002407b9ebfe738cff",
+      "output_bytes": 1861
+    }
+  ],
+  "property": {
+    "statement": "All60 proposed dispositions reconcile complete25 canonical criteria with actual source-bound producer/artifact/consumer outcomes, finite limits, distinguishing negatives and next owner; no baseline/form/aggregate/native-collection-only closure.",
+    "runtime_path": [
+      "full canonical raw criterion + finding/routes/cells original source context",
+      "actual independently produced native XML/stdout/source/input profiles and property controls in immutable Git",
+      "independent source/criterion/admission/measurement reconciliation and full60 manual per-ID table",
+      "ROOT/G formal closure decision and exact1862 local/full-native residual handoff"
+    ],
+    "proxy_divergence": "Full3882 collection was SIGKILL(-9) without terminal grades while exact1862 current807 yields806PASS1scientificFAIL and actual10e35whole yields712PASS2136passedphases under6246 exact1862 content projection. Available pool permit1 still coexists with lost physical cleanup owner; aggregate library green still coexists with A unknown costNone→0. Historical B93 lookalike mapping is a different predicate.",
+    "negative_controls": [
+      "Actual C process-final disconnect ownership FAIL survives healthy/direct-session controls.",
+      "A helper unknownNone→0 actual1FAIL versus reported.02/0 twoPASS; served later-admission UNRUN.",
+      "Actual ledger fsync/replace/admission, protected-audit, worker admission/propagation, numerical graph/measurement and true protection-entry property removals stay pinned to their executed source and complete evidence.",
+      "Unknown source/permission/reuse ownership stays HELD, missing served/governed publisher consumer stays LIMITED, incomplete full-cohort cannot become PASS."
+    ]
+  },
+  "predicate_basis": "independently_reconciled",
+  "capability_state_or_finding_state": "All60 manual bounded proposals only (48closed/7limited/4held/1open derived, not target); formalclosure_ids empty; codeacceptanceRED; fulljoint terminaljoinUNRUN. Original/qualifiedsource evidence and actualconsumer negatives remain separate from root/G formaldecision.",
+  "limitations_and_next_owner": [
+    "ROOT/G independently adjudicates proposal status; author of lower ledger does not self-accept its mechanism. Root actual budget consumers and foreign EXE source review provide bounded own-DUR basis.",
+    "B61/B67/B68/B148 owner laws remain HELD; B78 local safe typedUnknown is verified while external authoritative reconciliation is a separate HELD extension.",
+    "B87 C cleanup OPEN, B89 LIMITED active physical ownership; B66 LIMITED actual A optionalcost projection; A/C sole protected source owners.",
+    "B13 served/local acquired input and B154 A all-confirmations publication consumer missing; full production dataset remains local/read-only. Generic proofs do not require its transfer.",
+    "Exact1862 full250whole/3882case collection has no terminal join after signal9; G must use adequate fresh resources/full profiles for joint verification. No blind retry, quota or deletion claimed.",
+    "Canonical mapping corrections B78/B93 are independent criterion interpretation; G ratifies formal historical ledger mapping.",
+    "Current source equality/historical evidence is explicit qualification, never P41 inherited-red or zero-intersection waiver."
+  ],
+  "workspace_custody": "Original root-supplied lanes admitted; historical self-created verification trees retain precreation_custody_not_established. No blanket all-checkouts-admitted assertion.",
+  "created_at_utc": "2026-10-06T23:46:35.826974+00:00",
+  "proposal": {
+    "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+    "bytes": 199636,
+    "sha256": "30b689d59c28e5173d6957a70ca1403a87ecc2406383f36060e8fc9ebe2c28c1"
+  },
+  "current35_canonical_handoff": {
+    "git_sha": "7af0b486f8434185204abf98863e54cac16fe431",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-affected-consumers.json",
+    "bytes": 79994,
+    "sha256": "f8383f43df7bd60014727ceae70012b45eb3c0040e2b8a7115800adada760b0e"
+  },
+  "current35_canonical_handoff_role": "Final remote-verified source/evidence handshake; actual10e native/source/input and implementation28b9 unchanged. This pointer was appended after proposalimplementation; it grants no automatic finding closure.",
+  "finding_dispositions_locator": {
+    "git_sha": "d1efd64136815a04a96a534e1be8003783f444fe",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-all60-final-criterion-proposal.json",
+    "json_pointer": "/all60_manual_rows",
+    "rows": 60,
+    "formal_closure": false,
+    "proposed_statuses": "Each manually reconciled canonical criterion/property/source/consumer/negative/limit/nextowner; statuses are ROOT/G adjudication inputs."
+  },
+  "authority_purpose": "Independent criterion/evidence reconciliation, candidate-grade proposal; no institutionally_supplied premise becomes authority, own DUR mechanism needs foreign review and root execution acceptance.",
+  "P37_registered_primary_labels": [
+    "recomputed",
+    "independently_reconciled",
+    "consumer_asserted",
+    "institutionally_supplied",
+    "not_established"
+  ],
+  "time_role": "Recorded adjudication/check publication time; original runtime monotonic deadlines, lease expiry and execution times remain in source-bound native receipts."
+}

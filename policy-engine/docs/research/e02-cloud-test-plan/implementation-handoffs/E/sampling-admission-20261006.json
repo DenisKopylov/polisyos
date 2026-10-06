@@ -1,0 +1,391 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "sampling-admission-20261006",
+  "closure_ids": [
+    "B186",
+    "B187",
+    "B188",
+    "B189",
+    "B190",
+    "B191",
+    "B192",
+    "B193",
+    "B194",
+    "B199",
+    "B200",
+    "B201",
+    "B202"
+  ],
+  "bundle_ids": [
+    "UQP-01",
+    "UQP-02",
+    "UQP-03",
+    "UQS-01"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "integration_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "implementation_commits": [
+    "0701251c57d707f0abe0550448e036d9d3c47c7d",
+    "2ff602fd73c5c44e957ec58bcefd1aa48107e524"
+  ],
+  "candidate_sha": "2ff602fd73c5c44e957ec58bcefd1aa48107e524",
+  "candidate_tree_sha": "ffa8145c84a71e97c3b6d6a2389291857c9c9846",
+  "branch": "codex/e02-E-mc-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/44",
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-sampling-admission.toml",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/analytical.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/config.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/covariance.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/delta.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/quasi_mc.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_adaptive_stopping.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_delta.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_dispatcher_routing.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_quasi_mc.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py",
+    "policy-engine/tests/unit/remediation/test_uqp_01.py",
+    "policy-engine/tests/unit/remediation/test_uqp_02.py",
+    "policy-engine/tests/unit/remediation/test_uqp_03.py",
+    "policy-engine/tests/unit/remediation/test_uqs_01.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P027",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "12.35",
+      "rss_kib": "481204",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "144",
+      "extra_json": "{}",
+      "evidence_grade": "transfer/navigation only; raw archive missing",
+      "environment_input_locator": "results/received/F01.txt exact job metadata block; selected test source at pinned SHA; production data absent"
+    },
+    {
+      "id": "F01-P028",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "19.32",
+      "rss_kib": "675412",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "145",
+      "extra_json": "{}",
+      "evidence_grade": "transfer/navigation only; raw archive missing",
+      "environment_input_locator": "results/received/F01.txt exact job metadata block; selected test source at pinned SHA; production data absent"
+    },
+    {
+      "id": "F01-P043",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_02.py",
+      "state": "PASS",
+      "collected": "18",
+      "calls": "18",
+      "call_pass": "18",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "9.06",
+      "rss_kib": "473604",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "160",
+      "extra_json": "{}",
+      "evidence_grade": "transfer/navigation only; raw archive missing",
+      "environment_input_locator": "results/received/F01.txt exact job metadata block; selected test source at pinned SHA; production data absent"
+    },
+    {
+      "id": "F02-P131",
+      "job": "F02",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_uqp_03.py",
+      "state": "PASS",
+      "collected": "2",
+      "calls": "2",
+      "call_pass": "2",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "3.93",
+      "rss_kib": "284536",
+      "receipt_status": "reconciled",
+      "source_file": "received/F02.txt",
+      "source_line": "259",
+      "extra_json": "{}",
+      "evidence_grade": "transfer/navigation only; raw archive missing",
+      "environment_input_locator": "results/received/F02.txt exact job metadata block; selected test source at pinned SHA; production data absent"
+    },
+    {
+      "id": "F03-P028",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo.py",
+      "state": "PASS",
+      "collected": "10",
+      "calls": "10",
+      "call_pass": "10",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.19",
+      "rss_kib": "446088.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "158",
+      "extra_json": "{}",
+      "evidence_grade": "transfer/navigation only; raw archive missing",
+      "environment_input_locator": "results/received/F03.txt exact job metadata block; selected test source at pinned SHA; production data absent"
+    }
+  ],
+  "environment": {
+    "python": "3.14.7",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "backend": "CPU JAX0.8.2/NumPy2.3.5/SciPy1.16.3",
+    "jax_enable_x64": false,
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "interpreter": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "source_origin": "/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+    "extras": "root frozen lint/test/runtime/ml/analytics/sensitivity environment read-only; fresh source via PYTHONPATH=src",
+    "orchestrator_thread_process_caps": "none"
+  },
+  "input_identity": {
+    "classification": "tracked native analytic fixtures; no production evidence",
+    "paths": [
+      "policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py@0701251c57d707f0abe0550448e036d9d3c47c7d",
+      "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py@0701251c57d707f0abe0550448e036d9d3c47c7d"
+    ],
+    "laws": [
+      "Uniform[0,1] and canonical indicator threshold .001",
+      "rank-one Gaussian .0025*ones(2,2) vs declared independent diagonal .0025",
+      "content-bound ordered paired finite empirical law",
+      "Uniform[-1,1] response undefined below zero"
+    ]
+  },
+  "checks": [
+    {
+      "command": "PYTHONPATH=src python -m pytest -o addopts= -q -ra tests/unit/foundry/uncertainty tests/unit/remediation/test_uqp_01.py tests/unit/remediation/test_uqp_02.py tests/unit/remediation/test_uqp_03.py tests/unit/remediation/test_uqs_01.py tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "cwd": "policy-engine",
+      "target_sha": "0701251c57d707f0abe0550448e036d9d3c47c7d",
+      "outcome": "PASS",
+      "output": "sampling-admission-20261006.native.log",
+      "wall_s": 15.388474236999173,
+      "rss_kib": 864476,
+      "input_closure": "150 exact tracked tests:150passed,2 JAX deprecation warnings,0 skipped",
+      "candidate_delta": "docs-only release fragment conversion; zero Python source/test delta"
+    },
+    {
+      "command": "python -m ruff check <all changed Python paths>; python -m ruff format --check <same paths>",
+      "target_sha": "0701251c57d707f0abe0550448e036d9d3c47c7d",
+      "outcome": "PASS",
+      "output": "sampling-admission-20261006.ruff.log",
+      "input_closure": "complete exact23-path argv committed in log"
+    },
+    {
+      "command": "corepack pnpm install --frozen-lockfile",
+      "outcome": "PASS",
+      "output": "fresh install completed; actual Git pre-commit and pre-push passed"
+    },
+    {
+      "command": "/usr/bin/time -v ...",
+      "outcome": "ERROR",
+      "output": "binary unavailable exit127; Python perf_counter/getrusage wrapper used for actual native run; tooling non-receipt, not product outcome"
+    }
+  ],
+  "property": {
+    "statement": "Pre-draw numeric admission is shared by random/Sobol/Halton/Delta/analytical paths. Gaussian null spaces and content-bound empirical rows survive propagation; missing multi-input dependence is unknown. All attempted draws have terminal outcomes reconciled from persisted report. Canonical implemented bounded response uses independent pilot/main streams and frozen main budget. Sobol uses complete nets and replicate mean error. Numerical calculation does not promote source authority.",
+    "runtime_path": [
+      "PropagationDispatcher/DeltaMethodPropagator/AnalyticalPropagator/MonteCarloPropagator -> sampling_admission",
+      "PropagationResult -> configured PropagateUncertaintyNode -> persist_uncertainty_envelope and propagation_report in same CAS",
+      "fresh load_uncertainty_envelope -> verify_mean_certificate/reconcile_draw_outcomes -> candidate SimulationResult"
+    ],
+    "oracle": [
+      "Gaussian tied Var(a-b)=0 vs independent .005",
+      "zero256pilot U=sqrt(log(160)/512)=.0995612819216314; Bernstein frozen N408; mean excludes pilot",
+      "seed-derived independent streams replay every indicator pilot/main draw on readback",
+      "undefined-negative Uniform support successful mean\u2248.5 conditional;4096complete draw identities",
+      "Sobol4x256 actual1024; standard error=std(replica means,ddof=1)/sqrt(4), separate pooled predictive spread"
+    ],
+    "proxy_divergence": [
+      "finite float64 PSD [[1e40]] is not a representable float32 law; old proxy admits invalid callbacks, new gate rejects before them",
+      "predictive width does not measure mean error or validate optional fixed-interval peeking",
+      "identical marginals/shared string ID do not establish joint row pairing",
+      "PASS counts and candidate/source flags do not establish production authority"
+    ],
+    "negative_controls": [
+      "remove range property but keep markers exposes nonfinite evaluator inputs",
+      "missing dependence/fake independence flags block before callbacks",
+      "reverse paired rows while keeping digest/order/ID rejects",
+      "opaque callback bounded-IID flag refuses",
+      "forged equal pilot/main streams fails CAS readback",
+      "drop terminal record but retain complete marker fails denominator reconciliation"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "predicate_scope": {
+    "range/axes/digests/terminal outcomes": "recomputed",
+    "canonical bounded evaluator/pilot/main certificate": "recomputed over explicit mathematical law only",
+    "source-law and source independence": "consumer_asserted or not_established; no authority gate",
+    "external empirical row lineage": "consumer_asserted despite byte/order reconciliation",
+    "production served evaluator": "not_established"
+  },
+  "capability_state_or_finding_state": "bounded configured producer/artifact/consumer demonstrated; general served evaluator bridge_missing; production-law verification_missing; IRv2 ratification held",
+  "finding_closure": false,
+  "findings": [
+    {
+      "finding_id": "B186",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B187",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B188",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B189",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B190",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B191",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B192",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B193",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B194",
+      "ledger_status": "held",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B199",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B200",
+      "ledger_status": "partial",
+      "verdict": "limited"
+    },
+    {
+      "finding_id": "B201",
+      "ledger_status": "held",
+      "verdict": "held"
+    },
+    {
+      "finding_id": "B202",
+      "ledger_status": "held",
+      "verdict": "held"
+    }
+  ],
+  "limitations_and_next_owner": [
+    "B193 positive method is narrow canonical bounded indicator over exact Uniform[0,1]. Opaque callbacks, quantile/CDF/interval and anytime stopping need a separate admitted response/theorem-backed profile. E method owner extends canonical intake; no self-attested flags.",
+    "B194 historical ledger held is retained separately from technical limited verdict. General served simulation evaluator is absent: default Scientist node otherwise computes an affine sensitivity proxy. Scientist simulation/execution owner must provide source-bound evaluator/ExecPlan/model/run/seed/domain refs; E preserves/refuses outcomes. G performs exact-candidate read-only local source-law/history checks only where criterion requires.",
+    "CAL producer must emit joint_law_sha256, joint_parameter_order and ordered joint_draw_ids for paired multivariate carriers, followed by actual MC consumer recheck. Shared string ID alone is unsupported.",
+    "Conditional Gaussian aggregation arithmetic may use explicit caller-declared independence and distinct declared origins; its basis remains consumer_asserted, gates false, effective_information_count/sample_size not promoted from envelope count. Verified information-unit relationships remain an owner input.",
+    "B201/B202: keep v1.1 wire/replay; appointed IR semantic owner ratifies four finite decisions and CAS-only v2 versus inline-plus-persisted-ref. E code does not ratify semantic choices.",
+    "Transient failure classifier/retry contract is absent; this slice does not replace failed inputs with new draws. Served evaluator owner supplies independently classified same-input retry semantics if required.",
+    "Independent review and final common frozen-candidate expensive wave are E-root/G responsibilities; this focused slice does not claim broad product acceptance.",
+    "P41 inherited-red attribution is not claimed; changed paths intersect relevant selectors, so changed expectations/fixtures and actual regressions were repaired and candidate-tested."
+  ],
+  "local_reproduce_recipe": {
+    "implementation_sha": "0701251c57d707f0abe0550448e036d9d3c47c7d",
+    "setup": "supportedPython3.14 with repo-declared lint/test/runtime/ml/analytics/sensitivity extras; run exact committed focused command",
+    "production_followup": "G mounts exact owner-admitted source law and evaluator/model/run/split/horizon/domain/time refs read-only; replay actual served evaluator intake and persisted consumer refusal with complete outcomes; use exact production cohort only if criterion depends on it; no production bytes enter cloud"
+  },
+  "cleanup": {
+    "native_trash": "not_established; no permanent cleanup performed",
+    "exact_candidates": [
+      "/workspace/e02-E-mc-20261006/policy-engine/node_modules",
+      "/workspace/e02-E-mc-20261006/policy-engine/apps/runtime-dashboard/node_modules",
+      "/workspace/e02-E-mc-20261006/policy-engine/.pytest_cache"
+    ],
+    "disposition": "Move repeatable candidates only to configured Trash after preserving deciding logs/useful code; never empty Trash; shared pytest/environment catalogs remain root-owned"
+  },
+  "admission": {
+    "exact_pair": {
+      "branch": "codex/e02-E-mc-20261006",
+      "path": "/workspace/e02-E-mc-20261006"
+    },
+    "complete_json_root_receipts": [
+      "/workspace/e02-E-20261006-receipts/mc-create.json",
+      "/workspace/e02-E-20261006-receipts/mc-resume.json"
+    ]
+  }
+}

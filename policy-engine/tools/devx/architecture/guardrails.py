@@ -586,6 +586,11 @@ def _symbol_binding_nodes(tree: ast.Module, symbol: str) -> Iterator[ast.AST]:
                 yield node
 
 
+def _export_source_locator(source: Path) -> str:
+    """Use a canonical repository locator in reproducible generated refusals."""
+    return source.relative_to(REPO_ROOT).as_posix()
+
+
 class _UnresolvedExportDeclarationError(ValueError):
     """An intentional refusal by the bounded static export grammar."""
 
@@ -610,6 +615,7 @@ class _StaticExportResolver:
         self._allowed_calls: set[tuple[Path, int]] = set()
         self._allowed_operations: set[tuple[Path, int]] = set()
         self._passive_active: set[tuple[Path, str]] = set()
+        self._passive_modules: set[Path] = set()
 
     def _tree(self, source: Path) -> ast.Module:
         if source not in self._trees:
@@ -619,7 +625,7 @@ class _StaticExportResolver:
     def resolve(self, source: Path, symbol: str) -> object:
         key = (source, symbol)
         if key in self._active:
-            raise _UnresolvedExportDeclarationError(f"Unresolved export declaration cycle: {source}:{symbol}")
+            raise _UnresolvedExportDeclarationError(f"Unresolved export declaration cycle: {_export_source_locator(source)}:{symbol}")
         self._active.add(key)
         try:
             tree = self._tree(source)
@@ -636,7 +642,7 @@ class _StaticExportResolver:
                     alias.name != "*" for alias in node.names
                 )
                 if id(node) not in direct_nodes or not (supported_assignment or supported_import):
-                    raise _UnresolvedExportDeclarationError(f"Unresolved conditional/mutated exports: {source}:{symbol}")
+                    raise _UnresolvedExportDeclarationError(f"Unresolved conditional/mutated exports: {_export_source_locator(source)}:{symbol}")
             declarations: list[ast.AST] = []
             imported: list[tuple[ast.ImportFrom, str]] = []
             for node in tree.body:
@@ -662,7 +668,7 @@ class _StaticExportResolver:
                 elif isinstance(node, ast.AugAssign) and isinstance(node.target, ast.Name):
                     if node.target.id == symbol:
                         raise _UnresolvedExportDeclarationError(
-                            f"Unresolved mutated export declaration: {source}:{symbol}"
+                            f"Unresolved mutated export declaration: {_export_source_locator(source)}:{symbol}"
                         )
                 elif isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
                     function = node.value.func
@@ -672,7 +678,7 @@ class _StaticExportResolver:
                         and function.value.id == symbol
                     ):
                         raise _UnresolvedExportDeclarationError(
-                            f"Unresolved mutated export declaration: {source}:{symbol}"
+                            f"Unresolved mutated export declaration: {_export_source_locator(source)}:{symbol}"
                         )
             if len(declarations) == 1 and not imported:
                 value = self._value(source, declarations[0])
@@ -682,14 +688,14 @@ class _StaticExportResolver:
                 node, imported_name = imported[0]
                 info = _module_name_for_path(source)
                 if info is None:
-                    raise _UnresolvedExportDeclarationError(f"Unresolved export import source: {source}")
+                    raise _UnresolvedExportDeclarationError(f"Unresolved export import source: {_export_source_locator(source)}")
                 module = _resolve_import_module(*info, node)
                 if module is None or not module.startswith("polisyos."):
-                    raise _UnresolvedExportDeclarationError(f"Unresolved export import: {source}:{symbol}")
+                    raise _UnresolvedExportDeclarationError(f"Unresolved export import: {_export_source_locator(source)}:{symbol}")
                 value = self.resolve(_facade_source_for(module), imported_name)
                 self._resolved[key] = node.end_lineno
                 return value
-            raise _UnresolvedExportDeclarationError(f"Unresolved or ambiguous export declaration: {source}:{symbol}")
+            raise _UnresolvedExportDeclarationError(f"Unresolved or ambiguous export declaration: {_export_source_locator(source)}:{symbol}")
         finally:
             self._active.remove(key)
 
@@ -705,12 +711,12 @@ class _StaticExportResolver:
                 if key is None:
                     mapping = self._value(source, value)
                     if not isinstance(mapping, dict):
-                        raise _UnresolvedExportDeclarationError(f"Unresolved export mapping expansion: {source}")
+                        raise _UnresolvedExportDeclarationError(f"Unresolved export mapping expansion: {_export_source_locator(source)}")
                     keys.update(mapping)
                 elif isinstance(key, ast.Constant) and isinstance(key.value, str):
                     keys[key.value] = None
                 else:
-                    raise _UnresolvedExportDeclarationError(f"Unresolved export mapping key: {source}")
+                    raise _UnresolvedExportDeclarationError(f"Unresolved export mapping key: {_export_source_locator(source)}")
             return keys
         if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
             left, right = self._value(source, node.left), self._value(source, node.right)
@@ -725,7 +731,7 @@ class _StaticExportResolver:
             and not node.keywords
         ):
             if any(_symbol_binding_nodes(self._tree(source), node.func.id)):
-                raise _UnresolvedExportDeclarationError(f"Unresolved shadowed export builtin: {source}:{node.func.id}")
+                raise _UnresolvedExportDeclarationError(f"Unresolved shadowed export builtin: {_export_source_locator(source)}:{node.func.id}")
             value = self._value(source, node.args[0])
             if isinstance(value, (dict, list, tuple)) and all(
                 isinstance(item, str) for item in value
@@ -735,7 +741,7 @@ class _StaticExportResolver:
         strings = _string_list_value(node)
         if strings is not None:
             return strings
-        raise _UnresolvedExportDeclarationError(f"Unresolved export expression: {source}:{ast.unparse(node)}")
+        raise _UnresolvedExportDeclarationError(f"Unresolved export expression: {_export_source_locator(source)}:{ast.unparse(node)}")
 
     @staticmethod
     def _passive_container(node: ast.AST) -> bool:
@@ -787,13 +793,13 @@ class _StaticExportResolver:
                         and node.id in symbols and (source, id(node)) not in self._allowed_reads
                     ):
                         if not self._admit_passive_alias(source, node):
-                            raise _UnresolvedExportDeclarationError(f"Unresolved export binding consumer: {source}:{node.id}")
+                            raise _UnresolvedExportDeclarationError(f"Unresolved export binding consumer: {_export_source_locator(source)}:{node.id}")
                         changed = True
                 if not changed:
                     break
         audited: set[Path] = set()
         while pending := set(self._trees) - audited:
-            for source in pending:
+            for source in sorted(pending):
                 for statement in self._tree(source).body:
                     self._audit_statement(source, statement)
                 audited.add(source)
@@ -801,7 +807,7 @@ class _StaticExportResolver:
     def _refuse_effect(self, source: Path, node: ast.AST) -> None:
         raise _UnresolvedExportDeclarationError(
             f"Unresolved import-time {type(node).__name__} outside pure-declaration grammar: "
-            f"{source}:{ast.unparse(node)}"
+            f"{_export_source_locator(source)}:{ast.unparse(node)}"
         )
 
     def _import_source(self, source: Path, node: ast.ImportFrom | ast.Import, name: str) -> Path:
@@ -816,6 +822,7 @@ class _StaticExportResolver:
             self._refuse_effect(source, node)
         imported = _facade_source_for(module)
         self._tree(imported)
+        self._passive_modules.add(imported)
         self._read_package_initializers(module)
         return imported
 
@@ -827,16 +834,17 @@ class _StaticExportResolver:
             # admitted stat records this bounded absence; no loader is executed.
             if admitted_is_file(initializer, REPO_ROOT):
                 self._tree(initializer)
+                self._passive_modules.add(initializer)
 
-    def _passive_binding(self, source: Path, name: str) -> None:
+    def _passive_binding(self, source: Path, name: str, *, module_binding: bool = False) -> None:
         key = (source, name)
         if key in self._passive_active:
-            raise _UnresolvedExportDeclarationError(f"Unresolved passive binding cycle: {source}:{name}")
+            raise _UnresolvedExportDeclarationError(f"Unresolved passive binding cycle: {_export_source_locator(source)}:{name}")
         bindings = list(_symbol_binding_nodes(self._tree(source), name))
-        if not bindings and name in vars(builtins):
+        if not bindings and name in vars(builtins) and not module_binding:
             return
         if len(bindings) != 1 or bindings[0] not in self._tree(source).body:
-            raise _UnresolvedExportDeclarationError(f"Unresolved passive binding: {source}:{name}")
+            raise _UnresolvedExportDeclarationError(f"Unresolved passive binding: {_export_source_locator(source)}:{name}")
         self._passive_active.add(key)
         try:
             node = bindings[0]
@@ -847,7 +855,7 @@ class _StaticExportResolver:
             elif isinstance(node, ast.ImportFrom):
                 imported = self._import_source(source, node, "")
                 alias = next(alias for alias in node.names if (alias.asname or alias.name) == name)
-                self._passive_binding(imported, alias.name)
+                self._passive_binding(imported, alias.name, module_binding=True)
             elif isinstance(node, ast.Import):
                 for alias in node.names:
                     if (alias.asname or alias.name.split(".")[0]) == name:
@@ -935,6 +943,11 @@ class _StaticExportResolver:
         elif isinstance(node, ast.Expr):
             self._audit_expression(source, node.value)
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            # Imported modules/initializers execute import protocols. Their
+            # callable definitions are outside the passive dependency profile,
+            # even when an explicitly requested binding already exists.
+            if source in self._passive_modules:
+                self._refuse_effect(source, node)
             self._audit_function_header(source, node)
         elif isinstance(node, ast.ImportFrom):
             if any(alias.name == "*" for alias in node.names):
@@ -943,7 +956,7 @@ class _StaticExportResolver:
             for alias in node.names:
                 # Named import can invoke module __getattr__ for an absent name.
                 # Only an actual passive owner binding avoids that protocol.
-                self._passive_binding(imported, alias.name)
+                self._passive_binding(imported, alias.name, module_binding=True)
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 self._import_source(source, node, alias.name)
@@ -1055,7 +1068,7 @@ def _extract_exports(tree: ast.Module, source_file: Path | None = None) -> tuple
         candidates = literals[0] if len(literals) == 1 and literals[0] is not None else ()
         raise _UnresolvedExportDeclarationError(str(exc), candidates) from exc
     if not isinstance(exports, (tuple, list)) or not all(isinstance(item, str) for item in exports):
-        raise _UnresolvedExportDeclarationError(f"Export declaration must resolve to string sequence: {source}")
+        raise _UnresolvedExportDeclarationError(f"Export declaration must resolve to string sequence: {_export_source_locator(source)}")
     try:
         resolver.audit_consumers()
     except _UnresolvedExportDeclarationError as exc:
@@ -1126,7 +1139,10 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
         "a finite pure import-time declaration grammar; external imports, control/context "
         "statements, class construction, decorated/type-parameterized function headers "
         "and foreign attribute/subscript/operator/callback protocols remain unknown. "
-        "Function bodies are excluded. No module execution or runtime dispatch."
+        "Imported local dependencies and package initializers additionally require "
+        "a passive-binding-only profile without callable definitions; imported names "
+        "must have explicit owner bindings, never ambient builtin fallbacks. Plain "
+        "selected-module function bodies are excluded. No module execution or runtime dispatch."
     )
     function_names = {node.name for node in tree.body if isinstance(node, ast.FunctionDef)}
     summary = (ast.get_docstring(tree) or "").strip().splitlines()

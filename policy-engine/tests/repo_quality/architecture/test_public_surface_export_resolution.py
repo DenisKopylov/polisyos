@@ -5,6 +5,8 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -167,7 +169,7 @@ def test_unsupported_module_effect_is_reported_without_executing_module(
     assert result.export_count is None
     assert result.known_export_count == 0
     assert result.export_resolution["complete"] is False
-    assert "import-time Raise" in result.export_resolution["reason"]
+    assert "Unresolved" in result.export_resolution["reason"]
     assert result.export_resolution["declared_export_candidates"] == ["A", "B"]
     policy = guardrails.PackagePolicy(
         module="polisyos.fixture", classification="public_experimental", facade_mode="eager_exports",
@@ -421,7 +423,7 @@ def test_local_named_import_requires_actual_binding_not_module_getattr(
     result = guardrails._entrypoint_inventory("polisyos.fixture")
     assert result.export_count is None and result.known_export_count == 0
     assert result.export_resolution["declared_export_candidates"] == ["StaticName"]
-    assert "passive binding" in result.export_resolution["reason"]
+    assert "Unresolved" in result.export_resolution["reason"]
 
 
 def test_canonical_parent_initializer_effects_are_part_of_source_audit(
@@ -438,6 +440,78 @@ def test_canonical_parent_initializer_effects_are_part_of_source_audit(
     parent.write_text('__all__ = []\n')
     resolved = guardrails._entrypoint_inventory("polisyos.fixture")
     assert resolved.exports == ("Old",) and resolved.export_count == 1
+
+
+@pytest.mark.parametrize("requested", ["PASSIVE", "len"])
+def test_local_import_callable_owner_is_unknown_on_actual_cpython_protocol(
+    tmp_path: Path, monkeypatch, requested: str,
+) -> None:
+    facade, _ = _fixture(tmp_path, monkeypatch)
+    (facade.parents[1] / "__init__.py").write_text('__all__ = []\n')
+    owner = facade.with_name("owner.py")
+    owner.write_text(
+        'PASSIVE = 1\n'
+        'def __getattr__(name):\n'
+        '    import builtins\n'
+        '    builtins.sorted = lambda values: ["RuntimeShadow"]\n'
+        '    if name == "__path__":\n'
+        '        raise AttributeError(name)\n'
+        '    return builtins.len\n'
+    )
+    facade.write_text(
+        f'from .owner import {requested}\n'
+        'M = {"StaticName": None}\n__all__ = sorted(M)\n'
+    )
+    observed = subprocess.run(
+        [sys.executable, "-I", "-c", 'import sys,json;sys.path.insert(0,sys.argv[1]);import polisyos.fixture as f;print(json.dumps(f.__all__))', str(guardrails.SRC_ROOT)],
+        cwd=tmp_path, capture_output=True, text=True, check=False,
+    )
+    assert observed.returncode == 0, observed.stdout + observed.stderr
+    assert json.loads(observed.stdout) == ["RuntimeShadow"]
+    result = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert result.export_count is None and result.known_export_count == 0
+    assert result.export_resolution["declared_export_candidates"] == ["StaticName"]
+    assert result.export_resolution["complete"] is False
+
+
+@pytest.mark.parametrize("declaration", ['def ordinary():\n    return 1\n', 'async def ordinary():\n    return 1\n'])
+def test_all_imported_callable_definitions_are_outside_passive_module_profile(
+    tmp_path: Path, monkeypatch, declaration: str,
+) -> None:
+    _, mapping = _fixture(tmp_path, monkeypatch)
+    mapping.write_text('PUBLIC_NAMES = {"StaticName": None}\n' + declaration)
+    result = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert result.export_count is None and result.known_export_count == 0
+    assert result.export_resolution["declared_export_candidates"] == ["StaticName"]
+
+
+def test_imported_name_cannot_borrow_ambient_builtin_binding(tmp_path: Path, monkeypatch) -> None:
+    facade, mapping = _fixture(tmp_path, monkeypatch)
+    facade.write_text('from .exports import len\n__all__ = ["StaticName"]\n')
+    mapping.write_text('PASSIVE = 1\n')
+    result = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert result.export_count is None and result.known_export_count == 0
+    assert result.export_resolution["declared_export_candidates"] == ["StaticName"]
+
+
+def test_unknown_inventory_is_byte_equal_across_canonical_root_relocation(tmp_path: Path, monkeypatch) -> None:
+    rendered = []
+    for dirname in ("one", "other"):
+        root = tmp_path / dirname
+        facade, mapping = _fixture(root, monkeypatch)
+        mapping.write_text('PUBLIC_NAMES = {"StaticName": None}\nforeign_callback()\n')
+        policy = guardrails.PackagePolicy(
+            module="polisyos.fixture", classification="public_experimental", facade_mode="eager_exports",
+            owner="test-owner", readme=facade, reference_doc=facade,
+            supported_entrypoints=("polisyos.fixture",), major_subsystem=False, notes="fixture",
+        )
+        inventory = guardrails.build_public_surface_inventory([policy])
+        encoded = guardrails.render_public_surface_json(inventory)
+        assert str(root) not in encoded
+        assert inventory[0].export_count is None
+        assert [row.detail for row in guardrails._check_public_surface_contracts(inventory)] == ["incomplete_exports"]
+        rendered.append(encoded)
+    assert rendered[0] == rendered[1]
 
 
 def test_finite_selected_alias_chain_has_audited_consumers() -> None:

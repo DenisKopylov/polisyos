@@ -1,0 +1,77 @@
+{
+  "schema": "policyos.e02.topic_publication.v1",
+  "unit": "C",
+  "publisher_scope": "own codex/e02-C-* topic branches for G; main not published",
+  "deciding_push_command": {
+    "argv": [
+      "git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "push",
+      "origin",
+      "codex/e02-C-canon-20261006:refs/heads/codex/e02-C-canon-20261006",
+      "codex/e02-C-federation-20261006:refs/heads/codex/e02-C-federation-20261006",
+      "codex/e02-C-client-20261006:refs/heads/codex/e02-C-client-20261006"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "publication_scope": "three own C topic refs only; no main",
+    "hook_status": "UNRUN under session-authorized command-local bypass"
+  },
+  "deciding_push_result": {
+    "exit_code": 0,
+    "wall_seconds": 1.8515853749704547,
+    "outputs": {
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/publication/first-ready-topic-push.stdout": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C2/raw/publication/first-ready-topic-push.stderr": {
+        "sha256": "198caf50927ab0ddf5f81cb67d705dc73425e47cc60a6dbc7ddd48be10e527ae",
+        "bytes": 306
+      }
+    }
+  },
+  "deciding_push_stdout": "",
+  "deciding_push_stderr": "To https://github.com/DenisKopylov/polisyos.git\n * [new branch]          codex/e02-C-canon-20261006 -> codex/e02-C-canon-20261006\n * [new branch]          codex/e02-C-federation-20261006 -> codex/e02-C-federation-20261006\n * [new branch]          codex/e02-C-client-20261006 -> codex/e02-C-client-20261006\n",
+  "remote_readback": {
+    "published_topic_count": 3,
+    "main_publication": false,
+    "remote_readback": [
+      {
+        "branch": "codex/e02-C-canon-20261006",
+        "remote_sha": "9f84276408fc6b776e35050afece5c4e74ed413d",
+        "remote_tree": "c9a5e4620abb8e643f25614a7df600ad499bf0c8",
+        "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/canon-writer-strangle-c2.json",
+        "handoff_sha256": "ab3bf7349812f8eb1651ee4091b5050d5ba10fdfe463a96e5fc544045c6eca3d",
+        "handoff_readback_json_valid": true,
+        "main_ancestry": true
+      },
+      {
+        "branch": "codex/e02-C-federation-20261006",
+        "remote_sha": "26ba51d571a5ccb5da26502d4d097d801cdc5b04",
+        "remote_tree": "04ab94e5672451a8e765b99d0feb2abe7dfd067b",
+        "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/federation.json",
+        "handoff_sha256": "03f7ff6db7c8e8780e4d72c70a0213c27abd211d3dbe969a66c3e060d8a98575",
+        "handoff_readback_json_valid": true,
+        "main_ancestry": true
+      },
+      {
+        "branch": "codex/e02-C-client-20261006",
+        "remote_sha": "5f812a3487d8f1fe0779f67bfcf3f9b73babeaf1",
+        "remote_tree": "0f4760eb05ab3ed4493417fa489870e301700293",
+        "handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/client-c2-20261006.json",
+        "handoff_sha256": "6f377d5ccbe5a21fda904e988c4f0190172f6fec26bdce42ad015512bc1fa602",
+        "handoff_readback_json_valid": true,
+        "main_ancestry": true
+      }
+    ]
+  },
+  "finding_closure_not_implied_by_push": true,
+  "independent_review_state": {
+    "canon": "GO bounded canonical IR writer/readback; raw Core bypass reproduced and LA-021 held",
+    "federation": "all B138-B145 exact criterion witnesses independently GO including tracked actual JOIN ties/removal",
+    "client": "LA-043 full manifest-family criterion completed; LA-044 package-owned locked generator and installed consumers independently GO"
+  },
+  "next_owner": "G consumes ordinary Git topic commits/handoffs and final C verdict table; no user-chat message sent",
+  "remaining_c_topics": "other nine writer families and root ING remain in verification/correction; three published topics do not complete C denominator54"
+}

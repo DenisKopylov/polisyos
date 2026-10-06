@@ -936,40 +936,7 @@
         },
         "child_scope": "Original worker child uses actual sys.executable/PYTHONPATH and asserts control_store/worker origins under expected root; parent declared frozen-source hashes are stable. Universal child resource readset not established."
       },
-      "outcome": {
-        "harness_state": "EXECUTED",
-        "setup_failure": null,
-        "actual_exit": 0,
-        "actual_unique_case_count": 8,
-        "unique_case_status_counts": {
-          "PASS": 8,
-          "FAIL": 0,
-          "ERROR": 0,
-          "SKIP": 0,
-          "XFAIL": 0,
-          "UNRUN": 0
-        },
-        "phase_outcomes": {
-          "setup": {
-            "passed": 8
-          },
-          "call": {
-            "passed": 8
-          },
-          "teardown": {
-            "passed": 8
-          }
-        },
-        "collection_errors": [],
-        "collection_skips": [],
-        "wall_s": 172.18007543199928,
-        "max_rss_kib": 905064,
-        "pytest_summary_seconds": 141.06,
-        "warnings": 11,
-        "source_before_after_clean_same": true,
-        "source_declared_bytes_stable": true,
-        "selected_module_bytes_matched": true
-      },
+      "outcome": "PASS",
       "output": [
         {
           "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
@@ -1004,7 +971,42 @@
           "sha256": "1af8bd6fe9341a11fff9a1ac318b62b82708113c366dd71c2686a3ec2844e82b",
           "bytes": 25746
         }
-      ]
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "outcome_details": {
+        "harness_state": "EXECUTED",
+        "setup_failure": null,
+        "actual_exit": 0,
+        "actual_unique_case_count": 8,
+        "unique_case_status_counts": {
+          "PASS": 8,
+          "FAIL": 0,
+          "ERROR": 0,
+          "SKIP": 0,
+          "XFAIL": 0,
+          "UNRUN": 0
+        },
+        "phase_outcomes": {
+          "setup": {
+            "passed": 8
+          },
+          "call": {
+            "passed": 8
+          },
+          "teardown": {
+            "passed": 8
+          }
+        },
+        "collection_errors": [],
+        "collection_skips": [],
+        "wall_s": 172.18007543199928,
+        "max_rss_kib": 905064,
+        "pytest_summary_seconds": 141.06,
+        "warnings": 11,
+        "source_before_after_clean_same": true,
+        "source_declared_bytes_stable": true,
+        "selected_module_bytes_matched": true
+      }
     },
     {
       "id": "retained-eight-schema-read-only-readback",
@@ -1035,7 +1037,17 @@
         },
         "scope": "Only schemas named in this completed native XML; server same private DSN, read-only PostgreSQL connections."
       },
-      "outcome": {
+      "outcome": "PASS",
+      "output": [
+        {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/retained-schema-readback.json",
+          "sha256": "ac5e5eecaece03f738f6f0a1bc4f1ff41b789f9e19622f449ca7c57a6078c99c",
+          "bytes": 218684
+        }
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "outcome_details": {
         "schema_count": 8,
         "tables_per_schema": [
           11,
@@ -1050,15 +1062,7 @@
         "no_schema_or_row_cleanup": true,
         "meaning": "Final full schema snapshots; intermediate stale/fault table equality was exercised in actual native case bodies.",
         "actual_exit": 0
-      },
-      "output": [
-        {
-          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
-          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/retained-schema-readback.json",
-          "sha256": "ac5e5eecaece03f738f6f0a1bc4f1ff41b789f9e19622f449ca7c57a6078c99c",
-          "bytes": 218684
-        }
-      ]
+      }
     },
     {
       "id": "actual-eight-case-phase-junit-reconciliation",
@@ -1135,7 +1139,17 @@
         },
         "completed_native_source": "1862c021df74a5c5815bc5cd21a20e61b30132b6"
       },
-      "outcome": {
+      "outcome": "PASS",
+      "output": [
+        {
+          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/deciding-reconciliation.json",
+          "sha256": "1af8bd6fe9341a11fff9a1ac318b62b82708113c366dd71c2686a3ec2844e82b",
+          "bytes": 25746
+        }
+      ],
+      "target_sha": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+      "outcome_details": {
         "actual_unique_cases": 8,
         "phase_count": 24,
         "status_counts": {
@@ -1153,23 +1167,28 @@
         },
         "no_duplicate_case_or_xml_record": true,
         "actual_exit": 0
-      },
-      "output": [
-        {
-          "commit": "455aa88d2ec4a5e782805f54957db7408ddf96df",
-          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-final-postgres-fencing-independent-evidence/deciding-reconciliation.json",
-          "sha256": "1af8bd6fe9341a11fff9a1ac318b62b82708113c366dd71c2686a3ec2844e82b",
-          "bytes": 25746
-        }
-      ]
+      }
     }
   ],
-  "property": "Actual PostgreSQL database mutations remain fenced by current owner/attempt/lease generation; current B publishes coherent status/event/outbox, and real statement faults roll back every native table.",
-  "predicate_basis": {
-    "deciding_native_consumer": "Unchanged original ControlWorker/ControlPlaneStore PostgreSQL wholefile; real A->persisted expiry->fresh-process B; all eighteen stale mutators refuse with every table unchanged.",
-    "paired_controls": "Running/completed B generation negatives, current completed/failed positives, real event/outbox trigger refusal with successful rollback. No helper presence/connection/marker treated as property proof.",
-    "no_own_mechanism_review_claim": "Independent runtime executor; original canonical/test authors EXE/DUR, no production or test edits in this slice. Root owns final criterion and all60 acceptance."
+  "property": {
+    "statement": "Actual PostgreSQL database mutations remain fenced by current owner/attempt/lease generation; current B publishes coherent status/event/outbox, and real statement faults roll back every native table.",
+    "runtime_path": [
+      "producer: actual ControlWorker A handler / job_execution_fence with owner+attempt context",
+      "artifact: native PostgreSQL control_jobs plus events/outbox and all11 schema tables",
+      "bridge: actual ControlPlaneStore owner/attempt/live-lease guarded mutation and one database transaction",
+      "consumer: fresh OS-process worker B finalization plus independent PostgreSQL all-table reads and strict native assertions"
+    ],
+    "proxy_divergence": "Actual PostgreSQL identity/connection succeeds on this server while all18 stale-A protected mutator inlets refuse and every table remains unchanged. Availability or constructor/helper presence alone cannot distinguish stale-A refusal from current-B authorization. The two genuine terminal-generation controls and four native SQL-trigger rollback controls measure that distinction.",
+    "negative_controls": [
+      "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[running]",
+      "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_stale_bound_worker_cannot_mutate_any_table[completed]",
+      "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-completed]",
+      "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[event-failed]",
+      "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-completed]",
+      "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py::test_postgres_real_statement_fault_rolls_back_all_terminal_rows[outbox-failed]"
+    ]
   },
+  "predicate_basis": "recomputed",
   "per_premise_basis": {
     "operational_environment": "User/root-supplied task-owned initialized PostgreSQL17.11 server and private DSN; current version and tool origins measured. No institutional/external-effect permission inferred.",
     "semantic_criterion": {
@@ -1306,5 +1325,22 @@
     ],
     "input_adjustment": "Allocate a fresh absolute basetemp/JUnit/output namespace before replay; preserve original wholefile/config/conftest/source tuple, PYTHONPATH and owner-provided private DSN. The committed capture driver binds this historical cloud path and refuses existing outputs; any portable driver adjustment is a new explicitly hashed replay input, not a claim of replay already performed."
   },
-  "created_at_utc": "2026-10-06T23:15:49.466165+00:00"
+  "created_at_utc": "2026-10-06T23:15:49.466165+00:00",
+  "predicate_basis_details": {
+    "deciding_native_consumer": "Unchanged original ControlWorker/ControlPlaneStore PostgreSQL wholefile; real A->persisted expiry->fresh-process B; all eighteen stale mutators refuse with every table unchanged.",
+    "paired_controls": "Running/completed B generation negatives, current completed/failed positives, real event/outbox trigger refusal with successful rollback. No helper presence/connection/marker treated as property proof.",
+    "no_own_mechanism_review_claim": "Independent runtime executor; original canonical/test authors EXE/DUR, no production or test edits in this slice. Root owns final criterion and all60 acceptance."
+  },
+  "receipt_shape_correction": {
+    "prior_receipt_commit": "48237d713d6ab996a66fe1595c7be67a87e4551f",
+    "prior_receipt_sha256": "bdd50beed44b63b63121bbab3bdc71130d564e85b93e70776ea1ece92bb222de",
+    "changes": [
+      "required property object instead of statement string",
+      "predicate_basis enum with prior details preserved separately",
+      "mandatory exact target_sha aliases",
+      "canonical outcome enum with all original quantitative outcome_details preserved"
+    ],
+    "runtime_source_and_deciding_bytes_changed": false,
+    "native_rerun_performed": false
+  }
 }

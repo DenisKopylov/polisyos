@@ -1,0 +1,19 @@
+{
+  "operation": "native_git_index_v4_prefix_compression",
+  "root": "/workspace/e02-D-published-search",
+  "index": "/workspace/polisyos/.git/worktrees/e02-D-published-search/index",
+  "head": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+  "branch": "refs/heads/codex/e02-D-published-search",
+  "old_backup": "/tmp/e02-D-index-v4-94b99i2v/original.index",
+  "old_bytes": 2206449,
+  "new_bytes": 1281478,
+  "old_sha256": "ec8a3ed04df12ce8006057df41d9ada186241c171c8cf7d68f4628e7577d5560",
+  "new_sha256": "ad03494d62971eb2ea801e37c20a7f716085e37f756d13be687d091eb93a20fc",
+  "complete_stage_debug_sha256_before_and_after": "b18cb441e7660124a4b6c0ac250f285138d3cea4840eaa0e44b36b80f9457794",
+  "status_before_and_after": "",
+  "head_branch_entries_flags_staged_tree_identity_unchanged": true,
+  "source_tests_hooks_unchanged": true,
+  "permanent_cleanup": false,
+  "available_bytes_before": 823296,
+  "available_bytes_after": 1748992
+}

@@ -1,0 +1,17 @@
+id = "2026-10-06-e02-calibration-curvature-admission"
+title = "Separate objective curvature from calibration covariance"
+type = "fixed"
+component = "foundry"
+owner = "team-foundry"
+summary = "Generic calibration loss emits raw curvature diagnostics. A configured known-noise Gaussian NLL profile may emit stationary positive inverse information; welfare verifies exact report CAS kind/schema/payload and configuration/profile edges."
+evidence = ["tests/unit/foundry/calibration/test_hessian.py", "tests/unit/foundry/calibration/test_report.py", "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py"]
+compatibility = "Generic-loss Hessians no longer supply inferential covariance. Historical v1 report serialization and B198 typed-scale representation remain compatible."
+change_class = "internal"
+surface_classification = "internal: Foundry calibration / Scientist welfare"
+migration = "Foundry calibration / Scientist welfare own migration. Callers requiring likelihood covariance must supply known observation-noise scales and preserve the source assumptions; generic loss does not supply a statistical interval."
+api = "Existing CalibratorInputs gains an optional known-noise Gaussian profile; report reader checks the existing v2 persistence boundary."
+limitations = "Independent Gaussian row laws remain consumer_asserted and non-gating. Local inverse information does not establish source truth, regularity, population identification, or authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/calibration/README.md"]
+runbook_docs = []

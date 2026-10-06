@@ -697,6 +697,91 @@ def _build_core_output_receipt(
     }
 
 
+@dataclass(frozen=True)
+class _CurrentCoreOutputReceiptState:
+    """One recomputed view of the checkpoint, producer stage, and core outputs."""
+
+    expected: bool
+    current_receipt: dict[str, Any] | None
+    checkpoint_state: dict[str, Any]
+    core_stage_state: dict[str, Any]
+    stage_metadata: dict[str, Any]
+
+    @property
+    def is_current(self) -> bool:
+        """Return whether the checkpoint and stage both bind current database bytes."""
+        return bool(
+            self.current_receipt is not None
+            and self.checkpoint_state.get("core_output_receipt") == self.current_receipt
+            and self.stage_metadata.get("core_output_receipt") == self.current_receipt
+        )
+
+    @property
+    def reconciled_receipt(self) -> dict[str, Any] | None:
+        """Return the receipt only when the saved checkpoint and stage agree with it."""
+        return self.current_receipt if self.is_current else None
+
+    def basis_member(self) -> dict[str, object]:
+        """Return the recomputed receipt identity consumed by benchmark basis checks."""
+        return {
+            "expected": self.expected,
+            "recomputed_receipt_digest": (
+                self.current_receipt.get("basis_digest") if self.current_receipt else None
+            ),
+            "matches_checkpoint_and_stage": self.is_current,
+        }
+
+
+def _current_core_output_receipt_state(
+    config: DatasetBatchConfig,
+    *,
+    con: duckdb.DuckDBPyConnection | None = None,
+) -> _CurrentCoreOutputReceiptState:
+    """Reconcile one saved core receipt with its ledger and current database tables."""
+    checkpoint_state = load_json(config.observation_ingest_checkpoint_path, default={})
+    if not isinstance(checkpoint_state, dict):
+        checkpoint_state = {}
+    saved_stage_state = load_json(config.stage_state_path, default={})
+    if not isinstance(saved_stage_state, dict):
+        saved_stage_state = {}
+    raw_core_stage_state = saved_stage_state.get("core_sources_ingest")
+    core_stage_state = raw_core_stage_state if isinstance(raw_core_stage_state, dict) else {}
+    raw_metadata = core_stage_state.get("metadata")
+    stage_metadata = raw_metadata if isinstance(raw_metadata, dict) else {}
+    work_packages = checkpoint_state.get("work_packages")
+    stage_status = str(core_stage_state.get("status") or "").strip()
+    expected = bool(isinstance(work_packages, dict) and work_packages) or stage_status in {
+        "complete",
+        "warning",
+        "running",
+    }
+    current_receipt: dict[str, Any] | None = None
+    if expected:
+        try:
+            if con is None:
+                with duckdb.connect(str(config.db_path), read_only=True) as current_con:
+                    current_receipt = _build_core_output_receipt(
+                        config,
+                        con=current_con,
+                        checkpoint_state=checkpoint_state,
+                    )
+            else:
+                current_receipt = _build_core_output_receipt(
+                    config,
+                    con=con,
+                    checkpoint_state=checkpoint_state,
+                )
+        except (duckdb.Error, OSError):
+            current_receipt = None
+    return _CurrentCoreOutputReceiptState(
+        expected=expected,
+        current_receipt=current_receipt,
+        checkpoint_state=checkpoint_state,
+        core_stage_state=core_stage_state,
+        stage_metadata=stage_metadata,
+    )
+
+
 def _encode_core_receipt_value(value: object) -> object | None:
     """Encode supported DuckDB scalar and nested values with stable type tags."""
     if value is None:

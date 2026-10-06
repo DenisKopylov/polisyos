@@ -7,6 +7,7 @@ import json
 import os
 import sys
 import types
+from dataclasses import replace
 from pathlib import Path
 
 import duckdb
@@ -659,6 +660,46 @@ def test_pipeline_preserves_current_core_producer_progress_for_benchmark(
     assert changed_plan_stats.metrics["core_failures"] == 0
     assert changed_plan_benchmark["evaluation_mode"] == "full-ready"
 
+    checkpoint_for_cache = json.loads(
+        retry_config.observation_ingest_checkpoint_path.read_text(encoding="utf-8")
+    )
+    complete_for_cache = next(iter(checkpoint_for_cache["completed"]))
+    deferred_for_cache = json.loads(json.dumps(checkpoint_for_cache))
+    deferred_result = deferred_for_cache["completed"].pop(complete_for_cache)
+    deferred_for_cache["deferred"][complete_for_cache] = {
+        **deferred_result,
+        "status": "deferred",
+    }
+    stage_state_before_cache_probe = retry_config.stage_state_path.read_bytes()
+    benchmark_before_cache_probe = retry_config.benchmark_report_path.read_bytes()
+    calls_before_cache_probe = fetch_state["calls"]
+    retry_config.observation_ingest_checkpoint_path.write_text(
+        json.dumps(deferred_for_cache), encoding="utf-8"
+    )
+    assert retry_config.stage_state_path.read_bytes() == stage_state_before_cache_probe
+    assert retry_config.benchmark_report_path.read_bytes() == benchmark_before_cache_probe
+
+    benchmark_only = replace(retry_config, stages=frozenset({"benchmark"}))
+    cached_benchmark_stats = run_dataset_pipeline_sync(benchmark_only)
+    cached_benchmark_report = json.loads(
+        retry_config.benchmark_report_path.read_text(encoding="utf-8")
+    )
+    assert "benchmark" not in cached_benchmark_stats.skipped_stages
+    assert cached_benchmark_stats.metrics["benchmark_partial_eval"] == 1
+    assert cached_benchmark_report["evaluation_mode"] == "partial-eval"
+    assert fetch_state["calls"] == calls_before_cache_probe
+    partial_benchmark_receipt = current_content_stage_receipt(benchmark_only, "benchmark")
+    assert partial_benchmark_receipt is not None
+    benchmark_basis_config = partial_benchmark_receipt["input_basis"]["config"]
+    core_receipt_basis_state = benchmark_basis_config["core_output_receipt_state"]
+    assert core_receipt_basis_state["expected"] is True
+    assert core_receipt_basis_state["matches_checkpoint_and_stage"] is False
+    assert isinstance(core_receipt_basis_state["recomputed_receipt_digest"], str)
+
+    repeated_benchmark_stats = run_dataset_pipeline_sync(benchmark_only)
+    assert "benchmark" not in repeated_benchmark_stats.skipped_stages
+    assert repeated_benchmark_stats.metrics["benchmark_partial_eval"] == 1
+
 
 def test_core_sources_ingest_is_not_resumed_without_bound_fetch_receipt(tmp_path) -> None:
     config = DatasetBatchConfig(
@@ -701,7 +742,7 @@ def test_core_sources_run_signature_changes_with_registry_content(tmp_path) -> N
     assert config.run_signature != original_signature
 
 
-def test_benchmark_resume_rejects_core_ingest_state_change(monkeypatch, tmp_path) -> None:
+def test_benchmark_resume_requires_current_core_ingest_receipt(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(
         DatasetBatchConfig,
         "load_registry",
@@ -724,7 +765,7 @@ def test_benchmark_resume_rejects_core_ingest_state_change(monkeypatch, tmp_path
         },
     )
     _record_stage_completion(config, "benchmark")
-    assert _should_skip_stage(config, "benchmark")
+    assert not _should_skip_stage(config, "benchmark")
 
     catalog_pipeline.write_json(
         config.stage_state_path,
@@ -738,6 +779,7 @@ def test_benchmark_resume_rejects_core_ingest_state_change(monkeypatch, tmp_path
             ],
         },
     )
+    _record_stage_completion(config, "benchmark")
 
     assert not _should_skip_stage(config, "benchmark")
 

@@ -594,49 +594,17 @@ def _load_core_ingest_context(
     config: DatasetBatchConfig,
     con: duckdb.DuckDBPyConnection,
 ) -> dict[str, object]:
-    stage_state: dict[str, object] = {}
-    if config.stage_state_path.exists():
-        with open(config.stage_state_path, encoding="utf-8") as fh:
-            loaded = json.load(fh)
-        if isinstance(loaded, dict):
-            stage_state = (
-                loaded.get("core_sources_ingest", {})
-                if isinstance(loaded.get("core_sources_ingest"), dict)
-                else {}
-            )
-    metadata = stage_state.get("metadata", {}) if isinstance(stage_state, dict) else {}
-    if not isinstance(metadata, dict):
-        metadata = {}
-    stage_status = str(stage_state.get("status") or "").strip()
-    checkpoint_state: dict[str, object] = {}
-    if config.observation_ingest_checkpoint_path.exists():
-        try:
-            with open(config.observation_ingest_checkpoint_path, encoding="utf-8") as fh:
-                loaded_checkpoint = json.load(fh)
-            if isinstance(loaded_checkpoint, dict):
-                checkpoint_state = loaded_checkpoint
-        except (OSError, json.JSONDecodeError):
-            checkpoint_state = {}
     from polisyos.data_forge.domains.catalog.batch.core_sources.validators import (
-        _build_core_output_receipt,
+        _current_core_output_receipt_state,
     )
 
-    current_core_receipt = _build_core_output_receipt(
-        config,
-        con=con,
-        checkpoint_state=checkpoint_state,
-    )
-    checkpoint_receipt = checkpoint_state.get("core_output_receipt")
-    stage_receipt = metadata.get("core_output_receipt")
-    core_receipt_current = bool(
-        current_core_receipt is not None
-        and checkpoint_receipt == current_core_receipt
-        and stage_receipt == current_core_receipt
-    )
-    checkpoint_work_packages = checkpoint_state.get("work_packages")
-    core_evidence_expected = bool(
-        isinstance(checkpoint_work_packages, dict) and checkpoint_work_packages
-    ) or stage_status in {"complete", "warning", "running"}
+    receipt_state = _current_core_output_receipt_state(config, con=con)
+    stage_state = receipt_state.core_stage_state
+    metadata = receipt_state.stage_metadata
+    stage_status = str(stage_state.get("status") or "").strip()
+    current_core_receipt = receipt_state.current_receipt
+    core_receipt_current = receipt_state.is_current
+    core_evidence_expected = receipt_state.expected
     observation_count = 0
     if _table_exists(con, "ds_observations"):
         observation_count = int(

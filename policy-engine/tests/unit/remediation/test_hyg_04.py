@@ -13,6 +13,7 @@ from tempfile import TemporaryDirectory
 import pytest
 
 from polisyos.common import jax_env
+from tools.lib import imports as tool_imports
 from tools.quality.validation import check_docs_lifecycle
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -21,6 +22,21 @@ pytestmark = pytest.mark.unit
 
 _FRONTEND_DIR = "front" + "end"
 _FRONTEND_README = f"{_FRONTEND_DIR}/README.md"
+
+
+def _installed_workspace_module_path(tmp_path: Path, filename: str = "bootstrap.py") -> Path:
+    site_packages = (
+        tmp_path
+        / "venv"
+        / "lib"
+        / f"python{sys.version_info.major}.{sys.version_info.minor}"
+        / "site-packages"
+        / "tools"
+        / "devx"
+        / "workspace"
+    )
+    site_packages.mkdir(parents=True)
+    return site_packages / filename
 
 
 def test_workspace_bootstrap_subprocess_exposes_real_profiles(
@@ -131,6 +147,91 @@ def test_canonical_workspace_bootstrap_is_the_public_setup_entrypoint() -> None:
         )
         assert installed_result.returncode == 0, installed_result.stderr
         assert "--profile" in installed_result.stdout
+
+
+def test_installed_workspace_module_can_resolve_the_checkout_cwd(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A site-packages module resolves a real workspace only through the opt-in CWD path."""
+
+    installed_module = _installed_workspace_module_path(tmp_path)
+    monkeypatch.chdir(REPO_ROOT)
+
+    resolved = tool_imports.repo_root_from(installed_module, allow_cwd_fallback=True)
+    assert resolved == REPO_ROOT
+
+
+def test_import_root_bootstrap_uses_checkout_cwd_for_unanchored_modules(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The workspace's pre-import root setup can find the checkout for installed tools."""
+
+    installed_module = _installed_workspace_module_path(tmp_path, "doctor.py")
+    monkeypatch.chdir(REPO_ROOT)
+    monkeypatch.setattr(sys, "path", sys.path.copy())
+
+    repo_root, src_root = tool_imports.ensure_repo_import_roots(
+        installed_module,
+        include_repo_root=True,
+        include_src_root=False,
+    )
+
+    assert repo_root == REPO_ROOT
+    assert src_root == REPO_ROOT / "src"
+
+
+def test_repo_root_resolution_rejects_non_workspace_cwd_with_typed_error(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """CWD fallback does not invent a checkout when the canonical layout is absent."""
+
+    installed_module = _installed_workspace_module_path(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.repo_root_from(installed_module, allow_cwd_fallback=True)
+
+
+def test_repo_root_resolution_preserves_source_anchor_and_default_behavior(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Source-file ancestry still wins, while plain repo_root_from does not borrow CWD."""
+
+    fake_checkout = tmp_path / "decoy"
+    (fake_checkout / "tools").mkdir(parents=True)
+    (fake_checkout / "src").mkdir()
+    (fake_checkout / "pyproject.toml").write_text("", encoding="utf-8")
+    monkeypatch.chdir(fake_checkout)
+
+    anchored = tool_imports.repo_root_from(
+        REPO_ROOT / "tools" / "lib" / "imports.py",
+        allow_cwd_fallback=True,
+    )
+    assert anchored == REPO_ROOT
+
+    installed_module = _installed_workspace_module_path(tmp_path)
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.repo_root_from(installed_module)
+
+
+def test_repo_root_resolution_verifies_explicit_checkout_paths(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Explicit workspace selection accepts a real root and rejects a nonexistent one."""
+
+    installed_module = _installed_workspace_module_path(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    resolved = tool_imports.repo_root_from(installed_module, workspace_root=REPO_ROOT)
+    assert resolved == REPO_ROOT
+
+    with pytest.raises(tool_imports.RepositoryRootUnavailableError):
+        tool_imports.repo_root_from(installed_module, workspace_root=tmp_path / "missing")
 
 
 def test_jax_entrypoints_apply_defaults_before_the_first_jax_import(

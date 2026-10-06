@@ -2048,7 +2048,7 @@ def test_completed_failed_spend_settles_without_ordinary_branch(
         dead_letters = [record for record in records if record.event == "NODE_DEAD_LETTER"]
         assert len(dead_letters) == 1
         assert dead_letters[0].metrics["failed_cost_usd"] == 3.0
-        persisted = store.get_json(dead_letters[0].outputs[0])
+        persisted = json.loads(store.get_bytes(dead_letters[0].refs.outputs[0]))
         assert persisted["attempts"] == 2
         assert persisted["alias"] == route
     assert mp.active_children() == []

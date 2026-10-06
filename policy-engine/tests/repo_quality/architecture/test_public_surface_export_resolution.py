@@ -33,7 +33,15 @@ def test_actual_analytics_mapping_is_not_reported_as_empty() -> None:
     from polisyos.ir.api import ANALYTICS_FACADE_EXPORTS
 
     result = guardrails._entrypoint_inventory("polisyos.ir.analytics")
-    assert result.exports == tuple(analytics.__all__) == tuple(sorted(ANALYTICS_FACADE_EXPORTS))
+    assert tuple(analytics.__all__) == tuple(sorted(ANALYTICS_FACADE_EXPORTS))
+    assert len(analytics.__all__) == 278
+    # The native profile has these names, but the imported source also creates
+    # classes outside the finite static grammar. Do not infer an empty namespace.
+    assert result.export_count is None
+    assert result.known_export_count == 0
+    assert result.export_resolution["complete"] is False
+    assert result.export_resolution["declared_export_candidates"] == sorted(ANALYTICS_FACADE_EXPORTS)
+    assert "class construction" in result.export_resolution["reason"]
     inputs = result.export_resolution["inputs"]
     paths = {row["path"] for row in inputs if row["operation"] == "read_bytes"}
     assert paths == {
@@ -143,17 +151,35 @@ def test_unresolved_mapping_never_becomes_empty_manifest(
             guardrails._entrypoint_inventory("polisyos.fixture")
 
 
-def test_static_literal_mapping_is_read_without_executing_module(
+def test_unsupported_module_effect_is_reported_without_executing_module(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    _, mapping = _fixture(tmp_path, monkeypatch)
+    facade, mapping = _fixture(tmp_path, monkeypatch)
     mapping.write_text(
         'raise RuntimeError("module execution forbidden")\n'
         'BASE = {"A": unknown_runtime_owner}\n'
         'PUBLIC_NAMES = {**BASE, "B": object}\n',
     )
-    assert guardrails._entrypoint_inventory("polisyos.fixture").exports == ("A", "B")
+    result = guardrails._entrypoint_inventory("polisyos.fixture")
+    assert result.export_count is None
+    assert result.known_export_count == 0
+    assert result.export_resolution["complete"] is False
+    assert "import-time call" in result.export_resolution["reason"]
+    assert result.export_resolution["declared_export_candidates"] == ["A", "B"]
+    policy = guardrails.PackagePolicy(
+        module="polisyos.fixture", classification="public_experimental", facade_mode="eager_exports",
+        owner="test-owner", readme=facade, reference_doc=facade,
+        supported_entrypoints=("polisyos.fixture",), major_subsystem=False, notes="fixture",
+    )
+    inventory = guardrails.build_public_surface_inventory([policy])
+    serialized = json.loads(guardrails.render_public_surface_json(inventory))["packages"][0]
+    assert serialized["exports"] == []
+    assert serialized["export_count"] is None
+    assert serialized["known_export_count"] == 0
+    assert serialized["entrypoints"][0]["export_resolution"]["declared_export_candidates"] == ["A", "B"]
+    assert "Source-declared candidates (2; native exports unproved)" in guardrails.render_public_surface_markdown(inventory)
+    assert [item.detail for item in guardrails._check_public_surface_contracts(inventory)] == ["incomplete_exports"]
 
 
 def test_local_names_and_sequence_concat_share_same_reader() -> None:
@@ -275,15 +301,20 @@ def test_current_world_optional_profile_has_unknown_static_total() -> None:
         )
     )
     assert row.export_count is None
-    assert row.known_export_count == len(ast.literal_eval(literal)) == 41
-    assert tuple(world.__all__[:row.known_export_count]) == row.exports
+    # The source has a literal prefix, but preceding optional-import probes are
+    # outside the effect grammar. That prefix is not a proved runtime total.
+    literal_names = ast.literal_eval(literal)
+    assert len(literal_names) == 41
+    assert row.known_export_count == 0
+    assert row.exports == ()
     assert row.export_resolution["complete"] is False
-    # Optional runtime exports are outside the static prefix and remain unknown.
-    # This is an actual installed-profile discriminator, not a manifest marker.
+    assert row.export_resolution["declared_export_candidates"] == literal_names
+    assert tuple(world.__all__[:len(literal_names)]) == tuple(literal_names)
+    # The maintained native namespace is a separate observed profile.
     if world._MATERIALIZE_AVAILABLE:
-        assert len(world.__all__) == 59 > row.known_export_count
+        assert len(world.__all__) == 59 > len(literal_names)
     else:
-        assert len(world.__all__) == row.known_export_count
+        assert len(world.__all__) == len(literal_names)
 
 
 @pytest.mark.parametrize("source", [
@@ -299,9 +330,21 @@ def test_current_world_optional_profile_has_unknown_static_total() -> None:
     'M = {"x": 1}\nclass C:\n    global M\n    M = {"y": 2}\n__all__ = sorted(M)',
     'M = {"x": 1}\nclass C(metaclass=unknown):\n    pass\n__all__ = sorted(M)',
     'M = {"x": 1}\nclass C(unknown):\n    pass\n__all__ = sorted(M)',
+    'globals()["sorted"] = choose\nM = {"x": 1}\n__all__ = sorted(M)',
+    'M = {\n    "x": poison(),\n}\n__all__ = sorted(M)',
+    'class D:\n    def __set_name__(self, owner, name):\n        M["y"] = 2\nd = D()\nM = {"x": 1}\nclass C:\n    descriptor = d\n__all__ = sorted(M)',
 ])
 def test_bindings_cannot_escape_finite_declaration_consumers(source: str) -> None:
     with pytest.raises(ValueError, match="Unresolved"):
+        guardrails._extract_exports(ast.parse(source))
+
+
+@pytest.mark.parametrize("source", [
+    'globals()["__all__"] = ["RuntimeOnly"]',
+    'class C:\n    pass',
+])
+def test_missing_syntactic_binding_does_not_bypass_effect_audit(source: str) -> None:
+    with pytest.raises(guardrails._UnresolvedExportDeclarationError, match="import-time"):
         guardrails._extract_exports(ast.parse(source))
 
 

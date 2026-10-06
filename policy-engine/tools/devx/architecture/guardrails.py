@@ -588,6 +588,10 @@ def _symbol_binding_nodes(tree: ast.Module, symbol: str) -> Iterator[ast.AST]:
 class _UnresolvedExportDeclarationError(ValueError):
     """An intentional refusal by the bounded static export grammar."""
 
+    def __init__(self, message: str, declared_candidates: tuple[str, ...] = ()) -> None:
+        super().__init__(message)
+        self.declared_candidates = declared_candidates
+
 
 class _StaticExportResolver:
     """Resolve declared export names without importing or executing facade code.
@@ -767,7 +771,7 @@ class _StaticExportResolver:
 
     def audit_consumers(self) -> None:
         """A finite binding must not escape the selected declaration grammar."""
-        for source in {path for path, _ in self._resolved}:
+        for source in self._trees:
             # Passive aliases/containers are finite only if their own complete
             # module-level consumer closure is audited as well.
             while True:
@@ -783,28 +787,23 @@ class _StaticExportResolver:
                         changed = True
                 if not changed:
                     break
-            symbols = {symbol for path, symbol in self._resolved if path == source}
-            first_bound_line = min(
-                line for (path, _), line in self._resolved.items() if path == source
-            )
             for node in _module_level_nodes(self._tree(source)):
                 if (
-                    isinstance(node, ast.Call) and node.lineno >= first_bound_line
+                    isinstance(node, ast.Call)
                     and (source, id(node)) not in self._allowed_calls
                 ):
-                    raise _UnresolvedExportDeclarationError(f"Unresolved call after export binding: {source}:{ast.unparse(node)}")
+                    raise _UnresolvedExportDeclarationError(f"Unresolved import-time call outside finite grammar: {source}:{ast.unparse(node)}")
                 if (
-                    isinstance(node, ast.ClassDef) and node.lineno >= first_bound_line
-                    and (node.bases or node.keywords or node.decorator_list)
+                    isinstance(node, ast.ClassDef)
                 ):
-                    raise _UnresolvedExportDeclarationError(f"Unresolved class construction after export binding: {source}:{node.name}")
+                    raise _UnresolvedExportDeclarationError(f"Unresolved import-time class construction outside finite grammar: {source}:{node.name}")
 
 
 class _IncompleteExportDeclarationError(_UnresolvedExportDeclarationError):
     """A literal prefix is readable, but its extension has no static total."""
 
     def __init__(self, prefix: tuple[str, ...]) -> None:
-        super().__init__("Unresolved __all__.extend; literal prefix only, total unknown")
+        super().__init__("Unresolved __all__.extend; literal prefix only, total unknown", prefix)
         self.prefix = prefix
 
 
@@ -854,13 +853,11 @@ def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | Non
     ):
         return None
     if any(
-        isinstance(node, ast.Call) and node.lineno > declaration.end_lineno
-        and id(node) not in allowed_calls for node in _module_level_nodes(tree)
+        isinstance(node, ast.Call) and id(node) not in allowed_calls for node in _module_level_nodes(tree)
     ):
         return None
     if any(
-        isinstance(node, ast.ClassDef) and node.lineno > declaration.end_lineno
-        and (node.bases or node.keywords or node.decorator_list)
+        isinstance(node, ast.ClassDef)
         for node in _module_level_nodes(tree)
     ):
         return None
@@ -868,17 +865,36 @@ def _literal_prefix_before_extensions(tree: ast.Module) -> tuple[str, ...] | Non
 
 
 def _extract_exports(tree: ast.Module, source_file: Path | None = None) -> tuple[str, ...]:
+    source = source_file or SRC_ROOT / "polisyos" / "__static_exports__.py"
+    resolver = _StaticExportResolver(source, tree)
     if not any(_symbol_binding_nodes(tree, "__all__")):
+        # Absence of a syntactic binding does not excuse reflective module effects.
+        resolver.audit_consumers()
         return ()
     prefix = _literal_prefix_before_extensions(tree)
     if prefix is not None:
         raise _IncompleteExportDeclarationError(prefix)
-    source = source_file or SRC_ROOT / "polisyos" / "__static_exports__.py"
-    resolver = _StaticExportResolver(source, tree)
-    exports = resolver.resolve(source, "__all__")
-    resolver.audit_consumers()
+    try:
+        exports = resolver.resolve(source, "__all__")
+    except _UnresolvedExportDeclarationError as exc:
+        # These are source declarations only: mutations or extension can change
+        # the native namespace. They never supply a complete export verdict.
+        literals = [
+            _string_list_value(node.value) for node in tree.body
+            if isinstance(node, (ast.Assign, ast.AnnAssign))
+            and any(
+                isinstance(target, ast.Name) and target.id == "__all__"
+                for target in (node.targets if isinstance(node, ast.Assign) else [node.target])
+            )
+        ]
+        candidates = literals[0] if len(literals) == 1 and literals[0] is not None else ()
+        raise _UnresolvedExportDeclarationError(str(exc), candidates) from exc
     if not isinstance(exports, (tuple, list)) or not all(isinstance(item, str) for item in exports):
         raise _UnresolvedExportDeclarationError(f"Export declaration must resolve to string sequence: {source}")
+    try:
+        resolver.audit_consumers()
+    except _UnresolvedExportDeclarationError as exc:
+        raise _UnresolvedExportDeclarationError(str(exc), tuple(exports)) from exc
     return tuple(exports)
 
 
@@ -909,6 +925,7 @@ def _facade_source_for(module: str) -> Path:
 def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
     incomplete_reason = None
     exports_scope = None
+    declared_candidates: tuple[str, ...] = ()
     with measure_file_reads(REPO_ROOT) as reads:
         try:
             source_file = _facade_source_for(module)
@@ -917,10 +934,12 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
                 exports = _extract_exports(tree, source_file)
             except _IncompleteExportDeclarationError as exc:
                 exports = exc.prefix
+                declared_candidates = exc.declared_candidates
                 incomplete_reason = str(exc)
                 exports_scope = "direct unconditional literal prefix; extensions unresolved"
             except _UnresolvedExportDeclarationError as exc:
                 exports = ()
+                declared_candidates = exc.declared_candidates
                 incomplete_reason = str(exc)
                 exports_scope = "no names proven by the bounded parser; not an empty runtime namespace"
         except (OSError, ValueError, SyntaxError, TypeError) as exc:
@@ -931,6 +950,11 @@ def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
     if incomplete_reason is not None:
         export_resolution["reason"] = incomplete_reason
         export_resolution["exports_scope"] = exports_scope
+        export_resolution["declared_export_candidates"] = list(declared_candidates)
+        export_resolution["candidate_scope"] = (
+            "Names in a finite source declaration before effect audit; not proved native exports, "
+            "not included in known_export_count and not a completeness verdict."
+        )
     export_resolution["selector"] = (
         "Declared __all__; literal sequences/mapping keys, named/imported declarations, "
         "concatenation and sorted/list/tuple. No module execution or runtime dispatch."
@@ -1290,6 +1314,18 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
                 lines.append(f"- Summary: {entrypoint.summary}")
             if entrypoint.export_count is None:
                 lines.append(f"- Export resolution incomplete: {entrypoint.export_resolution['reason']}.")
+                candidates = entrypoint.export_resolution["declared_export_candidates"]
+                if candidates:
+                    lines.extend([
+                        "",
+                        f"<details><summary>Source-declared candidates ({len(candidates)}; native exports unproved)</summary>",
+                        "",
+                        "```text",
+                        *candidates,
+                        "```",
+                        "",
+                        "</details>",
+                    ])
             if entrypoint.known_export_count:
                 label = (
                     f"Known literal prefix ({entrypoint.known_export_count}; total unknown)"

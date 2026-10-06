@@ -1,0 +1,1924 @@
+{
+  "schema": "policyos.e02.independent_source_review.v1",
+  "reviewer": "RUN /root/run_writer, independent of DUR author",
+  "created_utc": "2026-10-06T18:31:01.712638+00:00",
+  "scope": "Source-only narrow installed-wheel native input/adapter review; no product runtime, native/build/collection/typecheck/gates.",
+  "original_input_sha": "9826acc52c06030ac1c4f054a8516b7b3d2a7b62",
+  "original_input_tree": "ff03c4c28044ecc0afd51cf1309abfae19c82ade",
+  "author_base_sha": "df5622065679d66b6d6685ecdd9948552cbd8e55",
+  "reviewed_input_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+  "reviewed_input_tree": "83667eaae1959f37a0a13a904709944c999f5463",
+  "complete_changed_paths_original_to_adapter": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+    "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+    "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py"
+  ],
+  "complete_changed_paths_author_base_to_adapter": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+    "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+    "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py"
+  ],
+  "source_refs": [
+    {
+      "source_sha": "9826acc52c06030ac1c4f054a8516b7b3d2a7b62",
+      "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "git_blob": "b0b07b94472f47587e84b484f2140f00fb63952a",
+      "bytes": 9959,
+      "sha256": "e45bf73137d1eccfce01616891397c510980e6ed3c2633f2de8e8555a7c464e5"
+    },
+    {
+      "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "path": "policy-engine/tests/unit/common/test_async_tools_installed_wheel.py",
+      "git_blob": "7c8835f08c9d837e10af0274b3cf306b58acde94",
+      "bytes": 4870,
+      "sha256": "eb24cd99386a0856f5d6f7639c751bd6b019b6dfdf0be605d64caeeb64a51702"
+    },
+    {
+      "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "path": "policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py",
+      "git_blob": "a6c8303367b5caeca25629df9ba1eca714e31cd9",
+      "bytes": 9973,
+      "sha256": "9c2dccab7a3d22313f96eea4131062c16d2008c7b5a9bfdf716003ac2eb86b09"
+    },
+    {
+      "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py",
+      "git_blob": "8a4007a95666c01058f8f4d17c39921c617e18df",
+      "bytes": 10704,
+      "sha256": "cba1f7aa1e664bd81118928db08aeca59b2067bd3eced377ceed85f775bfdedb"
+    }
+  ],
+  "full_adapter_diff_utf8": "diff --git a/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py\nnew file mode 100644\nindex 000000000..8a4007a95\n--- /dev/null\n+++ b/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-installed-wheel-independent-evidence/launcher.py\n@@ -0,0 +1,301 @@\n+\"\"\"Build a frozen real wheel and execute the independent installed consumer.\n+\n+Mutable artifacts and Python environments belong to a new task directory. The\n+checked source stays read-only; no project sync or global install is performed.\n+No test runs until source and native-input identities agree.\n+\"\"\"\n+\n+from __future__ import annotations\n+\n+import argparse\n+import hashlib\n+import json\n+import os\n+import shutil\n+import subprocess\n+import sys\n+import time\n+from dataclasses import dataclass\n+from datetime import UTC, datetime\n+from pathlib import Path\n+\n+\n+@dataclass(frozen=True)\n+class Inputs:\n+    \"\"\"Exact immutable source/input and task-local execution paths.\"\"\"\n+\n+    source_root: Path\n+    source_sha: str\n+    test_path: Path\n+    test_sha256: str\n+    consumer_sha256: str\n+    task_root: Path\n+    python: Path\n+    uv: Path\n+\n+\n+def _git(inputs: Inputs, *args: str) -> str:\n+    # Fixed Git operations consume the explicit immutable source identity.\n+    git = shutil.which(\"git\")\n+    if git is None:\n+        raise RuntimeError(\"Git binary is required for immutable source readback\")\n+    return subprocess.check_output(  # noqa: S603\n+        [git, *args],\n+        cwd=inputs.source_root.parent,\n+        text=True,\n+    ).strip()\n+\n+\n+def _snapshot(inputs: Inputs) -> dict[str, str]:\n+    return {\n+        \"head\": _git(inputs, \"rev-parse\", \"HEAD\"),\n+        \"tree\": _git(inputs, \"rev-parse\", \"HEAD^{tree}\"),\n+        \"status\": _git(inputs, \"status\", \"--porcelain\", \"--untracked-files=all\"),\n+    }\n+\n+\n+def _run(inputs: Inputs, name: str, argv: list[str], env: dict[str, str]) -> None:\n+    output = inputs.task_root / f\"{name}.txt\"\n+    started = datetime.now(UTC).isoformat()\n+    t0 = time.monotonic()\n+    sys.stdout.write(json.dumps({\"check\": name, \"phase\": \"started\", \"argv\": argv}) + \"\\n\")\n+    sys.stdout.flush()\n+    with output.open(\"wb\") as stream:\n+        # No shell: argv invokes explicit UV/Python binaries or the frozen test.\n+        process = subprocess.Popen(  # noqa: S603\n+            argv, cwd=inputs.task_root, env=env, stdout=stream, stderr=subprocess.STDOUT\n+        )\n+        _, status, usage = os.wait4(process.pid, 0)\n+        process.returncode = os.waitstatus_to_exitcode(status)\n+    raw = output.read_bytes()\n+    snapshot = _snapshot(inputs)\n+    receipt = {\n+        \"command\": argv,\n+        \"cwd\": str(inputs.task_root),\n+        \"start_utc\": started,\n+        \"end_utc\": datetime.now(UTC).isoformat(),\n+        \"wall_s\": time.monotonic() - t0,\n+        \"child_maxrss_platform_units\": usage.ru_maxrss,\n+        \"maxrss_unit\": \"KiB on Linux; bytes on macOS\",\n+        \"exit\": process.returncode,\n+        \"output\": str(output),\n+        \"output_bytes\": len(raw),\n+        \"output_sha256\": hashlib.sha256(raw).hexdigest(),\n+        \"source\": snapshot,\n+    }\n+    (inputs.task_root / f\"{name}.json\").write_text(json.dumps(receipt, indent=2) + \"\\n\")\n+    sys.stdout.write(json.dumps({\"check\": name, \"phase\": \"terminal\", **receipt}) + \"\\n\")\n+    sys.stdout.flush()\n+    if snapshot[\"head\"] != inputs.source_sha or snapshot[\"status\"] != \"\":\n+        raise RuntimeError(f\"source identity changed during {name}: {snapshot}\")\n+    if process.returncode:\n+        raise RuntimeError(f\"{name} failed: complete deciding output is {output}\")\n+\n+\n+def main() -> None:\n+    \"\"\"Resolve explicit inputs, build/install the real wheel, then run consumers.\"\"\"\n+    parser = argparse.ArgumentParser(description=__doc__)\n+    parser.add_argument(\"--source-root\", type=Path, required=True)\n+    parser.add_argument(\"--source-sha\", required=True)\n+    parser.add_argument(\"--test-path\", type=Path, required=True)\n+    parser.add_argument(\"--test-sha256\", required=True)\n+    parser.add_argument(\"--consumer-sha256\", required=True)\n+    parser.add_argument(\"--task-root\", type=Path, required=True)\n+    parser.add_argument(\"--python\", type=Path, required=True)\n+    parser.add_argument(\"--uv\", type=Path, required=True)\n+    args = parser.parse_args()\n+    inputs = Inputs(\n+        args.source_root.resolve(strict=True),\n+        args.source_sha,\n+        args.test_path.resolve(strict=True),\n+        args.test_sha256,\n+        args.consumer_sha256,\n+        args.task_root.resolve(),\n+        args.python.resolve(strict=True),\n+        args.uv.resolve(strict=True),\n+    )\n+    if not (\n+        len(inputs.source_sha) == 40 and all(c in \"0123456789abcdef\" for c in inputs.source_sha)\n+    ):\n+        raise ValueError(\"source SHA must be a complete lowercase Git commit identity\")\n+    if inputs.source_root.name != \"policy-engine\":\n+        raise ValueError(\"source root must be the policy-engine product directory\")\n+    if (hashlib.sha256(inputs.test_path.read_bytes()).hexdigest() == inputs.test_sha256) is False:\n+        raise ValueError(\"outer native input bytes do not match the supplied SHA256\")\n+    consumer = inputs.test_path.with_name(\"installed_wheel_bridge_consumer.py\")\n+    if hashlib.sha256(consumer.read_bytes()).hexdigest() != inputs.consumer_sha256:\n+        raise ValueError(\"installed consumer input bytes do not match the supplied SHA256\")\n+    before = _snapshot(inputs)\n+    if before[\"head\"] != inputs.source_sha or before[\"status\"] != \"\":\n+        raise ValueError(f\"source must be clean and attached to the supplied SHA: {before}\")\n+    inputs.task_root.mkdir(parents=True, exist_ok=False)\n+    env = dict(os.environ)\n+    env.pop(\"PYTHONPATH\", None)\n+    env.pop(\"PYTHONHOME\", None)\n+    env.pop(\"VIRTUAL_ENV\", None)\n+    env.pop(\"PYTEST_ADDOPTS\", None)\n+    env.pop(\"PYTEST_PLUGINS\", None)\n+    env[\"UV_CACHE_DIR\"] = str(inputs.task_root / \"uv-cache\")\n+    env[\"PYTEST_DISABLE_PLUGIN_AUTOLOAD\"] = \"1\"\n+    env[\"PYTHONDONTWRITEBYTECODE\"] = \"1\"\n+    uv = str(inputs.uv)\n+    build_env = inputs.task_root / \"build-env\"\n+    installed_env = inputs.task_root / \"installed-env\"\n+    for name, root in ((\"build-venv\", build_env), (\"installed-venv\", installed_env)):\n+        _run(\n+            inputs,\n+            name,\n+            [\n+                uv,\n+                \"venv\",\n+                \"--python\",\n+                str(inputs.python),\n+                \"--no-python-downloads\",\n+                str(root),\n+            ],\n+            env,\n+        )\n+    build_python = str(build_env / \"bin/python\")\n+    installed_python = str(installed_env / \"bin/python\")\n+    _run(\n+        inputs,\n+        \"build-dependencies\",\n+        [uv, \"pip\", \"install\", \"--python\", build_python, \"hatchling==1.27.0\"],\n+        env,\n+    )\n+    _run(\n+        inputs,\n+        \"wheel-build\",\n+        [\n+            uv,\n+            \"build\",\n+            \"--wheel\",\n+            \"--no-build-isolation\",\n+            \"--python\",\n+            build_python,\n+            \"--no-python-downloads\",\n+            \"--no-create-gitignore\",\n+            \"--out-dir\",\n+            str(inputs.task_root / \"wheels\"),\n+            str(inputs.source_root),\n+        ],\n+        env,\n+    )\n+    (wheel,) = (inputs.task_root / \"wheels\").glob(\"*.whl\")\n+    _run(\n+        inputs,\n+        \"wheel-install\",\n+        [uv, \"pip\", \"install\", \"--python\", installed_python, \"--no-deps\", str(wheel)],\n+        env,\n+    )\n+    pytest_dependencies = [\n+        \"pytest==9.0.2\",\n+        \"iniconfig==2.3.0\",\n+        \"packaging==25.0\",\n+        \"pluggy==1.6.0\",\n+        \"pygments==2.19.2\",\n+    ]\n+    _run(\n+        inputs,\n+        \"consumer-dependencies\",\n+        [\n+            uv,\n+            \"pip\",\n+            \"install\",\n+            \"--python\",\n+            installed_python,\n+            \"--no-deps\",\n+            *pytest_dependencies,\n+        ],\n+        env,\n+    )\n+    installed_site = installed_env / \"lib/python3.14/site-packages\"\n+    if not installed_site.is_dir():\n+        raise RuntimeError(f\"Python3.14 installed site directory missing: {installed_site}\")\n+    env.update(\n+        {\n+            \"E02_LA057_WHEEL_PATH\": str(wheel),\n+            \"E02_LA057_INSTALLED_SITE\": str(installed_site),\n+            \"E02_LA057_SOURCE_ROOT\": str(inputs.source_root),\n+            \"E02_LA057_SOURCE_SHA\": inputs.source_sha,\n+            \"E02_LA057_INSTALLED_PYTHON\": installed_python,\n+            \"E02_LA057_CONSUMER_SHA256\": inputs.consumer_sha256,\n+            \"E02_LA057_OUTER_TEST_SHA256\": inputs.test_sha256,\n+        }\n+    )\n+    environment_script = (\n+        \"import importlib.metadata,json,sys;\"\n+        \"print(json.dumps({'python':sys.executable,'version':sys.version,\"\n+        \"'distributions':{d.metadata['Name']:d.version for d in \"\n+        \"importlib.metadata.distributions()}},sort_keys=True))\"\n+    )\n+    for name, python in (\n+        (\"build-environment\", build_python),\n+        (\"consumer-environment\", installed_python),\n+    ):\n+        _run(inputs, name, [python, \"-I\", \"-B\", \"-c\", environment_script], env)\n+    # The same seven literal inputs also configure the normal source cohort.\n+    # This profile contains only this outer case and its eight installed children;\n+    # the root source cohort independently includes the original common whole file.\n+    (inputs.task_root / \"cohort-input-environment.json\").write_text(\n+        json.dumps(\n+            {k: v for k, v in env.items() if k.startswith(\"E02_LA057_\")},\n+            indent=2,\n+        )\n+        + \"\\n\"\n+    )\n+    _run(\n+        inputs,\n+        \"native\",\n+        [\n+            installed_python,\n+            \"-I\",\n+            \"-B\",\n+            \"-m\",\n+            \"pytest\",\n+            \"-q\",\n+            \"-s\",\n+            \"--noconftest\",\n+            \"--import-mode=importlib\",\n+            \"-c\",\n+            \"/dev/null\",\n+            \"-o\",\n+            \"addopts=\",\n+            \"-o\",\n+            \"pythonpath=\",\n+            \"-o\",\n+            f\"cache_dir={inputs.task_root / 'pytest-cache'}\",\n+            \"--basetemp\",\n+            str(inputs.task_root / \"pytest-scratch\"),\n+            \"--junitxml\",\n+            str(inputs.task_root / \"native.xml\"),\n+            str(inputs.test_path),\n+        ],\n+        env,\n+    )\n+    (inputs.task_root / \"profile.json\").write_text(\n+        json.dumps(\n+            {\n+                \"source_before\": before,\n+                \"source_after\": _snapshot(inputs),\n+                \"test_path\": str(inputs.test_path),\n+                \"test_sha256\": inputs.test_sha256,\n+                \"consumer_path\": str(consumer),\n+                \"consumer_sha256\": inputs.consumer_sha256,\n+                \"wheel\": str(wheel),\n+                \"wheel_sha256\": hashlib.sha256(wheel.read_bytes()).hexdigest(),\n+                \"input_environment\": {k: v for k, v in env.items() if k.startswith(\"E02_LA057_\")},\n+                \"cleanup_candidates\": [str(inputs.task_root)],\n+                \"runtime_observation\": (\n+                    \"Native deciding XML/stdout, not command-exit-alone closure. \"\n+                    \"Inspect actual case properties before finding adjudication.\"\n+                ),\n+            },\n+            indent=2,\n+        )\n+        + \"\\n\"\n+    )\n+\n+\n+if __name__ == \"__main__\":\n+    main()\ndiff --git a/policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py b/policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py\nnew file mode 100644\nindex 000000000..a6c830336\n--- /dev/null\n+++ b/policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py\n@@ -0,0 +1,258 @@\n+\"\"\"Exercise LA-057 consumers from an actual isolated installed project wheel.\n+\n+The caller supplies the frozen wheel, source Git identity and isolated site path.\n+Run with Python ``-I``, no checkout PYTHONPATH, and pytest ``--noconftest``.\n+Missing wheel-profile inputs are errors, never an implicit source-checkout pass.\n+\"\"\"\n+\n+from __future__ import annotations\n+\n+import asyncio\n+import hashlib\n+import importlib\n+import importlib.metadata\n+import json\n+import os\n+import subprocess\n+import sys\n+import typing\n+import zipfile\n+from collections.abc import Awaitable, Callable\n+from contextvars import ContextVar\n+from pathlib import Path\n+from types import ModuleType\n+\n+import pytest\n+\n+\n+def _required_path(name: str) -> Path:\n+    value = os.environ.get(name)\n+    assert value, f\"explicit installed-wheel input missing: {name}\"\n+    return Path(value).resolve(strict=True)\n+\n+\n+@pytest.fixture(scope=\"module\")\n+def installed_bridge() -> ModuleType:\n+    \"\"\"Bind the actual imported wheel members to the frozen canonical source.\"\"\"\n+    wheel = _required_path(\"E02_LA057_WHEEL_PATH\")\n+    site = _required_path(\"E02_LA057_INSTALLED_SITE\")\n+    source_root = _required_path(\"E02_LA057_SOURCE_ROOT\")\n+    source_sha = os.environ.get(\"E02_LA057_SOURCE_SHA\")\n+    test_sha256 = os.environ.get(\"E02_LA057_TEST_SHA256\")\n+    assert source_sha and test_sha256, \"source and native-input identities must be explicit\"\n+    assert hashlib.sha256(Path(__file__).read_bytes()).hexdigest() == test_sha256\n+    assert sys.version_info[:2] == (3, 14), \"the declared supported project profile is Python3.14\"\n+    assert sys.flags.isolated == 1, \"launcher must use Python -I\"\n+    assert not os.environ.get(\"PYTHONPATH\"), \"checkout PYTHONPATH is not an installed-wheel profile\"\n+    assert source_root.name == \"policy-engine\"\n+    assert site.is_relative_to(Path(sys.prefix).resolve())\n+    assert not any(\n+        Path(entry).resolve().is_relative_to(source_root / \"src\") for entry in sys.path if entry\n+    )\n+    distribution = importlib.metadata.distribution(\"policy-engine\")\n+    bindings = []\n+    with zipfile.ZipFile(wheel) as archive:\n+        for module_name, member in (\n+            (\"polisyos\", \"polisyos/__init__.py\"),\n+            (\"polisyos.common\", \"polisyos/common/__init__.py\"),\n+            (\"polisyos.common.async_tools\", \"polisyos/common/async_tools.py\"),\n+        ):\n+            module = importlib.import_module(module_name)\n+            assert module.__file__ is not None\n+            actual = Path(module.__file__).resolve(strict=True)\n+            assert actual == site / member, f\"wheel consumer imported a foreign origin: {actual}\"\n+            tracked_path = \"policy-engine/src/\" + member\n+            frozen = subprocess.check_output(\n+                [\"git\", \"show\", f\"{source_sha}:{tracked_path}\"],\n+                cwd=source_root.parent,\n+            )\n+            assert (source_root / \"src\" / member).read_bytes() == frozen\n+            assert archive.read(member) == frozen == actual.read_bytes()\n+            assert Path(distribution.locate_file(member)).resolve() == actual\n+            bindings.append(\n+                {\n+                    \"module\": module_name,\n+                    \"origin\": str(actual),\n+                    \"wheel_member\": member,\n+                    \"sha256\": hashlib.sha256(frozen).hexdigest(),\n+                }\n+            )\n+        metadata_member = next(\n+            name for name in archive.namelist() if name.endswith(\".dist-info/METADATA\")\n+        )\n+        assert distribution.read_text(\"METADATA\") == archive.read(metadata_member).decode()\n+    print(\n+        json.dumps(\n+            {\n+                \"observation\": \"installed-wheel-source-identity\",\n+                \"source_sha\": source_sha,\n+                \"python\": sys.executable,\n+                \"python_version\": sys.version,\n+                \"installed_site\": str(site),\n+                \"wheel\": str(wheel),\n+                \"wheel_sha256\": hashlib.sha256(wheel.read_bytes()).hexdigest(),\n+                \"distribution_version\": distribution.version,\n+                \"test_sha256\": test_sha256,\n+                \"modules\": bindings,\n+            },\n+            sort_keys=True,\n+        )\n+    )\n+    return importlib.import_module(\"polisyos.common.async_tools\")\n+\n+\n+@pytest.mark.parametrize(\"consumer\", [\"direct\", \"alias\", \"facade\", \"star_reflection\"])\n+def test_installed_generic_identities(installed_bridge: ModuleType, consumer: str) -> None:\n+    \"\"\"Resolve the four genuine function-local parameters through real consumers.\"\"\"\n+    from polisyos.common import async_tools as facade_alias\n+    from polisyos.common.async_tools import run_coro_sync as direct_alias\n+\n+    if consumer == \"direct\":\n+        module = importlib.import_module(\"polisyos.common.async_tools\")\n+        assert module is installed_bridge\n+    elif consumer == \"alias\":\n+        assert direct_alias is installed_bridge.run_coro_sync\n+        module = installed_bridge\n+    elif consumer == \"facade\":\n+        assert facade_alias is installed_bridge\n+        module = facade_alias\n+    else:\n+        namespace: dict[str, object] = {}\n+        # A real star-import consumer is part of the canonical compatibility criterion.\n+        exec(\"from polisyos.common.async_tools import *\", namespace)  # noqa: S102\n+        assert namespace[\"run_coro_sync\"] is installed_bridge.run_coro_sync\n+        assert \"T\" not in namespace and \"TypeVar\" not in namespace\n+        # Named reflection itself is a required compatibility consumer.\n+        assert getattr(installed_bridge, \"run_coro_sync\") is direct_alias  # noqa: B009\n+        module = installed_bridge\n+    helpers = (\n+        module._await_awaitable,\n+        module._run_coro_in_fresh_loop,\n+        module.run_coro_sync,\n+        module.run_blocking_async,\n+    )\n+    parameters = []\n+    for helper in helpers:\n+        (parameter,) = helper.__type_params__\n+        hints = typing.get_type_hints(\n+            helper,\n+            globalns={**vars(module), \"Awaitable\": Awaitable, \"Callable\": Callable},\n+            localns={\"T\": parameter},\n+        )\n+        assert hints[\"return\"] is parameter\n+        parameters.append(parameter)\n+    assert len(set(parameters)) == 4\n+    assert not hasattr(module, \"T\") and not hasattr(module, \"TypeVar\")\n+    assert direct_alias(asyncio.sleep(0, result=17)) == 17\n+\n+\n+def test_installed_direct_and_running_loop_context(\n+    installed_bridge: ModuleType,\n+) -> None:\n+    \"\"\"Carry actual contexts across both bridges without leaking the prior request.\"\"\"\n+    scope: ContextVar[str | None] = ContextVar(\"installed_wheel_scope\", default=None)\n+\n+    async def read_scope() -> str | None:\n+        return scope.get()\n+\n+    async def inside_loop() -> list[tuple[str | None, str | None]]:\n+        observed = []\n+        for value in (\"request-A\", \"request-B\"):\n+            token = scope.set(value)\n+            try:\n+                observed.append(\n+                    (\n+                        installed_bridge.run_coro_sync(read_scope()),\n+                        await installed_bridge.run_blocking_async(scope.get),\n+                    )\n+                )\n+            finally:\n+                scope.reset(token)\n+        observed.append(\n+            (\n+                installed_bridge.run_coro_sync(read_scope()),\n+                await installed_bridge.run_blocking_async(scope.get),\n+            )\n+        )\n+        return observed\n+\n+    assert installed_bridge.run_coro_sync(asyncio.sleep(0, result=7)) == 7\n+    assert asyncio.run(inside_loop()) == [\n+        (\"request-A\", \"request-A\"),\n+        (\"request-B\", \"request-B\"),\n+        (None, None),\n+    ]\n+    assert scope.get() is None\n+\n+\n+def test_installed_timeout_cleans_real_pending_tasks(\n+    installed_bridge: ModuleType,\n+) -> None:\n+    \"\"\"A cooperative timeout runs the parent and abandoned child's actual finally.\"\"\"\n+    observations: list[str] = []\n+    abandoned_tasks: list[asyncio.Task[None]] = []\n+\n+    async def abandoned_child(started: asyncio.Event) -> None:\n+        started.set()\n+        try:\n+            await asyncio.Event().wait()\n+        finally:\n+            observations.append(\"child-finally\")\n+\n+    async def outer() -> None:\n+        started = asyncio.Event()\n+        child = asyncio.create_task(abandoned_child(started))\n+        abandoned_tasks.append(child)\n+        await started.wait()\n+        try:\n+            await asyncio.Event().wait()\n+        finally:\n+            observations.append(\"outer-finally\")\n+\n+    with pytest.raises(TimeoutError):\n+        installed_bridge.run_coro_sync(outer(), timeout_seconds=0.2)\n+    print(json.dumps({\"observation\": \"cooperative-timeout-finally\", \"actual\": observations}))\n+    assert sorted(observations) == [\"child-finally\", \"outer-finally\"]\n+    assert len(abandoned_tasks) == 1 and abandoned_tasks[0].cancelled()\n+\n+\n+@pytest.mark.parametrize(\"inside_loop\", [False, True])\n+def test_installed_cancel_reaches_awaitable_finally(\n+    installed_bridge: ModuleType, inside_loop: bool\n+) -> None:\n+    \"\"\"Cancel the actual generic awaitable bridge before and inside a running loop.\"\"\"\n+    observations: list[str] = []\n+\n+    async def cancellable(started: asyncio.Event) -> None:\n+        started.set()\n+        try:\n+            await asyncio.Event().wait()\n+        finally:\n+            observations.append(\"finally\")\n+\n+    async def cancel_consumer() -> None:\n+        started = asyncio.Event()\n+        task = asyncio.create_task(installed_bridge._await_awaitable(cancellable(started)))\n+        await started.wait()\n+        task.cancel()\n+        with pytest.raises(asyncio.CancelledError):\n+            await task\n+        assert task.cancelled()\n+\n+    async def running_loop() -> None:\n+        installed_bridge.run_coro_sync(cancel_consumer())\n+\n+    if inside_loop:\n+        asyncio.run(running_loop())\n+    else:\n+        installed_bridge.run_coro_sync(cancel_consumer())\n+    print(\n+        json.dumps(\n+            {\n+                \"observation\": \"caller-cancellation-finally\",\n+                \"inside_loop\": inside_loop,\n+                \"actual\": observations,\n+            }\n+        )\n+    )\n+    assert observations == [\"finally\"]\ndiff --git a/policy-engine/tests/unit/common/test_async_tools_installed_wheel.py b/policy-engine/tests/unit/common/test_async_tools_installed_wheel.py\nindex b0b07b944..7c8835f08 100644\n--- a/policy-engine/tests/unit/common/test_async_tools_installed_wheel.py\n+++ b/policy-engine/tests/unit/common/test_async_tools_installed_wheel.py\n@@ -1,254 +1,120 @@\n-\"\"\"Exercise LA-057 consumers from an actual isolated installed project wheel.\n+\"\"\"Dispatch the real installed-wheel LA-057 consumer from a normal source cohort.\n \n-The caller supplies the frozen wheel, source Git identity and isolated site path.\n-Run with Python ``-I``, no checkout PYTHONPATH, and pytest ``--noconftest``.\n-Missing wheel-profile inputs are errors, never an implicit source-checkout pass.\n+The eight defining consumer cases execute in the explicit isolated interpreter.\n+This outer native case preserves their complete output and XML before asserting\n+the outcome. It never imports the source-checkout bridge as an installed proxy.\n \"\"\"\n \n from __future__ import annotations\n \n-import asyncio\n import hashlib\n-import importlib\n-import importlib.metadata\n import json\n import os\n import subprocess\n-import sys\n-import typing\n-import zipfile\n-from collections.abc import Awaitable, Callable\n-from contextvars import ContextVar\n+import time\n+import xml.etree.ElementTree as ET\n from pathlib import Path\n-from types import ModuleType\n-\n-import pytest\n \n \n def _required_path(name: str) -> Path:\n     value = os.environ.get(name)\n     assert value, f\"explicit installed-wheel input missing: {name}\"\n-    return Path(value).resolve(strict=True)\n+    # Keep the venv interpreter's lexical path: resolving its symlink loses sys.prefix.\n+    path = Path(value).absolute()\n+    assert path.exists(), f\"installed-wheel input absent: {path}\"\n+    return path\n \n \n-@pytest.fixture(scope=\"module\")\n-def installed_bridge() -> ModuleType:\n-    \"\"\"Bind the actual imported wheel members to the frozen canonical source.\"\"\"\n+def test_installed_wheel_consumers_in_isolated_child(tmp_path: Path) -> None:\n+    \"\"\"Run the genuine package consumer in its isolated, wheel-installed Python.\"\"\"\n+    python = _required_path(\"E02_LA057_INSTALLED_PYTHON\")\n     wheel = _required_path(\"E02_LA057_WHEEL_PATH\")\n     site = _required_path(\"E02_LA057_INSTALLED_SITE\")\n-    source_root = _required_path(\"E02_LA057_SOURCE_ROOT\")\n+    source = _required_path(\"E02_LA057_SOURCE_ROOT\")\n     source_sha = os.environ.get(\"E02_LA057_SOURCE_SHA\")\n-    test_sha256 = os.environ.get(\"E02_LA057_TEST_SHA256\")\n-    assert source_sha and test_sha256, \"source and native-input identities must be explicit\"\n-    assert hashlib.sha256(Path(__file__).read_bytes()).hexdigest() == test_sha256\n-    assert sys.version_info[:2] == (3, 14), \"the declared supported project profile is Python3.14\"\n-    assert sys.flags.isolated == 1, \"launcher must use Python -I\"\n-    assert not os.environ.get(\"PYTHONPATH\"), \"checkout PYTHONPATH is not an installed-wheel profile\"\n-    assert source_root.name == \"policy-engine\"\n-    assert site.is_relative_to(Path(sys.prefix).resolve())\n-    assert not any(\n-        Path(entry).resolve().is_relative_to(source_root / \"src\") for entry in sys.path if entry\n-    )\n-    distribution = importlib.metadata.distribution(\"policy-engine\")\n-    bindings = []\n-    with zipfile.ZipFile(wheel) as archive:\n-        for module_name, member in (\n-            (\"polisyos\", \"polisyos/__init__.py\"),\n-            (\"polisyos.common\", \"polisyos/common/__init__.py\"),\n-            (\"polisyos.common.async_tools\", \"polisyos/common/async_tools.py\"),\n-        ):\n-            module = importlib.import_module(module_name)\n-            assert module.__file__ is not None\n-            actual = Path(module.__file__).resolve(strict=True)\n-            assert actual == site / member, f\"wheel consumer imported a foreign origin: {actual}\"\n-            tracked_path = \"policy-engine/src/\" + member\n-            frozen = subprocess.check_output(\n-                [\"git\", \"show\", f\"{source_sha}:{tracked_path}\"],\n-                cwd=source_root.parent,\n-            )\n-            assert (source_root / \"src\" / member).read_bytes() == frozen\n-            assert archive.read(member) == frozen == actual.read_bytes()\n-            assert Path(distribution.locate_file(member)).resolve() == actual\n-            bindings.append(\n-                {\n-                    \"module\": module_name,\n-                    \"origin\": str(actual),\n-                    \"wheel_member\": member,\n-                    \"sha256\": hashlib.sha256(frozen).hexdigest(),\n-                }\n-            )\n-        metadata_member = next(\n-            name for name in archive.namelist() if name.endswith(\".dist-info/METADATA\")\n-        )\n-        assert distribution.read_text(\"METADATA\") == archive.read(metadata_member).decode()\n-    print(\n-        json.dumps(\n-            {\n-                \"observation\": \"installed-wheel-source-identity\",\n-                \"source_sha\": source_sha,\n-                \"python\": sys.executable,\n-                \"python_version\": sys.version,\n-                \"installed_site\": str(site),\n-                \"wheel\": str(wheel),\n-                \"wheel_sha256\": hashlib.sha256(wheel.read_bytes()).hexdigest(),\n-                \"distribution_version\": distribution.version,\n-                \"test_sha256\": test_sha256,\n-                \"modules\": bindings,\n-            },\n-            sort_keys=True,\n-        )\n-    )\n-    return importlib.import_module(\"polisyos.common.async_tools\")\n-\n-\n-@pytest.mark.parametrize(\"consumer\", [\"direct\", \"alias\", \"facade\", \"star_reflection\"])\n-def test_installed_generic_identities(installed_bridge: ModuleType, consumer: str) -> None:\n-    \"\"\"Resolve the four genuine function-local parameters through real consumers.\"\"\"\n-    from polisyos.common import async_tools as facade_alias\n-    from polisyos.common.async_tools import run_coro_sync as direct_alias\n-\n-    if consumer == \"direct\":\n-        module = importlib.import_module(\"polisyos.common.async_tools\")\n-        assert module is installed_bridge\n-    elif consumer == \"alias\":\n-        assert direct_alias is installed_bridge.run_coro_sync\n-        module = installed_bridge\n-    elif consumer == \"facade\":\n-        assert facade_alias is installed_bridge\n-        module = facade_alias\n-    else:\n-        namespace: dict[str, object] = {}\n-        # A real star-import consumer is part of the canonical compatibility criterion.\n-        exec(\"from polisyos.common.async_tools import *\", namespace)  # noqa: S102\n-        assert namespace[\"run_coro_sync\"] is installed_bridge.run_coro_sync\n-        assert \"T\" not in namespace and \"TypeVar\" not in namespace\n-        # Named reflection itself is a required compatibility consumer.\n-        assert getattr(installed_bridge, \"run_coro_sync\") is direct_alias  # noqa: B009\n-        module = installed_bridge\n-    helpers = (\n-        module._await_awaitable,\n-        module._run_coro_in_fresh_loop,\n-        module.run_coro_sync,\n-        module.run_blocking_async,\n-    )\n-    parameters = []\n-    for helper in helpers:\n-        (parameter,) = helper.__type_params__\n-        hints = typing.get_type_hints(\n-            helper,\n-            globalns={**vars(module), \"Awaitable\": Awaitable, \"Callable\": Callable},\n-            localns={\"T\": parameter},\n-        )\n-        assert hints[\"return\"] is parameter\n-        parameters.append(parameter)\n-    assert len(set(parameters)) == 4\n-    assert not hasattr(module, \"T\") and not hasattr(module, \"TypeVar\")\n-    assert direct_alias(asyncio.sleep(0, result=17)) == 17\n-\n-\n-def test_installed_direct_and_running_loop_context(installed_bridge: ModuleType) -> None:\n-    \"\"\"Carry actual contexts across both bridges without leaking the prior request.\"\"\"\n-    scope: ContextVar[str | None] = ContextVar(\"installed_wheel_scope\", default=None)\n-\n-    async def read_scope() -> str | None:\n-        return scope.get()\n-\n-    async def inside_loop() -> list[tuple[str | None, str | None]]:\n-        observed = []\n-        for value in (\"request-A\", \"request-B\"):\n-            token = scope.set(value)\n-            try:\n-                observed.append(\n-                    (\n-                        installed_bridge.run_coro_sync(read_scope()),\n-                        await installed_bridge.run_blocking_async(scope.get),\n-                    )\n-                )\n-            finally:\n-                scope.reset(token)\n-        observed.append(\n-            (\n-                installed_bridge.run_coro_sync(read_scope()),\n-                await installed_bridge.run_blocking_async(scope.get),\n-            )\n-        )\n-        return observed\n-\n-    assert installed_bridge.run_coro_sync(asyncio.sleep(0, result=7)) == 7\n-    assert asyncio.run(inside_loop()) == [\n-        (\"request-A\", \"request-A\"),\n-        (\"request-B\", \"request-B\"),\n-        (None, None),\n+    consumer_sha256 = os.environ.get(\"E02_LA057_CONSUMER_SHA256\")\n+    outer_sha256 = os.environ.get(\"E02_LA057_OUTER_TEST_SHA256\")\n+    assert source_sha and consumer_sha256 and outer_sha256\n+    consumer = Path(__file__).with_name(\"installed_wheel_bridge_consumer.py\")\n+    assert hashlib.sha256(consumer.read_bytes()).hexdigest() == consumer_sha256\n+    assert hashlib.sha256(Path(__file__).read_bytes()).hexdigest() == outer_sha256\n+    stdout = tmp_path / \"installed-child.txt\"\n+    xml = tmp_path / \"installed-child.xml\"\n+    argv = [\n+        str(python),\n+        \"-I\",\n+        \"-B\",\n+        \"-m\",\n+        \"pytest\",\n+        \"-q\",\n+        \"-s\",\n+        \"--noconftest\",\n+        \"--import-mode=importlib\",\n+        \"-c\",\n+        \"/dev/null\",\n+        \"-o\",\n+        \"addopts=\",\n+        \"-o\",\n+        \"pythonpath=\",\n+        \"-o\",\n+        f\"cache_dir={tmp_path / 'cache'}\",\n+        \"--basetemp\",\n+        str(tmp_path / \"child-scratch\"),\n+        \"--junitxml\",\n+        str(xml),\n+        str(consumer),\n     ]\n-    assert scope.get() is None\n-\n-\n-def test_installed_timeout_cleans_real_pending_tasks(installed_bridge: ModuleType) -> None:\n-    \"\"\"A cooperative timeout runs the parent and abandoned child's actual finally.\"\"\"\n-    observations: list[str] = []\n-    abandoned_tasks: list[asyncio.Task[None]] = []\n-\n-    async def abandoned_child(started: asyncio.Event) -> None:\n-        started.set()\n-        try:\n-            await asyncio.Event().wait()\n-        finally:\n-            observations.append(\"child-finally\")\n-\n-    async def outer() -> None:\n-        started = asyncio.Event()\n-        child = asyncio.create_task(abandoned_child(started))\n-        abandoned_tasks.append(child)\n-        await started.wait()\n-        try:\n-            await asyncio.Event().wait()\n-        finally:\n-            observations.append(\"outer-finally\")\n-\n-    with pytest.raises(TimeoutError):\n-        installed_bridge.run_coro_sync(outer(), timeout_seconds=0.2)\n-    print(json.dumps({\"observation\": \"cooperative-timeout-finally\", \"actual\": observations}))\n-    assert sorted(observations) == [\"child-finally\", \"outer-finally\"]\n-    assert len(abandoned_tasks) == 1 and abandoned_tasks[0].cancelled()\n-\n-\n-@pytest.mark.parametrize(\"inside_loop\", [False, True])\n-def test_installed_cancel_reaches_awaitable_finally(\n-    installed_bridge: ModuleType, inside_loop: bool\n-) -> None:\n-    \"\"\"Cancel the actual generic awaitable bridge before and inside a running loop.\"\"\"\n-    observations: list[str] = []\n-\n-    async def cancellable(started: asyncio.Event) -> None:\n-        started.set()\n-        try:\n-            await asyncio.Event().wait()\n-        finally:\n-            observations.append(\"finally\")\n-\n-    async def cancel_consumer() -> None:\n-        started = asyncio.Event()\n-        task = asyncio.create_task(installed_bridge._await_awaitable(cancellable(started)))\n-        await started.wait()\n-        task.cancel()\n-        with pytest.raises(asyncio.CancelledError):\n-            await task\n-        assert task.cancelled()\n-\n-    async def running_loop() -> None:\n-        installed_bridge.run_coro_sync(cancel_consumer())\n-\n-    if inside_loop:\n-        asyncio.run(running_loop())\n-    else:\n-        installed_bridge.run_coro_sync(cancel_consumer())\n-    print(\n-        json.dumps(\n-            {\n-                \"observation\": \"caller-cancellation-finally\",\n-                \"inside_loop\": inside_loop,\n-                \"actual\": observations,\n-            }\n+    env = dict(os.environ)\n+    for name in (\"PYTHONPATH\", \"PYTHONHOME\", \"PYTEST_ADDOPTS\", \"PYTEST_PLUGINS\"):\n+        env.pop(name, None)\n+    env[\"PYTEST_DISABLE_PLUGIN_AUTOLOAD\"] = \"1\"\n+    env[\"PYTHONDONTWRITEBYTECODE\"] = \"1\"\n+    env[\"E02_LA057_TEST_SHA256\"] = consumer_sha256\n+    t0 = time.monotonic()\n+    # No shell or source fallback: invoke the explicitly supplied installed interpreter.\n+    with stdout.open(\"wb\") as stream:\n+        process = subprocess.Popen(  # noqa: S603\n+            argv, cwd=tmp_path, env=env, stdout=stream, stderr=subprocess.STDOUT\n         )\n+        _, status, usage = os.wait4(process.pid, 0)\n+        process.returncode = os.waitstatus_to_exitcode(status)\n+    raw = stdout.read_bytes()\n+    cases = []\n+    if xml.exists():\n+        # XML is emitted by this exact isolated pytest child, not an external input.\n+        for case in ET.parse(xml).getroot().iter(\"testcase\"):  # noqa: S314\n+            outcome = next(\n+                (name for name in (\"failure\", \"error\", \"skipped\") if case.find(name) is not None),\n+                \"passed\",\n+            )\n+            cases.append({\"name\": case.get(\"name\"), \"outcome\": outcome})\n+    observations = {\n+        \"observation\": \"installed-wheel-child-dispatch\",\n+        \"source_sha\": source_sha,\n+        \"source_root\": str(source),\n+        \"python\": str(python),\n+        \"site\": str(site),\n+        \"wheel\": str(wheel),\n+        \"consumer_sha256\": consumer_sha256,\n+        \"outer_sha256\": outer_sha256,\n+        \"command\": argv,\n+        \"exit\": process.returncode,\n+        \"wall_s\": time.monotonic() - t0,\n+        \"child_maxrss_platform_units\": usage.ru_maxrss,\n+        \"maxrss_unit\": \"KiB on Linux; bytes on macOS\",\n+        \"stdout\": str(stdout),\n+        \"stdout_sha256\": hashlib.sha256(raw).hexdigest(),\n+        \"xml\": str(xml),\n+        \"xml_sha256\": hashlib.sha256(xml.read_bytes()).hexdigest() if xml.exists() else None,\n+        \"actual_consumer_cases\": cases,\n+        \"module_origin_profile\": \"Complete actual child stdout, source/installed/wheel binding fixture.\",\n+        \"count_scope\": \"One outer case and eight child consumer cases are separate denominators.\",\n+    }\n+    (tmp_path / \"installed-child-wrapper.json\").write_text(\n+        json.dumps(observations, indent=2) + \"\\n\"\n     )\n-    assert observations == [\"finally\"]\n+    print(raw.decode(errors=\"replace\"))\n+    print(json.dumps(observations, sort_keys=True))\n+    assert process.returncode == 0, f\"installed consumer failed; full output: {stdout}\"\n+    assert len(cases) == 8, f\"complete defining file expected eight cases, observed: {cases}\"\n+    assert all(case[\"outcome\"] == \"passed\" for case in cases), cases\n",
+  "ast_comparison": {
+    "attributes_included": false,
+    "normalizations": [],
+    "direct_full_ast_equal": true,
+    "old_ast_sha256": "f243a9b4fd401454d48327a5091a5266e8cd6b4047a8e86d36f7f00defa0f092",
+    "new_ast_sha256": "f243a9b4fd401454d48327a5091a5266e8cd6b4047a8e86d36f7f00defa0f092",
+    "qualification": "Standard ast.dump excludes location attributes; no node normalization/removal, and all literal assertions/semantic bodies remain equal."
+  },
+  "source_derived_cases": {
+    "original": [
+      {
+        "function": "test_installed_generic_identities",
+        "source_derived_cases": 4,
+        "parameter_values": [
+          {
+            "parameter": "consumer",
+            "values": [
+              "direct",
+              "alias",
+              "facade",
+              "star_reflection"
+            ]
+          }
+        ]
+      },
+      {
+        "function": "test_installed_direct_and_running_loop_context",
+        "source_derived_cases": 1,
+        "parameter_values": []
+      },
+      {
+        "function": "test_installed_timeout_cleans_real_pending_tasks",
+        "source_derived_cases": 1,
+        "parameter_values": []
+      },
+      {
+        "function": "test_installed_cancel_reaches_awaitable_finally",
+        "source_derived_cases": 2,
+        "parameter_values": [
+          {
+            "parameter": "inside_loop",
+            "values": [
+              false,
+              true
+            ]
+          }
+        ]
+      }
+    ],
+    "outer": [
+      {
+        "function": "test_installed_wheel_consumers_in_isolated_child",
+        "source_derived_cases": 1,
+        "parameter_values": []
+      }
+    ],
+    "child": [
+      {
+        "function": "test_installed_generic_identities",
+        "source_derived_cases": 4,
+        "parameter_values": [
+          {
+            "parameter": "consumer",
+            "values": [
+              "direct",
+              "alias",
+              "facade",
+              "star_reflection"
+            ]
+          }
+        ]
+      },
+      {
+        "function": "test_installed_direct_and_running_loop_context",
+        "source_derived_cases": 1,
+        "parameter_values": []
+      },
+      {
+        "function": "test_installed_timeout_cleans_real_pending_tasks",
+        "source_derived_cases": 1,
+        "parameter_values": []
+      },
+      {
+        "function": "test_installed_cancel_reaches_awaitable_finally",
+        "source_derived_cases": 2,
+        "parameter_values": [
+          {
+            "parameter": "inside_loop",
+            "values": [
+              false,
+              true
+            ]
+          }
+        ]
+      }
+    ],
+    "count_scope": "Exactly one outer case and eight child cases, separate source-derived denominators. Not an observed runtime quantity."
+  },
+  "explicit_profile": {
+    "required_outer_environment_names": [
+      "E02_LA057_INSTALLED_PYTHON",
+      "E02_LA057_WHEEL_PATH",
+      "E02_LA057_INSTALLED_SITE",
+      "E02_LA057_SOURCE_ROOT",
+      "E02_LA057_SOURCE_SHA",
+      "E02_LA057_CONSUMER_SHA256",
+      "E02_LA057_OUTER_TEST_SHA256"
+    ],
+    "original_child_environment_names": [
+      "E02_LA057_WHEEL_PATH",
+      "E02_LA057_INSTALLED_SITE",
+      "E02_LA057_SOURCE_ROOT",
+      "E02_LA057_SOURCE_SHA",
+      "E02_LA057_TEST_SHA256"
+    ],
+    "child_test_sha_mapping": "Outer sets TEST_SHA256 to CONSUMER_SHA256; own outer bytes are separately pinned.",
+    "normal_cohort_provision": "Launcher persists durable seven-input cohort-input-environment.json before native. Normal root source cohort must use exactly those inputs; no missing-input fallback/skip.",
+    "launcher_native_scope": "Isolated installed outer invocation contains only this one outer case, whose child defines eight; original common wholefile is separately selected by root."
+  },
+  "source_review": {
+    "verdict": "PASS bounded source review: no blocker under explicit installed-wheel profile.",
+    "real_origin": "Three actual module origins equal installed site/member and distribution locate_file; wheel member bytes equal frozen Git and live canonical source and actual installed file bytes. METADATA equality binds actual distribution.",
+    "no_checkout_fallback": "Python-I-B, no PYTHONPATH, explicit installed site within sys.prefix, exclusion of designated canonical src on sys.path, exact origin/file bytes; source tree is only read for Git/byte binding.",
+    "config_seam": "Child noconftest/importlib/-c/dev/null/addopts empty/pythonpath empty disables project pytest config; clears PYTHONPATH/PYTHONHOME/PYTEST_ADDOPTS/PYTEST_PLUGINS and disables plugin autoload.",
+    "generic_types": "Direct, import alias, lazy Common facade, actual star import and named reflection each resolve four distinct function-local T identities using the ratified explicit annotation namespaces, and execute real bridge result17.",
+    "real_bridge_cases": "Actual direct/running-loop bridges carry ContextVar A/B/None without leakage; cooperative timeout reaches parent and abandoned child finally/cancel; actual generic-awaitable cancellation reaches finally before/inside running loop.",
+    "evidence_before_assertions": "Outer persists child full stdout, XML hashes and actual case rows/wrapper before asserts on child exit/exact8/allpassed; failures have no source fallback.",
+    "immutable_build_prep": "Separate task-local build/installed venvs, explicit UV/Python, hatchling1.27 + pytest9.0.2 and four fixed dependency pins, no project sync/global install; frozen canonical source HEAD/status checked after each command.",
+    "native_product_identity": "DUR test-input source is distinct from root-selected product source. Launcher requires full source SHA; actual build/native source SHA/profile is not yet established by this source-only review."
+  },
+  "P37_qualification": {
+    "prior_premise": "Original9826 isolated fixture had five required inputs and sys.flags.isolated==1. Generic normal source cohort without that profile would not satisfy prerequisites; inferred source incompatibility only, no observed native ERROR/FAIL count.",
+    "input_change": "Adapter moves same eight consumer nodes to explicit nontest helper and introduces real normal-cohort outer dispatch. No consumer assertions weakened; explicit Python/config boundary added.",
+    "actual_execution": "Author preparation and reviewer source operation only; original9826 and adapter02b native/build remain UNRUN in this packet.",
+    "counts": "One outer versus eight child must not be summed into root native session denominator or confused with historical common suite counts."
+  },
+  "P38_qualification": {
+    "grade": "Expected/source-derived consumer semantics; runtime, installed-wheel success, actual origin/reflection observations and typecheck are UNRUN here.",
+    "no_new_cleanup": "main198 already removed old module TypeVar/T; this input-only review does not prove a new production edit.",
+    "external_bound": "Four explicit import profiles plus full single-module source identity is finite evidence; no arbitrary external/dynamic consumer zero claim."
+  },
+  "canonical_criterion": {
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+    "git_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+    "bytes": 648034,
+    "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+    "line_start": 4172,
+    "line_end": 4202,
+    "card_utf8": "## LA-057. Common async bridge: прежний модульный TypeVar больше не участвует в четырёх generic-функциях\n\n**D — прямая очистка одного остаточного объявления и ставшего ненужным import-name**\n\n**Точная область:** `src/polisyos/common/async_tools.py`:\n\n```python\nfrom typing import TYPE_CHECKING, TypeVar  # убрать только TypeVar\nT = TypeVar(\"T\")                           # убрать это объявление\n```\n\n`TYPE_CHECKING` и import Awaitable/Callable под ним остаются. `TypeVar` в других модулях не входит в scope.\n\n**Что установлено.** Полный файл использует `[T]` непосредственно в четырёх generic declarations: `_await_awaitable`, `_run_coro_in_fresh_loop`, `run_coro_sync`, `run_blocking_async`. Их собственные type parameters не являются прежним модульным `T`. Scope-aware проверка полного AST этого файла не нашла unshadowed Name-load модульного `T` за пределами функций с локальным параметром. Это конечный **one-module census**, не нулевой внешний граф импортов. [E229; r09-P23]\n\nВ локальном исполнении Python 3.13.5 у каждой из четырёх функций `__type_params__[0]` отличен от старого `module.T`. `typing.get_type_hints` с явными annotation namespaces возвращает собственный параметр функции и до, и после удаления. После очистки нет module attributes `T`/`TypeVar`; формы resolved annotations совпали. Здесь проверялась не строка `T` в исходнике, а действительное разрешение параметра типа. [r09-P24]\n\n**Почему это legacy.** Новая форма объявления generic уже введена в рабочие функции, а прежнее модульное объявление TypeVar осталось рядом. Никакая coroutine/executor-обязанность за ним в проверенном файле не закреплена. Требуется удалить остаток прошлого способа типизации, не создавать shared types module для одного ненужного имени.\n\n**Что сохранить.** Все functions/class-free execution bodies, `get_shared_executor`, ранние env defaults, context propagation, atexit shutdown, cooperative timeout, cancellation и очистку pending tasks. Файл — работающий sync/async bridge, не placeholder. Даже его возвращаемые ошибки и поведение уже запущенного event loop сохраняются.\n\n**Фактическое удаление ограничено in-memory AST.** Удалены ровно assignment на строке 17 и `TypeVar` из typing import. Полные AST всех функций вместе с атрибутами строк остались неизменными; изменённый модуль компилируется. Настоящие sync вызовы, sync-over-running-loop, blocking executor и ContextVar дали одинаковые значения. Cooperative timeout вызвал одинаковую ошибку и `finally`; оставленная дочерняя task была отменена и очищена; ValueError и zero-timeout rejection сохранились. Executor instances завершены в конце диагностики. Репозиторий не редактировался. [r09-P23–P28]\n\n**Что ещё блокирует безусловное удаление.** В самом `async_tools.py` нет restrictive `__all__`; external `from ... import T`, star import или reflection могут видеть incidental names. Root Common экспортирует модуль `async_tools`, но не отдельное `T`. Адресный GitHub поиск `async_tools.T` не нашёл совпадений, однако он не проверяет все прямые импорты, aliases или динамические обращения. Нужен конечный scan именно этих consumers и typing/tooling конфигураций, не всего научного pipeline. [E230–E231; r09-P29]\n\n**Куда перенести.** Никуда: при отсутствии поддержанного внешнего договора удалить два остатка. При найденном явном consumer сначала выяснить, действительно ли он использует это generic identity, и мигрировать его отдельно; не превращать служебное имя в новый глобальный публичный тип ради сохранения файла.\n\n**Приёмка в проекте.** Exact imports/aliases/star consumers, full module TypeVar scope, supported Python typecheck, существующие async_tools tests, запуск до/внутри event loop, context and cancellation, packaging. Ненулевой внешний потребитель переводит соответствующий объект из direct cleanup в compatibility-задачу; локальные пробы не отменяют этот критерий.\n\n**Приоритет:** дешёвая небольшая очистка, без обещаний ускорения и без зависимости от DDM-миграции. **Основания:** E229–E231; r09-P23–P29.\n\n",
+    "card_excerpt_sha256": "e06004d99513f6fac0e82539c2ce2ff972e82dcd9279ac80a2eb8cd59f89411d",
+    "grade": "Canonical contract only; not runtime evidence."
+  },
+  "baseline_navigation": {
+    "ref": {
+      "source_sha": "76028eda766d00b0b952b4927f72d07b0a477be1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-runtime-executor-checks/baseline-navigation.json",
+      "git_blob": "09da7400e6c25d0d7ba25bf7e1a0803aef884210",
+      "bytes": 97442,
+      "sha256": "e4b69b0d3a074402e600fc4e25b4a2c12cda41d80f5bc49e95e33e6c77ed6eab"
+    },
+    "selected_cells": [
+      {
+        "id": "F01-P008",
+        "job": "F01",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "state": "FAILED",
+        "collected": "52",
+        "calls": "52",
+        "call_pass": "49",
+        "call_failed": "3",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "11.83",
+        "rss_kib": "135056",
+        "receipt_status": "valid_bound",
+        "source_file": "received/F01.txt",
+        "source_line": "125",
+        "extra_json": "{}",
+        "refs": [
+          {
+            "finding_id": "B14",
+            "unit": "B",
+            "cell_id": "F01-P008",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "research_main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B14"
+          },
+          {
+            "finding_id": "B24",
+            "unit": "B",
+            "cell_id": "F01-P008",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "research_main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B24"
+          },
+          {
+            "finding_id": "B40",
+            "unit": "B",
+            "cell_id": "F01-P008",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "research_main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B40"
+          },
+          {
+            "finding_id": "B69",
+            "unit": "B",
+            "cell_id": "F01-P008",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "research_main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B69"
+          },
+          {
+            "finding_id": "B95",
+            "unit": "B",
+            "cell_id": "F01-P008",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "research_main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B95"
+          },
+          {
+            "finding_id": "LA-057",
+            "unit": "B",
+            "cell_id": "F01-P008",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "research_main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#LA-057"
+          }
+        ],
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line": "125"
+        }
+      },
+      {
+        "id": "F03-P083",
+        "job": "F03",
+        "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+        "path": "policy-engine/tests/unit/common/test_async_tools.py",
+        "state": "PASS",
+        "collected": "9",
+        "calls": "9",
+        "call_pass": "9",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "1.97",
+        "rss_kib": "87436.0",
+        "receipt_status": "valid_bound",
+        "source_file": "received/F03.txt",
+        "source_line": "213",
+        "extra_json": "{}",
+        "refs": [
+          {
+            "finding_id": "B14",
+            "unit": "B",
+            "cell_id": "F03-P083",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "research_main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B14"
+          },
+          {
+            "finding_id": "B40",
+            "unit": "B",
+            "cell_id": "F03-P083",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "research_main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B40"
+          },
+          {
+            "finding_id": "B69",
+            "unit": "B",
+            "cell_id": "F03-P083",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "research_main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B69"
+          },
+          {
+            "finding_id": "B95",
+            "unit": "B",
+            "cell_id": "F03-P083",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "research_main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B95"
+          },
+          {
+            "finding_id": "LA-057",
+            "unit": "B",
+            "cell_id": "F03-P083",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "research_main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#LA-057"
+          }
+        ],
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line": "213"
+        }
+      },
+      {
+        "id": "F05-P104",
+        "job": "F05",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "path": "policy-engine/tests/unit/common/test_async_tools.py",
+        "state": "PASS",
+        "collected": "8",
+        "calls": "8",
+        "call_pass": "8",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "2.19",
+        "rss_kib": "100588",
+        "receipt_status": "valid_reconciled",
+        "source_file": "received/F05.txt",
+        "source_line": "514",
+        "extra_json": "{}",
+        "refs": [
+          {
+            "finding_id": "B14",
+            "unit": "B",
+            "cell_id": "F05-P104",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_execution_base",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B14"
+          },
+          {
+            "finding_id": "B40",
+            "unit": "B",
+            "cell_id": "F05-P104",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_execution_base",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B40"
+          },
+          {
+            "finding_id": "B69",
+            "unit": "B",
+            "cell_id": "F05-P104",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_execution_base",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B69"
+          },
+          {
+            "finding_id": "B95",
+            "unit": "B",
+            "cell_id": "F05-P104",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_execution_base",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B95"
+          },
+          {
+            "finding_id": "LA-057",
+            "unit": "B",
+            "cell_id": "F05-P104",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_execution_base",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#LA-057"
+          }
+        ],
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt",
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line": "514"
+        }
+      },
+      {
+        "id": "F06-P021",
+        "job": "F06",
+        "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "state": "PASS",
+        "collected": "35",
+        "calls": "35",
+        "call_pass": "35",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "3.529636859893799",
+        "rss_kib": "112348",
+        "receipt_status": "valid",
+        "source_file": "received/F06.txt",
+        "source_line": "205",
+        "extra_json": "{\"reason\":\"null\"}",
+        "refs": [
+          {
+            "finding_id": "B14",
+            "unit": "B",
+            "cell_id": "F06-P021",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_execution_base",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B14"
+          },
+          {
+            "finding_id": "B24",
+            "unit": "B",
+            "cell_id": "F06-P021",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_execution_base",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B24"
+          },
+          {
+            "finding_id": "B40",
+            "unit": "B",
+            "cell_id": "F06-P021",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_execution_base",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B40"
+          },
+          {
+            "finding_id": "B69",
+            "unit": "B",
+            "cell_id": "F06-P021",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_execution_base",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B69"
+          },
+          {
+            "finding_id": "B95",
+            "unit": "B",
+            "cell_id": "F06-P021",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_execution_base",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B95"
+          },
+          {
+            "finding_id": "LA-057",
+            "unit": "B",
+            "cell_id": "F06-P021",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_execution_base",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#LA-057"
+          }
+        ],
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line": "205"
+        }
+      },
+      {
+        "id": "F09-P017",
+        "job": "F09",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "state": "FAILED",
+        "collected": "52",
+        "calls": "52",
+        "call_pass": "49",
+        "call_failed": "3",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "10.86",
+        "rss_kib": "144420",
+        "receipt_status": "valid_reconciled",
+        "source_file": "received/F09.txt",
+        "source_line": "133",
+        "extra_json": "{}",
+        "refs": [
+          {
+            "finding_id": "B14",
+            "unit": "B",
+            "cell_id": "F09-P017",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B14"
+          },
+          {
+            "finding_id": "B24",
+            "unit": "B",
+            "cell_id": "F09-P017",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B24"
+          },
+          {
+            "finding_id": "B40",
+            "unit": "B",
+            "cell_id": "F09-P017",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B40"
+          },
+          {
+            "finding_id": "B69",
+            "unit": "B",
+            "cell_id": "F09-P017",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B69"
+          },
+          {
+            "finding_id": "B95",
+            "unit": "B",
+            "cell_id": "F09-P017",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B95"
+          },
+          {
+            "finding_id": "LA-057",
+            "unit": "B",
+            "cell_id": "F09-P017",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#LA-057"
+          }
+        ],
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line": "133"
+        }
+      },
+      {
+        "id": "F09-P084",
+        "job": "F09",
+        "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+        "path": "policy-engine/tests/unit/common/test_async_tools.py",
+        "state": "PASS",
+        "collected": "9",
+        "calls": "9",
+        "call_pass": "9",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "2.14",
+        "rss_kib": "100964",
+        "receipt_status": "valid_reconciled",
+        "source_file": "received/F09.txt",
+        "source_line": "200",
+        "extra_json": "{}",
+        "refs": [
+          {
+            "finding_id": "B14",
+            "unit": "B",
+            "cell_id": "F09-P084",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B14"
+          },
+          {
+            "finding_id": "B40",
+            "unit": "B",
+            "cell_id": "F09-P084",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B40"
+          },
+          {
+            "finding_id": "B69",
+            "unit": "B",
+            "cell_id": "F09-P084",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B69"
+          },
+          {
+            "finding_id": "B95",
+            "unit": "B",
+            "cell_id": "F09-P084",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B95"
+          },
+          {
+            "finding_id": "LA-057",
+            "unit": "B",
+            "cell_id": "F09-P084",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "e02_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#LA-057"
+          }
+        ],
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line": "200"
+        }
+      },
+      {
+        "id": "F10-P012",
+        "job": "F10",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "state": "PASS",
+        "collected": "35",
+        "calls": "35",
+        "call_pass": "35",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "4.24",
+        "rss_kib": "118808",
+        "receipt_status": "valid_reconciled",
+        "source_file": "received/F10.txt",
+        "source_line": "132",
+        "extra_json": "{}",
+        "refs": [
+          {
+            "finding_id": "B14",
+            "unit": "B",
+            "cell_id": "F10-P012",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B14"
+          },
+          {
+            "finding_id": "B24",
+            "unit": "B",
+            "cell_id": "F10-P012",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B24"
+          },
+          {
+            "finding_id": "B40",
+            "unit": "B",
+            "cell_id": "F10-P012",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B40"
+          },
+          {
+            "finding_id": "B69",
+            "unit": "B",
+            "cell_id": "F10-P012",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B69"
+          },
+          {
+            "finding_id": "B95",
+            "unit": "B",
+            "cell_id": "F10-P012",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B95"
+          },
+          {
+            "finding_id": "LA-057",
+            "unit": "B",
+            "cell_id": "F10-P012",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#LA-057"
+          }
+        ],
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line": "132"
+        }
+      },
+      {
+        "id": "F10-P080",
+        "job": "F10",
+        "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+        "path": "policy-engine/tests/unit/common/test_async_tools.py",
+        "state": "PASS",
+        "collected": "8",
+        "calls": "8",
+        "call_pass": "8",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "3.93",
+        "rss_kib": "114868",
+        "receipt_status": "valid_reconciled",
+        "source_file": "received/F10.txt",
+        "source_line": "200",
+        "extra_json": "{}",
+        "refs": [
+          {
+            "finding_id": "B14",
+            "unit": "B",
+            "cell_id": "F10-P080",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B14"
+          },
+          {
+            "finding_id": "B40",
+            "unit": "B",
+            "cell_id": "F10-P080",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B40"
+          },
+          {
+            "finding_id": "B69",
+            "unit": "B",
+            "cell_id": "F10-P080",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B69"
+          },
+          {
+            "finding_id": "B95",
+            "unit": "B",
+            "cell_id": "F10-P080",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B95"
+          },
+          {
+            "finding_id": "LA-057",
+            "unit": "B",
+            "cell_id": "F10-P080",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "main",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#LA-057"
+          }
+        ],
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line": "200"
+        }
+      },
+      {
+        "id": "F15-P012",
+        "job": "F15",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+        "state": "FAILED",
+        "collected": "52",
+        "calls": "52",
+        "call_pass": "49",
+        "call_failed": "3",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "10.86",
+        "rss_kib": "141924",
+        "receipt_status": "valid",
+        "source_file": "received/F15.txt",
+        "source_line": "167",
+        "extra_json": "{\"reason\":\"null\"}",
+        "refs": [
+          {
+            "finding_id": "B14",
+            "unit": "B",
+            "cell_id": "F15-P012",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "integration_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B14"
+          },
+          {
+            "finding_id": "B24",
+            "unit": "B",
+            "cell_id": "F15-P012",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "integration_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B24"
+          },
+          {
+            "finding_id": "B40",
+            "unit": "B",
+            "cell_id": "F15-P012",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "integration_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B40"
+          },
+          {
+            "finding_id": "B69",
+            "unit": "B",
+            "cell_id": "F15-P012",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "integration_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B69"
+          },
+          {
+            "finding_id": "B95",
+            "unit": "B",
+            "cell_id": "F15-P012",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "integration_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B95"
+          },
+          {
+            "finding_id": "LA-057",
+            "unit": "B",
+            "cell_id": "F15-P012",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "integration_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#LA-057"
+          }
+        ],
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line": "167"
+        }
+      },
+      {
+        "id": "F15-P096",
+        "job": "F15",
+        "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+        "path": "policy-engine/tests/unit/common/test_async_tools.py",
+        "state": "PASS",
+        "collected": "9",
+        "calls": "9",
+        "call_pass": "9",
+        "call_failed": "0",
+        "setup_error": "0",
+        "teardown_error": "0",
+        "skip": "0",
+        "xfail": "0",
+        "xpass": "0",
+        "collection_skip": "0",
+        "collection_error": "0",
+        "wall_s": "2.05",
+        "rss_kib": "102856",
+        "receipt_status": "valid",
+        "source_file": "received/F15.txt",
+        "source_line": "251",
+        "extra_json": "{\"reason\":\"null\"}",
+        "refs": [
+          {
+            "finding_id": "B14",
+            "unit": "B",
+            "cell_id": "F15-P096",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "integration_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B14"
+          },
+          {
+            "finding_id": "B40",
+            "unit": "B",
+            "cell_id": "F15-P096",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "integration_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B40"
+          },
+          {
+            "finding_id": "B69",
+            "unit": "B",
+            "cell_id": "F15-P096",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "integration_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B69"
+          },
+          {
+            "finding_id": "B95",
+            "unit": "B",
+            "cell_id": "F15-P096",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "integration_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#B95"
+          },
+          {
+            "finding_id": "LA-057",
+            "unit": "B",
+            "cell_id": "F15-P096",
+            "source_status": "partial",
+            "route_grade": "candidate_unverified",
+            "source_ref": "integration_head",
+            "semantic_adequacy": "not_established",
+            "canonical_route": "../full-run/finding-routes.json#LA-057"
+          }
+        ],
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line": "251"
+        }
+      }
+    ],
+    "selected_source_job_contexts": [
+      {
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F01.txt",
+          "sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9",
+          "bytes": 71251,
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line_start": 4,
+          "line_end": 114
+        },
+        "source_reported_context": {
+          "job": "E02-full-F01",
+          "run": "20261005T074145Z",
+          "source": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "role": "research_main",
+          "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+          "manifest_sha256": "a6ad0dad1bbad671dbf5a9efb3892d4a55c5445573e0060c0eac27c85f097527",
+          "manifest_note": "P008 separator normalized from space to TAB; supplied bytes retained separately",
+          "environment": {
+            "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+            "arch": "x86_64",
+            "python": "3.14.2",
+            "uv": "0.9.21",
+            "node": "22.23.3",
+            "corepack": "0.36.0",
+            "pnpm": "10.33.2",
+            "cpu_max": "400000 100000",
+            "cpuset": "0-4",
+            "memory_limit_bytes": 17179869184,
+            "disk_initial_free_bytes": 32026370048,
+            "disk_after_profile_free_bytes": 23258984448,
+            "installed_distributions": 253,
+            "post_series_distributions_match": true,
+            "lock_version_mismatches": 0,
+            "threads": 1,
+            "JAX_PLATFORMS": "cpu",
+            "profile_changes_after_native_start": 0,
+            "gnu_time_version": "time (GNU Time) UNKNOWN",
+            "gnu_time_binary_sha256": "efc0d1112e36ec76c14bf7508e287935cf1631d9d0d91fb532802d07aef51cea",
+            "gnu_time_probe": "child exit=7 and wall/user/sys/RSS verified",
+            "base_frozen_sync_exit": 0,
+            "node_frozen_install_exit": 0,
+            "union_frozen_sync_exit": 0
+          },
+          "selected_extras": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "agent-sim",
+            "causal-discovery-scale",
+            "search_bo",
+            "solvers",
+            "vector-search"
+          ],
+          "resources": {
+            "primary_supervisor_wall_s": 7751.614811658859,
+            "all_attempts_supervisor_wall_s": 8285.45341706276,
+            "all_direct_pytest_cpu_s": 7990.53,
+            "max_direct_pytest_rss_kib": 2608192,
+            "boundary": "GNU time direct pytest; wrapper measured separately; peaks nonadditive; not VM peak"
+          },
+          "config_sha256": {
+            "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+            "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+            "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+            "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+            "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+          },
+          "source_checks": {
+            "assigned_blobs_and_actual_bytes_match": 139,
+            "all_config_hashes_match": true,
+            "tracked_diff_empty": true,
+            "observed_owned_origins_match": true,
+            "source_drift": false,
+            "origins_scope": "session-finish snapshot only"
+          },
+          "transfer_status": "compact_text_only",
+          "raw_archive_transfer": "missing",
+          "archive": {
+            "sha256": "f00d5fc4d306080209aa4e7d114882f3800e03318320e0892f0699b0a05d326d",
+            "size_bytes": 16494740,
+            "members": 2948,
+            "member_manifest_sha256": "5958663245723ba3217d0fe3db60f42353984fbf008d8aafc538365a384ef157",
+            "all_member_bytes_readback_verified": true,
+            "all_attempts_including_nonpass_present": true
+          }
+        },
+        "grade": "source_reported_compact_only; raw archive unavailable; not candidate evidence"
+      },
+      {
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F03.txt",
+          "sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318",
+          "bytes": 75761,
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line_start": 6,
+          "line_end": 128
+        },
+        "source_reported_context": {
+          "job": "F03",
+          "run_id": "20261005T0743Z",
+          "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+          "role": "research_main",
+          "tree": "e5513e1f2b80450c80d3ac1a728eaa313e931651",
+          "manifest_sha256": "b5a8936a67d7e05869331c2ec7ad0c9b36148ec7b9fa7ea00e8f210d4d9a87b0",
+          "profile": {
+            "python": "3.14.2",
+            "uv": "0.9.21",
+            "node": "22.23.3",
+            "pnpm": "10.33.2",
+            "frozen": true,
+            "execution_device": "cpu",
+            "distributions": 253,
+            "extras": [
+              "lint",
+              "test",
+              "runtime",
+              "ml",
+              "analytics",
+              "bayesian",
+              "optimization-advanced",
+              "sensitivity",
+              "causal-discovery",
+              "vector-search",
+              "solvers",
+              "search_bo",
+              "agent-sim",
+              "causal-discovery-scale"
+            ],
+            "unchanged": true
+          },
+          "numeric_threads": 1,
+          "cpu_max": "400000 100000",
+          "cpuset": "0-4",
+          "memory_limit_bytes": 17179869184,
+          "config_sha256": {
+            "policy-engine/pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+            "policy-engine/uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+            "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+            "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+            "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+          },
+          "source_drift": null,
+          "transfer_status": "compact_text_only",
+          "raw_archive_transfer": "missing",
+          "raw_transfer_missing": true,
+          "hypothesis_effective_storage": "policy-engine/_cache/hypothesis",
+          "archive": {
+            "name": "F03-raw.tar.gz",
+            "bytes": 30539556,
+            "members": 2713,
+            "sha256": "ed7732123af3eb5a1eafa0eea6de30415798d17a1f0e2f8a4e0ea40b041b0ab0",
+            "readback": "every member rehashed; all attempts including non-pass checked"
+          }
+        },
+        "grade": "source_reported_compact_only; raw archive unavailable; not candidate evidence"
+      },
+      {
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F05.txt",
+          "sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0",
+          "bytes": 97032,
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line_start": 7,
+          "line_end": 408
+        },
+        "source_reported_context": {
+          "job": "E02-full-F05",
+          "run": "20261005T0743Z",
+          "source": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "source_role": "e02_execution_base",
+          "tree": "595f1df8f85c0a096aa2b61cac01b7d35a81ed7e",
+          "manifest_sha256": "9f736f1d425b5eba2a5eafd45d759488f178ac3236a61a8e24b45384cd64f312",
+          "environment_compact": {
+            "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+            "architecture": "x86_64",
+            "cgroup": {
+              "cpu.max": "400000 100000",
+              "cpuset.cpus.effective": "0-4",
+              "memory.max": "17179869184"
+            },
+            "python": {
+              "executable": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/.venv/bin/python",
+              "resolved": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/python-runtime/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+              "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]"
+            },
+            "toolchain": {
+              "uv": {
+                "argv": [
+                  "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/uv-package/bin/uv",
+                  "--version"
+                ],
+                "exit": 0,
+                "stdout": "uv 0.9.21\n",
+                "stderr": "",
+                "path": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/uv-package/bin/uv"
+              },
+              "node": {
+                "argv": [
+                  "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/node",
+                  "--version"
+                ],
+                "exit": 0,
+                "stdout": "v22.22.0\n",
+                "stderr": "",
+                "path": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/node"
+              },
+              "pnpm": {
+                "argv": [
+                  "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/corepack",
+                  "pnpm",
+                  "--version"
+                ],
+                "exit": 0,
+                "stdout": "10.33.2\n",
+                "stderr": "",
+                "path": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/node-v22.22.0-linux-x64/bin/corepack"
+              },
+              "compiler": {
+                "argv": [
+                  "g++",
+                  "--version"
+                ],
+                "exit": 0,
+                "stdout": "g++ (Debian 14.2.0-19) 14.2.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+                "stderr": "",
+                "path": "/usr/bin/g++"
+              }
+            },
+            "disk_free_bytes": 31589965824,
+            "disk_after_setup_bytes": 20976594944,
+            "native_execution_start": "2026-10-05T08:04:17.853653Z",
+            "budget_last_new_cell_deadline": "2026-10-05T11:13:00Z"
+          },
+          "profile": {
+            "extras": [
+              "lint",
+              "test",
+              "runtime",
+              "ml",
+              "analytics",
+              "bayesian",
+              "optimization-advanced",
+              "sensitivity",
+              "causal-discovery",
+              "search_bo",
+              "solvers",
+              "vector-search"
+            ],
+            "argv": [
+              "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/uv-package/bin/uv",
+              "sync",
+              "--frozen",
+              "--python",
+              "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/setup/python-runtime/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+              "--extra",
+              "lint",
+              "--extra",
+              "test",
+              "--extra",
+              "runtime",
+              "--extra",
+              "ml",
+              "--extra",
+              "analytics",
+              "--extra",
+              "bayesian",
+              "--extra",
+              "optimization-advanced",
+              "--extra",
+              "sensitivity",
+              "--extra",
+              "causal-discovery",
+              "--extra",
+              "search_bo",
+              "--extra",
+              "solvers",
+              "--extra",
+              "vector-search"
+            ]
+          },
+          "config_sha256": {
+            "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+            "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+            "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+            "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+            "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+          },
+          "source_status": "all_recorded_checks_matched",
+          "transfer_status": "compact_text_only",
+          "raw_archive_transfer": "missing",
+          "archive": {
+            "archive": "/workspace/polisyos-e02-F05-20261005T0743Z/policy-engine/_build/e02-full/F05/20261005T0743Z/e02-full-F05-20261005T0743Z.tar.gz",
+            "archive_sha256": "ef5bd48c726c429eb874ba52c8e8405c5b411bedd11edd88799cf4d38f8ef712",
+            "bytes": 10868422,
+            "members": 2415,
+            "all_attempts_verified": 146,
+            "actual_tar_bytes_readback": true,
+            "member_hashes_matched": true,
+            "transfer_status": "compact_text_only",
+            "raw_archive_transfer": "missing",
+            "recipient_acceptance": "not_observed",
+            "verified_at": "2026-10-05T10:59:21.622306+00:00"
+          }
+        },
+        "grade": "source_reported_compact_only; raw archive unavailable; not candidate evidence"
+      },
+      {
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F06.txt",
+          "sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f",
+          "bytes": 99912,
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line_start": 3,
+          "line_end": 126
+        },
+        "source_reported_context": {
+          "job": "F06",
+          "run": "20261005T074535Z",
+          "source": "78187878ee188ff6d27442ba1498bd094da9785b",
+          "source_role": "e02_execution_base",
+          "tree": "595f1df8f85c0a096aa2b61cac01b7d35a81ed7e",
+          "manifest_sha256": "d7df889ef4e489f4695a6c9241f78b379db15168974a2940bf43be969292840e",
+          "environment": {
+            "python": "3.14.2",
+            "uv": "0.9.21",
+            "node": "22.20.0",
+            "pnpm": "10.33.2",
+            "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+            "machine": "x86_64",
+            "cpu.max": "400000 100000",
+            "cpuset.cpus.effective": "0-4",
+            "memory.max_bytes": 17179869184,
+            "numerical_threads": 1,
+            "JAX_PLATFORMS": "cpu",
+            "CUDA_VISIBLE_DEVICES": "",
+            "installed_distributions_before": 250,
+            "installed_distributions_after": 250,
+            "metadata_RECORD_direct_url_locations_unchanged": true,
+            "node_links_unchanged": true,
+            "disk_free_closeout_inventory_bytes": 17770393600,
+            "resource_adapter_missing": false,
+            "observer_sha256": "72111e340c3fabdd3a90176ddfac6cc44a0af8226a31dadd0b869d03740d4cb4"
+          },
+          "profile": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "vector-search",
+            "solvers",
+            "search_bo",
+            "agent-sim"
+          ],
+          "lock_hashes": {
+            "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+            "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+            "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+            "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+            "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+          },
+          "source_readback": {
+            "all_145_assigned_blobs_match": true,
+            "all_5_configs_match": true,
+            "tracked_diff_empty": true,
+            "source_and_tree_match": true,
+            "source_drift": [],
+            "attempt_reconciliations": 146,
+            "count_or_binding_errors": [],
+            "missing_origin_snapshots": 0,
+            "original_checkout_HEAD_preserved": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b"
+          },
+          "transfer_status": "compact_text_only",
+          "raw_archive_transfer": "missing",
+          "raw_transfer_missing": true,
+          "limitations": [
+            "P014 synthetic editable-install fixture passed; exact pre-install disk free was unmeasured. Prior observation was below 20 GiB.",
+            "Intrinsic DuckDB FTS auto-download failed; exact disk-floor admission before those attempts was unmeasured. There were 259 typed non-pass events mentioning it: 152 native and 107 recovery; these are not HTTP-request or completed-install counts.",
+            "P023 uv run was forwarded with UV_NO_SYNC=1 to preserve the prepared profile. Wrapper source versions and requested/forwarded argv are retained.",
+            "No production_data were copied and no additional FTS provisioning was performed.",
+            "Owned-module snapshots do not establish complete import or nested-backend history.",
+            "Cause, inherited ownership, production capability chains, live product services, GPU, Metal and macOS remain not_established.",
+            "Execution completion means terminal full-file invocations; counts and receipt quality must be assessed separately."
+          ],
+          "archive": {
+            "name": "F06-20261005T074535Z-raw.tar.gz",
+            "sha256": "b2d23569a06bf0b3e18c5ae7903d169d9fe04e55d95b21ad0e43ab1380f95de5",
+            "bytes": 31794813,
+            "members": 3503,
+            "member_bytes": 264595615,
+            "member_set_and_hashes_recomputed_from_actual_tar_bytes": true,
+            "all_attempt_deciding_outputs_present": true,
+            "required_attempt_members": 1314,
+            "transfer_verified": false,
+            "recipient_acceptance": false
+          }
+        },
+        "grade": "source_reported_compact_only; raw archive unavailable; not candidate evidence"
+      },
+      {
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F09.txt",
+          "sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff",
+          "bytes": 75983,
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line_start": 5,
+          "line_end": 113
+        },
+        "source_reported_context": {
+          "job": "F09",
+          "run": "20261005T074624Z",
+          "source": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+          "source_role": "e02_head",
+          "tree": "dde3150361bb45ae3347e585a38dc297015da7ef",
+          "manifest_sha256": "033d478d225b3e4fe2322d0ccb0e5a83993fca17ab37f8dc7148e73fa0246b01",
+          "toolchain": {
+            "python": "3.14.2",
+            "uv": "0.9.21",
+            "node": "22.16.0",
+            "pnpm": "10.33.2",
+            "gnu_time": "1.9",
+            "platform": "Linux x86_64",
+            "cpu_quota_equivalents": 4,
+            "memory_limit_bytes": 17179869184
+          },
+          "selected_extras": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "agent-sim",
+            "causal-discovery-scale",
+            "search_bo",
+            "solvers",
+            "vector-search"
+          ],
+          "setup": {
+            "pnpm_frozen_install": {
+              "exit": 0,
+              "wall_s": 13.55613398551941
+            },
+            "uv_frozen_full_union_initial": {
+              "state": "interrupted_transport",
+              "exit": null,
+              "wall_s": null
+            },
+            "uv_frozen_full_union_recovery": {
+              "exit": 0,
+              "wall_s": 104.76541471481323
+            },
+            "harness_probe_validated": true,
+            "installed_distributions": 253,
+            "UV_NO_BUILD_PACKAGE": "pillow"
+          },
+          "config_sha256": {
+            "policy-engine/pyproject.toml": "d19b37b3ab80ad9c71e329a3f347d54033f88ea7df11d60ddadcefba6d36880f",
+            "policy-engine/uv.lock": "b87e993a35ef7d39ef046ed5f068e2ce264017a7368e848b223f9a0347470039",
+            "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+            "policy-engine/pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+            "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+          },
+          "transfer_status": "compact_text_only",
+          "raw_archive_transfer": "missing",
+          "raw_transfer_missing": true,
+          "archive": {
+            "sha256": "f6fc699097312c85f9e931a168db4e973fbcad21475beaf06b3e661e4b0bf14b",
+            "bytes": 17996757,
+            "members": 2992,
+            "member_manifest_sha256": "6a0c12a3f1520ef42fc9f67cc3a99cae2908a7477ab9dd4cf0dd0cfedb354325",
+            "all_attempt_deciding_outputs_present": true,
+            "independent_tar_readback": true,
+            "recipient_download_verified": false
+          }
+        },
+        "grade": "source_reported_compact_only; raw archive unavailable; not candidate evidence"
+      },
+      {
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F10.txt",
+          "sha256": "c45428c7e6574666b0a5ef98ba0427e3137c7008046fad65d4ed4dc55620fe36",
+          "bytes": 71852,
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line_start": 5,
+          "line_end": 118
+        },
+        "source_reported_context": {
+          "job": "E02-F10",
+          "run": "20261005T0810Z",
+          "source": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+          "tree": "eb96aa6d6ebc05c23e9eb740895dd0b009ac7e65",
+          "manifest_sha256": "98c71606177a82542b2993e057988b7cb332a0f90716084a713e5c76cb07f6bd",
+          "profile": {
+            "union_exit": 0,
+            "selected_extras": [
+              "lint",
+              "test",
+              "runtime",
+              "ml",
+              "analytics",
+              "bayesian",
+              "optimization-advanced",
+              "sensitivity",
+              "causal-discovery",
+              "agent-sim",
+              "causal-discovery-scale",
+              "search_bo",
+              "solvers",
+              "vector-search"
+            ],
+            "unavailable_extras": [],
+            "profile_before_after_identical": true,
+            "numerical_threads": 1,
+            "JAX_PLATFORMS": "cpu"
+          },
+          "versions": {
+            "Python": "3.14.2",
+            "uv": "0.9.21",
+            "Node": "22.23.3",
+            "pnpm": "10.33.2",
+            "GNU_time_banner": "UNKNOWN",
+            "GNU_time_distro_package": "time_1.9-0.2_amd64.deb"
+          },
+          "cgroup": {
+            "cpu.max": "400000 100000",
+            "cpuset.cpus.effective": "0-4",
+            "memory.max_bytes": 17179869184
+          },
+          "config_sha256_expected_equals_actual": {
+            "policy-engine/pyproject.toml": "5e98214495a461efb3aa60877a3f8cf9cae109e934da1e39dafc4c1346f631be",
+            "policy-engine/uv.lock": "ca41190281680015fd7e5e1a42e55bfcddfb3e76b171417df3110553f4b01266",
+            "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+            "policy-engine/pnpm-lock.yaml": "da12dfb5ee90b8fb99eaf918d93bb8e24d056e378798d13ae88a542c1a65e217",
+            "policy-engine/tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+          },
+          "source_drift": [],
+          "transfer_status": "compact_text_only",
+          "raw_archive_transfer": "missing"
+        },
+        "grade": "source_reported_compact_only; raw archive unavailable; not candidate evidence"
+      },
+      {
+        "locator": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/results/received/F15.txt",
+          "sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169",
+          "bytes": 85661,
+          "at_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "line_start": 5,
+          "line_end": 153
+        },
+        "source_reported_context": {
+          "job": "F15",
+          "run": "20261005T074740Z",
+          "source": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+          "tree": "5e890bcb23dfa20db77be486e7296e36f3382576",
+          "manifest_sha256": "303fa24cde39780a16e39ee738d073c9e172b5286bb724e44859ea6f72198bec",
+          "environment": {
+            "python": "3.14.2",
+            "uv": "0.9.21",
+            "node": "22.16.0",
+            "pnpm": "10.33.2",
+            "platform": "Linux Debian 13 x86_64",
+            "cpu_quota_cores": 4.0,
+            "cpuset": "0-4",
+            "memory_limit_bytes": 17179869184,
+            "numerical_threads": 1,
+            "jax_platforms": "cpu",
+            "precision": "repository default unchanged",
+            "gnu_time_package": "time 1.9-0.2 amd64; --version reports GNU Time UNKNOWN",
+            "native_property_controls": "all three absent in every observed primary child",
+            "python_profile": "single frozen selected-extras union installed before native series",
+            "node_install": "one CI=true corepack pnpm install --frozen-lockfile before native series",
+            "setup_interruption": "initial uv sync lost VM connection; exit=null, cause not_established; same frozen profile resumed before native tests",
+            "toolchain_bootstrap_initial_wall_s": null
+          },
+          "selected_extras": [
+            "lint",
+            "test",
+            "runtime",
+            "ml",
+            "analytics",
+            "bayesian",
+            "optimization-advanced",
+            "sensitivity",
+            "causal-discovery",
+            "agent-sim",
+            "search_bo",
+            "solvers",
+            "vector-search"
+          ],
+          "config_hashes": {
+            "pyproject.toml": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+            "uv.lock": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+            "pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+            "pnpm-lock.yaml": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+            "tools/quality/testing/run_timed_suite.py": "9d7d28fbd4a5e569e60af159b7622b9ccae0c2818275c94d5f268061dc0ab7dc"
+          },
+          "source_verification": {
+            "status": "reconciled",
+            "assigned_actual_blobs_reconciled": 161,
+            "tracked_loaded_file_observations": 151258,
+            "unique_loaded_owned_files": 2255,
+            "original_checkout_head": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+            "original_checkout_status": "## work\n",
+            "tracked_diff": "empty",
+            "permitted_untracked_overlay_files": 16,
+            "scope": "Recorded session-finish snapshots checked against immutable Git blob bytes; not complete import history or all nested backend bytes."
+          },
+          "transfer_status": "compact_text_only",
+          "raw_archive_transfer": "missing",
+          "archive": {
+            "archive": "e02-full-F15-20261005T074740Z.tar.gz",
+            "archive_sha256": "1a578b75e4f99f067b9104386ff388802f1c6dcfc05aaa9ef2a88ec691fdcb6a",
+            "archive_bytes": 13160962,
+            "member_count": 2835,
+            "bound_data_members": 2834,
+            "attempt_count_verified": 161,
+            "all_attempts_included": true,
+            "all_member_bytes_rehashed": true,
+            "junit_node_verification_included": true
+          }
+        },
+        "grade": "source_reported_compact_only; raw archive unavailable; not candidate evidence"
+      }
+    ],
+    "query": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --finding LA-057 --details --job-context --block-limit 1000 --limit 1000",
+    "finding_basis": [
+      {
+        "finding_id": "LA-057",
+        "bundle_ids": [
+          "RUN-01"
+        ],
+        "recorded_ledger_status": "partial",
+        "route_grade": "candidate_unverified",
+        "semantic_adequacy": "not_established",
+        "discriminator_ref": "bundle-catalog.md#run-01; owner:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/RUN-01.md@69780761ae091d8fcc6ab8778c7f5f7227eeef0b; finding:LA-057",
+        "residual_ref": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json@69780761ae091d8fcc6ab8778c7f5f7227eeef0b#LA-057",
+        "assigned_routes": [
+          {
+            "job": "F01",
+            "ref": "research_main",
+            "cell_ids": [
+              "F01-P008"
+            ]
+          },
+          {
+            "job": "F03",
+            "ref": "research_main",
+            "cell_ids": [
+              "F03-P083"
+            ]
+          },
+          {
+            "job": "F05",
+            "ref": "e02_execution_base",
+            "cell_ids": [
+              "F05-P104"
+            ]
+          },
+          {
+            "job": "F06",
+            "ref": "e02_execution_base",
+            "cell_ids": [
+              "F06-P021"
+            ]
+          },
+          {
+            "job": "F09",
+            "ref": "e02_head",
+            "cell_ids": [
+              "F09-P017",
+              "F09-P084"
+            ]
+          },
+          {
+            "job": "F10",
+            "ref": "main",
+            "cell_ids": [
+              "F10-P012",
+              "F10-P080"
+            ]
+          },
+          {
+            "job": "F15",
+            "ref": "integration_head",
+            "cell_ids": [
+              "F15-P012",
+              "F15-P096"
+            ]
+          }
+        ]
+      }
+    ],
+    "qualification": "Historical source-reported10cells/seven contexts; raw archive limitations retained, never used as new adapter/runtime proof."
+  },
+  "product_source_reference_snapshots": [
+    {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/src/polisyos/__init__.py",
+      "git_blob": "a1b746537b78f1e2e6c5e8f288df8174fb936906",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/src/polisyos/common/__init__.py",
+      "git_blob": "696045bd775c9a9fe4023217628e686bf76b78f3",
+      "bytes": 1336,
+      "sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080"
+    },
+    {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "git_blob": "1f60973c35cfdd8bcf9629f675bcb7d30235fcfa",
+      "bytes": 5468,
+      "sha256": "5153fff118f7d791abb72b6878b409ca226ceceb2411fd413756f66a694d8406"
+    },
+    {
+      "source_sha": "9826acc52c06030ac1c4f054a8516b7b3d2a7b62",
+      "path": "policy-engine/src/polisyos/__init__.py",
+      "git_blob": "a1b746537b78f1e2e6c5e8f288df8174fb936906",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "source_sha": "9826acc52c06030ac1c4f054a8516b7b3d2a7b62",
+      "path": "policy-engine/src/polisyos/common/__init__.py",
+      "git_blob": "696045bd775c9a9fe4023217628e686bf76b78f3",
+      "bytes": 1336,
+      "sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080"
+    },
+    {
+      "source_sha": "9826acc52c06030ac1c4f054a8516b7b3d2a7b62",
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "git_blob": "1f60973c35cfdd8bcf9629f675bcb7d30235fcfa",
+      "bytes": 5468,
+      "sha256": "5153fff118f7d791abb72b6878b409ca226ceceb2411fd413756f66a694d8406"
+    },
+    {
+      "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "path": "policy-engine/src/polisyos/__init__.py",
+      "git_blob": "a1b746537b78f1e2e6c5e8f288df8174fb936906",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "path": "policy-engine/src/polisyos/common/__init__.py",
+      "git_blob": "696045bd775c9a9fe4023217628e686bf76b78f3",
+      "bytes": 1336,
+      "sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080"
+    },
+    {
+      "source_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "git_blob": "1f60973c35cfdd8bcf9629f675bcb7d30235fcfa",
+      "bytes": 5468,
+      "sha256": "5153fff118f7d791abb72b6878b409ca226ceceb2411fd413756f66a694d8406"
+    },
+    {
+      "source_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+      "path": "policy-engine/src/polisyos/__init__.py",
+      "git_blob": "a1b746537b78f1e2e6c5e8f288df8174fb936906",
+      "bytes": 24,
+      "sha256": "5fcaa53dd276898de8d19a8b239b344e6ff646058784f321a0b3ddedae6f413c"
+    },
+    {
+      "source_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+      "path": "policy-engine/src/polisyos/common/__init__.py",
+      "git_blob": "696045bd775c9a9fe4023217628e686bf76b78f3",
+      "bytes": 1336,
+      "sha256": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080"
+    },
+    {
+      "source_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "git_blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+      "bytes": 11846,
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+    }
+  ],
+  "product_source_reference_qualification": "Input-author source main/9826/02b refs and retained RUN e187 refs distinguish product identities; no claim that a future root wheel uses DUR source or that a whole checkout equals e187.",
+  "finding_dispositions": [
+    {
+      "finding_id": "LA-057",
+      "state": "LIMITED",
+      "closure_ids": [],
+      "basis": "Bounded foreign source-only test review; no native/build/typecheck acceptance.",
+      "residuals": [
+        "Actual immutable root product wheel build/install/child execution and normal source-cohort profile execution remain UNRUN.",
+        "No arbitrary external import/reflection graph zero or unsupported annotation namespace guarantee."
+      ],
+      "next_owner": "DUR publishes input preparation; ROOT selects exact canonical product source, builds wheel and runs actual child/normal cohort; G decides local external residuals."
+    }
+  ],
+  "checks": [
+    {
+      "id": "frozen-installed-wheel-source-reconciliation",
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/tmp/e02-run-la057-frozen-source-review.py",
+        "--repo",
+        "/workspace/e02-B-current-runtime",
+        "--output",
+        "/tmp/e02-run-la057-frozen-source-audit.json"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime",
+      "target_sha": "02b14aa0928fa32da6b46fa5169605d59e71d9ac",
+      "start_utc": "2026-10-06T18:31:01.529628+00:00",
+      "end_utc": "2026-10-06T18:31:01.745016+00:00",
+      "wall_s": 0.21537309800623916,
+      "maxrss_kib_linux": 17220,
+      "exit": 0,
+      "grade": "Metadata/source check only; asserts exact3path footprint, full AST equality, 1/8 source-derived denominators, 10cells/seven contexts and unchanged reviewer tree."
+    }
+  ],
+  "environment": {
+    "interpreter": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "dependencies": "Only stdlib AST/hashlib/json/pathlib/subprocess/argparse/platform/resource and Git object reads; no product or pytest import."
+  },
+  "reviewer_before": {
+    "head": "76028eda766d00b0b952b4927f72d07b0a477be1",
+    "tree": "cc7ec1b2612fd1398bdc1c3ac0dae5711dad1be5",
+    "status": ""
+  },
+  "reviewer_after": {
+    "head": "76028eda766d00b0b952b4927f72d07b0a477be1",
+    "tree": "cc7ec1b2612fd1398bdc1c3ac0dae5711dad1be5",
+    "status": ""
+  },
+  "driver_source_utf8": "\"\"\"Reconcile frozen installed-wheel test source using Git and stdlib AST only.\"\"\"\nimport argparse\nimport ast\nimport hashlib\nimport json\nimport pathlib\nimport platform\nimport resource\nimport subprocess\nimport sys\nimport time\nfrom datetime import UTC, datetime\n\nparser = argparse.ArgumentParser(description=__doc__)\nparser.add_argument('--repo', type=pathlib.Path, required=True)\nparser.add_argument('--output', type=pathlib.Path, required=True)\nargs = parser.parse_args()\nREPO = args.repo\nSTART = datetime.now(UTC).isoformat()\nT0 = time.monotonic()\nORIGINAL = '9826acc52c06030ac1c4f054a8516b7b3d2a7b62'\nAUTHOR = '02b14aa0928fa32da6b46fa5169605d59e71d9ac'\nOWNER_BASE = 'df5622065679d66b6d6685ecdd9948552cbd8e55'\nOWN_BASE = '76028eda766d00b0b952b4927f72d07b0a477be1'\nMAIN = '198076863e143dea9f89f02734b13d50dae3eed5'\nPREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'\nOUTER = 'policy-engine/tests/unit/common/test_async_tools_installed_wheel.py'\nCONSUMER = 'policy-engine/tests/unit/common/installed_wheel_bridge_consumer.py'\nLAUNCHER = PREFIX + 'current-installed-wheel-independent-evidence/launcher.py'\nCRITERION = 'policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md'\nNAV = PREFIX + 'current-runtime-executor-checks/baseline-navigation.json'\n\ndef git(*argv):\n    return subprocess.check_output(['git', *argv], cwd=REPO)\n\ndef source(sha, path):\n    return git('show', f'{sha}:{path}')\n\ndef ref(sha, path):\n    b = source(sha, path)\n    return {'source_sha':sha,'path':path,'git_blob':git('rev-parse',f'{sha}:{path}').decode().strip(),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}\n\ndef snapshot():\n    return {'head':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'status':git('status','--porcelain','--untracked-files=all').decode()}\n\ndef cases(data):\n    rows = []\n    for f in ast.parse(data).body:\n        if not isinstance(f, (ast.FunctionDef,ast.AsyncFunctionDef)) or not f.name.startswith('test_'):\n            continue\n        factor = 1\n        params = []\n        for d in f.decorator_list:\n            if isinstance(d,ast.Call) and isinstance(d.func,ast.Attribute) and d.func.attr == 'parametrize':\n                values = ast.literal_eval(d.args[1])\n                factor *= len(values)\n                params.append({'parameter':ast.literal_eval(d.args[0]),'values':values})\n        rows.append({'function':f.name,'source_derived_cases':factor,'parameter_values':params})\n    return rows\n\ndef ast_hash(data):\n    return hashlib.sha256(ast.dump(ast.parse(data),include_attributes=False).encode()).hexdigest()\n\nbefore = snapshot()\nold = source(ORIGINAL,OUTER)\nchild = source(AUTHOR,CONSUMER)\nouter = source(AUTHOR,OUTER)\nlauncher = source(AUTHOR,LAUNCHER)\nold_ast = ast.dump(ast.parse(old),include_attributes=False)\nnew_ast = ast.dump(ast.parse(child),include_attributes=False)\nchanged = git('diff','--name-only',ORIGINAL,AUTHOR).decode().splitlines()\nassert sorted(changed) == sorted([OUTER,CONSUMER,LAUNCHER])\nassert old_ast == new_ast\nassert sum(c['source_derived_cases'] for c in cases(old)) == 8\nassert sum(c['source_derived_cases'] for c in cases(child)) == 8\nassert sum(c['source_derived_cases'] for c in cases(outer)) == 1\nnav = json.loads(source(OWN_BASE,NAV))\nselected = [c for c in nav['cells'] if any(r.get('finding_id')=='LA-057' for r in c['refs'])]\nassert len(selected) == 10\njobs = {c['job'] for c in selected}\ncontexts = [c for c in nav['contexts'] if any(c['source_reported_context']['job'].endswith(j) for j in jobs)]\nassert len(contexts) == len(jobs) == 7\ncard = source(MAIN,CRITERION).decode().splitlines(keepends=True)\ncard_text = ''.join(card[4171:4202])\nproduct_paths = [f'policy-engine/src/{p}' for p in ('polisyos/__init__.py','polisyos/common/__init__.py','polisyos/common/async_tools.py')]\nproduct_refs = [ref(sha,path) for sha in (MAIN,ORIGINAL,AUTHOR,'e1871506fcebc47d6572891b323ddf1f2083a3c9') for path in product_paths]\nsource_refs = [ref(ORIGINAL,OUTER)] + [ref(AUTHOR,p) for p in [OUTER,CONSUMER,LAUNCHER]]\nrequired_outer_inputs = ['E02_LA057_INSTALLED_PYTHON','E02_LA057_WHEEL_PATH','E02_LA057_INSTALLED_SITE','E02_LA057_SOURCE_ROOT','E02_LA057_SOURCE_SHA','E02_LA057_CONSUMER_SHA256','E02_LA057_OUTER_TEST_SHA256']\nfor value in required_outer_inputs:\n    assert value in outer.decode() and value in launcher.decode()\nassert 'cohort-input-environment.json' in launcher.decode()\nassert '--include-native-common' not in launcher.decode()\nafter = snapshot()\nassert before == after\npacket = {\n 'schema':'policyos.e02.independent_source_review.v1',\n 'reviewer':'RUN /root/run_writer, independent of DUR author',\n 'created_utc':datetime.now(UTC).isoformat(),\n 'scope':'Source-only narrow installed-wheel native input/adapter review; no product runtime, native/build/collection/typecheck/gates.',\n 'original_input_sha':ORIGINAL,\n 'original_input_tree':git('rev-parse',f'{ORIGINAL}^{{tree}}').decode().strip(),\n 'author_base_sha':OWNER_BASE,\n 'reviewed_input_sha':AUTHOR,\n 'reviewed_input_tree':git('rev-parse',f'{AUTHOR}^{{tree}}').decode().strip(),\n 'complete_changed_paths_original_to_adapter':changed,\n 'complete_changed_paths_author_base_to_adapter':git('diff','--name-only',OWNER_BASE,AUTHOR).decode().splitlines(),\n 'source_refs':source_refs,\n 'full_adapter_diff_utf8':git('diff','--no-ext-diff',ORIGINAL,AUTHOR,'--',OUTER,CONSUMER,LAUNCHER).decode(),\n 'ast_comparison':{'attributes_included':False,'normalizations':[],'direct_full_ast_equal':old_ast==new_ast,'old_ast_sha256':ast_hash(old),'new_ast_sha256':ast_hash(child),'qualification':'Standard ast.dump excludes location attributes; no node normalization/removal, and all literal assertions/semantic bodies remain equal.'},\n 'source_derived_cases':{'original':cases(old),'outer':cases(outer),'child':cases(child),'count_scope':'Exactly one outer case and eight child cases, separate source-derived denominators. Not an observed runtime quantity.'},\n 'explicit_profile':{'required_outer_environment_names':required_outer_inputs,'original_child_environment_names':['E02_LA057_WHEEL_PATH','E02_LA057_INSTALLED_SITE','E02_LA057_SOURCE_ROOT','E02_LA057_SOURCE_SHA','E02_LA057_TEST_SHA256'],'child_test_sha_mapping':'Outer sets TEST_SHA256 to CONSUMER_SHA256; own outer bytes are separately pinned.','normal_cohort_provision':'Launcher persists durable seven-input cohort-input-environment.json before native. Normal root source cohort must use exactly those inputs; no missing-input fallback/skip.','launcher_native_scope':'Isolated installed outer invocation contains only this one outer case, whose child defines eight; original common wholefile is separately selected by root.'},\n 'source_review':{\n  'verdict':'PASS bounded source review: no blocker under explicit installed-wheel profile.',\n  'real_origin':'Three actual module origins equal installed site/member and distribution locate_file; wheel member bytes equal frozen Git and live canonical source and actual installed file bytes. METADATA equality binds actual distribution.',\n  'no_checkout_fallback':'Python-I-B, no PYTHONPATH, explicit installed site within sys.prefix, exclusion of designated canonical src on sys.path, exact origin/file bytes; source tree is only read for Git/byte binding.',\n  'config_seam':'Child noconftest/importlib/-c/dev/null/addopts empty/pythonpath empty disables project pytest config; clears PYTHONPATH/PYTHONHOME/PYTEST_ADDOPTS/PYTEST_PLUGINS and disables plugin autoload.',\n  'generic_types':'Direct, import alias, lazy Common facade, actual star import and named reflection each resolve four distinct function-local T identities using the ratified explicit annotation namespaces, and execute real bridge result17.',\n  'real_bridge_cases':'Actual direct/running-loop bridges carry ContextVar A/B/None without leakage; cooperative timeout reaches parent and abandoned child finally/cancel; actual generic-awaitable cancellation reaches finally before/inside running loop.',\n  'evidence_before_assertions':'Outer persists child full stdout, XML hashes and actual case rows/wrapper before asserts on child exit/exact8/allpassed; failures have no source fallback.',\n  'immutable_build_prep':'Separate task-local build/installed venvs, explicit UV/Python, hatchling1.27 + pytest9.0.2 and four fixed dependency pins, no project sync/global install; frozen canonical source HEAD/status checked after each command.',\n  'native_product_identity':'DUR test-input source is distinct from root-selected product source. Launcher requires full source SHA; actual build/native source SHA/profile is not yet established by this source-only review.'\n },\n 'P37_qualification':{\n  'prior_premise':'Original9826 isolated fixture had five required inputs and sys.flags.isolated==1. Generic normal source cohort without that profile would not satisfy prerequisites; inferred source incompatibility only, no observed native ERROR/FAIL count.',\n  'input_change':'Adapter moves same eight consumer nodes to explicit nontest helper and introduces real normal-cohort outer dispatch. No consumer assertions weakened; explicit Python/config boundary added.',\n  'actual_execution':'Author preparation and reviewer source operation only; original9826 and adapter02b native/build remain UNRUN in this packet.',\n  'counts':'One outer versus eight child must not be summed into root native session denominator or confused with historical common suite counts.'\n },\n 'P38_qualification':{'grade':'Expected/source-derived consumer semantics; runtime, installed-wheel success, actual origin/reflection observations and typecheck are UNRUN here.','no_new_cleanup':'main198 already removed old module TypeVar/T; this input-only review does not prove a new production edit.','external_bound':'Four explicit import profiles plus full single-module source identity is finite evidence; no arbitrary external/dynamic consumer zero claim.'},\n 'canonical_criterion':{**ref(MAIN,CRITERION),'line_start':4172,'line_end':4202,'card_utf8':card_text,'card_excerpt_sha256':hashlib.sha256(card_text.encode()).hexdigest(),'grade':'Canonical contract only; not runtime evidence.'},\n 'baseline_navigation':{'ref':ref(OWN_BASE,NAV),'selected_cells':selected,'selected_source_job_contexts':contexts,'query':nav['queries'].get('LA-057'),'finding_basis':nav['finding_basis'].get('LA-057'),'qualification':'Historical source-reported10cells/seven contexts; raw archive limitations retained, never used as new adapter/runtime proof.'},\n 'product_source_reference_snapshots':product_refs,\n 'product_source_reference_qualification':'Input-author source main/9826/02b refs and retained RUN e187 refs distinguish product identities; no claim that a future root wheel uses DUR source or that a whole checkout equals e187.',\n 'finding_dispositions':[{'finding_id':'LA-057','state':'LIMITED','closure_ids':[],'basis':'Bounded foreign source-only test review; no native/build/typecheck acceptance.','residuals':['Actual immutable root product wheel build/install/child execution and normal source-cohort profile execution remain UNRUN.','No arbitrary external import/reflection graph zero or unsupported annotation namespace guarantee.'],'next_owner':'DUR publishes input preparation; ROOT selects exact canonical product source, builds wheel and runs actual child/normal cohort; G decides local external residuals.'}],\n 'checks':[{'id':'frozen-installed-wheel-source-reconciliation','command':[sys.executable,str(pathlib.Path(__file__)),'--repo',str(REPO),'--output',str(args.output)],'cwd':str(REPO),'target_sha':AUTHOR,'start_utc':START,'end_utc':datetime.now(UTC).isoformat(),'wall_s':time.monotonic()-T0,'maxrss_kib_linux':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,'exit':0,'grade':'Metadata/source check only; asserts exact3path footprint, full AST equality, 1/8 source-derived denominators, 10cells/seven contexts and unchanged reviewer tree.'}],\n 'environment':{'interpreter':sys.executable,'version':sys.version,'platform':platform.platform(),'dependencies':'Only stdlib AST/hashlib/json/pathlib/subprocess/argparse/platform/resource and Git object reads; no product or pytest import.'},\n 'reviewer_before':before,'reviewer_after':after,\n 'driver_source_utf8':pathlib.Path(__file__).read_text(),'driver_sha256':hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest()\n}\nargs.output.write_text(json.dumps(packet,ensure_ascii=False,indent=2)+'\\n')\nprint(json.dumps({'output':str(args.output),'bytes':args.output.stat().st_size,'sha256':hashlib.sha256(args.output.read_bytes()).hexdigest(),'input_sha':AUTHOR,'input_tree':packet['reviewed_input_tree'],'direct_full_AST_equal_without_normalization':True,'source_derived_outer':1,'source_derived_child':8,'baseline_cells':10,'baseline_contexts':7,'runtime_build':'UNRUN','source_verdict':packet['source_review']['verdict']},indent=2))\n",
+  "driver_sha256": "414b3e1028cead0709c3b05d61793d8ef6afc3ff16d9aba6e60394401f08c79d"
+}

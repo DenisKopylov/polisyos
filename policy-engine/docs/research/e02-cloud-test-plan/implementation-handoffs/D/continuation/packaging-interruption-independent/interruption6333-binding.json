@@ -1,0 +1,158 @@
+{
+  "schema": "polisyos.e02.independent-interruption-transport-review.v1",
+  "verdict": "PASS integrity and bounded incomplete-execution classification",
+  "source_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+  "source_tree": "e88f3f4cce7dbcfa6bfeb24b981c469b5f9f6eae",
+  "transport_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption-proof/output.json.gz",
+  "transport_bytes": 621446,
+  "transport_sha256": "fcc80b440442249eec6fd550499e990833ae819c6f2deb0b46c38d944113420e",
+  "decoded_bytes": 2594247,
+  "decoded_sha256": "c276bbfb3fc779f22a3af5986f832b73a711f5ba545a7689f373fd56cdfe0db8",
+  "member_count": 14,
+  "all_members_hash_size_and_existing_original_bytes_match": true,
+  "members": [
+    {
+      "bytes": 825397,
+      "encoding": "base64",
+      "name": "original-wave/before.json",
+      "origin_path": "/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/before.json",
+      "sha256": "88c52f093a3ffb83b84cd06604768bef3bc3c5938ac583e6b00c7a51078b3300"
+    },
+    {
+      "bytes": 0,
+      "encoding": "base64",
+      "name": "original-wave/complete.stderr.txt",
+      "origin_path": "/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/complete.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "encoding": "base64",
+      "name": "original-wave/complete.stdout.txt",
+      "origin_path": "/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/complete.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 875844,
+      "encoding": "base64",
+      "name": "original-wave/events.jsonl",
+      "origin_path": "/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/events.jsonl",
+      "sha256": "8095b9d4cf3844b23398687f163a56760e8d68275534f10e54243032f8ad55b2"
+    },
+    {
+      "bytes": 34407,
+      "encoding": "base64",
+      "name": "original-wave/execution-manifest.json",
+      "origin_path": "/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/execution-manifest.json",
+      "sha256": "5aa3e5081e30c4b7b327fe026fe2c5c0a89b5a5e7e4ce2462cd12bb2c9d5101e"
+    },
+    {
+      "bytes": 0,
+      "encoding": "base64",
+      "name": "original-wave/plan.stderr.txt",
+      "origin_path": "/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/plan.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 938,
+      "encoding": "base64",
+      "name": "original-wave/plan.stdout.txt",
+      "origin_path": "/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/plan.stdout.txt",
+      "sha256": "ff999bddbf5b81f882184c849815eb4d548ff0336633206efbde194db0cca385"
+    },
+    {
+      "bytes": 7252,
+      "encoding": "base64",
+      "name": "original-wave/selector-plan.argv.json",
+      "origin_path": "/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/selector-plan.argv.json",
+      "sha256": "a134fe60f0e58a9b52ce55a79f1ac291aa0d6cce1972345b87ec89d97f58a9ac"
+    },
+    {
+      "bytes": 141285,
+      "encoding": "base64",
+      "name": "original-wave/selector-plan.json",
+      "origin_path": "/tmp/e02-D-root-wave-8c17a44c6f6c-89720d2ae1cc4efb9ee060a65e5af0c4/selector-plan.json",
+      "sha256": "4e791bcf5ab83b2510f4900dd349d6c1e7be544c0ae1802c5bf12ce9ceda10b2"
+    },
+    {
+      "bytes": 20492,
+      "encoding": "base64",
+      "name": "harness/e02-D-broad-wave.py",
+      "origin_path": "/tmp/e02-D-broad-wave.py",
+      "sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7"
+    },
+    {
+      "bytes": 12753,
+      "encoding": "base64",
+      "name": "harness/e02_broad_observer.py",
+      "origin_path": "/tmp/e02_broad_observer.py",
+      "sha256": "1beccd4a0caa7af25a68c54a85341949d809f0e75d61cdf61d5d4ffbcfc8cf81"
+    },
+    {
+      "bytes": 12531,
+      "encoding": "base64",
+      "name": "harness/e02-D-final-selector-plan.py",
+      "origin_path": "/tmp/e02-D-final-selector-plan.py",
+      "sha256": "e3e2ab9bfc9ee6fe86bfb9612f2c6f8bd383b1899f70ccb271492ba0794b3df8"
+    },
+    {
+      "bytes": 4195,
+      "encoding": "base64",
+      "name": "read-only-observer/observe.py",
+      "origin_path": "/tmp/e02-D-root-interruption-i4xztg1v/observe.py",
+      "sha256": "d752b3ccb2295c239c7d555739674d25deba99a7859d952b857c717b4a139594"
+    },
+    {
+      "bytes": 7818,
+      "encoding": "base64",
+      "name": "read-only-observer/observations.json",
+      "origin_path": "/tmp/e02-D-root-interruption-i4xztg1v/observations.json",
+      "sha256": "f7a3011578ec663df3f4dec97201ce80190a43f911d19f465751de6ce49c1f79"
+    }
+  ],
+  "original_process_fact": {
+    "child_pid": 385226,
+    "raw_wait_status": 9,
+    "returncode": -9,
+    "parent_pid": 384932,
+    "parent_raw_wait_status": 15,
+    "parent_returncode": -15,
+    "both_observed_zombies": true,
+    "cause": "not established; no OOM cause inferred from cumulative counters"
+  },
+  "status": {
+    "original_manifest": "RUNNING retained unchanged",
+    "current_execution": "ERROR/interrupted before collection completion",
+    "all_unfinished_properties": "UNRUN",
+    "stdout_bytes": 0,
+    "stderr_bytes": 0,
+    "collection_finish_or_test_phase_or_session_finish_events": 0,
+    "actual_fit": "No GP numerical execution witnessed; installation/import are not backend property PASS",
+    "1052_module_file_matches": "Independently verified at exact8c in separate binding",
+    "formal_closed": 0,
+    "G_accepted": false
+  },
+  "budget_or_cpu_claim": "Recorded backend Torch thread getters5 and actual process allowed CPUs0-4 are observations. No who-set/agent-added-cap inference; no unlimited-host claim. This review adds no limits and executes no backend.",
+  "accounting_original_drafts": {
+    "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+    "source_tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+    "findings": 45,
+    "criteria": 46,
+    "bundles": 17,
+    "conditional_recommendations": 39,
+    "held": 5,
+    "upstream_limited": 1,
+    "formal_closed": 0,
+    "G_accepted": false,
+    "publication": "Original5050 drafts remain historical, not final8c verification or closure."
+  },
+  "limitations": [
+    "No final pytest result/JUnit and no numerical property proof from this wave.",
+    "No original traceback establishes a collection-code defect; observed lifecycle is interrupted/incomplete collection.",
+    "Cause of SIGKILL/SIGTERM is unknown.",
+    "Broad gate remains ERROR and all unexecuted properties UNRUN; earlier numerical witnesses are separate source-bound runs."
+  ],
+  "runtime_executed_by_reviewer": false,
+  "children": 0,
+  "closure_ids": []
+}

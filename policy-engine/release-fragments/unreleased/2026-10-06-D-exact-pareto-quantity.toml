@@ -1,0 +1,11 @@
+id = "2026-10-06-D-exact-pareto-quantity"
+title = "Compute exact Pareto volume and retain full coordinate definitions"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "artifact-schema"
+summary = "The canonical Pareto and native multi-objective consumers share exact 1D/2D sweeps and the locked BoTorch dominated-space partitioner for higher dimensions. Quantity assessment v2 records the maximizing float64 product-unit profile, exact algorithm and optional backend version. No usable rows, unsupported or absent backend, malformed reference and unrepresentable quantities are explicitly unavailable. Malformed mutable metrics are omitted with original input coverage. Optional ordered producer definition_versions form coordinate schema v2 and changed comparison bases are refused."
+compatibility = "Finite historical coordinate v1 and indicator assessment v1 remain readable as bounded legacy profiles. Explicit definition versions produce coordinate v2; they are never inferred. Current schema2 fronts now include an available assessment as well as unavailable assessments. Empty/no-usable input and invalid-reference quantities change from0 to null. MOBayesianOptimizer.compute_hypervolume returns float or null; callers must preserve availability and cannot substitute zero. Higher-dimensional computation supports BoTorch0.16.1 with Torch2.10.0 CPU float64; other versions are declared unavailable."
+migration = "Preserve HypervolumeAssessment and check availability before stopping or comparing indicator values. Configure actual ordered metric definition versions when supplied by the producer; legacy v1 does not establish them. Display labels do not define coordinate identity."
+evidence = ["tests/unit/scientist/methods/autotune/test_hypervolume_profile.py", "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py", "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py"]
+limitations = "Conditional numeric fixtures do not establish source truth, measured performance, institutional authority, complete A-owned eligibility/unknown denominator, or production exporter wiring. Registry view providers retain their existing bounded objective channels."

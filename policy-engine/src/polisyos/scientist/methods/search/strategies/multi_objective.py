@@ -9,6 +9,12 @@ from dataclasses import dataclass
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.scientist.methods.autotune.pareto import (
+    HypervolumeAssessment,
+    HypervolumeResult,
+    _finite_vector,
+    compute_hypervolume_assessed,
+)
 from polisyos.scientist.methods.search.objective import OptimizationDirection
 from polisyos.scientist.methods.search.strategies._deps import (
     ExpectedHypervolumeImprovement,
@@ -235,23 +241,44 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 output.append(valid[idx])
         return output
 
-    def compute_hypervolume(self, evaluations: list[Evaluation]) -> float:
+    def compute_hypervolume_assessed(self, evaluations: list[Evaluation]) -> HypervolumeResult:
+        """Exact volume for the existing direction-normalized maximizing reference.
+
+        Configured ``ref_point`` retains its existing maximizing-coordinate
+        convention. No metric-unit rescaling or new reference policy is applied.
+        Indicator availability never changes complete-vector front membership.
+        """
         valid = self._admit_objective_rows(evaluations)
-        if not self._botorch_ready:
-            return 0.0
-        if not valid:
-            return 0.0
-        with self._arbiter.acquire("torch"):
-            Y = self._torch.tensor(
-                [self._objective_vector(evaluation) for evaluation in valid],
-                dtype=self._torch.float64,
+        if not valid or not self._botorch_ready:
+            result = HypervolumeResult(
+                value=None,
+                assessment=HypervolumeAssessment(
+                    version="hypervolume-assessment.v2",
+                    status="unavailable",
+                    basis="not_established",
+                    reason="no_usable_inputs" if not valid else "optional_backend_unavailable",
+                    profile="dominated_box_union.float64.maximize.v1",
+                ),
             )
-            if self._device != "cpu":
-                Y = Y.to(self._device)
-            if self._ref_point is None:
-                self._update_ref_point(Y)
-            partitioning = NondominatedPartitioning(ref_point=self._ref_point, Y=Y)
-            return float(partitioning.compute_hypervolume().item())
+        else:
+            points = [tuple(self._objective_vector(evaluation)) for evaluation in valid]
+            with self._arbiter.acquire("torch"):
+                if self._ref_point is None:
+                    Y = self._torch.tensor(points, dtype=self._torch.float64, device=self._device)
+                    self._update_ref_point(Y)
+                reference = tuple(self._ref_point.detach().cpu().tolist())
+                result = compute_hypervolume_assessed(points, reference)
+        self._last_hypervolume_result = result
+        return result
+
+    def compute_hypervolume(self, evaluations: list[Evaluation]) -> float | None:
+        """Null means unavailable; a measured zero remains a recomputed quantity."""
+        return self.compute_hypervolume_assessed(evaluations).value
+
+    @property
+    def last_hypervolume_assessment(self) -> HypervolumeAssessment | None:
+        result = getattr(self, "_last_hypervolume_result", None)
+        return result.assessment if result is not None else None
 
     def get_state(self) -> StrategyState:
         model_state: bytes | None = None
@@ -342,9 +369,10 @@ class MOBayesianOptimizer(BaseSearchStrategy):
             if objective.direction != self._directions[idx]:
                 raise ValueError(f"objective_direction_mismatch:{objective_name}")
             raw = objective.raw_value
-            if isinstance(raw, bool) or not isinstance(raw, (int, float)) or not math.isfinite(raw):
+            scalar = _finite_vector((raw,))
+            if scalar is None:
                 raise ValueError(f"non_finite_or_untyped_objective:{objective_name}")
-            output.append(float(raw) * self._negate_mask[idx])
+            output.append(scalar[0] * self._negate_mask[idx])
         return output
 
     @property
@@ -364,21 +392,18 @@ class MOBayesianOptimizer(BaseSearchStrategy):
                 self._objective_vector(evaluation)
                 if for_training:
                     executed = self._space.normalize(evaluation.params)
-                    supplied = evaluation.params_normalized
+                    supplied = _finite_vector(evaluation.params_normalized)
                     if (
                         supplied is None
                         or len(supplied) != len(executed)
                         or any(
-                            isinstance(value, bool)
-                            or not isinstance(value, (int, float))
-                            or not math.isfinite(value)
-                            or not math.isclose(value, effective, rel_tol=0.0, abs_tol=1e-10)
+                            not math.isclose(value, effective, rel_tol=0.0, abs_tol=1e-10)
                             for value, effective in zip(supplied, executed, strict=True)
                         )
                     ):
                         raise ValueError("executed_coordinates_mismatch")
                 admitted.append(evaluation)
-            except (TypeError, ValueError) as exc:
+            except (TypeError, ValueError, OverflowError) as exc:
                 rejected.append(
                     {
                         "input_index": index,

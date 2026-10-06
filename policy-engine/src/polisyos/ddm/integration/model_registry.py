@@ -6,9 +6,18 @@ import hashlib
 import json
 import math
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Literal, Self
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, PrivateAttr
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    ConfigDict,
+    Field,
+    PrivateAttr,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.ddm.calibration.audit import (
     _CalibrationValidityEvidence,
@@ -24,6 +33,7 @@ from polisyos.ddm.integration.events import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from datetime import datetime
 
     from polisyos.ddm.calibration.calibrate import CalibrationReport
@@ -46,10 +56,15 @@ class RegistryIdentityBinding(BaseModel):
 
 
 class ModelRegistryReadinessRecord(BaseModel):
-    """Registry-facing readiness record for one deployed model version."""
+    """Read legacy registry records and the explicit source-bound v2 format.
+
+    Unversioned v1 records remain historical projections. Current producers
+    emit v2; reading or migrating its bytes never restores checker authority.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
+    schema_version: Literal["1", "2"] = "1"
     model_id: str = Field(min_length=1)
     model_version: str = Field(min_length=1)
     stationarity_regime_id: str = Field(min_length=1)
@@ -74,6 +89,61 @@ class ModelRegistryReadinessRecord(BaseModel):
     identity_binding: RegistryIdentityBinding | None = None
     _calibration_validity_evidence: _CalibrationValidityEvidence | None = PrivateAttr(default=None)
     _registry_source_evidence: _RegistrySourceEvidence | None = PrivateAttr(default=None)
+
+    @model_validator(mode="after")
+    def _require_version_for_source_projection(self) -> Self:
+        """Reject new source fields under the old closed wire contract."""
+
+        if self.schema_version == "1" and any(
+            value is not None
+            for value in (
+                self.readiness_event_id,
+                self.readiness_effective_at,
+                self.readiness_expires_at,
+                self.source_binding_digest,
+            )
+        ):
+            raise ValueError("source-bound registry fields require schema_version='2'")
+        return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_versioned_record(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        """Keep legacy serialization inside its original closed schema."""
+
+        payload = handler(self)
+        if self.schema_version == "1":
+            for key in (
+                "schema_version",
+                "readiness_event_id",
+                "readiness_effective_at",
+                "readiness_expires_at",
+                "source_binding_digest",
+            ):
+                payload.pop(key, None)
+        return payload
+
+    @classmethod
+    def migrate_unversioned_source_record(cls, payload: Mapping[str, object]) -> Self:
+        """Explicitly read prerelease source projections as candidate-only v2.
+
+        This handles E02's unversioned enriched records without rewriting the
+        historical bytes. The caller must persist a distinct migrated record
+        and freshly rebind exact sources before evaluating current eligibility.
+        """
+
+        if "schema_version" in payload:
+            raise ValueError("migration requires an unversioned source record")
+        if not any(
+            payload.get(key) is not None
+            for key in (
+                "readiness_event_id",
+                "readiness_effective_at",
+                "readiness_expires_at",
+                "source_binding_digest",
+            )
+        ):
+            raise ValueError("legacy v1 records require an explicit rebuild from source inputs")
+        return cls.model_validate({**payload, "schema_version": "2"})
 
 
 _REGISTRY_SOURCE_TOKEN = object()
@@ -140,6 +210,7 @@ def build_model_registry_record(
         degradation_event=last_degradation_event,
     )
     record = ModelRegistryReadinessRecord(
+        schema_version="2",
         model_id=readiness_event.model_id,
         model_version=readiness_event.model_version,
         stationarity_regime_id=calibration_audit.stationarity_regime_id,

@@ -908,35 +908,6 @@
       "owner_bundle": "CAU-04",
       "state": "limited",
       "finding_closure": false,
-      "criterion": "Requested estimand/contrast/population must match actual identify/estimate; unsupported profile is explicit capability result.",
-      "check_scope": "installed packaging/consumer companion",
-      "criterion_checks": [
-        {
-          "criterion": "Finite canonical six-asset packaging and fresh installed numerical consumer property",
-          "check": "PASS",
-          "output": [
-            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-native.stdout.txt",
-            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/sdist-native.stdout.txt",
-            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/archive-source-bindings.json.gz",
-            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/installed-source-bindings.json.gz"
-          ],
-          "oracle": "Bounded installed defaultATE/control0/treatment1 worker execution plus exact full typed report projection and public consumer aliases.",
-          "negative_or_removal": "pre-mapping2FAIL1PASS and worker.py retirement typed refusal with unchangedCASreply and all declaration markers retained",
-          "limit": "Unsupported and alternate estimands are primary CAU owner checks; this packaging companion does not repeat or close their full criterion."
-        },
-        {
-          "criterion": "Full original primary finding and production/admitted real-data capability",
-          "check": "UNRUN",
-          "output": "No whole-primary or production/admitted-real-data claim by this companion.",
-          "limit": "Unsupported and alternate estimands are primary CAU owner checks; this packaging companion does not repeat or close their full criterion."
-        }
-      ],
-      "next_owner": "CAU-04 primary author/rootF; G local production admission on final integration candidate"
-    },
-    "B213": {
-      "owner_bundle": "CAU-04",
-      "state": "limited",
-      "finding_closure": false,
       "criterion": "Preserve actual point and interval semantics, including compatible point-only partial report without manufactured CI.",
       "check_scope": "installed packaging/consumer companion",
       "criterion_checks": [
@@ -960,7 +931,58 @@
           "limit": "Dedicated no-CI and malformed CI profiles are not established by these three installed cases; primary CAU receipt remains authoritative for bounded native controls and G real-data admission."
         }
       ],
-      "next_owner": "CAU-04 primary author/rootF; G local production admission on final integration candidate"
+      "next_owner": "CAU-04 primary author/rootF; G local production admission on final integration candidate",
+      "criterion_source": {
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "lines": [
+          5194,
+          5205
+        ],
+        "line_slice_sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+        "original_card_block_sha256": "dd369570f1235d66729b8c5526f88a5968905343594089f5a4c00da90631238f",
+        "source_is_original_card": true
+      }
+    },
+    "B213": {
+      "owner_bundle": "CAU-04",
+      "state": "limited",
+      "finding_closure": false,
+      "criterion": "Requested estimand/contrast/population must match actual identify/estimate; unsupported profile is explicit capability result.",
+      "check_scope": "installed packaging/consumer companion",
+      "criterion_checks": [
+        {
+          "criterion": "Finite canonical six-asset packaging and fresh installed numerical consumer property",
+          "check": "PASS",
+          "output": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/wheel-native.stdout.txt",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/sdist-native.stdout.txt",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/archive-source-bindings.json.gz",
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-worker-20261006/installed-source-bindings.json.gz"
+          ],
+          "oracle": "Bounded installed defaultATE/control0/treatment1 worker execution plus exact full typed report projection and public consumer aliases.",
+          "negative_or_removal": "pre-mapping2FAIL1PASS and worker.py retirement typed refusal with unchangedCASreply and all declaration markers retained",
+          "limit": "Unsupported and alternate estimands are primary CAU owner checks; this packaging companion does not repeat or close their full criterion."
+        },
+        {
+          "criterion": "Full original primary finding and production/admitted real-data capability",
+          "check": "UNRUN",
+          "output": "No whole-primary or production/admitted-real-data claim by this companion.",
+          "limit": "Unsupported and alternate estimands are primary CAU owner checks; this packaging companion does not repeat or close their full criterion."
+        }
+      ],
+      "next_owner": "CAU-04 primary author/rootF; G local production admission on final integration candidate",
+      "criterion_source": {
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "lines": [
+          5206,
+          5217
+        ],
+        "line_slice_sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+        "original_card_block_sha256": "6684013f61227644563e3dd6ac181b2546b5797168cd0b93fef3ef1bf75fe243",
+        "source_is_original_card": true
+      }
     },
     "B221": {
       "owner_bundle": "SCM-01",

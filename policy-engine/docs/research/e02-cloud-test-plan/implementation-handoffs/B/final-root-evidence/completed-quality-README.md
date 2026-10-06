@@ -26,10 +26,11 @@ deleted Python filenames are disclosed separately. An absent candidate file
 cannot be passed to Ruff. The launcher binds every selected file's actual bytes
 to its candidate Git blob and refuses a vacuous Python denominator.
 
-Mypy checks all twelve declared canonical targets: ledger/middleware,
+Mypy checks all fifteen declared canonical targets: ledger/middleware,
 core response/settlement/traced client, upper gateway/cache/enforcer,
 method artifacts parts/chain, component composer, and synchronous engine
-executor. It uses the repository configuration, actual stubs/plugins,
+executor, and policy-design accounting/adversary/translator workers. It uses
+the repository configuration, actual stubs/plugins,
 `--follow-imports=silent` and a fresh scratch cache. The complete tracked stub
 inventory is byte-bound; this inventory does not claim an observed import graph.
 No skipped-import or Any waiver is added.

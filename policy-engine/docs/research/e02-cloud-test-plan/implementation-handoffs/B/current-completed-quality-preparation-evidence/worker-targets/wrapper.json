@@ -1,0 +1,90 @@
+{
+  "schema": "policyos.e02.completed_quality_worker_targets_preparation.v1",
+  "target_sha": "107a8e18f6678db837f0b95300d177405b8e960f",
+  "target_tree": "997711f82702687db932c649ce2ee4b141af6858",
+  "source_bytes": 20038,
+  "source_sha256": "50694c19c4a8b479b90e2007f04b68f512b78143f4a84843c58f0ef99e384452",
+  "prior_source_sha": "c8a1fede484644f40e5ef9dd3c8ceafaf083686a",
+  "prior_source_sha256": "bf9ef7c752df342a2e4a2a69d884a3d7b60f7e5ab5b2f34ae70f865eb9ced986",
+  "added_targets": [
+    "scientist/policy_design/_llm_accounting.py",
+    "scientist/policy_design/adversary.py",
+    "scientist/policy_design/translator.py"
+  ],
+  "prior_target_count": 12,
+  "target_count": 15,
+  "all_other_top_level_ast_identical": true,
+  "checks": [
+    {
+      "id": "ruff",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--no-cache",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "107a8e18f6678db837f0b95300d177405b8e960f",
+      "exit_code": 0,
+      "wall_seconds": 0.044023260998073965,
+      "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19,
+      "grade": "Frozen instrument style or argparse help only; no root gate"
+    },
+    {
+      "id": "format",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "107a8e18f6678db837f0b95300d177405b8e960f",
+      "exit_code": 0,
+      "wall_seconds": 0.038399199009290896,
+      "output_sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "bytes": 25,
+      "grade": "Frozen instrument style or argparse help only; no root gate"
+    },
+    {
+      "id": "help",
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "/workspace/e02-B-current-runtime/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/final-root-evidence/run_completed_quality.py",
+        "--help"
+      ],
+      "cwd": "/workspace/e02-B-current-runtime/policy-engine",
+      "target_sha": "107a8e18f6678db837f0b95300d177405b8e960f",
+      "exit_code": 0,
+      "wall_seconds": 0.054485947999637574,
+      "output_sha256": "91170a41aa63ab933b334dde5488bcf02b621bafddeb6792954830b04a7bf4a8",
+      "bytes": 896,
+      "grade": "Frozen instrument style or argparse help only; no root gate"
+    }
+  ],
+  "all_eight_gates": "UNRUN",
+  "installed_wheel": "UNRUN",
+  "historical_worker_type_failures": "Preserved by author/root; no inherited waiver or new actual mypy execution in this preparation",
+  "target_presence": "Bound against actual future frozen root by existing tracked_read; no author/root current-presence assertion",
+  "environment": {
+    "interpreter_lexical": "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "interpreter_actual": "/workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14",
+    "interpreter_sha256": "010d370720b52e3ad79b21a079be6a10ea848acfc460552aaf3d36334980129f",
+    "python_version": "3.14.2 (main, Dec 17 2025, 21:08:09) [Clang 21.1.4 ]",
+    "pyproject_source_ref": "107a8e18f6678db837f0b95300d177405b8e960f:policy-engine/pyproject.toml",
+    "pyproject_git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+    "pyproject_bytes": 11007,
+    "pyproject_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+  },
+  "source_status_after": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-quality-preparation-evidence/worker-targets/\n",
+  "limitations": [
+    "Complete selected AST/literal comparison and actual CLI help are not final-gate execution",
+    "Supplied interpreter/config are author inputs; final root independently binds its actual complete inputs"
+  ]
+}

@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
@@ -71,7 +71,15 @@ class _Node:
     async def execute_async(self, ctx, state):
         self.calls += 1
         self.started.set()
-        inputs = [state.reports_index[key] for key in ("a", "b") if key in state.reports_index]
+        inputs = [
+            InputRef(
+                artifact_id=state.reports_index[key].artifact_id,
+                manifest_profile_sha256=state.reports_index[key].manifest_profile_sha256,
+                role=key,
+            )
+            for key in ("a", "b")
+            if key in state.reports_index
+        ]
         payload = {
             "alias": self.alias,
             "ordinal": self.calls,
@@ -144,9 +152,7 @@ def _read_effects(ctx, nodes):
         for ref, payload in zip(node.refs, node.inputs, strict=True):
             assert reopened.verify(ref).ok
             assert json.loads(reopened.get_bytes(ref)) == payload
-            assert reopened.get_manifest(ref).producer.component == str(
-                node.spec.metadata.component_id
-            )
+            assert reopened.get_manifest(ref).producer.component == node.spec.metadata.component_id
 
 
 @pytest.mark.asyncio
@@ -279,7 +285,9 @@ async def test_native_readiness_preserves_real_inputs_methods_and_artifact_linea
             assert not b.finished.is_set()
             assert ctx.store.verify(c.refs[0]).ok
             assert c.inputs[0] == {"alias": "c", "ordinal": 1, "seed": 7, "c_input": "from-a"}
-            assert ctx.store.get_manifest(c.refs[0]).inputs == [a.refs[0]]
+            assert [edge.artifact_id for edge in ctx.store.get_manifest(c.refs[0]).inputs] == [
+                a.refs[0].artifact_id
+            ]
         else:
             await _until(
                 lambda: any(
@@ -293,14 +301,29 @@ async def test_native_readiness_preserves_real_inputs_methods_and_artifact_linea
             assert c.refs == []
         b.release.set()
         result = await task
+        if mode == "overlap":
+            # The existing ERROR merge policy refuses the conflicting tier;
+            # scheduling C early would publish an inadmissible partial input.
+            assert result.report.status == "fail"
+            assert [node.calls for node in nodes] == [1, 1, 0]
+            assert c.refs == []
+            assert {record.error.code for record in result.report.nodes if record.error} == {
+                "node.parallel_merge_conflict"
+            }
+            assert result.state.params == {"seed": 7}
+            _read_effects(ctx, nodes)
+            return
         assert result.report.status == "ok"
         assert [node.calls for node in nodes] == [1, 1, 1]
         assert c.inputs[0]["seed"] == 7
         assert c.inputs[0]["c_input"] == ("from-b" if mode == "overlap" else "from-a")
         assert result.state.params["a"] == result.state.params["b"] == "done"
-        assert ctx.store.get_manifest(c.refs[0]).inputs == (
-            [a.refs[0]] if mode == "independent" else [a.refs[0], b.refs[0]]
-        )
+        edges = ctx.store.get_manifest(c.refs[0]).inputs
+        expected = [a.refs[0]] if mode == "independent" else [a.refs[0], b.refs[0]]
+        assert [(edge.artifact_id, edge.manifest_profile_sha256) for edge in edges] == [
+            (ref.artifact_id, ref.manifest_profile_sha256) for ref in expected
+        ]
+        assert [edge.role for edge in edges] == (["a"] if mode == "independent" else ["a", "b"])
         assert ctx.store.verify(result.state.reports_index["workflow_report"]).ok
         _read_effects(ctx, nodes)
     finally:

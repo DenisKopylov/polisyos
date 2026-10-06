@@ -1,0 +1,114 @@
+"""Read immutable Git objects with stdlib only; no product imports or runtime."""
+import ast
+import hashlib
+import json
+import platform
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+REPO = "/workspace/polisyos"
+BASE = "90d2e869ae1e78b06932f8b2349848d41588def8"
+TARGET = "4b368e466b7b4dd6edcc25e6e847d5bd61e2f0dd"
+DUR = "c85e5c5a87fe148cb8b69694a214e3bdd6967de2"
+HANDOFF = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/"
+PACKAGE = "policy-engine/src/polisyos/scientist/policy_design/"
+ENGINE = "policy-engine/src/polisyos/scientist/orchestration/engine/"
+LLM = "policy-engine/src/polisyos/scientist/orchestration/llm/"
+
+def git(*args):
+    return subprocess.check_output(["git", "-C", REPO, *args])
+
+def read(sha, path):
+    data = git("show", f"{sha}:{path}")
+    return data, {
+        "source_sha": sha, "path": path, "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "git_blob": git("rev-parse", f"{sha}:{path}").decode().strip(),
+    }
+
+changed = git("diff", "--name-only", BASE, TARGET).decode().splitlines()
+assert len(changed) == 7
+dependencies = [
+    ENGINE + "budget.py", ENGINE + "budget_middleware.py", ENGINE + "budget_ledger.py",
+    LLM + "budget_enforcer.py", LLM + "factory.py",
+    "policy-engine/src/polisyos/core/llm/traced_client.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
+    PACKAGE + "search.py",
+]
+inputs = []
+trees = {}
+for path in changed + dependencies:
+    data, item = read(TARGET, path)
+    if path not in changed:
+        item["unchanged_from_source_base"] = data == read(BASE, path)[0]
+        assert item["unchanged_from_source_base"]
+    if path.endswith(".py"):
+        trees[path] = ast.parse(data, filename=f"{TARGET}:{path}")
+        item["stdlib_ast_parsed"] = True
+    inputs.append(item)
+
+admission = []
+propagation = []
+for name in ("adversary.py", "translator.py"):
+    for node in ast.walk(trees[PACKAGE + name]):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            if node.func.id == "worker_budget_state":
+                admission.append({"path": PACKAGE + name, "line": node.lineno})
+        if isinstance(node, ast.ExceptHandler) and isinstance(node.type, ast.Name):
+            if node.type.id == "LLMAccountingError":
+                assert len(node.body) == 1
+                assert isinstance(node.body[0], ast.Raise) and node.body[0].exc is None
+                propagation.append({"path": PACKAGE + name, "line": node.lineno})
+assert len(admission) == 7 and len(propagation) == 2
+
+def class_ast(sha, path, name):
+    tree = ast.parse(read(sha, path)[0])
+    return ast.dump(next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == name))
+
+assert class_ast(BASE, PACKAGE + "translator.py", "TranslatorInputBundle") == class_ast(
+    TARGET, PACKAGE + "translator.py", "TranslatorInputBundle"
+)
+
+data, packet = read(DUR, HANDOFF + "current-worker-accounting-repair-independent.json")
+receipt = json.loads(data)
+assert receipt["executed_product_source_sha"] == TARGET
+assert receipt["actual_test_input_sha"] == "5902db2744b518cdde223901904c1bbf928481f3"
+index_data, index_identity = read(DUR, receipt["complete_evidence_index"]["path"])
+assert hashlib.sha256(index_data).hexdigest() == receipt["complete_evidence_index"]["sha256"]
+index = json.loads(index_data)
+external = []
+for check in receipt["checks"]:
+    junit, junit_identity = read(DUR, check["junit"]["path"])
+    assert hashlib.sha256(junit).hexdigest() == check["junit"]["sha256"]
+    root = ET.fromstring(junit)
+    cases = list(root.iter("testcase"))
+    counts = {"cases": len(cases), "failures": sum(c.find("failure") is not None for c in cases),
+              "errors": sum(c.find("error") is not None for c in cases),
+              "skips": sum(c.find("skipped") is not None for c in cases)}
+    assert counts["cases"] == check["native_case_count"]
+    stdout, stdout_identity = read(DUR, check["output"])
+    assert hashlib.sha256(stdout).hexdigest() == check["output_sha256"]
+    assert len(stdout) == check["output_bytes"]
+    external.append({"id": check["id"], "declared_outcome": check["outcome"],
+                     "recomputed_junit": counts, "stdout": stdout_identity, "junit": junit_identity,
+                     "role": "Read published foreign bytes only; no reviewer runtime execution"})
+
+independent_test = receipt["checks"][0]["input_closure"]["test_path"]
+assert independent_test not in git("ls-tree", "-r", "--name-only", TARGET).decode().splitlines()
+test_data, test_identity = read(receipt["actual_test_input_sha"], independent_test)
+assert hashlib.sha256(test_data).hexdigest() == receipt["checks"][0]["input_closure"]["test_sha256"]
+print(json.dumps({
+    "mode": "Git+stdlibAST/XML data inspection only; no project imports or runtime",
+    "environment": {"python": sys.executable, "version": sys.version, "platform": platform.platform(),
+                    "git": git("--version").decode().strip()},
+    "source_base": BASE, "source_target": TARGET,
+    "source_tree": git("rev-parse", TARGET + "^{tree}").decode().strip(),
+    "complete_changed_paths": changed, "all_source_inputs": inputs,
+    "admission_calls": admission, "bare_accounting_error_handlers": propagation,
+    "translator_input_wire_class_ast_equal": True,
+    "external_packet": packet, "external_index": index_identity,
+    "external_data_checks": external, "independent_test": test_identity,
+    "test_projection_qualification": "Release lists an independent test absent in author4b; exact5902 Git bytes are a separate admitted input projection.",
+    "reviewer_native_collection_gates": "UNRUN",
+}, indent=2))

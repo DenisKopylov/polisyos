@@ -1,0 +1,145 @@
+{
+  "schema": "policyos.e02.independent_stub_source_audit.v1",
+  "source_sha": "b7d966af6551fc0ff63d3a830c70fe300c320967",
+  "source_tree": "f13c9eaa85b45bf00032bf321f2ee33b3a2f8e06",
+  "evidence_sha": "9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+  "evidence_tree": "7dd1afbed7cefc0288963d261e1860a135f87636",
+  "index_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/index.json",
+  "index_sha256": "b0c7a9cdc779b1c9ffd81b33402d638e9772169335721cc87f98723318586f55",
+  "indexed_objects": 36,
+  "total_evidence_objects_including_index": 37,
+  "indexed_bytes": 446849,
+  "index_bytes": 9557,
+  "indexed_hash_mismatches": 0,
+  "runtime_test_py_denominator": 5468,
+  "runtime_test_py_delta": [],
+  "owned_source_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-foundry-stub-freshness.toml",
+    "policy-engine/src/polisyos/foundry/methods/composer.pyi",
+    "policy-engine/src/polisyos/foundry/methods/registry.pyi",
+    "policy-engine/tools/devx/foundry/README.md",
+    "policy-engine/tools/devx/foundry/generate_stubs.py"
+  ],
+  "four_output_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/base.pyi",
+      "bytes": 10329,
+      "sha256": "44ed7feb6deee222ce6ac8980cceb92c3b4cb264ccb5f6f9ee9d9ce6ed9d9cb3",
+      "byte_equal_base": true,
+      "ast_equal_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/registry.pyi",
+      "bytes": 117,
+      "sha256": "f8edc807f8cc38140afe51f899925dd86576d506cd1f80362cfb8b594dbf34bd",
+      "byte_equal_base": false,
+      "ast_equal_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/composer.pyi",
+      "bytes": 118,
+      "sha256": "f3a8a6c3055389a21652307f66be1b1d8c6db72fad25d599cac2f4aca801ef83",
+      "byte_equal_base": false,
+      "ast_equal_base": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/components/composer.pyi",
+      "bytes": 5970,
+      "sha256": "1657ceac5b499914d5f7c2b8ff0f17ad366abe19b9aac0ad474d9975433fc241",
+      "byte_equal_base": true,
+      "ast_equal_base": true
+    }
+  ],
+  "actual_author_stages_independently_reconciled": [
+    {
+      "stage": "final-check",
+      "actual_exit": 0,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "foundry",
+        "generate-stubs",
+        "--check"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "wall_seconds": 3.925750601993059,
+      "stdout": {
+        "source_sha": "9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-check.txt",
+        "bytes": 767,
+        "sha256": "b0c6acdff490393fe1e1e042d4892f4daca329c0b1a0ec1708e420d68291b23a"
+      }
+    },
+    {
+      "stage": "corrected-stale-copy",
+      "actual_exit": 1,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/dev/shm/e02-B-cmp-stub-freshness/stale_copy.py"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "wall_seconds": 2.165810301012243,
+      "stdout": {
+        "source_sha": "9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/corrected-stale-copy.txt",
+        "bytes": 3268,
+        "sha256": "702e50ded7b809c274d9bcedbd8afdde9f8a60c1ee6b66c9a7a2fd21fade247b"
+      }
+    },
+    {
+      "stage": "final-ruff",
+      "actual_exit": 0,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tools/devx/foundry/generate_stubs.py",
+        "src/polisyos/foundry/methods/base.pyi",
+        "src/polisyos/foundry/methods/registry.pyi",
+        "src/polisyos/foundry/methods/composer.pyi",
+        "src/polisyos/foundry/methods/components/composer.pyi"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "wall_seconds": 0.20679304099758156,
+      "stdout": {
+        "source_sha": "9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-ruff.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      }
+    },
+    {
+      "stage": "final-format",
+      "actual_exit": 0,
+      "argv": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "tools/devx/foundry/generate_stubs.py",
+        "src/polisyos/foundry/methods/base.pyi",
+        "src/polisyos/foundry/methods/registry.pyi",
+        "src/polisyos/foundry/methods/composer.pyi",
+        "src/polisyos/foundry/methods/components/composer.pyi"
+      ],
+      "cwd": "/workspace/e02-B-current-composition/policy-engine",
+      "wall_seconds": 0.22450403800758068,
+      "stdout": {
+        "source_sha": "9fba2e79095bb0eca4b50603df34cbac2b1fab9a",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-stub-freshness-evidence/final-format.txt",
+        "bytes": 26,
+        "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1"
+      }
+    }
+  ],
+  "stale_control": {
+    "actual_generator_identity_reconciled": true,
+    "all_four_original_bytes_unchanged": true,
+    "copied_input_before_after_equal": true,
+    "full_bytes_drift_refused": true
+  },
+  "reviewer_execution": "Git/JSON/AST/hash metadata only; no product imports/generator/native/gates."
+}

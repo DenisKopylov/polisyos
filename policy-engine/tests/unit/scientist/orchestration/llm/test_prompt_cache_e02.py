@@ -307,6 +307,31 @@ async def test_four_actual_budget_consumers_share_one_settled_producer_after_ini
 
 
 @pytest.mark.asyncio
+async def test_actual_cache_publication_requires_resolvable_exact_durable_receipt(
+    tmp_path, monkeypatch
+):
+    gateway, cache, enforcer, middleware, _ = _durable_stack(tmp_path)
+    gateway.release.set()
+    actual_put = cache._cache.put
+    publications = []
+
+    def witnessed_put(key, response, *, ttl_s=None):
+        settlement = producer_settlement(response)
+        assert settlement is not None, "cache publication precedes producer event settlement"
+        assert settlement.ack.status == "committed" and settlement.ack.durability == "ledger"
+        for receipt in settlement.ack.receipts:
+            assert middleware.resolve_spend_safe(receipt.event_id) == receipt
+            assert receipt.amount == settlement.event.amount
+        assert middleware.budget_state.spent["run"] == Decimal("0.02")
+        publications.append(settlement)
+        return actual_put(key, response, ttl_s=ttl_s)
+
+    monkeypatch.setattr(cache._cache, "put", witnessed_put)
+    await enforcer.generate(user="publish bound", temperature=0.0, _prompt_tokens_estimate=1)
+    assert len(publications) == 1 and gateway.calls == 1
+
+
+@pytest.mark.asyncio
 async def test_different_actual_budget_owners_cannot_join_first_owners_flight(tmp_path):
     gateway = _Gateway()
     cache, traced = _stack(gateway, [])
@@ -548,3 +573,35 @@ async def test_unknown_mandatory_callback_blocks_new_provider_until_exact_reconc
     assert gateway.calls == 1
     await client.generate(user="next independent provider", temperature=0.0)
     assert gateway.calls == 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("keys", [["run", "run"], [], "run", ["run", ""], ["run", 1]])
+async def test_invalid_accounting_target_index_refuses_before_actual_provider_or_reservation(
+    tmp_path, keys
+):
+    gateway, cache, _, middleware, _ = _durable_stack(tmp_path)
+    gateway.release.set()
+    before = middleware.budget_state.model_dump()
+    invalid = None
+    try:
+        owner = LLMBudgetEnforcer(
+            client=TracedLLMClient(
+                cache,
+                model_name="e02",
+                tracer=_Tracer(),
+                metrics=SimpleNamespace(record_llm_call=lambda **kw: None),
+            ),
+            budget_state=middleware.budget_state,
+            budget_keys=keys,
+            budget_middleware=middleware,
+            model_name="e02",
+        )
+        await owner.generate(
+            user="invalid target index", temperature=0.0, _prompt_tokens_estimate=1
+        )
+    except ValueError as error:
+        invalid = error
+    assert gateway.calls == 0
+    assert middleware.budget_state.model_dump() == before
+    assert invalid is not None

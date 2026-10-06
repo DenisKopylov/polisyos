@@ -87,6 +87,14 @@ class LLMBudgetEnforcer:
         operational_monitor: ScientistOperationalMonitor | None = None,
         budget_middleware: BudgetMiddleware | None = None,
     ) -> None:
+        if (
+            not isinstance(budget_keys, list)
+            or not budget_keys
+            or any(not isinstance(key, str) or not key for key in budget_keys)
+        ):
+            raise ValueError("LLM accounting requires nonempty budget target keys")
+        if len(set(budget_keys)) != len(budget_keys):
+            raise ValueError("LLM accounting budget target keys must be unique")
         self._client = client
         self._budget_middleware = budget_middleware
         self._budget_state = (
@@ -94,7 +102,7 @@ class LLMBudgetEnforcer:
         )
         self._owned_calls: set[asyncio.Task[Any]] = set()
         self._unknown_settlements: dict[str, tuple[LLMProducerEvent, _BudgetReservation]] = {}
-        self._budget_keys = budget_keys
+        self._budget_keys = tuple(budget_keys)
         self._model_name = model_name
         self._audit_log = audit_log
         self._run_id = run_id

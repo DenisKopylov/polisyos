@@ -6,6 +6,7 @@ import time
 from datetime import UTC, datetime
 
 import duckdb
+import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -398,3 +399,112 @@ def test_resolve_parameters_node_skips_on_missing_inputs(tmp_path) -> None:
     assert outcome.status == "skip"
     assert outcome.events
     assert outcome.events[0].level == "warn"
+
+
+def _native_bundle_request(tmp_path, *, run_id):
+    ctx = _build_ctx(tmp_path, run_id=run_id)
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg(db_path)
+    graph = CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[])
+    graph_ref = persist_causal_graph_model(ctx.store, graph)
+    state = ExperimentState(
+        run_id=run_id,
+        artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+        params={
+            "target_context": {"context_id": "UA", "income_level": "lower_middle"},
+            "required_parameters": ["fiscal_multiplier"],
+            "skg_db_path": str(db_path),
+            "skg_index_dir": str(tmp_path / "idx"),
+            "domain": "fiscal",
+        },
+    )
+    node = ResolveParametersNode()
+    first = node.execute(ctx, state)
+    assert first.status == "ok"
+    return ctx, node, first, graph, graph_ref, db_path
+
+
+@pytest.mark.parametrize("change", ["graph", "required_parameters"])
+def test_native_bundle_reuse_checks_graph_and_required_parameters(tmp_path, monkeypatch, change):
+    from polisyos.scientist.nodes.builtins.causal import resolve_parameters
+
+    ctx, node, first, _, graph_ref, db_path = _native_bundle_request(
+        tmp_path, run_id=f"R_b60_{change}"
+    )
+    old_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    old_cas_ref = ArtifactRef.model_validate(old_ref.model_dump(mode="json"))
+    reopened = FileSystemCAS(ctx.store.root)
+    assert reopened.verify(old_cas_ref).ok
+    old_bytes = reopened.get_bytes(old_cas_ref)
+    selected = []
+    select = resolve_parameters.ParameterSelector.select_for_context
+
+    def observe_select(self, **kwargs):
+        selected.append(kwargs["parameter_name"])
+        return select(self, **kwargs)
+
+    monkeypatch.setattr(resolve_parameters.ParameterSelector, "select_for_context", observe_select)
+    same = first.state.model_copy(deep=True)
+    same.params.pop("skg_db_path")
+    same.params.pop("skg_index_dir")
+    assert node.validate_cache_hit(ctx, same, first)
+    reused = node.execute(ctx, same)
+    assert reused.status == "ok" and selected == []
+    assert reused.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] == old_ref
+
+    changed = same.model_copy(deep=True)
+    if change == "graph":
+        graph_ref = persist_causal_graph_model(
+            ctx.store,
+            CausalGraphModel(
+                graph_type=GraphType.DAG, nodes=["fiscal_multiplier", "changed_node"], edges=[]
+            ),
+        )
+        changed.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = graph_ref
+    else:
+        changed.params["required_parameters"] = ["fiscal_multiplier", "missing_parameter"]
+    assert not node.validate_cache_hit(ctx, changed, first)
+    assert node.execute(ctx, changed).status == "skip"
+    assert selected == []
+    # The v1 producer intentionally writes a fresh second-resolution selection time.
+    time.sleep(1.05)
+    changed.params["skg_db_path"] = str(db_path)
+    changed.params["skg_index_dir"] = str(tmp_path / "idx")
+    refreshed = node.execute(ctx, changed)
+    assert refreshed.status == "ok"
+    assert selected == changed.params["required_parameters"]
+    new_ref = refreshed.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    assert new_ref.artifact_id != old_ref.artifact_id
+    new_cas_ref = ArtifactRef.model_validate(new_ref.model_dump(mode="json"))
+    assert reopened.verify(new_cas_ref).ok
+    new_bundle = load_context_adaptive_parameter_bundle(reopened, new_ref)
+    assert set(changed.params["required_parameters"]) <= (
+        set(new_bundle.parameters) | set(new_bundle.unsupported_parameters)
+    )
+    assert [
+        (edge.role, str(edge.artifact_id)) for edge in reopened.get_manifest(new_cas_ref).inputs
+    ] == [("causal_graph", str(graph_ref.artifact_id))]
+    assert node.validate_cache_hit(ctx, changed, refreshed)
+    assert reopened.get_bytes(old_cas_ref) == old_bytes and reopened.verify(old_cas_ref).ok
+
+
+def test_native_unavailable_bundle_ref_does_not_authorize_ok(tmp_path):
+    ctx, node, first, graph, _, _ = _native_bundle_request(tmp_path, run_id="R_b60_unavailable")
+    old_ref = first.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    old_cas_ref = ArtifactRef.model_validate(old_ref.model_dump(mode="json"))
+    assert ctx.store.verify(old_cas_ref).ok
+    consumer = _build_ctx(tmp_path / "fresh_consumer", run_id=first.state.run_id)
+    graph_ref = persist_causal_graph_model(consumer.store, graph)
+    request = first.state.model_copy(deep=True)
+    request.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = graph_ref
+    request.params.pop("skg_db_path")
+    request.params.pop("skg_index_dir")
+    before = request.model_dump(mode="json")
+    with pytest.raises(FileNotFoundError):
+        consumer.store.get_bytes(old_cas_ref)
+    assert not node.validate_cache_hit(consumer, request, first)
+    refused = node.execute(consumer, request)
+    assert refused.status == "skip" and refused.state.model_dump(mode="json") == before
+    with pytest.raises(FileNotFoundError):
+        consumer.store.get_bytes(old_cas_ref)
+    assert ctx.store.verify(old_cas_ref).ok

@@ -978,6 +978,7 @@ def _recursive_parent_request(
     child_refs: tuple[str, str],
     problem: object,
     world_model_record: object,
+    single_step_horizon: bool = False,
 ) -> object:
     request = _request(
         record=world_model_record,
@@ -1014,9 +1015,13 @@ def _recursive_parent_request(
         evidence_state="observed",
         rule_version_ref="repo://rules/cyc-02-recursive-cas",
     )
-    return request.model_copy(
-        update={"intervention_atoms": tuple(rebound_atoms), "coupling_graph": graph}
-    )
+    update: dict[str, Any] = {
+        "intervention_atoms": tuple(rebound_atoms),
+        "coupling_graph": graph,
+    }
+    if single_step_horizon:
+        update["horizon"] = request.horizon.model_copy(update={"end": request.horizon.start})
+    return request.model_copy(update=update)
 
 
 def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> None:
@@ -1044,7 +1049,8 @@ def test_n5_transient_store_failure_is_unavailable_not_integrity_invalid(
     """A transient backend failure does not become a false corruption verdict."""
 
     _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(
-        tmp_path
+        tmp_path,
+        single_step_horizon=True,
     )
     assert simulation.simulation_result_ref is not None
 
@@ -1084,7 +1090,8 @@ def test_n5_guarded_runtime_store_errors_are_typed_unavailable(
     """Production CAS guard errors become N5 unavailability, not corruption."""
 
     problem, context, candidate, simulation, _produced, store = _real_n5_observation(
-        tmp_path
+        tmp_path,
+        single_step_horizon=True,
     )
     assert simulation.simulation_result_ref is not None
 
@@ -1144,7 +1151,8 @@ def test_n5_replay_does_not_mask_store_programming_errors(tmp_path: Path) -> Non
     """Unexpected store faults surface instead of being mislabeled as corruption."""
 
     _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(
-        tmp_path
+        tmp_path,
+        single_step_horizon=True,
     )
     assert simulation.simulation_result_ref is not None
 
@@ -1168,7 +1176,10 @@ def test_n5_replay_does_not_mask_store_programming_errors(tmp_path: Path) -> Non
 def test_conditional_n8_status_is_not_authority_ready(tmp_path: Path) -> None:
     """The simulation-only value state is explicit and cannot carry N8 receipts."""
 
-    problem, context, candidate, simulation, produced, store = _real_n5_observation(tmp_path)
+    problem, context, candidate, simulation, produced, store = _real_n5_observation(
+        tmp_path,
+        single_step_horizon=True,
+    )
     observation = _DefaultSimulationBoundFoundryValuePort(
         repo_root=tmp_path,
         cycle_substrate_context=context,
@@ -1329,8 +1340,10 @@ def test_n5_result_has_reopenable_cas_reference(tmp_path: Path) -> None:
     """The selected N5 view remains distinct from another honest view of its bytes."""
 
     store = _GenericDefaultN5Store(tmp_path / "n5-multiview-store")
-    _problem, _context, _candidate, simulation, produced, supplied_store = (
-        _real_n5_observation(tmp_path, artifact_store=store)
+    _problem, _context, _candidate, simulation, produced, supplied_store = _real_n5_observation(
+        tmp_path,
+        artifact_store=store,
+        single_step_horizon=True,
     )
     assert supplied_store is store
     result_ref = simulation.simulation_result_ref
@@ -1451,6 +1464,7 @@ async def test_recursive_parent_keeps_n5_cas_reference(tmp_path: Path) -> None:
         child_refs=child_refs,
         problem=parent_problem,
         world_model_record=context.world_model_record,
+        single_step_horizon=True,
     )
     store = FileSystemCAS(tmp_path / "recursive-parent-store")
     controller = _recursive_contract_testing_controller(
@@ -1602,7 +1616,11 @@ def test_n5_replay_uses_supplied_guarded_tenant_store(tmp_path: Path) -> None:
     try:
         with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
             problem, context, candidate, simulation, _produced, supplied_store = (
-                _real_n5_observation(tmp_path, artifact_store=store)
+                _real_n5_observation(
+                    tmp_path,
+                    artifact_store=store,
+                    single_step_horizon=True,
+                )
             )
             assert supplied_store is store
             observation = _DefaultSimulationBoundFoundryValuePort(

@@ -17,7 +17,10 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
+from tools.lib.imports import RepositoryRootUnavailableError
+
 pytestmark = pytest.mark.unit
+PRODUCT_ROOT = Path(__file__).parents[3]
 
 
 def _legacy_manifest(**extra: Any) -> dict[str, Any]:
@@ -432,3 +435,61 @@ def test_operational_binding_points_to_fabric_converter() -> None:
         "dataset_name": "baseline",
         "raw_hash": "sha256:abc",
     }
+
+
+def test_installed_migration_contract_loader_uses_checkout_without_import_bootstrap(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The installed DuckDB runner resolves its live binding from the workspace contract."""
+    import importlib
+
+    contract_module = importlib.import_module("tools.ops_runners.migrations.contracts")
+    installed_module = (
+        tmp_path / "site-packages" / "tools" / "ops_runners" / "migrations" / "contracts.py"
+    )
+    monkeypatch.setattr(contract_module, "__file__", installed_module)
+    monkeypatch.chdir(PRODUCT_ROOT)
+    monkeypatch.setattr(sys, "path", ["sentinel"])
+
+    binding = contract_module.validate_helper_binding("duckdb_to_postgresql")
+
+    assert binding.cli == "polisyos-tools migrations migrate-duckdb-to-pg"
+    assert binding.implementation == "tools.ops_runners.migrations.migrate_duckdb_to_pg"
+    assert binding.contract_path == "ops/migrations/db"
+    assert sys.path == ["sentinel"]
+
+
+def test_source_migration_contract_lookup_remains_anchored_outside_checkout_cwd(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Source contract lookup remains anchored to its module when CWD is elsewhere."""
+    import importlib
+
+    contract_module = importlib.import_module("tools.ops_runners.migrations.contracts")
+    source_module = PRODUCT_ROOT / "tools" / "ops_runners" / "migrations" / "contracts.py"
+    monkeypatch.setattr(contract_module, "__file__", source_module)
+    monkeypatch.chdir(tmp_path)
+
+    binding = contract_module.validate_helper_binding("duckdb_to_postgresql")
+
+    assert binding.contract_path == "ops/migrations/db"
+
+
+def test_installed_migration_contract_lookup_fails_typed_outside_workspace(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Installed lookup does not invent a root when CWD and module path are unanchored."""
+    import importlib
+
+    contract_module = importlib.import_module("tools.ops_runners.migrations.contracts")
+    installed_module = (
+        tmp_path / "site-packages" / "tools" / "ops_runners" / "migrations" / "contracts.py"
+    )
+    monkeypatch.setattr(contract_module, "__file__", installed_module)
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(RepositoryRootUnavailableError):
+        contract_module.validate_helper_binding("duckdb_to_postgresql")

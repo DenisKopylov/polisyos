@@ -14,6 +14,13 @@ from tools.lib.imports import repo_root_from
 CONTRACT_PATH = Path("ops/migrations/migration-contracts.toml")
 
 
+def _resolve_contract_root(repo_root: Path | None = None) -> Path:
+    """Resolve an explicit workspace or an existing checkout for an installed runner."""
+    if repo_root is not None:
+        return repo_root
+    return repo_root_from(__file__, allow_cwd_fallback=True)
+
+
 @dataclass(frozen=True)
 class HelperBinding:
     """Binding between an operator helper artifact and an ops migration class."""
@@ -28,7 +35,7 @@ class HelperBinding:
 
 def load_contract(repo_root: Path | None = None) -> dict[str, Any]:
     """Load the operational migration contract."""
-    root = repo_root or repo_root_from(__file__)
+    root = _resolve_contract_root(repo_root)
     path = root / CONTRACT_PATH
     if not path.exists():
         raise FileNotFoundError(f"missing migration contract: {path}")
@@ -53,7 +60,7 @@ def helper_binding_for(artifact: str, repo_root: Path | None = None) -> HelperBi
 
 def validate_helper_binding(artifact: str, repo_root: Path | None = None) -> HelperBinding:
     """Fail closed if a helper artifact is not backed by a live ops contract."""
-    root = repo_root or repo_root_from(__file__)
+    root = _resolve_contract_root(repo_root)
     contract = load_contract(root)
     classes = {item["id"]: item for item in contract.get("migration_class", [])}
     binding = helper_binding_for(artifact, root)

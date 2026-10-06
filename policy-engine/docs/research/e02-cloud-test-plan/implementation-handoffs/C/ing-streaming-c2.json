@@ -524,7 +524,7 @@
       "bytes": 5907
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/returned-ref-before-fix-red.log",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/returned-ref-before-fix-red.stdout",
       "sha256": "5ff87ce7542b9ed0445a496cb177daa450ca2ef8f2d158b6ade2bd7b250c41b7",
       "bytes": 8282
     },
@@ -554,7 +554,7 @@
       "sha256": "7341c9c67df9312e5924a57bfa6420cfb72c01c32c6c91a711e4c1cfb1c00ec0"
     },
     {
-      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/candidate68-removal-controls-final.log",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/ing-c2/candidate68-removal-controls-final.stdout",
       "bytes": 80,
       "sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830"
     }
@@ -750,7 +750,7 @@
     },
     {
       "command_receipt": "receipts/ing-c2/candidate68-removal-controls-receipt.txt",
-      "stdout": "receipts/ing-c2/candidate68-removal-controls-final.log",
+      "stdout": "receipts/ing-c2/candidate68-removal-controls-final.stdout",
       "outcome": "4 PASS: normal B79/B86 positives and actual marker-kept removal controls; product source68 unchanged; test-only finalcandidate81a; no broad145 rerun."
     }
   ],
@@ -861,5 +861,6 @@
       "sha": "81a4af184d72cd28e7ab4063140432e2af764547",
       "tree": "c3423c94f28409ec663ec3b161ca85eecfe6207c"
     }
-  ]
+  ],
+  "receipt_preservation": "Complete deciding stdout/stderr bytes are committed with .stdout/.stderr names. Two initial .log copies were ignored by repository rules; latest handoff corrects their refs to committed byte-identical .stdout files. Raw stdout intentionally contains pytest trailing whitespace; it is not normalized. Source/JSON/probe whitespace gates are separate from literal-output preservation."
 }

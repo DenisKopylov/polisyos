@@ -23,9 +23,10 @@
   "implementation_commits": [
     "dd6fde7d0d1635ca659c0c57e5db77c40559d0e2",
     "a6183e54008fd5b36302937ae3b803ef3d8c2be0",
-    "c2200989612bcdc21b26c96eafb22526a54059ed"
+    "c2200989612bcdc21b26c96eafb22526a54059ed",
+    "9ebfae92c60a406ac15855075e5d330e71153dae"
   ],
-  "candidate_tree_sha": "7a2729b235c3ae5050c44ea335db507beb830b11",
+  "candidate_tree_sha": "a7d661519857e8ab95aca4cb3ddd1d2f458c6e2a",
   "branch": "codex/e02-A-simulation-full",
   "pull_request": null,
   "changed_paths": [
@@ -349,6 +350,99 @@
       "output": "1 passed in 14.05 s; shell wall 18.14 s. The real FileSystemCAS-backed ProgramGraph test preserves store/registry handles, snapshots semantic state, and executes again with a changed result when state content changes under unchanged CAS refs. Full output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/simulation-full/checks/programgraph-at-c220/{stdout.log,stderr.log,junit.xml,environment.txt}."
     }
   ],
+  "root_validation_evidence": {
+    "evidence_role": "Root integration readback of the SIM source candidate; not an independent source review and not a finding-closure receipt.",
+    "sim_source_candidate": {
+      "commit": "9ebfae92c60a406ac15855075e5d330e71153dae",
+      "tree": "a7d661519857e8ab95aca4cb3ddd1d2f458c6e2a",
+      "root_wave_commit": "6f9e7b3d117be86e244810b57740fe8faaa12c29",
+      "root_wave_tree": "363398daf62c5bcf8bcfbeacf96c05fa0d798e9a",
+      "sim_path_identity": "All six SIM implementation/test path blobs at the 9eb candidate match the 6f9e Root wave inputs.",
+      "joint_simulation_horizon_blob": "1b68f33f3de77b551ea4667996ca329ae395514a",
+      "candidate_input_receipt": "Root _build/e02-A-full-queue/sim-intake-wave-6f9e/environment-and-inputs.json; 10/10 recorded input blobs verified against 6f9e."
+    },
+    "root_sim_intake_wave_6f9e": {
+      "command_scope": [
+        "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "tests/unit/remediation/test_sim_01.py",
+        "tests/unit/remediation/test_sim_02.py",
+        "tests/unit/remediation/test_sim_03.py",
+        "tests/unit/remediation/test_cyc_02.py"
+      ],
+      "sim_module_counts": [
+        {"module": "test_joint_simulation_e02_semantics.py", "tests": 25, "passed": 25, "failed": 0},
+        {"module": "test_joint_simulation_horizon.py", "tests": 29, "passed": 29, "failed": 0},
+        {"module": "test_sim_01.py", "tests": 5, "passed": 5, "failed": 0},
+        {"module": "test_sim_02.py", "tests": 10, "passed": 10, "failed": 0},
+        {"module": "test_sim_03.py", "tests": 22, "passed": 22, "failed": 0}
+      ],
+      "sim_result": {"tests": 91, "passed": 91, "failed": 0, "errors": 0, "skipped": 0},
+      "separate_cyc_02_result_in_same_command": {
+        "tests": 15,
+        "passed": 7,
+        "failed": 8,
+        "failed_nodes": [
+          "test_n5_transient_store_failure_is_unavailable_not_integrity_invalid",
+          "test_n5_guarded_runtime_store_errors_are_typed_unavailable[unavailable-RuntimeDependencyUnavailableError]",
+          "test_n5_guarded_runtime_store_errors_are_typed_unavailable[timeout-RuntimeDependencyTimeoutError]",
+          "test_n5_replay_does_not_mask_store_programming_errors",
+          "test_conditional_n8_status_is_not_authority_ready",
+          "test_n5_result_has_reopenable_cas_reference",
+          "test_recursive_parent_keeps_n5_cas_reference",
+          "test_n5_replay_uses_supplied_guarded_tenant_store"
+        ]
+      },
+      "combined_command_result": {
+        "tests": 106,
+        "passed": 98,
+        "failed": 8,
+        "errors": 0,
+        "skipped": 0,
+        "exit_code": 1,
+        "interpretation": "The five SIM modules pass 91/91. The combined 106-case command remains FAIL because its CYC-02 module is 7/15; do not claim all 106 passed."
+      },
+      "key_semantic_cases": {
+        "static_ncm_multistep_refusal": "PASS: test_joint_simulation_horizon::test_static_ncm_multistep_request_is_typed_no_run_before_runner and test_sim_03::test_static_ncm_multi_step_horizon_is_rejected_before_execution",
+        "static_ncm_single_step_eligibility": "PASS: test_sim_03::test_static_ncm_single_step_horizon_remains_additive",
+        "actual_registered_singleton": "PASS: test_joint_simulation_horizon::test_registered_ncm_single_atom_checks_only_first_order exercises the actual ncm_engine@1.0.0 without producer monkeypatch; only order 1 is reported.",
+        "b25": "The three required B25 SMM source bodies remain byte-identical to slice base with the existing exact hashes in simulation-full/caller-census.txt; all three corresponding cases pass in this wave. B25 remains the original bounded closure."
+      },
+      "receipt_paths": {
+        "root_copied_summary": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/higher-order-n8/adjacent-cyc02-full-regression-6f9e/",
+        "stdout": "policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/stdout.txt@sha256:961ccf5693fb7eeb13953f612b82414c7ce1a8d66c6312817deb2f0ac4a95a08",
+        "stderr": "policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "junit": "policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/junit.xml@sha256:a0e890961fa30de5a0f0167340b62bc5a4b867f20e817b6f36cf7eefdc3022b6",
+        "environment_and_inputs": "policy-engine/_build/e02-A-full-queue/sim-intake-wave-6f9e/environment-and-inputs.json@sha256:49cf94a6f0fe044eaf2df8fabb776812d2d53a02009edf201019b7b0dd25ae83"
+      }
+    },
+    "distinct_root_cyc02_followup_6993641": {
+      "candidate_commit": "6993641ac6f879b676a48378b52c8743bd138a95",
+      "candidate_tree": "a8e37dff9320c28288a5d9ba3a217216696065dd",
+      "receipt": "Root A/n9-gate.json current-wave-6993; commit and input identity recorded separately from SIM.",
+      "cyc_02_unit_result": {"tests": 15, "passed": 15, "failed": 0},
+      "additional_n9_integration_result": {"tests": 1, "passed": 1, "failed": 0},
+      "command_result": {"tests": 16, "passed": 16, "failed": 0, "errors": 0, "skipped": 0, "exit_code": 0},
+      "test_input_blobs": {
+        "tests/unit/remediation/test_cyc_02.py": "3a265b00e1e099f074e83965c3a4600e0e11dda2",
+        "tests/integration/core_runtime/test_e02_n9_refusal.py": "248b1c2c115fbf0cb3a15c7d883acc40067e7684"
+      },
+      "output_hashes": {
+        "stdout.txt": "d0313c2a55413d2843ccb2301be8987284a9bee0542b3dd7ca2b54831698a386",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "junit.xml": "0a7683735b6c0e4d3faa0f31ef404c1efc41ab62fd4de4fb8dd60698b91915d6",
+        "environment_and_inputs.json": "5fc30a012bebde51cecc45de3ab81503a09065291e5fbf9dd08c4bd187ede3e2"
+      },
+      "interpretation": "This is a distinct Root CYC-02 follow-up on updated CYC-specific test inputs, not a SIM test rewrite. It does not revise the earlier 6f9e combined result: 91/91 SIM pass, 7/15 CYC-02 pass, aggregate 98/106 with exit 1. CYC-02 finding closure remains governed by its own evidence and limitations."
+    },
+    "preserved_finding_bounds": {
+      "B19": "bridge_missing: no EvidenceStateRef source/owner/population/time producer; empirical no-op/effect remains unavailable.",
+      "B21": "producer_missing: no E-owned estimand-aware sampling-design or uncertainty producer; the existing authoritative_for marker is not variance proof.",
+      "B22": "partial / not adjudicated: StockFlow dt-to-request-time binding remains not_established; the initial/terminal one-point falsifier remains. No dt unit or dt==step rule is introduced.",
+      "B25": "historically closed at the same bounded SMM test-body scope; exact existing source-body hashes remain in caller-census.txt. No optional metric, other estimator, or served API expansion.",
+      "independent_review": "Prior independent review at ROOT candidate 3bd reports source-bounded GO and temporal-semantic closure NO-GO. The later singleton order change is covered by the real registered producer case above; this integration receipt does not independently adjudicate source semantics."
+    }
+  },
   "property": {
     "statement": "The canonical N5 controller refuses incompatible simultaneous writes before any singleton call, selects engines against the actual requested ordered grid and coupling support, requires finite producer outputs, binds/cache-reuses only equal semantic runs within one invocation, and computes a higher-order joint residual when the complete individual/pairwise/joint basis exists. It persists the result fields in the typed content-bound N5 payload. This slice does not wire B26 evidence into N8 readiness.",
     "runtime_path": [

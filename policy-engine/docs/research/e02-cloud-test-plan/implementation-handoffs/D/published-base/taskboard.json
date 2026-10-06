@@ -191,5 +191,16 @@
   "maximum_available_slots": 7,
   "historical_ledger_status": "partial, preserved separately from check result and current finding verdict",
   "final_wave": "single broad union of all17 exact defining commands plus changed/affected native consumers after canonical test placement, source review, and immutable freeze",
-  "cleanup": "no native Trash capability; preserve remaining data and exact candidates; explicit deviations and framework retention noted separately"
+  "cleanup": "no native Trash capability; preserve remaining data and exact candidates; explicit deviations and framework retention noted separately",
+  "closeout_preparation": {
+    "source_before_freeze": "f425927362d97001020632f7f0bf1504a9b44214",
+    "source_delta": "All five owner candidates plus independent corrective evidence integrated; no further product writer active",
+    "independent_correctives": {
+      "frontier_fiscal": "425 unchanged40PASS; originalCLI27PASS",
+      "CAS_stage_champion": "c812 unchanged4PASS; malformedcorpus0GP/fit/MLL",
+      "raw_gateway": "c81290FAIL8PASS ->1ca98PASS unchanged98"
+    },
+    "current_quality": "106 changed Python files Ruffcheck+formatPASS atf425; fullsource backend/CI/architecture stillpending",
+    "remaining": "Aexport actual2FAIL; production/local profiles and typedpermit owner APIs unavailable. No closure adjudication."
+  }
 }

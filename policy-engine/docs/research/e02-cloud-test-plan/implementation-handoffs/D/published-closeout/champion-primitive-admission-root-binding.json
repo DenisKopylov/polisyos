@@ -1,0 +1,102 @@
+{
+  "receipt_commit": "ecd091eb41c834e3873445884ea8dd6d807fbf64",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission.json",
+  "receipt_sha256": "d9ca0eb07c4c6fb08ab56d270f789a63d07763b907ff32daa6ac7895aa0a5172",
+  "checked_git_bindings": [
+    {
+      "pointer": "/source_inputs/0",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "sha256": "e2c9384a24865c644d989fcb55f004dc7437f79ec3489ee9c4c6d5c6a3971adf",
+      "matching_git_sources": [
+        "c84725cfe54525356aabaab6124e6e5fb324be27",
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/source_inputs/1",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "sha256": "2da84438a8707bcdd8da5ec7af93076d6b1765e65f0b0468ff37f758393bb78c",
+      "matching_git_sources": [
+        "c84725cfe54525356aabaab6124e6e5fb324be27",
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/source_inputs/2",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py",
+      "sha256": "1838267e2bca47f37ca6bf76b90c1872dd4490567244fc40a110c255600ad3f4",
+      "matching_git_sources": [
+        "c84725cfe54525356aabaab6124e6e5fb324be27",
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/source_inputs/3",
+      "path": "policy-engine/README.md",
+      "sha256": "aaa4419e455a91751c4a8be61f9506bf321377e7c02ad946c1aecd824dd1e749",
+      "matching_git_sources": [
+        "b7ca8f399b518e87d3df2a703cc64dcec3fa18d2",
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/source_inputs/4",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-published-champion.toml",
+      "sha256": "5baeb684c8d6aa5d44793a7a18842afc82bff451291d51156c22dec5143740e1",
+      "matching_git_sources": [
+        "b7ca8f399b518e87d3df2a703cc64dcec3fa18d2",
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/0",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-focused-iteration.txt.gz",
+      "sha256": "b0bf47c05796f6bb413bd87ca9f10dddb6906a56fce9301fd3b1da9f99c1d124",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/1",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-consumers-c847.txt.gz",
+      "sha256": "b2422ae30cb82221d93415591f8fc2544631d21a723f3b173e9428e2acc3ec99",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-mypy-c847.txt.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/3",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-mypy-shell-result.txt.gz",
+      "sha256": "3e9a97ab75633dd852eaeb48b0f76e47809f4d5631c16e3fc07343542cc7e9fa",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-ruff-c847.txt.gz",
+      "sha256": "4601198d3392e6c1f0be47ee63c220062757dd5c656357c214c90d4fc9d0060d",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    },
+    {
+      "pointer": "/log_bindings/5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-primitive-admission/primitive-release-b7.txt.gz",
+      "sha256": "6782d0bac29266293bc1e0ae7a359e8f739295c3d95e86d06043afc105c49a33",
+      "matching_git_sources": [
+        "ecd091eb41c834e3873445884ea8dd6d807fbf64"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

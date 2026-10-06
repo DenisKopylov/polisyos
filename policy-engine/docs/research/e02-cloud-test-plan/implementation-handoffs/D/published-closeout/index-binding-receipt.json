@@ -1,0 +1,190 @@
+{
+  "source_sha": "8cd6a07954b29b5b15860db375fab66bab6605d3",
+  "scope": "Complete historical transferred input/index binding only; not behavioral closure",
+  "copied_complete_inputs": {
+    "results/README.md": {
+      "bytes": 11029,
+      "sha256": "2f91e5a04610ef877dce4ed9121a045aefac01540662a85c12c340a5ed32b8e7"
+    },
+    "results/ASSESSMENT.md": {
+      "bytes": 8604,
+      "sha256": "81d235335f4b5bb8ffd2055ff2d349baec2a80e9711db4722f1bcdbadb7488c2"
+    },
+    "results/validation.json": {
+      "bytes": 2167,
+      "sha256": "3b799f2bd08032363aa6d35aa3b18de90151537a755b8c6cf4b65c95603607ba"
+    },
+    "results/properties.tsv": {
+      "bytes": 10226,
+      "sha256": "c3406a53d35dce5f785adcfadd5c06b8c0bd4a4dd70da770b9cd62ae4d807c78"
+    },
+    "results/verification.json": {
+      "bytes": 13971,
+      "sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17"
+    },
+    "results/events.jsonl": {
+      "bytes": 258107,
+      "sha256": "71819c4589f3c838282cf3b5904af7f68b01825fb75711966190fa8770aa9e15"
+    },
+    "results/gates.json": {
+      "bytes": 7050,
+      "sha256": "0ccb720dfa525e3b7dee956ec0c177c2b19ffb926fed0b6edf18b92cafbfd5c9"
+    },
+    "results/import_results.py": {
+      "bytes": 16991,
+      "sha256": "701a73c316eb1d9b842004efbb8856960f9ccbe896816b365a13a415a7c50410"
+    },
+    "results/cells.tsv": {
+      "bytes": 451094,
+      "sha256": "afbf14fc428d89e20e409cd7f18db0a52bf17e2c0ecde1a2a5e33626c8b49152"
+    },
+    "results/routes.tsv": {
+      "bytes": 280085,
+      "sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2"
+    },
+    "results/sources.json": {
+      "bytes": 4860,
+      "sha256": "a08b728541bf0c424e985969760131e553873c3be91aa9b4d6e96a50e9556edb"
+    },
+    "results/query.py": {
+      "bytes": 6843,
+      "sha256": "fb8d1b841d24e9069f7618ab08bee23b5f20fb1027f32a4ce8ed3d7e662a1f83"
+    },
+    "results/received/F08.txt": {
+      "bytes": 95586,
+      "sha256": "d4ccc20c4f1c70e35c9e07c049552e5a8a2a1eca750c350f23f13040468d7f18"
+    },
+    "results/received/F13.txt": {
+      "bytes": 87536,
+      "sha256": "7c648c964431d3cdc600c5c29e0d3706f848afbb6b7220a1efd0efe0f9fe9c4b"
+    },
+    "results/received/F15.txt": {
+      "bytes": 85661,
+      "sha256": "efe346d9094f0906bb23b1061cb51b9252afd299f85062591e13449616879169"
+    },
+    "results/received/F10.txt": {
+      "bytes": 71852,
+      "sha256": "c45428c7e6574666b0a5ef98ba0427e3137c7008046fad65d4ed4dc55620fe36"
+    },
+    "results/received/F12.txt": {
+      "bytes": 110036,
+      "sha256": "03fc5b04209e927bdb5f668f09cb80751532a279060bb3d8a085225ff66fc9c2"
+    },
+    "results/received/F11.txt": {
+      "bytes": 62579,
+      "sha256": "5d24641c10ed0943503e5c14c2965a849d5389a4ba35ece518418fe12a03f471"
+    },
+    "results/received/F07.txt": {
+      "bytes": 74977,
+      "sha256": "eb898826dfa872c791dc59b8ff0e97aa8554cb81f72515fa5986a143bc65e866"
+    },
+    "results/received/F04.txt": {
+      "bytes": 79431,
+      "sha256": "17756ae979ae73e233cad8bf43a09a3118b1efbbc88acd9dd37e3db4125a8f86"
+    },
+    "results/received/F02.txt": {
+      "bytes": 61014,
+      "sha256": "69b55ba8ab1cd438d9cd3da1093e8c9e08f18653123ebc27acb310f6c8015447"
+    },
+    "results/received/F06.txt": {
+      "bytes": 99912,
+      "sha256": "b2e2bac4bbb9f2c89d0fe2ef5ad462fb2238833a9f64486383e07d135f4c4a3f"
+    },
+    "results/received/F14.txt": {
+      "bytes": 122592,
+      "sha256": "6746baa7b42a4fad583e640a8ba845806612b34c13a9688c86fbe7ff667fb50e"
+    },
+    "results/received/F01.txt": {
+      "bytes": 71251,
+      "sha256": "5a03f8140481ae37cf16f656c1fbd3bef67a5daa38c7aa2dcd1c890e8dac75c9"
+    },
+    "results/received/F03.txt": {
+      "bytes": 75761,
+      "sha256": "1b8651ca7b9d22a8cc16792af8ec9f8b89ea03f5dbc77fc3125b6d19288d6318"
+    },
+    "results/received/F09.txt": {
+      "bytes": 75983,
+      "sha256": "0bd494ff47e618125b8fec7074f76e3c4375da60b0bc2a0fe8860f885ece88ff"
+    },
+    "results/received/F05.txt": {
+      "bytes": 97032,
+      "sha256": "2fa0d29a606a093f4ac1c1a7860bd1c37fc11a6371df51bc012feb2b72af5db0"
+    },
+    "results/__pycache__/import_results.cpython-312.pyc": {
+      "bytes": 22955,
+      "sha256": "89c5662de675e439c3820dd8120889ce4bc87147caf57aae7f3cfd40d7cb4b0d"
+    },
+    "full-run/allocation.json": {
+      "bytes": 727041,
+      "sha256": "fe872396c84f16f5a4d6c6a7af6743e102df938716a8b345e355fc836314e8a6"
+    },
+    "full-run/finding-routes.json": {
+      "bytes": 274015,
+      "sha256": "bb9261dd75e180445c7b0404a4f992dc3b7ea61e2a2695147e15320211f2559c"
+    },
+    "execution-organization/finding-owners.tsv": {
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    }
+  },
+  "preserved_scratch": "/dev/shm/e02-D-index-negative-003451f4d6a44666a2dd305e2457e72f",
+  "mutation": {
+    "path": "results/verification.json",
+    "field": "primary_cells",
+    "before": 2074,
+    "after": 2075,
+    "other_semantic_values_preserved": true
+  },
+  "checks": [
+    {
+      "case": "tracked",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "/workspace/e02-D-published-root/policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--root",
+        "/workspace/e02-D-published-root/policy-engine/docs/research/e02-cloud-test-plan/results",
+        "--check"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.18815829200320877,
+      "output": "/dev/shm/e02-D-root-closeout/index-tracked.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "case": "exact-copy",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "/workspace/e02-D-published-root/policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--root",
+        "/dev/shm/e02-D-index-negative-003451f4d6a44666a2dd305e2457e72f/results",
+        "--check"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.17327700300666038,
+      "output": "/dev/shm/e02-D-root-closeout/index-exact-copy.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "case": "retained-markers-derived-count-mutation",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "/workspace/e02-D-published-root/policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py",
+        "--root",
+        "/dev/shm/e02-D-index-negative-003451f4d6a44666a2dd305e2457e72f/results",
+        "--check"
+      ],
+      "exit_code": 1,
+      "wall_seconds": 0.18708664800215047,
+      "output": "/dev/shm/e02-D-root-closeout/index-retained-markers-derived-count-mutation.txt",
+      "bytes": 69,
+      "sha256": "2b9b53a9c5a4e942d730fc4766ff898a619bdfb5f93fb2c0070d7de385e333df"
+    }
+  ],
+  "result": "PASS for recomputed transfer/index binding and expected falsifier rejection",
+  "cleanup": "Preserved; no permanent deletion or Trash clearing"
+}

@@ -18,10 +18,10 @@ from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflow
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.errors import WorkflowTimeoutError
 from polisyos.scientist.orchestration.engine.idempotency import NodeResultCache
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
-from polisyos.scientist.orchestration.engine.retry import WorkflowTimeoutError
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 

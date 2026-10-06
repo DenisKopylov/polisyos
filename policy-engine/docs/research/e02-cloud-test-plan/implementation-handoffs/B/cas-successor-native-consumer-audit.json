@@ -4528,7 +4528,8 @@
       }
     ]
   },
-  "predicate_basis": "independently_reconciled actual data/source/input; root native effects consumer_asserted; author cannot independently accept own CAS mechanism",
+  "predicate_basis": "independently_reconciled",
+  "claim_grade": "Actual data/source/input independently reconciled; root native effects consumer_asserted; author cannot independently accept own CAS mechanism",
   "per_premise_basis": {
     "case_phase_and_complete_XML_join": "independently recomputed",
     "full_native_test_input_source": "all236 exact Git bytes/hash verified",

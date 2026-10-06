@@ -10,9 +10,9 @@ from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
 
 class _HTTPResponse:
     status = 200
-    headers = {"x-request-id": "response-text-request"}
 
     def __init__(self, text):
+        self.headers = {"x-request-id": "response-text-request"}
         self._text = text
 
     async def __aenter__(self):
@@ -41,11 +41,11 @@ class _HTTPSession:
 
 
 class TextGateway(GatewayLLMClient):
-    def __init__(self, text):
+    def __init__(self, text, *, model="test-model"):
         super().__init__(
             base_url="https://fixture.invalid",
             api_key="",
-            model="test-model",
+            model=model,
             provider_hint="provider-a",
             max_retries=0,
         )
@@ -133,9 +133,10 @@ async def test_response_text_underflow_cannot_settle_zero_in_fresh_ledger(tmp_pa
         await invoke(enforcer)
     snapshot = FileBudgetLedger(path).snapshot()
     assert snapshot.state.spent == {}
-    assert snapshot.resource_events == {}
-    assert len(snapshot.resource_reservations) == 1
-    assert next(iter(snapshot.resource_reservations.values())).status == "reconciliation_required"
+    assert snapshot.spend_receipts == {}
+    # B1.1 retains anonymous reserved capacity; durable owner/attempt binding
+    # remains an explicit integration request rather than a fixture-only API.
+    assert snapshot.state.reserved["run"] > 0
     assert gateway.transport.calls == 1
 
 
@@ -151,8 +152,9 @@ async def test_response_text_real_zero_or_paid_cost_reopens_exactly(tmp_path, le
     assert snapshot.state.spent["run"] == Decimal(lexeme)
     assert snapshot.state.remaining("run") == Decimal(5) - Decimal(lexeme)
     assert snapshot.state.reserved["run"] == 0
-    event = next(iter(snapshot.resource_events.values()))
-    assert event.amount_usd == Decimal(lexeme)
-    assert event.request_id == "response-text-request"
-    assert event.evaluation_id == "response-text-evaluation"
+    receipt = next(iter(snapshot.spend_receipts.values()))
+    assert receipt.amount == Decimal(lexeme)
+    assert receipt.provider == "provider-a"
+    assert len(receipt.payload_digest) == 64
+    assert receipt.key == "run"
     assert gateway.transport.calls == 1

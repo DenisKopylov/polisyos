@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/integration/core/llm/test_cache_response_binding.py",
+    "tests/unit/scientist/methods/search/funnel/test_resource_factory_contract.py",
+    "--basetemp=/dev/shm/e02-D-funnel-cache-ea22f6a8b1ba42d9b1555ed38de730b0",
+    "--junitxml=/workspace/e02-D3-receipts/funnel-cache-B/red.xml"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 1.8172297477722168,
+  "candidate_sha": "4847abdfd66676165148f99bf7bcad8605dc89e3",
+  "candidate_tree": "acad46f56f5a486cfa408c84ca94525cca62b747"
+}

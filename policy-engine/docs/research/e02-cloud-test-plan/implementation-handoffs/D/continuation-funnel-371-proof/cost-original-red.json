@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/integration/core/llm/test_provider_cost_consistency.py",
+    "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+    "--basetemp=/dev/shm/e02-D-funnel-cost-6beeb5fc1794442bb9eba6510d2be432",
+    "--junitxml=/workspace/e02-D3-receipts/funnel-cost-641/red.xml"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 1.9963643550872803,
+  "candidate_sha": "641fbd660cb9abf1754e2ef7d1a3f70b17f76c35",
+  "candidate_tree": "7fe825b579d4c7efe6eef7510cb4f73a4c0b8c5b",
+  "counts": {
+    "tests": 30,
+    "failures": 11,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 19
+  }
+}

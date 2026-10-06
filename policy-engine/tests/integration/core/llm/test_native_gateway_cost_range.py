@@ -8,7 +8,7 @@ import pytest
 
 _native_intake = run_path(str(Path(__file__).with_name("test_native_gateway_cost_intake.py")))
 RawGateway = _native_intake["RawGateway"]
-assert_pending_without_event = _native_intake["assert_pending_without_event"]
+assert_no_receipt_after_invalid_intake = _native_intake["assert_no_receipt_after_invalid_intake"]
 build = _native_intake["build"]
 invoke = _native_intake["invoke"]
 raw_payload = _native_intake["raw_payload"]
@@ -24,4 +24,4 @@ async def test_native_raw_nonzero_amount_cannot_settle_underflowed_zero(tmp_path
     assert gateway.calls == 1
     assert gateway.normalized_response.usage.cost_usd == 0
     assert gateway.normalized_response.raw["usage"]["cost_usd"] == amount
-    assert_pending_without_event(path)
+    assert_no_receipt_after_invalid_intake(path)

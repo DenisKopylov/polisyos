@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
@@ -11,7 +12,7 @@ from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.foundry.methods.catalog.causal.strategic import (
     persist_strategic_solve_artifacts,
@@ -49,7 +50,7 @@ from polisyos.scientist.methods.backtesting.adversarial import (
     STRATEGIC_GAMING_SUITE_ID,
     run_phase_d4_challenge_suites,
 )
-from polisyos.scientist.methods.doe.stress_report import StressTestReport
+from polisyos.scientist.methods.doe.stress_report import StressScenarioEvidence, StressTestReport
 from polisyos.scientist.methods.search.actionable_side_information import resolve_actionable_store
 from polisyos.scientist.methods.search.adversarial import (
     PlatformMetaEvaluationInput,
@@ -139,6 +140,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_CALIBRATION_REPORT_REF,
     INPUT_PROMOTION_EVIDENCE_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine import BudgetMiddleware
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -305,6 +307,23 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
         return None
 
 
+@dataclass(frozen=True, kw_only=True)
+class PolicyBudgetExecutionContext(ExecutionContext):
+    """Internal blueprint context with an optional caller-supplied budget owner.
+
+    The keyword-only port forwards the same existing B middleware instance; it
+    creates no ledger or authority. Plain ExecutionContext remains unmanaged.
+    """
+
+    budget_middleware: BudgetMiddleware | None = None
+
+    def __post_init__(self) -> None:
+        if self.budget_middleware is not None and not isinstance(
+            self.budget_middleware, BudgetMiddleware
+        ):
+            raise TypeError("budget_middleware must be a configured BudgetMiddleware")
+
+
 @dataclass(frozen=True)
 class RunPolicyBlueprintRuntimeNode:
     """Run policy blueprint runtime node implementation."""
@@ -316,6 +335,10 @@ class RunPolicyBlueprintRuntimeNode:
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         if not _is_policy_mode(state):
             return NodeOutcome(status="skip", state=state)
+
+        resource_owner = (
+            ctx.budget_middleware if isinstance(ctx, PolicyBudgetExecutionContext) else None
+        )
 
         runtime_request = resolve_policy_runtime_request(ctx, state)
         if runtime_request is None:
@@ -645,6 +668,7 @@ class RunPolicyBlueprintRuntimeNode:
             "tenant_hash": str(candidate.metadata.get("tenant_hash") or ""),
         }
         funnel_context = {
+            "run_id": state.run_id,
             "store": resolve_actionable_store(store=ctx.store),
             "transfer_context": transfer_context,
             "policy_candidate_schema": candidate,
@@ -767,6 +791,7 @@ class RunPolicyBlueprintRuntimeNode:
                 store=ctx.store,
             ),
             voi_scheduler=predictive_voi,
+            budget_middleware=resource_owner,
         )
 
         ticket = orchestrator.submit(_candidate_search_payload(candidate, state), funnel_context)
@@ -1083,9 +1108,7 @@ def _ensure_calibration_report(
     if state_metrics:
         report = report.model_copy(
             update={
-                "current_mode": str(
-                    state_metrics.get("routing_mode", report.current_mode)
-                ),
+                "current_mode": str(state_metrics.get("routing_mode", report.current_mode)),
                 "routing_health": {
                     **report.routing_health,
                     **state_metrics,
@@ -1562,9 +1585,6 @@ def _ensure_stress_test_report(
 ) -> ArtifactRef | None:
     existing_ref = state.artifacts_index.get(ARTIFACT_STRESS_TEST_REPORT_REF)
     replacement_suite_ids = [str(item) for item in (phase_d4_suite_ids or []) if str(item).strip()]
-    if existing_ref is not None and not supplemental_reports and not replacement_suite_ids:
-        return existing_ref
-
     report = _load_stress_test_report(ctx, existing_ref)
     if report is None:
         report = StressTestReport(
@@ -1576,7 +1596,8 @@ def _ensure_stress_test_report(
                 causal_report=load_causal_report(ctx, state),
                 governance_report=load_governance_report(ctx, state),
             ),
-            robustness_score=0.0,
+            robustness_score=None,
+            set_adequacy_status="partial",
             metadata={
                 "generated_by": "run_policy_blueprint_runtime",
                 "phase_d4_suite_ids": [],
@@ -1595,7 +1616,9 @@ def _ensure_stress_test_report(
         PutOptions(
             kind="scientist.stress_test_report",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.scientist.StressTestReport", version="1.0"),
+            schema=SchemaInfo(
+                name="polisyos.scientist.StressTestReport", version=report.schema_version
+            ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
@@ -1607,9 +1630,41 @@ def _merge_stress_test_reports(
     *,
     replacement_suite_ids: list[str] | None = None,
 ) -> StressTestReport:
+    # Re-admit actual inputs before arithmetic, including model_copy bypasses.
+    base_report = StressTestReport.model_validate(base_report.model_dump(mode="json"))
+    supplemental_reports = [
+        StressTestReport.model_validate(report.model_dump(mode="json"))
+        for report in supplemental_reports
+    ]
     replacement_suite_ids_set = {
         str(item).strip() for item in (replacement_suite_ids or []) if str(item).strip()
     }
+    if not supplemental_reports and not replacement_suite_ids_set:
+        return base_report
+    components = dict(base_report.scenario_evidence_components)
+    component_hashes = dict(base_report.metadata.get("scenario_component_payload_sha256") or {})
+    if not components:
+        key = f"report:{base_report.report_id}"
+        components[key] = base_report.scenario_evidence
+        component_hashes[key] = _stress_report_payload_sha256(base_report)
+    accepted_reports = []
+    for supplemental in supplemental_reports:
+        suite_id = str(supplemental.metadata.get("challenge_suite_id") or "").strip()
+        key = f"suite:{suite_id}" if suite_id else f"report:{supplemental.report_id}"
+        payload_hash = _stress_report_payload_sha256(supplemental)
+        if not suite_id and key in components:
+            previous_hash = component_hashes.get(key)
+            if previous_hash is None:
+                raise ValueError("anonymous report retry has no bound original content")
+            if previous_hash != payload_hash:
+                raise ValueError("anonymous report identity has different content")
+            continue
+        if not suite_id and any(name not in component_hashes for name in components):
+            raise ValueError("anonymous component identity has no bound original content")
+        accepted_reports.append(supplemental)
+        components[key] = supplemental.scenario_evidence
+        component_hashes[key] = payload_hash
+    supplemental_reports = accepted_reports
     if not supplemental_reports and not replacement_suite_ids_set:
         return base_report
     replacement_suite_ids_set.update(
@@ -1645,8 +1700,45 @@ def _merge_stress_test_reports(
         if suite_id is not None and str(suite_id).strip():
             suite_scenario_counts[str(suite_id)] = int(supplemental.total_scenarios_evaluated)
     total_scenarios = base_total_scenarios + sum(suite_scenario_counts.values())
+    # Retain each scenario denominator separately from issue groups, including
+    # unavailable legacy components. Replacement removes the old count basis.
+    for suite_id in replacement_suite_ids_set:
+        if not any(
+            str(item.metadata.get("challenge_suite_id") or "").strip() == suite_id
+            for item in supplemental_reports
+        ):
+            components.pop(f"suite:{suite_id}", None)
+            component_hashes.pop(f"suite:{suite_id}", None)
+    for supplemental in supplemental_reports:
+        suite_id = str(supplemental.metadata.get("challenge_suite_id") or "").strip()
+        key = f"suite:{suite_id}" if suite_id else f"report:{supplemental.report_id}"
+        components[key] = supplemental.scenario_evidence
+    evidence = None
+    if all(
+        item is not None and item.assessment_rule != "unavailable" for item in components.values()
+    ):
+        evidence = StressScenarioEvidence(
+            assessment_rule="component_assessments",
+            **{
+                name: sum(getattr(item, name) for item in components.values())
+                for name in (
+                    "attempted",
+                    "finite_evaluated",
+                    "violated_scenarios",
+                    "unknown_or_nonfinite",
+                    "planned_scenarios",
+                    "critical_occurrences",
+                    "high_occurrences",
+                    "medium_occurrences",
+                )
+            },
+        )
+        total_scenarios = evidence.finite_evaluated
     return base_report.model_copy(
         update={
+            "schema_version": "1.1",
+            "scenario_evidence": evidence,
+            "scenario_evidence_components": components,
             "total_scenarios_evaluated": total_scenarios,
             "vulnerabilities": vulnerabilities,
             "metadata": {
@@ -1654,9 +1746,16 @@ def _merge_stress_test_reports(
                 "phase_d4_suite_ids": sorted(suite_scenario_counts),
                 "phase_d4_suite_scenario_counts": suite_scenario_counts,
                 "base_total_scenarios_evaluated": base_total_scenarios,
+                "scenario_component_payload_sha256": component_hashes,
             },
         }
     )
+
+
+def _stress_report_payload_sha256(report: StressTestReport) -> str:
+    """Bind a delivered report's content, excluding its optional storage handle."""
+    payload = report.model_dump(mode="json", exclude={"cas_artifact_id"})
+    return sha256(to_canonical_bytes(payload, CanonSpec(forbid_floats=False))).hexdigest()
 
 
 def _phase_d4_suite_id_from_vulnerability(vulnerability) -> str | None:
@@ -1674,27 +1773,58 @@ def _phase_d4_suite_id_from_vulnerability(vulnerability) -> str | None:
 
 
 def _recompute_stress_test_report(report: StressTestReport) -> StressTestReport:
-    return report.model_copy(
-        update={
-            "critical_count": sum(
-                1 for item in report.vulnerabilities if item.severity == "critical"
-            ),
-            "high_count": sum(1 for item in report.vulnerabilities if item.severity == "high"),
-            "medium_count": sum(1 for item in report.vulnerabilities if item.severity == "medium"),
-            "robustness_score": max(
-                0.0,
-                1.0
-                - (
-                    sum(
-                        1
-                        for item in report.vulnerabilities
-                        if item.severity in {"critical", "high"}
-                    )
-                    / max(len(report.vulnerabilities), 1)
-                ),
-            ),
+    evidence = report.scenario_evidence
+    metadata = dict(report.metadata)
+    metadata["schema_compatibility"] = {
+        "source_schema_version": report.schema_version,
+        "supported_schema_versions": ["1.0", "1.1"],
+        "mode": "legacy_unassessed"
+        if report.schema_version == "1.0"
+        else "typed_scenario_evidence",
+        "population_probability": "not_established",
+    }
+    for name in (
+        "attempted",
+        "finite_evaluated",
+        "violated_scenarios",
+        "unknown_or_nonfinite",
+        "planned_scenarios",
+        "completeness",
+        "score_scope",
+        "score_formula",
+        "score_status",
+    ):
+        metadata.pop(name, None)
+    metadata.update(
+        evidence.accounting_metadata()
+        if evidence is not None
+        else {
+            "completeness": False,
+            "score_scope": "not_established",
+            "score_status": "unavailable",
+            "population_probability": "not_established",
         }
     )
+    recomputed = report.model_copy(
+        update={
+            "critical_count": evidence.critical_occurrences
+            if evidence is not None
+            else sum(1 for item in report.vulnerabilities if item.severity == "critical"),
+            "high_count": evidence.high_occurrences
+            if evidence is not None
+            else sum(1 for item in report.vulnerabilities if item.severity == "high"),
+            "medium_count": evidence.medium_occurrences
+            if evidence is not None
+            else sum(1 for item in report.vulnerabilities if item.severity == "medium"),
+            "robustness_score": evidence.observed_fraction if evidence is not None else None,
+            "set_adequacy_status": "complete"
+            if evidence is not None and evidence.complete
+            else "partial",
+            "metadata": metadata,
+        }
+    )
+    # model_copy is deliberately followed by DTO admission before CAS emission.
+    return StressTestReport.model_validate(recomputed.model_dump(mode="json"))
 
 
 def _world_model_record_from_state(state: ExperimentState) -> WorldModelRecord | None:

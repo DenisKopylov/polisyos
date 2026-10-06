@@ -1,0 +1,10 @@
+id = "2026-10-06-e02-D-funnel-spend-receipts"
+title = "Project native producer settlements through funnel stages"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+surface_classification = "internal"
+summary = "Consume the existing B producer settlement and reread exact durable receipts before projecting provider spend. Keep reported, estimated and cache reuse origins distinct; ambiguous accounting no longer becomes a successful worker fallback."
+evidence = ["tests/integration/scientist/methods/search/funnel/test_orchestrator.py"]
+compatibility = "Requires the published B producer/receipt dependency. The old D resource_events schema is not an accepted substitute. Absent configured owner retains the legacy path."
+limitations = "Receipt verification establishes local recorded accounting only. Persisted attribution, atomic owned reservations, external billing, promotion authority and deployed factory reachability require their existing owners."

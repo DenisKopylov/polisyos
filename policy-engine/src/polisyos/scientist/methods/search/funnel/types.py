@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections.abc import Mapping
+from collections.abc import Callable, Iterator, Mapping
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from decimal import Decimal
+from functools import partial
 from math import isfinite
 from typing import Any, Literal
 
@@ -18,6 +21,97 @@ from polisyos.scientist.methods.search.uncertainty import (
 )
 
 FunnelEvaluationStatus = Literal["not_evaluated", "partial", "evaluated"]
+_RESOURCE_RESPONSE_OBSERVER: ContextVar[Callable[[Any], None] | None] = ContextVar(
+    "funnel_resource_response_observer", default=None
+)
+
+
+def resolve_funnel_local_receipt(owner: Any, declared: Any) -> Any:
+    """Require the public B receipt type and exact readback from this known owner."""
+    from polisyos.core.llm.response import LLMLocalSpendReceipt
+    from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedgerSpendReceipt
+
+    if owner is None or not isinstance(declared, BudgetLedgerSpendReceipt):
+        return None
+    actual = owner.resolve_spend_safe(declared.event_id)
+    if not isinstance(actual, BudgetLedgerSpendReceipt) or actual != declared:
+        return None
+    return LLMLocalSpendReceipt(
+        actual.event_id, actual.payload_digest, actual.key, actual.amount, actual.provider
+    )
+
+
+@contextmanager
+def funnel_resource_receipt_context(owner: Any) -> Iterator[None]:
+    """Bind only the configured B owner's existing read-only receipt operation."""
+    from polisyos.core.llm.response import llm_local_receipt_resolver
+
+    with llm_local_receipt_resolver(
+        partial(resolve_funnel_local_receipt, owner) if owner is not None else None
+    ):
+        yield
+
+
+@contextmanager
+def funnel_resource_response_observer(
+    observer: Callable[[Any], None] | None,
+) -> Iterator[None]:
+    """Bind operational response accounting to this stage execution only.
+
+    The observer consumes the existing producer settlement; it issues neither
+    accounting receipts nor permission. Async worker calls inherit this context.
+    """
+    token = _RESOURCE_RESPONSE_OBSERVER.set(observer)
+    try:
+        yield
+    finally:
+        _RESOURCE_RESPONSE_OBSERVER.reset(token)
+
+
+def observe_funnel_resource_response(response: Any) -> None:
+    """Forward a native returned settlement before any fallible payload parsing."""
+    observer = _RESOURCE_RESPONSE_OBSERVER.get()
+    if observer is not None:
+        from polisyos.core.llm.settlement import producer_settlement
+        from polisyos.core.llm.traced_client import LLMAccountingError
+
+        settlement = producer_settlement(response)
+        try:
+            if settlement is None:
+                raise ValueError("configured funnel resource producer returned no typed settlement")
+            observer(settlement)
+        except (ValueError, OSError) as exc:
+            raise LLMAccountingError(
+                response=response,
+                event={"funnel_accounting_status": "not_established", "settlement": settlement},
+                cause=exc,
+            ) from exc
+
+
+@dataclass(frozen=True)
+class FunnelResourceAccountingFailure:
+    """Actual producer input retained when its accounting acknowledgment failed."""
+
+    event: Any
+    budget_keys: tuple[str, ...]
+
+
+def observe_funnel_resource_accounting_failure(
+    failure: Any, *, budget_keys: tuple[str, ...]
+) -> None:
+    """Carry a native B error's observed event without issuing an acknowledgment."""
+    from polisyos.core.llm.settlement import LLMProducerEvent, LLMProducerSettlement
+    from polisyos.core.llm.traced_client import LLMAccountingError
+
+    observer = _RESOURCE_RESPONSE_OBSERVER.get()
+    if observer is None or not isinstance(failure, LLMAccountingError):
+        return
+    event = failure.event.get("producer_event")
+    settlement = failure.event.get("settlement")
+    if event is None and isinstance(settlement, LLMProducerSettlement):
+        event = settlement.event
+    if isinstance(event, LLMProducerEvent):
+        observer(FunnelResourceAccountingFailure(event, budget_keys))
 
 
 def statistical_uncertainty_from_ci_width(
@@ -184,7 +278,9 @@ class FunnelStageResult(StageResult):
     cheap_signal: CheapSignalVector | None = None
     failure_cards: list[TypedFailureCard] = field(default_factory=list)
     compute_actual_usd: float = 0.0
-    compute_cost_source: Literal["estimated", "provider_reported_only"] = "estimated"
+    compute_cost_source: Literal["estimated", "provider_reported_only", "cache_reuse", "mixed"] = (
+        "estimated"
+    )
     provider_spend_usd: Decimal | None = None
     resource_event_ids: tuple[str, ...] = ()
     fidelity_level: int = 0

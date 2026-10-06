@@ -1,0 +1,79 @@
+{
+  "schema": "policyos.e02.b66-dd-static-checks.v1",
+  "cwd": "/workspace/e02-B-current-adapters",
+  "tool_python": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+  "python_version": "3.14.2",
+  "ruff_version": "ruff 0.14.10",
+  "checks": [
+    {
+      "id": "frozen-source-prefix-replay",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b66-dd-semantic-evidence/inspect-dd.source.txt",
+        "--repo",
+        "/workspace/polisyos",
+        "--source-sha",
+        "dd9584728bd96f204983615216efdbc58117e713"
+      ],
+      "exit_code": 0,
+      "stdout_bytes": 55335,
+      "stdout_sha256": "a0fa202a56bc57b93c77b32cdd17e2bed98e4f60966d5a6bf2680bbfc1be8f66",
+      "stderr": "",
+      "outcome": "PASS static Git/AST source inventory only; zero native or collection",
+      "stdout_file_original": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b66-dd-semantic-evidence/source-inspection.json",
+      "retained_stdout": {
+        "path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current-adapters/raw/b66-dd-semantic-source-inspection.json",
+        "bytes": 55335,
+        "sha256": "a0fa202a56bc57b93c77b32cdd17e2bed98e4f60966d5a6bf2680bbfc1be8f66",
+        "custody": "ignored derived Git/AST/hash output; no runtime finding evidence or external transferred-byte guarantee"
+      }
+    },
+    {
+      "id": "ruff-check",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/ruff",
+        "check",
+        "--no-cache",
+        "--config",
+        "policy-engine/pyproject.toml",
+        "--stdin-filename",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/inspect_dd.py"
+      ],
+      "stdin_file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b66-dd-semantic-evidence/inspect-dd.source.txt",
+      "stdin_sha256": "7258001660e1de5861711f073ce36eec3e5028d4eb6d5ffcf655b4b250b55f9f",
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "id": "ruff-format",
+      "argv": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/ruff",
+        "format",
+        "--check",
+        "--config",
+        "policy-engine/pyproject.toml",
+        "--stdin-filename",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/inspect_dd.py"
+      ],
+      "stdin_file": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b66-dd-semantic-evidence/inspect-dd.source.txt",
+      "stdin_sha256": "7258001660e1de5861711f073ce36eec3e5028d4eb6d5ffcf655b4b250b55f9f",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "id": "syntax-and-json-decode",
+      "outcome": "PASS ast.parse(source text) and json.loads metadata only; no production/module imports"
+    }
+  ],
+  "initial_format_check": {
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "",
+    "qualifier": "Initial literal script formatting check failed before three formatter-only wraps; final source above passes. No native execution or product failure."
+  },
+  "runtime_tests": "UNRUN",
+  "collection": "UNRUN",
+  "formal_closure_ids": []
+}

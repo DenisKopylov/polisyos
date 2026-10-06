@@ -1,0 +1,184 @@
+{
+  "schema": "policyos.e02.b66-dd-semantic-trace.v1",
+  "source_sha": "dd9584728bd96f204983615216efdbc58117e713",
+  "source_tree": "7bf4be4a117762c8d37d4babcc214a2b28c2113e",
+  "mode": "Read-only source/body trace and exact Git/AST prefix inventory; no new native, collection, production imports or gate",
+  "author_role": "Mechanism author providing producer/artifact/consumer semantics; cannot independently certify own mechanism or finding closure",
+  "future_wave_outcomes": "UNKNOWN until new six-artifact terminal tuple and all actual parameterized case phases are joined",
+  "formal_closure_ids": [],
+  "criterion": {
+    "canonical_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/LLM-01.md",
+    "B66_lines": [
+      107,
+      128
+    ],
+    "raw_none_law": "Raw absence alone must not zero unknown network cost. Existing raw=None controls explicitly report genuine .02 usage, so they demonstrate transport/reuse identity with known cost; they are not missing-SDK-cost or external-invoice oracles.",
+    "current_closure_decision": "closure-decisions/B.md:204 requires producer-owned immutable settlement event and ACK/idempotent ledger link that survives caller cancellation; lost ACK is unknown."
+  },
+  "forward_qualification_of_7fc": {
+    "ref": "7fc0246063e0c1b34ee4334397242b12e2d6dd26",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b66-future-native-proof-plan.json",
+    "qualifier": "Its combined configured factory -> ledger chain is a possible explicitly composed capability, not one observed production deployment or one native case. It must be read with the three distinct consumer profiles below. Its older source preparation and runtime statements are not new DD native PASS.",
+    "all_prior_16_source_bytes_equal_at_DD": true
+  },
+  "consumer_profiles": [
+    {
+      "id": "canonical-factory-owner",
+      "source": {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "bytes": 9508,
+        "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+        "byte_equal_to_preparation_source": true
+      },
+      "source_lines": [
+        148,
+        260
+      ],
+      "path": "Factory -> genuine CachingLLMClient/InMemoryPromptCache -> Traced receiver configured with that exact cache emitter; operational owner injected at trusted construction.",
+      "native_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_canonical_factory_consumes_actual_owner_decision",
+      "expected": "Two actual factory calls yield provider1; current owner revocation produces provider2. Native fixture installs local versioned owner and replaces only gateway producer. No FileBudgetLedger or budget enforcer is installed by this case.",
+      "state": "UNKNOWN; current native phases not yet joined"
+    },
+    {
+      "id": "initialized-durable-api-composition",
+      "source_fixture": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::_durable_stack",
+      "path": "Explicit actual initialized FileBudgetLedger + BudgetMiddleware + built-in cache + genuine configured Traced receiver + LLMBudgetEnforcer; real per-event ledger writes/read/resolve.",
+      "native_prefix": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_four_actual_budget_consumers_share_one_settled_producer_after_initiator_cancel",
+      "expected": "Barrier observes four actual cache.generate entries; caller0 CancelledError; remaining three actual responses; one provider/.02, three reuse, reserve0/cache1. This fixture does not invoke canonical factory.",
+      "state": "UNKNOWN; current native phases not yet joined"
+    },
+    {
+      "id": "production-memory-budget-callers",
+      "source_modules": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+          "bytes": 15332,
+          "sha256": "e80592034b0dd93ae9a5fb0e1f22f5f92620f8e57059a7ce796f75b68cd759c7",
+          "byte_equal_to_preparation_source": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+          "bytes": 15582,
+          "sha256": "a9cc4245e836c2276bc9d115582bd150fcff2f355158b8fde16cb6b9e7bce9a1",
+          "byte_equal_to_preparation_source": true
+        }
+      ],
+      "constructor_locations": {
+        "ScenarioAdversaryWorker.propose_async": "adversary.py:117-155; enforcer constructor127",
+        "PolicyTranslatorWorker.translate_async": "translator.py:189-227; enforcer constructor199"
+      },
+      "path": "Actual create_traced_gateway_client -> optional LLMBudgetEnforcer supplied raw BudgetState -> actual generate. Neither production constructor supplies budget_middleware, ledger, required_accounting or reuse authorizer.",
+      "ack_profile": "memory; durable generic API existence does not make these production callers durable",
+      "read_scope": "Entire two constructor-containing consumer function bodies and complete factory read; entire caller modules hash-pinned, not a universal application readset",
+      "state": "Source-bound consumer profile only; no production traffic or native invocation by this helper"
+    }
+  ],
+  "mandatory_chain_semantics": [
+    {
+      "source": "policy-engine/src/polisyos/core/llm/traced_client.py:696-773",
+      "statement": "Physical completion chooses reported finite cost or explicitly estimated token cost, creates immutable observed event, then requires exact typed ACK before optional exporter and cache publication; physical flag forces provider origin even borrowed authentic reuse."
+    },
+    {
+      "source": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py:458-520",
+      "statement": "Before durable delivery retain event+reservation; per-key event ID and payload digest call actual middleware. Receipt validates event/digest/key/amount/provider; only success releases reserve and clears unknown. Reuse does not create a second physical-provider ledger charge."
+    },
+    {
+      "source": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py:522-563",
+      "statement": "Absent receipt is unknown. retry_missing can publish only this owner retained exact observed event; it cannot create provider evidence or call provider again. Resolving ACK does not automatically cache the previously refused response."
+    },
+    {
+      "source": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py:565-630",
+      "statement": "Owned shielded task survives initiating caller cancellation. Pre-existing unknown blocks new calls before actual provider; unsuccessful valid-event settlement keeps its reservation."
+    },
+    {
+      "source": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "statement": "Initialized ledger uses actual stable lock/snapshot fsync+replace and non-evicted receipt index; exact retry returns original receipt without another charge, conflicting exact event refuses. File/ACK uncertainty is not proof of zero cost."
+    },
+    {
+      "source": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "statement": "Built-in cache serializes origin usage/settlement, rechecks deadline/current owner at actual atomic publication and after get/follower wait, and emits receiver-authenticated in-process reuse identity. Signature-compatible foreign cache is not semantic backend conformance."
+    }
+  ],
+  "cost_input_boundaries": [
+    {
+      "input": "GatewayLLMResponse(raw=None, usage=GatewayUsage(prompt_tokens=3,completion_tokens=2,cost_usd=.02))",
+      "source": "test_llm_01.py::_PromptProvider",
+      "normalization": "Known reported .02 remains provider cost; genuine receiver-authenticated hits emit reuse delta0 while retaining original usage3/2/.02. raw is not billing authority.",
+      "native_proof": "usage-through-reuse + expiry-is-new-paid-call; not an unknown external billing proof"
+    },
+    {
+      "input": "Usage cost int/float/Decimal/parseable string, nonnegative finite",
+      "source": "policy-engine/src/polisyos/core/llm/response.py:153-208; policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py:677-690",
+      "normalization": "Accepted and normalized via float, then observed producer amount Decimal(str(cost)); exact .02 profile is required by these controls. No promise of arbitrary Decimal external invoice precision."
+    },
+    {
+      "input": "No reported cost, None cost, bool/unsupported value/unparseable string",
+      "source": "policy-engine/src/polisyos/core/llm/response.py:153-208; policy-engine/src/polisyos/core/llm/traced_client.py:425-438,735-756",
+      "normalization": "cost remains None; cost_origin estimated from tokens. Actual missing cost is not the same as raw=None with reported .02. Ledger ACK certifies that estimated tuple was committed, not external price truth."
+    },
+    {
+      "input": "Missing usage / dict usage=None / malformed token conversion / actual response=None",
+      "source": "policy-engine/src/polisyos/core/llm/response.py:52-96",
+      "normalization": "May yield zero tokens/no cost; traced pricing can estimate0. No provider receipt or external invoice reconciliation is obtained by this fallback. This is explicitly outside the observed valid reported-cost/durable receipt profile, not demonstrated unknown external billing zero."
+    },
+    {
+      "input": "Negative numeric reported cost",
+      "source": "policy-engine/src/polisyos/core/llm/response.py:164-166; policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py:688-690",
+      "normalization": "Current normalizers clamp to0. This is a source input boundary, not evidence actual paid negative provider cost or a tested nonzero unknown external bill."
+    },
+    {
+      "input": "NaN/inf numeric or string cost",
+      "source": "policy-engine/src/polisyos/core/llm/response.py:153-166; policy-engine/src/polisyos/core/llm/settlement.py:61-63; policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py:350-355,675-681",
+      "normalization": "Float normalizer can retain nonfinite value; producer event/coercion rejects it before durable ACK. The observed completion cannot be claimed to have durable financial reconciliation from that rejection. Event-construction error is not tested lost-ACK retention."
+    }
+  ],
+  "named_native_expectations_ref": {
+    "ref": "7fc0246063e0c1b34ee4334397242b12e2d6dd26",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b66-proof-preparation-evidence/proof-plan.json",
+    "bytes": 37934,
+    "sha256": "f0d25e8e8d75a2c39a3462cd9b03ba11f5c33c257bea524a08ca9e8f9be237af",
+    "groups": [
+      "b66_current_consumer_prefixes",
+      "supporting_durable_owner_prefixes",
+      "b67_owner_contract_prefixes",
+      "b68_scoped_flight_prefixes"
+    ],
+    "statement": "All exact definitions/expected property assertions in these groups were source-read at DD and resolve to identical code. Every actual parameterized nodeid must be joined; rows are navigation, never a count cap or source assertion promoted to observed log value.",
+    "source_resolution_output": {
+      "path": "/workspace/e02-B-current-adapters/.polisyos/e02-B-current-adapters/raw/b66-dd-semantic-source-inspection.json",
+      "bytes": 55335,
+      "sha256": "a0fa202a56bc57b93c77b32cdd17e2bed98e4f60966d5a6bf2680bbfc1be8f66",
+      "custody": "ignored derived Git/AST/hash output; no runtime finding evidence or external transferred-byte guarantee"
+    },
+    "source_inspection_script": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-b66-dd-semantic-evidence/inspect-dd.source.txt"
+  },
+  "optional_metrics_B65_separation": {
+    "actual_prefixes": [
+      "tests/unit/remediation/test_llm_01.py::test_optional_metrics_failure_preserves_provider_result_and_no_retry",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_optional_tracing_failure_preserves_actual_provider_result",
+      "tests/unit/remediation/test_llm_01.py::test_mandatory_accounting_failure_exposes_received_response",
+      "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py::test_unknown_mandatory_callback_blocks_new_provider_until_exact_reconciliation"
+    ],
+    "expected": "Optional exporter/tracer failures preserve observed response/provider1. Required callback failure exposes received response and exact retained .02 event, blocks next provider until explicit callback redelivery. Callback delivery is operational and is not a durable ledger ACK.",
+    "cost_metrics_limits": "test_cost_metrics.py largely uses MagicMock/raw BudgetState and permissive non-crash/nonnegative assertions; it is not replacement for actual reported .02 ledger/ACK/cancel controls.",
+    "legacy_audit_source_candidate": {
+      "source": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py:480-493",
+      "profile": "Configured audit_log.append(BUDGET_COMMITTED) fails only after exact durable receipts; prior RESERVED/RELEASED accepted.",
+      "source_observation": "Reserve release and unknown-map pop precede audit append; Traced can report LLMAccountingError while this enforcer no longer retains settlement unknown. Next _pre_check does not block on that missing audit. Existing durable fixtures supply audit_log=None; required callback test does not establish legacy audit reconciliation.",
+      "runtime_status": "UNRUN; no native falsifier executed and no financial duplicate/zero finding asserted",
+      "next_owner": "Root adjudicates separate mandatory-audit scope/oracle; no production edit in this metadata slice"
+    }
+  },
+  "held_contracts": {
+    "B67": "Operational supplied owner checks actual CAS bytes/hash and actor/tenant/scope/epoch/purpose/ref/model/parameters. CAS readability or correctly typed constructor is not institutional reuse authority. Production grant/epoch atomicity require actual deployment owner input; held unchanged.",
+    "B68": "Operational exact-scoped single-flight can be checked in finite initialized ledger/supplied owner profile; production reuse dependency remains B67 held. Intentional independent replicates/stochastic or non-idempotent actions are not authorized by temperature0.",
+    "external_billing": "Missing/invalid SDK cost, process death before observed completion, real gateway external invoice/idempotency/status law and served traffic are not established by known .02 synthetic reported-cost controls. ACK unknown and amount-confidence unknown are different quantities."
+  },
+  "fresh_join_rules": [
+    "Use exact approved3cd parser only after new six artifacts complete with inventory session_finished and wrapper EXECUTED/no setup error; match frozen DD/source/tree/origin/native pytest9 pins.",
+    "Join all actual parameterized nodeids and setup/call/teardown; setup ERROR or skip/absent means this property body not established. Retain call FAIL; no prefix-based upgrade or constructor-only closure.",
+    "Keep factory permission, durable manual API composition, production memory consumers, direct ledger subprocess support and callback delivery separate; overlapping group counts are not summed.",
+    "All mechanisms here were authored in this lane. Root/foreign reviewers and exact actual consumer evidence decide acceptance; closure_ids remain empty."
+  ],
+  "metadata_size_policy": "Novel semantic qualifications and exact pinned source refs committed; complete recomputable prefix/definition/identity view remains ignored raw instead of duplicating tracked 7fc source plan and native code."
+}

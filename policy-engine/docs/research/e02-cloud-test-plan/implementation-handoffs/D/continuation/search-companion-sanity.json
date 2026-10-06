@@ -1,0 +1,217 @@
+{
+  "schema_version": "D-search-companion-handoff.v1",
+  "state": "bounded_documentation_correction_and_read_only_source_review",
+  "author": "/root/search_owner",
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Current source/manifest/rendered-name equality and committed-output integrity. No new product, backend, global quality gate, schema snapshot, frontend or deployment execution. Own node implementation is not independently reviewed here.",
+  "implementation": {
+    "sha": "93de5462b5fbb239592b6c9edfc7ccfe8ccebd39",
+    "tree": "d828a1a1ce6c89d3f6625417ec90d6037dee928a",
+    "base_sha": "4da8c866c654225de81dd68878874ba7cf4cc7d1",
+    "base_tree": "cc9c48795191ef3597dfcdee221c9b7397e5c33f",
+    "branch": "codex/e02-D-published-search",
+    "changed_paths": [
+      "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md"
+    ],
+    "changed_bindings": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/README.md",
+        "git_blob": "9ee509cebf94696d6c5b71992539bfc0d160da76",
+        "bytes": 8019,
+        "sha256": "536ced0d24956c2e629678350160b94cc631987391173b88387b78653f42ab69"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+        "git_blob": "32988c7f2f4bde569de87cb7ffb271d613e4a1f8",
+        "bytes": 3017,
+        "sha256": "3d7e2e9961b79be93587808b6c4185509daf50f2896f46a5204cc38ca6f09fd9"
+      }
+    ],
+    "change": "Both Search child README Public headings now say Internal. The existing manifest default and three specific public scientist aliases are explicit. Autotune already calls itself internal; no absent child README was invented.",
+    "runtime_source_test_configuration_changes": false,
+    "compatibility": "Documentation clarification of existing manifest classification; no exports, runtime-state version, schema, supported backend or source authority change."
+  },
+  "source_review": {
+    "root_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "root_tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+    "before_after_equal": true,
+    "root_status_before": "",
+    "root_status_after": "",
+    "runtime_pin_retained": "c17db434428882c9f21a6071831c9d519d38d4b7; documentation commit does not establish a new runtime execution",
+    "package_row_denominator": {
+      "contract_rows": 20,
+      "inventory_rows": 20
+    },
+    "scientist": {
+      "classification": "public_stable",
+      "owner": "team-polisyos",
+      "source_exports": 42,
+      "inventory_exports": 42,
+      "rendered_blocks": [
+        42,
+        42
+      ],
+      "exact_names_and_order_equal": true
+    },
+    "specific_public_aliases": [
+      "NativeSearchService",
+      "SearchServiceCheckpoint",
+      "SearchLoopRunner"
+    ],
+    "child_exports": {
+      "Search": 156,
+      "autotune": 32
+    },
+    "child_contract_rows": [],
+    "child_classification": "internal by manifest default; child __all__ does not promote the child module or BGC/GP/RL/Pareto symbols",
+    "new_doc_links": [
+      {
+        "file": "policy-engine/src/polisyos/scientist/methods/search/README.md",
+        "relative_target": "../../../../../architecture/public_surface/contract.toml",
+        "resolved_file": "policy-engine/architecture/public_surface/contract.toml",
+        "exists": true,
+        "anchor_exists": null
+      },
+      {
+        "file": "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+        "relative_target": "../../../../../../architecture/public_surface/contract.toml",
+        "resolved_file": "policy-engine/architecture/public_surface/contract.toml",
+        "exists": true,
+        "anchor_exists": null
+      },
+      {
+        "file": "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+        "relative_target": "../README.md#internal-entrypoints",
+        "resolved_file": "policy-engine/src/polisyos/scientist/methods/search/README.md",
+        "exists": true,
+        "anchor_exists": true
+      }
+    ]
+  },
+  "measurement": {
+    "helper_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/search-companion-sanity-capture.py.txt",
+    "helper_sha256": "c6a7c9b913189f1c50f19e8203ee81a068639b3f51165d349bbe32e769064229",
+    "command": [
+      "python3",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/search-companion-sanity-capture.py.txt",
+      "/workspace/e02-D-published-root",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/search-companion-sanity-census.json"
+    ],
+    "exit_code": 0,
+    "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/search-companion-sanity-census.json",
+    "output_bytes": 70813,
+    "output_sha256": "cb74510b398dcbe8ef48de57f4575832f89804c3968c22216bb506f175f50b5f",
+    "environment": {
+      "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+      "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "optional_numerical_modules_loaded": []
+    },
+    "verification": "Full AST literal export set walk and TOML/JSON/Markdown comparison; source and historical carrier/member hashes; relative links. No product imports or tests."
+  },
+  "structured_refusal_migration": {
+    "record_denominator": 12,
+    "fragment_denominator": 6,
+    "profile_disposition": "Current GP4 and generator wrapperv2 bind original fitted/current rows; GP1–3/wrapperv1 refusal is explicit. Historical GP3/GP26 receipts remain historical. RL requires supported nested state and linear_decay.v1. Pareto1/2 supported versions retain nullable assessment; unknown versions refuse; underflow is unavailable while genuinezero remains computed.",
+    "recovery": "Keep original bytes/refusal. Continue only with original recorded supported implementation/backend, or create a fresh explicitly re-admitted receiver; no version relabeling or invented missing refs. Direct typed nullable CAS profile must set exclude_none=False; ordinary mapping writers are separately measured. No scoped hypervolume→stopping adapter is claimed.",
+    "all_selected_migration_and_runbook_files_exist": true,
+    "policy_scope": "Existing validator requires migration_docs for breaking runtime-state/schema/persisted-artifact classes and runbook_docs specifically for breaking runtime-state. Therefore exact-Pareto persisted-artifact record with migration_docs alone is not a missing-runbook defect.",
+    "fresh_fragment_validator": "UNRUN; source/read-only policy reconciliation only",
+    "complete_record_and_doc_bindings": "search-companion-sanity-census.json#/structured_compatibility_source_review"
+  },
+  "generated_companion_disposition": {
+    "source_current": {
+      "public_inventory_names": "42 exact",
+      "scientist_reference_blocks": "both42 exact",
+      "global_registered_family_rows": 110,
+      "public_inventory_registered_family_rows": 13
+    },
+    "canonical_inventory_owner": "team-architecture",
+    "canonical_inventory_recipe": "uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline",
+    "registered_schema_and_frontend_owners_recipes": "search-companion-sanity-census.json#/generated_companions/selected_registered_families",
+    "limits": "No full generated-artifact, schema catalog/snapshot, OpenAPI/client, frontend type/build/test, hosted CI/site or global architecture completion follows from source-name equality. Existing companion recipes/output evidence remain separately source-qualified."
+  },
+  "quality_owner_dispositions": {
+    "B04": {
+      "historical_verdict": "FAIL9undeclaredreads at243; current fullgate UNRUN",
+      "required_paths": [
+        "params.causal_method_fqn",
+        "params.causal_method_params",
+        "params.enable_causal_refutation",
+        "params.enable_causal_sensitivity",
+        "params.random_seed",
+        "run_id"
+      ],
+      "required_prefixes": [
+        "artifacts_index",
+        "inputs",
+        "params"
+      ],
+      "canonical_source": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py _SPEC.state_reads",
+      "requested_canonical_owner": "Existing Scientist node/state-read declaration owner; this is corrective engineering, not a source-authority appointment",
+      "required_input_or_action": "Reconcile exact actual execute reads and declarations with the canonical node owner; no generic broad prefix declaration or D blueprint-only PASS waiver.",
+      "fresh_recipe": "uv run python tools/quality/diagnostics/check_state_reads.py"
+    },
+    "B19": {
+      "historical_verdict": "FAIL77contracterrors plus6report-only findings at243; current fullgate UNRUN",
+      "contract_categories": {
+        "validation tooling above warning threshold lacks a module-size budget": 53,
+        "validation tooling extraction target date must be today or future": 9,
+        "target_fail_closed_not_before must be today or future": 15
+      },
+      "canonical_sources": [
+        "policy-engine/architecture/module_size_budget.toml",
+        "policy-engine/architecture/gates/report_only.toml"
+      ],
+      "requested_canonical_owners": {
+        "validation_budgets_and_extraction_dates": "team-devx",
+        "module_header_report_only": "team-architecture",
+        "15target_dates": "each exact existing gate owner in census complete_error_subjects; team-architecture/team-release/team-quality"
+      },
+      "required_input_or_action": "53 actual owner/current-line/no-growth/extraction-sequence/target-date budget records;9 genuine accepted extraction-date decisions;15 owned gate promotion/sunset/target decisions. No arbitrary blanket allowance, shifted dates or inherited waiver. Six report-only rows remain report-only, not passed exclusions.",
+      "fresh_recipe": "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size --json-output _build/.tmp/last-mile/module-size.json --fail-on-contract-errors"
+    },
+    "B23": {
+      "historical_verdict": "FAIL10publicationlinkviolations at243; current fullgate UNRUN",
+      "exact_subjects": [
+        "docs/adr/by-topic.md:144,145,146,254 -> ADR0176–0179",
+        "docs/adr/index.md:95,96,97,98 -> ADR0176–0179",
+        "docs/reference/policy-design-case-failure-patterns.md:334 -> excluded author-measurement-instruments.md",
+        "docs/runbooks/migration-release-promotion.md:72 -> ../../ops/migrations/ir/README.md outside published docs"
+      ],
+      "requested_canonical_owner": "Existing linked-document/publication-navigation owners and canonical check_docs_accuracy owner; appointment not invented",
+      "required_input_or_action": "Reconcile exact nav/not_in_nav publication membership for8ADRlinks and measurement-instrumentlink; use accepted published link or inline-code/stableURL for outside-docs migration target.",
+      "fresh_recipe": "uv run --extra docs python tools/quality/validation/check_docs_accuracy.py --repo-root .",
+      "surface_limits": "Publication membership/inline Markdown/literal.yml/reference metadata only; externalURL/runtime/prose/hostedsite/frontend/CI not proven."
+    },
+    "canonical_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/owner-inputs.json",
+    "independent_historical_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/canonical-companions-independent-read-review.json",
+    "full_evidence_and_byte_comparisons": "search-companion-sanity-census.json#/existing_quality_evidence",
+    "hash_label_correction": {
+      "foreign_receipt_field": "canonical-companions-independent-read-review.json#/B19/encoded_bundle/sha256",
+      "declared_value_is_raw_member_hash": "2e6241fe1267ca64582cd1a78542b69048c025694cb1196d5539ce4d6799658a",
+      "actual_gzip_carrier_sha256": "3b43811027e728a29773621628325adedaa4605a229edf6cda18f31cb0893b96",
+      "foreign_author_notified": "/root/numerical_oracle; no foreign receipt edited",
+      "effect": "Evidence remains intact; distinguish carrier hash from decoded raw-member hash."
+    }
+  },
+  "checks": {
+    "diff_check": "git diff --check passed for README implementation",
+    "normal_pre_commit": "lefthook2.1.6 ran; no matching executable files",
+    "normal_pre_push": "lefthook2.1.6 ran; no matching executable files",
+    "new_runtime_or_gate_tests": "NONE; documentation-only correction and read-only source audit"
+  },
+  "remote_implementation_readback": {
+    "ref": "refs/heads/codex/e02-D-published-search",
+    "sha": "93de5462b5fbb239592b6c9edfc7ccfe8ccebd39"
+  },
+  "formal_acceptance_owner": "G; baseline_census owns final integration accounting",
+  "closure_ids": [],
+  "limitations": [
+    "Own hierarchical node is not independently re-reviewed here.",
+    "HistoricalB04/B19/B23 FAILs and their full original outputs stay intact.",
+    "Static availability of generated companions is not execution/producer/authority verification.",
+    "No child public promotion, schema/frontend completion, quality waiver, appointment or automatic migration."
+  ]
+}
